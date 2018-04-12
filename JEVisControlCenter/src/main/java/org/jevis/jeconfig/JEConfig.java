@@ -114,6 +114,14 @@ public class JEConfig extends Application {
      */
     private void initGUI(Stage primaryStage) {
 
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent t) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
+
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
             try {
                 Toolkit xToolkit = Toolkit.getDefaultToolkit();

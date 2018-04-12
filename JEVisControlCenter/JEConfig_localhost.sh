@@ -1,1 +1,0 @@
-/home/ait-user/repos/JEScripts/startscripts/JEConfig_localhost.sh
