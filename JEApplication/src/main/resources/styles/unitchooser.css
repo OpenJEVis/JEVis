@@ -1,0 +1,48 @@
+#prefixup {
+    -fx-background-color: #4B6A8B;
+    -fx-background-radius: 15 0 0 0;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+    -fx-text-alignment: right;
+    -fx-padding: 1 1 1 1;
+    -fx-background-insets: 0 0 1 0;
+}
+
+#prefixdown {
+    -fx-background-color: #4B6A8B;
+    -fx-background-radius: 0 0 0 15;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+    -fx-text-alignment: right;
+    -fx-padding: 1 1 1 1;
+    -fx-background-insets: 0 0 0 0;
+    /*-fx-background-radius: 2px, 2px, 2px, 2px;*/
+    /*-fx-font-size: 18;*/
+}
+
+#prefix {
+    -fx-background-color: #4B6A8B;
+    -fx-background-radius: 0 0 0 0;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+    -fx-text-alignment: right;
+    /*-fx-font-size: 22;*/
+}
+
+#prefixSep {
+    -fx-background-insets: 0;
+}
+
+.combo-box-popup .list-cell {
+    -fx-font-size : 11pt;
+    -fx-text-alignment: right;
+}
+
+
+.combo-box .arrow, .combo-box .arrow-button{
+    -fx-background-color: transparent;
+}
+
+#prefixBox .list-cell {
+    -fx-text-alignment: right;
+}

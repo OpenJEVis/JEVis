@@ -1,0 +1,5 @@
+#!/bin/bash
+
+java -jar ${JEVIS_HOME}/JEWebService/target/JEWebservice.jar ${JEVIS_HOME}/etc/jevis.xml &
+
+

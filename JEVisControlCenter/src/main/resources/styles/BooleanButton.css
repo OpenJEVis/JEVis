@@ -1,0 +1,27 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 27.01.2017, 16:22:26
+    Author     : Benjamin Reich
+*/
+* {
+/*    -fx-background-color: red;*/
+/*    -fx-graphic: url(/icons/1404237042_Error.png);*/
+    -fx-base: #dd8686;
+/*    -fx-background-image: url(/icons/1404237042_Error.png);*/
+/*    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: 15px;*/
+}
+
+*:selected {
+    -fx-base: lightgreen;
+/*    -fx-background-image: url(/icons/1404237035_Valid.png);*/
+/*    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: 15px;*/
+    /*-fx-graphic: url(/icons/1404237035_Valid.png);*/
+}

@@ -1,0 +1,21 @@
+.color-picker {
+-fx-background-color: white; 
+-fx-background-radius: 2; 
+-fx-padding: 0;
+-fx-background-insets: 0, 1;
+}
+
+.color-picker .color-picker-label .text {
+visibility: false;
+}
+
+.color-picker .color-picker-label{
+-fx-scale-x: 1.53;
+-fx-scale-y: 1.53;
+-fx-spacing: 0;
+-fx-padding: 3;
+-fx-border-width: 0;
+ -fx-background-insets: 0, 1;
+ -fx-border-radius: 2;
+}
+

@@ -1,0 +1,235 @@
+/**
+ * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEApplication.
+ *
+ * JEApplication is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation in version 3.
+ *
+ * JEApplication is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEApplication. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEApplication is part of the OpenJEVis project, further project information
+ * are published at <http://www.OpenJEVis.org/>.
+ */
+package org.jevis.application.jevistree;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TreeItem;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisEvent;
+import org.jevis.api.JEVisEventListener;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.application.object.tree.JEVisRootObject;
+
+/**
+ *
+ * @author Florian Simon <florian.simon@envidatec.com>
+ */
+public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
+
+//    final JEVisObject _obj;
+    private boolean _childLoaded = false;
+    private final JEVisTree _tree;
+    public static Logger LOGGER = LogManager.getLogger(JEVisTreeItem.class);
+
+    /**
+     * Consturctor for the Root Item. This them will call getRoot drom teh
+     * Datasource
+     *
+     * @param tree
+     * @param ds
+     * @throws JEVisException
+     */
+    public JEVisTreeItem(JEVisTree tree, JEVisDataSource ds) throws JEVisException {
+//        LOGGER.trace("== init1 for root node==");
+        JEVisObject _obj = new JEVisRootObject(ds);
+        JEVisTreeRow sobj = new JEVisTreeRow(_obj);
+        setValue(sobj);
+
+        _tree = tree;
+
+        _childLoaded = true;
+        for (JEVisObject child : _obj.getChildren()) {
+            final JEVisTreeItem item = new JEVisTreeItem(_tree, child);
+            super.getChildren().add(item);
+        }
+
+        addEventHandler();
+    }
+
+    public JEVisTreeItem(JEVisTree tree, JEVisObject obj) {
+//        LOGGER.trace("== init2 == {}", obj.getID());
+        JEVisTreeRow sobj = new JEVisTreeRow(obj);
+        setValue(sobj);
+        _tree = tree;
+        addEventHandler();
+
+    }
+
+    public JEVisTreeItem(JEVisTree tree, JEVisAttribute att) {
+        JEVisTreeRow sobj = new JEVisTreeRow(att);
+        setValue(sobj);
+        _tree = tree;
+        addEventHandler();
+    }
+
+    private void addEventHandler() {
+        try {
+            getValue().getJEVisObject().addEventListener(new JEVisEventListener() {
+                @Override
+                public void fireEvent(JEVisEvent event) {
+                    switch (event.getType()) {
+                        case OBJECT_DELETE:
+                            if (getParent() != null) {
+                                getParent().getChildren().remove(JEVisTreeItem.this);
+
+                                //WTF how cah gte getValue() null haben
+                                try {
+                                    LOGGER.error("###Delete### Parent: {}", getParent().getValue().getJEVisObject().getName());
+                                    for (JEVisObject child : getParent().getValue().getJEVisObject().getChildren()) {
+                                        LOGGER.error("###Delete### child In DB: {}", child.getName());
+
+                                    }
+                                    for (TreeItem<JEVisTreeRow> child : getParent().getChildren()) {
+                                        LOGGER.error("###Delete### child In Tree: {}", child.getValue().getJEVisObject().getName());
+
+                                    }
+
+                                } catch (Exception ex) {
+                                    LOGGER.catching(ex);
+                                }
+
+                            }
+                            break;
+                        case OBJECT_NEW_CHILD:
+                            LOGGER.error("New Child Event: {}", getValue().getJEVisObject().getID());
+                            Platform.runLater(() -> {
+                                setExpanded(false);
+                                _childLoaded = false;
+                                getChildren();
+
+                                setExpanded(true);
+
+                            });
+                            break;
+                        case OBJECT_UPDATED:
+                            LOGGER.trace("New Update Event: {}", getValue().getJEVisObject().getID());
+                            Platform.runLater(() -> {
+                                JEVisTreeRow oldValue = getValue();
+                                setValue(null);
+                                _childLoaded = false;
+                                getGraphic();
+
+                                setValue(oldValue);
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+            });
+
+        } catch (Exception ex) {
+            LOGGER.catching(ex);
+        }
+    }
+
+    @Override
+    public ObservableList<TreeItem<JEVisTreeRow>> getChildren() {
+
+        if (!_childLoaded) {
+            _childLoaded = true;
+//            super.getChildren().remove(0, super.getChildren().size());
+            super.getChildren().clear();
+            try {
+
+                ViewFilter filter = _tree.getFilter();
+
+                if (getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
+
+                    if (filter.showAttributes()) {
+                        for (JEVisAttribute att : getValue().getJEVisObject().getAttributes()) {
+
+                            if (filter.showAttribute(att)) {
+                                super.getChildren().add(new JEVisTreeItem(_tree, att));
+                            }
+                        }
+                    }
+
+                    List<JEVisTreeItem> treeItems = new ArrayList<>();
+                    
+                    for (JEVisObject child : getValue().getJEVisObject().getChildren()) {
+                        try {
+                            if (filter.showJEvisClass(child.getJEVisClass())) {
+                                treeItems.add(new JEVisTreeItem(_tree, child));
+//                                super.getChildren().add(new JEVisTreeItem(_tree, child));
+                            }
+                        } catch (NullPointerException ex) {
+                            LOGGER.catching(ex);
+                        }
+                    }
+                    super.getChildren().addAll(treeItems);
+
+                }
+
+            } catch (JEVisException ex) {
+                LOGGER.catching(ex);
+            }
+
+            FXCollections.sort(super.getChildren(), new Comparator<TreeItem<JEVisTreeRow>>() {
+                @Override
+                public int compare(TreeItem<JEVisTreeRow> o1, TreeItem<JEVisTreeRow> o2) {
+//                    LOGGER.trace("Comparte: {} to: {}", o1.getValue().getID(), o2.getValue().getID());
+
+                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
+//                    LOGGER.trace("2");
+                        return o1.getValue().getJEVisObject().getName().compareTo(o2.getValue().getJEVisObject().getName());
+                    }
+
+                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
+//                    LOGGER.trace("3");
+                        return -1;
+                    }
+
+                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
+//                    LOGGER.trace("4");
+                        return 1;
+                    }
+
+                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE && o2.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
+//                    LOGGER.trace("5");
+                        return o1.getValue().getJEVisAttribute().getName().compareTo(o2.getValue().getJEVisAttribute().getName());
+                    }
+//                LOGGER.trace("6");
+                    return 0;
+                }
+            });
+        }
+
+        return super.getChildren();
+//        return super.getChildren(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isLeaf() {
+        return getChildren().isEmpty();
+    }
+
+}

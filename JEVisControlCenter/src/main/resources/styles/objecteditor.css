@@ -1,0 +1,88 @@
+
+.titled-pane {
+    -fx-text-fill: #505050;
+   
+    -fx-animated: false;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-insets: 0;
+    -fx-border-insets: 0 2 0 2;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-border-insets: 0;
+    
+}
+
+.titled-pane:focused {
+    /*-fx-effect: dropshadow(three-pass-box, #9F9F9F, 15, 0, 0, 0);*/
+    -fx-text-fill: #1a719c;
+    
+    -fx-animated: false;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;    
+    -fx-padding: 0;
+    -fx-border-insets: 0;
+    -fx-border-insets: 0 2 0 2;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-border-insets: 0;
+}
+
+.titled-pane:focused .content {
+    -fx-padding: 0px;
+    -fx-background-color: #fcfcfc;
+    -fx-background-radius: 0;
+    -fx-border-width: 2 0 2 0;
+    -fx-border-color: #ebebeb;
+    -fx-border-insets: 0;
+    /*-fx-border-color: linear-gradient(to bottom, #f4f4f4, transparent);*/
+    /*-fx-effect: innershadow( gaussian, rgba( 0, 0, 0, 0.5 ), 10, 0, 0, 6 );*/
+}
+
+.titled-pane .content {
+/*    -fx-background-color: #fcfcfc;
+    -fx-padding: 0px;
+    -fx-border-width: 0;
+    -fx-border-color: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent);*/
+
+    -fx-padding: 0px;
+    -fx-background-color: #fcfcfc;
+    -fx-background-radius: 0;
+    -fx-border-width: 2 0 2 0;
+    -fx-border-color: #ebebeb;
+    -fx-border-insets: 0;
+    /*-fx-border-color: linear-gradient(to bottom, #ebebeb, transparent);*/
+
+}
+
+
+.titled-pane > .title  {
+    -fx-background-radius: 0, 0, 0;
+    -fx-font: 14px System;    
+    -fx-background-color: transparent;
+}
+
+.titled-pane:focused > .title  {
+    -fx-background-radius: 0, 0, 0;
+    -fx-font: 14px System;    
+    -fx-background-color: transparent;
+}
+
+
+.titled-pane:focused > .title > .arrow-button .arrow {
+    /* do not highlight the title pane arrow on focus */
+    -fx-background-color: #b8b8b8;
+    -fx-font: 14px System;
+    
+}
+
+.scroll-pane > .viewport {
+   -fx-background-color: transparent;
+}
+
+.scroll-pane {
+   -fx-background-color: transparent;
+}
+
+

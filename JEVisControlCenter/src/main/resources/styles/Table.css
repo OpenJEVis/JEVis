@@ -1,0 +1,8 @@
+.spreadsheet-cell-error {
+    -fx-border-color: red;
+    -fx-border-width: 2;
+}
+
+.spreadsheet-cell-objectId{
+    -fx-background-color:lightgoldenrodyellow;
+}

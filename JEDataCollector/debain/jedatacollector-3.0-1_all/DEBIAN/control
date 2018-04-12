@@ -1,0 +1,15 @@
+Package: jevis-jedc-3.0
+Version: 1.0
+Section: database
+Priority: optional
+Architecture: all
+Depends: openjdk-7-jdk	 
+Installed-Size: 164
+Homepage:  http://openjevis.org
+Maintainer: Florian Simon <florian.simon@envidatec.com>
+Description: The JEDataCollector is part of the JEVis System from OpenJEVis.org.
+ The JEVis system provides you a system solution for the energy monitoring
+ according to the ISO 50001. The JEVis system is specially developed for the
+ analysis(evaluation) of the energy relevant variables. Thanks to the Open
+ Source the JEVis system is completely flexible and meets the individual 
+ requirements.

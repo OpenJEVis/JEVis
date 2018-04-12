@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="trace">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <!--<PatternLayout pattern="[%d{HH:mm:ss} %logger{1}.%M | %L] - %msg%n"/>-->
+            <PatternLayout pattern="[%logger{1}.%M|%L] - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.jevis.api.sql" level="error" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.application" level="error" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.jeconfig" level="error" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.jeapi.ws" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.rest" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.sql.internal" level="error" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <!--
+        <Root level="trace">
+            <AppenderRef ref="Console"/>
+        </Root>
+        -->
+    </Loggers>
+</Configuration>

@@ -1,0 +1,165 @@
+<style type="text/css">
+<!--
+.style1 {
+	font-size: 30px;
+	font-weight: bold;
+}
+.style2 {font-size: 25px}
+.style3 {font-size: 25px; font-weight: bold; }
+-->
+</style>
+<center>
+  <p align="center"><img src="./images_batch_mode/help.jpg"></p>
+  <p align="center">&nbsp;</p>
+  <p align="left" class="style1 style2">Bulk Create</p>
+  <p align="left">	After pushing the button &quot;Bulk Create&quot; a table pop-ups, which enables the user to create one or many objects including their attributes.</p>
+  <p align="left">It is necessary to define an object name, all other attributes can be left empty.</p>
+  <p align="left">After pushing the button on the right down side &quot;Create Structure&quot; the object(s) will be created. </p>
+  <p align="left"><img src="images_batch_mode/img_create_objects.JPG" width="1200" height="645" /></p>
+  <p align="left">&nbsp;</p>
+  <p align="left">The created objects are on the picture red marked.</p>
+  <p align="left"><img src="images_batch_mode/img_object_created.JPG" width="1200" height="647" /></p>
+  <p align="left">&nbsp;</p>
+  <p align="left">It is possible to export / import data from / to Excel Sheets.</p>
+  <p align="left">This can be done simply using copy/paste (ctrl + c ,ctrl + p) functions. </p>
+  <p align="left"><img src="images_batch_mode/copy_to_excel.JPG" width="1200" height="643" /></p>
+  <p align="left">&nbsp;</p>
+  <p align="left"><span class="style3">Bulk Edit </span></p>
+  <p align="left">Bulk Edit button enables the user to rename the object or make changes in the attributes.</p>
+  <p align="left">After applying the necessary changes, pushing the button &quot;Edit Structure&quot; save the changes. </p>
+  <p align="left"><img src="images_batch_mode/img_edit_table.JPG" width="1200" height="645" /></p>
+  <p align="left">&nbsp;</p>
+  <p align="left">In special case of a Data Object :</p>
+  <p align="left">First of all as usual the object will be renamed.</p>
+  <p align="left">After that every coloum will be checked , if there is an input , which does not match the criteria of regarding attribute this area will be marked red.</p>
+  <p align="left">Matching criteria for every column is listed below :</p>
+  <p align="left"><strong>Display/Input Prefixes</strong><!--  		@page { margin: 2cm }  		P { margin-bottom: 0.21cm }  	-->
+  </p>
+  <p align="left">NONE, ZETTA, EXA, PETA,  TERA, GIGA, MEGA, NANO, PICO, KILO, HECTO, DEKA, DECI, CENTI, MILLI,  MICRO, NANOPICO, FEMTO, ATTO, ZEPTO, YOCTO</p>
+  <p align="left"><strong>JEVis units symbols   </strong></p>
+  <p align="left">Here's the link for JEvis unit symbols :
+    <!--  		@page { margin: 2cm }  		P { margin-bottom: 0.21cm }  		A:link { so-language: zxx }  	-->
+    <U><a href="http://www.openjevis.org/projects/openjevis/wiki/Units" target="_top"><span lang="en-US" xml:lang="en-US">http://www.openjevis.org/projects/openjevis/wiki/Units</span></a></U></p>
+  <p align="left"><strong> Display and Input Sample Rate</strong></p>
+  <p align="left"> Durations are represented by the format P[n]M[n]DT[n]H[n]M[n]S or P[n]W as shown to the right. In these representations, the [n] is replaced by the value for each of the date and time</br> elements that follow the [n]. Leading zeros are not required, but the maximum number of digits for each element should be agreed to by the communicating parties. The capital letters </br><em>P</em>, <em>M</em>, <em>W</em>, <em>D</em>, <em>T</em>, <em>H</em>, <em>M</em>, and <em>S</em> are designators for each of the date and time elements and are not replaced.</p>
+  <div align="left">
+    <ul>
+      <li><em>P</em> is the duration designator (historically called &quot;period&quot;) placed at the start of the duration representation.</li>
+      <li><em>M</em> is the month designator that follows the value for the number of months.</li>
+      <li><em>W</em> is the week designator that follows the value for the number of weeks.</li>
+      <li><em>D</em> is the day designator that follows the value for the number of days.</li>
+      <li><em>T</em> is the time designator that precedes the time components of the representation.</li>
+      <li><em>H</em> is the hour designator that follows the value for the number of hours.</li>
+      <li><em>M</em> is the minute designator that follows the value for the number of minutes.</li>
+      <li><em>S</em> is the second designator that follows the value for the number of seconds.</li>
+    </ul>
+  </div>
+  <p align="left">Here are some examples for the Display and Input Sample Rate :</p>
+</center>
+<ul>
+  <li>
+    <div align="left">    PT0S	:: 0 Secound <br />
+    </div>
+  </li>
+  <li>
+    <div align="left">PT15S		:: 15 Secounds <br />
+    </div>
+  </li>
+  <li>
+    <div align="left">PT30M		:: 30 Minutes <br />
+    </div>
+  </li>
+  <li>
+    <div align="left">PT30M15S		:: 30 Minutes 15 Secounds <br />
+    </div>
+  </li>
+  <li>
+    <div align="left">PT24H		:: 24 Hours <br />
+    </div>
+  </li>
+  <li>
+    <div align="left">PT24H30M15S		:: 24 Hours 30 Minutes 15 Secounds <br />
+    </div>
+  </li>
+  <li>
+    <div align="left">P1W		:: 1 Week <br />
+    </div>
+  </li>
+  <li>
+    <div align="left">P1WT24H30M15S		:: 1 Week 24 Hours 30 Minutes 15 Secounds<br />
+    </div>
+  </li>
+  <li>
+    <div align="left">P1M		:: 1 Month <br />
+    </div>
+  </li>
+  <li>
+    <div align="left">P1M1WT24H		:: 1 Month 1 Week 24 Hours <br />
+    </div>
+  </li>
+  <li>
+    <div align="left">P1M1WT24H30M15S		:: 1 Month 1 Week 24 Hours 30 Minutes 15 Secounds    </div>
+  </li>
+</ul>
+<center>
+  <p align="left">&nbsp;</p>
+  <p align="left">To find more information about ISO 8601 standard : <a href="https://en.wikipedia.org/wiki/ISO_8601"> https://en.wikipedia.org/wiki/ISO_8601</a></p>
+  <p align="left">&nbsp;</p>
+  <p align="left"><img src="images_batch_mode/create_data.JPG" width="1200" height="645" /></p>
+  <p align="left">&nbsp;</p>
+  <p align="left">Here are some examples of possible correct inputs. </p>
+</center>
+<p><img src="images_batch_mode/example_input.JPG" width="1200" height="646" />
+<p>
+
+<p><strong>Checkbox value on the table</strong>
+<p>The allowed values  are for a checkbox 0 and 1.<p>0 means it is not selected.
+<p>1 means it is selected.
+<p class="style1">
+<p class="style1">WIZARD 
+
+<p><strong>Structure for a manual setup :</strong></p>
+<p>- Monitored Object Director<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Building<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data Directory<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data Source Directory<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Server<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data Point Directory<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data Point (Attribute : Target, Value Identifier)<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- CSV Parser<br />
+  <br />
+  <strong>Structure for a automated setup :</strong></p>
+<p>- Monitored Object Director<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Building<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data Directory<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data Source Directory<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Server<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data Point Directory<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Data Point (Attribute : Target, Value Identifier)<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- JSON Parser<br />
+  <br />
+<p class="style1">
+<p><img src="images_batch_mode/alert.JPG" width="1200" height="500" />
+<p><img src="images_batch_mode/Main.JPG" width="1200" height="766" />
+<p><img src="images_batch_mode/Manual1.JPG" width="1200" height="660" />
+<p>
+<p class="style2"><strong>Manual Steps : 
+</strong>
+<p><img src="images_batch_mode/Manual2.JPG" width="1200" height="684" />
+<p><img src="images_batch_mode/Manual3.JPG" width="1200" height="695" />
+<p><img src="images_batch_mode/Manual4.JPG" width="1200" height="680" />
+<p><img src="images_batch_mode/Manual5.JPG" width="1200" height="881" />
+<p>
+
+<p class="style3">Automated Steps :
+<p>
+<p><img src="images_batch_mode/A1.JPG" width="1200" height="791" /> 
+<p><img src="images_batch_mode/A2.JPG" width="1200" height="751" />
+<p><img src="images_batch_mode/A3.JPG" width="1200" height="718" />
+<p><img src="images_batch_mode/A4.JPG" width="1200" height="650" />
+
+<p>
+<p>
+<p>

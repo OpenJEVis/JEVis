@@ -1,0 +1,7 @@
+#!/bin/bash
+
+java -Dlog4j.configuration=file:/etc/jevis/log4j.properties \
+     -jar ${JEVIS_HOME}/JEDataProcessor/target/JEDataProcessor.jar \
+     --jevis-config=${JEVIS_HOME}/etc/jevis.xml \
+     --jevis-all
+

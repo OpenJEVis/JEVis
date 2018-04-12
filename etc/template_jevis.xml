@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+    <jevis>
+        <datasource>
+            <class>org.jevis.jeapi.ws.JEVisDataSourceWS</class>
+            <host>http://localhost:8000</host>
+        </datasource>
+    </jevis>
+
+    <authentication>
+        <jevisuser>Sys Admin</jevisuser>
+        <jevispass>jevis</jevispass>    
+    </authentication>
+</configuration>
+
+

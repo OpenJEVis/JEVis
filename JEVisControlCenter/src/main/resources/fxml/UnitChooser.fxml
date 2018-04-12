@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="-1.0" prefHeight="170.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.jevis.jeconfig.tool.UnitChooserControler">
+    <children>
+        <VBox prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <GridPane fx:id="gb" alignment="CENTER" gridLinesVisible="false" maxWidth="-1.0" VBox.vgrow="NEVER">
+                    <children>
+                        <Label maxWidth="-1.0" text="Quantity:" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <GridPane.margin>
+                                <Insets right="15.0" fx:id="x1" />
+                            </GridPane.margin>
+                        </Label>
+                        <ComboBox fx:id="boxQuantity" maxWidth="1.7976931348623157E308" onAction="#handelQuantityEvent" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" />
+            
+            
+                        <Label maxWidth="-1.0" text="Unit:" GridPane.columnIndex="0" GridPane.margin="$x1" GridPane.rowIndex="1" />            
+                        <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                            <children>
+                                <ComboBox fx:id="boxPrefix" maxWidth="-1.0" onAction="#handlePrefixAction" HBox.hgrow="NEVER" />
+                                <ComboBox fx:id="boxUnit" maxWidth="1.7976931348623157E308" onAction="#handleUnitAction" HBox.hgrow="ALWAYS">
+                                    <HBox.margin>
+                                        <Insets left="5.0" />
+                                    </HBox.margin>
+                                </ComboBox>
+                            </children>
+                        </HBox>
+            
+            
+            
+                        <Label maxHeight="-1.0" maxWidth="-1.0" text="Alternativ Symbol:" GridPane.columnIndex="0" GridPane.hgrow="NEVER" GridPane.margin="$x1" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
+                        <TextField id="altPrefix" fx:id="altSymbol" onKeyReleased="#handleAltSymbolAction" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            
+            
+            
+                        <Label maxWidth="-1.0" text="Meaning:" GridPane.columnIndex="0" GridPane.margin="$x1" GridPane.rowIndex="3" />
+                        <ComboBox fx:id="boxMeaning" maxWidth="1.7976931348623157E308" onAction="#handelMeaningAction" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" />
+                        <Label alignment="CENTER" text="Example:" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.rowIndex="4">
+                            <GridPane.margin>
+                                <Insets fx:id="x2" />
+                            </GridPane.margin>
+                        </Label>
+            
+            
+                        <Label id="labelExample" fx:id="example" maxWidth="1.7976931348623157E308" prefWidth="125.0" text="Label" textFill="#7266ff" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.margin="$x2" GridPane.rowIndex="4" GridPane.vgrow="NEVER" />
+            
+                    </children>
+                    <columnConstraints>
+                        <ColumnConstraints halignment="LEFT" hgrow="NEVER" minWidth="10.0" prefWidth="-1.0" />
+                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <padding>
+                        <Insets bottom="5.0" left="15.0" right="15.0" top="15.0" />
+                    </padding>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <VBox.margin>
+                        <Insets fx:id="x3" />
+                    </VBox.margin>
+                </GridPane>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

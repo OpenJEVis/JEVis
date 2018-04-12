@@ -1,0 +1,9 @@
+#!/bin/bash
+
+${JEVIS_HOME}/bin/jecalc.sh > ${JEVIS_LOG}/jecalc.log
+
+
+java -jar ${JEVIS_HOME}/JEAlarm/target/SimpleAlarm.jar --config ${JEVIS_HOME}/etc/jevis.xml -servicemode complete
+
+
+

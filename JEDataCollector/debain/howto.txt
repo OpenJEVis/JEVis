@@ -1,0 +1,9 @@
+# How to build the package
+
+fakeroot dpkg -b jedatacollector-3.0-1_all/ 
+
+
+
+# How to install 
+
+dpkg -i jedatacollector-3.0-1_all.deb

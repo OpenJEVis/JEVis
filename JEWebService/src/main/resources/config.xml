@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- const.xml -->
+<config>
+    <datasource>
+        <url>127.0.0.1</url>
+        <port>8001</port>
+        <login>jevis</login>
+        <password>Voo6gequ7gahpha</password>
+        <schema>jevis</schema>
+    </datasource>
+    <webservice>
+        <port>8080</port>
+        <uri>http://10.1.1.79:8080/</uri>
+        
+        <registration>
+            <root>1</root>
+            <demogroup>1</demogroup>
+            <apikey>UIGDUSG023B)xdh283fß9hbo90</apikey>
+        </registration>
+    </webservice>   
+    
+    
+</config>

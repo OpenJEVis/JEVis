@@ -1,0 +1,250 @@
+
+
+#mainsplitpane{ 
+    -fx-background-color: rgba(0, 100, 100, 0);
+}
+
+#objecteditorpane{   
+    /*-fx-background-color: #E2E2E2;*/
+    -fx-background-color: f4f4f4;
+    
+}
+
+#objecttree{
+    /*-fx-background-color: #E2E2E2;*/
+    -fx-background-color: f4f4f4;
+    /*-fx-background-color: white;*/
+}
+
+
+
+#attributelabel{
+    -fx-text-fill: black; 
+    -fx-font-size: 14;  
+}
+
+/**** neu **/
+.tree-table-view, .table-view{
+-fx-background-color: rgba(0, 100, 100, 0.5);
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * TreeView and TreeCell                                                       *
+ *                                                                             *
+ ******************************************************************************/
+
+.tree-view {
+    -fx-skin: "com.sun.javafx.scene.control.skin.TreeViewSkin";
+    -fx-background-color: -fx-box-border, -fx-control-inner-background;
+    -fx-background-insets: 0, 1;
+
+    /* There is some oddness if padding is in em values rather than pixels,
+       in particular, the left border of the control doesn't show. */
+    -fx-padding: 1; /* 0.083333em; */
+}
+
+.tree-view:focused {
+    -fx-background-color: -fx-focus-color,-fx-box-border,-fx-control-inner-background;
+    -fx-background-insets: -1.4, 0, 1;
+    -fx-background-radius: 1.4, 0, 0;
+
+    /* There is some oddness if padding is in em values rather than pixels,
+       in particular, the left border of the control doesn't show. */
+    -fx-padding: 1; /* 0.083333em; */
+}
+
+.tree-view .scroll-bar:vertical{
+    -fx-background-insets: 0, 0 0 0 1;
+    -fx-padding: 0.0 0.0 0.0 0.0;
+}
+
+.tree-view .scroll-bar:horizontal{
+    -fx-background-insets: 0, 1 0 0 0;
+    -fx-padding: 0.0 0.0 0.0 0.0;
+}
+
+.tree-view:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
+
+.tree-view .corner {
+    -fx-background-color: -fx-box-border, -fx-base;
+    -fx-background-insets: 0, 1 0 0 1;
+}
+
+.tree-cell {
+    -fx-skin: "com.sun.javafx.scene.control.skin.TreeCellSkin";
+    -fx-background-color: -fx-control-inner-background;
+    -fx-padding: 0.25em; /* 3 */
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-indent: 10;
+}
+
+.tree-cell .label {
+    -fx-padding: 0.0em 0.0em 0.0em 0.25em; /* 0 0 0 3 */
+}
+
+
+
+.tree-view:focused .tree-cell:focused {
+    -fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border, -fx-control-inner-background;
+    -fx-background-insets: 0, 1, 2;
+}
+
+.tree-view:focused .tree-cell:filled:focused:selected {
+    -fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border, -fx-selection-bar;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background: -fx-accent;
+    -fx-text-fill: -fx-selection-bar-text;
+}
+
+.tree-view:focused .tree-cell:filled:selected, .tree-view:focused .tree-cell:filled:selected:hover {
+    -fx-background: -fx-accent;
+    -fx-background-color: -fx-selection-bar;
+    -fx-text-fill: -fx-selection-bar-text;
+}
+
+.tree-view:focused .tree-cell:filled:focused:selected:hover {
+    -fx-background: -fx-accent;
+    -fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border, -fx-selection-bar;
+    -fx-background-insets: 0, 1, 2;
+    -fx-text-fill: -fx-selection-bar-text;
+}
+
+/* When the TreeView is _not_ focused, we show alternate selection colors */
+.tree-cell:filled:selected:focused, .tree-cell:filled:selected {
+    -fx-background-color: lightgray;
+    -fx-text-fill: -fx-selection-bar-text;
+}
+
+.tree-cell:filled:selected:focused:disabled, .tree-cell:filled:selected:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
+
+.tree-cell .tree-disclosure-node {
+    /** put a bit of padding around the disclosure node to make the clicking region larger */
+    -fx-padding: 4 2 4 8;
+    -fx-background-color: transparent;
+}
+
+.tree-cell .tree-disclosure-node:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
+
+.tree-cell .tree-disclosure-node .arrow {
+    -fx-background-color: -fx-mark-color;
+    -fx-padding: 0.333333em; /* 4 */
+    -fx-shape: "M 0 -4 L 8 0 L 0 4 z";
+}
+
+.tree-cell:expanded .tree-disclosure-node .arrow {
+    -fx-rotate: 90;
+}
+
+.tree-cell:filled:selected .tree-disclosure-node .arrow {
+    -fx-background-color: -fx-selection-bar-text;
+}
+
+.tree-cell:filled:hover {
+    -fx-background-color: -fx-cell-hover-color;
+    -fx-text-fill: -fx-text-inner-color;
+}
+
+.tree-cell:filled:hover .tree-disclosure-node .arrow {
+    -fx-background-color: -fx-mark-color;
+}
+
+.tree-view:focused .tree-cell:filled:focused:hover {
+    -fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border, -fx-cell-hover-color;
+    -fx-background-insets: 0, 1, 2;
+    -fx-text-fill: -fx-text-inner-color;
+}
+
+.tree-cell:filled:selected:hover .tree-disclosure-node .arrow {
+    -fx-background-color: -fx-selection-bar-text;
+}
+
+
+/*Meine*/
+
+.tree-cell{
+    -fx-background-color: rgba(0, 100, 100, 0);
+}
+
+.tree-cell:filled:selected:focused, .tree-cell:filled:selected {
+    -fx-background-color: lightgray;
+    -fx-text-fill: black;
+}
+
+.tree-cell:filled:selected:default{
+    -fx-background-color: lightgray;
+    -fx-text-fill: black;
+}
+
+
+#watermark{
+    -fx-background-color: null;
+    /*-fx-background-image: url("/org/jevis/jeconfig/image/logo_JEVis_OPEN_Ohne_Schatten_long_v0_10.png");*/
+    /*-fx-background-image: url("/icons/logo_JEVis_OPEN_Ohne_Schatten_long_v0_10.png");*/
+    /*-fx-background-image: url("/icons/logo_coffee_klein.png");*/
+
+    -fx-background-position: right bottom, center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 220 66;
+    -fx-background-insets: 20, 20;
+}
+
+.table-row-cell:empty {
+    -fx-background-color: white;
+}
+
+.table-row-cell:empty .table-cell {
+    -fx-border-width: 0px;
+}
+
+
+.titled-pane > .title 
+{
+    -fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 0 0 0 0, 0 0 0 0, 0 0 0 0;
+    -fx-padding: 0.166667em 0.833333em 0.25em 0.833333em; /* 2 10 3 10 */
+}
+
+.titled-pane > *.content 
+{
+    -fx-background-color: transparent;
+    /*    -fx-background-insets: 0, 0 1 1 1;
+        -fx-padding: 0.167em;*/
+}
+
+.search-box{
+    -fx-background-color: #E2E2E2;
+}
+
+.search-box .text-field {
+    -fx-background-color: white;
+    -fx-background-insets: 1;
+    -fx-background-radius: 15;
+    -fx-padding: -9 5 -11 0;
+    /*    -fx-border-image-source: url("/org/jevis/jeconfig/image/1394564949_search_48.png");
+        -fx-border-image-slice: 12 12 12 22 fill;
+        -fx-border-image-width: 12 12 12 22;
+        -fx-border-image-repeat: stretch; */
+    -fx-font-size: 13px;
+    -fx-prompt-text-fill: grey;
+}
+.search-box .text-field:focused {
+    -fx-background-color: -fx-focus-color, white;
+    -fx-background-insets: -1.4, 1;
+    -fx-background-radius: 14.4;
+}
+.search-box .button {
+    -fx-background-color: null;
+    -fx-background-image: url("/icons/1394564949_search_48.png");
+}
+.search-box .button:hover {
+    -fx-background-image: url("/icons/1394564949_search_48.png");
+}
+

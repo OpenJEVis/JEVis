@@ -1,0 +1,17 @@
+log4j.rootLogger=ALL, A1, FILE
+#The File Appender
+log4j.appender.FILE=org.apache.log4j.RollingFileAppender
+log4j.appender.FILE.Append=true
+log4j.appender.FILE.File=/var/log/JEDatacollector.log
+log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
+log4j.appender.FILE.layout.ConversionPattern=[%d{dd MMM yyyy HH:mm:ss}][%c{2}]: %-10m%n
+
+#The Console Appender
+log4j.appender.A1=org.apache.log4j.ConsoleAppender
+log4j.appender.A1.layout=org.apache.log4j.PatternLayout
+log4j.appender.A1.layout.ConversionPattern=[%d{dd MMM yyyy HH:mm:ss}][%c{2}]: %-10m%n
+
+#Disable CAPI debug
+#log4j.logger.sql.JEVisDataSourceSQL=error
+log4j.logger.org.jevis.api.sql=error
+
