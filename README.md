@@ -1,5 +1,4 @@
-JEVis Core
-========
+# JEVis Core
 
 Core of the JEVis System. JEVis is a system for energy and operational data storage and monitoring.
 
@@ -15,3 +14,37 @@ For more information go to http://openjevis.org/projects/openjevis/wiki/JEConfig
 
 
 ![Screenshot](http://openjevis.org/attachments/download/1262/JEConfig3013.jpg)
+
+
+# Requirements
+
+⋅⋅* MySQL 5.0+
+⋅⋅* Java 8+
+⋅⋅* libreoffice 5+ (for Reports)
+
+# Getting started
+
+Create the database and user.
+
+``` bash
+mysql -u root -p
+mysql> create database jevis;
+mysql> grant all on jevis.* to jevis@localhost identified by 'jevispw';
+```
+
+Clone and Build
+
+``` bash
+git clone https://github.com/OpenJEVis/JEVis.git
+cd JEVis
+mvn package
+```
+
+
+Start the JEVis services.
+``` bash
+*TODO*
+```
+
+Start the UI (JEVisControlCenter)
+*TODO*
