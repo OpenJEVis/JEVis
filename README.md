@@ -18,9 +18,9 @@ For more information go to http://openjevis.org/projects/openjevis/wiki/JEConfig
 
 # Requirements
 
-⋅⋅* MySQL 5.0+
-⋅⋅* Java 8+
-⋅⋅* libreoffice 5+ (for Reports)
+- MySQL 5.0+
+- Java 8+
+- libreoffice 5+ (for Reports)
 
 # Getting started
 
@@ -43,8 +43,8 @@ mvn package
 
 Start the JEVis services.
 ``` bash
-*TODO*
 ```
 
 Start the UI (JEVisControlCenter)
+
 *TODO*
