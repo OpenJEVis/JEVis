@@ -1,8 +1,0 @@
-Server=localhost
-Port=3306
-Schema=jevis
-User=jevis
-PW=jevistest
-JEVisUser=Sys Admin
-JEVisPW=jevis
-
