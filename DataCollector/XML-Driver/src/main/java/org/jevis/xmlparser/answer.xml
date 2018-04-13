@@ -1,0 +1,1510 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://www.loytec.com/wsdl/XMLDL/1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <soap:Body>
+        <LogReadResponse xmlns="http://www.loytec.com/wsdl/XMLDL/1.0/">
+            <ReplyBase logHandle="00/var/lib//dpal/trend-3180.bin"/>
+            <RItemList FirstSeqNum="15614" NumItems="500">
+                <Items ItemIndex="0" SeqNum="15614" Timestamp="2015-08-13T00:15:00">
+                    <Value xsi:type="xsd:float">26.92</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15615" Timestamp="2015-08-13T00:30:00">
+                    <Value xsi:type="xsd:float">26.52</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15616" Timestamp="2015-08-13T00:45:00">
+                    <Value xsi:type="xsd:float">26.46</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15617" Timestamp="2015-08-13T01:00:00">
+                    <Value xsi:type="xsd:float">26.25</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15618" Timestamp="2015-08-13T01:15:00">
+                    <Value xsi:type="xsd:float">25.97</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15619" Timestamp="2015-08-13T01:30:00">
+                    <Value xsi:type="xsd:float">25.88</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15620" Timestamp="2015-08-13T01:45:00">
+                    <Value xsi:type="xsd:float">25.72</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15621" Timestamp="2015-08-13T02:00:00">
+                    <Value xsi:type="xsd:float">25.84</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15622" Timestamp="2015-08-13T02:15:00">
+                    <Value xsi:type="xsd:float">25.86</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15623" Timestamp="2015-08-13T02:30:00">
+                    <Value xsi:type="xsd:float">25.56</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15624" Timestamp="2015-08-13T02:45:00">
+                    <Value xsi:type="xsd:float">25.3</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15625" Timestamp="2015-08-13T03:00:00">
+                    <Value xsi:type="xsd:float">25.21</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15626" Timestamp="2015-08-13T03:15:00">
+                    <Value xsi:type="xsd:float">25.06</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15627" Timestamp="2015-08-13T03:30:00">
+                    <Value xsi:type="xsd:float">24.9</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15628" Timestamp="2015-08-13T03:45:00">
+                    <Value xsi:type="xsd:float">24.86</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15629" Timestamp="2015-08-13T04:00:00">
+                    <Value xsi:type="xsd:float">24.76</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15630" Timestamp="2015-08-13T04:15:00">
+                    <Value xsi:type="xsd:float">24.61</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15631" Timestamp="2015-08-13T04:30:00">
+                    <Value xsi:type="xsd:float">24.49</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15632" Timestamp="2015-08-13T04:45:00">
+                    <Value xsi:type="xsd:float">24.35</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15633" Timestamp="2015-08-13T05:00:00">
+                    <Value xsi:type="xsd:float">24.21</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15634" Timestamp="2015-08-13T05:15:00">
+                    <Value xsi:type="xsd:float">24.13</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15635" Timestamp="2015-08-13T05:30:00">
+                    <Value xsi:type="xsd:float">23.97</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15636" Timestamp="2015-08-13T05:45:00">
+                    <Value xsi:type="xsd:float">24.05</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15637" Timestamp="2015-08-13T06:00:00">
+                    <Value xsi:type="xsd:float">24.1</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15638" Timestamp="2015-08-13T06:15:00">
+                    <Value xsi:type="xsd:float">24.12</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15639" Timestamp="2015-08-13T06:30:00">
+                    <Value xsi:type="xsd:float">24.16</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15640" Timestamp="2015-08-13T06:45:00">
+                    <Value xsi:type="xsd:float">24.36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15641" Timestamp="2015-08-13T07:00:00">
+                    <Value xsi:type="xsd:float">25.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15642" Timestamp="2015-08-13T07:15:00">
+                    <Value xsi:type="xsd:float">26.41</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15643" Timestamp="2015-08-13T07:30:00">
+                    <Value xsi:type="xsd:float">27.31</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15644" Timestamp="2015-08-13T07:45:00">
+                    <Value xsi:type="xsd:float">28.19</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15645" Timestamp="2015-08-13T08:00:00">
+                    <Value xsi:type="xsd:float">28.76</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15646" Timestamp="2015-08-13T08:15:00">
+                    <Value xsi:type="xsd:float">29.76</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15647" Timestamp="2015-08-13T08:30:00">
+                    <Value xsi:type="xsd:float">29.54</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15648" Timestamp="2015-08-13T08:45:00">
+                    <Value xsi:type="xsd:float">30.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15649" Timestamp="2015-08-13T09:00:00">
+                    <Value xsi:type="xsd:float">30.12</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15650" Timestamp="2015-08-13T09:15:00">
+                    <Value xsi:type="xsd:float">30.49</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15651" Timestamp="2015-08-13T09:30:00">
+                    <Value xsi:type="xsd:float">31.29</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15652" Timestamp="2015-08-13T09:45:00">
+                    <Value xsi:type="xsd:float">31.55</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15653" Timestamp="2015-08-13T10:00:00">
+                    <Value xsi:type="xsd:float">32.24</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15654" Timestamp="2015-08-13T10:15:00">
+                    <Value xsi:type="xsd:float">32.78</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15655" Timestamp="2015-08-13T10:30:00">
+                    <Value xsi:type="xsd:float">32.5</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15656" Timestamp="2015-08-13T10:45:00">
+                    <Value xsi:type="xsd:float">33.41</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15657" Timestamp="2015-08-13T11:00:00">
+                    <Value xsi:type="xsd:float">33.49</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15658" Timestamp="2015-08-13T11:15:00">
+                    <Value xsi:type="xsd:float">34.67</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15659" Timestamp="2015-08-13T11:30:00">
+                    <Value xsi:type="xsd:float">34.93</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15660" Timestamp="2015-08-13T11:45:00">
+                    <Value xsi:type="xsd:float">35.08</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15661" Timestamp="2015-08-13T12:00:00">
+                    <Value xsi:type="xsd:float">35.88</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15662" Timestamp="2015-08-13T12:15:00">
+                    <Value xsi:type="xsd:float">37.6</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15663" Timestamp="2015-08-13T12:30:00">
+                    <Value xsi:type="xsd:float">38.06</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15664" Timestamp="2015-08-13T12:45:00">
+                    <Value xsi:type="xsd:float">37.54</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15665" Timestamp="2015-08-13T13:00:00">
+                    <Value xsi:type="xsd:float">37.95</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15666" Timestamp="2015-08-13T13:15:00">
+                    <Value xsi:type="xsd:float">38.64</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15667" Timestamp="2015-08-13T13:30:00">
+                    <Value xsi:type="xsd:float">38.77</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15668" Timestamp="2015-08-13T13:45:00">
+                    <Value xsi:type="xsd:float">39.44</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15669" Timestamp="2015-08-13T14:00:00">
+                    <Value xsi:type="xsd:float">39.94</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15670" Timestamp="2015-08-13T14:15:00">
+                    <Value xsi:type="xsd:float">39.94</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15671" Timestamp="2015-08-13T14:30:00">
+                    <Value xsi:type="xsd:float">40.8</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15672" Timestamp="2015-08-13T14:45:00">
+                    <Value xsi:type="xsd:float">39.57</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15673" Timestamp="2015-08-13T15:00:00">
+                    <Value xsi:type="xsd:float">39.78</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15674" Timestamp="2015-08-13T15:15:00">
+                    <Value xsi:type="xsd:float">38.9</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15675" Timestamp="2015-08-13T15:30:00">
+                    <Value xsi:type="xsd:float">38.9</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15676" Timestamp="2015-08-13T15:45:00">
+                    <Value xsi:type="xsd:float">39.67</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15677" Timestamp="2015-08-13T16:00:00">
+                    <Value xsi:type="xsd:float">39.6</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15678" Timestamp="2015-08-13T16:15:00">
+                    <Value xsi:type="xsd:float">38.63</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15679" Timestamp="2015-08-13T16:30:00">
+                    <Value xsi:type="xsd:float">38.36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15680" Timestamp="2015-08-13T16:45:00">
+                    <Value xsi:type="xsd:float">38.19</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15681" Timestamp="2015-08-13T17:00:00">
+                    <Value xsi:type="xsd:float">38.15</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15682" Timestamp="2015-08-13T17:15:00">
+                    <Value xsi:type="xsd:float">37.61</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15683" Timestamp="2015-08-13T17:30:00">
+                    <Value xsi:type="xsd:float">37.73</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15684" Timestamp="2015-08-13T17:45:00">
+                    <Value xsi:type="xsd:float">37.08</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15685" Timestamp="2015-08-13T18:00:00">
+                    <Value xsi:type="xsd:unsignedInt">36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15686" Timestamp="2015-08-13T18:15:00">
+                    <Value xsi:type="xsd:float">35.61</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15687" Timestamp="2015-08-13T18:30:00">
+                    <Value xsi:type="xsd:float">35.73</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15688" Timestamp="2015-08-13T18:45:00">
+                    <Value xsi:type="xsd:float">35.37</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15689" Timestamp="2015-08-13T19:00:00">
+                    <Value xsi:type="xsd:float">34.96</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15690" Timestamp="2015-08-13T19:15:00">
+                    <Value xsi:type="xsd:float">34.52</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15691" Timestamp="2015-08-13T19:30:00">
+                    <Value xsi:type="xsd:float">34.03</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15692" Timestamp="2015-08-13T19:45:00">
+                    <Value xsi:type="xsd:float">33.42</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15693" Timestamp="2015-08-13T20:00:00">
+                    <Value xsi:type="xsd:float">32.96</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15694" Timestamp="2015-08-13T20:15:00">
+                    <Value xsi:type="xsd:float">32.61</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15695" Timestamp="2015-08-13T20:30:00">
+                    <Value xsi:type="xsd:float">32.29</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15696" Timestamp="2015-08-13T20:45:00">
+                    <Value xsi:type="xsd:float">31.94</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15697" Timestamp="2015-08-13T21:00:00">
+                    <Value xsi:type="xsd:float">31.48</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15698" Timestamp="2015-08-13T21:15:00">
+                    <Value xsi:type="xsd:float">31.13</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15699" Timestamp="2015-08-13T21:30:00">
+                    <Value xsi:type="xsd:float">30.78</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15700" Timestamp="2015-08-13T21:45:00">
+                    <Value xsi:type="xsd:float">30.22</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15701" Timestamp="2015-08-13T22:00:00">
+                    <Value xsi:type="xsd:float">29.57</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15702" Timestamp="2015-08-13T22:15:00">
+                    <Value xsi:type="xsd:float">29.1</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15703" Timestamp="2015-08-13T22:30:00">
+                    <Value xsi:type="xsd:float">28.85</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15704" Timestamp="2015-08-13T22:45:00">
+                    <Value xsi:type="xsd:float">28.66</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15705" Timestamp="2015-08-13T23:00:00">
+                    <Value xsi:type="xsd:float">28.36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15706" Timestamp="2015-08-13T23:15:00">
+                    <Value xsi:type="xsd:float">27.74</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15707" Timestamp="2015-08-13T23:30:00">
+                    <Value xsi:type="xsd:float">27.54</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15708" Timestamp="2015-08-13T23:45:00">
+                    <Value xsi:type="xsd:float">27.43</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15709" Timestamp="2015-08-14T00:00:00">
+                    <Value xsi:type="xsd:float">27.24</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15710" Timestamp="2015-08-14T00:15:00">
+                    <Value xsi:type="xsd:float">27.26</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15711" Timestamp="2015-08-14T00:30:00">
+                    <Value xsi:type="xsd:float">26.93</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15712" Timestamp="2015-08-14T00:45:00">
+                    <Value xsi:type="xsd:float">26.44</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15713" Timestamp="2015-08-14T01:00:00">
+                    <Value xsi:type="xsd:float">26.45</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15714" Timestamp="2015-08-14T01:15:00">
+                    <Value xsi:type="xsd:float">26.53</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15715" Timestamp="2015-08-14T01:30:00">
+                    <Value xsi:type="xsd:float">26.26</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15716" Timestamp="2015-08-14T01:45:00">
+                    <Value xsi:type="xsd:float">26.02</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15717" Timestamp="2015-08-14T02:00:00">
+                    <Value xsi:type="xsd:float">25.87</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15718" Timestamp="2015-08-14T02:15:00">
+                    <Value xsi:type="xsd:float">25.66</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15719" Timestamp="2015-08-14T02:30:00">
+                    <Value xsi:type="xsd:float">25.5</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15720" Timestamp="2015-08-14T02:45:00">
+                    <Value xsi:type="xsd:float">25.29</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15721" Timestamp="2015-08-14T03:00:00">
+                    <Value xsi:type="xsd:float">25.1</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15722" Timestamp="2015-08-14T03:15:00">
+                    <Value xsi:type="xsd:float">24.86</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15723" Timestamp="2015-08-14T03:30:00">
+                    <Value xsi:type="xsd:float">24.75</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15724" Timestamp="2015-08-14T03:45:00">
+                    <Value xsi:type="xsd:float">24.6</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15725" Timestamp="2015-08-14T04:00:00">
+                    <Value xsi:type="xsd:float">24.42</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15726" Timestamp="2015-08-14T04:15:00">
+                    <Value xsi:type="xsd:float">24.39</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15727" Timestamp="2015-08-14T04:30:00">
+                    <Value xsi:type="xsd:float">24.26</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15728" Timestamp="2015-08-14T04:45:00">
+                    <Value xsi:type="xsd:float">24.5</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15729" Timestamp="2015-08-14T05:00:00">
+                    <Value xsi:type="xsd:float">24.88</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15730" Timestamp="2015-08-14T05:15:00">
+                    <Value xsi:type="xsd:float">24.61</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15731" Timestamp="2015-08-14T05:30:00">
+                    <Value xsi:type="xsd:float">24.44</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15732" Timestamp="2015-08-14T05:45:00">
+                    <Value xsi:type="xsd:float">24.14</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15733" Timestamp="2015-08-14T06:00:00">
+                    <Value xsi:type="xsd:float">23.96</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15734" Timestamp="2015-08-14T06:15:00">
+                    <Value xsi:type="xsd:float">24.09</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15735" Timestamp="2015-08-14T06:30:00">
+                    <Value xsi:type="xsd:float">24.28</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15736" Timestamp="2015-08-14T06:45:00">
+                    <Value xsi:type="xsd:float">24.5</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15737" Timestamp="2015-08-14T07:00:00">
+                    <Value xsi:type="xsd:float">25.52</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15738" Timestamp="2015-08-14T07:15:00">
+                    <Value xsi:type="xsd:float">26.4</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15739" Timestamp="2015-08-14T07:30:00">
+                    <Value xsi:type="xsd:float">26.56</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15740" Timestamp="2015-08-14T07:45:00">
+                    <Value xsi:type="xsd:float">26.79</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15741" Timestamp="2015-08-14T08:00:00">
+                    <Value xsi:type="xsd:float">27.39</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15742" Timestamp="2015-08-14T08:15:00">
+                    <Value xsi:type="xsd:float">27.85</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15743" Timestamp="2015-08-14T08:30:00">
+                    <Value xsi:type="xsd:float">28.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15744" Timestamp="2015-08-14T08:45:00">
+                    <Value xsi:type="xsd:float">28.98</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15745" Timestamp="2015-08-14T09:00:00">
+                    <Value xsi:type="xsd:float">29.43</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15746" Timestamp="2015-08-14T09:15:00">
+                    <Value xsi:type="xsd:float">29.8</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15747" Timestamp="2015-08-14T09:30:00">
+                    <Value xsi:type="xsd:float">30.02</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15748" Timestamp="2015-08-14T09:45:00">
+                    <Value xsi:type="xsd:float">30.39</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15749" Timestamp="2015-08-14T10:00:00">
+                    <Value xsi:type="xsd:float">30.45</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15750" Timestamp="2015-08-14T10:15:00">
+                    <Value xsi:type="xsd:float">30.94</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15751" Timestamp="2015-08-14T10:30:00">
+                    <Value xsi:type="xsd:float">31.73</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15752" Timestamp="2015-08-14T10:45:00">
+                    <Value xsi:type="xsd:float">31.96</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15753" Timestamp="2015-08-14T11:00:00">
+                    <Value xsi:type="xsd:float">32.06</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15754" Timestamp="2015-08-14T11:15:00">
+                    <Value xsi:type="xsd:float">32.89</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15755" Timestamp="2015-08-14T11:30:00">
+                    <Value xsi:type="xsd:float">33.42</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15756" Timestamp="2015-08-14T11:45:00">
+                    <Value xsi:type="xsd:float">33.73</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15757" Timestamp="2015-08-14T12:00:00">
+                    <Value xsi:type="xsd:float">34.44</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15758" Timestamp="2015-08-14T12:15:00">
+                    <Value xsi:type="xsd:float">34.98</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15759" Timestamp="2015-08-14T12:30:00">
+                    <Value xsi:type="xsd:float">34.87</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15760" Timestamp="2015-08-14T12:45:00">
+                    <Value xsi:type="xsd:float">35.42</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15761" Timestamp="2015-08-14T13:00:00">
+                    <Value xsi:type="xsd:float">35.11</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15762" Timestamp="2015-08-14T13:15:00">
+                    <Value xsi:type="xsd:float">35.27</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15763" Timestamp="2015-08-14T13:30:00">
+                    <Value xsi:type="xsd:float">35.22</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15764" Timestamp="2015-08-14T13:45:00">
+                    <Value xsi:type="xsd:float">35.48</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15765" Timestamp="2015-08-14T14:00:00">
+                    <Value xsi:type="xsd:float">35.52</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15766" Timestamp="2015-08-14T14:15:00">
+                    <Value xsi:type="xsd:float">36.22</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15767" Timestamp="2015-08-14T14:30:00">
+                    <Value xsi:type="xsd:float">35.29</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15768" Timestamp="2015-08-14T14:45:00">
+                    <Value xsi:type="xsd:float">36.18</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15769" Timestamp="2015-08-14T15:00:00">
+                    <Value xsi:type="xsd:float">34.92</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15770" Timestamp="2015-08-14T15:15:00">
+                    <Value xsi:type="xsd:float">34.7</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15771" Timestamp="2015-08-14T15:30:00">
+                    <Value xsi:type="xsd:float">35.19</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15772" Timestamp="2015-08-14T15:45:00">
+                    <Value xsi:type="xsd:float">36.48</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15773" Timestamp="2015-08-14T16:00:00">
+                    <Value xsi:type="xsd:float">36.39</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15774" Timestamp="2015-08-14T16:15:00">
+                    <Value xsi:type="xsd:float">35.94</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15775" Timestamp="2015-08-14T16:30:00">
+                    <Value xsi:type="xsd:float">36.13</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15776" Timestamp="2015-08-14T16:45:00">
+                    <Value xsi:type="xsd:float">36.37</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15777" Timestamp="2015-08-14T17:00:00">
+                    <Value xsi:type="xsd:float">36.38</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15778" Timestamp="2015-08-14T17:15:00">
+                    <Value xsi:type="xsd:unsignedInt">36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15779" Timestamp="2015-08-14T17:30:00">
+                    <Value xsi:type="xsd:float">35.7</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15780" Timestamp="2015-08-14T17:45:00">
+                    <Value xsi:type="xsd:float">35.74</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15781" Timestamp="2015-08-14T18:00:00">
+                    <Value xsi:type="xsd:float">35.33</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15782" Timestamp="2015-08-14T18:15:00">
+                    <Value xsi:type="xsd:float">35.15</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15783" Timestamp="2015-08-14T18:30:00">
+                    <Value xsi:type="xsd:float">34.72</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15784" Timestamp="2015-08-14T18:45:00">
+                    <Value xsi:type="xsd:float">34.4</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15785" Timestamp="2015-08-14T19:00:00">
+                    <Value xsi:type="xsd:float">34.13</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15786" Timestamp="2015-08-14T19:15:00">
+                    <Value xsi:type="xsd:float">33.87</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15787" Timestamp="2015-08-14T19:30:00">
+                    <Value xsi:type="xsd:float">33.48</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15788" Timestamp="2015-08-14T19:45:00">
+                    <Value xsi:type="xsd:float">33.04</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15789" Timestamp="2015-08-14T20:00:00">
+                    <Value xsi:type="xsd:float">32.44</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15790" Timestamp="2015-08-14T20:15:00">
+                    <Value xsi:type="xsd:float">31.96</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15791" Timestamp="2015-08-14T20:30:00">
+                    <Value xsi:type="xsd:float">31.65</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15792" Timestamp="2015-08-14T20:45:00">
+                    <Value xsi:type="xsd:float">31.28</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15793" Timestamp="2015-08-14T21:00:00">
+                    <Value xsi:type="xsd:float">30.96</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15794" Timestamp="2015-08-14T21:15:00">
+                    <Value xsi:type="xsd:float">30.78</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15795" Timestamp="2015-08-14T21:30:00">
+                    <Value xsi:type="xsd:float">30.57</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15796" Timestamp="2015-08-14T21:45:00">
+                    <Value xsi:type="xsd:float">30.36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15797" Timestamp="2015-08-14T22:00:00">
+                    <Value xsi:type="xsd:float">30.05</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15798" Timestamp="2015-08-14T22:15:00">
+                    <Value xsi:type="xsd:float">29.66</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15799" Timestamp="2015-08-14T22:30:00">
+                    <Value xsi:type="xsd:float">29.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15800" Timestamp="2015-08-14T22:45:00">
+                    <Value xsi:type="xsd:float">28.98</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15801" Timestamp="2015-08-14T23:00:00">
+                    <Value xsi:type="xsd:float">28.8</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15802" Timestamp="2015-08-14T23:15:00">
+                    <Value xsi:type="xsd:float">28.63</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15803" Timestamp="2015-08-14T23:30:00">
+                    <Value xsi:type="xsd:float">28.49</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15804" Timestamp="2015-08-14T23:45:00">
+                    <Value xsi:type="xsd:float">28.28</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15805" Timestamp="2015-08-15T00:00:00">
+                    <Value xsi:type="xsd:float">28.18</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15806" Timestamp="2015-08-15T00:15:00">
+                    <Value xsi:type="xsd:float">28.13</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15807" Timestamp="2015-08-15T00:30:00">
+                    <Value xsi:type="xsd:float">28.19</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15808" Timestamp="2015-08-15T00:45:00">
+                    <Value xsi:type="xsd:float">28.26</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15809" Timestamp="2015-08-15T01:00:00">
+                    <Value xsi:type="xsd:float">28.16</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15810" Timestamp="2015-08-15T01:15:00">
+                    <Value xsi:type="xsd:float">27.98</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15811" Timestamp="2015-08-15T01:30:00">
+                    <Value xsi:type="xsd:float">27.77</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15812" Timestamp="2015-08-15T01:45:00">
+                    <Value xsi:type="xsd:float">27.63</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15813" Timestamp="2015-08-15T02:00:00">
+                    <Value xsi:type="xsd:float">27.17</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15814" Timestamp="2015-08-15T02:15:00">
+                    <Value xsi:type="xsd:float">26.71</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15815" Timestamp="2015-08-15T02:30:00">
+                    <Value xsi:type="xsd:float">26.48</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15816" Timestamp="2015-08-15T02:45:00">
+                    <Value xsi:type="xsd:float">26.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15817" Timestamp="2015-08-15T03:00:00">
+                    <Value xsi:type="xsd:float">26.1</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15818" Timestamp="2015-08-15T03:15:00">
+                    <Value xsi:type="xsd:float">26.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15819" Timestamp="2015-08-15T03:30:00">
+                    <Value xsi:type="xsd:float">26.42</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15820" Timestamp="2015-08-15T03:45:00">
+                    <Value xsi:type="xsd:float">26.34</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15821" Timestamp="2015-08-15T04:00:00">
+                    <Value xsi:type="xsd:float">26.34</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15822" Timestamp="2015-08-15T04:15:00">
+                    <Value xsi:type="xsd:float">26.04</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15823" Timestamp="2015-08-15T04:30:00">
+                    <Value xsi:type="xsd:float">25.44</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15824" Timestamp="2015-08-15T04:45:00">
+                    <Value xsi:type="xsd:float">25.02</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15825" Timestamp="2015-08-15T05:00:00">
+                    <Value xsi:type="xsd:float">25.08</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15826" Timestamp="2015-08-15T05:15:00">
+                    <Value xsi:type="xsd:float">25.35</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15827" Timestamp="2015-08-15T05:30:00">
+                    <Value xsi:type="xsd:float">25.38</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15828" Timestamp="2015-08-15T05:45:00">
+                    <Value xsi:type="xsd:float">25.24</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15829" Timestamp="2015-08-15T06:00:00">
+                    <Value xsi:type="xsd:float">25.15</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15830" Timestamp="2015-08-15T06:15:00">
+                    <Value xsi:type="xsd:float">25.07</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15831" Timestamp="2015-08-15T06:30:00">
+                    <Value xsi:type="xsd:float">24.87</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15832" Timestamp="2015-08-15T06:45:00">
+                    <Value xsi:type="xsd:float">24.66</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15833" Timestamp="2015-08-15T07:00:00">
+                    <Value xsi:type="xsd:float">24.9</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15834" Timestamp="2015-08-15T07:15:00">
+                    <Value xsi:type="xsd:float">25.04</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15835" Timestamp="2015-08-15T07:30:00">
+                    <Value xsi:type="xsd:float">25.01</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15836" Timestamp="2015-08-15T07:45:00">
+                    <Value xsi:type="xsd:float">25.66</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15837" Timestamp="2015-08-15T08:00:00">
+                    <Value xsi:type="xsd:float">25.77</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15838" Timestamp="2015-08-15T08:15:00">
+                    <Value xsi:type="xsd:float">26.03</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15839" Timestamp="2015-08-15T08:30:00">
+                    <Value xsi:type="xsd:float">26.73</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15840" Timestamp="2015-08-15T08:45:00">
+                    <Value xsi:type="xsd:float">26.85</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15841" Timestamp="2015-08-15T09:00:00">
+                    <Value xsi:type="xsd:float">26.62</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15842" Timestamp="2015-08-15T09:15:00">
+                    <Value xsi:type="xsd:float">27.31</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15843" Timestamp="2015-08-15T09:30:00">
+                    <Value xsi:type="xsd:float">28.33</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15844" Timestamp="2015-08-15T09:45:00">
+                    <Value xsi:type="xsd:float">27.84</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15845" Timestamp="2015-08-15T10:00:00">
+                    <Value xsi:type="xsd:float">28.05</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15846" Timestamp="2015-08-15T10:15:00">
+                    <Value xsi:type="xsd:float">28.22</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15847" Timestamp="2015-08-15T10:30:00">
+                    <Value xsi:type="xsd:float">28.17</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15848" Timestamp="2015-08-15T10:45:00">
+                    <Value xsi:type="xsd:float">29.04</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15849" Timestamp="2015-08-15T11:00:00">
+                    <Value xsi:type="xsd:float">29.13</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15850" Timestamp="2015-08-15T11:15:00">
+                    <Value xsi:type="xsd:float">29.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15851" Timestamp="2015-08-15T11:30:00">
+                    <Value xsi:type="xsd:float">29.81</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15852" Timestamp="2015-08-15T11:45:00">
+                    <Value xsi:type="xsd:float">28.76</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15853" Timestamp="2015-08-15T12:00:00">
+                    <Value xsi:type="xsd:float">28.86</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15854" Timestamp="2015-08-15T12:15:00">
+                    <Value xsi:type="xsd:float">30.77</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15855" Timestamp="2015-08-15T12:30:00">
+                    <Value xsi:type="xsd:float">30.68</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15856" Timestamp="2015-08-15T12:45:00">
+                    <Value xsi:type="xsd:float">31.11</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15857" Timestamp="2015-08-15T13:00:00">
+                    <Value xsi:type="xsd:float">31.25</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15858" Timestamp="2015-08-15T13:15:00">
+                    <Value xsi:type="xsd:float">31.54</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15859" Timestamp="2015-08-15T13:30:00">
+                    <Value xsi:type="xsd:float">32.01</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15860" Timestamp="2015-08-15T13:45:00">
+                    <Value xsi:type="xsd:float">32.69</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15861" Timestamp="2015-08-15T14:00:00">
+                    <Value xsi:type="xsd:float">35.03</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15862" Timestamp="2015-08-15T14:15:00">
+                    <Value xsi:type="xsd:float">35.89</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15863" Timestamp="2015-08-15T14:30:00">
+                    <Value xsi:type="xsd:float">36.32</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15864" Timestamp="2015-08-15T14:45:00">
+                    <Value xsi:type="xsd:float">36.21</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15865" Timestamp="2015-08-15T15:00:00">
+                    <Value xsi:type="xsd:float">35.5</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15866" Timestamp="2015-08-15T15:15:00">
+                    <Value xsi:type="xsd:float">34.79</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15867" Timestamp="2015-08-15T15:30:00">
+                    <Value xsi:type="xsd:float">35.86</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15868" Timestamp="2015-08-15T15:45:00">
+                    <Value xsi:type="xsd:float">34.97</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15869" Timestamp="2015-08-15T16:00:00">
+                    <Value xsi:type="xsd:float">36.01</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15870" Timestamp="2015-08-15T16:15:00">
+                    <Value xsi:type="xsd:float">33.21</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15871" Timestamp="2015-08-15T16:30:00">
+                    <Value xsi:type="xsd:float">32.17</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15872" Timestamp="2015-08-15T16:45:00">
+                    <Value xsi:type="xsd:float">31.67</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15873" Timestamp="2015-08-15T17:00:00">
+                    <Value xsi:type="xsd:float">31.27</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15874" Timestamp="2015-08-15T17:15:00">
+                    <Value xsi:type="xsd:float">31.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15875" Timestamp="2015-08-15T17:30:00">
+                    <Value xsi:type="xsd:float">31.22</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15876" Timestamp="2015-08-15T17:45:00">
+                    <Value xsi:type="xsd:float">32.32</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15877" Timestamp="2015-08-15T18:00:00">
+                    <Value xsi:type="xsd:float">32.58</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15878" Timestamp="2015-08-15T18:15:00">
+                    <Value xsi:type="xsd:float">32.82</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15879" Timestamp="2015-08-15T18:30:00">
+                    <Value xsi:type="xsd:float">32.51</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15880" Timestamp="2015-08-15T18:45:00">
+                    <Value xsi:type="xsd:float">31.9</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15881" Timestamp="2015-08-15T19:00:00">
+                    <Value xsi:type="xsd:float">31.8</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15882" Timestamp="2015-08-15T19:15:00">
+                    <Value xsi:type="xsd:float">31.25</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15883" Timestamp="2015-08-15T19:30:00">
+                    <Value xsi:type="xsd:float">31.16</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15884" Timestamp="2015-08-15T19:45:00">
+                    <Value xsi:type="xsd:float">30.85</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15885" Timestamp="2015-08-15T20:00:00">
+                    <Value xsi:type="xsd:float">30.53</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15886" Timestamp="2015-08-15T20:15:00">
+                    <Value xsi:type="xsd:float">30.17</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15887" Timestamp="2015-08-15T20:30:00">
+                    <Value xsi:type="xsd:float">29.78</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15888" Timestamp="2015-08-15T20:45:00">
+                    <Value xsi:type="xsd:float">29.43</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15889" Timestamp="2015-08-15T21:00:00">
+                    <Value xsi:type="xsd:float">29.18</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15890" Timestamp="2015-08-15T21:15:00">
+                    <Value xsi:type="xsd:float">28.64</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15891" Timestamp="2015-08-15T21:30:00">
+                    <Value xsi:type="xsd:float">28.31</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15892" Timestamp="2015-08-15T21:45:00">
+                    <Value xsi:type="xsd:float">27.68</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15893" Timestamp="2015-08-15T22:00:00">
+                    <Value xsi:type="xsd:float">27.03</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15894" Timestamp="2015-08-15T22:15:00">
+                    <Value xsi:type="xsd:float">26.74</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15895" Timestamp="2015-08-15T22:30:00">
+                    <Value xsi:type="xsd:float">26.77</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15896" Timestamp="2015-08-15T22:45:00">
+                    <Value xsi:type="xsd:float">26.63</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15897" Timestamp="2015-08-15T23:00:00">
+                    <Value xsi:type="xsd:float">26.18</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15898" Timestamp="2015-08-15T23:15:00">
+                    <Value xsi:type="xsd:float">26.01</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15899" Timestamp="2015-08-15T23:30:00">
+                    <Value xsi:type="xsd:float">26.02</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15900" Timestamp="2015-08-15T23:45:00">
+                    <Value xsi:type="xsd:float">26.19</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15901" Timestamp="2015-08-16T00:00:00">
+                    <Value xsi:type="xsd:float">26.15</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15902" Timestamp="2015-08-16T00:15:00">
+                    <Value xsi:type="xsd:float">26.09</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15903" Timestamp="2015-08-16T00:30:00">
+                    <Value xsi:type="xsd:float">26.18</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15904" Timestamp="2015-08-16T00:45:00">
+                    <Value xsi:type="xsd:float">26.24</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15905" Timestamp="2015-08-16T01:00:00">
+                    <Value xsi:type="xsd:float">25.53</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15906" Timestamp="2015-08-16T01:15:00">
+                    <Value xsi:type="xsd:float">25.21</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15907" Timestamp="2015-08-16T01:30:00">
+                    <Value xsi:type="xsd:float">24.92</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15908" Timestamp="2015-08-16T01:45:00">
+                    <Value xsi:type="xsd:float">23.84</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15909" Timestamp="2015-08-16T02:00:00">
+                    <Value xsi:type="xsd:float">22.82</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15910" Timestamp="2015-08-16T02:15:00">
+                    <Value xsi:type="xsd:float">22.67</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15911" Timestamp="2015-08-16T02:30:00">
+                    <Value xsi:type="xsd:float">22.82</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15912" Timestamp="2015-08-16T02:45:00">
+                    <Value xsi:type="xsd:float">22.58</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15913" Timestamp="2015-08-16T03:00:00">
+                    <Value xsi:type="xsd:float">22.41</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15914" Timestamp="2015-08-16T03:15:00">
+                    <Value xsi:type="xsd:float">22.29</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15915" Timestamp="2015-08-16T03:30:00">
+                    <Value xsi:type="xsd:float">22.06</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15916" Timestamp="2015-08-16T03:45:00">
+                    <Value xsi:type="xsd:float">21.92</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15917" Timestamp="2015-08-16T04:00:00">
+                    <Value xsi:type="xsd:float">21.86</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15918" Timestamp="2015-08-16T04:15:00">
+                    <Value xsi:type="xsd:float">21.82</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15919" Timestamp="2015-08-16T04:30:00">
+                    <Value xsi:type="xsd:float">21.76</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15920" Timestamp="2015-08-16T04:45:00">
+                    <Value xsi:type="xsd:float">21.57</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15921" Timestamp="2015-08-16T05:00:00">
+                    <Value xsi:type="xsd:float">21.25</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15922" Timestamp="2015-08-16T05:15:00">
+                    <Value xsi:type="xsd:float">21.1</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15923" Timestamp="2015-08-16T05:30:00">
+                    <Value xsi:type="xsd:float">21.08</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15924" Timestamp="2015-08-16T05:45:00">
+                    <Value xsi:type="xsd:float">20.78</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15925" Timestamp="2015-08-16T06:00:00">
+                    <Value xsi:type="xsd:float">20.57</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15926" Timestamp="2015-08-16T06:15:00">
+                    <Value xsi:type="xsd:float">20.71</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15927" Timestamp="2015-08-16T06:30:00">
+                    <Value xsi:type="xsd:float">20.95</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15928" Timestamp="2015-08-16T06:45:00">
+                    <Value xsi:type="xsd:float">21.13</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15929" Timestamp="2015-08-16T07:00:00">
+                    <Value xsi:type="xsd:float">21.27</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15930" Timestamp="2015-08-16T07:15:00">
+                    <Value xsi:type="xsd:float">21.52</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15931" Timestamp="2015-08-16T07:30:00">
+                    <Value xsi:type="xsd:float">21.8</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15932" Timestamp="2015-08-16T07:45:00">
+                    <Value xsi:type="xsd:float">21.93</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15933" Timestamp="2015-08-16T08:00:00">
+                    <Value xsi:type="xsd:float">22.04</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15934" Timestamp="2015-08-16T08:15:00">
+                    <Value xsi:type="xsd:float">22.59</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15935" Timestamp="2015-08-16T08:30:00">
+                    <Value xsi:type="xsd:float">22.97</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15936" Timestamp="2015-08-16T08:45:00">
+                    <Value xsi:type="xsd:float">23.22</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15937" Timestamp="2015-08-16T09:00:00">
+                    <Value xsi:type="xsd:float">23.57</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15938" Timestamp="2015-08-16T09:15:00">
+                    <Value xsi:type="xsd:float">24.51</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15939" Timestamp="2015-08-16T09:30:00">
+                    <Value xsi:type="xsd:unsignedInt">25</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15940" Timestamp="2015-08-16T09:45:00">
+                    <Value xsi:type="xsd:float">25.21</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15941" Timestamp="2015-08-16T10:00:00">
+                    <Value xsi:type="xsd:float">25.92</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15942" Timestamp="2015-08-16T10:15:00">
+                    <Value xsi:type="xsd:float">26.47</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15943" Timestamp="2015-08-16T10:30:00">
+                    <Value xsi:type="xsd:float">27.81</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15944" Timestamp="2015-08-16T10:45:00">
+                    <Value xsi:type="xsd:float">27.99</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15945" Timestamp="2015-08-16T11:00:00">
+                    <Value xsi:type="xsd:float">29.34</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15946" Timestamp="2015-08-16T11:15:00">
+                    <Value xsi:type="xsd:float">29.52</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15947" Timestamp="2015-08-16T11:30:00">
+                    <Value xsi:type="xsd:float">29.95</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15948" Timestamp="2015-08-16T11:45:00">
+                    <Value xsi:type="xsd:float">29.78</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15949" Timestamp="2015-08-16T12:00:00">
+                    <Value xsi:type="xsd:float">31.38</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15950" Timestamp="2015-08-16T12:15:00">
+                    <Value xsi:type="xsd:float">31.69</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15951" Timestamp="2015-08-16T12:30:00">
+                    <Value xsi:type="xsd:float">31.74</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15952" Timestamp="2015-08-16T12:45:00">
+                    <Value xsi:type="xsd:float">31.32</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15953" Timestamp="2015-08-16T13:00:00">
+                    <Value xsi:type="xsd:float">30.59</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15954" Timestamp="2015-08-16T13:15:00">
+                    <Value xsi:type="xsd:float">29.77</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15955" Timestamp="2015-08-16T13:30:00">
+                    <Value xsi:type="xsd:float">30.37</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15956" Timestamp="2015-08-16T13:45:00">
+                    <Value xsi:type="xsd:float">30.72</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15957" Timestamp="2015-08-16T14:00:00">
+                    <Value xsi:type="xsd:float">33.18</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15958" Timestamp="2015-08-16T14:15:00">
+                    <Value xsi:type="xsd:float">32.85</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15959" Timestamp="2015-08-16T14:30:00">
+                    <Value xsi:type="xsd:float">32.75</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15960" Timestamp="2015-08-16T14:45:00">
+                    <Value xsi:type="xsd:float">32.94</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15961" Timestamp="2015-08-16T15:00:00">
+                    <Value xsi:type="xsd:float">33.55</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15962" Timestamp="2015-08-16T15:15:00">
+                    <Value xsi:type="xsd:float">33.12</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15963" Timestamp="2015-08-16T15:30:00">
+                    <Value xsi:type="xsd:float">31.91</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15964" Timestamp="2015-08-16T15:45:00">
+                    <Value xsi:type="xsd:float">32.94</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15965" Timestamp="2015-08-16T16:00:00">
+                    <Value xsi:type="xsd:float">31.9</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15966" Timestamp="2015-08-16T16:15:00">
+                    <Value xsi:type="xsd:float">32.11</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15967" Timestamp="2015-08-16T16:30:00">
+                    <Value xsi:type="xsd:float">32.16</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15968" Timestamp="2015-08-16T16:45:00">
+                    <Value xsi:type="xsd:float">32.21</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15969" Timestamp="2015-08-16T17:00:00">
+                    <Value xsi:type="xsd:float">32.18</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15970" Timestamp="2015-08-16T17:15:00">
+                    <Value xsi:type="xsd:float">31.08</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15971" Timestamp="2015-08-16T17:30:00">
+                    <Value xsi:type="xsd:float">29.92</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15972" Timestamp="2015-08-16T17:45:00">
+                    <Value xsi:type="xsd:float">29.42</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15973" Timestamp="2015-08-16T18:00:00">
+                    <Value xsi:type="xsd:float">29.11</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15974" Timestamp="2015-08-16T18:15:00">
+                    <Value xsi:type="xsd:float">28.15</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15975" Timestamp="2015-08-16T18:30:00">
+                    <Value xsi:type="xsd:float">27.5</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15976" Timestamp="2015-08-16T18:45:00">
+                    <Value xsi:type="xsd:float">26.68</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15977" Timestamp="2015-08-16T19:00:00">
+                    <Value xsi:type="xsd:float">25.88</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15978" Timestamp="2015-08-16T19:15:00">
+                    <Value xsi:type="xsd:float">25.31</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15979" Timestamp="2015-08-16T19:30:00">
+                    <Value xsi:type="xsd:float">24.86</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15980" Timestamp="2015-08-16T19:45:00">
+                    <Value xsi:type="xsd:float">24.46</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15981" Timestamp="2015-08-16T20:00:00">
+                    <Value xsi:type="xsd:float">24.21</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15982" Timestamp="2015-08-16T20:15:00">
+                    <Value xsi:type="xsd:float">23.94</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15983" Timestamp="2015-08-16T20:30:00">
+                    <Value xsi:type="xsd:float">23.76</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15984" Timestamp="2015-08-16T20:45:00">
+                    <Value xsi:type="xsd:float">23.41</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15985" Timestamp="2015-08-16T21:00:00">
+                    <Value xsi:type="xsd:float">23.24</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15986" Timestamp="2015-08-16T21:15:00">
+                    <Value xsi:type="xsd:float">22.9</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15987" Timestamp="2015-08-16T21:30:00">
+                    <Value xsi:type="xsd:float">22.64</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15988" Timestamp="2015-08-16T21:45:00">
+                    <Value xsi:type="xsd:float">22.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15989" Timestamp="2015-08-16T22:00:00">
+                    <Value xsi:type="xsd:float">21.66</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15990" Timestamp="2015-08-16T22:15:00">
+                    <Value xsi:type="xsd:float">21.39</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15991" Timestamp="2015-08-16T22:30:00">
+                    <Value xsi:type="xsd:float">21.4</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15992" Timestamp="2015-08-16T22:45:00">
+                    <Value xsi:type="xsd:float">21.05</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15993" Timestamp="2015-08-16T23:00:00">
+                    <Value xsi:type="xsd:float">20.7</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15994" Timestamp="2015-08-16T23:15:00">
+                    <Value xsi:type="xsd:float">20.91</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15995" Timestamp="2015-08-16T23:30:00">
+                    <Value xsi:type="xsd:float">21.24</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15996" Timestamp="2015-08-16T23:45:00">
+                    <Value xsi:type="xsd:float">20.69</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15997" Timestamp="2015-08-17T00:00:00">
+                    <Value xsi:type="xsd:float">20.56</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15998" Timestamp="2015-08-17T00:15:00">
+                    <Value xsi:type="xsd:float">20.21</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="15999" Timestamp="2015-08-17T00:30:00">
+                    <Value xsi:type="xsd:float">19.98</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16000" Timestamp="2015-08-17T00:45:00">
+                    <Value xsi:type="xsd:float">20.14</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16001" Timestamp="2015-08-17T01:00:00">
+                    <Value xsi:type="xsd:float">19.73</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16002" Timestamp="2015-08-17T01:15:00">
+                    <Value xsi:type="xsd:float">19.36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16003" Timestamp="2015-08-17T01:30:00">
+                    <Value xsi:type="xsd:float">19.28</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16004" Timestamp="2015-08-17T01:45:00">
+                    <Value xsi:type="xsd:float">19.22</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16005" Timestamp="2015-08-17T02:00:00">
+                    <Value xsi:type="xsd:float">19.15</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16006" Timestamp="2015-08-17T02:15:00">
+                    <Value xsi:type="xsd:float">19.22</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16007" Timestamp="2015-08-17T02:30:00">
+                    <Value xsi:type="xsd:float">19.31</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16008" Timestamp="2015-08-17T02:45:00">
+                    <Value xsi:type="xsd:float">18.62</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16009" Timestamp="2015-08-17T03:00:00">
+                    <Value xsi:type="xsd:float">18.53</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16010" Timestamp="2015-08-17T03:15:00">
+                    <Value xsi:type="xsd:float">18.44</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16011" Timestamp="2015-08-17T03:30:00">
+                    <Value xsi:type="xsd:float">18.36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16012" Timestamp="2015-08-17T03:45:00">
+                    <Value xsi:type="xsd:float">18.28</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16013" Timestamp="2015-08-17T04:00:00">
+                    <Value xsi:type="xsd:float">18.31</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16014" Timestamp="2015-08-17T04:15:00">
+                    <Value xsi:type="xsd:float">18.38</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16015" Timestamp="2015-08-17T04:30:00">
+                    <Value xsi:type="xsd:float">18.52</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16016" Timestamp="2015-08-17T04:45:00">
+                    <Value xsi:type="xsd:float">18.56</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16017" Timestamp="2015-08-17T05:00:00">
+                    <Value xsi:type="xsd:float">18.56</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16018" Timestamp="2015-08-17T05:15:00">
+                    <Value xsi:type="xsd:float">18.57</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16019" Timestamp="2015-08-17T05:30:00">
+                    <Value xsi:type="xsd:float">18.62</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16020" Timestamp="2015-08-17T05:45:00">
+                    <Value xsi:type="xsd:float">18.63</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16021" Timestamp="2015-08-17T06:00:00">
+                    <Value xsi:type="xsd:float">18.72</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16022" Timestamp="2015-08-17T06:15:00">
+                    <Value xsi:type="xsd:float">18.8</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16023" Timestamp="2015-08-17T06:30:00">
+                    <Value xsi:type="xsd:float">18.04</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16024" Timestamp="2015-08-17T06:45:00">
+                    <Value xsi:type="xsd:float">18.11</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16025" Timestamp="2015-08-17T07:00:00">
+                    <Value xsi:type="xsd:float">18.27</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16026" Timestamp="2015-08-17T07:15:00">
+                    <Value xsi:type="xsd:float">18.1</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16027" Timestamp="2015-08-17T07:30:00">
+                    <Value xsi:type="xsd:float">18.06</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16028" Timestamp="2015-08-17T07:45:00">
+                    <Value xsi:type="xsd:float">18.05</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16029" Timestamp="2015-08-17T08:00:00">
+                    <Value xsi:type="xsd:float">18.07</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16030" Timestamp="2015-08-17T08:15:00">
+                    <Value xsi:type="xsd:float">18.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16031" Timestamp="2015-08-17T08:30:00">
+                    <Value xsi:type="xsd:float">18.32</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16032" Timestamp="2015-08-17T08:45:00">
+                    <Value xsi:type="xsd:float">18.39</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16033" Timestamp="2015-08-17T09:00:00">
+                    <Value xsi:type="xsd:float">18.36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16034" Timestamp="2015-08-17T09:15:00">
+                    <Value xsi:type="xsd:float">18.16</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16035" Timestamp="2015-08-17T09:30:00">
+                    <Value xsi:type="xsd:float">18.25</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16036" Timestamp="2015-08-17T09:45:00">
+                    <Value xsi:type="xsd:float">18.39</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16037" Timestamp="2015-08-17T10:00:00">
+                    <Value xsi:type="xsd:float">18.41</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16038" Timestamp="2015-08-17T10:15:00">
+                    <Value xsi:type="xsd:float">18.66</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16039" Timestamp="2015-08-17T10:30:00">
+                    <Value xsi:type="xsd:float">18.82</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16040" Timestamp="2015-08-17T10:45:00">
+                    <Value xsi:type="xsd:float">19.1</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16041" Timestamp="2015-08-17T11:00:00">
+                    <Value xsi:type="xsd:float">19.53</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16042" Timestamp="2015-08-17T11:15:00">
+                    <Value xsi:type="xsd:float">19.73</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16043" Timestamp="2015-08-17T11:30:00">
+                    <Value xsi:type="xsd:float">19.7</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16044" Timestamp="2015-08-17T11:45:00">
+                    <Value xsi:type="xsd:float">19.87</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16045" Timestamp="2015-08-17T12:00:00">
+                    <Value xsi:type="xsd:float">19.77</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16046" Timestamp="2015-08-17T12:15:00">
+                    <Value xsi:type="xsd:float">19.84</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16047" Timestamp="2015-08-17T12:30:00">
+                    <Value xsi:type="xsd:float">20.09</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16048" Timestamp="2015-08-17T12:45:00">
+                    <Value xsi:type="xsd:float">20.2</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16049" Timestamp="2015-08-17T13:00:00">
+                    <Value xsi:type="xsd:float">20.1</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16050" Timestamp="2015-08-17T13:15:00">
+                    <Value xsi:type="xsd:float">20.14</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16051" Timestamp="2015-08-17T13:30:00">
+                    <Value xsi:type="xsd:float">20.15</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16052" Timestamp="2015-08-17T13:45:00">
+                    <Value xsi:type="xsd:float">20.01</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16053" Timestamp="2015-08-17T14:00:00">
+                    <Value xsi:type="xsd:float">20.07</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16054" Timestamp="2015-08-17T14:15:00">
+                    <Value xsi:type="xsd:float">20.12</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16055" Timestamp="2015-08-17T14:30:00">
+                    <Value xsi:type="xsd:float">20.18</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16056" Timestamp="2015-08-17T14:45:00">
+                    <Value xsi:type="xsd:float">20.66</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16057" Timestamp="2015-08-17T15:00:00">
+                    <Value xsi:type="xsd:float">21.59</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16058" Timestamp="2015-08-17T15:15:00">
+                    <Value xsi:type="xsd:float">22.36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16059" Timestamp="2015-08-17T15:30:00">
+                    <Value xsi:type="xsd:float">22.05</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16060" Timestamp="2015-08-17T15:45:00">
+                    <Value xsi:type="xsd:float">22.7</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16061" Timestamp="2015-08-17T16:00:00">
+                    <Value xsi:type="xsd:float">22.01</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16062" Timestamp="2015-08-17T16:15:00">
+                    <Value xsi:type="xsd:float">21.47</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16063" Timestamp="2015-08-17T16:30:00">
+                    <Value xsi:type="xsd:float">21.14</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16064" Timestamp="2015-08-17T16:45:00">
+                    <Value xsi:type="xsd:float">20.94</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16065" Timestamp="2015-08-17T17:00:00">
+                    <Value xsi:type="xsd:float">20.87</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16066" Timestamp="2015-08-17T17:15:00">
+                    <Value xsi:type="xsd:float">20.79</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16067" Timestamp="2015-08-17T17:30:00">
+                    <Value xsi:type="xsd:float">20.57</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16068" Timestamp="2015-08-17T17:45:00">
+                    <Value xsi:type="xsd:float">20.25</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16069" Timestamp="2015-08-17T18:00:00">
+                    <Value xsi:type="xsd:float">20.12</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16070" Timestamp="2015-08-17T18:15:00">
+                    <Value xsi:type="xsd:float">20.37</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16071" Timestamp="2015-08-17T18:30:00">
+                    <Value xsi:type="xsd:float">20.59</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16072" Timestamp="2015-08-17T18:45:00">
+                    <Value xsi:type="xsd:float">20.28</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16073" Timestamp="2015-08-17T19:00:00">
+                    <Value xsi:type="xsd:float">19.93</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16074" Timestamp="2015-08-17T19:15:00">
+                    <Value xsi:type="xsd:float">19.69</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16075" Timestamp="2015-08-17T19:30:00">
+                    <Value xsi:type="xsd:float">19.56</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16076" Timestamp="2015-08-17T19:45:00">
+                    <Value xsi:type="xsd:float">19.42</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16077" Timestamp="2015-08-17T20:00:00">
+                    <Value xsi:type="xsd:float">19.28</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16078" Timestamp="2015-08-17T20:15:00">
+                    <Value xsi:type="xsd:float">19.23</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16079" Timestamp="2015-08-17T20:30:00">
+                    <Value xsi:type="xsd:float">19.08</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16080" Timestamp="2015-08-17T20:45:00">
+                    <Value xsi:type="xsd:float">18.9</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16081" Timestamp="2015-08-17T21:00:00">
+                    <Value xsi:type="xsd:float">18.55</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16082" Timestamp="2015-08-17T21:15:00">
+                    <Value xsi:type="xsd:float">18.11</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16083" Timestamp="2015-08-17T21:30:00">
+                    <Value xsi:type="xsd:float">17.77</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16084" Timestamp="2015-08-17T21:45:00">
+                    <Value xsi:type="xsd:float">17.63</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16085" Timestamp="2015-08-17T22:00:00">
+                    <Value xsi:type="xsd:float">17.65</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16086" Timestamp="2015-08-17T22:15:00">
+                    <Value xsi:type="xsd:float">17.59</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16087" Timestamp="2015-08-17T22:30:00">
+                    <Value xsi:type="xsd:float">17.63</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16088" Timestamp="2015-08-17T22:45:00">
+                    <Value xsi:type="xsd:float">17.67</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16089" Timestamp="2015-08-17T23:00:00">
+                    <Value xsi:type="xsd:float">17.65</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16090" Timestamp="2015-08-17T23:15:00">
+                    <Value xsi:type="xsd:float">17.68</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16091" Timestamp="2015-08-17T23:30:00">
+                    <Value xsi:type="xsd:float">17.73</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16092" Timestamp="2015-08-17T23:45:00">
+                    <Value xsi:type="xsd:float">17.74</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16093" Timestamp="2015-08-18T00:00:00">
+                    <Value xsi:type="xsd:float">17.74</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16094" Timestamp="2015-08-18T00:15:00">
+                    <Value xsi:type="xsd:float">17.78</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16095" Timestamp="2015-08-18T00:30:00">
+                    <Value xsi:type="xsd:float">17.8</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16096" Timestamp="2015-08-18T00:45:00">
+                    <Value xsi:type="xsd:float">17.85</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16097" Timestamp="2015-08-18T01:00:00">
+                    <Value xsi:type="xsd:float">17.84</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16098" Timestamp="2015-08-18T01:15:00">
+                    <Value xsi:type="xsd:float">17.64</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16099" Timestamp="2015-08-18T01:30:00">
+                    <Value xsi:type="xsd:float">17.36</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16100" Timestamp="2015-08-18T01:45:00">
+                    <Value xsi:type="xsd:float">17.25</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16101" Timestamp="2015-08-18T02:00:00">
+                    <Value xsi:type="xsd:float">17.1</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16102" Timestamp="2015-08-18T02:15:00">
+                    <Value xsi:type="xsd:unsignedInt">17</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16103" Timestamp="2015-08-18T02:30:00">
+                    <Value xsi:type="xsd:float">16.99</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16104" Timestamp="2015-08-18T02:45:00">
+                    <Value xsi:type="xsd:float">16.97</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16105" Timestamp="2015-08-18T03:00:00">
+                    <Value xsi:type="xsd:float">16.93</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16106" Timestamp="2015-08-18T03:15:00">
+                    <Value xsi:type="xsd:float">16.87</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16107" Timestamp="2015-08-18T03:30:00">
+                    <Value xsi:type="xsd:float">16.84</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16108" Timestamp="2015-08-18T03:45:00">
+                    <Value xsi:type="xsd:float">16.82</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16109" Timestamp="2015-08-18T04:00:00">
+                    <Value xsi:type="xsd:float">16.77</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16110" Timestamp="2015-08-18T04:15:00">
+                    <Value xsi:type="xsd:float">16.68</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16111" Timestamp="2015-08-18T04:30:00">
+                    <Value xsi:type="xsd:float">16.54</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16112" Timestamp="2015-08-18T04:45:00">
+                    <Value xsi:type="xsd:float">16.44</Value>
+                </Items>
+                <Items ItemIndex="0" SeqNum="16113" Timestamp="2015-08-18T05:00:00">
+                    <Value xsi:type="xsd:float">16.43</Value>
+                </Items>
+            </RItemList>
+        </LogReadResponse>
+    </soap:Body>
+</soap:Envelope>
+
