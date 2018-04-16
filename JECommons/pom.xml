@@ -94,7 +94,7 @@
         <dependency>
             <groupId>org.jevis.api</groupId>
             <artifactId>jeapi</artifactId>
-            <version>3.0.1</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
