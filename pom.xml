@@ -19,7 +19,6 @@
         <module>mysqldb</module>
         <module>JEWebService</module>
         <module>JEVisControlCenter/</module>
-        <module>JEAlarm</module>
         <module>DataCollector</module>
         <module>JECalc</module>
     </modules>

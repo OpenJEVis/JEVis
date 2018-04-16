@@ -75,9 +75,9 @@
     <orderEntry type="library" name="Maven: org.glassfish.hk2:hk2-locator:2.2.0" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" name="Maven: org.jvnet.mimepull:mimepull:1.9.3" level="project" />
-    <orderEntry type="library" name="Maven: org.jfxtras:jfxtras-controls:8.0-r6-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.jfxtras:jfxtras-common:8.0-r6-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.jfxtras:jfxtras-fxml:8.0-r6-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.jfxtras:jfxtras-controls:8.0-r5" level="project" />
+    <orderEntry type="library" name="Maven: org.jfxtras:jfxtras-common:8.0-r5" level="project" />
+    <orderEntry type="library" name="Maven: org.jfxtras:jfxtras-fxml:8.0-r5" level="project" />
     <orderEntry type="library" name="Maven: com.jfoenix:jfoenix:9.0.1" level="project" />
   </component>
 </module>

@@ -177,7 +177,7 @@
         <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jfxtras-controls</artifactId>
-            <version>8.0-r6-SNAPSHOT</version>
+            <version>8.0-r5</version>
             <type>jar</type>
         </dependency>
         <dependency>
