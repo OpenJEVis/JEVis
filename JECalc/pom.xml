@@ -44,7 +44,7 @@
         <dependency>
             <groupId>org.jevis</groupId>
             <artifactId>JEAPI-WS</artifactId>
-            <version>1.0</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.commons</groupId>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>org.jevis.application</groupId>
             <artifactId>jeapplication</artifactId>
-            <version>3.0.0</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

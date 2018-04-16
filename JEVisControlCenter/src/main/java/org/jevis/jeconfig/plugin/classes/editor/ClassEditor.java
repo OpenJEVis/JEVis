@@ -62,10 +62,6 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisEvent;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
-import org.jevis.api.sql.JEVisClassSQL;
-import org.jevis.application.cache.CacheEvent;
-import org.jevis.application.cache.CacheObjectEvent;
-import org.jevis.application.cache.Cached;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.type.DisplayType;
 import org.jevis.application.type.GUIConstants;
@@ -95,7 +91,7 @@ public class ClassEditor {
     TextArea fDescription = new TextArea();
     CheckBox fUnique = new CheckBox();
     private ClassTree _tree = null;
-    public static Logger logger = LogManager.getLogger(JEVisClassSQL.class);
+    public static Logger logger = LogManager.getLogger(ClassEditor.class);
 
     public ClassEditor() {
         _view = new VBox();

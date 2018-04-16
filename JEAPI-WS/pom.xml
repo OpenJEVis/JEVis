@@ -40,12 +40,12 @@
         <dependency>
             <groupId>org.jevis.api</groupId>
             <artifactId>jeapi</artifactId>
-            <version>3.0.1</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.commons</groupId>
             <artifactId>JECommons</artifactId>
-            <version>3.0</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

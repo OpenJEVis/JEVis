@@ -71,12 +71,12 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
-import org.jevis.api.sql.JEVisDataSourceSQL;
 import org.jevis.application.resource.ResourceLoader;
 
 /**
  * Simple Login Dialog. This will be replaced if the real one is working
  *
+ * @deprecated Replaced by FXLogin
  * @author fs
  */
 public class LoginDialog {
@@ -84,7 +84,7 @@ public class LoginDialog {
     //https://www.iconfinder.com/icons/54330/login_icon#size=32
     //public static String ICON_LOGIN = "1401219513_login.png";
     public static String ICON_LOGIN = "1401219513_login.png";
-    private JEVisDataSourceSQL ds;
+    private JEVisDataSource ds;
     private final Button ok = new Button("Login");
     private final Button cancel = new Button("Cancel");
     private final PasswordField passwordF = new PasswordField();
@@ -435,37 +435,7 @@ public class LoginDialog {
 //                        + "' dbpw: '" + dbpw + "' jevisuser: '"
 //                        + jevisUser + "' jevispw: '" + jevisPW + "'");
 
-                if (para.size() >= 5) {
-                    try {
 
-                        ds = new JEVisDataSourceSQL(server, port, schema, dbuser, dbpw);
-                        ds.enableSSL(ssl);
-
-                        if (ds.connect(jevisUser, jevisPW)) {
-                            Platform.runLater(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    if (storeConfig.isSelected()) {
-                                        storePreference();
-                                    }
-                                    stage.close();
-                                }
-                            });
-
-                        } else {
-                            waitEnd();
-                        }
-
-                    } catch (JEVisException ex) {
-                        //TODO: implement an error handling to let the user know what happend
-                        Logger.getLogger(LoginDialog.class.getName()).log(Level.SEVERE, null, ex);
-
-                        waitEnd();
-                    }
-                } else {
-                    waitEnd();
-                }
             }
 
             @Override
