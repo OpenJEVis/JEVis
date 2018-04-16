@@ -16,12 +16,12 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Maven: joda-time:joda-time:2.7" level="project" />
     <orderEntry type="library" name="Maven: net.sourceforge.jeval:jeval:0.9.4" level="project" />
-    <orderEntry type="library" name="Maven: org.jevis:JEAPI-WS:1.0" level="project" />
+    <orderEntry type="module" module-name="JEAPI-WS" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.2.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.2.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.2.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.2.3" level="project" />
-    <orderEntry type="library" name="Maven: org.jevis.api:jeapi:3.0.1" level="project" />
+    <orderEntry type="module" module-name="jeapi" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.2" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-log4j12:1.7.2" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
@@ -45,12 +45,6 @@
     <orderEntry type="library" name="Maven: org.javassist:javassist:3.18.1-GA" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" name="Maven: org.jvnet.mimepull:mimepull:1.9.3" level="project" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:24.0-jre" level="project" />
-    <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:1.3.9" level="project" />
-    <orderEntry type="library" name="Maven: org.checkerframework:checker-compat-qual:2.0.0" level="project" />
-    <orderEntry type="library" name="Maven: com.google.errorprone:error_prone_annotations:2.1.3" level="project" />
-    <orderEntry type="library" name="Maven: com.google.j2objc:j2objc-annotations:1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.codehaus.mojo:animal-sniffer-annotations:1.14" level="project" />
     <orderEntry type="module" module-name="JECommons" />
     <orderEntry type="library" name="Maven: org.powermock:powermock-module-junit4:1.6.4" level="project" />
     <orderEntry type="library" name="Maven: org.powermock:powermock-module-junit4-common:1.6.4" level="project" />
@@ -79,12 +73,6 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-joda:2.9.2" level="project" />
     <orderEntry type="module" module-name="jeapplication" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
-    <orderEntry type="library" name="Maven: org.jevis.api.sql:jeapi-sql:3.0.1" level="project" />
-    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.27" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-dbcp2:2.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-pool2:2.3" level="project" />
-    <orderEntry type="library" name="Maven: org.flywaydb:flyway-core:4.1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.h2database:h2:1.3.170" level="project" />
     <orderEntry type="library" name="Maven: org.controlsfx:controlsfx:8.20.8" level="project" />
     <orderEntry type="library" name="Maven: org.controlsfx:openjfx-dialogs:1.0.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />

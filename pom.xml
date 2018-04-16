@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -8,19 +9,54 @@
     <version>3.4</version>
     <name>JEVis Core</name>
     <packaging>pom</packaging>
-    <url>http://openjevis.org</url> 
+    <url>http://openjevis.org</url>
 
     <modules>
-      <module>JEAPI</module>
-      <module>JECommons</module>
-      <module>JEApplication/</module>
-      <module>JEAPI-WS</module>
-      <module>mysqldb</module>
-      <module>JEWebService</module>
-      <module>JEVisControlCenter/</module>
-      <module>JEAlarm</module>
-      <module>DataCollector</module>
-      <module>JECalc</module>
-  </modules>
+        <module>JEAPI</module>
+        <module>JECommons</module>
+        <module>JEApplication/</module>
+        <module>JEAPI-WS</module>
+        <module>mysqldb</module>
+        <module>JEWebService</module>
+        <module>JEVisControlCenter/</module>
+        <module>JEAlarm</module>
+        <module>DataCollector</module>
+        <module>JECalc</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jevis.api</groupId>
+                <artifactId>jeapi</artifactId>
+                <version>3.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jevis.commons</groupId>
+                <artifactId>JECommons</artifactId>
+                <version>3.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jevis</groupId>
+                <artifactId>JEAPI-WS</artifactId>
+                <version>1.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jevis.application</groupId>
+                <artifactId>jeapplication</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jevis.jedatacollector</groupId>
+                <artifactId>JEDataCollector</artifactId>
+                <version>3.0.8</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
 
 </project>

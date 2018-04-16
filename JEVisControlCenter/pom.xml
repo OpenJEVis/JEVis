@@ -132,6 +132,7 @@
 
         </plugins>
     </build>
+    <!--
     <repositories>
         <repository>
             <id>ossrh</id>
@@ -139,7 +140,7 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
     </repositories>
-    
+    -->
     <dependencies>
         <dependency>
             <groupId>org.gillius</groupId>
@@ -149,12 +150,10 @@
         <dependency>
             <groupId>org.jevis.api</groupId>
             <artifactId>jeapi</artifactId>
-            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.commons</groupId>
             <artifactId>JECommons</artifactId>
-            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.application</groupId>
@@ -174,7 +173,6 @@
         <dependency>
             <groupId>org.jevis</groupId>
             <artifactId>JEAPI-WS</artifactId>
-            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.jfxtras</groupId>

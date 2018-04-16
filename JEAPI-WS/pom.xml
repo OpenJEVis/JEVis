@@ -6,24 +6,7 @@
     <version>1.1</version>
     <packaging>jar</packaging>
 
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>false</enabled>
-                <updatePolicy>always</updatePolicy>
-                <checksumPolicy>warn</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
-            </snapshots>
-            <id>org.jevis</id>
-            <name>openjevis</name>
-            <url>http://maven.openjevis.org</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
+
 
     <parent>
         <groupId>org.jevis</groupId>
@@ -40,12 +23,10 @@
         <dependency>
             <groupId>org.jevis.api</groupId>
             <artifactId>jeapi</artifactId>
-            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.commons</groupId>
             <artifactId>JECommons</artifactId>
-            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
