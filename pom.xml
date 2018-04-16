@@ -19,7 +19,7 @@
       <module>JEWebService</module>
       <module>JEVisControlCenter/</module>
       <module>JEAlarm</module>
-      <module>JEDataCollector</module>
+      <module>DataCollector</module>
       <module>JECalc</module>
   </modules>
 

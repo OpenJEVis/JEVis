@@ -23,20 +23,7 @@
     </parent>
         
         
-    <repositories>
-        <!-- JEVis 3.0 Repository -->
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
-            </releases>
-            <id>env1</id>
-            <name>envidatec</name>
-            <url>http://openjevis.org:13080/plugin/repository/everything/</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
+
 
 
     <dependencies>
@@ -50,17 +37,12 @@
         <dependency>
             <groupId>org.jevis.api</groupId>
             <artifactId>jeapi</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jevis.api.sql</groupId>
-            <artifactId>jeapi-sql</artifactId>
-            <version>3.0.1</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.commons</groupId>
             <artifactId>JECommons</artifactId>
-            <version>3.0</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
