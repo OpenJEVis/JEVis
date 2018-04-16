@@ -20,6 +20,7 @@ For more information go to http://openjevis.org/projects/openjevis/wiki/JEConfig
 
 - MySQL 5.0+
 - Java 8+
+- JavaFX (openjfx if openjdk)
 - libreoffice 5+ (for Reports)
 
 # Getting started
