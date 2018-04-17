@@ -10,6 +10,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="JECommons" />
     <orderEntry type="library" name="Maven: org.gillius:jfxutils:1.0" level="project" />
     <orderEntry type="module" module-name="jeapi" />
     <orderEntry type="library" name="Maven: joda-time:joda-time:2.3" level="project" />

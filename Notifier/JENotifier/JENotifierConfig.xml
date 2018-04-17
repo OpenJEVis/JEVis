@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Config>
+<JEVisConfig
+dbHost="coffee-project.eu"
+dbPort="13306"
+dbUser="jevis"
+dbPassword="jevistest"
+dbSchema="jevis"
+jevisUsername="Sys Admin"
+jevisUserPW="JEV34Env"
+debugLevel="INFO"
+/>
+
+<JENotifier
+mode="Single"
+notiIDs="4360"
+notiDriverIDs="1565;1424;1601;3600"
+numberThread="10"
+ServicePort="5120"/>
+
+<Notifier
+pathOfJar="/home/jb/NetBeansProjects/Notifier-EP/target/"
+nameOfJar="Notifier-EP-1.0-SNAPSHOT.jar"
+nameOfDriverClass="org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
+org.jevis.jenotifier.notifier.AppPush.PushNotificationDriver;
+org.jevis.jenotifier.notifier.SQL.SQLNotificationDriver;
+org.jevis.jenotifier.notifier.VIDA350.VIDA350NotificationDriver;"
+nameOfNotiClass="org.jevis.jenotifier.notifier.Email.EmailNotification;
+org.jevis.jenotifier.notifier.AppPush.PushNotification;
+org.jevis.jenotifier.notifier.SQL.SQLNotification;
+org.jevis.jenotifier.notifier.VIDA350.VIDA350Notification;"
+/>
+</Config>
+
+
+
+

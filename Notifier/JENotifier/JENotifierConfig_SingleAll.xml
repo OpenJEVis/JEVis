@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Config>
+<JEVisConfig
+dbHost="192.168.2.55"
+dbPort="3306"
+dbUser="jevis"
+dbPassword="jevistest"
+dbSchema="jevis"
+jevisUsername="Sys Admin"
+jevisUserPW="JEV34Env"
+url=""
+/>
+<JENotifier
+mode="SingleAll"
+notiForm="Email"
+interval="10000"
+notiDriverID="1424"
+pathOfNotifier="/home/gf/NetBeansProjects/Notifier-EP/target/"
+nameOfNotifier="Notifier-EP-1.0-SNAPSHOT.jar"
+numberThread="5"
+/>
+</Config>
