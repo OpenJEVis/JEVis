@@ -1,5 +1,7 @@
 #!/bin/bash
 
+issudo=false
+
 # Check if the envirment is set
 if [ -z "${JEVIS_HOME}" ]; then
   (>&2 echo "Error: JEVis enviroment is not set, include ${JEVIS_HOME}/etc/template_jevis.env into your shell")
@@ -7,10 +9,20 @@ if [ -z "${JEVIS_HOME}" ]; then
 fi
 
 # Check if all programm are installed
-checkprogramm
+checkprogram ()
 if ! [ -x "$(command -v $1)" ]; then
   echo 'Error: $1 is not installed or in path.' >&2
   exit 1
+fi
+
+if [ `sudo whoami` != "root" ]; then
+	issudo=true
+fi
+
+# Check if the user is jevis
+if [ "$issudo" != true ] && [ "$(whoami)" != "jevis" ]; then
+        echo "Script must be run as sudo or jevis user"
+        exit -1
 fi
 
 
@@ -22,10 +34,10 @@ if [ ! -f $2 ]; then
 fi
 }
 
-checkprogramm mvn
-checkprogramm git
-checkprogramm java
-checkprogramm soffice
+checkprogram mvn
+checkprogram git
+checkprogram java
+#checkprogram soffice
 
 
 copytemplate cp ${JEVIS_TEMPLATE}/jevis.conf ${JEVIS_HOME}/etc/jevis.conf
@@ -39,5 +51,11 @@ mv clean install
 
 # Output the installed version for later updates
 echo "3.4" > ${JEVIS_HOME}/version
+
+
+# set the userrights to jevis
+if [ "$issudo" = true ]; then
+	sudo chown -R jevis:jevis ${JEVIS_HOME}
+fi
 
 
