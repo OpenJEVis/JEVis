@@ -16,7 +16,6 @@
         <module>JECommons</module>
         <module>JEApplication/</module>
         <module>JEAPI-WS</module>
-        <module>mysqldb</module>
         <module>JEWebService</module>
         <module>JEVisControlCenter/</module>
         <module>DataCollector</module>
@@ -24,6 +23,26 @@
         <module>JEReport</module>
         <module>Notifier</module>
     </modules>
+
+
+    <profiles>
+        <profile>
+            <id>jevisserver</id>
+            <modules>
+                <module>mysqldb</module>
+                <module>JEAPI</module>
+                <module>JECommons</module>
+                <module>JEApplication/</module>
+                <module>JEAPI-WS</module>
+                <module>JEWebService</module>
+                <module>JEVisControlCenter/</module>
+                <module>DataCollector</module>
+                <module>JECalc</module>
+                <module>JEReport</module>
+                <module>Notifier</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <dependencyManagement>
         <dependencies>
@@ -62,6 +81,7 @@
                 <artifactId>JEReport</artifactId>
                 <version>1.1.2</version>
             </dependency>
+
             <dependency>
                 <groupId>org.jevis.jenotifier</groupId>
                 <artifactId>JENotifier</artifactId>
@@ -80,7 +100,6 @@
                 <version>1.0</version>
             </dependency>
 
-	    
 
         </dependencies>
     </dependencyManagement>

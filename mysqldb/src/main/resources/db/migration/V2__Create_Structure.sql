@@ -212,7 +212,6 @@ CREATE TABLE `unit` (
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`jevis`@`%` SQL SECURITY DEFINER */
 /*!50001 VIEW `login` AS select `t`.`object` AS `object`,`t`.`login` AS `login`,max(`t`.`password`) AS `password`,max(`t`.`enabled`) AS `enabled`,max(`t`.`sysadmin`) AS `sysadmin` from (select `o`.`id` AS `object`,`o`.`name` AS `login`,coalesce((case when (`s`.`attribute` = 'Password') then `s`.`value` end),0) AS `password`,coalesce((case when (`s`.`attribute` = 'Enabled') then `s`.`value` end),0) AS `enabled`,coalesce((case when (`s`.`attribute` = 'Sys Admin') then `s`.`value` end),0) AS `sysadmin` from (`jevis`.`sample` `s` left join (`jevis`.`attribute` `a` left join `jevis`.`object` `o` on((`o`.`id` = `a`.`object`))) on(((`o`.`id` = `s`.`object`) and (`a`.`name` = `s`.`attribute`) and (`a`.`maxts` = `s`.`timestamp`)))) where (`o`.`type` = 'User')) `t` group by `t`.`object` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;

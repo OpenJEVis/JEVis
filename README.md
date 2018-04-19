@@ -33,10 +33,8 @@ mysql> create database jevis;
 mysql> grant all on jevis.* to jevis@localhost identified by 'jevispw';
 ```
 
-Clone and Build
-
+Clone and Build ad jevis user in his home directory
 ``` bash
-@as jevis user
 cd  
 git clone https://github.com/OpenJEVis/JEVis.git
 cd JEVis
