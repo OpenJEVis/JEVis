@@ -28,12 +28,16 @@ checkprogramm java
 checkprogramm soffice
 
 
-copytemplate cp ${JEVIS_HOME}/etc/template_jevis.conf ${JEVIS_HOME}/etc/jevis.conf
-copytemplate cp ${JEVIS_HOME}/etc/template_jevis.xml ${JEVIS_HOME}/etc/jevis.xml
-copytemplate cp ${JEVIS_HOME}/etc/template_log4j.properties ${JEVIS_HOME}/etc/log4j.properties
-copytemplate cp ${JEVIS_HOME}/etc/template_log4j2.xml ${JEVIS_HOME}/etc/log4j2.xml
+copytemplate cp ${JEVIS_TEMPLATE}/jevis.conf ${JEVIS_HOME}/etc/jevis.conf
+copytemplate cp ${JEVIS_TEMPLATE}/jevis.xml ${JEVIS_HOME}/etc/jevis.xml
+copytemplate cp ${JEVIS_TEMPLATE}/log4j.properties ${JEVIS_HOME}/etc/log4j.properties
+copytemplate cp ${JEVIS_TEMPLATE}/template_log4j2.xml ${JEVIS_HOME}/etc/log4j2.xml
 
 cd ${JEVIS_HOME}
 git pull
 mv clean install
+
+# Output the installed version for later updates
+echo "3.4" > ${JEVIS_HOME}/version
+
 

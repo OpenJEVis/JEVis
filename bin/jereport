@@ -10,6 +10,6 @@ REPORT_PATH=${JEVIS_HOME}/var/jereport
 java -Dlog4j.configuration=file:/etc/jevis/log4j.jereport \
      -jar ${JEVIS_HOME}/JEReport/target/JEReport.jar \
      --jevis-config=${JEVIS_HOME}/etc/jevis.xml \
-     --debug=ALL
+     $?
 
 

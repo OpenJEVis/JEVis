@@ -41,6 +41,34 @@ cd JEVis
 mvn package
 ```
 
+Copy&Add&Load the JEVis envirement toio /etc/profile 
+``` bash
+cp /path/to/jevis/var/templates/jevis.env cp /path/to/jevis/etc/jevis.env
+echo "source /path/to/jevis/etc/jevis.env" >> /etc/profile
+source /etc/profile
+```
+
+
+Configuration
+
+Copy&edit the tempate files
+``` bash
+cp ${JEVIS_TEMPLATE}/jevis.env ${JEVIS_HOME}/etc/jevis.env
+cp ${JEVIS_TEMPLATE}/jevis.xml ${JEVIS_HOME}/etc/jevis.xml
+cp ${JEVIS_TEMPLATE}/jevis.conf ${JEVIS_HOME}/etc/jevis.conf
+```
+
+Add the JEWebService the init
+``` bash 
+cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice
+chown root:root 
+```
+
+ 
+Add the JEVis envirement to the /etc/profile or ~./profile
+``` bash
+echo "source /path/to/jevis/etc/jevis.env" >> /etc/profile
+```
 
 Start the JEVis services.
 ``` bash

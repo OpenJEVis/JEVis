@@ -1,0 +1,26 @@
+# Copy this cronfile into /etc/cron.d/jevis
+
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7)  OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  *  user [ command to be executed ]
+
+#Set the bash as shell so envirement will be loaded
+SHELL=/bin/bash
+
+# Start the readout every 3 hours
+0 */3 * * *	jevis [ jedatacollector >> $JEVIS_LOG/jedatacollector.log 2>&1 ]
+
+# Start the data cleaning every hour
+40 * * * *	jevis [ jedataprocessor >> $JEVIS_LOG/jedataprocessor.log 2>&1 ]
+
+# Start the calculations 
+15 * * * *	jevis [ jecalc >> $JEVIS_LOG/jecalc.log 2>&1 ]
+
+# Start the reporting every 3 hours after the readout and data cleaning
+55 */3 * * *	jevis [ jereport >> $JEVIS_LOG/jereport.log 2>&1 ]
+
+

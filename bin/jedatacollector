@@ -1,7 +1,8 @@
 #!/bin/bash
 
+
 java -Dlog4j.configuration=file:${JEVIS_HOME}/etc/log4j.properties \
      -jar ${JEVIS_HOME}/JEDataCollector/target/JEDataCollector.jar \
      --config ${JEVIS_HOME}/etc/jevis.xml \
-     --driver-folder ${JEVIS_HOME}/var/jedatacollector//driver/
-
+     --driver-folder ${JEVIS_HOME}/var/jedatacollector/driver/ \
+     $?
