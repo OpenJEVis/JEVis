@@ -16,11 +16,16 @@
 # Do NOT "set -e"
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
+
+
+# Load the VERBOSE setting and other rcS variables
+. /home/jevis/jevis/jvis.env
+
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="JEVis Webservice"
 NAME=jewebservice
-DAEMON=/usr/sbin/$NAME
-DAEMON_ARGS="--options args"
+DAEMON=${JEVIS_HOME}/bin/$NAME
+DAEMON_ARGS="${JEVIS_HOME}/etc/webservice.xml"
 PIDFILE=/var/run/jewebservice.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
@@ -30,8 +35,6 @@ SCRIPTNAME=/etc/init.d/$NAME
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
-# Load the VERBOSE setting and other rcS variables
-. /path/to/etc/jevis/jevis.env
 
 # Define LSB log_* functions.
 # Depend on lsb-base (>= 3.2-14) to ensure that this file is present

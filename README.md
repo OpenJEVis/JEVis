@@ -36,16 +36,18 @@ mysql> grant all on jevis.* to jevis@localhost identified by 'jevispw';
 Clone and Build
 
 ``` bash
+@as jevis user
+cd  
 git clone https://github.com/OpenJEVis/JEVis.git
 cd JEVis
 mvn package
 ```
 
-Copy&Add&Load the JEVis envirement toio /etc/profile 
+Copy,Add and Load the JEVis envirement into /etc/profile 
 ``` bash
-cp /path/to/jevis/var/templates/jevis.env cp /path/to/jevis/etc/jevis.env
-echo "source /path/to/jevis/etc/jevis.env" >> /etc/profile
-source /etc/profile
+cp templates/jevis.env cp etc/jevis.env
+echo "source /path/to/jevis/etc/jevis.env" >> ~/.profile
+source ~/.profile
 ```
 
 
@@ -58,22 +60,27 @@ cp ${JEVIS_TEMPLATE}/jevis.xml ${JEVIS_HOME}/etc/jevis.xml
 cp ${JEVIS_TEMPLATE}/jevis.conf ${JEVIS_HOME}/etc/jevis.conf
 ```
 
-Add the JEWebService the init
+Add the JEWebService as service, need root rights
 ``` bash 
-cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice
-chown root:root 
+sudo cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice
+sudo chown root:root /etc/init.d/jewebservice
+sudo chmod 755 /etc/init.d/jewebservice
 ```
 
- 
-Add the JEVis envirement to the /etc/profile or ~./profile
+Change the path to to jevis.env envirment file if its not in the default path /home/jevis/jevis/etc/jevis.env
 ``` bash
-echo "source /path/to/jevis/etc/jevis.env" >> /etc/profile
+sudo nano /etc/init.d/jewebservice
+```
+ 
+Add the JEVis envirement to the /etc/profile or ~./profile and load them
+``` bash
+echo "source /home/jevis/jevis/etc/jevis.env" >> ~/.profile
+source ~./profile
 ```
 
 Start the JEVis services.
 ``` bash
+sudo service start jewebservice
 ```
 
-Start the UI (JEVisControlCenter)
 
-*TODO*
