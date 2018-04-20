@@ -41,40 +41,20 @@ cd JEVis
 mvn package
 ```
 
-Copy,Add and Load the JEVis envirement into /etc/profile 
+Execute the installation script for an default server installation. 
 ``` bash
-cp templates/jevis.env cp etc/jevis.env
-echo "source /path/to/jevis/etc/jevis.env" >> ~/.profile
-source ~/.profile
+./install.sh
 ```
 
 
-Configuration
-
-Copy&edit the tempate files
+By default all cronfiguration file can be found ${JEVIS_HOME/etc}
+Edit all configuration file to match your settings. For more detailt see (ToDO)
 ``` bash
-cp ${JEVIS_TEMPLATE}/jevis.env ${JEVIS_HOME}/etc/jevis.env
-cp ${JEVIS_TEMPLATE}/jevis.xml ${JEVIS_HOME}/etc/jevis.xml
-cp ${JEVIS_TEMPLATE}/jevis.conf ${JEVIS_HOME}/etc/jevis.conf
-```
-
-Add the JEWebService as service, need root rights
-``` bash 
-sudo cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice
-sudo chown root:root /etc/init.d/jewebservice
-sudo chmod 755 /etc/init.d/jewebservice
-```
-
-Change the path to to jevis.env envirment file if its not in the default path /home/jevis/jevis/etc/jevis.env
-``` bash
-sudo nano /etc/init.d/jewebservice
+nano ${JEVIS_HOME}/etc/jevis.env
+nano ${JEVIS_HOME}/etc/jevis.xml
+nano ${JEVIS_HOME}/etc/jevis.conf
 ```
  
-Add the JEVis envirement to the /etc/profile or ~./profile and load them
-``` bash
-echo "source /home/jevis/jevis/etc/jevis.env" >> ~/.profile
-source ~./profile
-```
 
 Start the JEVis services.
 ``` bash

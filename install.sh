@@ -22,10 +22,9 @@ if [ `sudo whoami` != "root" ]; then
 	issudo=true
 fi
 
-# Check if the user is jevis
-if [ "$issudo" != true ] && [ "$(whoami)" != "jevis" ]; then
-        echo "Script must be run as sudo or jevis user"
-        exit -1
+if [ "$(whoami)" != "jevis" ]; then
+	echo "ERROR: This installation script needs to run as user jevis" 
+	exit 1
 fi
 
 
@@ -43,23 +42,39 @@ checkprogram java
 echo ""
 #checkprogram soffice
 
+
+echo "Set JEVis envirment"
+cp var/templates/jevis.env etc/jevis.env
+REALPATHENV=`realpath etc/jevis.env`
+echo "source $REALPATHENV" >> ~/.profile
+source ~/.profile
+
+echo "Update and Build JEVis this can take a few minutes "
+cd ${JEVIS_HOME}
+git pull
+mv clean install
+
+
 echo "Generate config files:"
 copytemplate ${JEVIS_TEMPLATE}/jevis.conf ${JEVIS_HOME}/etc/jevis.conf
 copytemplate ${JEVIS_TEMPLATE}/jevis.xml ${JEVIS_HOME}/etc/jevis.xml
 copytemplate ${JEVIS_TEMPLATE}/log4j.properties ${JEVIS_HOME}/etc/log4j.properties
 copytemplate ${JEVIS_TEMPLATE}/template_log4j2.xml ${JEVIS_HOME}/etc/log4j2.xml
 
-cd ${JEVIS_HOME}
-git pull
-mv clean install
 
 # Output the installed version for later updates
-echo "3.4" > ${JEVIS_HOME}/version
+echo "3.4" > ${JEVIS_HOME}/ect/version
+
 
 
 # set the userrights to jevis
 if [ "$issudo" = true ]; then
-	sudo chown -R jevis:jevis ${JEVIS_HOME}
+	read -p "Do you want to install the JEWebServie as an service on this machine? " -n 1 -r
+	if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+		sudo cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice
+		sudo 755 /etc/init.d/jewebservice
+	fi
+else
+	echo "User is no sudo user, will NOT install webservice into init.d. See README how to do this manually"
 fi
-
 
