@@ -1,0 +1,14 @@
+[Unit]
+Description=JEWebservice
+After=network.target 
+
+[Service]
+User=jevis
+Group=jevis
+Type=forking
+ExecStart=/home/jevis/jevis/bin/jewebservice
+
+
+[Install]
+WantedBy=multi-user.target
+
