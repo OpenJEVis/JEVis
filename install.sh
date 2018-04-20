@@ -59,7 +59,7 @@ copytemplate ${JEVIS_TEMPLATE}/log4j2.xml ${JEVIS_HOME}/etc/log4j2.xml
 
 
 # Output the installed version for later updates
-echo "3.4" > ${JEVIS_HOME}/ect/version
+echo "3.4" > ${JEVIS_HOME}/etc/version
 
 
 
