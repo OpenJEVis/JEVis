@@ -35,9 +35,8 @@ echo "Check for requrements:"
 checkprogram mvn
 checkprogram git
 checkprogram java
-echo ""
 #checkprogram soffice
-
+echo ""
 
 echo "Set JEVis envirment"
 cp var/templates/jevis.env etc/jevis.env
@@ -48,7 +47,7 @@ source ~/.profile
 echo "Update and Build JEVis this can take a few minutes "
 cd ${JEVIS_HOME}
 git pull
-mv clean install
+mvn clean install
 
 
 echo "Generate config files:"
@@ -63,15 +62,10 @@ echo "3.4" > ${JEVIS_HOME}/etc/version
 
 
 
-# set the userrights to jevis
-while true; do
-	echo "Do you wish to install the JEWebService as an service (needs sudo permissions)?"
-	select yn in "Yes" "No"; do
+echo "Do you wish to install the JEWebService as an service (needs sudo permissions)?"
+select yn in "Yes" "No"; do
 	case $yn in
-        	Yes ) sudo cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice;sudo 755 /etc/init.d/jewebservice;;
+        	Yes ) sudo cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice;sudo chmod 755 /etc/init.d/jewebservice;break;;
         	No ) exit;;
     	esac
 done
-
-
-
