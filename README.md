@@ -36,10 +36,17 @@ mysql> grant all on jevis.* to jevis@localhost identified by 'jevispw';
 Clone and Build ad jevis user in his home directory
 ``` bash
 cd  
-git clone https://github.com/OpenJEVis/JEVis.git
-cd JEVis
+git clone https://github.com/OpenJEVis/jevis.git; cd jevis
 mvn package
 ```
+
+If you are using an other mysql user/password than the default jevis/jevispw set these in configfile. 
+``` bash
+nano mysql/pom.xml
+
+set <database.usersnam> and <database.password>
+```
+
 
 Execute the installation script for an default server installation. 
 ``` bash
