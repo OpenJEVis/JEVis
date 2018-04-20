@@ -18,10 +18,6 @@ else
 fi
 }
 
-if [ `sudo whoami` != "root" ]; then
-	issudo=true
-fi
-
 if [ "$(whoami)" != "jevis" ]; then
 	echo "ERROR: This installation script needs to run as user jevis" 
 	exit 1
@@ -68,13 +64,9 @@ echo "3.4" > ${JEVIS_HOME}/ect/version
 
 
 # set the userrights to jevis
-if [ "$issudo" = true ]; then
-	read -p "Do you want to install the JEWebServie as an service on this machine? " -n 1 -r
-	if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-		sudo cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice
-		sudo 755 /etc/init.d/jewebservice
-	fi
-else
-	echo "User is no sudo user, will NOT install webservice into init.d. See README how to do this manually"
+read -p "Do you want to install the JEWebServie as an service on this machine? " -n 1 -r
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+	sudo cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice
+	sudo 755 /etc/init.d/jewebservice
 fi
 
