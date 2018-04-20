@@ -55,7 +55,7 @@ echo "Generate config files:"
 copytemplate ${JEVIS_TEMPLATE}/jevis.conf ${JEVIS_HOME}/etc/jevis.conf
 copytemplate ${JEVIS_TEMPLATE}/jevis.xml ${JEVIS_HOME}/etc/jevis.xml
 copytemplate ${JEVIS_TEMPLATE}/log4j.properties ${JEVIS_HOME}/etc/log4j.properties
-copytemplate ${JEVIS_TEMPLATE}/template_log4j2.xml ${JEVIS_HOME}/etc/log4j2.xml
+copytemplate ${JEVIS_TEMPLATE}/log4j2.xml ${JEVIS_HOME}/etc/log4j2.xml
 
 
 # Output the installed version for later updates
@@ -64,9 +64,14 @@ echo "3.4" > ${JEVIS_HOME}/ect/version
 
 
 # set the userrights to jevis
-read -p "Do you want to install the JEWebServie as an service on this machine? " -n 1 -r
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-	sudo cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice
-	sudo 755 /etc/init.d/jewebservice
-fi
+while true; do
+	echo "Do you wish to install the JEWebService as an service (needs sudo permissions)?"
+	select yn in "Yes" "No"; do
+	case $yn in
+        	Yes ) sudo cp ${JEVIS_TEMPLATE}/jewebservice.init /etc/init.d/jewebservice;sudo 755 /etc/init.d/jewebservice;;
+        	No ) exit;;
+    	esac
+done
+
+
 
