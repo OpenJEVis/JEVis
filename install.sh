@@ -48,7 +48,7 @@ source ~/.profile
 echo -e "\nUpdate and Build JEVis this can take a few minutes "
 cd ${JEVIS_HOME}
 git pull
-mvn clean install
+mvn clean install $?
 
 
 echo "Generate config files:"

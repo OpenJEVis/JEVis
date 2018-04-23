@@ -22,6 +22,7 @@ For more information go to http://openjevis.org/projects/openjevis/wiki/JEConfig
 - Java 8+
 - JavaFX (openjfx if openjdk)
 - libreoffice 5+ (for Reports)
+- java keystore
 
 # Getting started
 
@@ -47,10 +48,14 @@ nano mysql/pom.xml
 set <database.usersnam> and <database.password>
 ```
 
-
-Execute the installation script for an default server installation. 
+Create java keystore so signe the JEVis Control Center
 ``` bash
-./install.sh
+keytool -genkey -keyalg RSA -alias selfsigned -keystore /home/jevis/ect/keystore.jks -storepass password -validity 360
+```
+
+Execute the installation script for an default server installation.  Dstore.password and Dkey.password are the same as in the "create java keystore" step.
+``` bash
+./install.sh -Dstore.password=password -Dkey.password=password
 ```
 
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisContolCenter</artifactId>
-    <version>3.0.27</version>
+    <version>3.1.0</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -13,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
         <additionalparam>-Xdoclint:none</additionalparam>
+        <jar.sign.skip>true</jar.sign.skip>
     </properties>
 
     <organization>
@@ -98,7 +100,8 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
                                 </transformer>
                             </transformers>
@@ -126,9 +129,26 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <artifactId>maven-jarsigner-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>sign</id>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <keystore>${project.parent.basedir}/etc/keystore.jks</keystore>
+                    <alias>selfsigned</alias>
+                    <storepass>${store.password}</storepass>
+                    <keypass>${key.password}</keypass>
+                    <skip>${jar.sign.skip}</skip>
 
-
-
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>
@@ -160,11 +180,11 @@
             <artifactId>jeapplication</artifactId>
             <version>3.0.0</version>
         </dependency>
-        <dependency>      
+        <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
             <version>8.40.12</version>
-        </dependency>   
+        </dependency>
         <dependency>
             <groupId>org.jxmapviewer</groupId>
             <artifactId>jxmapviewer2</artifactId>
@@ -181,10 +201,10 @@
             <type>jar</type>
         </dependency>
         <dependency>
-    	    <groupId>com.jfoenix</groupId>
-    	    <artifactId>jfoenix</artifactId>
+            <groupId>com.jfoenix</groupId>
+            <artifactId>jfoenix</artifactId>
             <version>9.0.1</version>
-        </dependency>    
-     </dependencies>
-     
+        </dependency>
+    </dependencies>
+
 </project>
