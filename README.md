@@ -56,7 +56,11 @@ Execute the installation script for an default server installation.
 
 (Alternativ)Create an signed Control Center.
 ``` bash
-keytool -genkey -keyalg RSA -alias selfsigned -keystore /home/jevis/ect/keystore.jks -storepass password -validity 360
+keytool -genkey -alias jevis \
+    -deststoretype pkcs12 -keysize 4096 \
+    -keyalg RSA -keystore etc/keystore.jks \
+    -dname "CN=JEVis, OU=OpenJEVis, O=, L=, S=, C=DE" \
+    -storepass password -keypass password
 ./install.sh -Djar.sign.skip=false -Dstore.password=password -Dkey.password=password
 ```
 
