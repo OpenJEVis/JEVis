@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
         <additionalparam>-Xdoclint:none</additionalparam>
-        <jar.sign.skip>true</jar.sign.skip>
+        <skipjnlp>none</skipjnlp>
     </properties>
 
     <organization>
@@ -135,12 +135,14 @@
                 <artifactId>webstart-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <phase>${skipjnlp}</phase>
                         <goals>
                             <goal>jnlp</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
+                    <skip>true</skip>
                     <excludeTransitive>false</excludeTransitive>
                     <dependencies>
                     </dependencies>
@@ -162,14 +164,15 @@
                     </sign>
 
 
-                    <pack200><enabled>false</enabled></pack200>
-                    <gzip> true</gzip>
+                    <pack200>
+                        <enabled>false</enabled>
+                    </pack200>
+                    <gzip>true</gzip>
                     <outputJarVersions>true</outputJarVersions>
                     <verbose>true</verbose>
 
                 </configuration>
             </plugin>
-
 
 
             <!--
