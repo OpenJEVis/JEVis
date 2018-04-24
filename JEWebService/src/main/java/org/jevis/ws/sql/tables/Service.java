@@ -1,29 +1,29 @@
-/**
- * Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEWebService.
- *
- * JEAPI-SQL is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
- *
- * JEAPI-SQL is part of the OpenJEVis project, further project information are
- * published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEWebService.
+
+  JEAPI-SQL is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
+
+  JEAPI-SQL is part of the OpenJEVis project, further project information are
+  published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql.tables;
 
-import java.sql.PreparedStatement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.ws.sql.SQLDataSource;
+
+import java.sql.PreparedStatement;
 
 /**
  *
@@ -35,7 +35,7 @@ public class Service {
 
     private final SQLDataSource _connection;
 
-    public Service(SQLDataSource ds) throws JEVisException {
+    public Service(SQLDataSource ds) {
         _connection = ds;
     }
 

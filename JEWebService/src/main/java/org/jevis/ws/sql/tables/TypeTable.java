@@ -1,30 +1,24 @@
-/**
- * Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEWebService.
- *
- * JEAPI-SQL is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
- *
- * JEAPI-SQL is part of the OpenJEVis project, further project information are
- * published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEWebService.
+
+  JEAPI-SQL is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
+
+  JEAPI-SQL is part of the OpenJEVis project, further project information are
+  published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql.tables;
 
-import java.io.UnsupportedEncodingException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -32,6 +26,13 @@ import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonType;
 import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
+
+import java.io.UnsupportedEncodingException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -56,7 +57,7 @@ public class TypeTable {
     private Logger logger = LogManager.getLogger(TypeTable.class);
     private final SQLDataSource _connection;
 
-    public TypeTable(SQLDataSource ds) throws JEVisException {
+    public TypeTable(SQLDataSource ds) {
         _connection = ds;
     }
 
@@ -144,38 +145,26 @@ public class TypeTable {
         String sql = "delete from " + TABLE
                 + " where " + COLUMN_CLASS + "=?"
                 + " and " + COLUMN_NAME + "=?";
-        PreparedStatement ps = null;
 
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, jclass);
             ps.setString(2, type);
 
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Type.delete()", ps.toString());
-            if (ps.executeUpdate() == 1) {
-//                System.out.println("true");
-                return true;
-            } else {
+            //                System.out.println("true");
 //                System.out.println("false");
-                return false;
-            }
+            return ps.executeUpdate() == 1;
 
         } catch (Exception ex) {
             logger.error(ex);
             //TODO throw JEVisExeption?!
             return false;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/ }
-            }
         }
+        /*ignored*/
     }
 
-    public boolean delete(String jclass, JsonType type) throws JEVisException {
+    public boolean delete(String jclass, JsonType type) {
         return TypeTable.this.delete(jclass, type.getName());
     }
 
@@ -193,11 +182,7 @@ public class TypeTable {
             _connection.addQuery("Type.insert()", ps.toString());
             int count = ps.executeUpdate();
 
-            if (count > 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return count > 0;
 
         } catch (Exception ex) {
             logger.error(ex);
@@ -214,11 +199,11 @@ public class TypeTable {
      * @throws UnsupportedEncodingException
      * @throws org.jevis.api.JEVisException
      */
-    public List<JsonType> getAll(JEVisClass jclass) throws SQLException, UnsupportedEncodingException, JEVisException {
+    public List<JsonType> getAll(JEVisClass jclass) throws SQLException, JEVisException {
         return getAll(jclass.getName());
     }
 
-    public List<JsonType> getAll(String jclass) throws SQLException, UnsupportedEncodingException, JEVisException {
+    public List<JsonType> getAll(String jclass) throws SQLException {
         List<JsonType> types = new ArrayList<>();
 
         String sql = "select * from " + TABLE
@@ -240,7 +225,7 @@ public class TypeTable {
     }
 
     //TODO: this function is to muche like getALL(JEVisClass), may mearge into one.
-    public List<JsonType> getAll() throws SQLException, UnsupportedEncodingException, JEVisException {
+    public List<JsonType> getAll() throws SQLException {
         List<JsonType> types = new ArrayList<>();
 
         String sql = "select * from " + TABLE;

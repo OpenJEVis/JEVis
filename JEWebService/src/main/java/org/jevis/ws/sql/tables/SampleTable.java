@@ -20,17 +20,6 @@
  */
 package org.jevis.ws.sql.tables;
 
-import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-import java.sql.Blob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
@@ -44,6 +33,12 @@ import org.jevis.ws.sql.PasswordHash;
 import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
 import org.joda.time.DateTime;
+
+import java.io.ByteArrayInputStream;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  *
@@ -64,7 +59,7 @@ public class SampleTable {
     private SQLDataSource _connection;
     private Logger logger = LogManager.getLogger(SampleTable.class);
 
-    public SampleTable(SQLDataSource ds) throws JEVisException {
+    public SampleTable(SQLDataSource ds) {
         _connection = ds;
     }
 
@@ -146,7 +141,7 @@ public class SampleTable {
                 switch (priType) {
                     case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
                         //Passwords will be stored as Saled Hash
-                        ps.setString(++p, PasswordHash.createHash(sample.getValue().toString()));
+                        ps.setString(++p, PasswordHash.createHash(sample.getValue()));
                         break;
                     case JEVisConstants.PrimitiveType.FILE:
                         ps.setNull(++p, Types.VARCHAR);
@@ -238,11 +233,7 @@ public class SampleTable {
 
             _connection.getAttributeTable().updateMinMaxTS(object, att);
 
-            if(count>0){
-                return true;
-            }else{
-                return false;
-            }
+            return count > 0;
         } catch (Exception ex) {
             logger.error(ex);
             throw new JEVisException("Error while inserting Sample ", 4234, ex);
@@ -371,7 +362,7 @@ public class SampleTable {
         return samples;
     }
 
-    public boolean deleteAllSamples(long object, String att) throws JEVisException {
+    public boolean deleteAllSamples(long object, String att) {
         String sql = "delete from " + TABLE
                 + " where " + COLUMN_ATTRIBUTE + "=?"
                 + " and " + COLUMN_OBJECT + "=?";
@@ -405,7 +396,7 @@ public class SampleTable {
         }
     }
 
-    public boolean deleteSamples(long object, String att, DateTime from, DateTime until) throws JEVisException {
+    public boolean deleteSamples(long object, String att, DateTime from, DateTime until) {
         String sql = "delete from " + TABLE
                 + " where " + COLUMN_ATTRIBUTE + "=?"
                 + " and " + COLUMN_OBJECT + "=?";
@@ -456,7 +447,7 @@ public class SampleTable {
         }
     }
 
-    public List<JsonSample> getAll(long object, String att) throws SQLException, UnsupportedEncodingException, JEVisException {
+    public List<JsonSample> getAll(long object, String att) throws SQLException {
 //        System.out.println("SampleTable.getAll");
         List<JsonSample> samples = new ArrayList<>();
 
@@ -496,7 +487,7 @@ public class SampleTable {
 //        ps.setTimestamp(3, new Timestamp(att.getTimestampFromLastSample().getMillis()));
 
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.getLastes()", ps.toString());
+            _connection.addQuery("Sample.getLatest()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {

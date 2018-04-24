@@ -5,27 +5,22 @@
  */
 package org.jevis.rest;
 
+import org.apache.logging.log4j.LogManager;
+import org.jevis.commons.ws.json.JsonJEVisClass;
+import org.jevis.ws.sql.SQLDataSource;
+
+import javax.imageio.ImageIO;
+import javax.security.sasl.AuthenticationException;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.imageio.ImageIO;
-import javax.security.sasl.AuthenticationException;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisException;
-import org.jevis.commons.ws.json.JsonJEVisClass;
-import org.jevis.ws.sql.SQLDataSource;
 
 /**
  *
@@ -46,7 +41,7 @@ public class ResourceIcons {
     public Response get(
             @Context HttpHeaders httpHeaders,
             @Context Request request,
-            @Context UriInfo url) throws JEVisException {
+            @Context UriInfo url) {
 
         SQLDataSource ds = null;
         try {

@@ -1,22 +1,22 @@
-/**
- * Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEWebService.
- *
- * JEWebService is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEWebService is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
- * JEWebService is part of the OpenJEVis project, further project information
- * are published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEWebService.
+
+  JEWebService is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEWebService is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+  details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEWebService. If not, see <http://www.gnu.org/licenses/>.
+
+  JEWebService is part of the OpenJEVis project, further project information
+  are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.rest;
 
@@ -24,42 +24,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import org.apache.logging.log4j.LogManager;
+import org.jevis.api.JEVisException;
+import org.jevis.commons.ws.json.JsonJEVisClass;
+import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.ws.sql.SQLtoJsonFactory;
+
+import javax.imageio.ImageIO;
+import javax.security.sasl.AuthenticationException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.security.sasl.AuthenticationException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisException;
-import org.jevis.commons.utils.Benchmark;
-import org.jevis.commons.ws.json.JsonJEVisClass;
-import org.jevis.ws.sql.SQLDataSource;
-import org.jevis.ws.sql.SQLtoJsonFactory;
 
 /**
  * This class handels all the JEVIsOBjects related requests
@@ -78,7 +59,6 @@ public class ResourceClasses {
      *
      * @param httpHeaders
      * @return
-     * @throws JEVisException
      */
     @GET
     @Logged
@@ -87,7 +67,7 @@ public class ResourceClasses {
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url,
-            @DefaultValue("false") @QueryParam("includeType") boolean includeType) throws JEVisException {
+            @DefaultValue("false") @QueryParam("includeType") boolean includeType) {
 
         SQLDataSource ds = null;
         try {
@@ -267,7 +247,7 @@ public class ResourceClasses {
 
     }
 
-    public Response getCacheFile(SQLDataSource ds) throws JEVisException {
+    public Response getCacheFile(SQLDataSource ds) {
 
         try {
             ds.getProfiler().addEvent("ResourceClasses", "getCachedClasses");

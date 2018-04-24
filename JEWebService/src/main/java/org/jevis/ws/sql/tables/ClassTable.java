@@ -1,37 +1,21 @@
-/**
- * Copyright (C) 2013 - 2015 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEAPI-SQL.
- *
- * JEAPI-SQL is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
+/*
+  Copyright (C) 2013 - 2015 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEAPI-SQL.
+
+  JEAPI-SQL is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.jevis.ws.sql.tables;
 
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.sql.Array;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
@@ -41,6 +25,22 @@ import org.jevis.commons.ws.json.JsonClassRelationship;
 import org.jevis.commons.ws.json.JsonJEVisClass;
 import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -59,7 +59,7 @@ public class ClassTable {
 //    private Map<String, JEVisClass> _cach = new HashMap<String, JEVisClass>();
     Logger logger = LogManager.getLogger(ClassTable.class);
 
-    public ClassTable(SQLDataSource ds) throws JEVisException {
+    public ClassTable(SQLDataSource ds) {
         _connection = ds;
     }
 
@@ -243,11 +243,7 @@ public class ClassTable {
             }
         }
 
-        if (classDelete && typeDelte) {
-            return true;
-        } else {
-            return false;
-        }
+        return classDelete && typeDelte;
 
     }
 
@@ -290,7 +286,7 @@ public class ClassTable {
         }
     }
 
-    public boolean updateClass(String oldname, JsonJEVisClass jclass) throws JEVisException {
+    public boolean updateClass(String oldname, JsonJEVisClass jclass) {
         try {
             System.out.println("UpdateClass: "+oldname+" jclass.dis: "+jclass.getDescription());
             String sql = "update " + TABLE
@@ -321,7 +317,7 @@ public class ClassTable {
         return false;
     }
 
-    public boolean updateClassIcon(String jclass, BufferedImage icon) throws JEVisException {
+    public boolean updateClassIcon(String jclass, BufferedImage icon) {
         try {
             System.out.println("---------update ClassIcon ------------");
             String sql = "update " + TABLE
@@ -397,8 +393,7 @@ public class ClassTable {
             while (rs.next()) {
                 byte[] bytes = rs.getBytes(ClassTable.COLUMN_ICON);
                 if (bytes != null && bytes.length > 0) {
-                    BufferedImage img = ImageIO.read(new ByteArrayInputStream(bytes));
-                    return img;
+                    return ImageIO.read(new ByteArrayInputStream(bytes));
                 }
             }
 
@@ -457,7 +452,7 @@ public class ClassTable {
         return jClass;
     }
 
-    public List<JsonJEVisClass> getAllObjectClasses() throws JEVisException, SQLException {
+    public List<JsonJEVisClass> getAllObjectClasses() throws JEVisException {
         List<JsonJEVisClass> jClasses = new LinkedList<>();
 
         String sql = "select * from " + TABLE;

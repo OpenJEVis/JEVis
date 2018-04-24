@@ -1,35 +1,34 @@
-/**
- * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JECommons.
- *
- * JECommons is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
- * JECommons is part of the OpenJEVis project, further project information are
- * published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JECommons.
+
+  JECommons is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with
+  JECommons. If not, see <http://www.gnu.org/licenses/>.
+
+  JECommons is part of the OpenJEVis project, further project information are
+  published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -37,7 +36,6 @@ import org.jevis.commons.ws.json.JsonRelationship;
  */
 public class UserRightManagerForWS {
 
-    private Logger logger = LogManager.getLogger(UserRightManagerForWS.class);
     private final JEVisUserNew user;
     private SQLDataSource ds;
     private List<Long> readGIDS = new ArrayList<>();
@@ -46,18 +44,17 @@ public class UserRightManagerForWS {
     private List<Long> exeGIDS = new ArrayList<>();
     private List<Long> writeGIDS = new ArrayList<>();
 
-    private List<JsonRelationship> userRel;
-
-    public UserRightManagerForWS(SQLDataSource ds) throws JEVisException {
+    public UserRightManagerForWS(SQLDataSource ds) {
+        Logger logger = LogManager.getLogger(UserRightManagerForWS.class);
         logger.trace("Init UserRightManagerForWS for user");
         this.user = ds.getCurrentUser();
         this.ds = ds;
         init();
     }
 
-    private void init() throws JEVisException {
+    private void init() {
         //get user groups
-        userRel = ds.getRelationships(ds.getCurrentUser().getUserObject().getId());
+        List<JsonRelationship> userRel = ds.getRelationships(ds.getCurrentUser().getUserObject().getId());
         for (JsonRelationship rel : userRel) {
             switch (rel.getType()) {
                 case JEVisConstants.ObjectRelationship.MEMBER_READ:
@@ -79,7 +76,7 @@ public class UserRightManagerForWS {
         }
     }
 
-    public List<JsonRelationship> filterReadRelationships(List<JsonRelationship> rels) throws JEVisException {
+    public List<JsonRelationship> filterReadRelationships(List<JsonRelationship> rels) {
         //Sys Admin can read it all
         if (isSysAdmin()) {
             return rels;
@@ -147,7 +144,7 @@ public class UserRightManagerForWS {
         return roots;
     }
 
-    public List<JsonObject> filterList(List<JsonObject> objects) throws JEVisException {
+    public List<JsonObject> filterList(List<JsonObject> objects) {
         System.out.println("filterList: "+isSysAdmin()+ "   - "+objects.size());
         //Sys Admin can read it all
         if (isSysAdmin()) {

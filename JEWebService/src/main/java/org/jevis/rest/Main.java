@@ -1,10 +1,5 @@
 package org.jevis.rest;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.security.sasl.SaslServerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -13,6 +8,9 @@ import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+
+import java.io.File;
+import java.net.URI;
 
 /**
  * Main class.
@@ -27,9 +25,8 @@ public class Main {
      * Main method.
      *
      * @param args
-     * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         LOGGER.info("Start - {}", VERSION);
         //read Config
         File configfile;
@@ -48,7 +45,7 @@ public class Main {
 
         Config.readConfigurationFile(configfile);
 
-        final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest");
+        final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest");
         rc.setApplicationName("JEWebservice");
         rc.register(MultiPartFeature.class);
 
@@ -71,12 +68,9 @@ public class Main {
         }
 
         // register shutdown hook
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("Stopping server..");
-                server.stop();
-            }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Stopping server..");
+            server.stop();
         }, "shutdownHook"));
 
         // run
@@ -92,8 +86,8 @@ public class Main {
 }
 
 
-/**
- * KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+/*
+  KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 
 char[] password = "some password".toCharArray();
 ks.load(null, password);

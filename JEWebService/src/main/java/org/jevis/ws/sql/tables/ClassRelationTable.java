@@ -1,29 +1,24 @@
-/**
- * Copyright (C) 2013 - 2014 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEAPI-SQL.
- *
- * JEAPI-SQL is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
- *
- * JEAPI-SQL is part of the OpenJEVis project, further project information are
- * published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2013 - 2014 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEAPI-SQL.
+
+  JEAPI-SQL is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
+
+  JEAPI-SQL is part of the OpenJEVis project, further project information are
+  published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql.tables;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClassRelationship;
@@ -31,6 +26,11 @@ import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonClassRelationship;
 import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -46,7 +46,7 @@ public class ClassRelationTable {
     private SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(SQLDataSource.class);
 
-    public ClassRelationTable(SQLDataSource ds) throws JEVisException {
+    public ClassRelationTable(SQLDataSource ds) {
         this._connection = ds;
     }
 
@@ -69,11 +69,7 @@ public class ClassRelationTable {
                 + " and " + COLUMN_END + "=?"
                 + " and " + COLUMN_TYPE + "=?";
 
-        PreparedStatement ps = null;
-
-        try {
-
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
 
             ps.setString(1, start);
             ps.setString(2, end);
@@ -90,14 +86,8 @@ public class ClassRelationTable {
 
         } catch (Exception ex) {
             throw new JEVisException("Could not delete new ClassRelationship", 578246, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/ }
-            }
         }
+        /*ignored*/
 
     }
 
@@ -112,10 +102,8 @@ public class ClassRelationTable {
     public JsonClassRelationship insert(String start, String end, int type) throws JEVisException {
         String sql = "insert into " + TABLE + " (" + COLUMN_START + "," + COLUMN_END + "," + COLUMN_TYPE + ") "
                 + " values(?,?,?)";
-        PreparedStatement ps = null;
 
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, start);
             ps.setString(2, end);
             ps.setInt(3, type);
@@ -135,14 +123,8 @@ public class ClassRelationTable {
 
         } catch (Exception ex) {
             throw new JEVisException("Could not insert new ClassRelationship", 578246, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/ }
-            }
         }
+        /*ignored*/
     }
 
     /**
@@ -162,10 +144,8 @@ public class ClassRelationTable {
                 + " and c1." + ClassTable.COLUMN_NAME + " is not null "
                 + " and c2." + ClassTable.COLUMN_NAME + " is not null ";
 
-        PreparedStatement ps = null;
-        try {
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
 
-            ps = _connection.getConnection().prepareStatement(sql);
             ps.setString(1, jclass);
             ps.setString(2, jclass);
 
@@ -183,14 +163,8 @@ public class ClassRelationTable {
         } catch (Exception ex) {
             logger.error(ex);
             throw new JEVisException("Error while fetching ClassRelationship", 7390562, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/ }
-            }
         }
+        /*ignored*/
         return relations;
     }
 
@@ -209,10 +183,7 @@ public class ClassRelationTable {
                 + " c1." + ClassTable.COLUMN_NAME + " is not null "
                 + " and c2." + ClassTable.COLUMN_NAME + " is not null ";
 
-        PreparedStatement ps = null;
-        try {
-
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
 
             _connection.addQuery("ClassRel.get()", ps.toString());
             ResultSet rs = ps.executeQuery();
@@ -228,14 +199,8 @@ public class ClassRelationTable {
         } catch (Exception ex) {
             logger.error(ex);
             throw new JEVisException("Error while fetching ClassRelationship", 7390562, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/ }
-            }
         }
+        /*ignored*/
         return relations;
     }
 }

@@ -1,45 +1,40 @@
-/**
- * Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEWebService.
- *
- * JEAPI-SQL is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
- *
- * JEAPI-SQL is part of the OpenJEVis project, further project information are
- * published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEWebService.
+
+  JEAPI-SQL is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
+
+  JEAPI-SQL is part of the OpenJEVis project, further project information are
+  published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql.tables;
 
 import com.google.gson.Gson;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.measure.unit.Unit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisType;
-import org.jevis.api.JEVisUnit;
-import org.jevis.api.JEVisUser;
+import org.jevis.api.*;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
 import org.joda.time.Period;
+
+import javax.measure.unit.Unit;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -67,7 +62,7 @@ public class AttributeTable {
 
     private final SQLDataSource _connection;
 
-    public AttributeTable(SQLDataSource ds) throws JEVisException {
+    public AttributeTable(SQLDataSource ds) {
         _connection = ds;
     }
 
@@ -290,10 +285,7 @@ public class AttributeTable {
                 + "   " + COLUMN_MAX_TS + "=(select max(" + SampleTable.COLUMN_TIMESTAMP + ") from " + SampleTable.TABLE + " where " + SampleTable.COLUMN_OBJECT + "=?  and " + SampleTable.COLUMN_ATTRIBUTE + "=?),"
                 + "   " + COLUMN_COUNT + "=(select count(*) from " + SampleTable.TABLE + " where " + SampleTable.COLUMN_OBJECT + "=?  and " + SampleTable.COLUMN_ATTRIBUTE + "=?)";
 
-        PreparedStatement ps = null;
-
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
 
             //insert
             ps.setLong(1, objectID);
@@ -317,14 +309,8 @@ public class AttributeTable {
 
         } catch (Exception ex) {
             logger.error(ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/ }
-            }
         }
+        /*ignored*/
 
     }
 
@@ -358,10 +344,8 @@ public class AttributeTable {
                 + COLUMN_DISPLAY_RATE + "=?,"
                 + COLUMN_INPUT_RATE + "=?";
 
-        PreparedStatement ps = null;
         Gson gson = new Gson();
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
 
             JEVisUnit fallbackUnit = new JEVisUnitImp(Unit.ONE);
 
@@ -414,14 +398,8 @@ public class AttributeTable {
         } catch (Exception ex) {
             logger.error(ex);
             throw new JEVisException("Error while updateing attribute ", 4233, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/ }
-            }
         }
+        /*ignored*/
 
     }
 }

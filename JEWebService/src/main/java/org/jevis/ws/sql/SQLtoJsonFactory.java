@@ -1,50 +1,42 @@
-/**
- * Copyright (C) 2013 - 2018 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEWebService.
- *
- * JEWebService is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEWebService is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
- * JEWebService is part of the OpenJEVis project, further project information
- * are published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2013 - 2018 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEWebService.
+
+  JEWebService is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEWebService is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+  details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEWebService. If not, see <http://www.gnu.org/licenses/>.
+
+  JEWebService is part of the OpenJEVis project, further project information
+  are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql;
 
-import org.jevis.ws.sql.tables.ClassTable;
-import org.jevis.ws.sql.tables.AttributeTable;
-import org.jevis.ws.sql.tables.ClassRelationTable;
-import org.jevis.ws.sql.tables.TypeTable;
-import org.jevis.ws.sql.tables.ObjectTable;
-import org.jevis.ws.sql.tables.SampleTable;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import org.apache.logging.log4j.LogManager;
+import org.jevis.api.JEVisConstants;
+import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.ws.json.*;
+import org.jevis.ws.sql.tables.*;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisComponent;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.commons.unit.JEVisUnitImp;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-import org.jevis.commons.ws.json.*;
-import org.joda.time.DateTime;
 
 /**
  * This Factory can convert JEAPI interfaces into a JSON representation
@@ -101,7 +93,7 @@ public class SQLtoJsonFactory {
 //
 //        return jatt;
 //    }
-    public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws JEVisException, SQLException {
+public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQLException {
         JsonAttribute jatt = new JsonAttribute();
 
         Long sampleCount = rs.getLong(AttributeTable.COLUMN_COUNT);
@@ -161,7 +153,7 @@ public class SQLtoJsonFactory {
         return jatt;
     }
 
-    public static JsonClassRelationship buildClassRelationship(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonClassRelationship buildClassRelationship(ResultSet rs) throws SQLException {
 
         JsonClassRelationship json = new JsonClassRelationship();
         json.setStart(rs.getString(ClassRelationTable.COLUMN_START));
@@ -198,9 +190,8 @@ public class SQLtoJsonFactory {
      * @param obj
      * @param includeRelationships
      * @return
-     * @throws JEVisException
      */
-    public static JsonObject buildObject(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonObject buildObject(ResultSet rs) throws SQLException {
         JsonObject json = new JsonObject();
         json.setName(rs.getString(ObjectTable.COLUMN_NAME));
         json.setId(rs.getLong(ObjectTable.COLUMN_ID));
@@ -214,9 +205,8 @@ public class SQLtoJsonFactory {
      *
      * @param rel
      * @return
-     * @throws JEVisException
      */
-    public static JsonRelationship buildRelationship(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonRelationship buildRelationship(ResultSet rs) throws SQLException {
         JsonRelationship json = new JsonRelationship();
         json.setFrom(rs.getLong(RelationshipTable.COLUMN_START));
         json.setTo(rs.getLong(RelationshipTable.COLUMN_END));
@@ -229,9 +219,8 @@ public class SQLtoJsonFactory {
      *
      * @param jclass
      * @return
-     * @throws JEVisException
      */
-    public static JsonJEVisClass buildJEVisClass(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonJEVisClass buildJEVisClass(ResultSet rs) throws SQLException {
         JsonJEVisClass json = new JsonJEVisClass();
 
         json.setName(rs.getString(ClassTable.COLUMN_NAME));
@@ -248,7 +237,7 @@ public class SQLtoJsonFactory {
                 JsonJEVisClass jc = classes.get(t.getJevisClass());
 
                 if (jc.getTypes() == null) {
-                    jc.setTypes(new ArrayList<JsonType>());
+                    jc.setTypes(new ArrayList<>());
                 }
                 jc.getTypes().add(t);
             } catch (Exception ex) {
@@ -259,13 +248,12 @@ public class SQLtoJsonFactory {
     }
 
     public static Map<String, JsonJEVisClass> toMap(List<JsonJEVisClass> classes) {
-        Map<String, JsonJEVisClass> map = Maps.uniqueIndex(classes, new Function<JsonJEVisClass, String>() {
+        return Maps.uniqueIndex(classes, new Function<JsonJEVisClass, String>() {
             @Override
             public String apply(JsonJEVisClass f) {
                 return f.getName();
             }
         });
-        return map;
     }
 
     public static void addRelationhipsToClasses(Map<String, JsonJEVisClass> classes, List<JsonClassRelationship> classRels) {
@@ -275,10 +263,10 @@ public class SQLtoJsonFactory {
                 JsonJEVisClass fromJC = classes.get(t.getStart());
 
                 if (toJC.getRelationships() == null) {
-                    toJC.setRelationships(new ArrayList<JsonClassRelationship>());
+                    toJC.setRelationships(new ArrayList<>());
                 }
                 if (fromJC.getRelationships() == null) {
-                    fromJC.setRelationships(new ArrayList<JsonClassRelationship>());
+                    fromJC.setRelationships(new ArrayList<>());
                 }
 
                 toJC.getRelationships().add(t);
@@ -295,9 +283,8 @@ public class SQLtoJsonFactory {
      *
      * @param sample
      * @return
-     * @throws JEVisException
      */
-    public static JsonSample buildSample(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonSample buildSample(ResultSet rs) throws SQLException {
         JsonSample json = new JsonSample();
         json.setNote(rs.getString(SampleTable.COLUMN_NOTE));
         json.setTs(sampleDTF.print(new DateTime(rs.getTimestamp(SampleTable.COLUMN_TIMESTAMP))));
@@ -311,9 +298,8 @@ public class SQLtoJsonFactory {
      *
      * @param type
      * @return
-     * @throws JEVisException
      */
-    public static JsonType buildType(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonType buildType(ResultSet rs) throws SQLException {
         JsonType json = new JsonType();
         json.setDescription(rs.getString(TypeTable.COLUMN_DESCRIPTION));
         json.setGuiType(rs.getString(TypeTable.COLUMN_DISPLAY_TYPE));

@@ -1,48 +1,27 @@
-/**
- * Copyright (C) 2013 - 2014 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEWebService.
- *
- * JEWebService is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEWebService is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
- * JEWebService is part of the OpenJEVis project, further project information
- * are published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2013 - 2014 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEWebService.
+
+  JEWebService is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEWebService is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+  details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEWebService. If not, see <http://www.gnu.org/licenses/>.
+
+  JEWebService is part of the OpenJEVis project, further project information
+  are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.rest;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
-import javax.security.sasl.AuthenticationException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisAttribute;
@@ -50,16 +29,21 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
-import org.jevis.commons.ws.json.JsonAttribute;
-import org.jevis.commons.ws.json.JsonFactory;
-import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.commons.ws.json.JsonSample;
-import org.jevis.commons.ws.json.JsonType;
+import org.jevis.commons.ws.json.*;
 import org.jevis.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import javax.security.sasl.AuthenticationException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * this Class handles all the JEVisSample related requests
@@ -83,7 +67,6 @@ public class ResourceSample {
      * @param end
      * @param onlyLatest
      * @return
-     * @throws JEVisException
      */
     @GET
     @Logged
@@ -98,7 +81,7 @@ public class ResourceSample {
             @QueryParam("until") String end,
             @DefaultValue("1000000") @QueryParam("limit") long limit,
             @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest
-    ) throws JEVisException {
+    ) {
 
         SQLDataSource ds = null;
         try {
@@ -178,7 +161,7 @@ public class ResourceSample {
             @DefaultValue("latest") @PathParam("timestamp") String timestamp,
             //            @DefaultValue("file.file") @QueryParam("filename") String filename,
             InputStream payload
-    ) throws JEVisException {
+    ) {
 
         SQLDataSource ds = null;
         try {
@@ -229,7 +212,7 @@ public class ResourceSample {
             @PathParam("id") long id,
             @PathParam("attribute") String attribute,
             @DefaultValue("latest") @PathParam("timestamp") String timestamp
-    ) throws JEVisException {
+    ) {
 
         SQLDataSource ds = null;
         try {
@@ -272,15 +255,13 @@ public class ResourceSample {
      * Get all Samples between the given time-range
      *
      * @param att
-     * @param start
-     * @param end
      * @return
      * @throws JEVisException
      */
-    private List<JsonSample> getInBetween(JEVisAttribute att, DateTime start, DateTime end) throws JEVisException {
-        List<JsonSample> samples = new LinkedList<JsonSample>();
+    private List<JsonSample> getInBetween(JEVisAttribute att) throws JEVisException {
+        List<JsonSample> samples = new LinkedList<>();
         int primitivType = att.getPrimitiveType();
-        for (JEVisSample sample : att.getSamples(start, end)) {
+        for (JEVisSample sample : att.getSamples(null, null)) {
             samples.add(JsonFactory.buildSample(sample, primitivType));
         }
         return samples;
@@ -294,7 +275,7 @@ public class ResourceSample {
      * @throws JEVisException
      */
     private List<JsonSample> getAll(JEVisAttribute att) throws JEVisException {
-        return getInBetween(att, null, null);
+        return getInBetween(att);
     }
 
     @POST
