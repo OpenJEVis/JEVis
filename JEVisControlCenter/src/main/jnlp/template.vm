@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp
+    spec="1.0+"
+    codebase="$jnlpCodebase"
+    href="$outputFile">
+
+<information>
+#if($project.name)
+    <title>$project.name</title>
+#end
+#if($project.Organization.Name)
+    <vendor>$project.Organization.Name</vendor>
+#end
+#if($project.Description)
+    <description>$project.Description</description>
+#end
+#if($project.Url)
+    <homepage href="$project.Url"/>
+#end
+
+	<!-- 
+	<icon href="icon.png" kind="default" />
+	<icon href="splash.png" kind="splash" />
+	-->
+
+</information>
+
+<security>
+     <all-permissions/>
+     <j2ee-application-client-permissions/>
+</security>
+
+<resources>
+    <j2se version="1.8+" href="http://java.sun.com/products/autodl/j2se" />
+    $dependencies
+</resources>
+
+  <jfx:javafx-desc main-class="org.jevis.jeconfig.JEConfig"  name="JEConfig">
+          <fx:param name="datasource.class" value="org.jevis.jeapi.ws.JEVisDataSourceWS"/>
+          <fx:param name="datasource.host" value="http://localhost:8000"/>
+          <fx:param name="fxlogin.logo" value="http://localhost/images/logo.jpg"/>
+          <fx:param name="fxlogin.css" value="http://localhost/css/fxlogin.css"/>
+          <fx:param name="fxlogin.register" value="none"/>
+          <fx:param name="jeconfig.welcomeurl" value="http://www.openjevis.org"/>       
+  </jfx:javafx-desc>
+
+
+
+</jnlp>

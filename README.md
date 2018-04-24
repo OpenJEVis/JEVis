@@ -48,27 +48,33 @@ nano mysql/pom.xml
 set <database.usersnam> and <database.password>
 ```
 
-Create java keystore so signe the JEVis Control Center
+
+Execute the installation script for an default server installation.
 ``` bash
-keytool -genkey -keyalg RSA -alias selfsigned -keystore /home/jevis/ect/keystore.jks -storepass password -validity 360
+./install.sh
 ```
 
-Execute the installation script for an default server installation.  Dstore.password and Dkey.password are the same as in the "create java keystore" step.
+(Alternativ)Create an signed Control Center.
 ``` bash
-./install.sh -Dstore.password=password -Dkey.password=password
+keytool -genkey -keyalg RSA -alias selfsigned -keystore /home/jevis/ect/keystore.jks -storepass password -validity 360
+./install.sh -Djar.sign.skip=false -Dstore.password=password -Dkey.password=password
 ```
+
+
+
 
 
 By default all cronfiguration file can be found ${JEVIS_HOME/etc}
 Edit all configuration file to match your settings. For more detailt see (ToDO)
 ``` bash
+nano ${JEVIS_HOME}/etc/webservice.xml
 nano ${JEVIS_HOME}/etc/jevis.env
 nano ${JEVIS_HOME}/etc/jevis.xml
 nano ${JEVIS_HOME}/etc/jevis.conf
 ```
  
 
-Start the JEVis services.
+Start the JEVis services if installed.
 ``` bash
 sudo service start jewebservice
 ```

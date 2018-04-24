@@ -129,6 +129,50 @@
                 </executions>
             </plugin>
 
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>webstart-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jnlp</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludeTransitive>false</excludeTransitive>
+                    <dependencies>
+                    </dependencies>
+                    <jnlp>
+                        <outputFile>jeviscc.jnlp</outputFile>
+                        <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
+                    </jnlp>
+
+                    <sign>
+                        <keystore>${project.parent.basedir}/etc/keystore.jks</keystore>
+                        <keypass>${key.password}</keypass>
+                        <storepass>${store.password}</storepass>
+                        <alias>jevis</alias>
+
+                        <keystoreConfig>
+                            <delete>false</delete>
+                            <gen>false</gen>
+                        </keystoreConfig>
+                    </sign>
+
+
+                    <pack200><enabled>false</enabled></pack200>
+                    <gzip> true</gzip>
+                    <outputJarVersions>true</outputJarVersions>
+                    <verbose>true</verbose>
+
+                </configuration>
+            </plugin>
+
+
+
+            <!--
             <plugin>
                 <artifactId>maven-jarsigner-plugin</artifactId>
                 <version>1.4</version>
@@ -142,13 +186,14 @@
                 </executions>
                 <configuration>
                     <keystore>${project.parent.basedir}/etc/keystore.jks</keystore>
-                    <alias>selfsigned</alias>
+                    <alias>jevis</alias>
                     <storepass>${store.password}</storepass>
                     <keypass>${key.password}</keypass>
                     <skip>${jar.sign.skip}</skip>
 
                 </configuration>
             </plugin>
+            -->
 
         </plugins>
     </build>
