@@ -1,0 +1,72 @@
+#fxlogin-header{ 
+    -fx-background-color: #828687;
+}
+
+#fxlogin-header-logo{ 
+	-fx-background-color: white;
+}
+
+#fxlogin-body{ 
+	-fx-background-color: #dcdcdc;
+}
+
+#fxlogin-body-left{ 
+	-fx-background-color: #dcdcdc;
+}
+
+#fxlogin-body-right{ 
+	-fx-background-color: #dcdcdc;
+}
+
+#fxlogin-body-progress{ 
+	;
+}
+
+#fx-login-footer{ 
+	-fx-background-color: #828687;
+}
+
+#fx-login-footer-info{ 
+	-fx-text-fill: black;
+	-fx-background-color: #828687;
+}
+
+#fxlogin-form{ 
+	-fx-background-color: #dcdcdc;
+}
+
+#fxlogin-form-language-label{ 
+	-fx-text-fill: black;
+}
+
+#fxlogin-form-login{ 
+	-fx-text-fill: black;
+}
+
+#fxlogin-form-register{
+	-fx-text-fill: black;
+}
+
+#fxlogin-form-close{ 
+	;
+}
+
+#fxlogin-form-username{ 
+	-fx-text-fill: black;
+}
+
+#fxlogin-form-user-label{ 
+	-fx-text-fill: black;
+}
+
+#fxlogin-form-password-label{ 
+	-fx-text-fill: black;
+}
+
+#fxlogin-form-remeberme{
+	-fx-text-fill: black;
+}
+
+#fxlogin-form-password{ 
+	;
+}
