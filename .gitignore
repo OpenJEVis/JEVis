@@ -4,6 +4,7 @@ etc/jevis.xml
 etc/jevis.conf
 etc/log4j2.xml
 etc/log4j.properties
+ect/keystore.jks
 
 # Created by https://www.gitignore.io/api/intellij
 
@@ -64,10 +65,10 @@ fabric.properties
 ### Intellij Patch ###
 # Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
 
-# *.iml
-# modules.xml
-# .idea/misc.xml
-# *.ipr
+ *.iml
+ modules.xml
+ .idea/misc.xml
+ *.ipr
 
 # Sonarlint plugin
 .idea/sonarlint

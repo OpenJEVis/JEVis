@@ -54,14 +54,15 @@ Execute the installation script for an default server installation.
 ./install.sh
 ```
 
-(Alternativ)Create an signed Control Center.
+(Alternativ)Create an signed Control Center. Set the jevisserver and password parameters 
 ``` bash
 keytool -genkey -alias jevis \
     -deststoretype pkcs12 -keysize 4096 \
     -keyalg RSA -keystore etc/keystore.jks \
     -dname "CN=JEVis, OU=OpenJEVis, O=, L=, S=, C=DE" \
     -storepass password -keypass password
-./install.sh -Djar.sign.skip=false -Dstore.password=password -Dkey.password=password
+cd JEVisControlCenter/ 
+mvn clean install -Dskipjnlp=install -Dstore.password=password -Dkey.password=password -Djevisserver=10.1.1.85
 ```
 
 
