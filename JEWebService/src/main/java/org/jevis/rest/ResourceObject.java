@@ -217,11 +217,11 @@ public class ResourceObject {
             }
 
             System.out.println("2");
-            JsonObject paretOb = ds.getObject(json.getParent());
-            if (paretOb != null && ds.getUserManager().canCreate(paretOb)) {
+            JsonObject parentObj = ds.getObject(json.getParent());
+            if (parentObj != null && ds.getUserManager().canCreate(parentObj)) {
 
                 System.out.println("3");
-                JsonObject newObj = ds.buildObject(json, paretOb.getId());
+                JsonObject newObj = ds.buildObject(json, parentObj.getId());
 
                 System.out.println("4");
                 return Response.ok(newObj).build();
@@ -259,9 +259,8 @@ public class ResourceObject {
 
             JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
             JsonObject existingObj = ds.getObject(id);
-            if (existingObj != null && ds.getUserManager().canDelete(json)) {
-                ds.deleteObject(existingObj);
-                ds.getProfiler().addEvent("ObjectResource", "done");
+            if (existingObj != null && ds.getUserManager().canWrite(existingObj)) {
+                ds.getObjectTable().updateObject(json);
                 return Response.ok().build();
             } else {
                 return Response.notModified().build();

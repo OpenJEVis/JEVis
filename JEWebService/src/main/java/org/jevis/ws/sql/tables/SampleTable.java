@@ -123,8 +123,6 @@ public class SampleTable {
                     + COLUMN_FILE_NAME + "=VALUES(" + COLUMN_FILE_NAME + "),"
                     + COLUMN_FILE + "=VALUES(" + COLUMN_FILE + ")";
 
-            System.out.println("SQL statement from SampleTable.insertSamplesChunk: " + sqlWithUpdate);
-
             ps = _connection.getConnection().prepareStatement(sqlWithUpdate);
 
 //            ps = _connection.prepareStatement(build.toString());

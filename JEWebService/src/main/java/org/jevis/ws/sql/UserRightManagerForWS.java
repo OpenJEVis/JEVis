@@ -243,7 +243,7 @@ public class UserRightManagerForWS {
 
         //check for group permissions
         for (JsonRelationship rel : ds.getRelationships(object.getId())) {
-            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && exeGIDS.contains(rel.getTo())) {
+            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && deleteGIDS.contains(rel.getTo())) {
                 return true;
             }
         }

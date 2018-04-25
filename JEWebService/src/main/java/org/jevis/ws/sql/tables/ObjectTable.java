@@ -19,26 +19,21 @@
  */
 package org.jevis.ws.sql.tables;
 
-import java.sql.Array;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisExceptionCodes;
-import org.jevis.api.JEVisObject;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  *
@@ -57,7 +52,7 @@ public class ObjectTable {
     private SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
 
-    public ObjectTable(SQLDataSource ds) throws JEVisException {
+    public ObjectTable(SQLDataSource ds) {
         _connection = ds;
     }
 
@@ -159,7 +154,7 @@ public class ObjectTable {
 
     }
 
-    public JEVisObject updateObject(JEVisObject object) throws JEVisException {
+    public JsonObject updateObject(JsonObject object) throws JEVisException {
         String sql = "update " + TABLE
                 + " set " + COLUMN_NAME + "=?,"
                 + COLUMN_PUBLIC + "=?"
@@ -171,8 +166,8 @@ public class ObjectTable {
         try {
             ps = _connection.getConnection().prepareStatement(sql);
             ps.setString(1, object.getName());
-            ps.setBoolean(2, object.isPublic());
-            ps.setLong(3, object.getID());
+            ps.setBoolean(2, object.getisPublic());
+            ps.setLong(3, object.getId());
 
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Object.update()", ps.toString());
@@ -386,7 +381,7 @@ public class ObjectTable {
         return objects;
     }
 
-    public void getAllChildren(List<JsonObject> objs, JsonObject parentObj) throws JEVisException {
+    public void getAllChildren(List<JsonObject> objs, JsonObject parentObj) {
 
         List<JsonRelationship> allObjects = _connection.getRelationships(JEVisConstants.ObjectRelationship.PARENT);
 
@@ -409,7 +404,7 @@ public class ObjectTable {
 
     }
 
-    public boolean deleteObject(JsonObject obj) throws JEVisException {
+    public boolean deleteObject(JsonObject obj) {
         String sql = "update " + TABLE
                 + " set " + COLUMN_DELETE + "=?"
                 + " where " + COLUMN_ID + " IN(";
