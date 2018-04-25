@@ -123,6 +123,8 @@ public class SampleTable {
                     + COLUMN_FILE_NAME + "=VALUES(" + COLUMN_FILE_NAME + "),"
                     + COLUMN_FILE + "=VALUES(" + COLUMN_FILE + ")";
 
+            System.out.println("SQL statement from SampleTable.insertSamplesChunk: " + sqlWithUpdate);
+
             ps = _connection.getConnection().prepareStatement(sqlWithUpdate);
 
 //            ps = _connection.prepareStatement(build.toString());
@@ -202,7 +204,7 @@ public class SampleTable {
         String sql = "INSERT IGNORE into " + TABLE
                 + "(" + COLUMN_OBJECT + "," + COLUMN_ATTRIBUTE + "," + COLUMN_TIMESTAMP + "," + COLUMN_INSERT_TIMESTAMP
                 + "," + COLUMN_FILE_NAME + "," + COLUMN_FILE
-                + ") VALUES (?,?,?,?)";
+                + ") VALUES (?,?,?,?,?,?)";
 
         PreparedStatement ps = null;
         int count = 0;
@@ -252,8 +254,8 @@ public class SampleTable {
 
         String sql = "select " + COLUMN_FILE + "," + COLUMN_FILE_NAME + " from " + TABLE
                 + " where " + COLUMN_OBJECT + "=?"
-                + " and " + COLUMN_ATTRIBUTE + "=?"
-                + " " + COLUMN_TIMESTAMP + "=?";
+                + " and " + COLUMN_ATTRIBUTE + "=?";
+        //+ " " + COLUMN_TIMESTAMP + "=?";
 
         PreparedStatement ps = null;
 
@@ -262,7 +264,7 @@ public class SampleTable {
             if (from != null) {
                 sql += " " + COLUMN_TIMESTAMP + "=?";
             } else {
-                sql += "order by " + COLUMN_TIMESTAMP + " limit 1";
+                sql += "order by " + COLUMN_TIMESTAMP + " DESC limit 1";
             }
 
             ps = _connection.getConnection().prepareStatement(sql);
@@ -283,6 +285,7 @@ public class SampleTable {
                     JEVisFile jFile = new JEVisFileImp();
 
                     String _filename = rs.getString(SampleTable.COLUMN_FILE_NAME);
+                    System.out.println("Filename from SampleTable: " + _filename);
 
                     Blob fileBlob = rs.getBlob(SampleTable.COLUMN_FILE);
                     byte[] _fileBytes = fileBlob.getBytes(1, (int) fileBlob.length());

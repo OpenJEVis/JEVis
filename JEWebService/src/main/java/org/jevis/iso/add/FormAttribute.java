@@ -147,13 +147,15 @@ public class FormAttribute {
                     break;
                 case JEVisConstants.PrimitiveType.FILE:
                     //File
-                    if (js != null) {
-                        String filename = "";
-                        JEVisFile file = ds.getFile(obj.getId(), ja.getType(), null);
-                        filename = file.getFilename();
-                        this.file = new File(filename);
-                        this.setValue(js.getTs());
-                    }
+//                    if (js != null) {
+//                        System.out.println("File found.");
+//                        String filename = "";
+//                        JEVisFile file = ds.getFile(obj.getId(), ja.getType(), null);
+//                        filename = file.getFilename();
+//                        System.out.println("Filename: " + filename);
+//                        this.file = new File(filename);
+//                        this.setValue(js.getTs());
+//                    }
                     break;
                 case JEVisConstants.PrimitiveType.BOOLEAN:
                     //Boolean
@@ -227,6 +229,15 @@ public class FormAttribute {
         this.setName(AttributeName);
         this.setType(AttributeType);
         this.setDateTimeValue(AttributeValue);
+    }
+
+    public FormAttribute(SQLDataSource ds, JsonObject obj, String type, FormAttributeType output, JsonAttribute att) throws JEVisException {
+        this.setName(att.getType());
+        this.setType(output);
+        JEVisFile file = ds.getFile(obj.getId(), att.getType(), null);
+        String filename = file.getFilename();
+        this.file = new File(filename);
+        this.setValue(att.getEnds());
     }
 
     public int getIntValue() {

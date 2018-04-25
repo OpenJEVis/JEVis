@@ -535,20 +535,12 @@ function sendFileToJEWebService(bauth, formID, attName, fileName, value) {
         var dateISO = new Date(now.toISOString());
         var tz = dateISO.getTimezoneOffset() / 60;
         var dateForFile = dateISO.getFullYear() + pad(dateISO.getMonth() + 1) + pad(dateISO.getDate()) + 'T' + pad(dateISO.getHours() + tz) + pad(dateISO.getMinutes()) + pad(dateISO.getSeconds());
-        var xhrSamp = new XMLHttpRequest();
-        xhrSamp.onload = function () {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", encodeURI("./objects/" + formID + "/attributes/" + attName + "/samples/files/" + dateForFile));
-            xhr.setRequestHeader("Authorization", bauth);
-            xhr.setRequestHeader("Content-Type", "application/octet-stream");
-            xhr.send(value.files[0]);
-        };
-        xhrSamp.open("POST", encodeURI("./objects/" + formID + "/attributes/" + attName + "/samples"));
-        xhrSamp.setRequestHeader("Authorization", bauth);
-        xhrSamp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        var json = [{"ts": dateISO, "value": fileName}];
-        var x = JSON.stringify(json);
-        xhrSamp.send(x);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", encodeURI("./objects/" + formID + "/attributes/" + attName + "/samples/files/" + dateForFile + "?filename=" + fileName));
+        xhr.setRequestHeader("Authorization", bauth);
+        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.send(value.files[0]);
+
     }
 }
 

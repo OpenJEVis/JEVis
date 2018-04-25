@@ -69,19 +69,26 @@ public class ISOForm {
 
                     FormAttributeDisplayType fadt = new FormAttributeDisplayType(att.getPrimitiveType(), guiDisplayType);
                     if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.ObjectTarget)) {
-                        FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att, att.getLatestValue());
+                        if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.File)) {
+                            FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att, att.getLatestValue());
 
-                        if (fadt.getOutput() == FormAttribute.FormAttributeType.Double) {
-                            fa.setUnithelp(getUnits(ds));
+                            if (fadt.getOutput() == FormAttribute.FormAttributeType.Double) {
+                                fa.setUnithelp(getUnits(ds));
+                            }
+
+                            listFormAttributes.add(fa);
+                        } else {
+                            System.out.println("Sample count of " + att.getType() + " : " + att.getSampleCount());
+                            System.out.println("Primitive Type: " + att.getPrimitiveType() + ". Found File Type.");
+                            FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att);
+
+                            listFormAttributes.add(fa);
                         }
-                        listFormAttributes.add(fa);
                     } else {
 
                         FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att, att.getLatestValue());
 
                         TargetHelper th = new TargetHelper(ds, att);
-
-                        System.out.println(th.toString());
 
                         if (th.hasObject() && th.isValid()) {
                             fa.setValue(th.getObject().getName());

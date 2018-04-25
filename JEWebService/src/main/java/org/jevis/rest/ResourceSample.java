@@ -157,7 +157,7 @@ public class ResourceSample {
             @Context UriInfo url,
             @PathParam("id") long id,
             @PathParam("attribute") String attribute,
-            @DefaultValue("nameless.file") @PathParam("filename") String filename,
+            @DefaultValue("nameless.file") @QueryParam("filename") String filename,
             @DefaultValue("latest") @PathParam("timestamp") String timestamp,
             //            @DefaultValue("file.file") @QueryParam("filename") String filename,
             InputStream payload
@@ -173,11 +173,11 @@ public class ResourceSample {
                         .entity("Object is not accessable").build();
             }
 
-            ds.getUserManager().canWrite(obj);//thows exception
+            ds.getUserManager().canWrite(obj);//throws exception
 
             DateTime ts = fmt.parseDateTime(timestamp).withZone(DateTimeZone.UTC);
-           
-            //TODO: check size an type
+
+            //TODO: check size and type
             byte[] bytes = IOUtils.toByteArray(payload);
             
             JEVisFile file = new JEVisFileImp(filename, bytes);
@@ -188,7 +188,7 @@ public class ResourceSample {
             }
 
         } catch (AuthenticationException ex) {
-            logger.error("Auth errror: {}", ex);
+            logger.error("Auth error: {}", ex);
             return Response.status(Response.Status.UNAUTHORIZED).build();
 //            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
 
