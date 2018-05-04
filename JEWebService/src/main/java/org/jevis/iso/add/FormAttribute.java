@@ -21,6 +21,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -235,8 +236,10 @@ public class FormAttribute {
         this.setName(att.getType());
         this.setType(output);
         JEVisFile file = ds.getFile(obj.getId(), att.getType(), null);
-        String filename = file.getFilename();
-        this.file = new File(filename);
+        if (Objects.nonNull(file)) {
+            String filename = file.getFilename();
+            this.file = new File(filename);
+        }
         this.setValue(att.getEnds());
     }
 
@@ -358,7 +361,7 @@ public class FormAttribute {
     }
 
     public enum FormAttributeType {
-        Text, Double, Long, File, Boolean, Selection, Date, DateTime, Schedule, TimeZone, TextArea, Password, TextPassword, MultiSelection, ObjectTarget
+        StringEnum, Text, Double, Long, File, Boolean, Selection, Date, DateTime, Schedule, TimeZone, TextArea, Password, TextPassword, MultiSelection, ObjectTarget, AttributeTarget
     }
 
 }

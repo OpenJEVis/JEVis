@@ -5,6 +5,8 @@
  */
 package org.jevis.iso.add;
 
+import org.jevis.commons.ws.json.JsonObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.List;
 public class Form {
 
     List<FormAttribute> attributes = new ArrayList<>();
+    List<JsonRelationshipHelper> permissions = new ArrayList<>();
+    List<JsonObject> userGroups = new ArrayList<>();
     private long ID = 0;
     private Boolean translated = false;
     private String name = new String();
@@ -22,6 +26,51 @@ public class Form {
     private String deleteobject = "Delete Object";
     private String uploaded = "Uploaded";
     private String bauth = new String();
+    private String tabAttributes = "Attributes";
+    private String tabPermissions = "Permissions";
+    private String buttonUpload = "Upload";
+    private String buttonDownload = "Download";
+    private String buttonDelete = "Delete Object";
+
+    public List<JsonObject> getUserGroups() {
+        return userGroups;
+    }
+
+    public void setUserGroups(List<JsonObject> userGroups) {
+        this.userGroups = userGroups;
+    }
+
+    public List<JsonRelationshipHelper> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<JsonRelationshipHelper> permissions) {
+        this.permissions = permissions;
+    }
+
+    public String getButtonUpload() {
+        return buttonUpload;
+    }
+
+    public void setButtonUpload(String buttonUpload) {
+        this.buttonUpload = buttonUpload;
+    }
+
+    public String getButtonDownload() {
+        return buttonDownload;
+    }
+
+    public void setButtonDownload(String buttonDownload) {
+        this.buttonDownload = buttonDownload;
+    }
+
+    public String getButtonDelete() {
+        return buttonDelete;
+    }
+
+    public void setButtonDelete(String buttonDelete) {
+        this.buttonDelete = buttonDelete;
+    }
 
     public long getID() {
         return ID;
@@ -53,6 +102,22 @@ public class Form {
 
     public void setUploaded(String uploaded) {
         this.uploaded = uploaded;
+    }
+
+    public String getTabAttributes() {
+        return tabAttributes;
+    }
+
+    public void setTabAttributes(String tabAttributes) {
+        this.tabAttributes = tabAttributes;
+    }
+
+    public String getTabPermissions() {
+        return tabPermissions;
+    }
+
+    public void setTabPermissions(String tabPermissions) {
+        this.tabPermissions = tabPermissions;
     }
 
     public String getObjectname() {
@@ -92,7 +157,15 @@ public class Form {
             map.put("objectname", getObjectname());
             map.put("deleteobject", getDeleteobject());
             map.put("uploaded", getUploaded());
+            map.put("tabAttributes", getTabAttributes());
+            map.put("tabPermissions", getTabPermissions());
+            map.put("buttonUpload", getButtonUpload());
+            map.put("buttonDownload", getButtonDownload());
+            map.put("buttonDelete", getButtonDelete());
+
             map.put("attributes", getAttributes());
+            map.put("permissions", getPermissions());
+            map.put("userGroups", getUserGroups());
             TemplateChooser tc = new TemplateChooser(map, "form");
 
             output = tc.getOutput();

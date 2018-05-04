@@ -48,6 +48,8 @@ function loadJQueryFunctions() {
     });
 }
 
+var activeFormTab = "defaultTab";
+var activeNavTab = "tabObjects";
 
 function connect(url, bauth, target) {
     var xhr = new XMLHttpRequest();
@@ -89,10 +91,18 @@ function connect(url, bauth, target) {
 
                 document.getElementById('loading').innerHTML = "";
             }
-            if (target == 'content-nav') {
+            if (target == 'content-nav' || target == 'content-form') {
                 setCurrentNav(url);
             }
             loadJQueryFunctions();
+
+            if (target == 'content-form') {
+                document.getElementById(activeFormTab).click();
+            }
+
+            if (target == 'content-nav' && document.getElementById(activeNavTab) != null) {
+                document.getElementById(activeNavTab).click();
+            }
         }
     };
     if (target == 'content-form' || target == 'content-nav' || target == 'content-dash' || target == 'nav-site') {
@@ -294,6 +304,41 @@ function createObject(jevisClass, parentObjectID, pathOfOrigin, siteName, bauth)
         xhr.setRequestHeader("Authorization", bauth);
         xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
         xhr.send(json);
+    }
+}
+
+function createRelationship(from, to, type, bauth) {
+    var json = JSON.stringify({"from": from, "to": to, "type": type});
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var oldURL = getCurrentNav();
+            console.log(oldURL);
+            connect(oldURL, bauth, 'content-form');
+        }
+    };
+    xhr.open("POST", encodeURI('./relationships'));
+    xhr.setRequestHeader("Authorization", bauth);
+    xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    xhr.send(json);
+
+}
+
+function deleteRelationship(from, to, type, bauth) {
+    if (confirm("")) {
+        var url = "./relationships?from=" + from + "&to=" + to + "&type=" + type;
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var oldURL = getCurrentNav();
+                connect(oldURL, bauth, 'content-form');
+            }
+        };
+        xhr.open("DELETE", url);
+        xhr.setRequestHeader("Authorization", bauth);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.send();
     }
 }
 
@@ -960,4 +1005,48 @@ function showCharts(energysource1, energysource1name,
         var ctxConsumption5 = document.getElementById("canvasConsumption5").getContext("2d");
         window.myLine = new Chart(ctxConsumption, configConsumption5);
     }
+}
+
+function openFormTab(evt, tabName) {
+    // Declare all variables
+    var i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+    activeFormTab = evt.currentTarget.id;
+}
+
+function openNavTab(evt, tabNavName) {
+    // Declare all variables
+    var i, tabnavcontent, tabnavlinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabnavcontent = document.getElementsByClassName("tabnavcontent");
+    for (i = 0; i < tabnavcontent.length; i++) {
+        tabnavcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tabnavlinks = document.getElementsByClassName("tabnavlinks");
+    for (i = 0; i < tabnavlinks.length; i++) {
+        tabnavlinks[i].className = tabnavlinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(tabNavName).style.display = "block";
+    evt.currentTarget.className += " active";
+    activeNavTab = evt.currentTarget.id;
 }

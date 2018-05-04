@@ -1,9 +1,8 @@
 package org.jevis.iso.add;
 
+import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
-import org.jevis.commons.ws.json.JsonAttribute;
-import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.commons.ws.json.JsonRelationship;
+import org.jevis.commons.ws.json.*;
 import org.jevis.ws.sql.SQLDataSource;
 
 import java.util.ArrayList;
@@ -91,6 +90,27 @@ public class Snippets {
                 getParent(ds, obj);
                 if (obj.getParent() == parent.getId()) {
                     list.add(obj);
+                }
+            }
+        }
+        return list;
+    }
+
+    public static List<JsonJEVisClass> getRootClasses(SQLDataSource ds) throws JEVisException {
+        List<JsonJEVisClass> list = new ArrayList<>();
+        for (JsonClassRelationship crel : ds.getClassRelationships()) {
+            if (crel.getType() != JEVisConstants.ClassRelationship.INHERIT
+                    && crel.getStart().equals(crel.getEnd())) list.add(ds.getJEVisClass(crel.getStart()));
+        }
+        return list;
+    }
+
+    public static List<JsonJEVisClass> getAllChildren(SQLDataSource ds, JsonJEVisClass parent) throws JEVisException {
+        List<JsonJEVisClass> list = new ArrayList<>();
+        if (parent != null) {
+            for (JsonClassRelationship crel : ds.getClassRelationships()) {
+                if (crel.getType() == JEVisConstants.ClassRelationship.OK_PARENT && crel.getEnd().equals(parent.getName())) {
+                    list.add(ds.getJEVisClass(crel.getStart()));
                 }
             }
         }

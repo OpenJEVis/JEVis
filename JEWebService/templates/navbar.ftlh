@@ -31,6 +31,9 @@
             <!-- </select> -->
             <!-- </div> -->
             <!-- </li> -->
+            <li><a href="#" style="text-align: right;"
+                   onclick="cls(); connect('./tree?', '${bauth}', 'content-nav'); clearDashboard();">JEVis Web</a>
+            </li>
             <li id="logo"><a style="padding: 0px 0px; vertical-align: middle;" href=""
                              onclick="cls(); connect('./navbar', '${bauth}', 'bodyfornav'); return false;"><img
                     src="./resources/logo" height="46px"></a></li>

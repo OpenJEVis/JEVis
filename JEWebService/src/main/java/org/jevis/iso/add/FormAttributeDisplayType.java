@@ -7,8 +7,8 @@ package org.jevis.iso.add;
 
 import org.jevis.iso.add.FormAttribute.FormAttributeType;
 
-import static org.jevis.iso.add.FormAttribute.FormAttributeType.Boolean;
 import static org.jevis.iso.add.FormAttribute.FormAttributeType.*;
+import static org.jevis.iso.add.FormAttribute.FormAttributeType.Boolean;
 import static org.jevis.iso.add.FormAttribute.FormAttributeType.Double;
 import static org.jevis.iso.add.FormAttribute.FormAttributeType.Long;
 
@@ -53,6 +53,12 @@ public class FormAttributeDisplayType {
                             break;
                         case ("Object Target"):
                             output = ObjectTarget;
+                            break;
+                        case ("Attribute Target"):
+                            output = AttributeTarget;
+                            break;
+                        case ("String Enum"):
+                            output = StringEnum;
                             break;
                         default:
                             break;

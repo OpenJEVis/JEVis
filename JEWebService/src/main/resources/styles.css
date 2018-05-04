@@ -482,7 +482,7 @@ input:focus, textarea:focus {
     -moz-transition: color 2s;
     -webkit-transition: color 2s;
     -o-transition: color 2s;
-    color: #c67800;
+    color: #3b4045;
 }
 
 .boxsizingBorder {
@@ -926,5 +926,51 @@ select:hover {
         position: relative;
         width: 100%;
         margin-top: 20px;
+    }
+}
+
+/* Style the tab */
+.tab, .tabnav {
+    overflow: hidden;
+    /* border: 1px solid #ccc; */
+    background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button, .tabnav button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover, .tabnav button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active, .tabnav button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent, .tabnavcontent {
+    display: none;
+    padding: 6px 12px;
+    /*border: 1px solid #ccc; */
+    border-top: none;
+    animation: fadeEffect 1s; /* Fading effect takes 1 second */
+}
+
+@keyframes fadeEffect {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }

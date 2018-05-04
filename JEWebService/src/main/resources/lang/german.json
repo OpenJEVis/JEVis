@@ -2,6 +2,8 @@
   "name": "German Translation",
   "Object Name": "Objekt Name",
   "Delete Object": "Objekt entfernen",
+  "Upload": "Hochladen",
+  "Download": "Herunterladen",
   "Uploaded": "Hochgeladen",
   "Login": "Anmelden",
   "Username": "Benutzername",
@@ -178,5 +180,7 @@
   "Share missing<br>%": "Anteil fehlend<br>%",
   "Overview": "Überblick",
   "Total": "Gesamt",
-  "Production Overview for ": "Produktionsüberblick für "
+  "Production Overview for ": "Produktionsüberblick für ",
+  "Attributes": "Eigenschaften",
+  "Permissions": "Rechte"
 }

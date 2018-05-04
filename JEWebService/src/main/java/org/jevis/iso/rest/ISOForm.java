@@ -5,11 +5,13 @@
  */
 package org.jevis.iso.rest;
 
+import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.json.JsonType;
 import org.jevis.iso.add.Form;
 import org.jevis.iso.add.*;
@@ -32,6 +34,7 @@ public class ISOForm {
      * @param httpHeaders
      * @param ID
      * @param lang
+     * @param classname
      * @return
      */
     @GET
@@ -41,100 +44,140 @@ public class ISOForm {
             @Context Request request,
             @Context UriInfo url,
             @DefaultValue("") @QueryParam("ID") Long ID,
-            @DefaultValue("") @QueryParam("lang") String lang
+            @DefaultValue("") @QueryParam("lang") String lang,
+            @DefaultValue("") @QueryParam("classname") String classname
     ) throws Exception {
 
         SQLDataSource ds = null;
         try {
-            ds = new SQLDataSource(httpHeaders, request, url);
-            JsonObject obj = ds.getObject(ID);
-
             Form f = new Form();
-            List<FormAttribute> listFormAttributes = new ArrayList<>();
+            ds = new SQLDataSource(httpHeaders, request, url);
 
-            f.setID(obj.getId());
-            f.setName(obj.getName());
-            f.setBauth(httpHeaders.getRequestHeader("authorization").get(0));
+            if (classname.equals("")) {
+                ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
+                ds.preload(SQLDataSource.PRELOAD.ALL_REL);
+                JsonObject obj = ds.getObject(ID);
 
-            List<JsonAttribute> listAttributes = ds.getAttributes(obj.getId());
+                List<FormAttribute> listFormAttributes = new ArrayList<>();
 
-            for (JsonAttribute att : listAttributes) {
-                if (att.getSampleCount() > 0) {
-                    String guiDisplayType = "";
-                    for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
-                        if (jt.getName().equals(att.getType())) {
-                            guiDisplayType = jt.getGuiType();
+                f.setID(obj.getId());
+                f.setName(obj.getName());
+                f.setBauth(httpHeaders.getRequestHeader("authorization").get(0));
+
+                List<JsonAttribute> listAttributes = ds.getAttributes(obj.getId());
+
+                for (JsonAttribute att : listAttributes) {
+                    if (att.getSampleCount() > 0) {
+                        String guiDisplayType = "";
+                        for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
+                            if (jt.getName().equals(att.getType())) {
+                                guiDisplayType = jt.getGuiType();
+                            }
                         }
-                    }
 
-                    FormAttributeDisplayType fadt = new FormAttributeDisplayType(att.getPrimitiveType(), guiDisplayType);
-                    if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.ObjectTarget)) {
-                        if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.File)) {
+                        FormAttributeDisplayType fadt = new FormAttributeDisplayType(att.getPrimitiveType(), guiDisplayType);
+                        if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.ObjectTarget)) {
+                            if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.File)) {
+                                FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att, att.getLatestValue());
+
+                                if (fadt.getOutput() == FormAttribute.FormAttributeType.Double) {
+                                    fa.setUnithelp(getUnits(ds));
+                                }
+
+                                listFormAttributes.add(fa);
+                            } else {
+                                FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att);
+
+                                listFormAttributes.add(fa);
+                            }
+                        } else {
+
                             FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att, att.getLatestValue());
 
+                            TargetHelper th = new TargetHelper(ds, att);
+
+                            if (th.hasObject() && th.isValid()) {
+                                fa.setValue(th.getObject().getName());
+                                fa.setLongValue(th.getObject().getId());
+                            }
+
+                            fa.setOthelp(getObjectTargetHelper(ds, att));
+
+                            listFormAttributes.add(fa);
+                        }
+                    } else {
+                        String guiDisplayType = "";
+                        for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
+                            if (jt.getName().equals(att.getType())) {
+                                guiDisplayType = jt.getGuiType();
+                            }
+                        }
+
+                        FormAttributeDisplayType fadt = new FormAttributeDisplayType(att.getPrimitiveType(), guiDisplayType);
+                        if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.ObjectTarget)) {
+                            FormAttribute fa = new FormAttribute(att.getType(), fadt.getOutput());
                             if (fadt.getOutput() == FormAttribute.FormAttributeType.Double) {
                                 fa.setUnithelp(getUnits(ds));
                             }
-
                             listFormAttributes.add(fa);
                         } else {
-                            System.out.println("Sample count of " + att.getType() + " : " + att.getSampleCount());
-                            System.out.println("Primitive Type: " + att.getPrimitiveType() + ". Found File Type.");
-                            FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att);
+                            FormAttribute fa = new FormAttribute(att.getType(), fadt.getOutput());
+
+                            fa.setOthelp(getObjectTargetHelper(ds, att));
 
                             listFormAttributes.add(fa);
                         }
-                    } else {
-
-                        FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att, att.getLatestValue());
-
-                        TargetHelper th = new TargetHelper(ds, att);
-
-                        if (th.hasObject() && th.isValid()) {
-                            fa.setValue(th.getObject().getName());
-                            fa.setLongValue(th.getObject().getId());
-                        }
-
-                        fa.setOthelp(getObjectTargetHelper(ds, att));
-
-                        listFormAttributes.add(fa);
-                    }
-                } else {
-                    String guiDisplayType = "";
-                    for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
-                        if (jt.getName().equals(att.getType())) {
-                            guiDisplayType = jt.getGuiType();
-                        }
-                    }
-
-                    FormAttributeDisplayType fadt = new FormAttributeDisplayType(att.getPrimitiveType(), guiDisplayType);
-                    if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.ObjectTarget)) {
-                        FormAttribute fa = new FormAttribute(att.getType(), fadt.getOutput());
-                        if (fadt.getOutput() == FormAttribute.FormAttributeType.Double) {
-                            fa.setUnithelp(getUnits(ds));
-                        }
-                        listFormAttributes.add(fa);
-                    } else {
-                        FormAttribute fa = new FormAttribute(att.getType(), fadt.getOutput());
-
-                        fa.setOthelp(getObjectTargetHelper(ds, att));
-
-                        listFormAttributes.add(fa);
                     }
                 }
-            }
 
-            if (!lang.equals("")) {
-                f.setTranslated(true);
-                Translations t = new Translations();
-                listFormAttributes = t.translate(listFormAttributes, lang);
-                f.setObjectname(t.getTranslatedKey(lang, "Object Name"));
-                f.setDeleteobject(t.getTranslatedKey(lang, "Delete Object"));
-                f.setUploaded(t.getTranslatedKey(lang, "Uploaded"));
-            }
+                if (!lang.equals("")) {
+                    f.setTranslated(true);
+                    Translations t = new Translations();
+                    listFormAttributes = t.translate(listFormAttributes, lang);
+                    f.setObjectname(t.getTranslatedKey(lang, "Object Name"));
+                    f.setDeleteobject(t.getTranslatedKey(lang, "Delete Object"));
+                    f.setUploaded(t.getTranslatedKey(lang, "Uploaded"));
+                    f.setTabAttributes(t.getTranslatedKey(lang, "Attributes"));
+                    f.setTabPermissions(t.getTranslatedKey(lang, "Permissions"));
+                    f.setButtonDelete(t.getTranslatedKey(lang, "Delete Object"));
+                    f.setButtonDownload(t.getTranslatedKey(lang, "Download"));
+                    f.setButtonUpload(t.getTranslatedKey(lang, "Upload"));
+                }
 
-            f.setAttributes(listFormAttributes);
-            return Response.ok(f.getOutput()).build();
+                f.setAttributes(listFormAttributes);
+
+                if (!obj.getJevisClass().equals("Group")) {
+                    List<String> listAccessors = new ArrayList<>();
+                    for (JsonRelationship rel : ds.getRelationships(ID)) {
+                        if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
+                            listAccessors.add(ds.getObject(rel.getTo()).getName());
+                        }
+                    }
+
+                    List<JsonObject> userGroups = ds.getObjects("Group", true);
+                    List<JsonObject> foundGroups = new ArrayList<>();
+                    List<JsonRelationshipHelper> relHelp = new ArrayList<>();
+                    for (JsonRelationship rel : ds.getRelationships(obj.getId())) {
+                        if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
+                            JsonObject g = ds.getObject(rel.getTo());
+                            foundGroups.add(g);
+                            relHelp.add(new JsonRelationshipHelper(g.getName(), rel.getFrom(), rel.getTo(), rel.getType()));
+                        }
+                    }
+                    f.setPermissions(relHelp);
+                    userGroups.removeAll(foundGroups);
+                    f.setUserGroups(userGroups);
+                } else {
+                    //TODO add User rights to groups
+                }
+
+                return Response.ok(f.getOutput()).build();
+            } else {
+                ds.preload(SQLDataSource.PRELOAD.ALL_CLASSES);
+
+
+                return Response.ok(f.getOutput()).build();
+            }
 
         } finally {
             Config.CloseDS(ds);
@@ -161,26 +204,26 @@ public class ISOForm {
 
         switch (att.getType()) {
             case (Equipment.AttMeasuringPoint):
-                for (JsonObject obj : ds.getObjects(jc.getMeasuringPoint().getName(), true)) {
+                for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects(jc.getMeasuringPoint().getName(), true))) {
                     ObjectTargetHelper o = new ObjectTargetHelper(obj.getId(), obj.getName(), obj.getJevisClass());
                     oth.add(o);
                 }
                 break;
             case (Equipment.AttEnergySource):
-                for (JsonObject obj : ds.getObjects(jc.getEnergySource().getName(), false)) {
+                for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects(jc.getEnergySource().getName(), false))) {
                     ObjectTargetHelper o = new ObjectTargetHelper(obj.getId(), obj.getName(), obj.getJevisClass());
                     oth.add(o);
                 }
                 break;
             case (MeasuringPoint.AttMeter):
-                for (JsonObject obj : ds.getObjects(jc.getMeter().getName(), false)) {
+                for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects(jc.getMeter().getName(), false))) {
                     ObjectTargetHelper o = new ObjectTargetHelper(obj.getId(), obj.getName(), obj.getJevisClass());
                     oth.add(o);
                 }
                 break;
             case (MeasuringPoint.AttMonitoringID):
 
-                for (JsonObject obj : ds.getObjects("Data Directory", false)) {
+                for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects("Data Directory", false))) {
                     ObjectTargetHelper o = new ObjectTargetHelper(obj.getId(), obj.getName(), obj.getJevisClass());
                     oth.add(o);
                     Map<String, JsonObject> children = new HashMap<>();
@@ -202,7 +245,7 @@ public class ISOForm {
                 break;
             case (MeasuringPoint.AttStation):
 
-                for (JsonObject one : ds.getObjects(jc.getStation().getName(), true)) {
+                for (JsonObject one : ds.getUserManager().filterList(ds.getObjects(jc.getStation().getName(), true))) {
                     ObjectTargetHelper o = new ObjectTargetHelper(one.getId(), one.getName(), one.getJevisClass());
                     oth.add(o);
                 }

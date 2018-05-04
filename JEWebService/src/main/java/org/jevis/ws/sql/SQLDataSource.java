@@ -466,11 +466,11 @@ public class SQLDataSource {
         return null;
     }
 
-    public boolean deleteAllSample(long object, String attribute) throws JEVisException {
+    public boolean deleteAllSample(long object, String attribute) {
         return getSampleTable().deleteAllSamples(object, attribute);
     }
 
-    public boolean deleteSamplesBetween(long object, String attribute, DateTime startDate, DateTime endDate) throws JEVisException {
+    public boolean deleteSamplesBetween(long object, String attribute, DateTime startDate, DateTime endDate) {
         return getSampleTable().deleteSamples(object, attribute, startDate, endDate);
     }
 
@@ -522,7 +522,7 @@ public class SQLDataSource {
 //            for(JsonType t:types){
 //                
 //            }
-            
+
             return types;
         } catch (SQLException ex) {
             throw new JEVisException("DB error while fetching types", 6836, ex);
@@ -547,7 +547,7 @@ public class SQLDataSource {
         return getObjectTable().insertObject(obj.getName(), obj.getJevisClass(), parent, obj.getisPublic());
     }
 
-    public boolean deleteObject(JsonObject objectID) throws JEVisException {
+    public boolean deleteObject(JsonObject objectID) {
         return getObjectTable().deleteObject(objectID);
     }
 
