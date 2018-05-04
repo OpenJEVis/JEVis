@@ -20,9 +20,10 @@
  */
 package org.jevis.commons.ws.json;
 
+import org.jevis.api.JEVisConstants;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.jevis.api.JEVisConstants;
 
 /**
  * This Class is used to represents an JEVisRelationship in JSON by the
@@ -97,5 +98,14 @@ public class JsonClassRelationship {
      */
     public void setType(int type) {
         this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "JsonClassRelationship{" +
+                "start='" + start + '\'' +
+                ", end='" + end + '\'' +
+                ", type=" + type +
+                '}';
     }
 }
