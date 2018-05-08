@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <jnlp
     spec="1.0+"
-    codebase="http://$jevisserver/jeviscc"
+    codebase="http://$jevisserver/jevis/jeviscc"
     href="$outputFile?nocache=true">
 
 <information>
