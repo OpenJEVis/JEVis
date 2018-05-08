@@ -2,7 +2,7 @@
 <jnlp
     spec="1.0+"
     codebase="http://$jevisserver/jeviscc"
-    href="$outputFile">
+    href="$outputFile?nocache=true">
 
 <information>
 #if($project.name)
