@@ -14,6 +14,10 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.jevis.ws.sql.ConnectionFactory;
+
 /**
  * Main class.
  *
@@ -29,7 +33,7 @@ public class Main {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException,SQLException {
         LOGGER.info("Start - {}", VERSION);
         //read Config
         File configfile;
@@ -41,6 +45,25 @@ public class Main {
             if (!configfile.exists()) {
                 System.out.println("No config file try: using ../config.xml");
                 configfile = new File("../config.xml");
+                
+                for(String para:args){
+                if(para.equalsIgnoreCase("-test")){
+                    System.out.println("DBHost: "+Config.getDBHost()
+                            +"\nDBPort: "+ Config.getDBPort()
+                            +"\nDBSchema: "+ Config.getSchema()
+                            +"\nDBUSer: "+Config.getDBUser()
+                            +"\nDBPW: "+Config.getDBPW());
+                    ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
+
+                    Connection dbConn = ConnectionFactory.getInstance().getConnection();
+                    if (dbConn.isValid(2000)) {
+                        System.out.println("Database Connection is working");
+                    }else{
+                        System.out.println("Database Connection is NOT working");
+                    }
+                }
+            }
+                
             } else {
                 System.out.println("No config file: try using config.xml");
             }
