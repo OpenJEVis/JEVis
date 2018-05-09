@@ -37,6 +37,8 @@ public class Main {
         LOGGER.info("Start - {}", VERSION);
         //read Config
         File configfile;
+
+
         if (args.length >= 1) {
             configfile = new File(args[0]);
         } else {
@@ -45,8 +47,15 @@ public class Main {
             if (!configfile.exists()) {
                 System.out.println("No config file try: using ../config.xml");
                 configfile = new File("../config.xml");
-                
-                for(String para:args){
+            } else {
+                System.out.println("No config file: try using config.xml");
+            }
+        }
+	Config.readConfigurationFile(configfile);
+
+	//Test Connection parameter
+	for(String para:args){
+		System.out.println("para: "+para);
                 if(para.equalsIgnoreCase("-test")){
                     System.out.println("DBHost: "+Config.getDBHost()
                             +"\nDBPort: "+ Config.getDBPort()
@@ -61,15 +70,8 @@ public class Main {
                     }else{
                         System.out.println("Database Connection is NOT working");
                     }
-                }
-            }
-                
-            } else {
-                System.out.println("No config file: try using config.xml");
-            }
+		}
         }
-
-        Config.readConfigurationFile(configfile);
 
         final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest");
         rc.setApplicationName("JEWebservice");
