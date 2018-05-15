@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2018 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -24,6 +24,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -58,35 +59,35 @@ import org.jevis.application.login.FXLogin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.jeconfig.connectionencoder.ConnectionEncoderWindow;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
 /**
  * This is the main class of the JEConfig. The JEConfig is an JAVAFX programm,
  * the early version will need the MAVEN javafx 2.0 plugin to be build for java
- * 1.7
+ * 1.8
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEConfig extends Application {
 
-    /**
-     * Defines the version information in the about dialog
-     */
-//    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.16 2015-12-03");//old name
     public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.1.0");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
-    final Configuration _config = new Configuration();
+    /*
+    TODO: Make the config into an singelton
+     */
+    final static Configuration _config = new Configuration();
     private static Stage _primaryStage;
-    private static File _lastFile;
+
     private static JEVisDataSource _mainDS;
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEConfig.class);
-    //Workaround to load classes and roots while login
-//    private static List<JEVisClass> preLodedClasses = new ArrayList<>();
-//    private static List<JEVisObject> preLodedRootObjects = new ArrayList<>();
-    private static String _lastpath = "";
-    public static String userpassword ="";
+
+    /**
+     * Dangerous workaround to get the password to the ISOBrowser Plugin.
+     */
+    public static String userpassword;
 
     @Override
     public void init() throws Exception {
@@ -94,6 +95,8 @@ public class JEConfig extends Application {
 
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
+        I18n.getInstance().loadBundel(Locale.getDefault());
+        JEConfig.PROGRAMM_INFO.setName(I18n.getInstance().getString("appname"));
     }
 
     @Override
@@ -114,6 +117,7 @@ public class JEConfig extends Application {
      */
     private void initGUI(Stage primaryStage) {
 
+
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent t) {
@@ -127,7 +131,7 @@ public class JEConfig extends Application {
                 Toolkit xToolkit = Toolkit.getDefaultToolkit();
                 Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
                 awtAppClassNameField.setAccessible(true);
-                awtAppClassNameField.set(xToolkit, "JEVis Control Center");
+                awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
 
             } catch (Exception e) {
                 // TODO
@@ -139,6 +143,7 @@ public class JEConfig extends Application {
         Scene scene = new Scene(jeconfigRoot);
         primaryStage.setScene(scene);
 
+
         final FXLogin login = new FXLogin(primaryStage, getParameters(), PROGRAMM_INFO);
 
         AnchorPane.setTopAnchor(jeconfigRoot, 0.0);
@@ -146,35 +151,24 @@ public class JEConfig extends Application {
         AnchorPane.setLeftAnchor(jeconfigRoot, 0.0);
         AnchorPane.setBottomAnchor(jeconfigRoot, 0.0);
 
-        Screen screen = Screen.getPrimary();
-        Rectangle2D bounds = screen.getVisualBounds();
-
         login.getLoginStatus().addListener(new ChangeListener<Boolean>() {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
                     logger.debug("Start JEVis Control Center");
-//                    _mainDS = new JEVisDataSourceCache(login.getDataSource());
                     _mainDS = login.getDataSource();
-                    userpassword=login.getUserPassword();
-
-//                    ForkJoinPool forkJoinPool = new ForkJoinPool(1);
-//                    forkJoinPool.invoke(new DataPreload(_mainDS));
-                    logger.trace("done pool");
+                    JEConfig.userpassword=login.getUserPassword();
+                    I18n.getInstance().loadBundel(login.getSelectedLocale());
 
                     try {
                         _mainDS.preload();
-                        _mainDS.getObjects();//preload all objects
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                     ExecutorService exe = Executors.newSingleThreadExecutor();
                     exe.submit(() -> {
                         try {
-                            System.out.println("User: "+_mainDS.getCurrentUser());
-                            System.out.println("UserObject: "+_mainDS.getCurrentUser().getUserObject());
-                            System.out.println("User.att: "+_mainDS.getCurrentUser().getUserObject().getAttributes().size());
                             JEVisAttribute activities = _mainDS.getCurrentUser().getUserObject().getAttribute("Activities");
                             
                             JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
@@ -185,9 +179,9 @@ public class JEConfig extends Application {
                         }
                     });
 
-                    JEConfig.PROGRAMM_INFO.setJEVisAPI(_mainDS.getInfo());
-                    JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
-                    JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
+                    PROGRAMM_INFO.setJEVisAPI(_mainDS.getInfo());
+                    PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+                    PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
 
                     PluginManager pMan = new PluginManager(_mainDS);
                     TopMenu menu = new TopMenu();
@@ -199,7 +193,6 @@ public class JEConfig extends Application {
                     BorderPane border = new BorderPane();
                     VBox vbox = new VBox();
                     vbox.setStyle("-fx-background-color: black;");
-//                    vbox.getChildren().addAll(new TopMenu(), toolbar.ToolBarFactory());
                     vbox.getChildren().addAll(menu, pMan.getToolbar());
                     border.setTop(vbox);
                     border.setCenter(pMan.getView());
@@ -222,11 +215,10 @@ public class JEConfig extends Application {
                             AnchorPane.setBottomAnchor(border, 0.0);
 
                             jeconfigRoot.getChildren().setAll(border);
-                            logger.trace("Done loading");
                             try {
                                 
-                                
-                                WelcomePage welcome = new WelcomePage(primaryStage, _config.getWelcomeURL());
+                                WelcomePage welcome = new WelcomePage();
+                                welcome.show(primaryStage, _config.getWelcomeURL());
                             } catch (URISyntaxException ex) {
                                 Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
                             } catch (MalformedURLException ex) {
@@ -252,7 +244,7 @@ public class JEConfig extends Application {
         scene.getStylesheets().add("/styles/Styles.css");
         primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
 
-        primaryStage.setTitle("JEVis Control Center");
+        primaryStage.setTitle(I18n.getInstance().getString("appname"));
 
         primaryStage.setMaximized(true);
         primaryStage.show();
@@ -324,34 +316,28 @@ public class JEConfig extends Application {
      * Returns the last path the local user selected
      *
      * @return
+     * @deprecated Will be moved into the Configuration -> user settings
      */
     public static File getLastPath() {
-        if (_lastpath.equals("")) {
-            _lastpath = pref.get("lastPath", System.getProperty("user.home"));
+        if (getConfig().getLastPath()==null) {
+            getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
         }
-        File file = new File(_lastpath);
-        if (file.exists()) {
-            if (file.isDirectory()) {
-                return file;
-            } else {
-                return file.getParentFile();
-            }
-
-        } else {
-            return new File(pref.get("lastPath", System.getProperty("user.home")));
-        }
+        return getConfig().getLastPath();
     }
 
     /**
      * Set the last path the user selected for an file opration
      *
      * @param file
+     * @deprecated Will be moved into the Configuration -> user settings
      */
     public static void setLastPath(File file) {
-        _lastFile = file;
-        _lastpath = file.getPath();
-        pref.put("lastPath", file.getPath());
-
+        getConfig().setLastPath(file);
+        if(file.exists()){
+            getConfig().setLastPath(file.getParentFile());
+        }else{
+            getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
+        }
     }
 
     /**
@@ -370,6 +356,16 @@ public class JEConfig extends Application {
         primaryStage.setHeight(bounds.getHeight());
     }
 
+
+    /**
+     * Get the configuration for the app
+     *
+     * @deprecated will be replaced by an singleton
+     * @return
+     */
+    public static Configuration getConfig(){
+        return _config;
+    }
     /**
      * Return an common resource
      *

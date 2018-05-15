@@ -57,7 +57,11 @@ public class WelcomePage {
     CheckBox remember = new CheckBox("Don't show this again");
     private boolean isLoading = true;
 
-    public WelcomePage(Stage owner, URI welcomepage) {
+    public WelcomePage(){
+
+    }
+
+    public void show(Stage owner, URI welcomepage) {
 
         final Stage stage = new Stage();
 
