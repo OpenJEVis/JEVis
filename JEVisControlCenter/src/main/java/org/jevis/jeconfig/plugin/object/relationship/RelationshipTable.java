@@ -44,6 +44,7 @@ import org.jevis.api.JEVisRelationship;
 import org.jevis.application.resource.ImageConverter;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -56,16 +57,16 @@ public class RelationshipTable extends TableView {
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         setPlaceholder(new Label("No Data"));
 
-        TableColumn colDirection = new TableColumn("Direction");
+        TableColumn colDirection = new TableColumn(I18n.getInstance().getString("plugin.object.relationship.direction"));
         colDirection.setCellValueFactory(new PropertyValueFactory<TableSample, Integer>("Direction"));
 
-        TableColumn colThisObject = new TableColumn("Object");
+        TableColumn colThisObject = new TableColumn(I18n.getInstance().getString("plugin.object.relationship.object"));
         colThisObject.setCellValueFactory(new PropertyValueFactory<TableSample, JEVisObject>("Object"));
 
-        TableColumn colOtherObject = new TableColumn("Other Object");
+        TableColumn colOtherObject = new TableColumn(I18n.getInstance().getString("plugin.object.relationship.otherobject"));
         colOtherObject.setCellValueFactory(new PropertyValueFactory<TableSample, JEVisObject>("Other"));
 
-        TableColumn colType = new TableColumn("Type");
+        TableColumn colType = new TableColumn(I18n.getInstance().getString("plugin.object.relationship.type"));
         colType.setCellValueFactory(new PropertyValueFactory<TableSample, Integer>("Type"));
 
         setMinWidth(555d);//TODo: replace Dirty workaround
@@ -213,33 +214,33 @@ public class RelationshipTable extends TableView {
     public String getTypeName(int type) {
         switch (type) {
             case JEVisConstants.ObjectRelationship.DATA:
-                return "Data";
+                return I18n.getInstance().getString("jevis.types.data");
             case JEVisConstants.ObjectRelationship.INPUT:
-                return "Input";
+                return I18n.getInstance().getString("jevis.types.input");
             case JEVisConstants.ObjectRelationship.LINK:
-                return "Link";
+                return I18n.getInstance().getString("jevis.types.link");
             case JEVisConstants.ObjectRelationship.MEMBER_CREATE:
-                return "Group member, create";
+                return I18n.getInstance().getString("jevis.types.member_create");
             case JEVisConstants.ObjectRelationship.MEMBER_DELETE:
-                return "Group member, delete";
+                return I18n.getInstance().getString("jevis.types.member_delete");
             case JEVisConstants.ObjectRelationship.MEMBER_EXECUTE:
-                return "Group member, execute";
+                return I18n.getInstance().getString("jevis.types.member_execte");
             case JEVisConstants.ObjectRelationship.MEMBER_READ:
-                return "Group member, read";
+                return I18n.getInstance().getString("jevis.types.member_read");
             case JEVisConstants.ObjectRelationship.MEMBER_WRITE:
-                return "Group member, write";
+                return I18n.getInstance().getString("jevis.types.member_write");
             case JEVisConstants.ObjectRelationship.NESTED_CLASS:
-                return "Nested class";
+                return I18n.getInstance().getString("jevis.types.nested_class");
             case JEVisConstants.ObjectRelationship.OWNER:
-                return "Owner";
+                return I18n.getInstance().getString("jevis.types.owner");
             case JEVisConstants.ObjectRelationship.PARENT:
-                return "Parent";
+                return I18n.getInstance().getString("jevis.types.parent");
             case JEVisConstants.ObjectRelationship.ROOT:
-                return "Root";
+                return I18n.getInstance().getString("jevis.types.root");
             case JEVisConstants.ObjectRelationship.SERVICE:
-                return "Service";
+                return I18n.getInstance().getString("jevis.types.service");
             case JEVisConstants.ObjectRelationship.SOURCE:
-                return "Source";
+                return I18n.getInstance().getString("jevis.types.source");
             default:
                 return "Unknow: " + type;
         }

@@ -43,6 +43,7 @@ import org.jevis.application.dialog.ProgressForm;
 import static org.jevis.application.jevistree.TreeHelper.LOGGER;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -103,8 +104,10 @@ public class FileEdior implements AttributeEditor {
 
     private void init() throws JEVisException {
 
-        _downloadButton = new Button("Download file", JEConfig.getImage("698925-icon-92-inbox-download-48.png", 18, 18));
-        _uploadButton = new Button("Upload new File", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", 18, 18));
+        _downloadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.download")
+                , JEConfig.getImage("698925-icon-92-inbox-download-48.png", 18, 18));
+        _uploadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.upload"),
+                JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", 18, 18));
 
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
@@ -114,9 +117,9 @@ public class FileEdior implements AttributeEditor {
             if (lsample != null) {
                 if (_autoDownload) {
                     JEVisFile lasTFile = lsample.getValueAsFile();
-                    _downloadButton.setText("Download " + lsample.getValueAsString());
+                    _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button", lsample.getValueAsString()));
                 } else {
-                    _downloadButton.setText("Download ");
+                    _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button_emty"));
                 }
 
             } else {
@@ -136,7 +139,7 @@ public class FileEdior implements AttributeEditor {
             @Override
             public void handle(ActionEvent t) {
                 FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Upload File");
+                fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.upload"));
                 fileChooser.getExtensionFilters().addAll(
                         //                            new ExtensionFilter("Text Files", "*.txt"),
                         //                            new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
@@ -154,9 +157,9 @@ public class FileEdior implements AttributeEditor {
                             if (_attribute.hasSample()) {
                                 if (_autoDownload) {
                                     JEVisFile lasTFile = _attribute.getLatestSample().getValueAsFile();
-                                    _downloadButton.setText("Download " + lasTFile.getFilename());
+                                    _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button", lasTFile.getFilename()));
                                 } else {
-                                    _downloadButton.setText("Download ");
+                                    _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button_emty"));
                                 }
 
                             } else {
@@ -188,7 +191,7 @@ public class FileEdior implements AttributeEditor {
                     FileChooser fileChooser = new FileChooser();
 //                    fileChooser.setInitialFileName(_attribute.getObject().getName() + "_" + fmt.print(_attribute.getLatestSample().getTimestamp()));
                     fileChooser.setInitialFileName(file.getFilename());
-                    fileChooser.setTitle("Open Resource File");
+                    fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
                     fileChooser.getExtensionFilters().addAll(
                             //                            new ExtensionFilter("Text Files", "*.txt"),
                             //                            new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
@@ -213,7 +216,7 @@ public class FileEdior implements AttributeEditor {
         return _attribute;
     }
     private void loadWithAnimation() {
-        final ProgressForm pForm = new ProgressForm("Loading..");
+        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.attribute.file.progress"));
 
         Task<Void> upload = new Task<Void>() {
             @Override

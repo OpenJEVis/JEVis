@@ -66,6 +66,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.bulkedit.CreateTable;
 import org.jevis.jeconfig.bulkedit.EditTable;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.LoadingPane;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -309,7 +310,7 @@ public class ObjectPlugin implements Plugin {
     }
 
     private void saveWithAnimation() {
-        final ProgressForm pForm = new ProgressForm("Saving..");
+        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
 
         Task<Void> upload = new Task<Void>() {
             @Override
@@ -431,7 +432,6 @@ public class ObjectPlugin implements Plugin {
                         childObject = table.getListChildren().get(i);
 //                      childObject.commit();
                         List<JEVisAttribute> attributes = childObject.getAttributes();
-                        //Counter ist für die attribute. Es anfangt ab Spalte "Input Sample Rate" zu zahlen.
                         int counter = 6;
                         for (int j = 0; j < attributes.size(); j++) {
                             if (attributes.get(j).getName().equals("Value")) {
@@ -499,16 +499,6 @@ public class ObjectPlugin implements Plugin {
                     }
                 }
 
-//                //sort the list and refresh the tree
-//                final TreeItem<JEVisObject> parentItem = getObjectTreeItem(parent);
-//                //parentItem.setExpanded(false);
-//
-//                sortTheChildren(parentItem.getChildren());
-//
-//                for (int i = 0; i < table.getListChildren().size(); i++) {
-//                    getObjectGraphic(table.getListChildren().get(i)).update();
-//                }
-                //parentItem.setExpanded(true);
             }
         }
     }

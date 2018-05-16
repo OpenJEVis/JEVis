@@ -24,6 +24,7 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisConstants.Direction;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -64,13 +65,13 @@ public class TypeColum {
     private String getTypeName(int type) {
         switch (type) {
             case JEVisConstants.PrimitiveType.STRING:
-                return "String";
+                return I18n.getInstance().getString("plugin.classes.relationship.prim_type.string");
             case JEVisConstants.PrimitiveType.DOUBLE:
-                return "Double";
+                return I18n.getInstance().getString("plugin.classes.relationship.prim_type.double");
             case JEVisConstants.PrimitiveType.BOOLEAN:
-                return "Boolean";
+                return I18n.getInstance().getString("plugin.classes.relationship.prim_type.boolean");
             default:
-                return "Unknown";
+                return I18n.getInstance().getString("plugin.classes.relationship.prim_type.unknwn");
         }
 
     }

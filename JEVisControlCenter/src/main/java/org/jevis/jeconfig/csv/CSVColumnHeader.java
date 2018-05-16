@@ -69,6 +69,7 @@ import org.jevis.application.dialog.SelectTargetDialog2;
 import org.jevis.application.object.tree.UserSelection;
 import org.jevis.application.unit.UnitChooserDialog;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -83,8 +84,8 @@ public class CSVColumnHeader {
 
     private final VBox root = new VBox(5);
 
-    Label typeL = new Label("Meaning:");
-    Label formateL = new Label("Formate:");
+    Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
+    Label formateL = new Label(I18n.getInstance().getString("csv.table.format"));
     private JEVisAttribute _target = null;
     private ComboBox<String> meaning;
     private HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
@@ -97,7 +98,7 @@ public class CSVColumnHeader {
     private static double FIELD_WIDTH = 210;
     private static double ROW_HIGHT = 25;
 
-    final Button unitButton = new Button("Choose Unit..");
+    final Button unitButton = new Button(I18n.getInstance().getString("csv.table.unit"));
     private CSVTable _table;
     private String _currentFormate;
 
@@ -483,14 +484,14 @@ public class CSVColumnHeader {
         root.setPadding(new Insets(8, 8, 8, 8));
 
         ToggleGroup deciSepGroup = new ToggleGroup();
-        Label deciSeperator = new Label("Decimal Separator:");
-        final RadioButton comma = new RadioButton("Comma");
+        Label deciSeperator = new Label(I18n.getInstance().getString("csv.deci_seperator"));
+        final RadioButton comma = new RadioButton(I18n.getInstance().getString("csv.comma"));
         comma.setId("commaRadio");
-        final RadioButton dot = new RadioButton("Dot");
+        final RadioButton dot = new RadioButton(I18n.getInstance().getString("csv.dot"));
         dot.setId("dotRadio");
-        Label targetL = new Label("Target:");
-        Label unitLabel = new Label("Unit:");
-        final Button unitButton = new Button("Choose Unit..");
+        Label targetL = new Label(I18n.getInstance().getString("csv.target"));
+        Label unitLabel = new Label(I18n.getInstance().getString("csv.unit"));
+        final Button unitButton = new Button(I18n.getInstance().getString("csv.table.unit"));
 //        unitButton.setDisable(true);
         unitButton.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -587,11 +588,11 @@ public class CSVColumnHeader {
         final ComboBox<String> timeZone;
         ComboBox<String> timeLocale;
         final TextField formate = new TextField();
-        Label timeZoneL = new Label("TimeZone:");
-        Label targetL = new Label("Target:");
-        Label vaueLocaleL = new Label("Locale:");
+        Label timeZoneL = new Label(I18n.getInstance().getString("csv.timezone"));
+        Label targetL = new Label(I18n.getInstance().getString("csv.target"));
+        Label vaueLocaleL = new Label(I18n.getInstance().getString("csv.locale"));
 
-        formate.setPromptText("Formate");
+        formate.setPromptText(I18n.getInstance().getString("csv.format.prompt"));
 
         ObservableList<String> timeZoneOpt = FXCollections.observableArrayList();
         String[] allTimeZones = TimeZone.getAvailableIDs();
@@ -604,8 +605,6 @@ public class CSVColumnHeader {
 
             @Override
             public void handle(ActionEvent t) {
-                System.out.println("new Timezone: ");
-
                 _selectedTimeZone = TimeZone.getTimeZone(timeZone.getSelectionModel().getSelectedItem());
             }
         });
@@ -706,8 +705,7 @@ public class CSVColumnHeader {
     /**
      * Try to find an matching DateTime pattern for the given Date String. This
      * implemtaion is very basic.
-     *
-     * @param date
+     *s
      * @return
      */
     private String findDateTimePattern() {
@@ -727,7 +725,6 @@ public class CSVColumnHeader {
 
         }
 
-        System.out.println("DateTime value: " + valueString);
 
         //Best formates are first in list
         String[] pattern = {
@@ -746,7 +743,6 @@ public class CSVColumnHeader {
                 DateTimeFormatter dtf = DateTimeFormat.forPattern(pattern[i]);
                 DateTime parsedTime = dtf.parseDateTime(valueString);
                 if (parsedTime.isAfter(minDate) && parsedTime.isBefore(maxDate)) {
-                    System.out.println("found patter: " + pattern[i]);
                     return pattern[i];
                 }
             } catch (Exception ex) {
@@ -758,7 +754,7 @@ public class CSVColumnHeader {
     }
 
     private Button buildTargetButton() {
-        final Button button = new Button("Import Target..");//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
+        final Button button = new Button(I18n.getInstance().getString("csv.import_target"));//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
         button.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -769,7 +765,7 @@ public class CSVColumnHeader {
                 if (selectionDialog.show(
                         (Stage) _table.getScene().getWindow(),//JEConfig.getStage()
                         _table.getDataSource(),
-                        "Target Selection",
+                        I18n.getInstance().getString("csv.target.title"),
                         new ArrayList<UserSelection>(),
                         SelectTargetDialog2.MODE.ATTRIBUTE
                 ) == SelectTargetDialog2.Response.OK) {
@@ -789,8 +785,8 @@ public class CSVColumnHeader {
                         } catch (Exception ex) {
                             logger.catching(ex);
                             Alert alert = new Alert(AlertType.ERROR);
-                            alert.setTitle("Error");
-                            alert.setHeaderText("Something went wrong");
+                            alert.setTitle(I18n.getInstance().getString("csv.target.error.title"));
+                            alert.setHeaderText(I18n.getInstance().getString("csv.target.error.message"));
                             alert.setContentText(ex.getMessage());
 
                             alert.showAndWait();
@@ -831,10 +827,10 @@ public class CSVColumnHeader {
         helpView.getEngine().load(getClass().getResource("/html/help_dateformate.html").toExternalForm());
 
         Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Help: Date Formate");
-        alert.setHeaderText("Date and Time Pattern");
-        alert.setContentText("I have a great message for you!");
-        alert.getDialogPane().setContent(helpView);;
+        alert.setTitle(I18n.getInstance().getString("csv.help.format.title"));
+        alert.setHeaderText(I18n.getInstance().getString("csv.help.format.header"));
+        alert.setContentText("");
+        alert.getDialogPane().setContent(helpView);
 
         alert.showAndWait();
 

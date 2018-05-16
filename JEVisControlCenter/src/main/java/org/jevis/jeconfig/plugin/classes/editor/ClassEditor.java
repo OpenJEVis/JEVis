@@ -71,6 +71,7 @@ import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.classes.ClassHelper;
 import org.jevis.jeconfig.plugin.classes.ClassTree;
 import org.jevis.jeconfig.plugin.classes.relationship.VaildParentEditor;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -124,13 +125,13 @@ public class ClassEditor {
                 gridPane.setHgap(7);
                 gridPane.setVgap(7);
 
-                Label lName = new Label("Name:");
-                Label lDescription = new Label("Description:");
-                Label lIsUnique = new Label("Unique:");
-                Label lIcon = new Label("Icon:");
-                Label lRel = new Label("Relaionships:");
+                Label lName = new Label(I18n.getInstance().getString("plugin.classes.editor.name"));
+                Label lDescription = new Label(I18n.getInstance().getString("plugin.classes.editor.description"));
+                Label lIsUnique = new Label(I18n.getInstance().getString("plugin.classes.editor.unique"));
+                Label lIcon = new Label(I18n.getInstance().getString("plugin.classes.editor.icon"));
+                Label lRel = new Label(I18n.getInstance().getString("plugin.classes.editor.relationship"));
 //                Label lInherit = new Label("Inheritance:");
-                Label lTypes = new Label("Types:");
+                Label lTypes = new Label(I18n.getInstance().getString("plugin.classes.editor.types"));
 
                 fName.prefWidthProperty().set(250d);
 
@@ -185,7 +186,8 @@ public class ClassEditor {
 
                 } catch (JEVisException ex) {
                     ExceptionDialog dia = new ExceptionDialog();
-                    dia.show(JEConfig.getStage(), "Error", "Could not connect to Server", ex, PROGRAMM_INFO);
+                    dia.show(JEConfig.getStage(), I18n.getInstance().getString("dialog.error.title"),
+                            I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAMM_INFO);
                 }
 
                 fIcon.setOnAction(new EventHandler<ActionEvent>() {
@@ -222,14 +224,14 @@ public class ClassEditor {
                             } catch (JEVisException ex) {
                                 logger.catching(ex);
                                 ExceptionDialog dia = new ExceptionDialog();
-                                dia.show(JEConfig.getStage(), "Error", "Cannot set Icon", ex.getMessage(), ex, JEConfig.PROGRAMM_INFO);
+                                dia.show(JEConfig.getStage(), I18n.getInstance().getString("dialog.error.title"),
+                                        I18n.getInstance().getString("plugin.classes.editor.error.icon.message"), ex.getMessage(), ex, JEConfig.PROGRAMM_INFO);
                             }
                         }
                     }
                 });
 
                 try {
-                    System.out.println("User is sysadmin: "+_class.getDataSource().getCurrentUser().isSysAdmin());
                     fIcon.setDisable(!_class.getDataSource().getCurrentUser().isSysAdmin());
                 } catch (Exception ex) {
 
@@ -238,13 +240,13 @@ public class ClassEditor {
                 ScrollPane cpGenerell = new ScrollPane();
                 cpGenerell.setContent(gridPane);
 
-                final TitledPane t1 = new TitledPane("General", cpGenerell);
-                t2 = new TitledPane("Types", buildTypeNode());
+                final TitledPane t1 = new TitledPane(I18n.getInstance().getString("plugin.classes.editor.tab.general"), cpGenerell);
+                t2 = new TitledPane(I18n.getInstance().getString("plugin.classes.editor.tab.types"), buildTypeNode());
 
                 VaildParentEditor redit = new VaildParentEditor();
                 redit.setJEVisClass(jclass);
 
-                final TitledPane t3 = new TitledPane("Valid Parents", redit.getView());
+                final TitledPane t3 = new TitledPane(I18n.getInstance().getString("plugin.classes.editor.tab.valid_parents"), redit.getView());
 
                 t1.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                 t2.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
@@ -297,11 +299,11 @@ public class ClassEditor {
         gridPane.setHgap(7);
         gridPane.setVgap(7);
 
-        Label headerName = new Label("Name");
-        Label headerPType = new Label("Primitive Type");
-        Label headerUnit = new Label("Unit");
-        Label headerGType = new Label("GUI Type");
-        Label headerColtrol = new Label("Controls");
+        Label headerName = new Label(I18n.getInstance().getString("plugin.classes.editor.type.name"));
+        Label headerPType = new Label(I18n.getInstance().getString("prim_type"));
+        Label headerUnit = new Label(I18n.getInstance().getString("unit"));
+        Label headerGType = new Label(I18n.getInstance().getString("guitype"));
+        Label headerColtrol = new Label(I18n.getInstance().getString("controls"));
 
         Separator headerSep = new Separator();
         gridPane.add(headerName, 0, 0);
@@ -320,7 +322,7 @@ public class ClassEditor {
         try {
             Collections.sort(_class.getTypes());
             if (_class.getTypes().isEmpty()) {
-                Label emty = new Label("Class has no Types");
+                Label emty = new Label(I18n.getInstance().getString("plugin.classes.editor.type.emty"));
                 gridPane.add(emty, 0, row, 4, 1);
                 row++;
             }
@@ -348,7 +350,6 @@ public class ClassEditor {
 
                     @Override
                     public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                        System.out.println("Select GUI Tpye: " + newValue);
                         try {
                             type.setGUIDisplayType(newValue);
                         } catch (JEVisException ex) {
@@ -396,7 +397,6 @@ public class ClassEditor {
 
                     @Override
                     public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                        System.out.println("PriType changed Change  GUI Type: " + newValue);
                         try {
                             type.setPrimitiveType(ClassHelper.getIDforPrimitiveType(newValue));
 
@@ -430,13 +430,10 @@ public class ClassEditor {
                         try {
                             int pos = _class.getTypes().indexOf(type);
                             int lastPos = type.getGUIPosition();
-                            System.out.println("position in list: " + pos);
                             if (pos > 0) {
-                                System.out.println("old GUI Pos: " + type.getGUIPosition());
                                 JEVisType prevType = _class.getTypes().get(pos - 1);
                                 type.setGUIPosition(prevType.getGUIPosition());
                                 prevType.setGUIPosition(lastPos);
-                                System.out.println("new GUI Pos: " + type.getGUIPosition());
                             }
                             t2.setContent(buildTypeNode());
 
@@ -456,18 +453,13 @@ public class ClassEditor {
                     @Override
                     public void handle(ActionEvent t) {
                         try {
-//                            System.out.println("uButton size: " + unitSelector.getWidth() + " " + unitSelector.getHeight());
                             int pos = _class.getTypes().indexOf(type);
                             int lastPos = type.getGUIPosition();
-                            System.out.println("position in list: " + pos);
                             if (pos < _class.getTypes().size() - 1) {
-//                                System.out.println("old GUI Pos: " + type.getGUIPosition());
 
                                 JEVisType afterType = _class.getTypes().get(pos + 1);
                                 type.setGUIPosition(afterType.getGUIPosition());
                                 afterType.setGUIPosition(lastPos);
-
-//                                System.out.println("new GUI Pos: " + type.getGUIPosition());
                             }
                             t2.setContent(buildTypeNode());
 
@@ -530,7 +522,7 @@ public class ClassEditor {
         gridPane.add(newSep, 0, row++, 6, 1);
 
         final TextField fName = new TextField();
-        fName.setPromptText("Name of new type");
+        fName.setPromptText(I18n.getInstance().getString("plugin.classes.editor.type.newname"));
 //        final ChoiceBox pTypeBox = buildPrimitiveTypeBox(null);
 
         Button newB = new Button();
@@ -595,18 +587,18 @@ public class ClassEditor {
             if (!name.matches("^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$")) {
                 //no specail chars allowed, will this be a problem is some countries?
                 Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText("Can't create type");
-                alert.setContentText("No special character allowed");
+                alert.setTitle(I18n.getInstance().getString("plugin.classes.editor.type.alert.name.title"));
+                alert.setHeaderText(I18n.getInstance().getString("plugin.classes.editor.type.alert.name.header"));
+                alert.setContentText(I18n.getInstance().getString("plugin.classes.editor.type.alert.name.message"));
                 alert.showAndWait();
                 return;
             }
 
             if (_class.getType(name) != null) {
                 Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText("Can't create type");
-                alert.setContentText("Type allready exist.");
+                alert.setTitle(I18n.getInstance().getString("plugin.classes.editor.type.alert.exist.title"));
+                alert.setHeaderText(I18n.getInstance().getString("plugin.classes.editor.type.alert.exist.header"));
+                alert.setContentText(I18n.getInstance().getString("plugin.classes.editor.type.alert.exist.messageType"));
                 alert.showAndWait();
                 return;
             }
@@ -658,7 +650,8 @@ public class ClassEditor {
             logger.catching(ex);
 
             ExceptionDialog dia = new ExceptionDialog();
-            dia.show(JEConfig.getStage(), "Error", "Could not open file", ex, PROGRAMM_INFO);
+            dia.show(JEConfig.getStage(), I18n.getInstance().getString("plugin.classes.editor.type.alert.openfile.title"),
+                    I18n.getInstance().getString("plugin.classes.editor.type.alert.openfile.message"), ex, PROGRAMM_INFO);
 
         }
     }
@@ -695,7 +688,8 @@ public class ClassEditor {
             ex.printStackTrace();
             logger.catching(ex);
             ExceptionDialog dia = new ExceptionDialog();
-            dia.show(JEConfig.getStage(), "Error", "Error while saving Class", ex.getLocalizedMessage(), ex, JEConfig.PROGRAMM_INFO);
+            dia.show(JEConfig.getStage(), I18n.getInstance().getString("plugin.classes.editor.type.alert.save.title"),
+                    I18n.getInstance().getString("plugin.classes.editor.type.alert.save.message"), ex.getLocalizedMessage(), ex, JEConfig.PROGRAMM_INFO);
         }
     }
 

@@ -41,6 +41,8 @@ import javafx.util.Callback;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
+import org.jevis.jeconfig.tool.I18n;
+
 import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
 
 /**
@@ -52,22 +54,22 @@ public class MemberTable extends TableView {
     public MemberTable(JEVisObject obj) {
         super();
 
-        TableColumn ownerColumn = new TableColumn("Member");
+        TableColumn ownerColumn = new TableColumn(I18n.getInstance().getString("plugin.object.permission.member"));
         ownerColumn.setCellValueFactory(new PropertyValueFactory<MemberRow, String>("member"));
 
-        TableColumn readColumn = new TableColumn("Read");
+        TableColumn readColumn = new TableColumn(I18n.getInstance().getString("plugin.object.permission.read"));
         readColumn.setCellValueFactory(new PropertyValueFactory<MemberRow, Boolean>("read"));
 
-        TableColumn writeColumn = new TableColumn("Write");
+        TableColumn writeColumn = new TableColumn(I18n.getInstance().getString("plugin.object.permission.write"));
         writeColumn.setCellValueFactory(new PropertyValueFactory<MemberRow, Boolean>("write"));
 
-        TableColumn deleteColumn = new TableColumn("Delete");
+        TableColumn deleteColumn = new TableColumn(I18n.getInstance().getString("plugin.object.permission.delete"));
         deleteColumn.setCellValueFactory(new PropertyValueFactory<MemberRow, Boolean>("delete"));
 
-        TableColumn execColumn = new TableColumn("Excecute");
+        TableColumn execColumn = new TableColumn(I18n.getInstance().getString("plugin.object.permission.execute"));
         execColumn.setCellValueFactory(new PropertyValueFactory<MemberRow, Boolean>("exce"));
 
-        TableColumn createColumn = new TableColumn("Create");
+        TableColumn createColumn = new TableColumn(I18n.getInstance().getString("plugin.object.permission.create"));
         createColumn.setCellValueFactory(new PropertyValueFactory<MemberRow, Boolean>("create"));
 
         setBooleanCellrenderer(readColumn);
@@ -83,7 +85,6 @@ public class MemberTable extends TableView {
 
 //        List<JEVisRelationship> relPerOwner = new ArrayList<>();
         Map<JEVisObject, List<JEVisRelationship>> members = new HashMap<>();
-        System.out.println("MemberTable.getRealtionships");
 
         try {
             for (JEVisRelationship rel : obj.getRelationships()) {
@@ -109,7 +110,6 @@ public class MemberTable extends TableView {
 
         for (Map.Entry<JEVisObject, List<JEVisRelationship>> entry : members.entrySet()) {
             MemberRow newRow = new MemberRow(entry.getKey(), entry.getValue());
-            System.out.println("member size: " + entry.getValue().size());
             data.add(newRow);
         }
 
@@ -141,17 +141,7 @@ public class MemberTable extends TableView {
             setAlignment(Pos.CENTER);
             setGraphic(checkBox);
 
-            checkBox.setOnAction(new EventHandler<ActionEvent>() {
 
-                @Override
-                public void handle(ActionEvent t) {
-
-                    MemberRow mr = (MemberRow) getTableRow().getItem();
-                    System.out.println("mr: " + mr.getCreate() + "," + mr.getDelete() + "," + mr.getWrite() + "," + mr.getExce());
-
-                    System.out.println("someting changed in line: " + getIndex());
-                }
-            });
 
         }
 
@@ -162,7 +152,6 @@ public class MemberTable extends TableView {
                 setText(null);
                 setGraphic(null);
             } else {
-                System.out.println("update icon: " + item);
                 if (item instanceof Boolean) {
                     checkBox.setSelected((Boolean) item);
                 }

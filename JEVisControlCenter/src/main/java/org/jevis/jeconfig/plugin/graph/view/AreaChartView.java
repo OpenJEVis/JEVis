@@ -49,6 +49,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.application.jevistree.plugin.BarchartPlugin;
 import org.jevis.application.jevistree.plugin.TableEntry;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -73,17 +74,17 @@ public class AreaChartView implements Observer {
         table.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
 //        table.setFixedCellSize(25);
 //        table.prefHeightProperty().bind(Bindings.size(table.getItems()).multiply(table.getFixedCellSize()).add(30));
-        TableColumn name = new TableColumn("Name");
+        TableColumn name = new TableColumn(I18n.getInstance().getString("plugin.graph.table.name"));
         name.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
 
 //        TableColumn colorCol = new TableColumn("Color333");
 //        colorCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("color"));
-        TableColumn colorCol = buildColorColumn("Color");
+        TableColumn colorCol = buildColorColumn(I18n.getInstance().getString("plugin.graph.table.color"));
 
-        TableColumn value = new TableColumn("Value");
+        TableColumn value = new TableColumn(I18n.getInstance().getString("plugin.graph.table.value"));
         value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
 
-        TableColumn dateCol = new TableColumn("Date");
+        TableColumn dateCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.date"));
         dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, Color>("date"));
 
         final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -202,7 +203,7 @@ public class AreaChartView implements Observer {
         ObservableList<XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
         List<Color> hexColors = new ArrayList<>();
 
-        String title = "Chart 1";
+        String title = I18n.getInstance().getString("plugin.graph.chart.title1");
         for (BarchartPlugin.DataModel singleRow : selectedData) {
             hexColors.add(singleRow.getColor());
             System.out.println("curTitle:" + singleRow.getTitle());

@@ -88,12 +88,12 @@ public class PluginManager {
         //TODO: load the user an add only the allowed plugins
 //        _plugins.add(new ObjectPlugin(_ds, "Resources"));
         _plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-        _plugins.add(new GraphPluginView(_ds, "Graphs"));
+        _plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
         _plugins.add(new DashboardPlugin(_ds));        
-        _plugins.add(new MapViewPlugin(_ds, "GIS"));
+        _plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.gis.title")));
         _plugins.add(new ISO5001Browser(_ds));
-        _plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, "Classes"));
-        _plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, "Units"));
+        _plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
+        _plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
         
 //        _plugins.add(new LoytecBrowser(_ds));
 

@@ -43,6 +43,7 @@ import org.jevis.commons.object.plugin.JsonVirtualCalc;
 import org.jevis.commons.object.plugin.VirtualSumData;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 /**
@@ -52,7 +53,7 @@ import org.joda.time.DateTime;
  */
 public class BasicMathExtension implements ObjectEditorExtension {
 
-    public static String TITLE = "Calculation Editor";
+    public static String TITLE = I18n.getInstance().getString("plugin.object.basicmath.title");
     private JEVisObject _obj;
 
     private AnchorPane _rootPane = new AnchorPane();
@@ -175,9 +176,9 @@ public class BasicMathExtension implements ObjectEditorExtension {
             inputPane.setHgap(7);
             inputPane.setVgap(7);
 
-            Label columnObj = new Label("Input Object");
-            Label columnAtt = new Label("Attribute");
-            Label columnWork = new Label("Workflow");
+            Label columnObj = new Label(I18n.getInstance().getString("plugin.object.basicmath.input"));
+            Label columnAtt = new Label(I18n.getInstance().getString("plugin.object.basicmath.attribute"));
+            Label columnWork = new Label(I18n.getInstance().getString("plugin.object.basicmath.workflow"));
 
             int coloums = 4;
 
@@ -198,13 +199,11 @@ public class BasicMathExtension implements ObjectEditorExtension {
                     try {
                         objName = input.getObject().getName();
                     } catch (Exception ex) {
-                        System.out.println("Missing object");
 //                    ex.printStackTrace();
                     }
                     try {
                         attName = input.getAttribute().getName();
                     } catch (Exception ex) {
-                        System.out.println("missing attribute");
 //                    ex.printStackTrace();
                     }
                     try {
@@ -246,7 +245,6 @@ public class BasicMathExtension implements ObjectEditorExtension {
                         }
 
                     } catch (Exception ex) {
-                        System.out.println("missing workflow");
 //                    ex.printStackTrace();
                     }
 
@@ -276,25 +274,23 @@ public class BasicMathExtension implements ObjectEditorExtension {
                 row++;
             }
 
-            Button addButton = new Button("Add Input");
+            Button addButton = new Button(I18n.getInstance().getString("plugin.object.basicmath.addinput"));
 
             addButton.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        System.out.println("add pressed");
                         SelectTargetDialog sd = new SelectTargetDialog();
                         if (sd.show(JEConfig.getStage(), _obj.getDataSource()) == SelectTargetDialog.Response.OK) {
                             JEVisObject selectedObj = sd.getUserSelection().get(0).getSelectedObject();
                             JEVisAttribute selectedAtt = sd.getUserSelection().get(0).getSelectedAttribute();
 
                             FomulaInput newInput = new FomulaInput();
-                            System.out.println("setObject: " + selectedObj);
                             newInput.setObject(selectedAtt.getObject());
                             newInput.setAttribute(selectedAtt);
-                            newInput.setId("new ID");//Ask User
-                            newInput.setWorkflow("Default");
+                            newInput.setId(I18n.getInstance().getString("plugin.object.basicmath.idprompt"));//Ask User
+                            newInput.setWorkflow(I18n.getInstance().getString("plugin.object.basicmath.workflowprompt"));
 
                             List<Input> inputs = virtualSum.getInputs();
                             inputs.add(newInput);

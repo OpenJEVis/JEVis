@@ -61,6 +61,7 @@ import org.jevis.commons.json.JsonFactory;
 import org.jevis.commons.json.JsonFileExporter;
 import org.jevis.commons.json.JsonObject;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -78,12 +79,12 @@ public class JsonExportDialog {
 
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
-        Label destinationL = new Label("File:");
+        Label destinationL = new Label(I18n.getInstance().getString("export.file"));
         final TextField destinationF = new TextField();
-        final Button fileSelect = new Button("Change...");
-        final CheckBox allChildren = new CheckBox("Include all sub-Objects");
-        final CheckBox allSamples = new CheckBox("Include all Samples");
-        final CheckBox attributes = new CheckBox("Include Attributes");
+        final Button fileSelect = new Button(I18n.getInstance().getString("export.select"));
+        final CheckBox allChildren = new CheckBox(I18n.getInstance().getString("export.include_objects"));
+        final CheckBox allSamples = new CheckBox(I18n.getInstance().getString("export.include_samples"));
+        final CheckBox attributes = new CheckBox(I18n.getInstance().getString("export.include_attributes"));
         allSamples.setDisable(true);
 
         HBox fileBox = new HBox(5);
@@ -131,7 +132,7 @@ public class JsonExportDialog {
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));
 
-        Label topTitle = new Label("Export: " + obj.getName());
+        Label topTitle = new Label(I18n.getInstance().getString("export.name.tooltip",obj.getName()));
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));
 
@@ -153,11 +154,11 @@ public class JsonExportDialog {
 
         HBox buttonPanel = new HBox();
 
-        final Button ok = new Button("Export");
+        final Button ok = new Button(I18n.getInstance().getString("export.button.export"));
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button(I18n.getInstance().getString("export.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -169,7 +170,7 @@ public class JsonExportDialog {
         HBox messagePanel = new HBox();
         messagePanel.setPadding(new Insets(30, 30, 30, 30));
 
-        Label mewssage = new Label("Json Export");
+        Label mewssage = new Label(I18n.getInstance().getString("export.jon_export"));
         messagePanel.getChildren().add(mewssage);
         mewssage.setWrapText(true);
         mewssage.setAlignment(Pos.CENTER_LEFT);

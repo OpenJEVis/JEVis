@@ -228,20 +228,17 @@ public class ClassPlugin implements Plugin {
             logger.trace("Event: {}", cmdType);
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
-                    System.out.println("save");
                     tree.fireSaveAttributes(false);
                     break;
                 case Constants.Plugin.Command.DELTE:
                     tree.fireDelete(tree.getSelectionModel().getSelectedItem().getValue());
                     break;
                 case Constants.Plugin.Command.EXPAND:
-                    System.out.println("Expand");
                     break;
                 case Constants.Plugin.Command.NEW:
                     tree.fireEventNew(tree.getSelectionModel().getSelectedItem());
                     break;
                 case Constants.Plugin.Command.RELOAD:
-                    System.out.println("reload");
                     tree.reload(null);
                     break;
                 default:

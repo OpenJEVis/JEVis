@@ -65,6 +65,7 @@ import org.jevis.jeconfig.plugin.object.extension.MemberExtension;
 import org.jevis.jeconfig.plugin.object.extension.PermissionExtension;
 import org.jevis.jeconfig.plugin.object.extension.ProcessChainExtension;
 import org.jevis.jeconfig.plugin.object.extension.RootExtension;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -317,12 +318,12 @@ public class ObjectEditor {
                 GridPane header = new GridPane();
                 try {
 //                header.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #1a719c, #f4f4f4)");
-                    Label nameLabel = new Label("Name:");
+                    Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.editor.name"));
                     Label objectName = new Label(obj.getName());
                     objectName.setStyle("-fx-font-weight: bold;");
-                    Label classlabel = new Label("Type:");
+                    Label classlabel = new Label(I18n.getInstance().getString("plugin.object.editor.type"));
                     Label className = new Label(obj.getJEVisClass().getName());
-                    Label idlabel = new Label("ID:");
+                    Label idlabel = new Label(I18n.getInstance().getString("plugin.object.editor.id"));
                     Label idField = new Label(obj.getID() + "");
 
                     //TODO: would be nice if the user can copy the ID and name but the layout is broken if i use this textfield code

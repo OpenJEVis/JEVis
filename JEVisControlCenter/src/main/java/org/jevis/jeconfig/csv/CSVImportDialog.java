@@ -63,6 +63,7 @@ import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
 /**
@@ -78,25 +79,25 @@ public class CSVImportDialog {
 
     private double LEFT_PADDING = 30;
 
-    final Button ok = new Button("Import");
-    final Button automatic = new Button("Detect");//, JEConfig.getImage("1403018303_Refresh.png", 15, 15));
-    final Button fileButton = new Button("Choose..");
-    final Button saveFormat = new Button("Save Format");
-    Button reload = new Button("Preview");//, JEConfig.getImage("1403018303_Refresh.png", 20, 20));
+    final Button ok = new Button(I18n.getInstance().getString("csv.ok"));
+    final Button automatic = new Button(I18n.getInstance().getString("csv.automatic"));//, JEConfig.getImage("1403018303_Refresh.png", 15, 15));
+    final Button fileButton = new Button(I18n.getInstance().getString("csv.file_select"));
+    final Button saveFormat = new Button(I18n.getInstance().getString("csv.save_formate"));
+    Button reload = new Button(I18n.getInstance().getString("csv.reload"));//, JEConfig.getImage("1403018303_Refresh.png", 20, 20));
     final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
-    RadioButton tab = new RadioButton("Tab (/t)");
-    RadioButton semicolon = new RadioButton("Semicolon (;)");
-    RadioButton comma = new RadioButton("Comma (,)");
-    RadioButton space = new RadioButton("Space ( )");
-    RadioButton otherLineSep = new RadioButton("Other:");
+    RadioButton tab = new RadioButton(I18n.getInstance().getString("csv.seperators.tab"));
+    RadioButton semicolon = new RadioButton(I18n.getInstance().getString("csv.seperators.semi"));
+    RadioButton comma = new RadioButton(I18n.getInstance().getString("csv.seperators.comma"));
+    RadioButton space = new RadioButton(I18n.getInstance().getString("csv.seperators.space"));
+    RadioButton otherLineSep = new RadioButton(I18n.getInstance().getString("csv.seperators.other"));
     final ToggleGroup sepGroup = new ToggleGroup();
 
-    RadioButton apostrop = new RadioButton("Apostrophe ('')");
-    RadioButton ditto = new RadioButton("Ditto mark (\"\")");
-    RadioButton enc2 = new RadioButton("``");
-    RadioButton none = new RadioButton("none");
-    RadioButton otherTextSep = new RadioButton("Other:");
+    RadioButton apostrop = new RadioButton(I18n.getInstance().getString("csv.enclosed.apostrophe"));
+    RadioButton ditto = new RadioButton(I18n.getInstance().getString("csv.enclosed.ditto"));
+    RadioButton enc2 = new RadioButton(I18n.getInstance().getString("csv.enclosed.gravis"));
+    RadioButton none = new RadioButton(I18n.getInstance().getString("csv.enclosed.none"));
+    RadioButton otherTextSep = new RadioButton(I18n.getInstance().getString("csv.enclosed.other"));
 
     final ToggleGroup textDiGroup = new ToggleGroup();
     ObservableList<String> formatOptions;
@@ -126,7 +127,7 @@ public class CSVImportDialog {
         stage = new Stage();
         _ds = ds;
 
-        stage.setTitle("CSV Import");
+        stage.setTitle(I18n.getInstance().getString("csv.title"));
         stage.initModality(Modality.NONE);
         stage.initOwner(owner);
 
@@ -146,7 +147,7 @@ public class CSVImportDialog {
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));
 
-        Label topTitle = new Label("CSV Import");
+        Label topTitle = new Label(I18n.getInstance().getString("csv.top_title"));
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));
 
@@ -172,7 +173,7 @@ public class CSVImportDialog {
 
         saveFormat.setDisable(true);//Disabled as long its not working
 
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button(I18n.getInstance().getString("csv.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().setAll(saveFormat, ok, cancel);
@@ -188,8 +189,8 @@ public class CSVImportDialog {
         int x = 0;
 
         Node filePane = buildFileOptions();
-        Node seperatorPane = buildSeperatorPane();
-        Node tablePane = buildTabelPane();
+        Node seperatorPane = buildSeparatorPane();
+        Node tablePane = buildTablePane();
 
         gp.add(filePane, 0, 0);
         gp.add(seperatorPane, 0, 1);
@@ -202,9 +203,9 @@ public class CSVImportDialog {
         VBox content = new VBox(10);
 
         content.getChildren().setAll(
-                buildTitle("File Options"), filePane,
-                buildTitle("Separator Options"), seperatorPane,
-                buildTitle("Field Options"), tablePane);
+                buildTitle(I18n.getInstance().getString("csv.tab.title.file_options")), filePane,
+                buildTitle(I18n.getInstance().getString("csv.tab.title.seperator_options")), seperatorPane,
+                buildTitle(I18n.getInstance().getString("csv.tab.title.field_options")), tablePane);
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
@@ -227,7 +228,6 @@ public class CSVImportDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                System.out.println("size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 if (table.doImport()) {
 //                    Alert alert = new Alert(AlertType.INFORMATION);
 //                    alert.setTitle("Import Success");
@@ -264,13 +264,13 @@ public class CSVImportDialog {
         VBox.setVgrow(table, Priority.ALWAYS);
     }
 
-    private Node buildTabelPane() {
+    private Node buildTablePane() {
 
         tableRootPane.setPadding(new Insets(10, 10, 5, LEFT_PADDING));
 
         TableView placeholderTree = new TableView();
-        TableColumn firstNameCol = new TableColumn("First Column");
-        TableColumn lastNameCol = new TableColumn("Secound Column");
+        TableColumn firstNameCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
+        TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
         firstNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
         lastNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
         placeholderTree.getColumns().addAll(firstNameCol, lastNameCol);
@@ -288,7 +288,7 @@ public class CSVImportDialog {
         return parser;
     }
 
-    private Node buildSeperatorPane() {
+    private Node buildSeparatorPane() {
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(5, 10, 5, LEFT_PADDING));
 
@@ -296,8 +296,8 @@ public class CSVImportDialog {
         gp.setVgap(5);
 
 //        gp.setStyle("-fx-background-color: #86D64D;");
-        Label sepL = new Label("Column separated by:");
-        Label sepTextL = new Label("Text enclosed by:");
+        Label sepL = new Label(I18n.getInstance().getString("csv.separator.column"));
+        Label sepTextL = new Label(I18n.getInstance().getString("csv.separator.text"));
 
         tab.setToggleGroup(sepGroup);
         semicolon.setToggleGroup(sepGroup);
@@ -358,9 +358,6 @@ public class CSVImportDialog {
             }
         });
 
-        ObservableList<String> options = FXCollections.observableArrayList("Semicolon (;)", "Tabulator (TAB) ", "Comma (,)", "Space ( )", "OtherBox");
-        final ComboBox<String> chaset = new ComboBox<>(options);
-        chaset.getSelectionModel().selectFirst();
 
         HBox otherBox = new HBox(5);
         otherBox.setAlignment(Pos.CENTER_LEFT);
@@ -506,7 +503,6 @@ public class CSVImportDialog {
                 }
 
             }
-            System.out.println("reloadtree");
             updateTree();
         }
 
@@ -549,10 +545,10 @@ public class CSVImportDialog {
         gp.setVgap(5);
 
 //        gp.setStyle("-fx-background-color: #EBED50;");
-        Label fileL = new Label("File:");
-        Label formatL = new Label("Format:");
-        Label charSetL = new Label("Character set:");
-        Label fromRow = new Label("From row:");
+        Label fileL = new Label(I18n.getInstance().getString("csv.file"));
+        Label formatL = new Label(I18n.getInstance().getString("csv.format"));
+        Label charSetL = new Label(I18n.getInstance().getString("csv.charset"));
+        Label fromRow = new Label(I18n.getInstance().getString("csv.from_rowFrom"));
         final Label fileNameL = new Label();
 
         ObservableList<String> options = FXCollections.observableArrayList();
@@ -569,7 +565,7 @@ public class CSVImportDialog {
         final ComboBox<String> formats = new ComboBox<String>(formatOptions);
         formats.getSelectionModel().selectFirst();
 
-        Node title = buildTitle("File Options");
+        Node title = buildTitle(I18n.getInstance().getString("csv.tab.title.field_options"));
 
         fileButton.setPrefWidth(100);
         chaset.setPrefWidth(100);
@@ -582,7 +578,6 @@ public class CSVImportDialog {
 
             @Override
             public void changed(ObservableValue<? extends BigDecimal> ov, BigDecimal t, BigDecimal t1) {
-                System.out.println("Spinner changed");
                 updateTree();
             }
         });
@@ -592,13 +587,9 @@ public class CSVImportDialog {
 
             @Override
             public void handle(ActionEvent t) {
-                System.out.println("autdidect");
                 if (_csvFile != null) {
                     try {
                         CSVAnalyser analys = new CSVAnalyser(_csvFile);
-                        System.out.println("Enclosed: " + analys.getEnclosed());
-                        System.out.println("Seperator: " + analys.getSeperator());
-
                         setEncloser(analys.getEnclosed());
                         setSeperator(analys.getSeperator());
                         formats.getSelectionModel().select(Format.Custom.name());
@@ -645,8 +636,6 @@ public class CSVImportDialog {
 //                    updateTree();
 
                     CSVAnalyser analys = new CSVAnalyser(_csvFile);
-                    System.out.println("Enclosed: " + analys.getEnclosed());
-                    System.out.println("Seperator: " + analys.getSeperator());
 
                     setEncloser(analys.getEnclosed());
                     setSeperator(analys.getSeperator());

@@ -74,7 +74,6 @@ public class DateEditor implements AttributeEditor {
     }
 
     private void buildGUI() {
-        System.out.println("build date editor for: "+att);
         JEVisSample sample = att.getLatestSample();
         picker.setPrefWidth(120);
 
@@ -82,7 +81,6 @@ public class DateEditor implements AttributeEditor {
             try {
                 if (!sample.getValueAsString().isEmpty()) {
                     LocalDate dateTime;
-                    System.out.println("date value: "+sample.getValueAsString());
                     dateTime = LocalDate.parse(sample.getValueAsString(), picker.getDateTimeFormatter());
                     picker.setLocalDate(dateTime);
                 }

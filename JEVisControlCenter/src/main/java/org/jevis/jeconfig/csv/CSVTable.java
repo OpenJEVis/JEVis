@@ -39,6 +39,7 @@ import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 /**
@@ -122,7 +123,7 @@ public class CSVTable extends TableView<CSVLine> {
                 return new Task<Void>() {
                     @Override
                     protected Void call() throws Exception {
-                        updateMessage("Import samples . . .");
+                        updateMessage(I18n.getInstance().getString("csv.progress.message"));
                         CSVColumnHeader tsColumn = null;
                         for (CSVColumnHeader header : _header) {
                             if (header.getMeaning() == CSVColumnHeader.Meaning.DateTime) {
@@ -155,7 +156,6 @@ public class CSVTable extends TableView<CSVLine> {
                                             Double value = header.getValueAsDouble(line.getColumn(header.getColumn()));
                                             JEVisSample newSample = header.getTarget().buildSample(ts, value, "CSV Import by " + _ds.getCurrentUser().getAccountName());
                                             _newSamples.add(newSample);
-                                            System.out.println("new Sample: " + newSample);
                                         }
 
                                     } catch (Exception pe) {
@@ -181,8 +181,8 @@ public class CSVTable extends TableView<CSVLine> {
             }
         };
         ProgressDialog pd = new ProgressDialog(service);
-        pd.setHeaderText("Importing Samples..");
-        pd.setTitle("Importing Samples");
+        pd.setHeaderText(I18n.getInstance().getString("csv.progress.header"));
+        pd.setTitle(I18n.getInstance().getString("csv.progress.title"));
 //        pd.setContentText("Importing Samples2");
         service.start();
         return true;

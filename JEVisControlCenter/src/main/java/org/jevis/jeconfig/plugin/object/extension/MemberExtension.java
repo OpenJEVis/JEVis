@@ -62,6 +62,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -76,7 +77,7 @@ public class MemberExtension implements ObjectEditorExtension {
     private JEVisObject _obj;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
-    private static final String TITEL = "Member";
+    private static final String TITEL = I18n.getInstance().getString("plugin.object.member");
 
     public MemberExtension(JEVisObject obj) {
         _obj = obj;
@@ -106,14 +107,14 @@ public class MemberExtension implements ObjectEditorExtension {
         gridPane.setHgap(15);
         gridPane.setVgap(4);
 
-        Label userHeader = new Label("User");
+        Label userHeader = new Label(I18n.getInstance().getString("plugin.object.member.user"));
         userHeader.setMinWidth(120d);
-        Label readHeader = new Label("Read");
-        Label writeHeader = new Label("Write");
-        Label exceHeader = new Label("Execute");
-        Label deleteHeader = new Label("Delete");
-        Label createHeader = new Label("Create");
-        Label contolsHeader = new Label("Remove");
+        Label readHeader = new Label(I18n.getInstance().getString("plugin.object.member.read"));
+        Label writeHeader = new Label(I18n.getInstance().getString("plugin.object.member.write"));
+        Label exceHeader = new Label(I18n.getInstance().getString("plugin.object.member.execute"));
+        Label deleteHeader = new Label(I18n.getInstance().getString("plugin.object.member.delete"));
+        Label createHeader = new Label(I18n.getInstance().getString("plugin.object.member.create"));
+        Label contolsHeader = new Label(I18n.getInstance().getString("plugin.object.member.remove"));
 
         userHeader.setStyle("-fx-font-weight: bold;");
         readHeader.setStyle("-fx-font-weight: bold;");
@@ -281,7 +282,6 @@ public class MemberExtension implements ObjectEditorExtension {
                 });
 
             } else {
-                System.out.println("is not owner");
                 remove.setDisable(true);
             }
 
@@ -308,7 +308,7 @@ public class MemberExtension implements ObjectEditorExtension {
 //            } else {
 //                remove.setDisable(true);
 //            }
-            remove.setTooltip(new Tooltip("Remove this user from the memberlist."));
+            remove.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.member.remove_tooltip")));
             control.getChildren().setAll(remove);
 
             gridPane.add(userBox, 0, yAxis);
@@ -325,7 +325,7 @@ public class MemberExtension implements ObjectEditorExtension {
         gridPane.add(new Separator(Orientation.HORIZONTAL), 0, yAxis, 7, 1);
 
         yAxis++;
-        Label newUserLabel = new Label("Add new Member: ");
+        Label newUserLabel = new Label(I18n.getInstance().getString("plugin.object.member.addmember"));
         newUserLabel.setPrefHeight(21);
         GridPane.setValignment(newUserLabel, VPos.CENTER);
         HBox addNewBox = new HBox(2);
@@ -363,7 +363,7 @@ public class MemberExtension implements ObjectEditorExtension {
                         if (item != null && !empty) {
                             setText(item.getName());
                         } else {
-                            setText("No user available");
+                            setText(I18n.getInstance().getString("plugin.object.member.user_not_available"));
                         }
                     }
                 };
@@ -404,7 +404,6 @@ public class MemberExtension implements ObjectEditorExtension {
             public void handle(ActionEvent t) {
                 try {
                     JEVisObject userObj = users.getSelectionModel().getSelectedItem();
-                    System.out.println("create relationship for user: " + userObj.getName());
 
                     userObj.buildRelationship(obj, JEVisConstants.ObjectRelationship.MEMBER_READ, JEVisConstants.Direction.FORWARD);
                     Platform.runLater(new Runnable() {
@@ -467,7 +466,6 @@ public class MemberExtension implements ObjectEditorExtension {
                     public void handle(ActionEvent t) {
 
                         if (button.isSelected()) {
-                            System.out.println("selected " + type);
                             try {
                                 JEVisRelationship newRel = userObj.buildRelationship(group, type, JEVisConstants.Direction.FORWARD);
                                 userObj.commit();//?
@@ -476,9 +474,7 @@ public class MemberExtension implements ObjectEditorExtension {
                             }
 
                         } else {
-                            System.out.println("is NOT selected " + type);
                             try {
-                                System.out.println("remove relationship: " + rel);
                                 rel.getStartObject().deleteRelationship(rel);
                             } catch (JEVisException ex) {
                                 Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
@@ -509,7 +505,6 @@ public class MemberExtension implements ObjectEditorExtension {
     }
 
     private void removeRelationhsips(List<JEVisRelationship> memberships) {
-        System.out.println("Delete membership for: " + memberships);
         for (JEVisRelationship rel : memberships) {
             try {
                 if (rel.getType() == MEMBER_READ
@@ -518,7 +513,6 @@ public class MemberExtension implements ObjectEditorExtension {
                         || rel.getType() == MEMBER_DELETE
                         || rel.getType() == MEMBER_CREATE) {
                     rel.getStartObject().deleteRelationship(rel);
-                    System.out.println("delete rel: " + rel);
                 }
 
             } catch (JEVisException ex) {

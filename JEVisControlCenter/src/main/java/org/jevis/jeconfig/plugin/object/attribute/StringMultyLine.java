@@ -120,14 +120,11 @@ public class StringMultyLine implements AttributeEditor {
                 public void handle(KeyEvent t) {
                     try {
                         if (_lastSample == null) {
-                            System.out.println("new Value");
-//                            _lastSample = _attribute.buildSample(new DateTime(), _field.getText());
                             _newSample = _attribute.buildSample(new DateTime(), _field.getText());
                             _changed.setValue(true);
                         } else if (!_lastSample.getValueAsString().equals(_field.getText())) {
                             _changed.setValue(true);
                             _newSample = _attribute.buildSample(new DateTime(), _field.getText());
-                            System.out.println("value changed");
                         } else if (_lastSample.getValueAsString().equals(_field.getText())) {
                             _changed.setValue(false);
                         }

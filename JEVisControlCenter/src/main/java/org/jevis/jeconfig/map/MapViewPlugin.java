@@ -41,6 +41,7 @@ import org.jevis.application.jevistree.plugin.MapPlugin;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.tool.I18n;
 import org.jxmapviewer.JXMapViewer;
 
 /**
@@ -52,7 +53,7 @@ public class MapViewPlugin implements Plugin {
     private JEVisDataSource ds;
     private JXMapViewer mapViewer;
 
-    private StringProperty name = new SimpleStringProperty("Map");
+    private StringProperty name = new SimpleStringProperty(I18n.getInstance().getString("plugin.map.title"));
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
 
     private ToolBar toolBar;
@@ -132,7 +133,7 @@ public class MapViewPlugin implements Plugin {
             delete.setDisable(true);
 
 //load new stuff
-            Button select = new Button("select");
+            Button select = new Button(I18n.getInstance().getString("plugin.map.select"));
             select.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
@@ -193,7 +194,7 @@ public class MapViewPlugin implements Plugin {
 
             });
 
-            Button defaultMap = new Button("default");
+            Button defaultMap = new Button(I18n.getInstance().getString("plugin.map.default"));
             defaultMap.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
@@ -254,9 +255,9 @@ public class MapViewPlugin implements Plugin {
         table.setStyle("-fx-background-color: transparent;");
 
         table.setEditable(false);
-        TableColumn firstNameCol = new TableColumn("Long");
-        TableColumn lastNameCol = new TableColumn("Lat");
-        TableColumn emailCol = new TableColumn("Date");
+        TableColumn firstNameCol = new TableColumn(I18n.getInstance().getString("plugin.map.table.long"));
+        TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("plugin.map.table.lat"));
+        TableColumn emailCol = new TableColumn(I18n.getInstance().getString("plugin.map.table.date"));
 
         table.widthProperty().multiply(1.2);
 

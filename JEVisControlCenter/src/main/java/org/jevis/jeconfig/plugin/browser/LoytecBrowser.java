@@ -25,6 +25,7 @@ import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.tool.I18n;
 import org.w3c.dom.Document;
 
 /**
@@ -33,7 +34,7 @@ import org.w3c.dom.Document;
  */
 public class LoytecBrowser implements Plugin {
 
-    private StringProperty nameProperty = new SimpleStringProperty("Loytec");
+    private StringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.loytec.title"));
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane contentPane = new BorderPane();

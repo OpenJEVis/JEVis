@@ -87,7 +87,6 @@ public class DateTimeEditor2 implements AttributeEditor {
             DateTime datetime = new DateTime(
                     pickerDate.valueProperty().get().getYear(), pickerDate.valueProperty().get().getMonthValue(), pickerDate.valueProperty().get().getDayOfMonth(), pickerTime.valueProperty().get().getHour(), pickerTime.valueProperty().get().getMinute(), pickerTime.valueProperty().get().getSecond(), DateTimeZone.getDefault()); // is this timezone correct?
 
-            System.out.println("======= Final Date: "+JEVisDates.printDefaultDate(datetime));
             JEVisDates.saveDefaultDate(att, new DateTime(), datetime);
             logger.trace("commit.done: {}", att.getName());
         }
@@ -120,13 +119,10 @@ public class DateTimeEditor2 implements AttributeEditor {
 
         if (originalSample != null) {
             try {
-                logger.error("==============1: " + originalSample.getValueAsString());
-                logger.error("==============2: " + JEVisDates.parseDefaultDate(att));
                 DateTime date = JEVisDates.parseDefaultDate(att);
                 LocalDateTime lDate = LocalDateTime.of(
                         date.get(DateTimeFieldType.year()), date.get(DateTimeFieldType.monthOfYear()), date.get(DateTimeFieldType.dayOfMonth()), date.get(DateTimeFieldType.hourOfDay()), date.get(DateTimeFieldType.minuteOfHour()), date.get(DateTimeFieldType.secondOfMinute()));
                 lDate.atZone(ZoneId.of(date.getZone().getID()));
-                logger.error("==============3: " + lDate);
                 pickerDate.valueProperty().setValue(lDate.toLocalDate());
                 pickerTime.valueProperty().setValue(lDate.toLocalTime());
 
@@ -149,7 +145,6 @@ public class DateTimeEditor2 implements AttributeEditor {
         pickerTime.valueProperty().addListener(new ChangeListener<LocalTime>() {
             @Override
             public void changed(ObservableValue<? extends LocalTime> observable, LocalTime oldValue, LocalTime newValue) {
-                System.out.println("///// Value changed: " + newValue);
                 if (!newValue.equals(oldValue)) {
                     _changed.setValue(Boolean.TRUE);
                 }

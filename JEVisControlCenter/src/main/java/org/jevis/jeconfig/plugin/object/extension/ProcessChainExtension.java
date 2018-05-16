@@ -30,6 +30,7 @@ import org.jevis.commons.dataprocessing.ProcessChains;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.extension.processchain.FunctionPane;
 import org.jevis.jeconfig.plugin.object.extension.processchain.ResultPane;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  * TODO: has to be an JEConfig Driver at runtime
@@ -38,7 +39,7 @@ import org.jevis.jeconfig.plugin.object.extension.processchain.ResultPane;
  */
 public class ProcessChainExtension implements ObjectEditorExtension {
 
-    public static String TITLE = "Process Chain Editor";
+    public static String TITLE = I18n.getInstance().getString("plugin.object.processchain.title");
     private JEVisObject _obj;
 
 //    private AnchorPane _rootPane = new AnchorPane();
@@ -102,7 +103,6 @@ public class ProcessChainExtension implements ObjectEditorExtension {
         taskOnLvl.add(parentTask);
 
         for (Process childtask : parentTask.getSubProcesses()) {
-            System.out.println("found subTask: " + childtask.getID() + "   " + childtask.getFunction().getName());
 //            taskOnLvl.add(childtask);
             buildGridPlan(lvl + 1, maxGrid, childtask);
         }
