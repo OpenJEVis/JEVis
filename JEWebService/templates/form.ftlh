@@ -1,6 +1,6 @@
 <div class="tab">
-    <button class="tablinks" onclick="openTab(event, 'Attributes')" id="defaultTab">${tabAttributes}</button>
-    <button class="tablinks" onclick="openTab(event, 'Permissions')" id="tabPermissions">${tabPermissions}</button>
+    <button class="tablinks" onclick="openFormTab(event, 'Attributes')" id="defaultTab">${tabAttributes}</button>
+    <button class="tablinks" onclick="openFormTab(event, 'Permissions')" id="tabPermissions">${tabPermissions}</button>
 </div>
 <div id="Attributes" class="tabcontent">
     <form id="form-${FormID?c}" class="data-form">
