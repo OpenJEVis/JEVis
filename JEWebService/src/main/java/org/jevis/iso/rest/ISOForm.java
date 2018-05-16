@@ -142,6 +142,8 @@ public class ISOForm {
                     f.setButtonDelete(t.getTranslatedKey(lang, "Delete Object"));
                     f.setButtonDownload(t.getTranslatedKey(lang, "Download"));
                     f.setButtonUpload(t.getTranslatedKey(lang, "Upload"));
+                    f.setAddPermission(t.getTranslatedKey(lang, "Add Permission"));
+                    f.setDelete(t.getTranslatedKey(lang, "Delete"));
                 }
 
                 f.setAttributes(listFormAttributes);
@@ -175,6 +177,24 @@ public class ISOForm {
             } else {
                 ds.preload(SQLDataSource.PRELOAD.ALL_CLASSES);
 
+                List<String> attributeTypes = Arrays.asList(FormAttribute.FormAttributeType.values().toString());
+
+                f.setAttributeTypes(attributeTypes);
+
+                if (!lang.equals("")) {
+                    f.setTranslated(true);
+                    Translations t = new Translations();
+                    f.setObjectname(t.getTranslatedKey(lang, "Object Name"));
+                    f.setDeleteobject(t.getTranslatedKey(lang, "Delete Object"));
+                    f.setUploaded(t.getTranslatedKey(lang, "Uploaded"));
+                    f.setTabAttributes(t.getTranslatedKey(lang, "Attributes"));
+                    f.setTabPermissions(t.getTranslatedKey(lang, "Permissions"));
+                    f.setButtonDelete(t.getTranslatedKey(lang, "Delete Object"));
+                    f.setButtonDownload(t.getTranslatedKey(lang, "Download"));
+                    f.setButtonUpload(t.getTranslatedKey(lang, "Upload"));
+                    f.setAddPermission(t.getTranslatedKey(lang, "Add Permission"));
+                    f.setDelete(t.getTranslatedKey(lang, "Delete"));
+                }
 
                 return Response.ok(f.getOutput()).build();
             }

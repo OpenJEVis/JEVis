@@ -19,6 +19,7 @@ public class Form {
     List<FormAttribute> attributes = new ArrayList<>();
     List<JsonRelationshipHelper> permissions = new ArrayList<>();
     List<JsonObject> userGroups = new ArrayList<>();
+    List<String> attributeTypes = new ArrayList<>();
     private long ID = 0;
     private Boolean translated = false;
     private String name = new String();
@@ -31,6 +32,8 @@ public class Form {
     private String buttonUpload = "Upload";
     private String buttonDownload = "Download";
     private String buttonDelete = "Delete Object";
+    private String addPermission = "Add Permission";
+    private String delete = "Delete";
 
     public List<JsonObject> getUserGroups() {
         return userGroups;
@@ -46,6 +49,14 @@ public class Form {
 
     public void setPermissions(List<JsonRelationshipHelper> permissions) {
         this.permissions = permissions;
+    }
+
+    public List<String> getAttributeTypes() {
+        return attributeTypes;
+    }
+
+    public void setAttributeTypes(List<String> attributeTypes) {
+        this.attributeTypes = attributeTypes;
     }
 
     public String getButtonUpload() {
@@ -70,6 +81,14 @@ public class Form {
 
     public void setButtonDelete(String buttonDelete) {
         this.buttonDelete = buttonDelete;
+    }
+
+    public String getDelete() {
+        return delete;
+    }
+
+    public void setDelete(String delete) {
+        this.delete = delete;
     }
 
     public long getID() {
@@ -120,6 +139,14 @@ public class Form {
         this.tabPermissions = tabPermissions;
     }
 
+    public String getAddPermission() {
+        return addPermission;
+    }
+
+    public void setAddPermission(String addPermission) {
+        this.addPermission = addPermission;
+    }
+
     public String getObjectname() {
         return objectname;
     }
@@ -165,6 +192,8 @@ public class Form {
 
             map.put("attributes", getAttributes());
             map.put("permissions", getPermissions());
+            map.put("addpermission", getAddPermission());
+            map.put("delete", getDelete());
             map.put("userGroups", getUserGroups());
             TemplateChooser tc = new TemplateChooser(map, "form");
 

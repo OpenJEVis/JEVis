@@ -215,12 +215,12 @@
 		<div class="col-1">From:</div>
             <div class="col-2">
                 <input type="date" id="id-from" value="2010-01-01"
-                                      onchange="updateChart('${name}', this.value, document.getElementById('id-until').value, document.getElementById('id-MeasuringPoint').value, '${bauth}');">
+                       onchange="updateChart('${name}', this.value, document.getElementById('id-until').value, document.getElementById('id-MeasuringPoint').value, '${bauth}');">
             </div>
 		<div class="col-1">Until:</div>
             <div class="col-2">
                 <input type="date" id="id-until" value=""
-                                      onchange="updateChart('${name}', document.getElementById('id-from').value, this.value, document.getElementById('id-MeasuringPoint').value, '${bauth}');">
+                       onchange="updateChart('${name}', document.getElementById('id-from').value, this.value, document.getElementById('id-MeasuringPoint').value, '${bauth}');">
             </div>
         </#if>
     </div>
@@ -253,15 +253,23 @@
                 <p>${p.name}</p>
             </div>
             <div class="col-3">
-                <input type="button" class="data-form-button" value="delete"
+                <input type="button" class="data-form-button" value="${delete}"
                        onclick="deleteRelationship(${p.from?c}, ${p.to?c}, ${p.type}, '${bauth}'); return false;"/>
             </div>
         </div>
     </#list>
-    <select class="select-link" onchange="createRelationship(${FormID?c}, this.value, 100, '${bauth}'); return false;">
-        <option value="">(none)</option>
-        <#list userGroups as ug>
-            <option value="${ug.id?c}">${ug.name}</option>
-        </#list>
-    </select>
+    <div class="row">
+        <div class="col-2">
+            <p>${addpermission}</p>
+        </div>
+        <div class="col-3">
+            <select class="select-link"
+                    onchange="createRelationship(${FormID?c}, this.value, 100, '${bauth}'); return false;">
+                <option value="">(none)</option>
+                <#list userGroups as ug>
+                <option value="${ug.id?c}">${ug.name}</option>
+                </#list>
+            </select>
+        </div>
+    </div>
 </div>

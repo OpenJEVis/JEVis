@@ -182,5 +182,7 @@
   "Total": "Gesamt",
   "Production Overview for ": "Produktionsüberblick für ",
   "Attributes": "Eigenschaften",
-  "Permissions": "Rechte"
+  "Permissions": "Rechte",
+  "Add Permission": "Berechtigung hinzufügen",
+  "Delete": "Löschen"
 }

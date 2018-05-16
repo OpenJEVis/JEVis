@@ -106,10 +106,11 @@ public class Snippets {
     }
 
     public static List<JsonJEVisClass> getAllChildren(SQLDataSource ds, JsonJEVisClass parent) throws JEVisException {
+        List<JsonClassRelationship> listClassRelationships = ds.getClassRelationships();
         List<JsonJEVisClass> list = new ArrayList<>();
         if (parent != null) {
-            for (JsonClassRelationship crel : ds.getClassRelationships()) {
-                if (crel.getType() == JEVisConstants.ClassRelationship.OK_PARENT && crel.getEnd().equals(parent.getName())) {
+            for (JsonClassRelationship crel : listClassRelationships) {
+                if (crel.getType() == JEVisConstants.ClassRelationship.INHERIT && crel.getEnd().equals(parent.getName())) {
                     list.add(ds.getJEVisClass(crel.getStart()));
                 }
             }
