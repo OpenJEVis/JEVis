@@ -64,6 +64,7 @@ import org.jevis.commons.relationship.RelationshipFactory;
 import static org.jevis.jeapi.ws.JEVisClassWS.getImage;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NewClassDialog;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -381,7 +382,8 @@ public class ClassTree extends TreeView<JEVisClass> {
                 ConfirmDialog dia = new ConfirmDialog();
                 String question = "Do you want to delete the Class \"" + jclass.getName() + "\" ?";
 
-                if (dia.show(JEConfig.getStage(), "Delete Class", "Delete Class?", question) == ConfirmDialog.Response.YES) {
+                if (dia.show(JEConfig.getStage(), I18n.getInstance().getString("plugin.classes.tree.delete.title"),
+                        I18n.getInstance().getString("plugin.classes.tree.delete.title_long"), question) == ConfirmDialog.Response.YES) {
                     try {
                         System.out.println("User want to delete: " + jclass.getName());
 
@@ -456,7 +458,7 @@ public class ClassTree extends TreeView<JEVisClass> {
     public void fireEventExport(ObservableList<TreeItem<JEVisClass>> items) {
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save JEVisClasses to File");
+        fileChooser.setTitle(I18n.getInstance().getString("plugin.classes.save.title"));
         fileChooser.getExtensionFilters().addAll(
                 new ExtensionFilter("JEVis Files", "*.jev"),
                 new ExtensionFilter("All Files", "*.*"));
@@ -514,7 +516,6 @@ public class ClassTree extends TreeView<JEVisClass> {
                     && !dia.getClassName().equals("")) {
 
                 JEVisClass newClass = _ds.buildClass(dia.getClassName());
-                System.out.println("NEw class: "+newClass);
                 //allway set the default icon
                 if (dia.getInheritance() != null && dia.getInheritance().getIcon() != null) {
                     newClass.setIcon(dia.getInheritance().getIcon());
@@ -522,8 +523,6 @@ public class ClassTree extends TreeView<JEVisClass> {
                 newClass.commit();
                 TreeItem<JEVisClass> newItem;
                 if (dia.getInheritance() != null) {
-                    System.out.println("Is inheritance class from: " + dia.getInheritance().getName());
-
                     JEVisClassRelationship cr = RelationshipFactory.buildInheritance(dia.getInheritance(), newClass);
                     newItem = getObjectTreeItem(newClass);
 //                    getChildrenList(getObjectTreeItem(dia.getInheritance())).add(getObjectTreeItem(newClass));
@@ -600,7 +599,6 @@ public class ClassTree extends TreeView<JEVisClass> {
                     @Override
                     public void handle(MouseEvent e) {
                         try {
-                            System.out.println("Drag Source: " + obj.getName());
                             ClipboardContent content = new ClipboardContent();
 //                        content.putString(obj.getName());
                             Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
@@ -619,9 +617,8 @@ public class ClassTree extends TreeView<JEVisClass> {
                     @Override
                     public void handle(DragEvent dragEvent) {
                         try {
-                            System.out.println("Drag done on " + obj.getName());
                             dragEvent.consume();
-                        } catch (JEVisException ex) {
+                        } catch (Exception ex) {
                             Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
@@ -634,7 +631,6 @@ public class ClassTree extends TreeView<JEVisClass> {
                         try {
                             if (obj != null) {
                                 if (!obj.equals(getDragItem()) && !getDragItem().getHeirs().contains(obj)) {
-                                    System.out.println("Drag Over: " + obj.getName());
                                     dragEvent.acceptTransferModes(TransferMode.MOVE);
                                 }
 
@@ -653,26 +649,16 @@ public class ClassTree extends TreeView<JEVisClass> {
                     @Override
                     public void handle(DragEvent dragEvent) {
                         try {
-                            System.out.println("\nDrag dropped on " + obj.getName());
-                            System.out.println("To Drag: " + getDragItem().getName());
-
-                            System.out.println("add new Relationship: " + getDragItem().getName() + "-> " + obj.getName());
-
                             //if the inherit is the faske root we create no now relationship but set the inherit to null
                             if (obj.getName().equals(getRoot().getValue().getName())) {
-                                System.out.println("New root is Fake Root");
                                 for (JEVisClassRelationship rel : getDragItem().getRelationships(JEVisConstants.ClassRelationship.INHERIT)) {
                                     getDragItem().deleteRelationship(rel);
                                 }
 
                             } else {
-                                System.out.println("new Root is NOT fake root");
                                 JEVisClassRelationship newRel = getDragItem().buildRelationship(obj, JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD);
-                                System.out.println("new Rel: " + newRel);
                                 for (JEVisClassRelationship rel : getDragItem().getRelationships(JEVisConstants.ClassRelationship.INHERIT)) {
-                                    System.out.println("Rel: " + rel);
                                     if (!rel.equals(newRel)) {
-                                        System.out.println("remove relationship " + getDragItem().getName() + " -> " + rel.getOtherClass(getDragItem()).getName());
                                         getDragItem().deleteRelationship(rel);
 
                                         TreeItem<JEVisClass> dragParentItem = getObjectTreeItem(rel.getOtherClass(getDragItem().getInheritance()));

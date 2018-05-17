@@ -80,9 +80,7 @@ public class BooleanValueEditor implements AttributeEditor {
 
     @Override
     public void commit() throws JEVisException {
-        System.out.println("Commit boolean ");
         if (_newSample != null) {
-            System.out.println("Value: " + _newSample.getValue());
             //TODO: check if tpye is ok, maybe better at imput time
             _newSample.commit();
         }

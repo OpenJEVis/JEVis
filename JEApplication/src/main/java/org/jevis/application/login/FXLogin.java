@@ -27,6 +27,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static java.util.Locale.GERMANY;
 import static java.util.Locale.UK;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +37,8 @@ import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -125,6 +129,8 @@ public class FXLogin extends AnchorPane {
     private boolean useCSSFile = false;
     private ApplicationInfo app = new ApplicationInfo("tata", "");
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(FXLogin.class);
+    private Locale selectedLocale = Locale.getDefault();
+
 
     public interface Color {
 
@@ -721,6 +727,7 @@ public class FXLogin extends AnchorPane {
     private ComboBox buildLanguageBox() {
         List<Locale> availableLang = new ArrayList<>();
         availableLang.add(UK);
+        availableLang.add(GERMANY);
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
@@ -769,9 +776,21 @@ public class FXLogin extends AnchorPane {
         comboBox.setMinWidth(250);
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
 
+        comboBox.valueProperty().addListener(new ChangeListener<Locale>() {
+            @Override
+            public void changed(ObservableValue<? extends Locale> observable, Locale oldValue, Locale newValue) {
+                selectedLocale=newValue;
+                //TODO reload UI
+            }
+        });
+
         return comboBox;
 
     }
+    public Locale getSelectedLocale(){
+        return selectedLocale;
+    }
+
 
     /**
      * Build an remote link for the userregistration

@@ -9,8 +9,14 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
+<<<<<<< HEAD
 import java.io.File;
 import java.net.URI;
+=======
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.jevis.ws.sql.ConnectionFactory;
+>>>>>>> cc016e0883c158d3986575c5c934fad66d8ed2dc
 
 /**
  * Main class.
@@ -26,10 +32,16 @@ public class Main {
      *
      * @param args
      */
+<<<<<<< HEAD
     public static void main(String[] args) {
+=======
+    public static void main(String[] args) throws IOException,SQLException {
+>>>>>>> cc016e0883c158d3986575c5c934fad66d8ed2dc
         LOGGER.info("Start - {}", VERSION);
         //read Config
         File configfile;
+
+
         if (args.length >= 1) {
             configfile = new File(args[0]);
         } else {
@@ -42,8 +54,27 @@ public class Main {
                 System.out.println("No config file: try using config.xml");
             }
         }
+	Config.readConfigurationFile(configfile);
 
-        Config.readConfigurationFile(configfile);
+	//Test Connection parameter
+	for(String para:args){
+		System.out.println("para: "+para);
+                if(para.equalsIgnoreCase("-test")){
+                    System.out.println("DBHost: "+Config.getDBHost()
+                            +"\nDBPort: "+ Config.getDBPort()
+                            +"\nDBSchema: "+ Config.getSchema()
+                            +"\nDBUSer: "+Config.getDBUser()
+                            +"\nDBPW: "+Config.getDBPW());
+                    ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
+
+                    Connection dbConn = ConnectionFactory.getInstance().getConnection();
+                    if (dbConn.isValid(2000)) {
+                        System.out.println("Database Connection is working");
+                    }else{
+                        System.out.println("Database Connection is NOT working");
+                    }
+		}
+        }
 
         final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest");
         rc.setApplicationName("JEWebservice");

@@ -32,6 +32,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.joda.time.DateTime;
 
@@ -95,7 +96,8 @@ public class PasswordEditor implements AttributeEditor {
 
     private void buildTextFild() throws JEVisException {
         if (_setPW == null) {
-            _setPW = new Button("Change Password", JEConfig.getImage("1415303685_lock-s1.png", 18, 18));
+            _setPW = new Button(I18n.getInstance().getString("plugin.object.attribute.password.button"),
+                    JEConfig.getImage("1415303685_lock-s1.png", 18, 18));
             _setPW.setDisable(_readOnly);
             _setPW.setOnAction(new EventHandler<ActionEvent>() {
 

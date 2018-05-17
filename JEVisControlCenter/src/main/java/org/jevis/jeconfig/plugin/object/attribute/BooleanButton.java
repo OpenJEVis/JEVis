@@ -34,6 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 /**
@@ -104,7 +105,6 @@ public class BooleanButton implements AttributeEditor {
             JEVisSample lsample = _attribute.getLatestSample();
 
             if (lsample != null) {
-                System.out.println("set Old Value: " + lsample.getValueAsBoolean());
                 _field.setSelected(lsample.getValueAsBoolean());//TODO: get default Value
                 _lastSample = lsample;
             } else {
@@ -114,8 +114,8 @@ public class BooleanButton implements AttributeEditor {
             _field.setOnAction((ActionEvent t) -> {
                 try {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
-                    alert.setTitle("Confirmation Dialog");
-                    alert.setHeaderText("This action will influence the current system");
+                    alert.setTitle(I18n.getInstance().getString("plugin.object.attribute.boolean.alert.title"));
+                    alert.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.boolean.alert.message"));
 
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.get() == ButtonType.OK) {
@@ -148,9 +148,9 @@ public class BooleanButton implements AttributeEditor {
 
     private void toggleText() {
         if (_field.isSelected()) {
-            _field.setText("In Progress");
+            _field.setText(I18n.getInstance().getString("plugin.object.attribute.boolean.inprogress"));
         } else {
-            _field.setText("Idle");
+            _field.setText(I18n.getInstance().getString("plugin.object.attribute.boolean.idle"));
         }
 
         System.out.println("_field Status: " + _field.isSelected());

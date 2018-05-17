@@ -42,7 +42,6 @@ public class LanguageEditor implements AttributeEditor {
     private Locale orgLoca = Locale.getDefault();
 
     public LanguageEditor(JEVisAttribute att) {
-        System.out.println("LanguageEditor: " + att);
         _attribute = att;
 
         try {
@@ -61,7 +60,6 @@ public class LanguageEditor implements AttributeEditor {
             logger.catching(ex);
         }
 
-        System.out.println("Locate: " + orgLoca);
         buildGUI();
     }
 

@@ -51,6 +51,7 @@ import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.selectiontree.SelectObjectDialog;
 import org.jevis.jeconfig.plugin.object.selectiontree.UserSelection;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -59,7 +60,7 @@ import org.jevis.jeconfig.tool.ImageConverter;
  */
 public class RootExtension implements ObjectEditorExtension {
 
-    private static final String TITEL = "Entry Points";
+    private static final String TITEL = I18n.getInstance().getString("plugin.object.root.title");
     private JEVisObject _obj;
 
     private BorderPane _view = new BorderPane();
@@ -131,7 +132,6 @@ public class RootExtension implements ObjectEditorExtension {
 
         try {
             for (JEVisRelationship rel : obj.getRelationships(JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD)) {
-                System.out.println("root: " + rel.getOtherObject(obj));
                 rootRel.add(rel);
             }
         } catch (JEVisException ex) {
@@ -243,7 +243,7 @@ public class RootExtension implements ObjectEditorExtension {
         JEVisClass groupClass = obj.getDataSource().getJEVisClass(Constants.JEVisClass.GROUP);
         List<JEVisObject> allGroups = obj.getDataSource().getObjects(groupClass, true);
 
-        Label newOwnerlabel = new Label("Add an additional enty point: ");
+        Label newOwnerlabel = new Label(I18n.getInstance().getString("plugin.object.root.ownerlabel"));
         newOwnerlabel.setPrefHeight(21);
         GridPane.setValignment(newOwnerlabel, VPos.CENTER);
         HBox addNewBox = new HBox(5);
@@ -263,7 +263,6 @@ public class RootExtension implements ObjectEditorExtension {
 
                     if (re == SelectObjectDialog.Response.OK) {
                         for (UserSelection selection : dia.getUserSelection()) {
-                            System.out.println("Build relationship: " + obj.getName() + "->" + selection.getSelectedObject().getName() + "=root ");
                             obj.buildRelationship(selection.getSelectedObject(), JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
                         }
 

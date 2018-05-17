@@ -78,7 +78,7 @@ public class DateTimeEditor implements AttributeEditor {
         JEVisSample sample = att.getLatestSample();
         picker.setPrefWidth(500);
         picker.textProperty().addListener((v, oldValue, newValue) -> {
-            logger.trace("Envint in IP huh");
+
 
             try {
                 if (sample == null || sample.getValueAsString().equals(newValue)) {

@@ -30,6 +30,7 @@ import org.jevis.api.JEVisEvent;
 import org.jevis.api.JEVisEventListener;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  * Fake Root
@@ -40,7 +41,7 @@ public class JEVisRootClass implements JEVisClass {
 
     private List<JEVisClass> _children = new ArrayList<JEVisClass>();
     private final JEVisDataSource _ds;
-    private String _name = "Classes";
+    private String _name = I18n.getInstance().getString("plugin.classes.title");
 
     public JEVisRootClass(JEVisDataSource ds) throws JEVisException {
         this._ds = ds;

@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,10 +51,29 @@ public class Configuration {
     private boolean _showServer = false;
     private String _defaultServerURL = "jevis:jevistest@coffee-project.eu:13306/jevis";//"jevis:Taexu3Eesesieth3eid1@lthneo.kaust.edu.sa:3306/jevis";//user:password@server:3306/jevis";
 //    private final String _defaultServerURL = "user:password@server:3306/jevis";
+    private File lastPath = null;
+    private File lastFile = null;
 
     public static enum COLORS {
 
         BACKGROUND
+    }
+
+
+    public File getLastFile(){
+        return lastFile;
+    }
+
+    public File getLastPath(){
+        return lastPath;
+    }
+
+    public void setLastPath(File path){
+        this.lastPath=path;
+    }
+
+    public void setLastFile(File file){
+        this.lastFile=file;
     }
 
     /**

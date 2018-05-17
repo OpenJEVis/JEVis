@@ -3,19 +3,19 @@
 <config>
     <datasource>
         <url>127.0.0.1</url>
-        <port>8001</port>
+        <port>3306</port>
         <login>jevis</login>
         <password>dbpassword</password>
         <schema>jevis</schema>
     </datasource>
     <webservice>
         <port>8080</port>
-        <uri>http://10.1.1.79:8080/</uri>
+        <uri>http://10.0.0.1:8080/</uri>
         
         <registration>
             <root>1</root>
             <demogroup>1</demogroup>
-            <apikey>UIGDUSG023B)xdh283fß9hbo90</apikey>
+            <apikey>UIGDUSG023Bxdh283frehbo90</apikey>
         </registration>
     </webservice>   
     

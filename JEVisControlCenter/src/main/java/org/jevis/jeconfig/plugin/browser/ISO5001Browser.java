@@ -24,6 +24,7 @@ import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.tool.I18n;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -38,7 +39,7 @@ import org.w3c.dom.html.HTMLSelectElement;
  */
 public class ISO5001Browser implements Plugin {
 
-    private StringProperty nameProperty = new SimpleStringProperty("EnMS");
+    private StringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.isobrowser"));
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane contentPane = new BorderPane();

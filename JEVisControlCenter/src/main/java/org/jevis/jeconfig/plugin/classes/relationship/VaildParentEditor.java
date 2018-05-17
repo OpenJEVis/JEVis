@@ -44,6 +44,7 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -52,9 +53,10 @@ import org.jevis.jeconfig.tool.ImageConverter;
  */
 public class VaildParentEditor {
 
-    private final String INHERIT = "Inherit";
-    private final String NESTED = "Nested";
-    private final String OK_PARENT = "Vaild Parent";
+    private final String INHERIT = I18n
+            .getInstance().getString("plugin.classes.relationship.type.inherited");
+    private final String NESTED = I18n.getInstance().getString("plugin.classes.relationship.type.nested");
+    private final String OK_PARENT = I18n.getInstance().getString("plugin.classes.relationship.type.parent");
 
     private final VBox _view;
 
@@ -74,7 +76,7 @@ public class VaildParentEditor {
                 gb.setHgap(7);
                 gb.setVgap(7);
 
-                Label headerClass = new Label("JEVisClass");
+                Label headerClass = new Label(I18n.getInstance().getString("plugin.classes.relationship.name"));
 //                Label headerType = new Label("Type");
 //                Label headerDirection = new Label("Direction");
 
@@ -135,7 +137,7 @@ public class VaildParentEditor {
                 //TODO: replace with Tree selection dialog
                 final TextField newTF = new TextField();
 
-                newTF.setPromptText("Class Name");
+                newTF.setPromptText(I18n.getInstance().getString("plugin.classes.relationship.name.prompt"));
                 gb.add(new Separator(Orientation.HORIZONTAL), 0, ++x, 2, 1);
                 gb.add(newTF, 0, ++x);
                 gb.add(newB, 1, x);
@@ -254,9 +256,9 @@ public class VaildParentEditor {
         box.getItems().add("Backward");
 
         if (rel.getOtherClass(jclass).equals(rel.getStart())) {
-            box.getSelectionModel().select("Forward");
+            box.getSelectionModel().select(I18n.getInstance().getString("plugin.classes.relationship.direction.forward"));
         } else {
-            box.getSelectionModel().select("Backward");
+            box.getSelectionModel().select(I18n.getInstance().getString("plugin.classes.relationship.direction.backward"));
         }
 
         try {

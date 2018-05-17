@@ -33,6 +33,7 @@ import javafx.scene.layout.AnchorPane;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisException;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -47,13 +48,13 @@ public class ClassRelationshipTable {
         AnchorPane root = new AnchorPane();
 //        root.setStyle("-fx-background-color: blue;");
 
-        TableColumn otherClassCol = new TableColumn("JEVisClass");
+        TableColumn otherClassCol = new TableColumn(I18n.getInstance().getString("plugin.classes.relationship.table.name"));
         otherClassCol.setCellValueFactory(new PropertyValueFactory<RelationshipColum, String>("otherClass"));
 
-        TableColumn typeCol = new TableColumn("Type");
+        TableColumn typeCol = new TableColumn(I18n.getInstance().getString("plugin.classes.relationship.table.type"));
         typeCol.setCellValueFactory(new PropertyValueFactory<RelationshipColum, String>("type"));
 
-        TableColumn directionCol = new TableColumn("Direction");
+        TableColumn directionCol = new TableColumn(I18n.getInstance().getString("plugin.classes.relationship.table.direction"));
         directionCol.setCellValueFactory(new PropertyValueFactory<RelationshipColum, String>("direction"));
 
         TableView table = new TableView();

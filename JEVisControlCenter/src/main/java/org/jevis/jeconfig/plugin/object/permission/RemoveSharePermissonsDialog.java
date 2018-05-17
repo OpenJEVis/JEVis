@@ -44,6 +44,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.application.resource.ResourceLoader;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -105,7 +106,7 @@ public class RemoveSharePermissonsDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button("Delte");
+        Button ok = new Button(I18n.getInstance().getString("plugin.object.permission.button.delete"));
         ok.setDefaultButton(true);
 
         final CheckBox includeChildren = new CheckBox("For all children");
@@ -117,7 +118,7 @@ public class RemoveSharePermissonsDialog {
         HBox.setHgrow(ok, Priority.NEVER);
 //        Button okAll = new Button("Delte also for all Children");
 
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button(I18n.getInstance().getString("plugin.object.permission.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(includeChildren, spacer, ok, cancel);

@@ -25,6 +25,7 @@ import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisConstants.ClassRelationship;
 import org.jevis.api.JEVisConstants.Direction;
 import org.jevis.api.JEVisException;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -57,11 +58,11 @@ public class RelationshipColum {
     private String getDirectionName(int direction) {
         switch (direction) {
             case Direction.BACKWARD:
-                return "Backward";
+                return I18n.getInstance().getString("plugin.classes.relationship.direction.backward");
             case Direction.FORWARD:
-                return "Forward";
+                return I18n.getInstance().getString("plugin.classes.relationship.direction.forward");
             default:
-                return "Unknown";
+                return I18n.getInstance().getString("plugin.classes.relationship.direction.unknown");
         }
 
     }
@@ -69,13 +70,13 @@ public class RelationshipColum {
     private String getTypeName(int type) {
         switch (type) {
             case ClassRelationship.OK_PARENT:
-                return "Vaild Parent";
+                return I18n.getInstance().getString("plugin.classes.relationship.type.parent");
             case ClassRelationship.INHERIT:
-                return "Inhereted";
+                return I18n.getInstance().getString("plugin.classes.relationship.type.inherited");
             case ClassRelationship.NESTED:
-                return "Nested";
+                return I18n.getInstance().getString("plugin.classes.relationship.type.nested");
             default:
-                return "Unknown";
+                return I18n.getInstance().getString("plugin.classes.relationship.type.Unknown");
         }
 
     }

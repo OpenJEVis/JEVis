@@ -395,9 +395,8 @@ public class NumberWithUnit implements AttributeEditor {
     }
 
     private JEVisSample buildNewSample() {
-        try {//build new sample
+        try {
 
-            System.out.println("ATTRIBUTE TYPE:"+_attribute.getType().getPrimitiveType());
             JEVisSample newSample = null;
             if (_lastSample == null) {
                 newSample = _attribute.buildSample(new DateTime(), _field.getText());

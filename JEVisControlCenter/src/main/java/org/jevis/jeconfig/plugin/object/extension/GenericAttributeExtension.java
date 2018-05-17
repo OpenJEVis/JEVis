@@ -71,6 +71,7 @@ import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
 import org.jevis.jeconfig.plugin.object.attribute.TargetEditor;
 import org.jevis.jeconfig.plugin.object.attribute.TimeZoneEditor;
 import org.jevis.jeconfig.sample.SampleEditor;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -78,7 +79,7 @@ import org.jevis.jeconfig.sample.SampleEditor;
  */
 public class GenericAttributeExtension implements ObjectEditorExtension {
 
-    private static final String TITEL = "Attributes";
+    private static final String TITEL = I18n.getInstance().getString("plugin.object.attribute.title");
     private final BorderPane _view = new BorderPane();
     private JEVisObject _obj;
     private boolean _needSave = false;
@@ -151,7 +152,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             } catch (Exception ex) {
                 logger.catching(ex);
                 ExceptionDialog dia = new ExceptionDialog();
-                ExceptionDialog.Response re = dia.show(JEConfig.getStage(), "Error", "Could not commit to Server", ex, PROGRAMM_INFO);
+                ExceptionDialog.Response re = dia.show(JEConfig.getStage(),
+                        I18n.getInstance().getString("dialog.error.title"),
+                        I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAMM_INFO);
                 if (re == ExceptionDialog.Response.CANCEL) {
                     return false;
                 }
@@ -197,7 +200,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             if (!obj.getJEVisClass().getTypes().isEmpty()) {
                 List<JEVisAttribute> attributes = obj.getAttributes();//load once because this function is not cached
                 for(JEVisType type:obj.getJEVisClass().getTypes()){//loop types not attributes to be sure only no deletet type are shown
-                    System.out.println("Type: "+type.getName());    
                     JEVisAttribute att = getAttribute(type.getName(), attributes);
                     if(att==null){
                         continue;
@@ -305,7 +307,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         logger.catching(ex);
                     }
 
-                    Label name = new Label("*Missing_Name*");
+                    Label name = new Label(I18n.getInstance().getString("plugin.object.attribute.missingname"));
 
 //                    name.setId("attributelabel");
                     SampleEditor se = new SampleEditor();
@@ -349,7 +351,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                     coloum++;
                     _attributesEditor.add(editor);
-                    logger.trace("done1: {}", obj.getID());
+                    logger.trace("done: {}", obj.getID());
                 }
             }
 //

@@ -31,6 +31,7 @@ import org.jevis.application.jevistree.TreeHelper;
 import org.jevis.application.object.tree.UserSelection;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 /**
@@ -96,10 +97,13 @@ public class TargetEditor implements AttributeEditor {
 
     private void init() throws JEVisException {
         logger.debug("init TargetEditor");
-        _treeButton = new Button("Target", JEConfig.getImage("folders_explorer.png", 18, 18));
+        _treeButton = new Button(I18n
+                .getInstance().getString("plugin.object.attribute.target.button"),
+                JEConfig.getImage("folders_explorer.png", 18, 18));
 
-        Button gotoButton = new Button("Goto", JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
-        gotoButton.setTooltip(new Tooltip("Goto target in tree"));
+        Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+                JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
+        gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
@@ -149,7 +153,7 @@ public class TargetEditor implements AttributeEditor {
                     if (selectionDialog.show(
                             JEConfig.getStage(),
                             _attribute.getObject().getDataSource(),
-                            "Target Selection",
+                            I18n.getInstance().getString("plugin.object.attribute.target.selection"),
                             openList,
                             mode
                     ) == SelectTargetDialog2.Response.OK) {
@@ -164,7 +168,7 @@ public class TargetEditor implements AttributeEditor {
                                 setButtonText();
                             }
 
-                            logger.trace("Nnew Target: [{}] {}", _attribute, newSample.getValueAsString());
+                            logger.trace("New Target: [{}] {}", _attribute, newSample.getValueAsString());
                             _changed.setValue(true);
 
                         }

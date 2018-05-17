@@ -41,6 +41,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.dialog.SelectTargetDialog2;
 import org.jevis.application.object.tree.UserSelection;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -76,7 +77,7 @@ public class DashboardPlugin implements Plugin {
 
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp"),
                 new ExtensionFilter("All", "*.*"));
-        fileChooser.setTitle("Open Resource File");
+        fileChooser.setTitle(I18n.getInstance().getString("plugin.dashboard.openfile"));
 
 //        picture = new Image(location);
         picture = JEConfig.getImage("scanda2.jpg");
@@ -114,7 +115,7 @@ public class DashboardPlugin implements Plugin {
 
     @Override
     public String getName() {
-        return "Dashboard";
+        return I18n.getInstance().getString("plugin.dashboard.title");
     }
 
     @Override
@@ -198,7 +199,7 @@ public class DashboardPlugin implements Plugin {
                 if (selectionDialog2.show(
                         JEConfig.getStage(),//JEConfig.getStage()
                         ds,
-                        "Attribute Selection",
+                        I18n.getInstance().getString("plugin.dashboard.att_select.title"),
                         userSelection.getValue(),
                         SelectTargetDialog2.MODE.ATTRIBUTE
                 ) == SelectTargetDialog2.Response.OK) {

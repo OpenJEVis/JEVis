@@ -37,6 +37,7 @@ import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.CommonClasses;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.relationship.RelationshipTable;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -44,7 +45,7 @@ import org.jevis.jeconfig.plugin.object.relationship.RelationshipTable;
  */
 public class LinkExtension implements ObjectEditorExtension {
 
-    private static final String TITEL = "Links";
+    private static final String TITEL = I18n.getInstance().getString("plugin.object.links");
     private final BorderPane _view = new BorderPane();
     private JEVisObject _obj;
     private boolean _needSave = false;

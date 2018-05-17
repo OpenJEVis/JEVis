@@ -28,6 +28,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import org.jevis.api.JEVisClass;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -55,7 +56,7 @@ public class ClassContextMenu extends ContextMenu {
     }
 
     public Menu buildMenuExport() {
-        Menu addMenu = new Menu("Export", JEConfig.getImage("save.gif", 20, 20));
+        Menu addMenu = new Menu(I18n.getInstance().getString("plugin.classes.contextmenu.export"), JEConfig.getImage("save.gif", 20, 20));
         addMenu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -77,7 +78,7 @@ public class ClassContextMenu extends ContextMenu {
     }
 
     public Menu buildMenuNew() {
-        Menu addMenu = new Menu("New", JEConfig.getImage("list-add.png", 20, 20));
+        Menu addMenu = new Menu(I18n.getInstance().getString("plugin.classes.contextmenu.new"), JEConfig.getImage("list-add.png", 20, 20));
         addMenu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -122,7 +123,7 @@ public class ClassContextMenu extends ContextMenu {
     }
 
     private MenuItem buildRename() {
-        MenuItem menu = new MenuItem("Rename");
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("plugin.classes.contextmenu.rename"));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -145,7 +146,8 @@ public class ClassContextMenu extends ContextMenu {
     }
 
     private MenuItem buildDelete() {
-        MenuItem menu = new MenuItem("Delete", JEConfig.getImage("list-remove.png", 20, 20));
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("plugin.classes.contextmenu.delete"),
+                JEConfig.getImage("list-remove.png", 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
