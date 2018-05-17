@@ -8,15 +8,12 @@ import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jevis.ws.sql.ConnectionFactory;
 
-<<<<<<< HEAD
 import java.io.File;
 import java.net.URI;
-=======
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.jevis.ws.sql.ConnectionFactory;
->>>>>>> cc016e0883c158d3986575c5c934fad66d8ed2dc
 
 /**
  * Main class.
@@ -32,11 +29,7 @@ public class Main {
      *
      * @param args
      */
-<<<<<<< HEAD
-    public static void main(String[] args) {
-=======
-    public static void main(String[] args) throws IOException,SQLException {
->>>>>>> cc016e0883c158d3986575c5c934fad66d8ed2dc
+    public static void main(String[] args) throws SQLException {
         LOGGER.info("Start - {}", VERSION);
         //read Config
         File configfile;
