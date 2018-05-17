@@ -56,124 +56,126 @@ public class ISOForm {
             if (classname.equals("")) {
                 ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
                 ds.preload(SQLDataSource.PRELOAD.ALL_REL);
-                JsonObject obj = ds.getObject(ID);
+                JsonObject obj = ds.getUserManager().filterObject(ds.getObject(ID));
 
-                List<FormAttribute> listFormAttributes = new ArrayList<>();
+                if (Objects.nonNull(obj)) {
+                    List<FormAttribute> listFormAttributes = new ArrayList<>();
 
-                f.setID(obj.getId());
-                f.setName(obj.getName());
-                f.setBauth(httpHeaders.getRequestHeader("authorization").get(0));
+                    f.setID(obj.getId());
+                    f.setName(obj.getName());
+                    f.setBauth(httpHeaders.getRequestHeader("authorization").get(0));
 
-                List<JsonAttribute> listAttributes = ds.getAttributes(obj.getId());
+                    List<JsonAttribute> listAttributes = ds.getAttributes(obj.getId());
 
-                for (JsonAttribute att : listAttributes) {
-                    if (att.getSampleCount() > 0) {
-                        String guiDisplayType = "";
-                        for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
-                            if (jt.getName().equals(att.getType())) {
-                                guiDisplayType = jt.getGuiType();
+                    for (JsonAttribute att : listAttributes) {
+                        if (att.getSampleCount() > 0) {
+                            String guiDisplayType = "";
+                            for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
+                                if (jt.getName().equals(att.getType())) {
+                                    guiDisplayType = jt.getGuiType();
+                                }
                             }
-                        }
 
-                        FormAttributeDisplayType fadt = new FormAttributeDisplayType(att.getPrimitiveType(), guiDisplayType);
-                        if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.ObjectTarget)) {
-                            if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.File)) {
+                            FormAttributeDisplayType fadt = new FormAttributeDisplayType(att.getPrimitiveType(), guiDisplayType);
+                            if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.ObjectTarget)) {
+                                if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.File)) {
+                                    FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att, att.getLatestValue());
+
+                                    if (fadt.getOutput() == FormAttribute.FormAttributeType.Double) {
+                                        fa.setUnithelp(getUnits(ds));
+                                    }
+
+                                    listFormAttributes.add(fa);
+                                } else {
+                                    FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att);
+
+                                    listFormAttributes.add(fa);
+                                }
+                            } else {
+
                                 FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att, att.getLatestValue());
 
+                                TargetHelper th = new TargetHelper(ds, att);
+
+                                if (th.hasObject() && th.isValid()) {
+                                    fa.setValue(th.getObject().getName());
+                                    fa.setLongValue(th.getObject().getId());
+                                }
+
+                                fa.setOthelp(getObjectTargetHelper(ds, att));
+
+                                listFormAttributes.add(fa);
+                            }
+                        } else {
+                            String guiDisplayType = "";
+                            for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
+                                if (jt.getName().equals(att.getType())) {
+                                    guiDisplayType = jt.getGuiType();
+                                }
+                            }
+
+                            FormAttributeDisplayType fadt = new FormAttributeDisplayType(att.getPrimitiveType(), guiDisplayType);
+                            if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.ObjectTarget)) {
+                                FormAttribute fa = new FormAttribute(att.getType(), fadt.getOutput());
                                 if (fadt.getOutput() == FormAttribute.FormAttributeType.Double) {
                                     fa.setUnithelp(getUnits(ds));
                                 }
-
                                 listFormAttributes.add(fa);
                             } else {
-                                FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att);
+                                FormAttribute fa = new FormAttribute(att.getType(), fadt.getOutput());
+
+                                fa.setOthelp(getObjectTargetHelper(ds, att));
 
                                 listFormAttributes.add(fa);
                             }
-                        } else {
-
-                            FormAttribute fa = new FormAttribute(ds, obj, att.getType(), fadt.getOutput(), att, att.getLatestValue());
-
-                            TargetHelper th = new TargetHelper(ds, att);
-
-                            if (th.hasObject() && th.isValid()) {
-                                fa.setValue(th.getObject().getName());
-                                fa.setLongValue(th.getObject().getId());
-                            }
-
-                            fa.setOthelp(getObjectTargetHelper(ds, att));
-
-                            listFormAttributes.add(fa);
                         }
+                    }
+
+                    if (!lang.equals("")) {
+                        f.setTranslated(true);
+                        Translations t = new Translations();
+                        listFormAttributes = t.translate(listFormAttributes, lang);
+                        f.setObjectname(t.getTranslatedKey(lang, "Object Name"));
+                        f.setDeleteobject(t.getTranslatedKey(lang, "Delete Object"));
+                        f.setUploaded(t.getTranslatedKey(lang, "Uploaded"));
+                        f.setTabAttributes(t.getTranslatedKey(lang, "Attributes"));
+                        f.setTabPermissions(t.getTranslatedKey(lang, "Permissions"));
+                        f.setButtonDelete(t.getTranslatedKey(lang, "Delete Object"));
+                        f.setButtonDownload(t.getTranslatedKey(lang, "Download"));
+                        f.setButtonUpload(t.getTranslatedKey(lang, "Upload"));
+                        f.setAddPermission(t.getTranslatedKey(lang, "Add Permission"));
+                        f.setDelete(t.getTranslatedKey(lang, "Delete"));
+                    }
+
+                    f.setAttributes(listFormAttributes);
+
+                    if (!obj.getJevisClass().equals("Group")) {
+                        List<String> listAccessors = new ArrayList<>();
+                        for (JsonRelationship rel : ds.getRelationships(ID)) {
+                            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
+                                listAccessors.add(ds.getObject(rel.getTo()).getName());
+                            }
+                        }
+
+                        List<JsonObject> userGroups = ds.getObjects("Group", true);
+                        List<JsonObject> foundGroups = new ArrayList<>();
+                        List<JsonRelationshipHelper> relHelp = new ArrayList<>();
+                        for (JsonRelationship rel : ds.getRelationships(obj.getId())) {
+                            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
+                                JsonObject g = ds.getObject(rel.getTo());
+                                foundGroups.add(g);
+                                relHelp.add(new JsonRelationshipHelper(g.getName(), rel.getFrom(), rel.getTo(), rel.getType()));
+                            }
+                        }
+                        f.setPermissions(relHelp);
+                        userGroups.removeAll(foundGroups);
+                        f.setUserGroups(userGroups);
                     } else {
-                        String guiDisplayType = "";
-                        for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
-                            if (jt.getName().equals(att.getType())) {
-                                guiDisplayType = jt.getGuiType();
-                            }
-                        }
-
-                        FormAttributeDisplayType fadt = new FormAttributeDisplayType(att.getPrimitiveType(), guiDisplayType);
-                        if (!fadt.getOutput().equals(FormAttribute.FormAttributeType.ObjectTarget)) {
-                            FormAttribute fa = new FormAttribute(att.getType(), fadt.getOutput());
-                            if (fadt.getOutput() == FormAttribute.FormAttributeType.Double) {
-                                fa.setUnithelp(getUnits(ds));
-                            }
-                            listFormAttributes.add(fa);
-                        } else {
-                            FormAttribute fa = new FormAttribute(att.getType(), fadt.getOutput());
-
-                            fa.setOthelp(getObjectTargetHelper(ds, att));
-
-                            listFormAttributes.add(fa);
-                        }
-                    }
-                }
-
-                if (!lang.equals("")) {
-                    f.setTranslated(true);
-                    Translations t = new Translations();
-                    listFormAttributes = t.translate(listFormAttributes, lang);
-                    f.setObjectname(t.getTranslatedKey(lang, "Object Name"));
-                    f.setDeleteobject(t.getTranslatedKey(lang, "Delete Object"));
-                    f.setUploaded(t.getTranslatedKey(lang, "Uploaded"));
-                    f.setTabAttributes(t.getTranslatedKey(lang, "Attributes"));
-                    f.setTabPermissions(t.getTranslatedKey(lang, "Permissions"));
-                    f.setButtonDelete(t.getTranslatedKey(lang, "Delete Object"));
-                    f.setButtonDownload(t.getTranslatedKey(lang, "Download"));
-                    f.setButtonUpload(t.getTranslatedKey(lang, "Upload"));
-                    f.setAddPermission(t.getTranslatedKey(lang, "Add Permission"));
-                    f.setDelete(t.getTranslatedKey(lang, "Delete"));
-                }
-
-                f.setAttributes(listFormAttributes);
-
-                if (!obj.getJevisClass().equals("Group")) {
-                    List<String> listAccessors = new ArrayList<>();
-                    for (JsonRelationship rel : ds.getRelationships(ID)) {
-                        if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
-                            listAccessors.add(ds.getObject(rel.getTo()).getName());
-                        }
+                        //TODO add User rights to groups
                     }
 
-                    List<JsonObject> userGroups = ds.getObjects("Group", true);
-                    List<JsonObject> foundGroups = new ArrayList<>();
-                    List<JsonRelationshipHelper> relHelp = new ArrayList<>();
-                    for (JsonRelationship rel : ds.getRelationships(obj.getId())) {
-                        if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
-                            JsonObject g = ds.getObject(rel.getTo());
-                            foundGroups.add(g);
-                            relHelp.add(new JsonRelationshipHelper(g.getName(), rel.getFrom(), rel.getTo(), rel.getType()));
-                        }
-                    }
-                    f.setPermissions(relHelp);
-                    userGroups.removeAll(foundGroups);
-                    f.setUserGroups(userGroups);
-                } else {
-                    //TODO add User rights to groups
-                }
-
-                return Response.ok(f.getOutput()).build();
+                    return Response.ok(f.getOutput()).build();
+                } else return Response.ok("not enough rights to Object #" + ID).build();
             } else {
                 ds.preload(SQLDataSource.PRELOAD.ALL_CLASSES);
 

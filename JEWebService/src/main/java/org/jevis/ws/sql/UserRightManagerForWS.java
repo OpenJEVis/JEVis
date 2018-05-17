@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
  * @author fs
  */
 public class UserRightManagerForWS {
@@ -81,22 +80,22 @@ public class UserRightManagerForWS {
         if (isSysAdmin()) {
             return rels;
         }
-        
+
         List<JsonRelationship> list = new ArrayList<>();
         List<Long> objectIDOFGroupOwenedObj = new LinkedList<>();
-        
-        //hmm what is with object wich are public??
-        
-        
+
+        //hmm what is with object which are public??
+
+
         for (JsonRelationship rel : rels) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && readGIDS.contains(rel.getTo())) {
                 objectIDOFGroupOwenedObj.add(rel.getFrom());
             }
         }
-        System.out.println("User owned: "+objectIDOFGroupOwenedObj.size());
+        System.out.println("User owned: " + objectIDOFGroupOwenedObj.size());
 
         for (JsonRelationship rel : rels) {
-            if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) ||  objectIDOFGroupOwenedObj.contains(rel.getTo())) {
+            if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) || objectIDOFGroupOwenedObj.contains(rel.getTo())) {
 //            if ( readGIDS.contains(rel.getTo()) || readGIDS.contains(rel.getFrom())) {
                 list.add(rel);
             }
@@ -145,22 +144,22 @@ public class UserRightManagerForWS {
     }
 
     public List<JsonObject> filterList(List<JsonObject> objects) {
-        System.out.println("filterList: "+isSysAdmin()+ "   - "+objects.size());
+        System.out.println("filterList: " + isSysAdmin() + "   - " + objects.size());
         //Sys Admin can read it all
         if (isSysAdmin()) {
             return objects;
         }
         System.out.println("isnotAdmin");
-        
+
         List<JsonObject> list = new LinkedList<>();
         List<JsonRelationship> allRel = ds.getRelationships();
-        
+
         for (JsonObject obj : objects) {
             if (obj.getisPublic()) {
                 list.add(obj);
                 continue;
             }
-            if(isReadOK(allRel, obj)){
+            if (isReadOK(allRel, obj)) {
                 list.add(obj);
             }
         }
@@ -168,10 +167,26 @@ public class UserRightManagerForWS {
         return list;
     }
 
+    public JsonObject filterObject(JsonObject object) {
+        System.out.println("filterObject: " + isSysAdmin());
+        //Sys Admin can read it all
+        if (isSysAdmin()) {
+            return object;
+        }
+        System.out.println("isnotAdmin");
+
+        List<JsonRelationship> allRel = ds.getRelationships();
+
+
+        if (object.getisPublic() || isReadOK(allRel, object)) {
+            return object;
+        } else return null;
+    }
+
     private boolean isReadOK(List<JsonRelationship> rels, JsonObject obj) {
         for (JsonRelationship rel : rels) {
-            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER 
-                    && rel.getFrom() == obj.getId() 
+            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER
+                    && rel.getFrom() == obj.getId()
                     && readGIDS.contains(rel.getTo())) {
                 return true;
             }

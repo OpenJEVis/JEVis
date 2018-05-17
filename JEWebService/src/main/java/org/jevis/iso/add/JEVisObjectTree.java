@@ -29,7 +29,14 @@ public class JEVisObjectTree {
         ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
         ds.preload(SQLDataSource.PRELOAD.ALL_REL);
 
-        parent = ds.getObject(1L);
+        if (ds.getCurrentUser().isSysAdmin()) {
+            parent = ds.getObject(1L);
+        } else {
+            List<JsonObject> roots = ds.getUserManager().getRoots();
+            System.out.println(roots);
+            parent = roots.get(0);
+        }
+
 
         _ds = ds;
         _bauth = bauth;

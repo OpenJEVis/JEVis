@@ -31,7 +31,7 @@ public class Snippets {
     }
 
     public static String getChildName(SQLDataSource ds, String JEVisClass) throws JEVisException {
-        for (JsonObject obj : ds.getObjects()) {
+        for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects())) {
             if (obj.getJevisClass().equals(JEVisClass)) {
                 return obj.getName();
             }
@@ -41,7 +41,7 @@ public class Snippets {
 
     public static String getChildName(SQLDataSource ds, String JEVisClass, JsonObject Parent) throws JEVisException {
         if (Parent != null) {
-            for (JsonObject obj : ds.getObjects()) {
+            for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects())) {
                 if (obj.getJevisClass().equals(JEVisClass)) {
                     return obj.getName();
                 }
@@ -51,7 +51,7 @@ public class Snippets {
     }
 
     public static Long getUniqueObjectId(SQLDataSource ds, String JEVisClass) throws JEVisException {
-        for (JsonObject obj : ds.getObjects()) {
+        for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects())) {
             if (obj.getJevisClass().equals(JEVisClass)) {
                 return obj.getId();
             }
@@ -61,7 +61,7 @@ public class Snippets {
 
     public static Long getChildId(SQLDataSource ds, String JEVisClass, JsonObject Parent) throws JEVisException {
         if (Parent != null) {
-            for (JsonObject obj : ds.getObjects()) {
+            for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects())) {
                 if (obj.getJevisClass().equals(JEVisClass)) {
                     return obj.getId();
                 }
@@ -73,7 +73,7 @@ public class Snippets {
     public static List<JsonObject> getChildren(SQLDataSource ds, String jevisClass, JsonObject parent) throws JEVisException {
         List<JsonObject> list = new ArrayList<>();
         if (parent != null) {
-            for (JsonObject obj : ds.getObjects(jevisClass, false)) {
+            for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects(jevisClass, false))) {
                 getParent(ds, obj);
                 if (obj.getParent() == parent.getId()) {
                     list.add(obj);
@@ -86,7 +86,7 @@ public class Snippets {
     public static List<JsonObject> getAllChildren(SQLDataSource ds, JsonObject parent) throws JEVisException {
         List<JsonObject> list = new ArrayList<>();
         if (parent != null) {
-            for (JsonObject obj : ds.getObjects()) {
+            for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects())) {
                 getParent(ds, obj);
                 if (obj.getParent() == parent.getId()) {
                     list.add(obj);
@@ -120,7 +120,7 @@ public class Snippets {
 
     public static List<JsonObject> getChildren(SQLDataSource ds, String jevisClass) throws JEVisException {
         List<JsonObject> list = new ArrayList<>();
-        for (JsonObject obj : ds.getObjects(jevisClass, false)) {
+        for (JsonObject obj : ds.getUserManager().filterList(ds.getObjects(jevisClass, false))) {
             list.add(obj);
         }
         return list;
