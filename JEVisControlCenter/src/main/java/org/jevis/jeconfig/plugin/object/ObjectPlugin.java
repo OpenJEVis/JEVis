@@ -101,8 +101,12 @@ public class ObjectPlugin implements Plugin {
     @Override
     public void setHasFocus() {
         if (tree.getSelectionModel().getSelectedItem() == null) {
-            tree.getSelectionModel().selectFirst();
-            tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
+            try {
+                tree.getSelectionModel().selectFirst();
+                tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
+            }catch (NullPointerException np){
+                logger.error("Empty tree can focus first object",np);
+            }
         }
 
     }

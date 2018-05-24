@@ -307,7 +307,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         logger.catching(ex);
                     }
 
-                    Label name = new Label(I18n.getInstance().getString("plugin.object.attribute.missingname"));
+                    //Label name = new Label(I18n.getInstance().getString("plugin.object.attribute.missingname"));
+                    Label name = new Label(I18n.getInstance().getString(I18n.TYPE_NAME,type.getJEVisClassName()+type.getName()));
+
 
 //                    name.setId("attributelabel");
                     SampleEditor se = new SampleEditor();

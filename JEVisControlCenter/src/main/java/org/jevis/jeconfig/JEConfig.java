@@ -62,6 +62,7 @@ import org.jevis.jeconfig.connectionencoder.ConnectionEncoderWindow;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
+import sun.security.util.AuthResources_zh_CN;
 
 /**
  * This is the main class of the JEConfig. The JEConfig is an JAVAFX programm,
@@ -72,7 +73,7 @@ import org.joda.time.DateTime;
  */
 public class JEConfig extends Application {
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.1.0");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.3.0");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
     /*
@@ -159,6 +160,8 @@ public class JEConfig extends Application {
                     logger.debug("Start JEVis Control Center");
                     _mainDS = login.getDataSource();
                     JEConfig.userpassword=login.getUserPassword();
+                    System.out.println("selected locale: "+login.getSelectedLocale()+"   "+login.getSelectedLocale().getISO3Country());
+                    System.out.println("1: "+login.getSelectedLocale().getISO3Language()+"   "+login.getSelectedLocale().getLanguage());
                     I18n.getInstance().loadBundel(login.getSelectedLocale());
 
                     try {
