@@ -44,25 +44,15 @@ import org.joda.time.format.ISODateTimeFormat;
 public class JEVisSampleWS implements JEVisSample {
 
     private DateTime timestamp;
-    private Object value;
     private JEVisAttribute attribute;
     private JsonSample json;
-    JEVisDataSourceWS ds;
+    private JEVisDataSourceWS ds;
     private Logger logger = LogManager.getLogger(JEVisSampleWS.class);
     public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
     private JEVisFile file = null;
 
-//    public JEVisSampleWS(JEVisDataSourceWS ds, JEVisAttributeWS att, DateTime ts, Object value) {
-//        this.attribute = att;
-//        this.ds = ds;
-//        json= new JsonSample();
-//        json.setTs(ts.toString());
-//        json.setNote("");
-//        json.set
-//    }
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att) {
         this.attribute = att;
-        this.value = json.getValue();
         this.ds = ds;
         this.json = json;
 
@@ -70,7 +60,6 @@ public class JEVisSampleWS implements JEVisSample {
 
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att, JEVisFile file) {
         this.attribute = att;
-        this.value = json.getValue();
         this.ds = ds;
         this.json = json;
         this.file = file;

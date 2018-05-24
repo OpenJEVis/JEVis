@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
@@ -67,6 +69,16 @@ public class ClassIconHandler {
         return fileExists;
     }
 
+    public Map<String, BufferedImage> getClassIcon() throws Exception {
+        Map<String, BufferedImage> map = new HashMap<>();
+        for (File file : tmpDir.listFiles()) {      
+            if (file.getName().contains(".png")) {
+                map.put(file.getName().replaceAll(".png", ""), ImageIO.read(file));                
+            }
+        }
+        return map;
+    }
+    
     public BufferedImage getClassIcon(String name) throws Exception {
         for (File file : tmpDir.listFiles()) {
             if (file.getName().equals(name + ".png")) {

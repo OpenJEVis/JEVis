@@ -37,17 +37,17 @@ import org.jevis.commons.ws.json.JsonType;
 public class JEVisTypeWS implements JEVisType {
 
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisDataSourceWS.class);
-    private JEVisClass jclass = null;
+    private String jclass = null;
     private JEVisDataSourceWS ds;
     private JsonType json;
 
-    public JEVisTypeWS(JEVisDataSourceWS ds, JsonType json, JEVisClass jclass) {
+    public JEVisTypeWS(JEVisDataSourceWS ds, JsonType json, String jclass) {
         this.jclass = jclass;
         this.ds = ds;
         this.json = json;
     }
 
-    public JEVisTypeWS(JEVisDataSourceWS ds, String name, JEVisClass jclass) {
+    public JEVisTypeWS(JEVisDataSourceWS ds, String name, String jclass) {
         this.json = new JsonType();
         this.json.setName(name);
         this.jclass = jclass;
@@ -96,7 +96,7 @@ public class JEVisTypeWS implements JEVisType {
 
     @Override
     public JEVisClass getJEVisClass() throws JEVisException {
-        return jclass;
+        return ds.getJEVisClass(jclass);
     }
 
     @Override
@@ -165,16 +165,16 @@ public class JEVisTypeWS implements JEVisType {
 
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.CLASSES.PATH
-                    + jclass.getName() + "/"
+                    + jclass+ "/"
                     + REQUEST.CLASSES.TYPES.PATH
                     + getName();
 //                    + getName();
             Gson gson = new Gson();
             StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
 
-            JsonType newJson = gson.fromJson(response.toString(), JsonType.class);
-            this.json = newJson;
-
+//            JsonType newJson = gson.fromJson(response.toString(), JsonType.class);
+//            this.json = newJson;
+               
         } catch (Exception ex) {
             logger.catching(ex);
         }
@@ -203,7 +203,7 @@ public class JEVisTypeWS implements JEVisType {
 
     @Override
     public String getJEVisClassName() throws JEVisException {
-        return jclass.getName();
+        return jclass;
     }
 
     @Override

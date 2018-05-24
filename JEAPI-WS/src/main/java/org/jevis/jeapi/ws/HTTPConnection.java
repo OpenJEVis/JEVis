@@ -33,12 +33,21 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 import javax.imageio.ImageIO;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -66,6 +75,7 @@ public class HTTPConnection {
     public static String RESOURCE_CLASSES = "classes";
     public static String RESOURCE_ATTRIBUTES = "attributes";
     public static String RESOURCE_TYPES = "types";
+    public static String REAOURCE_I18N = "i18n";
 
     public HTTPConnection(String baseurl, String username, String password) {
         this.baseURL = baseurl;
@@ -175,7 +185,7 @@ public class HTTPConnection {
 
     }
 
-    public StringBuffer postRequest(String resource, String json) throws MalformedURLException, ProtocolException, IOException {
+    public StringBuffer postRequest(String resource, String json) throws MalformedURLException, ProtocolException, IOException, JEVisException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -215,7 +225,7 @@ public class HTTPConnection {
 
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
 //        logger.trace("resonseCode {}", responseCode);
-        if (responseCode == HttpURLConnection.HTTP_OK) {
+        if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream()));
             String inputLine;
@@ -233,7 +243,9 @@ public class HTTPConnection {
             logger.trace("HTTP request closed after: " + ((new Date()).getTime() - start.getTime()) + " msec");
             return response;
         } else {
-            return null;
+            throw new JEVisException("[" + responseCode + "] ", responseCode);
+
+//            return null;
         }
 
     }
@@ -405,4 +417,38 @@ public class HTTPConnection {
 
     }
 
+    /**
+     * Its not save to trust all ssl certificats. Better use trusted keys but for now its better than simple http 
+     */
+    public static void trustAllCertificates() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        X509Certificate[] myTrustedAnchors = new X509Certificate[0];
+                        return myTrustedAnchors;
+                    }
+
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
+                }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+        }
+    }
 }

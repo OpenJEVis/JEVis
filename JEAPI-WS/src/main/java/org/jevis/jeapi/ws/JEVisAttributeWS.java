@@ -55,18 +55,16 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     private String name = "";
     private JEVisDataSourceWS ds;
-    private JEVisObject object;
     private long objectID;
     private final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
     private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private JsonAttribute json;
 
-    public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json, JEVisObject obj) {
+    public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json, Long obj) {
         this.ds = ds;
-        this.objectID = obj.getID();
+        this.objectID = obj;
         this.json = json;
         name = json.getType();
-        object = obj;
     }
 
     @Override
@@ -81,12 +79,16 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public JEVisType getType() throws JEVisException {
-        return object.getJEVisClass().getType(name);
+        return ds.getObject(objectID).getJEVisClass().getType(name);
     }
 
     @Override
     public JEVisObject getObject() {
-        return object;
+        try {
+            return ds.getObject(objectID);
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     @Override
@@ -101,42 +103,41 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public int addSamples(List<JEVisSample> samples) throws JEVisException {
+        System.out.println("AddSaples: " + samples);
+        System.out.println("First: " + samples.get(0).getValueAsString());
         List<JsonSample> jsonSamples = new ArrayList<>();
 
-        boolean isFile = getPrimitiveType() == JEVisConstants.PrimitiveType.FILE;
         int primType = getPrimitiveType();
+        if (primType != JEVisConstants.PrimitiveType.FILE) {
+            try {
 
-        try {
-            for (JEVisSample s : samples) {
-                JsonSample jsonSample = JsonFactory.buildSample(s, primType);
-                jsonSamples.add(jsonSample);
-                //TODO: reolace Workaround, getPrimitiveType() will call getType fromthe Webservice and this for all the samples
-//                if (getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
-//                if (isFile) {
-//                    jsonSample.setValue(s.getValueAsFile().getFilename());
-//                }
+                for (JEVisSample s : samples) {
+                    JsonSample jsonSample = JsonFactory.buildSample(s, primType);
+                    jsonSamples.add(jsonSample);
+                }
+
+                String resource = REQUEST.API_PATH_V1
+                        + REQUEST.OBJECTS.PATH
+                        + getObjectID() + "/"
+                        + REQUEST.OBJECTS.ATTRIBUTES.PATH
+                        + getName() + "/"
+                        + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH;
+
+                String requestjson = new Gson().toJson(jsonSamples, new TypeToken<List<JsonSample>>() {
+                }.getType());
+                logger.debug("Playload. {}", requestjson);
+                System.out.println("ds.http: " + ds.getHTTPConnection());
+                System.out.println("Payload: " + requestjson);
+                StringBuffer response = ds.getHTTPConnection().postRequest(resource, requestjson);
+
+                logger.trace("Response.payload: {}", response);
+
+            } catch (Exception ex) {
+                System.out.println("lll");
+                logger.catching(ex);
             }
 
-            String resource = REQUEST.API_PATH_V1
-                    + REQUEST.OBJECTS.PATH
-                    + getObjectID() + "/"
-                    + REQUEST.OBJECTS.ATTRIBUTES.PATH
-                    + getName() + "/"
-                    + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH;
-
-            String requestjson = new Gson().toJson(jsonSamples, new TypeToken<List<JsonSample>>() {
-            }.getType());
-            logger.debug("Playload. {}", requestjson);
-
-            StringBuffer response = ds.getHTTPConnection().postRequest(resource, requestjson);
-
-            logger.trace("Response.payload: {}", response);
-
-        } catch (Exception ex) {
-            logger.catching(ex);
-        }
-
-        if (getType().getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
+        } else{
             //Also upload die byte file, filename is in json
             for (JEVisSample s : samples) {
                 try {
@@ -160,14 +161,16 @@ public class JEVisAttributeWS implements JEVisAttribute {
                         os.close();
                     }
                     int responseCode = connection.getResponseCode();
+                    
                 } catch (Exception ex) {
+                    System.out.println("oooo");
                     logger.catching(ex);
                 }
             }
 
 //
         }
-
+        System.out.println("Return exit");
         return 1;
     }
 
@@ -222,34 +225,17 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public JEVisSample getLatestSample() {
-        try {
-            String resource = REQUEST.API_PATH_V1
-                    + REQUEST.OBJECTS.PATH
-                    + getObjectID() + "/"
-                    + REQUEST.OBJECTS.ATTRIBUTES.PATH
-                    + getName() + "/"
-                    + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH
-                    + "?"
-                    + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LASTEST + "true";
-
-            StringBuffer response = ds.getHTTPConnection().getRequest(resource);
-
-            if (response != null && response.toString() != null && !response.toString().isEmpty()) {
-                JsonSample sampleJson = new Gson().fromJson(response.toString(), JsonSample.class);
-
-                return new JEVisSampleWS(ds, sampleJson, this);
-            } else {
-                return null;
-            }
-        } catch (Exception ex) {
-            logger.catching(ex);
+        if (json.getLatestValue() != null && json.getLatestValue().getTs() != null) {
+            return new JEVisSampleWS(ds, json.getLatestValue(), this);
+        } else {
             return null;
         }
     }
 
     @Override
     public int getPrimitiveType() throws JEVisException {
-        return getType().getPrimitiveType();
+        return getType().getPrimitiveType();//saver
+//        return json.getPrimitiveType();//faster
     }
 
     @Override
@@ -436,7 +422,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public void commit() throws JEVisException {
         try {
-//            JsonAttribute json = JsonFactory.buildAttribute(this);
             Gson gson = new Gson();
 
             //Path("/JEWebService/v1/objects/{id}/attributes")
@@ -446,7 +431,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
                     + REQUEST.OBJECTS.ATTRIBUTES.PATH
                     + getName();
 
-            logger.debug("Payload: {}", gson.toJson(json));
+            logger.error("Payload: {}", gson.toJson(json));
             StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
 
             JsonAttribute newJson = gson.fromJson(response.toString(), JsonAttribute.class);

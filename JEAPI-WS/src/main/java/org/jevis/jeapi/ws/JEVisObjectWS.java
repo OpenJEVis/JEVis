@@ -19,13 +19,19 @@
  */
 package org.jevis.jeapi.ws;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.event.EventListenerList;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
@@ -38,7 +44,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
 import org.jevis.api.JEVisType;
 import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.commons.ws.json.JsonRelationship;
 
 /**
  *
@@ -47,26 +52,38 @@ import org.jevis.commons.ws.json.JsonRelationship;
 public class JEVisObjectWS implements JEVisObject {
 
     private JEVisDataSourceWS ds;
-//    private String name = "";
-//    private String jclassS = "";
-//    private JEVisClass jclass = null;
-//    private long id = -999;
-//    private long parent = -999;
-    private List<JEVisRelationship> relationships = null;
     private List<JEVisObject> parents = null;
     private List<JEVisObject> children = null;
-    private List<JEVisAttribute> attributes = null;
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisObjectWS.class);
     private JsonObject json;
+    private Cache<String, List> attributeCache;
+    private final EventListenerList listeners = new EventListenerList();
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
-//        logger.trace("New Object: {} {}", json.getId(), json.getJevisClass());
         this.ds = ds;
-//        name = json.getName();
-//        jclassS = json.getJevisClass();
-//        id = json.getId();
         this.json = json;
+    }
 
+    @Override
+    public void addEventListener(JEVisEventListener listener) {
+        listeners.add(JEVisEventListener.class, listener);
+    }
+
+    @Override
+    public void removeEventListener(JEVisEventListener listener) {
+        listeners.remove(JEVisEventListener.class, listener);
+    }
+
+    @Override
+    public synchronized void notifyListeners(JEVisEvent event) {
+        System.out.println("notify events: "+getID()+"  "+ event.getType().toString());
+//        if (event.getType() == JEVisEvent.TYPE.OBJECT_NEW_CHILD) {
+//            children = null;
+//        }
+
+        for (JEVisEventListener l : listeners.getListeners(JEVisEventListener.class)) {
+            l.fireEvent(event);
+        }
     }
 
     @Override
@@ -86,24 +103,16 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public JEVisClass getJEVisClass() throws JEVisException {
-//        if (jclass == null) {
-//            jclass = ds.getJEVisClass(jclassS);
-//        }
-//        return jclass;
-
         return ds.getJEVisClass(json.getJevisClass());
     }
 
     @Override
     public List<JEVisObject> getParents() throws JEVisException {
-        //TODO remove this local cache ant letzt the DataSource handel it? will bit a bit slower but saver?
-        if (parents == null) {
-            parents = new ArrayList<>();
-            for (JEVisRelationship rel : getRelationships()) {
-                if (rel.getType() == 1) {
-                    if (rel.getStartObject().getID().equals(getID())) {
-                        parents.add(rel.getEndObject());
-                    }
+        parents = new ArrayList<>();
+        for (JEVisRelationship rel : getRelationships()) {
+            if (rel.getType() == 1) {
+                if (rel.getStartObject().getID().equals(getID())) {
+                    parents.add(rel.getEndObject());
                 }
             }
         }
@@ -119,15 +128,18 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisObject> getChildren() throws JEVisException {
-        if (children == null) {
-            children = new ArrayList<>();
-            for (JEVisRelationship rel : getRelationships()) {
+//        if (children == null) {
+        children = new ArrayList<>();
+        for (JEVisRelationship rel : getRelationships()) {
+            try {
                 if (rel.getType() == 1 && rel.getEndObject().equals(this)) {
-                    logger.trace("Add Child to {}: {}", getID(), rel.getStartObject());
                     children.add(rel.getStartObject());
                 }
+            } catch (NullPointerException ex) {
+
             }
         }
+//        }
         logger.trace("Child.size: {}", children.size());
         return children;
     }
@@ -159,16 +171,40 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisAttribute> getAttributes() throws JEVisException {
-        if (attributes == null) {
-            attributes = ds.getAttributes(this);
+        //temp cache for attributes because a lot of clients call a obj.getAttribute(type) 
+        if (attributeCache == null) {
+            attributeCache = CacheBuilder.newBuilder()
+                    .expireAfterWrite(3, TimeUnit.SECONDS)
+                    .build();
+
+        }
+        try {
+            List<JEVisAttribute> list = attributeCache.get("egal", new Callable<List>() {
+                @Override
+                public List call() throws Exception {
+                    return getAttributesWS();
+                }
+            }
+            );
+            if (list == null) {
+                return new ArrayList<>();
+            } else {
+                return list;
+            }
+
+        } catch (ExecutionException ex) {
+            return new ArrayList<>();
         }
 
-        return attributes;
+    }
+
+    public List<JEVisAttribute> getAttributesWS() throws JEVisException {
+        return ds.getAttributes(getID());
     }
 
     @Override
     public JEVisAttribute getAttribute(JEVisType type) throws JEVisException {
-
+        //TODO not uptimal, getAttribute() will not cached if we call all this in a loop we do N Webserive calls
         for (JEVisAttribute att : getAttributes()) {
             if (att.getName().equals(type.getName())) {
                 return att;
@@ -194,7 +230,10 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public boolean delete() throws JEVisException {
-        return ds.deleteObject(getID());
+        System.out.println("delete WS object");
+        boolean delete = ds.deleteObject(getID());
+
+        return delete;
     }
 
     @Override
@@ -206,9 +245,6 @@ public class JEVisObjectWS implements JEVisObject {
         newJson.setParent(getID());
 
         JEVisObject newObj = new JEVisObjectWS(ds, newJson);
-        newObj.commit();//hmm who commits.
-
-        ds.getCurrentUser().reload();//will realod all relationships
 
         return newObj;
     }
@@ -230,27 +266,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisRelationship> getRelationships() throws JEVisException {
-        if (relationships == null) {
-            relationships = new ArrayList<>();
-            for (JsonRelationship rel : json.getRelationships()) {
-                try {
-
-                    JEVisRelationship newRel = new JEVisRelationshipWS(ds, rel);
-                    relationships.add(newRel);
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            //NOTE: we can not build the relationshipt in the constructore because
-            //      we will end up in en endless loop(getObject->getRelationshio->getObject)
-            //      with the cache. we could implement the cache here but but i dont like this.
-            //      null the json after the we will not need it anymore
-//            json = null;
-        }
-
-        return relationships;
+        return ds.getRelationships(getID());
     }
 
     @Override
@@ -321,17 +337,29 @@ public class JEVisObjectWS implements JEVisObject {
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH;
 
+            boolean update = false;
+
             if (json.getId() > 0) {//update existing
                 resource += getID();
+                update = true;
             }
 
-            
             StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
             //TODO: remove the realtaionship from the post json, like in the Webservice JSonFactory
 
             JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
-            logger.trace("new object ID: {}", newJson.getId());
+            logger.trace("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
+
+            if (update) {
+                notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
+            } else {
+                ds.reloadRelationships();
+
+                if (!getParents().isEmpty()) {
+                    getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+                }
+            }
 
         } catch (Exception ex) {
             logger.catching(ex);
@@ -387,30 +415,14 @@ public class JEVisObjectWS implements JEVisObject {
         return hashSet;
     }
 
-    // TODO : implement listener support
     @Override
-    public boolean isPublic() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean isPublic() {
+        return json.getisPublic();
     }
 
     @Override
     public void setIsPublic(boolean ispublic) throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void addEventListener(JEVisEventListener listener) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void removeEventListener(JEVisEventListener listener) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void notifyListeners(JEVisEvent event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        json.setisPublic(ispublic);
     }
 
 }
