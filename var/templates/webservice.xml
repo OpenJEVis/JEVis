@@ -9,8 +9,7 @@
         <schema>jevis</schema>
     </datasource>
     <webservice>
-        <port>8080</port>
-        <uri>http://10.0.0.1:8080/</uri>
+        <uri>http://10.0.0.1:8000/</uri>
         
         <registration>
             <root>1</root>
