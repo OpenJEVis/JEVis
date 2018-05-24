@@ -56,6 +56,8 @@ public class Config {
 
     private static boolean _loadFromFile = true;
     private static boolean _fileIsLoaded = false;
+
+    private static File _i18nDir;
     
 
     public static String getDBHost() {
@@ -78,7 +80,11 @@ public class Config {
         return _schema;
     }
 
-    
+
+    public static File getI18nDir(){
+        return _i18nDir;
+    }
+
     public static String getKeyStoreFile(){
         return _keyFile;
     }
@@ -113,8 +119,10 @@ public class Config {
                     _uri = config.getString("webservice.uri");
                     _keyFile= config.getString("webservice.keystore");
                     _keyFilePW= config.getString("webservice.keystorepw");
-                    
-                    
+
+                    System.out.println("i18ndir: "+config.getString("webservice.i18ndir"));
+                    _i18nDir=new File(config.getString("webservice.i18ndir"));
+
                     _demoRoot = config.getLong("webservice.registration.root");
                     _demoGroup = config.getLong("webservice.registration.demogroup");
                     _registratioKey = config.getString("webservice.registration.apikey");
