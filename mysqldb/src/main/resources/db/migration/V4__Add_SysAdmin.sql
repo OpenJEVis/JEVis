@@ -19,7 +19,7 @@
 
 LOCK TABLES `object` WRITE;
 /*!40000 ALTER TABLE `object` DISABLE KEYS */;
-INSERT INTO `object` VALUES (1,'System','System',NULL,NULL,0),(2,'Administration','Administration Directory',NULL,NULL,0),(3,'Services','Service Directory',NULL,NULL,0),(10,'Groups','Group Directory',NULL,NULL,0),(13,'Users','User Directory',NULL,NULL,0),(16,'Sys Admin','User',NULL,NULL,0),(19,'Sys Admins','Group',NULL,NULL,0),(20,'Organizations','Organization Directory',NULL,NULL,0),(30,'System Documentaton','Document Directory',NULL,NULL,0);
+INSERT INTO `object` VALUES (1,'System','System',NULL,NULL,0),(2,'Administration','Administration Directory',NULL,NULL,0),(3,'Services','Service Directory',NULL,NULL,0),(10,'Groups','Group Directory',NULL,NULL,0),(13,'Users','User Directory',NULL,NULL,0),(16,'Sys Admin','User',NULL,NULL,0),(19,'Sys Admins','Group',NULL,NULL,0),(20,'Organizations','Organization Directory',NULL,NULL,0),(30,'System Documentaton','Document Directory',NULL,NULL,1);
 /*!40000 ALTER TABLE `object` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -38,7 +38,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `relationship` WRITE;
 /*!40000 ALTER TABLE `relationship` DISABLE KEYS */;
-INSERT INTO `relationship` VALUES (2,1,1),(3,1,1),(10,2,1),(19,10,1),(13,2,1),(16,13,1),(20,1,1),(30,1,1),(19,1,3);
+INSERT INTO `relationship` VALUES (2,1,1),(3,1,1),(10,2,1),(19,10,1),(13,2,1),(16,13,1),(20,1,1),(30,1,1),(19,1,3),(16,19,101),(16,19,105),(16,19,106),(16,19,107),(19,19,108);
 
 /*!40000 ALTER TABLE `relationship` ENABLE KEYS */;
 UNLOCK TABLES;
