@@ -19,7 +19,7 @@
 
 LOCK TABLES `object` WRITE;
 /*!40000 ALTER TABLE `object` DISABLE KEYS */;
-INSERT INTO `object` VALUES (1,'System','System',NULL,NULL,0),(2,'Administration','Administration Directory',NULL,NULL,0),(3,'Services','Service Directory',NULL,NULL,0),(10,'Groups','Group Directory',NULL,NULL,0),(13,'Users','User Directory',NULL,NULL,0),(16,'Sys Admin','User',NULL,NULL,0),(19,'Sys Admins','Group',NULL,NULL,0),(20,'Organizations','Organization Directory',NULL,NULL,0),(30,'System Documentaton','Document Directory',NULL,NULL,0));
+INSERT INTO `object` VALUES (1,'System','System',NULL,NULL,0),(2,'Administration','Administration Directory',NULL,NULL,0),(3,'Services','Service Directory',NULL,NULL,0),(10,'Groups','Group Directory',NULL,NULL,0),(13,'Users','User Directory',NULL,NULL,0),(16,'Sys Admin','User',NULL,NULL,0),(19,'Sys Admins','Group',NULL,NULL,0),(20,'Organizations','Organization Directory',NULL,NULL,0),(30,'System Documentaton','Document Directory',NULL,NULL,0);
 /*!40000 ALTER TABLE `object` ENABLE KEYS */;
 UNLOCK TABLES;
 
