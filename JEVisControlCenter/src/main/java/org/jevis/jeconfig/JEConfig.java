@@ -54,10 +54,12 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.application.I18nWS;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.login.FXLogin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.connectionencoder.ConnectionEncoderWindow;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
@@ -84,6 +86,7 @@ public class JEConfig extends Application {
 
     private static JEVisDataSource _mainDS;
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEConfig.class);
+
 
     /**
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
@@ -163,12 +166,19 @@ public class JEConfig extends Application {
                     System.out.println("selected locale: "+login.getSelectedLocale()+"   "+login.getSelectedLocale().getISO3Country());
                     System.out.println("1: "+login.getSelectedLocale().getISO3Language()+"   "+login.getSelectedLocale().getLanguage());
                     I18n.getInstance().loadBundel(login.getSelectedLocale());
+                    I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
+                    _config.setLocale(login.getSelectedLocale());
+
 
                     try {
                         _mainDS.preload();
                     } catch (Exception ex) {
+                        logger.error("Error while preloading datasource",ex);
                         ex.printStackTrace();
                     }
+
+
+
                     ExecutorService exe = Executors.newSingleThreadExecutor();
                     exe.submit(() -> {
                         try {

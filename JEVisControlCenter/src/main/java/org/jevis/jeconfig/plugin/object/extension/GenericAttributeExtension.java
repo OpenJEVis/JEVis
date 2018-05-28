@@ -42,6 +42,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
+import org.jevis.application.application.I18nWS;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.SelectTargetDialog2;
 import org.jevis.application.jevistree.JEVisTree;
@@ -308,7 +309,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     }
 
                     //Label name = new Label(I18n.getInstance().getString("plugin.object.attribute.missingname"));
-                    Label name = new Label(I18n.getInstance().getString(I18n.TYPE_NAME,type.getJEVisClassName()+type.getName()));
+                    Label name = new Label(I18n.getInstance().getString(I18nWS.TYPE_NAME,type.getJEVisClassName()+type.getName()));
 
 
 //                    name.setId("attributelabel");

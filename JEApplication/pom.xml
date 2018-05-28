@@ -27,16 +27,19 @@
 
 
     <dependencies>
-        <!-- Apache Commons -->
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
         </dependency>
-
         <dependency>
             <groupId>org.jevis.api</groupId>
             <artifactId>jeapi</artifactId>
+        </dependency>
+        <!-- JEAPI-WS as an temporary dependency, is needed for the I18n implementation until the JEAPI implements it. -->
+        <dependency>
+            <groupId>org.jevis</groupId>
+            <artifactId>JEAPI-WS</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jevis.commons</groupId>

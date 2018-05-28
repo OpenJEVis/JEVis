@@ -70,7 +70,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
     private MenuItem buildPaste() {
         //TODO: diable if not allowed
-        MenuItem menu = new MenuItem("Paste", ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.paste"), ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
         
         menu.setOnAction(new EventHandler<ActionEvent>() {
             
@@ -85,7 +85,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildCopy() {
-        MenuItem menu = new MenuItem("Copy", ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.copy"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -98,7 +98,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildExport() {
-        MenuItem menu = new MenuItem("Export", ResourceLoader.getImage("1401894975_Export.png", 20, 20));
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -135,7 +135,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private Menu buildMenuNew() {
-        Menu addMenu = new Menu("New", ResourceLoader.getImage("list-add.png", 20, 20));
+        Menu addMenu = new Menu(_tree.getRB().getString("jevistree.menu.new"), ResourceLoader.getImage("list-add.png", 20, 20));
         addMenu.getItems().addAll(buildMenuNewContent());
 
         return addMenu;
@@ -151,7 +151,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildProperties() {
-        MenuItem menu = new MenuItem("Expand");//shoud be edit but i use it for expand for the time
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.expand")
+        );//shoud be edit but i use it for expand for the time
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -167,7 +168,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildNew2() {
-        MenuItem menu = new MenuItem("New", ResourceLoader.getImage("list-add.png", 20, 20));
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.new"), ResourceLoader.getImage("list-add.png", 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -180,7 +181,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildRename() {
-        MenuItem menu = new MenuItem("Rename", ResourceLoader.getImage("Rename.png", 20, 20));
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.rename"), ResourceLoader.getImage("Rename.png", 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -191,7 +192,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildReload() {
-        MenuItem menu = new MenuItem("Reload", ResourceLoader.getImage("1476369770_Sync.png", 20, 20));
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.reload"), ResourceLoader.getImage("1476369770_Sync.png", 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -202,7 +203,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildDelete() {
-        MenuItem menu = new MenuItem("Delete", ResourceLoader.getImage("list-remove.png", 20, 20));
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.delete"), ResourceLoader.getImage("list-remove.png", 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override

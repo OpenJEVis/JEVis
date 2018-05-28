@@ -22,6 +22,7 @@ package org.jevis.application.dialog;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -43,6 +44,8 @@ import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.TreePlugin;
@@ -65,6 +68,7 @@ public class GraphSelectionDialog {
     private Stage stage;
     private boolean init = true;
     private JEVisTree _tree;
+    private SaveResourceBundle rb = new SaveResourceBundle("jeappliaction",AppLocale.getInstance().getLocale());
 
     public GraphSelectionDialog(JEVisDataSource ds) {
         _ds = ds;
@@ -91,7 +95,7 @@ public class GraphSelectionDialog {
 
         stage = new Stage();
 
-        stage.setTitle("Selection");
+        stage.setTitle(rb.getString("graph.selection.title"));
 
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.UTILITY);
@@ -104,7 +108,7 @@ public class GraphSelectionDialog {
         VBox root = new VBox();
 
         DialogHeader header = new DialogHeader();
-        Node headerNode = header.getDialogHeader(ICON, "Selection Dialog");
+        Node headerNode = header.getDialogHeader(ICON, rb.getString("graph.selection.header"));
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
 
@@ -119,7 +123,7 @@ public class GraphSelectionDialog {
 
         HBox buttonBox = new HBox(10);
         Region spacer = new Region();
-        Button ok = new Button("Load");
+        Button ok = new Button(rb.getString("graph.selection.load"));
         ok.setDefaultButton(true);
 
         HBox.setHgrow(ok, Priority.NEVER);

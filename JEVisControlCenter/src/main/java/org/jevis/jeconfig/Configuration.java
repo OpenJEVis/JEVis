@@ -24,6 +24,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Locale;
+
 import javafx.application.Application;
 import org.jevis.api.JEVisOption;
 import org.jevis.application.ParameterHelper;
@@ -53,12 +55,20 @@ public class Configuration {
 //    private final String _defaultServerURL = "user:password@server:3306/jevis";
     private File lastPath = null;
     private File lastFile = null;
+    private Locale appLoccale=Locale.getDefault();
 
     public static enum COLORS {
 
         BACKGROUND
     }
 
+
+    public void setLocale(Locale locale){
+        appLoccale=locale;
+    }
+    public Locale getLocale(){
+        return appLoccale;
+    }
 
     public File getLastFile(){
         return lastFile;

@@ -39,6 +39,7 @@ import javafx.stage.FileChooser;
 import org.jevis.application.dialog.AboutDialog;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.jeconfig.csv.CSVImportDialog;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  * This class build the top menu bar for JEConfig.
@@ -55,17 +56,17 @@ public class TopMenu extends MenuBar {
     public TopMenu() {
         super();
 
-        Menu menuFile = new Menu("File");
-        Menu subMenuImport = new Menu("Import File");
-        MenuItem importCSV = new MenuItem("CSV");
-        MenuItem importXML = new MenuItem("XML");
-        MenuItem importJSON = new MenuItem("JEVis Data Files");
+        Menu menuFile = new Menu(I18n.getInstance().getString("menu.file"));
+        Menu subMenuImport = new Menu(I18n.getInstance().getString("menu.file.import"));
+        MenuItem importCSV = new MenuItem(I18n.getInstance().getString("menu.file.import.csv"));
+        MenuItem importXML = new MenuItem(I18n.getInstance().getString("menu.file.import.XML"));
+        MenuItem importJSON = new MenuItem(I18n.getInstance().getString("menu.file.import.jevis"));
 
         subMenuImport.getItems().addAll(importCSV);//, importXML, importJSON);
 //        menuFile.getItems().add(new MenuItem("New"));
         menuFile.getItems().add(new SeparatorMenuItem());
         menuFile.getItems().add(subMenuImport);
-        MenuItem exit = new MenuItem("Exit");
+        MenuItem exit = new MenuItem(I18n.getInstance().getString("menu.exit"));
         menuFile.getItems().add(exit);
 
         importJSON.setDisable(true);
@@ -87,12 +88,12 @@ public class TopMenu extends MenuBar {
         });
 
         // --- Menu Edit
-        Menu menuEdit = new Menu("Edit");
-        MenuItem copie = new MenuItem("Copy");
-        MenuItem paste = new MenuItem("Paste");
-        MenuItem delete = new MenuItem("Delete");
-        MenuItem rename = new MenuItem("Rename");
-        MenuItem findObject = new MenuItem("Finde Object");
+        Menu menuEdit = new Menu(I18n.getInstance().getString("menu.edit"));
+        MenuItem copie = new MenuItem(I18n.getInstance().getString("menu.edit.copy"));
+        MenuItem paste = new MenuItem(I18n.getInstance().getString("menu.edit.paste"));
+        MenuItem delete = new MenuItem(I18n.getInstance().getString("menu.edit.delete"));
+        MenuItem rename = new MenuItem(I18n.getInstance().getString("menu.edit.rename"));
+        MenuItem findObject = new MenuItem(I18n.getInstance().getString("menu.edit.find"));
 
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -132,11 +133,11 @@ public class TopMenu extends MenuBar {
 
 //        menuEdit.getItems().addAll(copie, delete, rename);
         // --- Menu View
-        Menu menuView = new Menu("View");
+        Menu menuView = new Menu(I18n.getInstance().getString("menu.view"));
 
-        Menu options = new Menu("Options");
+        Menu options = new Menu(I18n.getInstance().getString("menu.option"));
         final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
-        CheckMenuItem welcome = new CheckMenuItem("Welcome screen");
+        CheckMenuItem welcome = new CheckMenuItem(I18n.getInstance().getString("menu.options.welcome"));
         welcome.setSelected(pref.getBoolean("show", true));
         welcome.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -146,21 +147,23 @@ public class TopMenu extends MenuBar {
         });
         options.getItems().add(welcome);
 
-        Menu help = new Menu("Help");
+        Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 
-        MenuItem about = new MenuItem("About");
+        MenuItem about = new MenuItem(I18n.getInstance().getString("menu.about"));
         help.getItems().add(about);
         about.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
 
                 AboutDialog dia = new AboutDialog();
-                dia.show(JEConfig.getStage(), "About", "JEConfig", JEConfig.PROGRAMM_INFO, JEConfig.getImage("JEConfig_mac.png"));
+                dia.show(JEConfig.getStage(), I18n.getInstance().getString("menu.about.title")
+                        , I18n.getInstance().getString("menu.about.message")
+                        , JEConfig.PROGRAMM_INFO, JEConfig.getImage("JEConfig_mac.png"));
 
             }
         });
-        MenuItem classImport = new MenuItem("Install Driver");
-        Menu system = new Menu("System");
+        MenuItem classImport = new MenuItem(I18n.getInstance().getString("menu.system.driver"));
+        Menu system = new Menu(I18n.getInstance().getString("menu.system"));
         system.getItems().add(classImport);
 
         //TODO: replace this very simple driver import
@@ -170,10 +173,10 @@ public class TopMenu extends MenuBar {
             public void handle(ActionEvent event) {
 
                 FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Open Driver file install");
+                fileChooser.setTitle(I18n.getInstance().getString("menu.system.driver.open.title"));
                 fileChooser.getExtensionFilters().addAll(
-                        new FileChooser.ExtensionFilter("JEVis Files", "*.jev"),
-                        new FileChooser.ExtensionFilter("All Files", "*.*"));
+                        new FileChooser.ExtensionFilter(I18n.getInstance().getString("menu.system.driver.open.filter.jevis"), "*.jev"),
+                        new FileChooser.ExtensionFilter(I18n.getInstance().getString("menu.system.driver.open.filter.all"), "*.*"));
 
                 File selectedFile = fileChooser.showOpenDialog(JEConfig.getStage());
                 if (selectedFile != null) {
@@ -183,15 +186,15 @@ public class TopMenu extends MenuBar {
                     files = ci.unZipIt(tmpdir, selectedFile);
 
                     Alert alert = new Alert(AlertType.CONFIRMATION);
-                    alert.setTitle("Install Driver");
-                    alert.setHeaderText("Install Drivers in " + selectedFile.getName());
-                    alert.setContentText("Choose the installation mode");
+                    alert.setTitle(I18n.getInstance().getString("menu.system.driver.confirm.title"));
+                    alert.setHeaderText(I18n.getInstance().getString("menu.system.driver.confirm.header", selectedFile.getName()));
+                    alert.setContentText(I18n.getInstance().getString("menu.system.driver.confirm.message"));
 
-                    ButtonType updateButton = new ButtonType("Update");
-                    ButtonType overwriteButton = new ButtonType("Overwrite");
-                    ButtonType calcelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+                    ButtonType updateButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.update"));
+                    ButtonType overwriteButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.override"));
+                    ButtonType cancelButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.cancel"), ButtonData.CANCEL_CLOSE);
 
-                    alert.getButtonTypes().setAll(updateButton, overwriteButton, calcelButton);
+                    alert.getButtonTypes().setAll(updateButton, overwriteButton, cancelButton);
 
                     Optional<ButtonType> result = alert.showAndWait();
                     boolean success = true;//dirty solution
@@ -201,15 +204,15 @@ public class TopMenu extends MenuBar {
                     } else if (result.get() == overwriteButton) {
                         ci.setDeleteExisting(true);
                         ci.importFiles(files);
-                    } else if (result.get() == calcelButton) {
+                    } else if (result.get() == cancelButton) {
                         success = false;
                     }
 
                     if (success) {
                         Alert finish = new Alert(AlertType.INFORMATION);
-                        finish.setTitle("Driver Import Finished");
+                        finish.setTitle(I18n.getInstance().getString("menu.system.driver.success.title"));
                         finish.setHeaderText(null);
-                        finish.setContentText("The installtion of the drivers are done. Restart JEConfig to use the new driver");
+                        finish.setContentText(I18n.getInstance().getString("menu.system.driver.success.message"));
 
                         finish.showAndWait();
                     }

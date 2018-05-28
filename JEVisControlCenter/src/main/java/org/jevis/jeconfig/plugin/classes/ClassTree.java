@@ -191,6 +191,7 @@ public class ClassTree extends TreeView<JEVisClass> {
     }
 
     public TreeItem<JEVisClass> buildItem(JEVisClass object) {
+        System.out.println("debug: build item "+object);
         if (object != null) {
             try {
 
@@ -242,7 +243,8 @@ public class ClassTree extends TreeView<JEVisClass> {
             for (JEVisClass child : item.getValue().getHeirs()) {
 
                 //what was this again? Case rootnode maybe?
-                if (item.getValue().getName().equals("Classes")) {
+                //if (item.getValue().getName().equals("Classes")) {
+                if (item.getValue().getName().equals(JEVisRootClass._name)) {
                     TreeItem<JEVisClass> newItem = buildItem(child);
                     list.add(newItem);
                 } else if (child.getInheritance() != null && item.getValue().equals(child.getInheritance())) {

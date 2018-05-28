@@ -59,6 +59,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.resource.ResourceLoader;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
@@ -110,7 +111,7 @@ public class NewFunctionDialog {
 
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
-        stage.setTitle("New Function");
+        stage.setTitle(I18n.getInstance().getString("newobject.title"));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
 
@@ -128,7 +129,7 @@ public class NewFunctionDialog {
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));
 
-        Label topTitle = new Label("New Object");
+        Label topTitle = new Label(I18n.getInstance().getString("newobject.title"));
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));
 
@@ -149,11 +150,11 @@ public class NewFunctionDialog {
 
         HBox buttonPanel = new HBox();
 
-        final Button ok = new Button("OK");
+        final Button ok = new Button(I18n.getInstance().getString("newobject.ok"));
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button(I18n.getInstance().getString("newobject.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -168,9 +169,9 @@ public class NewFunctionDialog {
         gp.setVgap(5);
         int x = 0;
 
-        Label lName = new Label("Name:");
+        Label lName = new Label(I18n.getInstance().getString("newobject.name"));
         final TextField fName = new TextField();
-        fName.setPromptText("Name of the Object");
+        fName.setPromptText(I18n.getInstance().getString("newobject.name.prompt"));
 
         if (objName != null) {
             fName.setText(objName);
@@ -185,7 +186,7 @@ public class NewFunctionDialog {
             }
         });
 
-        Label lClass = new Label("Class:");
+        Label lClass = new Label(I18n.getInstance().getString("newobject.class"));
 
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
 
@@ -339,12 +340,12 @@ public class NewFunctionDialog {
         }
 
         if (type == Type.NEW) {
-            stage.setTitle("New Object");
-            topTitle.setText("New Object");
+            stage.setTitle(I18n.getInstance().getString("newobject.new.title"));
+            topTitle.setText(I18n.getInstance().getString("newobject.new.message"));
             comboBox.getSelectionModel().selectFirst();
         } else if (type == Type.RENAME) {
-            stage.setTitle("Rename Object");
-            topTitle.setText("Rename Object");
+            stage.setTitle(I18n.getInstance().getString("newobject.rename.title"));
+            topTitle.setText(I18n.getInstance().getString("newobject.rename.message"));
             count.setDisable(true);
             comboBox.getSelectionModel().select(jclass);
         }

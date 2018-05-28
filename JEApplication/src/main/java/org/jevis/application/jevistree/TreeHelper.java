@@ -44,6 +44,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.cache.CacheEvent;
 import org.jevis.application.cache.CacheObjectEvent;
 import org.jevis.application.cache.Cached;
@@ -64,6 +66,8 @@ public class TreeHelper {
 
     public static Logger LOGGER = LogManager.getLogger(TreeHelper.class);
 
+    private static SaveResourceBundle bundel=new SaveResourceBundle(AppLocale.BUNDEL_ID,AppLocale.getInstance().getLocale());
+
     /**
      * TODO: make it like the other function where the object is an parameter
      *
@@ -71,7 +75,7 @@ public class TreeHelper {
      */
     public static void EventDelete(JEVisTree tree) {
         if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
-            String question = "Do you want to delete: ";
+            String question = tree.getRB().getString("jevistree.dialog.delete.message");
             ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
             for (TreeItem<JEVisTreeRow> item : items) {
                 question += item.getValue().getJEVisObject().getName();
@@ -79,7 +83,7 @@ public class TreeHelper {
             question += "?";
 
             Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.setTitle("Delete Object");
+            alert.setTitle(tree.getRB().getString("jevistree.dialog.delete.title"));
             alert.setHeaderText(null);
             alert.setContentText(question);
 
@@ -96,7 +100,8 @@ public class TreeHelper {
 
                 } catch (Exception ex) {
                     LOGGER.catching(ex);
-                    CommonDialogs.showError("Error", "Can not delete object", null, ex);
+                    CommonDialogs.showError(tree.getRB().getString("jevistree.dialog.delete.error.title"),
+                            tree.getRB().getString("jevistree.dialog.delete.error.message"), null, ex);
                 }
             } else {
                 // ... user chose CANCEL or closed the dialog
@@ -153,7 +158,10 @@ public class TreeHelper {
         try {
             JEVisDataSource ds = tree.getJEVisDataSource();
             FindDialog dia = new FindDialog(ds);
-            FindDialog.Response respons = dia.show((Stage) tree.getScene().getWindow(), "Find Object", "Find Object", "");
+            FindDialog.Response respons = dia.show((Stage) tree.getScene().getWindow()
+                    , tree.getRB().getString("jevistree.dialog.find.title")
+                    , tree.getRB().getString("jevistree.dialog.find.message")
+                    , "");
 
             if (respons == FindDialog.Response.YES) {
                 JEVisObject findObj = ds.getObject(Long.parseLong(dia.getResult()));
@@ -167,9 +175,9 @@ public class TreeHelper {
 
                 } else {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Error");
+                    alert.setTitle(tree.getRB().getString("jevistree.dialog.find.error.title"));
                     alert.setHeaderText("");
-                    String s = "Could not find an Object with the given ID ";
+                    String s = tree.getRB().getString("jevistree.dialog.find.error.message");
                     alert.setContentText(s);
                     alert.show();
                 }
@@ -178,9 +186,9 @@ public class TreeHelper {
 
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Error");
+            alert.setTitle(tree.getRB().getString("jevistree.dialog.find.error.title"));
             alert.setHeaderText("");
-            String s = "Could not find an Object with the given ID ";
+            String s = tree.getRB().getString("jevistree.dialog.find.error.message");
             alert.setContentText(s);
             alert.show();
             ex.printStackTrace();
@@ -203,7 +211,8 @@ public class TreeHelper {
 
         } catch (Exception ex) {
             LOGGER.catching(ex);
-            CommonDialogs.showError("Error", "Error while movinf object", null, ex);
+            CommonDialogs.showError(bundel.getString("jevistree.dialog.move.error.title"),
+                    bundel.getString("jevistree.dialog.move.error.message"), null, ex);
         }
     }
 
@@ -332,7 +341,8 @@ public class TreeHelper {
 
                     } catch (Exception ex) {
                         LOGGER.catching(ex);
-                        CommonDialogs.showError("Error", "Error while creating copy", null, ex);
+                        CommonDialogs.showError(bundel.getString("jevistree.dialog.copy.error.title"),
+                                bundel.getString("jevistree.dialog.copy.error.message"), null, ex);
                         failed();
                     }
                     return null;
@@ -368,7 +378,8 @@ public class TreeHelper {
 
         } catch (Exception ex) {
             LOGGER.catching(ex);
-            CommonDialogs.showError("Error", "Error while creating copy", null, ex);
+            CommonDialogs.showError(bundel.getString("jevistree.dialog.copy.error.title"),
+                    bundel.getString("jevistree.dialog.copy.error.message"), null, ex);
         }
     }
 

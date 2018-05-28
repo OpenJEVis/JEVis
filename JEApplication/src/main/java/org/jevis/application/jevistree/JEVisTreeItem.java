@@ -99,7 +99,6 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                             if (getParent() != null) {
                                 getParent().getChildren().remove(JEVisTreeItem.this);
 
-                                //WTF how cah gte getValue() null haben
                                 try {
                                     LOGGER.error("###Delete### Parent: {}", getParent().getValue().getJEVisObject().getName());
                                     for (JEVisObject child : getParent().getValue().getJEVisObject().getChildren()) {
@@ -196,7 +195,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
             FXCollections.sort(super.getChildren(), new Comparator<TreeItem<JEVisTreeRow>>() {
                 @Override
                 public int compare(TreeItem<JEVisTreeRow> o1, TreeItem<JEVisTreeRow> o2) {
-//                    LOGGER.trace("Comparte: {} to: {}", o1.getValue().getID(), o2.getValue().getID());
+//                    LOGGER.trace("Compare: {} to: {}", o1.getValue().getID(), o2.getValue().getID());
 
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
 //                    LOGGER.trace("2");
