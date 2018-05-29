@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -24,6 +24,14 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.jevis.api.*;
+import org.jevis.commons.config.CommonOptions;
+import org.jevis.commons.utils.Benchmark;
+import org.jevis.commons.ws.json.*;
+import org.joda.time.DateTime;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -34,31 +42,8 @@ import java.net.ProtocolException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.embed.swing.SwingFXUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisClassRelationship;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisEvent;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisInfo;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisOption;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisType;
-import org.jevis.api.JEVisUnit;
-import org.jevis.api.JEVisUser;
-import org.jevis.commons.config.CommonOptions;
-import org.jevis.commons.utils.Benchmark;
-import org.jevis.commons.ws.json.*;
-import org.joda.time.DateTime;
 
 /**
- *
  * @author fs
  */
 public class JEVisDataSourceWS implements JEVisDataSource {
@@ -73,7 +58,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
 
-//    private Cache<Integer, List> relationshipCache;
+    //    private Cache<Integer, List> relationshipCache;
     private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
     private Map<String, JEVisClass> classCache = Collections.synchronizedMap(new HashMap<String, JEVisClass>());
     private Map<Long, JEVisObject> objectCache = Collections.synchronizedMap(new HashMap<Long, JEVisObject>());
@@ -84,7 +69,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     public JEVisDataSourceWS(String host) {
         this.host = host;
-        
+
     }
 
     public JEVisDataSourceWS() {
@@ -96,7 +81,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         public String getVersion() {
             return "3.0.1";
         }
-        
+
         @Override
         public String getName() {
             return "JEAPI-WS";
@@ -106,7 +91,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void init(List<JEVisOption> config) throws IllegalArgumentException {
         logger.info("Start JEVisDataSourceWS Version: " + info.getVersion());
-        
+
     }
 
     public List<JEVisType> getTypes(JEVisClassWS jclass) {
@@ -141,14 +126,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     /**
-     * @TODO: we may need to cache the relationships but for now its fast
-     * enough. IF so we need an Cach implementaion for the relationships
-     *
      * @param fromClass
      * @param toClass
      * @param type
      * @return
      * @throws JEVisException
+     * @TODO: we may need to cache the relationships but for now its fast
+     * enough. IF so we need an Cach implementaion for the relationships
      */
     @Override
     public JEVisClassRelationship buildClassRelationship(String fromClass, String toClass, int type) throws JEVisException {
@@ -769,11 +753,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return new ArrayList<>();
     }
 
-    
-  
-    
+
     /**
-     *
      * @param jclass
      * @return
      */
@@ -815,11 +796,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             String tmpdir = System.getProperty("java.io.tmpdir");
             File zipDir = new File(tmpdir + "/JEVisCC/ClassIcons/");
 
-            if(!zipDir.exists()){
+            if (!zipDir.exists()) {
                 zipDir.mkdirs();
             }
             ClassIconHandler cih = new ClassIconHandler(zipDir);
-            if (zipDir.listFiles().length==0) {
+            if (zipDir.listFiles().length == 0) {
                 cih.readStream(con.getInputStreamRequest(resource));
             }
 
@@ -984,7 +965,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         HTTPConnection.trustAllCertificates();
         con = new HTTPConnection(host, username, password);
 
-        
+
         try {
             String resource
                     = REQUEST.API_PATH_V1
@@ -1058,16 +1039,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         getClassIcon();
     }
 
-    public List<JsonI18n> getTranslation(Locale locale) {
+    public List<JsonI18nClass> getTranslation(Locale locale) {
         logger.trace("Get I18n");
         try {
-            String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.REAOURCE_I18N+"?lang="+locale.getISO3Language();
+            String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.REAOURCE_I18N;//+"?jclass="+Organisation;
             StringBuffer response = con.getRequest(resource);
 
             logger.trace("raw response: '{}'", response.toString());
 
-            Type listType = new TypeToken<List<JsonI18n>>() {}.getType();
-            List<JsonI18n> jsons = gson.fromJson(response.toString(), listType);
+            Type listType = new TypeToken<List<JsonI18nClass>>() {
+            }.getType();
+            List<JsonI18nClass> jsons = gson.fromJson(response.toString(), listType);
             return jsons;
 
         } catch (Exception ex) {

@@ -21,23 +21,18 @@
 package org.jevis.rest;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.sun.corba.se.spi.legacy.connection.Connection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.commons.ws.json.JsonI18n;
-import org.jevis.commons.ws.json.JsonJEVisClass;
+import org.jevis.commons.ws.json.JsonI18nClass;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.*;
-import java.lang.reflect.Type;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * resource service to translate jevis
@@ -51,9 +46,7 @@ public class ResourceI18n {
 
 
     /**
-     * @param id
-     * @param lang      language_country code e.c. de_DE
-     * @param key
+     * @param jclass
      * @param request
      * @param url
      * @param httpHeaders
@@ -62,28 +55,25 @@ public class ResourceI18n {
     @GET
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRelationship(
-            @PathParam("id") long id,
-            @DefaultValue("en") @QueryParam("lang") String lang,
-            @DefaultValue("") @QueryParam("key") String key,
+    public Response getClassI18n(
+            @DefaultValue("") @QueryParam("jclass") String jclass,
             @Context Request request,
             @Context UriInfo url,
             @Context HttpHeaders httpHeaders) {
 
 
         try {
-            List<List<JsonI18n>> files = new ArrayList<>();
+            List<JsonI18nClass> files = new ArrayList<>();
             if (Config.getI18nDir().exists() && Config.getI18nDir().isDirectory()) {
-                System.out.println("Locale: "+lang+ "    key: "+key);
+                System.out.println("Dir exists: " + Config.getI18nDir());
                 for (File file : Config.getI18nDir().listFiles()) {
                     try {
-
-                        if (file.getName().endsWith(".json")
-                                && file.getName().split("_",2)[1].replace(".json","").toLowerCase().startsWith(lang.toLowerCase())) {
-                            System.out.println("File end with .json & has lang code");
+                        System.out.println("File: " + file);
+                        if (file.getName().endsWith(".json")) {
+                            System.out.println("File end with .json");
                             files.add(loadFile(file));
-                        }else{
-                            System.out.println("----- NOPE!");
+                        } else {
+                            System.out.print("----- NOPE!");
                         }
                     } catch (Exception fex) {
 
@@ -93,20 +83,17 @@ public class ResourceI18n {
                 }
             }
 
-            List<JsonI18n> result = new ArrayList<>();
-            for (List<JsonI18n> i18list : files) {
-                for (JsonI18n i18n : i18list) {
-                    if (key.trim().isEmpty()) {
-                        result.add(i18n);
-                    } else if (key.equals(i18n.getKey())) {
-                        result.add(i18n);
-                    }else {
-                        System.out.println("no key match");
+            //@TODO add single class only support
+            if (jclass.isEmpty()) {
+                for (JsonI18nClass i18class : files) {
+                    if (i18class.getJevisclass().equalsIgnoreCase(jclass)) {
+                        return Response.ok(i18class).build();
                     }
                 }
             }
 
-            return Response.ok(result).build();
+
+            return Response.ok(files).build();
 
 
         } catch (Exception ex) {
@@ -116,13 +103,10 @@ public class ResourceI18n {
     }
 
 
-
-    private List<JsonI18n> loadFile(File file) throws FileNotFoundException {
-        Type listtype = new TypeToken<List<JsonI18n>>() {
-        }.getType();
+    private JsonI18nClass loadFile(File file) throws FileNotFoundException {
         Gson gson = new Gson();
         JsonReader reader = new JsonReader(new FileReader(file));
-        List<JsonI18n> data = gson.fromJson(reader, listtype);
+        JsonI18nClass data = gson.fromJson(reader, JsonI18nClass.class);
         return data;
     }
 
