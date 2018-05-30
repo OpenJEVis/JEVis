@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -22,6 +22,11 @@ package org.jevis.jeapi.ws;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
+import org.apache.logging.log4j.LogManager;
+import org.jevis.api.*;
+import org.jevis.commons.ws.json.JsonObject;
+
+import javax.swing.event.EventListenerList;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,22 +36,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.event.EventListenerList;
-import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisEvent;
-import org.jevis.api.JEVisEventListener;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisType;
-import org.jevis.commons.ws.json.JsonObject;
 
 /**
- *
  * @author fs
  */
 public class JEVisObjectWS implements JEVisObject {
@@ -76,7 +67,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public synchronized void notifyListeners(JEVisEvent event) {
-        System.out.println("notify events: "+getID()+"  "+ event.getType().toString());
+        System.out.println("notify events: " + getID() + "  " + event.getType().toString());
 //        if (event.getType() == JEVisEvent.TYPE.OBJECT_NEW_CHILD) {
 //            children = null;
 //        }
@@ -180,11 +171,11 @@ public class JEVisObjectWS implements JEVisObject {
         }
         try {
             List<JEVisAttribute> list = attributeCache.get("egal", new Callable<List>() {
-                @Override
-                public List call() throws Exception {
-                    return getAttributesWS();
-                }
-            }
+                        @Override
+                        public List call() throws Exception {
+                            return getAttributesWS();
+                        }
+                    }
             );
             if (list == null) {
                 return new ArrayList<>();
@@ -299,15 +290,11 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisClass> getAllowedChildrenClasses() throws JEVisException {
-
         ArrayList allowedChildern = new ArrayList<>();
         for (JEVisClass vp : getJEVisClass().getValidChildren()) {
-            //Check if the class is Unique
             if (vp.isUnique()) {
                 if (getChildren(vp, false).isEmpty()) {
                     allowedChildern.add(vp);
-                } else {
-
                 }
             } else {
                 allowedChildern.add(vp);

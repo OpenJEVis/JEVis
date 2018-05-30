@@ -1,25 +1,37 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeapi.ws;
 
 import com.google.gson.Gson;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+import org.jevis.commons.ws.json.JsonClassRelationship;
+import org.jevis.commons.ws.json.JsonJEVisClass;
+import org.jevis.commons.ws.json.JsonType;
+
+import javax.imageio.ImageIO;
+import javax.swing.event.EventListenerList;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,42 +42,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javax.imageio.ImageIO;
-import javax.swing.event.EventListenerList;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisClassRelationship;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisEvent;
-import org.jevis.api.JEVisEventListener;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisType;
-import org.jevis.commons.ws.json.JsonClassRelationship;
-import org.jevis.commons.ws.json.JsonJEVisClass;
-import org.jevis.commons.ws.json.JsonType;
 
 /**
- *
  * @author fs
  */
 public class JEVisClassWS implements JEVisClass {
 
     private Logger logger = LogManager.getLogger(JEVisClassWS.class);
-//    private String name = "";
+    //    private String name = "";
     private JEVisDataSourceWS ds = null;
-//    private String description = "";
+    //    private String description = "";
 //    private boolean isUnique = false;
     private BufferedImage image = null;
     private List<JEVisType> types = null;
     private List<JEVisClassRelationship> relations = new ArrayList<>();
     private JsonJEVisClass json;
     private final EventListenerList listeners = new EventListenerList();
-    private boolean iconChanged=false;
+    private boolean iconChanged = false;
 
     public JEVisClassWS(JEVisDataSourceWS ds, JsonJEVisClass json) {
         this.ds = ds;
@@ -92,7 +85,7 @@ public class JEVisClassWS implements JEVisClass {
 
     /**
      * TMP solution
-     *
+     * <p>
      * TODO: remove, does not belog here
      */
     public static ImageView getImage(String icon, double height, double width) {
@@ -104,7 +97,7 @@ public class JEVisClassWS implements JEVisClass {
 
     /**
      * TMP solution
-     *
+     * <p>
      * TODO: remove, does not belog here
      */
     public static Image getImage(String icon) {
@@ -118,26 +111,33 @@ public class JEVisClassWS implements JEVisClass {
 
     @Override
     public List<JEVisClass> getValidChildren() throws JEVisException {
-        List<JEVisClass> vaildParents = new LinkedList<>();
+        List<JEVisClass> validParents = new LinkedList<>();
         for (JEVisClassRelationship rel : getRelationships()) {
             try {
                 if (rel.isType(JEVisConstants.ClassRelationship.OK_PARENT)
                         && rel.getEnd().equals(this)) {
-                    if (!vaildParents.contains(rel.getOtherClass(this))) {
-                        vaildParents.add(rel.getOtherClass(this));
-                        //This class can also be createt under classes which are hiers?!
-                        vaildParents.addAll(rel.getOtherClass(this).getHeirs());
+                    if (!validParents.contains(rel.getOtherClass(this))) {
+                        if (!validParents.contains(rel.getOtherClass(this))) {
+                            validParents.add(rel.getOtherClass(this));
+                        }
+                        //We do not want heirs, every class has added by rule to have more control
+                        //validParents.addAll(rel.getOtherClass(this).getHeirs());
                     }
 
                 }
+
+
             } catch (Exception ex) {
                 logger.error("An JEClassRelationship had an error for '{}': {}", getName(), ex);
             }
         }
+        //Special rule, for order purpose its allows to create on directory under him self.
+        if (ds.getJEVisClass("Directory").getHeirs().contains(this)) {
+            validParents.add(this);
+        }
 
-        Collections.sort(vaildParents);
-
-        return vaildParents;
+        Collections.sort(validParents);
+        return validParents;
     }
 
     @Override
@@ -187,13 +187,13 @@ public class JEVisClassWS implements JEVisClass {
 
     @Override
     public BufferedImage getIcon() throws JEVisException {
-        if(image==null){
+        if (image == null) {
             image = ds.getClassIcon(json.getName());
-        }     
-                
-        if(image==null){
-            image=  SwingFXUtils.fromFXImage(JEVisClassWS.getImage("1472562626_unknown.png", 60, 60).getImage(), null);
-            iconChanged=true;
+        }
+
+        if (image == null) {
+            image = SwingFXUtils.fromFXImage(JEVisClassWS.getImage("1472562626_unknown.png", 60, 60).getImage(), null);
+            iconChanged = true;
         }
         return image;
 
@@ -202,15 +202,15 @@ public class JEVisClassWS implements JEVisClass {
     @Override
     public void setIcon(BufferedImage icon) throws JEVisException {
         this.image = icon;
-        iconChanged=true;
-        
+        iconChanged = true;
+
     }
 
     @Override
     public void setIcon(File icon) throws JEVisException {
         try {
             this.image = ImageIO.read(icon);
-            iconChanged=true;
+            iconChanged = true;
 //            System.out.println("set icon from file: " + _icon.getWidth());
         } catch (IOException ex) {
             logger.catching(ex);
@@ -408,8 +408,8 @@ public class JEVisClassWS implements JEVisClass {
         return ds;
     }
 
-    
-    private void commitIcontoWS(){
+
+    private void commitIcontoWS() {
         try {
             System.out.println("post icon");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -440,7 +440,7 @@ public class JEVisClassWS implements JEVisClass {
             logger.catching(ex);
         }
     }
-    
+
     @Override
     public void commit() throws JEVisException {
         try {
@@ -455,10 +455,10 @@ public class JEVisClassWS implements JEVisClass {
             JsonJEVisClass newJson = gson.fromJson(response.toString(), JsonJEVisClass.class);
             this.json = newJson;
 
-            if(iconChanged){
+            if (iconChanged) {
                 commitIcontoWS();
             }
-            
+
         } catch (Exception ex) {
             logger.catching(ex);
         }

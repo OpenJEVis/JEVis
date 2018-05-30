@@ -1,28 +1,25 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.dialog;
 
-import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -35,20 +32,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -58,12 +45,18 @@ import javafx.util.Callback;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.I18nWS;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.resource.ImageConverter;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.tools.NumberSpinner;
 
+import java.math.BigDecimal;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author fs
  */
 public class NewObjectDialog {
@@ -74,16 +67,17 @@ public class NewObjectDialog {
     private JEVisClass createClass;
     private String createName = "No Name";
     private boolean userSetName = false;
+    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 
     public static enum Type {
 
         NEW, RENAME
-    };
+    }
 
     public static enum Response {
 
         NO, YES, CANCEL
-    };
+    }
 
     private Response response = Response.CANCEL;
 
@@ -104,7 +98,6 @@ public class NewObjectDialog {
     }
 
     /**
-     *
      * @param owner
      * @param jclass
      * @param parent
@@ -118,7 +111,7 @@ public class NewObjectDialog {
 
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
-        stage.setTitle("New Object");
+        stage.setTitle(rb.getString("jevistree.dialog.new.title"));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
 
@@ -136,7 +129,7 @@ public class NewObjectDialog {
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));
 
-        Label topTitle = new Label("New Object");
+        Label topTitle = new Label(rb.getString("jevistree.dialog.new.header"));
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));
 
@@ -157,11 +150,11 @@ public class NewObjectDialog {
 
         HBox buttonPanel = new HBox();
 
-        final Button ok = new Button("OK");
+        final Button ok = new Button(rb.getString("jevistree.dialog.new.ok"));
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button(rb.getString("jevistree.dialog.new.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -176,9 +169,9 @@ public class NewObjectDialog {
         gp.setVgap(5);
         int x = 0;
 
-        Label lName = new Label("Name:");
+        Label lName = new Label(rb.getString("jevistree.dialog.new.name"));
         final TextField fName = new TextField();
-        fName.setPromptText("Name of the Object");
+        fName.setPromptText(rb.getString("jevistree.dialog.new.name.prompt"));
 
         if (objName != null) {
             fName.setText(objName);
@@ -193,7 +186,7 @@ public class NewObjectDialog {
             }
         });
 
-        Label lClass = new Label("Class:");
+        Label lClass = new Label(rb.getString("jevistree.dialog.new.class"));
 
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
 
@@ -227,7 +220,8 @@ public class NewObjectDialog {
                             box.setAlignment(Pos.CENTER_LEFT);
                             try {
                                 ImageView icon = ImageConverter.convertToImageView(item.getIcon(), 15, 15);
-                                Label cName = new Label(item.getName());
+                                //Label cName = new Label(item.getName());
+                                Label cName = new Label(I18nWS.getInstance().getClassName(item.getName()));
                                 cName.setTextFill(Color.BLACK);
                                 box.getChildren().setAll(icon, cName);
 
@@ -269,7 +263,7 @@ public class NewObjectDialog {
         comboBox.setMinWidth(250);
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
 
-        Label lCount = new Label("Count:");
+        Label lCount = new Label(rb.getString("jevistree.dialog.new.amount"));
         //TODo: disable spinner if class is uniq also disable OK button if there is allready one of its kind
         final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
@@ -347,12 +341,12 @@ public class NewObjectDialog {
         }
 
         if (type == Type.NEW) {
-            stage.setTitle("New Object");
-            topTitle.setText("New Object");
+            stage.setTitle(rb.getString("jevistree.dialog.new.title"));
+            topTitle.setText(rb.getString("jevistree.dialog.new.title"));
             comboBox.getSelectionModel().selectFirst();
         } else if (type == Type.RENAME) {
-            stage.setTitle("Rename Object");
-            topTitle.setText("Rename Object");
+            stage.setTitle(rb.getString("jevistree.dialog.rename.title"));
+            topTitle.setText(rb.getString("jevistree.dialog.rename.header"));
             count.setDisable(true);
             comboBox.getSelectionModel().select(jclass);
         }
