@@ -65,18 +65,13 @@ public class ResourceI18n {
         try {
             List<JsonI18nClass> files = new ArrayList<>();
             if (Config.getI18nDir().exists() && Config.getI18nDir().isDirectory()) {
-                System.out.println("Dir exists: " + Config.getI18nDir());
                 for (File file : Config.getI18nDir().listFiles()) {
                     try {
                         System.out.println("File: " + file);
                         if (file.getName().endsWith(".json")) {
-                            System.out.println("File end with .json");
                             files.add(loadFile(file));
-                        } else {
-                            System.out.print("----- NOPE!");
                         }
                     } catch (Exception fex) {
-
                         logger.error("Error while loading i18n file '{}':", file.getName(), fex);
                         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(fex.getMessage()).build();
                     }
