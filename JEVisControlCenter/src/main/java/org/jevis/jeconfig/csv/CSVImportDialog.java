@@ -69,7 +69,7 @@ public class CSVImportDialog {
     final Button fileButton = new Button(I18n.getInstance().getString("csv.file_select"));
     final Button saveFormat = new Button(I18n.getInstance().getString("csv.save_formate"));
     Button reload = new Button(I18n.getInstance().getString("csv.reload"));//, JEConfig.getImage("1403018303_Refresh.png", 20, 20));
-    final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+    final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(0), BigDecimal.valueOf(1));
 
     RadioButton tab = new RadioButton(I18n.getInstance().getString("csv.seperators.tab"));
     RadioButton semicolon = new RadioButton(I18n.getInstance().getString("csv.seperators.semi"));
