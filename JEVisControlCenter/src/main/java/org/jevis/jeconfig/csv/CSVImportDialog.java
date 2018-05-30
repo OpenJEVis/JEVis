@@ -1,29 +1,24 @@
 /**
  * Copyright (C) 2014-2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.csv;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -36,24 +31,9 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -66,8 +46,13 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class CSVImportDialog {
@@ -114,12 +99,12 @@ public class CSVImportDialog {
     public static enum Format {
 
         Default, ARA01, Custom
-    };
+    }
 
     public static enum Response {
 
         OK, CANCEL
-    };
+    }
 
     private Response response = Response.CANCEL;
 
@@ -270,7 +255,7 @@ public class CSVImportDialog {
 
         TableView placeholderTree = new TableView();
         TableColumn firstNameCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
-        TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
+        TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("csv.table.second_col"));
         firstNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
         lastNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
         placeholderTree.getColumns().addAll(firstNameCol, lastNameCol);

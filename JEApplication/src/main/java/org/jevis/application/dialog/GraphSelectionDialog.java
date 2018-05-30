@@ -1,30 +1,25 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.dialog;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -33,17 +28,11 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
@@ -51,15 +40,18 @@ import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.TreePlugin;
 import org.jevis.application.jevistree.plugin.BarchartPlugin;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class GraphSelectionDialog {
 
     public static enum Response {
         OK, CANCEL
-    };
+    }
+
     private Response _response = Response.CANCEL;
 
     private final JEVisDataSource _ds;
@@ -68,7 +60,7 @@ public class GraphSelectionDialog {
     private Stage stage;
     private boolean init = true;
     private JEVisTree _tree;
-    private SaveResourceBundle rb = new SaveResourceBundle("jeappliaction",AppLocale.getInstance().getLocale());
+    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 
     public GraphSelectionDialog(JEVisDataSource ds) {
         _ds = ds;
