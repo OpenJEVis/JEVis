@@ -1,0 +1,14 @@
+{
+  "jevisclass": "View Directory",
+  "names": {
+    "de": "View Directory",
+    "ru": "View Directory",
+    "en": "View Directory"
+  },
+  "descriptions": {
+    "de": "The class View Directory represents a specific directory for the management of individual views. Within a View Directory a user is able to create structures without any system limitations. The content of a View Directory is always just a link to the referred objects in the restricted part of the JEVis system. Modifications on the content of the View Directory will always affect on the referring objects.",
+    "ru": "The class View Directory represents a specific directory for the management of individual views. Within a View Directory a user is able to create structures without any system limitations. The content of a View Directory is always just a link to the referred objects in the restricted part of the JEVis system. Modifications on the content of the View Directory will always affect on the referring objects.",
+    "en": "The class View Directory represents a specific directory for the management of individual views. Within a View Directory a user is able to create structures without any system limitations. The content of a View Directory is always just a link to the referred objects in the restricted part of the JEVis system. Modifications on the content of the View Directory will always affect on the referring objects."
+  },
+  "types": []
+}

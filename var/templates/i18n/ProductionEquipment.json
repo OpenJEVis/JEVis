@@ -1,0 +1,210 @@
+{
+  "jevisclass": "Production Equipment",
+  "names": {
+    "de": "Production Equipment",
+    "ru": "Production Equipment",
+    "en": "Production Equipment"
+  },
+  "descriptions": {
+    "de": "The class Production Equipment contains data of the building equipment for production. Attributes of the class include a complete description of the specific energy data of the production equipment. ",
+    "ru": "The class Production Equipment contains data of the building equipment for production. Attributes of the class include a complete description of the specific energy data of the production equipment. ",
+    "en": "The class Production Equipment contains data of the building equipment for production. Attributes of the class include a complete description of the specific energy data of the production equipment. "
+  },
+  "types": [
+    {
+      "type": "Consumption",
+      "descriptions": {
+        "de": "Consumption desctiption",
+        "ru": "Consumption desctiption",
+        "en": "Consumption desctiption"
+      },
+      "names": {
+        "de": "Consumption",
+        "ru": "Consumption",
+        "en": "Consumption"
+      }
+    },
+    {
+      "type": "Daily Operating Hours",
+      "descriptions": {
+        "de": "Daily Operating Hours desctiption",
+        "ru": "Daily Operating Hours desctiption",
+        "en": "Daily Operating Hours desctiption"
+      },
+      "names": {
+        "de": "Daily Operating Hours",
+        "ru": "Daily Operating Hours",
+        "en": "Daily Operating Hours"
+      }
+    },
+    {
+      "type": "Energy Source",
+      "descriptions": {
+        "de": "Energy Source desctiption",
+        "ru": "Energy Source desctiption",
+        "en": "Energy Source desctiption"
+      },
+      "names": {
+        "de": "Energy Source",
+        "ru": "Energy Source",
+        "en": "Energy Source"
+      }
+    },
+    {
+      "type": "Manufacturer",
+      "descriptions": {
+        "de": "Manufacturer desctiption",
+        "ru": "Manufacturer desctiption",
+        "en": "Manufacturer desctiption"
+      },
+      "names": {
+        "de": "Manufacturer",
+        "ru": "Manufacturer",
+        "en": "Manufacturer"
+      }
+    },
+    {
+      "type": "Measurement",
+      "descriptions": {
+        "de": "Measurement desctiption",
+        "ru": "Measurement desctiption",
+        "en": "Measurement desctiption"
+      },
+      "names": {
+        "de": "Measurement",
+        "ru": "Measurement",
+        "en": "Measurement"
+      }
+    },
+    {
+      "type": "Measuring Point",
+      "descriptions": {
+        "de": "Measuring Point desctiption",
+        "ru": "Measuring Point desctiption",
+        "en": "Measuring Point desctiption"
+      },
+      "names": {
+        "de": "Measuring Point",
+        "ru": "Measuring Point",
+        "en": "Measuring Point"
+      }
+    },
+    {
+      "type": "Nominal Power",
+      "descriptions": {
+        "de": "Nominal Power desctiption",
+        "ru": "Nominal Power desctiption",
+        "en": "Nominal Power desctiption"
+      },
+      "names": {
+        "de": "Nominal Power",
+        "ru": "Nominal Power",
+        "en": "Nominal Power"
+      }
+    },
+    {
+      "type": "Number",
+      "descriptions": {
+        "de": "Number desctiption",
+        "ru": "Number desctiption",
+        "en": "Number desctiption"
+      },
+      "names": {
+        "de": "Number",
+        "ru": "Number",
+        "en": "Number"
+      }
+    },
+    {
+      "type": "Power",
+      "descriptions": {
+        "de": "Power desctiption",
+        "ru": "Power desctiption",
+        "en": "Power desctiption"
+      },
+      "names": {
+        "de": "Power",
+        "ru": "Power",
+        "en": "Power"
+      }
+    },
+    {
+      "type": "Sector",
+      "descriptions": {
+        "de": "Sector desctiption",
+        "ru": "Sector desctiption",
+        "en": "Sector desctiption"
+      },
+      "names": {
+        "de": "Sector",
+        "ru": "Sector",
+        "en": "Sector"
+      }
+    },
+    {
+      "type": "Standby Consumption",
+      "descriptions": {
+        "de": "Standby Consumption desctiption",
+        "ru": "Standby Consumption desctiption",
+        "en": "Standby Consumption desctiption"
+      },
+      "names": {
+        "de": "Standby Consumption",
+        "ru": "Standby Consumption",
+        "en": "Standby Consumption"
+      }
+    },
+    {
+      "type": "Type",
+      "descriptions": {
+        "de": "Type desctiption",
+        "ru": "Type desctiption",
+        "en": "Type desctiption"
+      },
+      "names": {
+        "de": "Type",
+        "ru": "Type",
+        "en": "Type"
+      }
+    },
+    {
+      "type": "Weighting Factor",
+      "descriptions": {
+        "de": "Weighting Factor desctiption",
+        "ru": "Weighting Factor desctiption",
+        "en": "Weighting Factor desctiption"
+      },
+      "names": {
+        "de": "Weighting Factor",
+        "ru": "Weighting Factor",
+        "en": "Weighting Factor"
+      }
+    },
+    {
+      "type": "Work Weeks",
+      "descriptions": {
+        "de": "Work Weeks desctiption",
+        "ru": "Work Weeks desctiption",
+        "en": "Work Weeks desctiption"
+      },
+      "names": {
+        "de": "Work Weeks",
+        "ru": "Work Weeks",
+        "en": "Work Weeks"
+      }
+    },
+    {
+      "type": "Working Days",
+      "descriptions": {
+        "de": "Working Days desctiption",
+        "ru": "Working Days desctiption",
+        "en": "Working Days desctiption"
+      },
+      "names": {
+        "de": "Working Days",
+        "ru": "Working Days",
+        "en": "Working Days"
+      }
+    }
+  ]
+}

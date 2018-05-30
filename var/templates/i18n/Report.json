@@ -1,0 +1,89 @@
+{
+  "jevisclass": "Report",
+  "names": {
+    "de": "Report",
+    "ru": "Report",
+    "en": "Report"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Enabled desctiption",
+        "ru": "Enabled desctiption",
+        "en": "Enabled desctiption"
+      },
+      "names": {
+        "de": "Enabled",
+        "ru": "Enabled",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Last Report",
+      "descriptions": {
+        "de": "Last Report desctiption",
+        "ru": "Last Report desctiption",
+        "en": "Last Report desctiption"
+      },
+      "names": {
+        "de": "Last Report",
+        "ru": "Last Report",
+        "en": "Last Report"
+      }
+    },
+    {
+      "type": "PDF",
+      "descriptions": {
+        "de": "PDF desctiption",
+        "ru": "PDF desctiption",
+        "en": "PDF desctiption"
+      },
+      "names": {
+        "de": "PDF",
+        "ru": "PDF",
+        "en": "PDF"
+      }
+    },
+    {
+      "type": "PDF Pages",
+      "descriptions": {
+        "de": "PDF Pages desctiption",
+        "ru": "PDF Pages desctiption",
+        "en": "PDF Pages desctiption"
+      },
+      "names": {
+        "de": "PDF Pages",
+        "ru": "PDF Pages",
+        "en": "PDF Pages"
+      }
+    },
+    {
+      "type": "Template",
+      "descriptions": {
+        "de": "Template desctiption",
+        "ru": "Template desctiption",
+        "en": "Template desctiption"
+      },
+      "names": {
+        "de": "Template",
+        "ru": "Template",
+        "en": "Template"
+      }
+    },
+    {
+      "type": "Time Zone",
+      "descriptions": {
+        "de": "Time Zone desctiption",
+        "ru": "Time Zone desctiption",
+        "en": "Time Zone desctiption"
+      },
+      "names": {
+        "de": "Time Zone",
+        "ru": "Time Zone",
+        "en": "Time Zone"
+      }
+    }
+  ]
+}

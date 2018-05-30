@@ -1,0 +1,63 @@
+{
+  "jevisclass": "External Audit",
+  "names": {
+    "de": "External Audit",
+    "ru": "External Audit",
+    "en": "External Audit"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Audit Date",
+      "descriptions": {
+        "de": "Audit Date desctiption",
+        "ru": "Audit Date desctiption",
+        "en": "Audit Date desctiption"
+      },
+      "names": {
+        "de": "Audit Date",
+        "ru": "Audit Date",
+        "en": "Audit Date"
+      }
+    },
+    {
+      "type": "Auditor",
+      "descriptions": {
+        "de": "Auditor desctiption",
+        "ru": "Auditor desctiption",
+        "en": "Auditor desctiption"
+      },
+      "names": {
+        "de": "Auditor",
+        "ru": "Auditor",
+        "en": "Auditor"
+      }
+    },
+    {
+      "type": "Certifier",
+      "descriptions": {
+        "de": "Certifier desctiption",
+        "ru": "Certifier desctiption",
+        "en": "Certifier desctiption"
+      },
+      "names": {
+        "de": "Certifier",
+        "ru": "Certifier",
+        "en": "Certifier"
+      }
+    },
+    {
+      "type": "Report File",
+      "descriptions": {
+        "de": "Report File desctiption",
+        "ru": "Report File desctiption",
+        "en": "Report File desctiption"
+      },
+      "names": {
+        "de": "Report File",
+        "ru": "Report File",
+        "en": "Report File"
+      }
+    }
+  ]
+}

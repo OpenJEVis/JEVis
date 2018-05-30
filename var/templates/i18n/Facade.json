@@ -1,0 +1,158 @@
+{
+  "jevisclass": "Facade",
+  "names": {
+    "de": "Facade",
+    "ru": "Facade",
+    "en": "Facade"
+  },
+  "descriptions": {
+    "de": "The class Farcade contains data of the building equipment farcade. Attributes of the class include a complete description of the specific farcade. ",
+    "ru": "The class Farcade contains data of the building equipment farcade. Attributes of the class include a complete description of the specific farcade. ",
+    "en": "The class Farcade contains data of the building equipment farcade. Attributes of the class include a complete description of the specific farcade. "
+  },
+  "types": [
+    {
+      "type": "Daily Operating Hours",
+      "descriptions": {
+        "de": "Daily Operating Hours desctiption",
+        "ru": "Daily Operating Hours desctiption",
+        "en": "Daily Operating Hours desctiption"
+      },
+      "names": {
+        "de": "Daily Operating Hours",
+        "ru": "Daily Operating Hours",
+        "en": "Daily Operating Hours"
+      }
+    },
+    {
+      "type": "Energy Source",
+      "descriptions": {
+        "de": "Energy Source desctiption",
+        "ru": "Energy Source desctiption",
+        "en": "Energy Source desctiption"
+      },
+      "names": {
+        "de": "Energy Source",
+        "ru": "Energy Source",
+        "en": "Energy Source"
+      }
+    },
+    {
+      "type": "Manufacturer",
+      "descriptions": {
+        "de": "Manufacturer desctiption",
+        "ru": "Manufacturer desctiption",
+        "en": "Manufacturer desctiption"
+      },
+      "names": {
+        "de": "Manufacturer",
+        "ru": "Manufacturer",
+        "en": "Manufacturer"
+      }
+    },
+    {
+      "type": "Measuring Point",
+      "descriptions": {
+        "de": "Measuring Point desctiption",
+        "ru": "Measuring Point desctiption",
+        "en": "Measuring Point desctiption"
+      },
+      "names": {
+        "de": "Measuring Point",
+        "ru": "Measuring Point",
+        "en": "Measuring Point"
+      }
+    },
+    {
+      "type": "Nominal Power",
+      "descriptions": {
+        "de": "Nominal Power desctiption",
+        "ru": "Nominal Power desctiption",
+        "en": "Nominal Power desctiption"
+      },
+      "names": {
+        "de": "Nominal Power",
+        "ru": "Nominal Power",
+        "en": "Nominal Power"
+      }
+    },
+    {
+      "type": "U Value Ground",
+      "descriptions": {
+        "de": "U Value Ground desctiption",
+        "ru": "U Value Ground desctiption",
+        "en": "U Value Ground desctiption"
+      },
+      "names": {
+        "de": "U Value Ground",
+        "ru": "U Value Ground",
+        "en": "U Value Ground"
+      }
+    },
+    {
+      "type": "U Value Outerwall",
+      "descriptions": {
+        "de": "U Value Outerwall desctiption",
+        "ru": "U Value Outerwall desctiption",
+        "en": "U Value Outerwall desctiption"
+      },
+      "names": {
+        "de": "U Value Outerwall",
+        "ru": "U Value Outerwall",
+        "en": "U Value Outerwall"
+      }
+    },
+    {
+      "type": "U Value Roof",
+      "descriptions": {
+        "de": "U Value Roof desctiption",
+        "ru": "U Value Roof desctiption",
+        "en": "U Value Roof desctiption"
+      },
+      "names": {
+        "de": "U Value Roof",
+        "ru": "U Value Roof",
+        "en": "U Value Roof"
+      }
+    },
+    {
+      "type": "Weighting Factor",
+      "descriptions": {
+        "de": "Weighting Factor desctiption",
+        "ru": "Weighting Factor desctiption",
+        "en": "Weighting Factor desctiption"
+      },
+      "names": {
+        "de": "Weighting Factor",
+        "ru": "Weighting Factor",
+        "en": "Weighting Factor"
+      }
+    },
+    {
+      "type": "Work Weeks",
+      "descriptions": {
+        "de": "Work Weeks desctiption",
+        "ru": "Work Weeks desctiption",
+        "en": "Work Weeks desctiption"
+      },
+      "names": {
+        "de": "Work Weeks",
+        "ru": "Work Weeks",
+        "en": "Work Weeks"
+      }
+    },
+    {
+      "type": "Working Days",
+      "descriptions": {
+        "de": "Working Days desctiption",
+        "ru": "Working Days desctiption",
+        "en": "Working Days desctiption"
+      },
+      "names": {
+        "de": "Working Days",
+        "ru": "Working Days",
+        "en": "Working Days"
+      }
+    }
+  ]
+}

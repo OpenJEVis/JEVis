@@ -42,6 +42,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.HiddenSidesPane;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisType;
 import org.jevis.application.application.I18nWS;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.Constants;
@@ -369,7 +370,34 @@ public class ObjectEditor {
 
 //                _view.getChildren().setAll(pane);
                         try {
-                            SideNode help = new SideNode(obj.getJEVisClassName(), obj.getJEVisClass().getDescription(), Side.RIGHT, _view);
+                            //SideNode help = new SideNode(obj.getJEVisClassName(), obj.getJEVisClass().getDescription(), Side.RIGHT, _view);
+
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("<htlm><body>");
+                            //sb.append("<h1>");
+                            //sb.append(I18nWS.getInstance().getClassName(obj.getJEVisClassName()));
+                            //sb.append("</h1>");
+                            sb.append("<p>");
+                            sb.append(I18nWS.getInstance().getClassDescription(obj.getJEVisClassName()));
+                            sb.append("</p><br>");
+                            for (JEVisType type : obj.getJEVisClass().getTypes()) {
+                                sb.append("<h4>");
+                                sb.append(I18nWS.getInstance().getTypeName(obj.getJEVisClassName(), type.getName()));
+                                sb.append("</h4>");
+                                sb.append("<p>");
+                                sb.append(I18nWS.getInstance().getTypeDescription(obj.getJEVisClassName(), type.getName()));
+                                sb.append("</p>");
+                            }
+
+
+                            sb.append("</body></htlm>");
+
+                            SideNode help = new SideNode(
+                                    I18nWS.getInstance().getClassName(obj.getJEVisClassName()),
+                                    sb.toString(),
+                                    Side.RIGHT, _view);
+
+
                             _view.setRight(help);
                             helpButton.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override

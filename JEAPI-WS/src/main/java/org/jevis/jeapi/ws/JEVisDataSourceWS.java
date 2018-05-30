@@ -1039,7 +1039,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         getClassIcon();
     }
 
-    public List<JsonI18nClass> getTranslation(Locale locale) {
+    public List<JsonI18nClass> getTranslation() {
         logger.trace("Get I18n");
         try {
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.REAOURCE_I18N;//+"?jclass="+Organisation;

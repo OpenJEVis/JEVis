@@ -1,0 +1,24 @@
+{
+  "jevisclass": "01 General",
+  "names": {
+    "de": "01 General",
+    "ru": "01 General",
+    "en": "01 General"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Auditor",
+      "descriptions": {
+        "de": "Auditor desctiption",
+        "ru": "Auditor desctiption",
+        "en": "Auditor desctiption"
+      },
+      "names": {
+        "de": "Auditor",
+        "ru": "Auditor",
+        "en": "Auditor"
+      }
+    }
+  ]
+}

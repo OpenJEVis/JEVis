@@ -1,5 +1,7 @@
 package org.jevis.commons.ws.json;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -7,9 +9,9 @@ public class JsonI18nClass {
 
 
     private String jevisclass;
-    private Map<String, String> names;
-    private Map<String, String> descriptions;
-    private List<JsonI18nType> types;
+    private Map<String, String> names = new HashMap<>();
+    private Map<String, String> descriptions = new HashMap<>();
+    private List<JsonI18nType> types = new ArrayList<>();
 
     public JsonI18nClass() {
     }

@@ -1,0 +1,50 @@
+{
+  "jevisclass": "SOAP Channel",
+  "names": {
+    "de": "SOAP Channel",
+    "ru": "SOAP Channel",
+    "en": "SOAP Channel"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Last Readout",
+      "descriptions": {
+        "de": "Last Readout desctiption",
+        "ru": "Last Readout desctiption",
+        "en": "Last Readout desctiption"
+      },
+      "names": {
+        "de": "Last Readout",
+        "ru": "Last Readout",
+        "en": "Last Readout"
+      }
+    },
+    {
+      "type": "Path",
+      "descriptions": {
+        "de": "Path desctiption",
+        "ru": "Path desctiption",
+        "en": "Path desctiption"
+      },
+      "names": {
+        "de": "Path",
+        "ru": "Path",
+        "en": "Path"
+      }
+    },
+    {
+      "type": "Template",
+      "descriptions": {
+        "de": "Template desctiption",
+        "ru": "Template desctiption",
+        "en": "Template desctiption"
+      },
+      "names": {
+        "de": "Template",
+        "ru": "Template",
+        "en": "Template"
+      }
+    }
+  ]
+}

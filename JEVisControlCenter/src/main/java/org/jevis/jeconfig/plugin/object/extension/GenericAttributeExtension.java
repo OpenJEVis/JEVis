@@ -31,6 +31,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -292,6 +293,11 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     //Label name = new Label(I18n.getInstance().getString("plugin.object.attribute.missingname"));
                     //Label name = new Label(I18n.getInstance().getString(I18nWS.TYPE_NAME,type.getJEVisClassName()+type.getName()));
                     Label name = new Label(I18nWS.getInstance().getAttributeName(att));
+                    Tooltip tt = new Tooltip(I18nWS.getInstance().getAttributeDescription(att));
+                    if (!tt.getText().isEmpty()) {
+                        name.setTooltip(tt);
+                    }
+
 
 //                    name.setId("attributelabel");
                     SampleEditor se = new SampleEditor();

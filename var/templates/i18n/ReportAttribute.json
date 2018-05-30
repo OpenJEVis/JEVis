@@ -1,0 +1,28 @@
+{
+  "jevisclass": "Report Attribute",
+  "names": {
+    "de": "Report Attribute",
+    "ru": "Report Attribute",
+    "en": "Report Attribute"
+  },
+  "descriptions": {
+    "de": "Every JEVisObject linked by the Report Link can have several attributes. For each attributes the requirements could vary. So for example if you have a Building object maybe you want to collect the last name saved in the JEVis system, but all adresses. Another example could be, if you have a Data Object and you need to collect the data from the current period and/or the last period.\n",
+    "ru": "Every JEVisObject linked by the Report Link can have several attributes. For each attributes the requirements could vary. So for example if you have a Building object maybe you want to collect the last name saved in the JEVis system, but all adresses. Another example could be, if you have a Data Object and you need to collect the data from the current period and/or the last period.\n",
+    "en": "Every JEVisObject linked by the Report Link can have several attributes. For each attributes the requirements could vary. So for example if you have a Building object maybe you want to collect the last name saved in the JEVis system, but all adresses. Another example could be, if you have a Data Object and you need to collect the data from the current period and/or the last period.\n"
+  },
+  "types": [
+    {
+      "type": "Attribute Name",
+      "descriptions": {
+        "de": "Attribute Name desctiption",
+        "ru": "Attribute Name desctiption",
+        "en": "Attribute Name desctiption"
+      },
+      "names": {
+        "de": "Attribute Name",
+        "ru": "Attribute Name",
+        "en": "Attribute Name"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Organization Directory",
+  "names": {
+    "de": "Organization Directory",
+    "ru": "Organization Directory",
+    "en": "Organization Directory"
+  },
+  "descriptions": {
+    "de": "The class Organization Directory represents a specific directory for the management of organizations.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class",
+    "ru": "The class Organization Directory represents a specific directory for the management of organizations.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class",
+    "en": "The class Organization Directory represents a specific directory for the management of organizations.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class"
+  },
+  "types": []
+}

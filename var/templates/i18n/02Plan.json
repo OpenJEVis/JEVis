@@ -1,0 +1,37 @@
+{
+  "jevisclass": "02 Plan",
+  "names": {
+    "de": "02 Plan",
+    "ru": "02 Plan",
+    "en": "02 Plan"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Audit Date",
+      "descriptions": {
+        "de": "Audit Date desctiption",
+        "ru": "Audit Date desctiption",
+        "en": "Audit Date desctiption"
+      },
+      "names": {
+        "de": "Audit Date",
+        "ru": "Audit Date",
+        "en": "Audit Date"
+      }
+    },
+    {
+      "type": "Auditor",
+      "descriptions": {
+        "de": "Auditor desctiption",
+        "ru": "Auditor desctiption",
+        "en": "Auditor desctiption"
+      },
+      "names": {
+        "de": "Auditor",
+        "ru": "Auditor",
+        "en": "Auditor"
+      }
+    }
+  ]
+}

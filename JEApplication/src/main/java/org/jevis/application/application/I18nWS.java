@@ -45,6 +45,8 @@ public class I18nWS {
      */
     public void setDataSource(JEVisDataSourceWS ws) {
         this.ws = ws;
+        i18nfiles = this.ws.getTranslation();
+        System.out.println("Language entry: " + i18nfiles.size());
     }
 
     public String getClassName(String className) {
@@ -99,6 +101,22 @@ public class I18nWS {
         }
     }
 
+    public String getTypeDescription(JEVisType type) {
+        try {
+            return getTypeDescription(type.getJEVisClassName(), type.getName());
+        } catch (Exception ex) {
+            return "";
+        }
+    }
+
+    public String getAttributeDescription(JEVisAttribute att) {
+        try {
+            return getTypeDescription(att.getType());
+        } catch (Exception ex) {
+            return "";
+        }
+    }
+
     public String getTypeDescription(String jevisClass, String typeName) {
 
         JsonI18nClass json = getJsonClass(jevisClass);
@@ -124,6 +142,8 @@ public class I18nWS {
                 return jclass;
             }
         }
+
+        //null handling
         JsonI18nClass fallback = new JsonI18nClass();
         fallback.setJevisclass(classname);
         return fallback;

@@ -172,7 +172,7 @@ public class JEConfig extends Application {
                     I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
                     _config.setLocale(login.getSelectedLocale());
 
-                    printClasses2(_mainDS);
+                    printClasses3(_mainDS);
                     try {
                         _mainDS.preload();
                     } catch (Exception ex) {
@@ -301,7 +301,6 @@ public class JEConfig extends Application {
 
     }
 
-
     private void printClasses2(JEVisDataSource ds) {
 
 
@@ -358,6 +357,66 @@ public class JEConfig extends Application {
         }
     }
 
+    private void printClasses3(JEVisDataSource ds) {
+
+
+        try {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+            PrintWriter writer = new PrintWriter("/tmp/json/all.csv", "UTF-8");
+            StringBuilder sb = new StringBuilder();
+
+            for (JEVisClass jc : ds.getJEVisClasses()) {
+
+                sb.append(jc.getName());
+                sb.append(";");
+                if (jc.getInheritance() != null) {
+                    sb.append(jc.getInheritance().getName());
+                } else {
+                    sb.append("-");
+                }
+                sb.append(";");
+                sb.append(jc.getName());
+                sb.append(";");
+                sb.append(";");
+                sb.append(";");
+                sb.append(jc.getDescription());
+                sb.append(";");
+                sb.append(";");
+                sb.append(";");
+                sb.append("\n");
+
+                for (JEVisType type : jc.getTypes()) {
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(type.getName());
+                    sb.append(";");
+                    sb.append(type.getName());
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+
+                    sb.append("\n");
+                }
+            }
+
+            writer.println(sb.toString());
+            writer.close();
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
 
     /**
      * The main() method is ignored in correctly deployed JavaFX application.

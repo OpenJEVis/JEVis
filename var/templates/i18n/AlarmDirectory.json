@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Alarm Directory",
+  "names": {
+    "de": "Alarm Directory",
+    "ru": "Alarm Directory",
+    "en": "Alarm Directory"
+  },
+  "descriptions": {
+    "de": "The class Alarm Directory represents a specific directory for the management of alarms.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ru": "The class Alarm Directory represents a specific directory for the management of alarms.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "en": "The class Alarm Directory represents a specific directory for the management of alarms.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+  },
+  "types": []
+}
