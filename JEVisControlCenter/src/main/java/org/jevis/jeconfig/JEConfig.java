@@ -166,13 +166,10 @@ public class JEConfig extends Application {
                     logger.debug("Start JEVis Control Center");
                     _mainDS = login.getDataSource();
                     JEConfig.userpassword = login.getUserPassword();
-                    System.out.println("selected locale: " + login.getSelectedLocale() + "   " + login.getSelectedLocale().getISO3Country());
-                    System.out.println("1: " + login.getSelectedLocale().getISO3Language() + "   " + login.getSelectedLocale().getLanguage());
                     I18n.getInstance().loadBundel(login.getSelectedLocale());
                     I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
                     _config.setLocale(login.getSelectedLocale());
 
-                    printClasses3(_mainDS);
                     try {
                         _mainDS.preload();
                     } catch (Exception ex) {

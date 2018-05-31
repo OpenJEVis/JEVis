@@ -330,9 +330,10 @@ public class JEVisObjectWS implements JEVisObject {
                 resource += getID();
                 update = true;
             }
+            System.out.println("Update path: " + resource);
 
             StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
-            //TODO: remove the realtaionship from the post json, like in the Webservice JSonFactory
+            //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
 
             JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
             logger.trace("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());

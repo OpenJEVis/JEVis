@@ -5,51 +5,28 @@
  */
 package org.jevis.ws.sql;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import org.jevis.ws.sql.tables.ClassTable;
-import org.jevis.ws.sql.tables.AttributeTable;
-import org.jevis.ws.sql.tables.ClassRelationTable;
-import org.jevis.ws.sql.tables.TypeTable;
-import org.jevis.ws.sql.tables.ObjectTable;
-import org.jevis.ws.sql.tables.SampleTable;
-import org.jevis.ws.sql.tables.LoginTable;
-import java.awt.image.BufferedImage;
-import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import org.apache.commons.net.util.Base64;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+import org.jevis.commons.ws.json.*;
+import org.jevis.rest.Config;
+import org.jevis.rest.ErrorBuilder;
+import org.jevis.ws.sql.tables.*;
+import org.joda.time.DateTime;
+
 import javax.security.sasl.AuthenticationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import org.apache.commons.net.util.Base64;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.rest.Config;
-import org.jevis.rest.ErrorBuilder;
-import org.jevis.commons.ws.json.JsonAttribute;
-import org.jevis.commons.ws.json.JsonClassRelationship;
-import org.jevis.commons.ws.json.JsonJEVisClass;
-import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.commons.ws.json.JsonRelationship;
-import org.jevis.commons.ws.json.JsonSample;
-import org.jevis.commons.ws.json.JsonType;
-import org.joda.time.DateTime;
+import java.awt.image.BufferedImage;
+import java.io.UnsupportedEncodingException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
- *
  * @author fs
  */
 public class SQLDataSource {
@@ -299,12 +276,17 @@ public class SQLDataSource {
                 if (rel.getFrom() == ob.getId() || rel.getTo() == ob.getId()) {
                     if (ob.getRelationships() == null) {
                         ob.setRelationships(new ArrayList<JsonRelationship>());
-                    };
+                    }
                     ob.getRelationships().add(rel);
                 }
             }
         }
         getProfiler().addEvent("DS", "done");
+    }
+
+    public JsonObject updateObject(long id, String newname, boolean ispublic) throws JEVisException {
+        logger.debug("updateObject");
+        return getObjectTable().updateObject(id, newname, ispublic);
     }
 
     public List<JsonObject> getObjects() throws JEVisException {
@@ -503,7 +485,7 @@ public class SQLDataSource {
 
     public boolean setJEVisClassIcon(String jclass, BufferedImage icon) throws JEVisException {
         JsonJEVisClass dbclass = getClassTable().getObjectClass(jclass);
-        System.out.println("dblass: "+dbclass);
+        System.out.println("dblass: " + dbclass);
         if (dbclass != null) {
             return getClassTable().updateClassIcon(jclass, icon);
         }
@@ -542,7 +524,7 @@ public class SQLDataSource {
 //            for(JsonType t:types){
 //                
 //            }
-            
+
             return types;
         } catch (SQLException | UnsupportedEncodingException ex) {
             throw new JEVisException("DB error while fetching types", 6836, ex);

@@ -1,50 +1,38 @@
 /**
  * Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEWebService.
- *
+ * <p>
  * JEWebService is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEWebService is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.rest;
 
 import com.google.gson.Gson;
-import java.util.LinkedList;
-import java.util.List;
-import javax.security.sasl.AuthenticationException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.ws.sql.SQLDataSource;
+
+import javax.security.sasl.AuthenticationException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This Class handels all the JEVisObject related requests
@@ -58,7 +46,7 @@ public class ResourceObject {
 
     /**
      * Get an list of JEVisObject Resource.
-     *
+     * <p>
      * TODO: maybe use an async response!?
      * https://jersey.java.net/documentation/latest/async.html
      *
@@ -103,7 +91,7 @@ public class ResourceObject {
                 returnList = ds.getRootObjects();
             } else {
                 returnList = ds.getUserManager().filterList(ds.getObjects());
-                System.out.println("All Object after filter: "+returnList.size());
+                System.out.println("All Object after filter: " + returnList.size());
             }
             if (!jclass.isEmpty()) {
                 returnList = ds.filterObjectByClass(returnList, jclass);
@@ -134,7 +122,6 @@ public class ResourceObject {
     }
 
     /**
-     *
      * @param id
      * @return
      */
@@ -218,12 +205,12 @@ public class ResourceObject {
 
         SQLDataSource ds = null;
         try {
-            System.out.println("1: "+object);
+            System.out.println("1: " + object);
             ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("ObjectResource", "postObject");
-            
+
             JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
-            System.out.println("json.class: "+json.getJevisClass());
+            System.out.println("json.class: " + json.getJevisClass());
             if (ds.getJEVisClass(json.getJevisClass()) == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("JEVisClass not found").build();
             }
@@ -271,10 +258,20 @@ public class ResourceObject {
 
             JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
             JsonObject existingObj = ds.getObject(id);
-            if (existingObj != null && ds.getUserManager().canDelete(json)) {
-                ds.deleteObject(existingObj);
-                ds.getProfiler().addEvent("ObjectResource", "done");
-                return Response.ok().build();
+            if (existingObj != null && ds.getUserManager().canWrite(json)) {
+                if (existingObj.getisPublic() != json.getisPublic()) {
+                    if (ds.getUserManager().isSysAdmin()) {
+                        ds.getProfiler().addEvent("ObjectResource", "done");
+                        return Response.ok(ds.updateObject(id, json.getName(), json.getisPublic())).build();
+                    } else {
+                        //@TODO: Throw exeption??
+                        ds.getProfiler().addEvent("ObjectResource", "done");
+                        return Response.ok(ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
+                    }
+                } else {
+                    ds.getProfiler().addEvent("ObjectResource", "done");
+                    return Response.ok(ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
+                }
             } else {
                 return Response.notModified().build();
             }
@@ -293,10 +290,9 @@ public class ResourceObject {
     /**
      * Get the JEVisObject with the given id.
      *
-     * @param context
      * @param httpHeaders
      * @param detailed
-     * @param id jevis internal id of an JEVisObject
+     * @param id          jevis internal id of an JEVisObject
      * @return
      */
     @GET
