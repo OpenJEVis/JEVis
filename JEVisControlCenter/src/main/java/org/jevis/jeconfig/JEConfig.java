@@ -462,7 +462,6 @@ public class JEConfig extends Application {
      * @deprecated Will be moved into the Configuration -> user settings
      */
     public static void setLastPath(File file) {
-        getConfig().setLastPath(file);
         if (file.exists()) {
             getConfig().setLastPath(file.getParentFile());
         } else {

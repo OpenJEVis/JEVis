@@ -1,32 +1,24 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
-import com.jfoenix.controls.JFXToggleButton;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -38,15 +30,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -54,11 +38,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.controlsfx.control.ToggleSwitch;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
+import org.jevis.api.*;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.application.dialog.InfoDialog;
 import org.jevis.commons.relationship.RelationsManagment;
@@ -71,8 +51,11 @@ import org.jevis.jeconfig.plugin.object.permission.RemoveSharePermissonsDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PermissionExtension implements ObjectEditorExtension {
@@ -259,15 +242,15 @@ public class PermissionExtension implements ObjectEditorExtension {
                     System.out.println("permissions error: " + ex);
                 }
 
-                HBox contols = new HBox(5);
-                contols.getChildren().addAll(forAllChildren, remove);
+                HBox controls = new HBox(5);
+                controls.getChildren().addAll(forAllChildren, remove);
 
                 yAxis++;
                 GridPane.setValignment(groupBox, VPos.BASELINE);
-                GridPane.setValignment(contols, VPos.BASELINE);
+                GridPane.setValignment(controls, VPos.BASELINE);
 
                 gridPane.add(groupBox, 0, yAxis);
-                gridPane.add(contols, 1, yAxis);
+                gridPane.add(controls, 1, yAxis);
 
             } catch (Exception ex) {
                 Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
@@ -288,15 +271,17 @@ public class PermissionExtension implements ObjectEditorExtension {
             Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        ToggleSwitch isPublicButton = new ToggleSwitch(I18n.getInstance().getString("plugin.object.permissions.share.title"));
+        ToggleSwitch isPublicButton = new ToggleSwitch(I18n.getInstance().getString("plugin.object.permissions.share_public"));
 //        isPublicButton.setPadding(new Insets(5, 0, 20, 20));
         try {
             isPublicButton.setDisable(!obj.getDataSource().getCurrentUser().isSysAdmin());
             isPublicButton.setSelected(obj.isPublic());
             isPublicButton.selectedProperty().setValue(obj.isPublic());
         } catch (JEVisException ex) {
+            isPublicButton.setDisable(true);
             isPublicButton.setSelected(false);
         }
+
 
         isPublicButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
@@ -365,7 +350,6 @@ public class PermissionExtension implements ObjectEditorExtension {
     /**
      * Returns the Organization of an Group. TODO; this code is very static and
      * could be more dynamic
-     *
      *
      * @param obj
      * @return
@@ -466,7 +450,7 @@ public class PermissionExtension implements ObjectEditorExtension {
 
                     @Override
                     public void updateItem(JEVisObject item,
-                            boolean empty) {
+                                           boolean empty) {
                         super.updateItem(item, empty);
                         if (item != null && !empty) {
                             setText(item.getName());
@@ -518,7 +502,7 @@ public class PermissionExtension implements ObjectEditorExtension {
                         AddSharePermissonsDialog.Response re = dia.show(JEConfig.getStage(),
                                 I18n.getInstance().getString("plugin"),
                                 I18n.getInstance().getString("plugin"),
-                                I18n.getInstance().getString("plugin.object.permissions.new.message",groupObj.getName()));
+                                I18n.getInstance().getString("plugin.object.permissions.new.message", groupObj.getName()));
                         if (re == AddSharePermissonsDialog.Response.YES || re == AddSharePermissonsDialog.Response.YES_ALL) {
                             JEVisRelationship newRel = obj.buildRelationship(groupObj, JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD);
 //                            System.out.println("new Owner: " + newRel);

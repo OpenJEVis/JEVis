@@ -1,34 +1,30 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.csv;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class CSVParser {
@@ -37,8 +33,8 @@ public class CSVParser {
     private boolean _isAllwaysSameColumnCount = true;
     private List<CSVLine> rows;
 
-    public CSVParser(File file, String enclosed, String seperator, int header) {
-        List<String> lines = readfile(file);
+    public CSVParser(File file, String enclosed, String seperator, int header, Charset charset) {
+        List<String> lines = readFile(file, charset);
         List<CSVLine> csvLines = parseLines(lines, enclosed, seperator, header);
         rows = csvLines;
     }
@@ -49,7 +45,7 @@ public class CSVParser {
 
     private List<CSVLine> parseLines(List<String> list, String enclosed, String seperator, int header) {
         List<CSVLine> cslines = new ArrayList<>();
-        int count = 0;
+        int count = -1;
 //        System.out.println("Split column by: " + seperator + " text by: " + enclosed);
         for (String line : list) {
             count++;
@@ -84,7 +80,39 @@ public class CSVParser {
         return _maxColumnCount;
     }
 
-    private List<String> readfile(File csvFile) {
+    private List<String> readFile(File csvFile, Charset charset) {
+
+        System.out.println("File: " + csvFile);
+        BufferedReader br = null;
+        List<String> lines = new ArrayList<>();
+        try {
+
+            String line = "";
+//            br = new BufferedReader(new FileReader(csvFile));
+            System.out.println("1: " + new FileInputStream(csvFile));
+            System.out.println("2: " + new InputStreamReader(new FileInputStream(csvFile)));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), charset));
+            while ((line = br.readLine()) != null) {
+                lines.add(line);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return lines;
+    }
+
+    private List<String> readfile2(File csvFile) {
         BufferedReader br = null;
         List<String> lines = new ArrayList<>();
         try {
