@@ -132,9 +132,10 @@ public class JEVisClassWS implements JEVisClass {
             }
         }
         //Special rule, for order purpose its allows to create on directory under him self.
-        if (ds.getJEVisClass("Directory").getHeirs().contains(this)) {
+        if (ds.getJEVisClass("Directory").getHeirs().contains(this) && !validParents.contains(this)) {
             validParents.add(this);
         }
+
 
         Collections.sort(validParents);
         return validParents;

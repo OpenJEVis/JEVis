@@ -1,36 +1,25 @@
 /**
  * Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEWebService.
- *
+ * <p>
  * JEWebService is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEWebService is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql.tables;
 
-import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-import java.sql.Blob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
@@ -45,8 +34,14 @@ import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
 import org.joda.time.DateTime;
 
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 /**
- *
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class SampleTable {
@@ -197,7 +192,8 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
 
@@ -207,7 +203,7 @@ public class SampleTable {
         String sql = "INSERT IGNORE into " + TABLE
                 + "(" + COLUMN_OBJECT + "," + COLUMN_ATTRIBUTE + "," + COLUMN_TIMESTAMP + "," + COLUMN_INSERT_TIMESTAMP
                 + "," + COLUMN_FILE_NAME + "," + COLUMN_FILE
-                + ") VALUES (?,?,?,?)";
+                + ") VALUES (?,?,?,?,?,?)";
 
         PreparedStatement ps = null;
         int count = 0;
@@ -233,14 +229,14 @@ public class SampleTable {
 
 //            System.out.println("SamplDB.putSample SQL: \n" + ps);
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.setFile()", ps.toString());
+            _connection.addQuery("Sample.setFile()", ps.toString());
             count = ps.executeUpdate();
 
             _connection.getAttributeTable().updateMinMaxTS(object, att);
 
-            if(count>0){
+            if (count > 0) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } catch (Exception ex) {
@@ -251,7 +247,8 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
 
@@ -284,7 +281,7 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.getFile()", ps.toString());
+            _connection.addQuery("Sample.getFile()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -312,7 +309,8 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         return null;
@@ -331,7 +329,7 @@ public class SampleTable {
         if (until != null) {
             sql += " and " + COLUMN_TIMESTAMP + "<=?";
         }
-        sql += " order by " + COLUMN_TIMESTAMP+" limit "+limit;
+        sql += " order by " + COLUMN_TIMESTAMP + " limit " + limit;
 
         PreparedStatement ps = null;
 
@@ -350,7 +348,7 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.get()", ps.toString());
+            _connection.addQuery("Sample.get()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -365,7 +363,8 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         return samples;
@@ -383,7 +382,7 @@ public class SampleTable {
             ps.setString(1, att);
             ps.setLong(2, object);
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.deleteAll()", ps.toString());
+            _connection.addQuery("Sample.deleteAll()", ps.toString());
             if (ps.executeUpdate() > 0) {
                 _connection.getAttributeTable().updateMinMaxTS(object, att);
                 return true;
@@ -400,7 +399,8 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
     }
@@ -434,7 +434,7 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.delete(fom,to)", ps.toString());
+            _connection.addQuery("Sample.delete(fom,to)", ps.toString());
             if (ps.executeUpdate() > 0) {
                 _connection.getAttributeTable().updateMinMaxTS(object, att);
                 return true;
@@ -451,7 +451,8 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
     }
@@ -470,7 +471,7 @@ public class SampleTable {
         ps.setString(2, att);
 
         logger.trace("SQL: {}", ps);
-         _connection.addQuery("Sample.getAll()", ps.toString());
+        _connection.addQuery("Sample.getAll()", ps.toString());
         ResultSet rs = ps.executeQuery();
 
         while (rs.next()) {
@@ -496,7 +497,7 @@ public class SampleTable {
 //        ps.setTimestamp(3, new Timestamp(att.getTimestampFromLastSample().getMillis()));
 
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.getLastes()", ps.toString());
+            _connection.addQuery("Sample.getLastes()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {

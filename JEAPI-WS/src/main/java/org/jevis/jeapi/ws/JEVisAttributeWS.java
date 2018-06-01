@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -21,23 +21,9 @@ package org.jevis.jeapi.ws;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
-import javax.measure.unit.Unit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisOption;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisType;
-import org.jevis.api.JEVisUnit;
+import org.jevis.api.*;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonFactory;
@@ -47,8 +33,13 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import javax.measure.unit.Unit;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author fs
  */
 public class JEVisAttributeWS implements JEVisAttribute {
@@ -126,7 +117,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
                 String requestjson = new Gson().toJson(jsonSamples, new TypeToken<List<JsonSample>>() {
                 }.getType());
                 logger.debug("Playload. {}", requestjson);
-                System.out.println("ds.http: " + ds.getHTTPConnection());
+                System.out.println("ds.http: " + resource);
                 System.out.println("Payload: " + requestjson);
                 StringBuffer response = ds.getHTTPConnection().postRequest(resource, requestjson);
 
@@ -137,9 +128,9 @@ public class JEVisAttributeWS implements JEVisAttribute {
                 logger.catching(ex);
             }
 
-        } else{
+        } else {
             //Also upload die byte file, filename is in json
-            for (JEVisSample s : samples) {
+            for (JEVisSample s : samples)
                 try {
                     String resource = REQUEST.API_PATH_V1
                             + REQUEST.OBJECTS.PATH
@@ -148,8 +139,8 @@ public class JEVisAttributeWS implements JEVisAttribute {
                             + getName() + "/"
                             + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH
                             + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.FILES.PATH
-                            + HTTPConnection.FMT.print(s.getTimestamp());
-//                        + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.FILES.OPTIONS.filename + s.getValueAsFile().getFilename();
+                            + HTTPConnection.FMT.print(s.getTimestamp())
+                            + "?" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.FILES.OPTIONS.FILENAME + s.getValueAsFile().getFilename();
 
                     HttpURLConnection connection = ds.getHTTPConnection().getPostFileConnection(resource);
 
@@ -161,12 +152,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
                         os.close();
                     }
                     int responseCode = connection.getResponseCode();
-                    
+
                 } catch (Exception ex) {
                     System.out.println("oooo");
                     logger.catching(ex);
                 }
-            }
 
 //
         }
@@ -405,13 +395,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public void addOption(JEVisOption option
     ) {
-        ;
     }
 
     @Override
     public void removeOption(JEVisOption option
     ) {
-        ;
     }
 
     @Override
