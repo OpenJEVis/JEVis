@@ -1,26 +1,25 @@
 /**
  * Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEWebService.
- *
+ * <p>
  * JEWebService is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEWebService is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.rest;
 
-import java.io.File;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -28,8 +27,9 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.ws.sql.SQLDataSource;
 
+import java.io.File;
+
 /**
- *
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class Config {
@@ -50,6 +50,7 @@ public class Config {
     public static String _keyFile = "";
     public static String _keyFilePW = "";
 
+
     public static long _demoRoot = -1;
     public static long _demoGroup = -1;
     public static String _registratioKey = "";
@@ -58,7 +59,8 @@ public class Config {
     private static boolean _fileIsLoaded = false;
 
     private static File _i18nDir;
-    
+    private static File _fileDir;
+
 
     public static String getDBHost() {
         return _dbip;
@@ -80,16 +82,19 @@ public class Config {
         return _schema;
     }
 
+    public static File getFileDir() {
+        return _fileDir.;
+    }
 
-    public static File getI18nDir(){
+    public static File getI18nDir() {
         return _i18nDir;
     }
 
-    public static String getKeyStoreFile(){
+    public static String getKeyStoreFile() {
         return _keyFile;
     }
-    
-    public static String getKeyStorePW(){
+
+    public static String getKeyStorePW() {
         return _keyFilePW;
     }
 
@@ -117,15 +122,18 @@ public class Config {
                     _rootPW = config.getString("sysadmin.password");
                     _port = config.getString("webservice.port");
                     _uri = config.getString("webservice.uri");
-                    _keyFile= config.getString("webservice.keystore");
-                    _keyFilePW= config.getString("webservice.keystorepw");
+                    _keyFile = config.getString("webservice.keystore");
+                    _keyFilePW = config.getString("webservice.keystorepw");
 
-                    System.out.println("i18ndir: "+config.getString("webservice.i18ndir"));
-                    _i18nDir=new File(config.getString("webservice.i18ndir"));
+                    System.out.println("i18ndir: " + config.getString("webservice.i18ndir"));
+                    _i18nDir = new File(config.getString("webservice.i18ndir"));
+                    _fileDir = new File(config.getString("webservice.filedir").replaceAll("%$",""));
+
 
                     _demoRoot = config.getLong("webservice.registration.root");
                     _demoGroup = config.getLong("webservice.registration.demogroup");
                     _registratioKey = config.getString("webservice.registration.apikey");
+
 
                     _fileIsLoaded = true;
                 } else {
@@ -156,8 +164,7 @@ public class Config {
         return _demoRoot;
     }
 
-    
-    
+
     public static void CloseDS(JEVisDataSource ds) {
         try {
             if (ds != null) {

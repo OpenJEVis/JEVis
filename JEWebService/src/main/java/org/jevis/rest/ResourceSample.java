@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2013 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEWebService.
- *
+ * <p>
  * JEWebService is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEWebService is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -22,44 +22,29 @@ package org.jevis.rest;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
-import javax.security.sasl.AuthenticationException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.JEVisFileImp;
-import org.jevis.commons.ws.json.JsonAttribute;
-import org.jevis.commons.ws.json.JsonFactory;
-import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.commons.ws.json.JsonSample;
-import org.jevis.commons.ws.json.JsonType;
+import org.jevis.commons.ws.json.*;
 import org.jevis.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
+import javax.security.sasl.AuthenticationException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * this Class handles all the JEVisSample related requests
@@ -75,7 +60,6 @@ public class ResourceSample {
     /**
      * Get the samples from an object/Attribute
      *
-     * @param context
      * @param httpHeaders
      * @param id
      * @param attribute
@@ -164,21 +148,74 @@ public class ResourceSample {
 
     }
 
+
+//    @POST
+//    @Logged
+//    @Path("/files/{timestamp}")
+//    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+//    public Response postSampleFiles(
+//            @Context HttpHeaders httpHeaders,
+//            @Context Request request,
+//            @Context UriInfo url,
+//            @PathParam("id") long id,
+//            @PathParam("attribute") String attribute,
+//            @DefaultValue("nameless.file") @PathParam("filename") String filename,
+//            @DefaultValue("latest") @PathParam("timestamp") String timestamp,
+//            //            @DefaultValue("file.file") @QueryParam("filename") String filename,
+//            InputStream payload
+//    ) throws JEVisException {
+//
+//        SQLDataSource ds = null;
+//        try {
+//            ds = new SQLDataSource(httpHeaders, request, url);
+//
+//            JsonObject obj = ds.getObject(id);
+//            if (obj == null) {
+//                return Response.status(Status.NOT_FOUND)
+//                        .entity("Object is not accessable").build();
+//            }
+//
+//            ds.getUserManager().canWrite(obj);//thows exception
+//
+//            DateTime ts = fmt.parseDateTime(timestamp).withZone(DateTimeZone.UTC);
+//
+//            //TODO: check size an type
+//            byte[] bytes = IOUtils.toByteArray(payload);
+//
+//            JEVisFile file = new JEVisFileImp(filename, bytes);
+//            if (ds.setFile(id, attribute, ts, file)) {
+//                return Response.ok().build();
+//            } else {
+//                return Response.notModified().build();
+//            }
+//
+//        } catch (AuthenticationException ex) {
+//            logger.error("Auth errror: {}", ex);
+//            return Response.status(Response.Status.UNAUTHORIZED).build();
+////            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+//
+//        } catch (Exception jex) {
+//            logger.catching(jex);
+//            return Response.serverError().build();
+//        } finally {
+//            Config.CloseDS(ds);
+//        }
+//
+//    }
+
     @POST
-    @Logged
-    @Path("/files/{timestamp}")
-    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    public Response postSampleFiles(
+    @Path("/files/{timestamp}")  //Your Path or URL to call this service
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadFile(
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url,
             @PathParam("id") long id,
             @PathParam("attribute") String attribute,
-            @DefaultValue("nameless.file") @PathParam("filename") String filename,
-            @DefaultValue("latest") @PathParam("timestamp") String timestamp,
-            //            @DefaultValue("file.file") @QueryParam("filename") String filename,
-            InputStream payload
-    ) throws JEVisException {
+            @DefaultValue("true") @FormDataParam("enabled") boolean enabled,
+            @FormDataParam("file") InputStream uploadedInputStream,
+            @FormDataParam("file") FormDataContentDisposition fileDetail,
+            @PathParam("timestamp") String timestamp) throws JEVisException {
 
         SQLDataSource ds = null;
         try {
@@ -187,33 +224,66 @@ public class ResourceSample {
             JsonObject obj = ds.getObject(id);
             if (obj == null) {
                 return Response.status(Status.NOT_FOUND)
-                        .entity("Object is not accessable").build();
+                        .entity("Object is not accessible").build();
             }
 
-            ds.getUserManager().canWrite(obj);//thows exception
+            JsonAttribute att = ds.getAttribute(obj.getId(), attribute);
 
-            DateTime ts = fmt.parseDateTime(timestamp).withZone(DateTimeZone.UTC);
-           
-            //TODO: check size an type
-            byte[] bytes = IOUtils.toByteArray(payload);
-            
-            JEVisFile file = new JEVisFileImp(filename, bytes);
-            if (ds.setFile(id, attribute, ts, file)) {
-                return Response.ok().build();
-            } else {
-                return Response.notModified().build();
+            ds.getUserManager().canWrite(obj);//can throw exception
+
+            //Your local disk path where you want to store the file
+            String uploadedFileLocation = createFilePattern(id, fileDetail.getFileName(), fmt.parseDateTime(timestamp));
+            System.out.println("upload to: " + uploadedFileLocation);
+
+            File objFile = new File(uploadedFileLocation);
+            if (objFile.exists()) {
+                objFile.delete();
             }
 
+            saveToFile(uploadedInputStream, uploadedFileLocation);
+
+            JsonSample sample = new JsonSample();
+            sample.setTs(JsonFactory.sampleDTF.print(fmt.parseDateTime(timestamp)));
+            sample.setValue(fileDetail.getFileName());
+            sample.setNote("Uploaded by " + ds.getCurrentUser().getAccountName());
+
+            List<JsonSample> samples = new ArrayList<>();
+            samples.add(sample);
+
+            JsonType type = ds.getType(obj.getJevisClass(), att.getType());
+            int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+
+            String output = "File uploaded via Jersey based RESTFul Webservice to: " + uploadedFileLocation;
+
+            return Response.status(200).entity(output).build();
         } catch (AuthenticationException ex) {
             logger.error("Auth errror: {}", ex);
             return Response.status(Response.Status.UNAUTHORIZED).build();
-//            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
-
         } catch (Exception jex) {
             logger.catching(jex);
             return Response.serverError().build();
         } finally {
             Config.CloseDS(ds);
+        }
+
+    }
+
+    private void saveToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
+
+        try {
+            OutputStream out = null;
+            int read = 0;
+            byte[] bytes = new byte[1024];
+
+            out = new FileOutputStream(new File(uploadedFileLocation));
+            while ((read = uploadedInputStream.read(bytes)) != -1) {
+                out.write(bytes, 0, read);
+            }
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+
+            e.printStackTrace();
         }
 
     }
@@ -238,7 +308,7 @@ public class ResourceSample {
             JsonObject obj = ds.getObject(id);
             if (obj == null || !ds.getUserManager().canRead(obj)) {
                 return Response.status(Status.NOT_FOUND)
-                        .entity("Object is not accessable").build();
+                        .entity("Object is not accessible").build();
             }
 
             DateTime ts = null;
@@ -246,16 +316,28 @@ public class ResourceSample {
                 ts = fmt.parseDateTime(timestamp).withZone(DateTimeZone.UTC);
             }
 
-            JEVisFile file = ds.getFile(id, attribute, ts);
+            List<JsonSample> samples = ds.getSamples(id, attribute, ts, ts, 1);
 
-            if (file == null) {
-                return Response.status(Status.NOT_FOUND).build();
+
+            if (!samples.isEmpty()) {
+                JsonSample sample = samples.get(0);
+                DateTime dbTS = JsonFactory.sampleDTF.parseDateTime(samples.get(0).getTs());
+
+                //Pattern  /path/to/filedir/yyyyMMdd/ID_HHmmss_filename
+                String fileName = createFilePattern(id, sample.getValue(), dbTS);
+                File file = new File(fileName);
+                if (file.exists() && file.canRead()) {
+                    ResponseBuilder response = Response.ok(file, MediaType.APPLICATION_OCTET_STREAM);
+                    response.header("Content-Disposition",
+                            "attachment; filename=\"" + sample.getValue() + "\"");
+                    return response.build();
+                } else {
+                    Response.status(Status.INTERNAL_SERVER_ERROR).build();
+                }
             }
 
-            ResponseBuilder response = Response.ok(file.getBytes(), MediaType.APPLICATION_OCTET_STREAM);
-            response.header("Content-Disposition",
-                    "attachment; filename=\"" + file.getFilename() + "\"");
-            return response.build();
+            return Response.status(Status.NOT_FOUND).build();
+
 
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -266,6 +348,15 @@ public class ResourceSample {
             Config.CloseDS(ds);
         }
 
+    }
+
+    private String createFilePattern(long id, String fileName, DateTime dateTime) {
+        String absolutFileName = Config.getFileDir().getAbsolutePath()
+                + File.pathSeparator + ISODateTimeFormat.basicDate().print(dateTime)
+                + File.pathSeparator + id
+                + "_" + DateTimeFormat.forPattern("HHmmss").withZoneUTC().print(dateTime)
+                + "_" + fileName;
+        return absolutFileName;
     }
 
     /**
