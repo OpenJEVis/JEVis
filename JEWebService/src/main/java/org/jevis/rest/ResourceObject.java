@@ -205,24 +205,19 @@ public class ResourceObject {
 
         SQLDataSource ds = null;
         try {
-            System.out.println("1: " + object);
             ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("ObjectResource", "postObject");
 
             JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
-            System.out.println("json.class: " + json.getJevisClass());
             if (ds.getJEVisClass(json.getJevisClass()) == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("JEVisClass not found").build();
             }
 
-            System.out.println("2");
             JsonObject paretOb = ds.getObject(json.getParent());
             if (paretOb != null && ds.getUserManager().canCreate(paretOb)) {
 
-                System.out.println("3");
                 JsonObject newObj = ds.buildObject(json, paretOb.getId());
 
-                System.out.println("4");
                 return Response.ok(newObj).build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).entity("Parent not found").build();

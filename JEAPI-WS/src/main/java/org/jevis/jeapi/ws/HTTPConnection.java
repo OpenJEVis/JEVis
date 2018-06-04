@@ -1,48 +1,24 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeapi.ws;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-import javax.imageio.ImageIO;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
@@ -51,12 +27,25 @@ import org.jevis.api.JEVisException;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import javax.imageio.ImageIO;
+import javax.net.ssl.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+
 /**
  * Helper class to build HTTP connections to the JEWebservice.
  *
+ * @author fs
  * @TODO there is to much duplicate code here. There is much to improve.
  * @TODO the error handling is bad
- * @author fs
  */
 public class HTTPConnection {
 
@@ -306,12 +295,12 @@ public class HTTPConnection {
     }
 
     /**
-     * @TODO this is not a generic post Connection like the name implies
      * @param resource
      * @return
      * @throws MalformedURLException
      * @throws ProtocolException
      * @throws IOException
+     * @TODO this is not a generic post Connection like the name implies
      */
     public HttpURLConnection getPostFileConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
         Date start = new Date();
@@ -340,13 +329,14 @@ public class HTTPConnection {
 
     }
 
+
     /**
-     * @TODO this is not a generic post Connection like the name implies
      * @param resource
      * @return
      * @throws MalformedURLException
      * @throws ProtocolException
      * @throws IOException
+     * @TODO this is not a generic post Connection like the name implies
      */
     public HttpURLConnection getPostIconConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
         Date start = new Date();
@@ -418,25 +408,26 @@ public class HTTPConnection {
     }
 
     /**
-     * Its not save to trust all ssl certificats. Better use trusted keys but for now its better than simple http 
+     * Its not save to trust all ssl certificats. Better use trusted keys but for now its better than simple http
      */
     public static void trustAllCertificates() {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() {
-                        X509Certificate[] myTrustedAnchors = new X509Certificate[0];
-                        return myTrustedAnchors;
-                    }
+                    new X509TrustManager() {
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            X509Certificate[] myTrustedAnchors = new X509Certificate[0];
+                            return myTrustedAnchors;
+                        }
 
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        }
 
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
                     }
-                }
             };
 
             SSLContext sc = SSLContext.getInstance("SSL");

@@ -1,25 +1,24 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import java.io.File;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
@@ -28,6 +27,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -40,7 +40,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ProgressForm;
-import static org.jevis.application.jevistree.TreeHelper.LOGGER;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
@@ -48,8 +47,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.io.File;
+
 /**
- *
  * @author fs
  */
 public class FileEdior implements AttributeEditor {
@@ -62,7 +62,7 @@ public class FileEdior implements AttributeEditor {
     private boolean _readOnly = true;
     //Enable the automatic download of the smaple fo rthe filename
     //This function is suboptial and gives a abd user experience.
-    private boolean _autoDownload = false;
+    private boolean _autoDownload = true;
 
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final Logger logger = LogManager.getLogger(FileEdior.class);
@@ -116,8 +116,8 @@ public class FileEdior implements AttributeEditor {
             JEVisSample lsample = _attribute.getLatestSample();
             if (lsample != null) {
                 if (_autoDownload) {
-                    JEVisFile lasTFile = lsample.getValueAsFile();
-                    _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button", lsample.getValueAsString()));
+//                    JEVisFile lasTFile = lsample.getValueAsFile();
+                    _downloadButton.setText(lsample.getValueAsString());
                 } else {
                     _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button_emty"));
                 }
@@ -134,11 +134,13 @@ public class FileEdior implements AttributeEditor {
 
         box.getChildren().setAll(_uploadButton, _downloadButton, rightSpacer);
 
+
         _uploadButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent t) {
                 FileChooser fileChooser = new FileChooser();
+                fileChooser.setInitialDirectory(JEConfig.getLastPath());
                 fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.upload"));
                 fileChooser.getExtensionFilters().addAll(
                         //                            new ExtensionFilter("Text Files", "*.txt"),
@@ -148,16 +150,18 @@ public class FileEdior implements AttributeEditor {
                 File selectedFile = fileChooser.showOpenDialog(JEConfig.getStage());
                 if (selectedFile != null) {
                     try {
+                        JEConfig.setLastPath(selectedFile);
                         logger.debug("add new file: {}", selectedFile);
                         JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
                         JEVisSample sample = _attribute.buildSample(new DateTime(), jfile);
-                        sample.commit();//Workaround, normaly the user need to press save
+                        sample.commit();//Workaround, normally the user need to press save
 
                         try {
                             if (_attribute.hasSample()) {
                                 if (_autoDownload) {
-                                    JEVisFile lasTFile = _attribute.getLatestSample().getValueAsFile();
-                                    _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button", lasTFile.getFilename()));
+//                                    JEVisFile lasTFile = _attribute.getLatestSample().getValueAsFile();
+                                    _downloadButton.setText(selectedFile.getName());
+                                    _downloadButton.setTooltip(new Tooltip("TS: " + sample.getTimestamp()));
                                 } else {
                                     _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button_emty"));
                                 }
@@ -199,6 +203,7 @@ public class FileEdior implements AttributeEditor {
                             new ExtensionFilter("All Files", "*.*"));
                     File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
                     if (selectedFile != null) {
+                        JEConfig.setLastPath(selectedFile);
                         file.saveToFile(selectedFile);
                     }
                 } catch (Exception ex) {
@@ -215,6 +220,7 @@ public class FileEdior implements AttributeEditor {
     public JEVisAttribute getAttribute() {
         return _attribute;
     }
+
     private void loadWithAnimation() {
         final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.attribute.file.progress"));
 
@@ -252,6 +258,6 @@ public class FileEdior implements AttributeEditor {
 
         new Thread(upload).start();
     }
-    
+
 
 }

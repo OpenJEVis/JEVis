@@ -93,7 +93,6 @@ public class SampleTable {
         String sql = "INSERT IGNORE into " + TABLE
                 + "(" + COLUMN_OBJECT + "," + COLUMN_ATTRIBUTE + "," + COLUMN_TIMESTAMP
                 + "," + COLUMN_VALUE + "," + COLUMN_MANID + "," + COLUMN_NOTE + "," + COLUMN_INSERT_TIMESTAMP
-                + "," + COLUMN_FILE_NAME + "," + COLUMN_FILE
                 + ") VALUES";
 
 //        System.out.println("SQL raw: "+sql);
@@ -105,7 +104,7 @@ public class SampleTable {
             StringBuilder build = new StringBuilder(sql);
 
             for (int i = 0; i < samples.size(); i++) {
-                build.append("(?,?,?,?,?,?,?,?,?)");
+                build.append("(?,?,?,?,?,?,?)");
                 if (i < samples.size() - 1) {
                     build.append(", ");
                 } else {
@@ -116,17 +115,11 @@ public class SampleTable {
             String sqlWithUpdate = build.toString();
             sqlWithUpdate = sqlWithUpdate += " ON DUPLICATE KEY UPDATE "
                     + COLUMN_VALUE + "=VALUES(" + COLUMN_VALUE + "), "
-                    + COLUMN_FILE_NAME + "=VALUES(" + COLUMN_FILE_NAME + "), "
                     + COLUMN_NOTE + "=VALUES(" + COLUMN_NOTE + "), "
-                    + COLUMN_FILE + "=VALUES(" + COLUMN_FILE + "), "
-                    + COLUMN_MANID + "=VALUES(" + COLUMN_MANID + "), "
-                    + COLUMN_FILE_NAME + "=VALUES(" + COLUMN_FILE_NAME + "),"
-                    + COLUMN_FILE + "=VALUES(" + COLUMN_FILE + ")";
+                    + COLUMN_MANID + "=VALUES(" + COLUMN_MANID + ") ";
 
             ps = _connection.getConnection().prepareStatement(sqlWithUpdate);
 
-//            ps = _connection.prepareStatement(build.toString());
-//            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));//care tor TZ?
             Calendar cal = Calendar.getInstance();//care tor TZ?
             long now = cal.getTimeInMillis();
 
@@ -143,9 +136,9 @@ public class SampleTable {
                         //Passwords will be stored as Saled Hash
                         ps.setString(++p, PasswordHash.createHash(sample.getValue().toString()));
                         break;
-                    case JEVisConstants.PrimitiveType.FILE:
-                        ps.setNull(++p, Types.VARCHAR);
-                        break;
+//                    case JEVisConstants.PrimitiveType.FILE:
+//                        ps.setNull(++p, Types.VARCHAR);
+//                        break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
                         ps.setBoolean(++p, Boolean.valueOf(sample.getValue()));
                         break;
@@ -165,16 +158,16 @@ public class SampleTable {
                 ps.setString(++p, sample.getNote());
                 ps.setTimestamp(++p, new Timestamp(now));
 
-                if (priType == JEVisConstants.PrimitiveType.FILE) {
-                    //TODO nedd extra function
-//                    ps.setString(++p, sample.getValueAsFile().getFilename());
-
-//                    ByteArrayInputStream bis = new ByteArrayInputStream(sample.getValueAsFile().getBytes());
-//                    ps.setBlob(++p, bis);
-                } else {
-                    ps.setNull(++p, Types.BLOB);
-                    ps.setNull(++p, Types.VARCHAR);
-                }
+//                if (priType == JEVisConstants.PrimitiveType.FILE) {
+//                    //TODO nedd extra function
+////                    ps.setString(++p, sample.getValueAsFile().getFilename());
+//
+////                    ByteArrayInputStream bis = new ByteArrayInputStream(sample.getValueAsFile().getBytes());
+////                    ps.setBlob(++p, bis);
+//                } else {
+//                    ps.setNull(++p, Types.BLOB);
+//                    ps.setNull(++p, Types.VARCHAR);
+//                }
             }
 //            System.out.println("SamplDB.putSample SQL: \n" + ps);
             logger.trace("SQL: {}", ps);

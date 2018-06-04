@@ -94,8 +94,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public int addSamples(List<JEVisSample> samples) throws JEVisException {
-        System.out.println("AddSaples: " + samples);
-        System.out.println("First: " + samples.get(0).getValueAsString());
         List<JsonSample> jsonSamples = new ArrayList<>();
 
         int primType = getPrimitiveType();
@@ -107,6 +105,9 @@ public class JEVisAttributeWS implements JEVisAttribute {
                     jsonSamples.add(jsonSample);
                 }
 
+
+                //JEWebService/v1/files/8598/attributes/File/samples/files/20180604T141441?filename=nb-configuration.xml
+                //JEWebService/v1/objects/{id}/attributes/{attribute}/samples
                 String resource = REQUEST.API_PATH_V1
                         + REQUEST.OBJECTS.PATH
                         + getObjectID() + "/"
@@ -117,14 +118,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
                 String requestjson = new Gson().toJson(jsonSamples, new TypeToken<List<JsonSample>>() {
                 }.getType());
                 logger.debug("Playload. {}", requestjson);
-                System.out.println("ds.http: " + resource);
-                System.out.println("Payload: " + requestjson);
                 StringBuffer response = ds.getHTTPConnection().postRequest(resource, requestjson);
 
                 logger.trace("Response.payload: {}", response);
 
             } catch (Exception ex) {
-                System.out.println("lll");
                 logger.catching(ex);
             }
 
@@ -143,8 +141,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
                             + "?" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.FILES.OPTIONS.FILENAME + s.getValueAsFile().getFilename();
 
                     HttpURLConnection connection = ds.getHTTPConnection().getPostFileConnection(resource);
-
-                    logger.trace("Upload file-------------: {}", s.getValueAsFile().getBytes().length);
+//                    logger.trace("Upload file-------------: {}", s.getValueAsFile().getBytes().length);
                     try (OutputStream os = connection.getOutputStream()) {
 
                         os.write(s.getValueAsFile().getBytes());
@@ -154,13 +151,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
                     int responseCode = connection.getResponseCode();
 
                 } catch (Exception ex) {
-                    System.out.println("oooo");
                     logger.catching(ex);
                 }
 
 //
         }
-        System.out.println("Return exit");
         return 1;
     }
 
