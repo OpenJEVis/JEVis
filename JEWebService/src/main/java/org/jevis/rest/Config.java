@@ -83,7 +83,7 @@ public class Config {
     }
 
     public static File getFileDir() {
-        return _fileDir.;
+        return _fileDir;
     }
 
     public static File getI18nDir() {
