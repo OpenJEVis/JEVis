@@ -1,0 +1,26 @@
+{
+  "name": "Audit Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Audit Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Audit Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "External Audit",
+      "end": "Audit Directory",
+      "type": 3
+    },
+    {
+      "start": "Internal Audit",
+      "end": "Audit Directory",
+      "type": 3
+    }
+  ]
+}

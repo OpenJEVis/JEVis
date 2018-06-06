@@ -1,0 +1,109 @@
+{
+  "name": "System",
+  "description": "JEVis Root Node whit system informations",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Administration Directory",
+      "end": "System",
+      "type": 3
+    },
+    {
+      "start": "Alarm Directory",
+      "end": "System",
+      "type": 3
+    },
+    {
+      "start": "Dashboard Directory",
+      "end": "System",
+      "type": 3
+    },
+    {
+      "start": "Document Directory",
+      "end": "System",
+      "type": 3
+    },
+    {
+      "start": "File Directory",
+      "end": "System",
+      "type": 3
+    },
+    {
+      "start": "Organization Directory",
+      "end": "System",
+      "type": 3
+    },
+    {
+      "start": "Report Directory",
+      "end": "System",
+      "type": 3
+    },
+    {
+      "start": "Service Directory",
+      "end": "System",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Domain Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "The fully qualified domain name (FQDN) for this JEVis server",
+      "inherited": false,
+      "jevisClass": "System"
+    },
+    {
+      "name": "Hostname",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Local hostname for this server.",
+      "inherited": false,
+      "jevisClass": "System"
+    },
+    {
+      "name": "Language",
+      "primitiveType": 0,
+      "guiType": "Language Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Default language for the JEVis system.",
+      "inherited": false,
+      "jevisClass": "System"
+    },
+    {
+      "name": "Local IP",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "The local IP address.",
+      "inherited": false,
+      "jevisClass": "System"
+    },
+    {
+      "name": "Public IP",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "The public IP address.",
+      "inherited": false,
+      "jevisClass": "System"
+    },
+    {
+      "name": "TimeZone",
+      "primitiveType": 0,
+      "guiType": "Time Zone",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "TimeZone in which the server is located",
+      "inherited": false,
+      "jevisClass": "System"
+    }
+  ]
+}

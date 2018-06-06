@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Group",
+  "names": {
+    "de": "Group",
+    "ru": "Group",
+    "en": "Group"
+  },
+  "descriptions": {
+    "de": "Group for user rights",
+    "ru": "Group for user rights",
+    "en": "Group for user rights"
+  },
+  "types": []
+}

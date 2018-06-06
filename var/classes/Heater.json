@@ -1,0 +1,132 @@
+{
+  "name": "Heater",
+  "description": "The class Heater contains data of the building equipment heating. Attributes of the class include a complete description of the specific energy data of the heating. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Heater",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Heater",
+      "end": "Floor",
+      "type": 3
+    },
+    {
+      "start": "Heater",
+      "end": "Heating Equipment Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Daily Operating Hours",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Domain",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Manufacturer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Measuring Point",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Nominal Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Standby Consumption",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Weighting Factor",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Work Weeks",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Working Days",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Heater"
+    },
+    {
+      "name": "Year of Construction",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Heater"
+    }
+  ]
+}

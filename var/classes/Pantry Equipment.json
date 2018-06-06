@@ -1,0 +1,154 @@
+{
+  "name": "Pantry Equipment",
+  "description": "The class Pantry Equipment contains data of the building equipment for the pantry. Attributes of the class include a complete description of the specific energy data of the pantry equipment. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Pantry Equipment",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Pantry Equipment",
+      "end": "Pantry Equipment Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Daily Operating Hours",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Manufacturer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Measurement Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Measuring Point",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Measurment Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Nominal Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Number",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Remark",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Standby Consumption",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Type or Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Weighting Factor",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Work Weeks",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pantry Equipment"
+    },
+    {
+      "name": "Working Days",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pantry Equipment"
+    }
+  ]
+}

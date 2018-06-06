@@ -1,0 +1,21 @@
+{
+  "name": "Enum Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Enum",
+      "end": "Enum Directory",
+      "type": 3
+    },
+    {
+      "start": "Enum Directory",
+      "end": "Administration Directory",
+      "type": 3
+    },
+    {
+      "start": "Enum Directory",
+      "end": "Directory",
+      "type": 0
+    }
+  ]
+}

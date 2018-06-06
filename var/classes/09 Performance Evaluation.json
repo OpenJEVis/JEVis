@@ -1,0 +1,112 @@
+{
+  "name": "09 Performance Evaluation",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "09 Performance Evaluation",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "09 Performance Evaluation",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "9.1 Monitoring, Measurement, Analysis and Evaluation for Energy Performance and the EnMS",
+      "end": "09 Performance Evaluation",
+      "type": 0
+    },
+    {
+      "start": "9.1 Monitoring, Measurement, Analysis and Evaluation for Energy Performance and the EnMS",
+      "end": "09 Performance Evaluation",
+      "type": 3
+    },
+    {
+      "start": "9.2 Evaluation of Compliance with Legal and other Requirements",
+      "end": "09 Performance Evaluation",
+      "type": 0
+    },
+    {
+      "start": "9.2 Evaluation of Compliance with Legal and other Requirements",
+      "end": "09 Performance Evaluation",
+      "type": 3
+    },
+    {
+      "start": "9.3 Internal EnMS Audit",
+      "end": "09 Performance Evaluation",
+      "type": 0
+    },
+    {
+      "start": "9.3 Internal EnMS Audit",
+      "end": "09 Performance Evaluation",
+      "type": 3
+    },
+    {
+      "start": "9.4 Management Review",
+      "end": "09 Performance Evaluation",
+      "type": 0
+    },
+    {
+      "start": "9.4 Management Review",
+      "end": "09 Performance Evaluation",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "09 Performance Evaluation"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "09 Performance Evaluation"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "09 Performance Evaluation"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "09 Performance Evaluation"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "09 Performance Evaluation"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "09 Performance Evaluation"
+    }
+  ]
+}

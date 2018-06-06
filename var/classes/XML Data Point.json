@@ -1,0 +1,43 @@
+{
+  "name": "XML Data Point",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "XML Data Point",
+      "end": "Data Point",
+      "type": 0
+    },
+    {
+      "start": "XML Data Point",
+      "end": "XML Data Point Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Mapping Identifier",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Data Point"
+    },
+    {
+      "name": "Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Data Point"
+    },
+    {
+      "name": "Value Identifier",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Data Point"
+    }
+  ]
+}

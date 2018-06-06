@@ -1,0 +1,41 @@
+{
+  "jevisclass": "FTP Channel",
+  "names": {
+    "de": "FTP Channel",
+    "ru": "FTP Channel",
+    "en": "FTP Channel"
+  },
+  "descriptions": {
+    "de": "The class FTP Channel ",
+    "ru": "The class FTP Channel ",
+    "en": "The class FTP Channel "
+  },
+  "types": [
+    {
+      "type": "Last Readout",
+      "descriptions": {
+        "de": "Last Readout desctiption",
+        "ru": "Last Readout desctiption",
+        "en": "Last Readout desctiption"
+      },
+      "names": {
+        "de": "Last Readout",
+        "ru": "Last Readout",
+        "en": "Last Readout"
+      }
+    },
+    {
+      "type": "Path",
+      "descriptions": {
+        "de": "Path desctiption",
+        "ru": "Path desctiption",
+        "en": "Path desctiption"
+      },
+      "names": {
+        "de": "Path",
+        "ru": "Path",
+        "en": "Path"
+      }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "name": "Static Limit Alarm",
+  "description": "The class Static Limit Alarm contains data of elements of an alarm with a static limit.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "E-Mail Notification",
+      "end": "Static Limit Alarm",
+      "type": 3
+    },
+    {
+      "start": "Static Limit Alarm",
+      "end": "Alarm",
+      "type": 0
+    },
+    {
+      "start": "Static Limit Alarm",
+      "end": "Data",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Alarm Log",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Static Limit Alarm"
+    },
+    {
+      "name": "Enable",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Static Limit Alarm"
+    },
+    {
+      "name": "Limit",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Static Limit Alarm"
+    },
+    {
+      "name": "Operator",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Static Limit Alarm"
+    },
+    {
+      "name": "Status",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Static Limit Alarm"
+    }
+  ]
+}

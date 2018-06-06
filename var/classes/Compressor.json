@@ -1,0 +1,159 @@
+{
+  "name": "Compressor",
+  "description": "The class Compressor contains data of the building equipment compressor. Attributes of the class include a complete description of the specific energy data of the compressor.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Compressor",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Compressor",
+      "end": "Compressor Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Compressor",
+      "end": "Floor",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Daily Operating Hours",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Flow",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Fuel",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Full Load Speed",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Manufacturer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Measuring Point",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Nominal Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Normal Operating Preasure",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Power at Full Load",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Standby Consumption",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Weighting Factor",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Work Weeks",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Compressor"
+    },
+    {
+      "name": "Working Days",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Compressor"
+    }
+  ]
+}

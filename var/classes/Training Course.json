@@ -1,0 +1,99 @@
+{
+  "name": "Training Course",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Training Course",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "Training Course",
+      "end": "Training Course Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Training Course"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Training Course"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Training Course"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Training Course"
+    },
+    {
+      "name": "Presentation File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Training Course"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Training Course"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Training Course"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Training Course"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Training Course"
+    }
+  ]
+}

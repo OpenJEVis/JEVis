@@ -1,0 +1,90 @@
+{
+  "name": "9.4 Management Review",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "9.4 Management Review",
+      "end": "09 Performance Evaluation",
+      "type": 0
+    },
+    {
+      "start": "9.4 Management Review",
+      "end": "09 Performance Evaluation",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "9.4 Management Review"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "9.4 Management Review"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "9.4 Management Review"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "9.4 Management Review"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "9.4 Management Review"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "9.4 Management Review"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "9.4 Management Review"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "9.4 Management Review"
+    }
+  ]
+}

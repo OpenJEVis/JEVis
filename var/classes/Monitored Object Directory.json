@@ -1,0 +1,42 @@
+{
+  "name": "Monitored Object Directory",
+  "description": "The class Monitored Object Directory represents a specific directory for the management of monitored objects.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Building",
+      "end": "Monitored Object Directory",
+      "type": 3
+    },
+    {
+      "start": "Monitored Object",
+      "end": "Monitored Object Directory",
+      "type": 3
+    },
+    {
+      "start": "Monitored Object Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Monitored Object Directory",
+      "end": "Monitored Object Directory",
+      "type": 3
+    },
+    {
+      "start": "Monitored Object Directory",
+      "end": "Monitored Object Directory",
+      "type": 3
+    },
+    {
+      "start": "Monitored Object Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "View Directory",
+      "end": "Monitored Object Directory",
+      "type": 3
+    }
+  ]
+}

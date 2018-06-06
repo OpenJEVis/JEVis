@@ -1,0 +1,59 @@
+{
+  "name": "VIDA350 Channel",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Parser",
+      "end": "VIDA350 Channel",
+      "type": 3
+    },
+    {
+      "start": "VIDA350 Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "VIDA350 Channel",
+      "end": "VIDA350 Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "VIDA350 Channel",
+      "type": 3
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "VIDA350 Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Index",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VIDA350 Channel"
+    },
+    {
+      "name": "Last Readout",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "VIDA350 Channel"
+    },
+    {
+      "name": "Target",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VIDA350 Channel"
+    }
+  ]
+}

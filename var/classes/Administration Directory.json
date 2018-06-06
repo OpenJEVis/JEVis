@@ -1,0 +1,37 @@
+{
+  "name": "Administration Directory",
+  "description": "The class Administration Directory represents a specific directory for the management of administrative data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Administration Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Administration Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Administration Directory",
+      "end": "System",
+      "type": 3
+    },
+    {
+      "start": "Enum Directory",
+      "end": "Administration Directory",
+      "type": 3
+    },
+    {
+      "start": "Group Directory",
+      "end": "Administration Directory",
+      "type": 3
+    },
+    {
+      "start": "User Directory",
+      "end": "Administration Directory",
+      "type": 3
+    }
+  ]
+}

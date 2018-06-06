@@ -1,0 +1,42 @@
+{
+  "name": "File Directory",
+  "description": "The class File Directory represents a specific directory for the management of files.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Document Directory",
+      "end": "File Directory",
+      "type": 0
+    },
+    {
+      "start": "File",
+      "end": "File Directory",
+      "type": 3
+    },
+    {
+      "start": "File Directory",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "File Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "File Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "File Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "File Directory",
+      "end": "System",
+      "type": 3
+    }
+  ]
+}

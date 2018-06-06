@@ -1,0 +1,91 @@
+{
+  "name": "8.3 Procurement",
+  "description": "The organization shall establish and implement criteria for evaluating energy performance over the planned or expected operating lifetime when procuring energy using products, equipment and services which are expected to have a significant impact on the organization\u0027s energy performance. \n \nWhen procuring products, equipment, and services that have, or can have, an impact on SEUs, the organization shall inform suppliers that energy performance is one of the evaluation criteria for procurement. \nThe organization shall define and communicate specifications for: \na) ensuring the energy performance of procured equipment and services, where applicable;  b) the purchase of energy, if applicable. ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "8.3 Procurement",
+      "end": "08 Operation",
+      "type": 0
+    },
+    {
+      "start": "8.3 Procurement",
+      "end": "08 Operation",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.3 Procurement"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.3 Procurement"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.3 Procurement"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.3 Procurement"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.3 Procurement"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.3 Procurement"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.3 Procurement"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.3 Procurement"
+    }
+  ]
+}

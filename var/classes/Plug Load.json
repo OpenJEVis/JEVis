@@ -1,0 +1,100 @@
+{
+  "name": "Plug Load",
+  "description": "The class Plug Load contains data of the building equipment plug load connected to the building floor. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Plug Load",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Plug Load",
+      "end": "Floor",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Daily Operating Hours",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Plug Load"
+    },
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Plug Load"
+    },
+    {
+      "name": "Manufacturer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Plug Load"
+    },
+    {
+      "name": "Measuring Point",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Plug Load"
+    },
+    {
+      "name": "Nominal Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Plug Load"
+    },
+    {
+      "name": "Plug Load",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Plug Load"
+    },
+    {
+      "name": "Weighting Factor",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Plug Load"
+    },
+    {
+      "name": "Work Weeks",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Plug Load"
+    },
+    {
+      "name": "Working Days",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Plug Load"
+    }
+  ]
+}

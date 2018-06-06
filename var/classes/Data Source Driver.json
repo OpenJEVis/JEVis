@@ -1,0 +1,52 @@
+{
+  "name": "Data Source Driver",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Data Source Driver",
+      "end": "Data Source Driver Directory",
+      "type": 3
+    },
+    {
+      "start": "Data Source Driver",
+      "end": "Driver",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Data Source Driver"
+    },
+    {
+      "name": "JEVis Class",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Data Source Driver"
+    },
+    {
+      "name": "Main Class",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Data Source Driver"
+    },
+    {
+      "name": "Source File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Data Source Driver"
+    }
+  ]
+}

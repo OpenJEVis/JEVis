@@ -1,0 +1,63 @@
+{
+  "jevisclass": "Station",
+  "names": {
+    "de": "Station",
+    "ru": "Station",
+    "en": "Station"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Device ID",
+      "descriptions": {
+        "de": "Device ID desctiption",
+        "ru": "Device ID desctiption",
+        "en": "Device ID desctiption"
+      },
+      "names": {
+        "de": "Device ID",
+        "ru": "Device ID",
+        "en": "Device ID"
+      }
+    },
+    {
+      "type": "IP Address",
+      "descriptions": {
+        "de": "IP Address desctiption",
+        "ru": "IP Address desctiption",
+        "en": "IP Address desctiption"
+      },
+      "names": {
+        "de": "IP Address",
+        "ru": "IP Address",
+        "en": "IP Address"
+      }
+    },
+    {
+      "type": "SubNet Mask",
+      "descriptions": {
+        "de": "SubNet Mask desctiption",
+        "ru": "SubNet Mask desctiption",
+        "en": "SubNet Mask desctiption"
+      },
+      "names": {
+        "de": "SubNet Mask",
+        "ru": "SubNet Mask",
+        "en": "SubNet Mask"
+      }
+    },
+    {
+      "type": "Type",
+      "descriptions": {
+        "de": "Type desctiption",
+        "ru": "Type desctiption",
+        "en": "Type desctiption"
+      },
+      "names": {
+        "de": "Type",
+        "ru": "Type",
+        "en": "Type"
+      }
+    }
+  ]
+}

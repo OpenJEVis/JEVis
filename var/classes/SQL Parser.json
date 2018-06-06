@@ -1,0 +1,31 @@
+{
+  "name": "SQL Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "SQL Parser",
+      "end": "EMail Channel",
+      "type": 3
+    },
+    {
+      "start": "SQL Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "SQL Parser",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "SQL Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "SQL Parser",
+      "end": "sFTP Channel",
+      "type": 3
+    }
+  ]
+}

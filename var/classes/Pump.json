@@ -1,0 +1,163 @@
+{
+  "name": "Pump",
+  "description": "The class Pump contains data of the building equipment pump. Attributes of the class include a complete description of the specific energy data of the pump. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Pump",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Pump",
+      "end": "Heating Equipment Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Daily Operating Hours",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Domain",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Frequency Converter or Stepped",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Manufacturer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Measuring Point",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Nominal Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Nominal Power Step 1",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Nominal Power Step 2",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Nominal Power Step 3",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Standby Consumption",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Weighting Factor",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Work Weeks",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Working Days",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Pump"
+    },
+    {
+      "name": "Year of Construction",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pump"
+    }
+  ]
+}

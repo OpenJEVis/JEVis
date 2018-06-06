@@ -1,0 +1,119 @@
+{
+  "name": "Audit Question",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Audit Question",
+      "end": "01 General",
+      "type": 3
+    },
+    {
+      "start": "Audit Question",
+      "end": "02 Plan",
+      "type": 3
+    },
+    {
+      "start": "Audit Question",
+      "end": "03 Do",
+      "type": 3
+    },
+    {
+      "start": "Audit Question",
+      "end": "04 Check",
+      "type": 3
+    },
+    {
+      "start": "Audit Question",
+      "end": "05 Act",
+      "type": 3
+    },
+    {
+      "start": "Audit Question",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Audit Observation",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Audit Question"
+    },
+    {
+      "name": "Evaluation 000 points",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Audit Question"
+    },
+    {
+      "name": "Evaluation 025 points",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Audit Question"
+    },
+    {
+      "name": "Evaluation 050 points",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Audit Question"
+    },
+    {
+      "name": "Evaluation 075 points",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Audit Question"
+    },
+    {
+      "name": "Evaluation 100 points",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Audit Question"
+    },
+    {
+      "name": "Norm Chapter",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Audit Question"
+    },
+    {
+      "name": "Proposed Measures",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Audit Question"
+    },
+    {
+      "name": "Question",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Audit Question"
+    }
+  ]
+}

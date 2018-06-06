@@ -1,0 +1,91 @@
+{
+  "name": "5.3 Organization Roles, Responsibilities and Authorities",
+  "description": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "5.3 Organization Roles, Responsibilities and Authorities",
+      "end": "05 Leadership",
+      "type": 0
+    },
+    {
+      "start": "5.3 Organization Roles, Responsibilities and Authorities",
+      "end": "05 Leadership",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "5.3 Organization Roles, Responsibilities and Authorities"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "5.3 Organization Roles, Responsibilities and Authorities"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "5.3 Organization Roles, Responsibilities and Authorities"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "5.3 Organization Roles, Responsibilities and Authorities"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "5.3 Organization Roles, Responsibilities and Authorities"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "5.3 Organization Roles, Responsibilities and Authorities"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "5.3 Organization Roles, Responsibilities and Authorities"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "5.3 Organization Roles, Responsibilities and Authorities"
+    }
+  ]
+}

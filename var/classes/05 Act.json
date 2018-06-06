@@ -1,0 +1,41 @@
+{
+  "name": "05 Act",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "05 Act",
+      "end": "Internal Audit",
+      "type": 0
+    },
+    {
+      "start": "05 Act",
+      "end": "Internal Audit",
+      "type": 3
+    },
+    {
+      "start": "Audit Question",
+      "end": "05 Act",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Audit Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "05 Act"
+    },
+    {
+      "name": "Auditor",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "05 Act"
+    }
+  ]
+}

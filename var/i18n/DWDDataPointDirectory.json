@@ -1,0 +1,14 @@
+{
+  "jevisclass": "DWD Data Point Directory",
+  "names": {
+    "de": "DWD Data Point Directory",
+    "ru": "DWD Data Point Directory",
+    "en": "DWD Data Point Directory"
+  },
+  "descriptions": {
+    "de": "The class DWD Data Point Directory represents a specific directory for the management of DWD data.\n",
+    "ru": "The class DWD Data Point Directory represents a specific directory for the management of DWD data.\n",
+    "en": "The class DWD Data Point Directory represents a specific directory for the management of DWD data.\n"
+  },
+  "types": []
+}

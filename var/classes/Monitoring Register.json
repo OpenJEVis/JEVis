@@ -1,0 +1,46 @@
+{
+  "name": "Monitoring Register",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Measuring Point Directory",
+      "end": "Monitoring Register",
+      "type": 0
+    },
+    {
+      "start": "Measuring Point Directory",
+      "end": "Monitoring Register",
+      "type": 3
+    },
+    {
+      "start": "Meter Directory",
+      "end": "Monitoring Register",
+      "type": 0
+    },
+    {
+      "start": "Meter Directory",
+      "end": "Monitoring Register",
+      "type": 3
+    },
+    {
+      "start": "Monitoring Register",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Monitoring Register",
+      "end": "Site",
+      "type": 3
+    },
+    {
+      "start": "Station Directory",
+      "end": "Monitoring Register",
+      "type": 0
+    },
+    {
+      "start": "Station Directory",
+      "end": "Monitoring Register",
+      "type": 3
+    }
+  ]
+}

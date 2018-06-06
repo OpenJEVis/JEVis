@@ -1,0 +1,91 @@
+{
+  "name": "4 Energy Management System",
+  "description": "The organization shall establish, implement, maintain and continually improve an the EnMS and its  energy performance an energy management system, including the processes needed and their  interactions, in accordance with the requirements of this document.    \nNOTE:  The processes required can differ from one organization to another due to:  ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "4 Energy Management System",
+      "end": "04 Context of the Organization",
+      "type": 0
+    },
+    {
+      "start": "4 Energy Management System",
+      "end": "04 Context of the Organization",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4 Energy Management System"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4 Energy Management System"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4 Energy Management System"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4 Energy Management System"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4 Energy Management System"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4 Energy Management System"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4 Energy Management System"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4 Energy Management System"
+    }
+  ]
+}

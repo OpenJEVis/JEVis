@@ -1,0 +1,18 @@
+{
+  "name": "Output",
+  "unique": false,
+  "relationships": [
+    
+  ],
+  "types": [
+    {
+      "name": "Output",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Output"
+    }
+  ]
+}

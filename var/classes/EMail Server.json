@@ -1,0 +1,99 @@
+{
+  "name": "EMail Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "EMail Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "IMAP EMail Server",
+      "end": "EMail Server",
+      "type": 0
+    },
+    {
+      "start": "POP3 EMail Server",
+      "end": "EMail Server",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "EMail Server"
+    },
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "EMail Server"
+    },
+    {
+      "name": "Host",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "EMail Server"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Server"
+    },
+    {
+      "name": "Port",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "EMail Server"
+    },
+    {
+      "name": "Read Timeout",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "EMail Server"
+    },
+    {
+      "name": "SSL",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Server"
+    },
+    {
+      "name": "Timezone",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "EMail Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Server"
+    }
+  ]
+}

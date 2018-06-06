@@ -1,0 +1,103 @@
+{
+  "name": "05 Leadership",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "05 Leadership",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "05 Leadership",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "5.1 Leadership and Commitment",
+      "end": "05 Leadership",
+      "type": 0
+    },
+    {
+      "start": "5.1 Leadership and Commitment",
+      "end": "05 Leadership",
+      "type": 3
+    },
+    {
+      "start": "5.2 Energy Policy",
+      "end": "05 Leadership",
+      "type": 0
+    },
+    {
+      "start": "5.2 Energy Policy",
+      "end": "05 Leadership",
+      "type": 3
+    },
+    {
+      "start": "5.3 Organization Roles, Responsibilities and Authorities",
+      "end": "05 Leadership",
+      "type": 0
+    },
+    {
+      "start": "5.3 Organization Roles, Responsibilities and Authorities",
+      "end": "05 Leadership",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "05 Leadership"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "05 Leadership"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "05 Leadership"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "05 Leadership"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "05 Leadership"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "05 Leadership"
+    }
+  ]
+}

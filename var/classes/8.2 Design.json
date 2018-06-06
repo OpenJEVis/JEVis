@@ -1,0 +1,91 @@
+{
+  "name": "8.2 Design",
+  "description": "The organization shall consider energy performance improvement opportunities and operational control in the design of new, modified and renovated facilities, equipment, systems and energy-using processes that can have a significant impact on its energy performance over the planned or expected operating lifetime.   \nWhere appropriate, the results of the energy performance evaluation shall be incorporated into the specification, design and procurement activities.  \nThe results of the design activities shall be retained as documented information (see 7.5).   ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "8.2 Design",
+      "end": "08 Operation",
+      "type": 0
+    },
+    {
+      "start": "8.2 Design",
+      "end": "08 Operation",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.2 Design"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.2 Design"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.2 Design"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.2 Design"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.2 Design"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.2 Design"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.2 Design"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "8.2 Design"
+    }
+  ]
+}

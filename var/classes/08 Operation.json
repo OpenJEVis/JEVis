@@ -1,0 +1,102 @@
+{
+  "name": "08 Operation",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "08 Operation",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "08 Operation",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "8.1 Operational Planning and Control",
+      "end": "08 Operation",
+      "type": 0
+    },
+    {
+      "start": "8.1 Operational Planning and Control",
+      "end": "08 Operation",
+      "type": 3
+    },
+    {
+      "start": "8.2 Design",
+      "end": "08 Operation",
+      "type": 0
+    },
+    {
+      "start": "8.2 Design",
+      "end": "08 Operation",
+      "type": 3
+    },
+    {
+      "start": "8.3 Procurement",
+      "end": "08 Operation",
+      "type": 0
+    },
+    {
+      "start": "8.3 Procurement",
+      "end": "08 Operation",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "08 Operation"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "08 Operation"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "08 Operation"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "08 Operation"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "08 Operation"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "08 Operation"
+    }
+  ]
+}

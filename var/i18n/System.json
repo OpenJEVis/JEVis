@@ -1,0 +1,93 @@
+{
+  "jevisclass": "System",
+  "names": {
+    "de": "System",
+    "ru": "System",
+    "en": "System"
+  },
+  "descriptions": {
+    "de": "JEVis Root Node whit system informations",
+    "ru": "JEVis Root Node whit system informations",
+    "en": "JEVis Root Node whit system informations"
+  },
+  "types": [
+    {
+      "type": "Domain Name",
+      "descriptions": {
+        "de": "Domain Name desctiption",
+        "ru": "Domain Name desctiption",
+        "en": "Domain Name desctiption"
+      },
+      "names": {
+        "de": "Domain Name",
+        "ru": "Domain Name",
+        "en": "Domain Name"
+      }
+    },
+    {
+      "type": "Hostname",
+      "descriptions": {
+        "de": "Hostname desctiption",
+        "ru": "Hostname desctiption",
+        "en": "Hostname desctiption"
+      },
+      "names": {
+        "de": "Hostname",
+        "ru": "Hostname",
+        "en": "Hostname"
+      }
+    },
+    {
+      "type": "Language",
+      "descriptions": {
+        "de": "Language desctiption",
+        "ru": "Language desctiption",
+        "en": "Language desctiption"
+      },
+      "names": {
+        "de": "Language",
+        "ru": "Language",
+        "en": "Language"
+      }
+    },
+    {
+      "type": "Local IP",
+      "descriptions": {
+        "de": "Local IP desctiption",
+        "ru": "Local IP desctiption",
+        "en": "Local IP desctiption"
+      },
+      "names": {
+        "de": "Local IP",
+        "ru": "Local IP",
+        "en": "Local IP"
+      }
+    },
+    {
+      "type": "Public IP",
+      "descriptions": {
+        "de": "Public IP desctiption",
+        "ru": "Public IP desctiption",
+        "en": "Public IP desctiption"
+      },
+      "names": {
+        "de": "Public IP",
+        "ru": "Public IP",
+        "en": "Public IP"
+      }
+    },
+    {
+      "type": "TimeZone",
+      "descriptions": {
+        "de": "TimeZone desctiption",
+        "ru": "TimeZone desctiption",
+        "en": "TimeZone desctiption"
+      },
+      "names": {
+        "de": "TimeZone",
+        "ru": "TimeZone",
+        "en": "TimeZone"
+      }
+    }
+  ]
+}

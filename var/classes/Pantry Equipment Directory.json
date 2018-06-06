@@ -1,0 +1,21 @@
+{
+  "name": "Pantry Equipment Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Pantry Equipment",
+      "end": "Pantry Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Pantry Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Pantry Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    }
+  ]
+}

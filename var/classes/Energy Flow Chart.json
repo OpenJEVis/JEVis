@@ -1,0 +1,45 @@
+{
+  "name": "Energy Flow Chart",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Flow Chart",
+      "end": "Energy Flow Chart Directory",
+      "type": 0
+    },
+    {
+      "start": "Energy Flow Chart",
+      "end": "Energy Flow Chart Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Created On",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Flow Chart"
+    },
+    {
+      "name": "Image File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Flow Chart"
+    },
+    {
+      "name": "Original File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Flow Chart"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "name": "Driver",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Converter Driver",
+      "end": "Driver",
+      "type": 0
+    },
+    {
+      "start": "Data Source Driver",
+      "end": "Driver",
+      "type": 0
+    },
+    {
+      "start": "Importer Driver",
+      "end": "Driver",
+      "type": 0
+    },
+    {
+      "start": "Parser Driver",
+      "end": "Driver",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Driver"
+    },
+    {
+      "name": "JEVis Class",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Driver"
+    },
+    {
+      "name": "Main Class",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Driver"
+    },
+    {
+      "name": "Source File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Driver"
+    }
+  ]
+}

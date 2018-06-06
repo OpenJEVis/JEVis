@@ -1,0 +1,141 @@
+{
+  "jevisclass": "Measuring Point",
+  "names": {
+    "de": "Measuring Point",
+    "ru": "Measuring Point",
+    "en": "Measuring Point"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Comment",
+      "descriptions": {
+        "de": "Comment desctiption",
+        "ru": "Comment desctiption",
+        "en": "Comment desctiption"
+      },
+      "names": {
+        "de": "Comment",
+        "ru": "Comment",
+        "en": "Comment"
+      }
+    },
+    {
+      "type": "Data Point Assignment",
+      "descriptions": {
+        "de": "Data Point Assignment desctiption",
+        "ru": "Data Point Assignment desctiption",
+        "en": "Data Point Assignment desctiption"
+      },
+      "names": {
+        "de": "Data Point Assignment",
+        "ru": "Data Point Assignment",
+        "en": "Data Point Assignment"
+      }
+    },
+    {
+      "type": "Installation Location",
+      "descriptions": {
+        "de": "Installation Location desctiption",
+        "ru": "Installation Location desctiption",
+        "en": "Installation Location desctiption"
+      },
+      "names": {
+        "de": "Installation Location",
+        "ru": "Installation Location",
+        "en": "Installation Location"
+      }
+    },
+    {
+      "type": "Meter",
+      "descriptions": {
+        "de": "Meter desctiption",
+        "ru": "Meter desctiption",
+        "en": "Meter desctiption"
+      },
+      "names": {
+        "de": "Meter",
+        "ru": "Meter",
+        "en": "Meter"
+      }
+    },
+    {
+      "type": "Monitoring ID",
+      "descriptions": {
+        "de": "Monitoring ID desctiption",
+        "ru": "Monitoring ID desctiption",
+        "en": "Monitoring ID desctiption"
+      },
+      "names": {
+        "de": "Monitoring ID",
+        "ru": "Monitoring ID",
+        "en": "Monitoring ID"
+      }
+    },
+    {
+      "type": "Name",
+      "descriptions": {
+        "de": "Name desctiption",
+        "ru": "Name desctiption",
+        "en": "Name desctiption"
+      },
+      "names": {
+        "de": "Name",
+        "ru": "Name",
+        "en": "Name"
+      }
+    },
+    {
+      "type": "Photo",
+      "descriptions": {
+        "de": "Photo desctiption",
+        "ru": "Photo desctiption",
+        "en": "Photo desctiption"
+      },
+      "names": {
+        "de": "Photo",
+        "ru": "Photo",
+        "en": "Photo"
+      }
+    },
+    {
+      "type": "Physical Property",
+      "descriptions": {
+        "de": "Physical Property desctiption",
+        "ru": "Physical Property desctiption",
+        "en": "Physical Property desctiption"
+      },
+      "names": {
+        "de": "Physical Property",
+        "ru": "Physical Property",
+        "en": "Physical Property"
+      }
+    },
+    {
+      "type": "Station",
+      "descriptions": {
+        "de": "Station desctiption",
+        "ru": "Station desctiption",
+        "en": "Station desctiption"
+      },
+      "names": {
+        "de": "Station",
+        "ru": "Station",
+        "en": "Station"
+      }
+    },
+    {
+      "type": "Unit",
+      "descriptions": {
+        "de": "Unit desctiption",
+        "ru": "Unit desctiption",
+        "en": "Unit desctiption"
+      },
+      "names": {
+        "de": "Unit",
+        "ru": "Unit",
+        "en": "Unit"
+      }
+    }
+  ]
+}

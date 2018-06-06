@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Service",
+  "names": {
+    "de": "Service",
+    "ru": "Service",
+    "en": "Service"
+  },
+  "descriptions": {
+    "de": "The class Service represents a JEVis back-end application which is registered at the JEVis system. A Service class provide all information for an application which interacts with the JEVis system. ",
+    "ru": "The class Service represents a JEVis back-end application which is registered at the JEVis system. A Service class provide all information for an application which interacts with the JEVis system. ",
+    "en": "The class Service represents a JEVis back-end application which is registered at the JEVis system. A Service class provide all information for an application which interacts with the JEVis system. "
+  },
+  "types": []
+}

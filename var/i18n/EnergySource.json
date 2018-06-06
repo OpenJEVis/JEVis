@@ -1,0 +1,24 @@
+{
+  "jevisclass": "Energy Source",
+  "names": {
+    "de": "Energy Source",
+    "ru": "Energy Source",
+    "en": "Energy Source"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "CO2 Emission Factor",
+      "descriptions": {
+        "de": "CO2 Emission Factor desctiption",
+        "ru": "CO2 Emission Factor desctiption",
+        "en": "CO2 Emission Factor desctiption"
+      },
+      "names": {
+        "de": "CO2 Emission Factor",
+        "ru": "CO2 Emission Factor",
+        "en": "CO2 Emission Factor"
+      }
+    }
+  ]
+}

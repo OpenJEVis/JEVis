@@ -1,0 +1,257 @@
+{
+  "name": "HVAC System Simplified",
+  "description": "The class HVAC System Simplified contains data of the building equipment HVAC. Attributes of the class include a complete description of the specific HVAC.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "HVAC System Simplified",
+      "end": "Building Equipment",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Cooling set point Period Spring",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Cooling set point Period Summer",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Cooling set point Period Winter",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Daily Operating Hours",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Dehumidification set point Period Spring",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Dehumidification set point Period Summer",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Dehumidification set point Period Winter",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "End Date Heating Period Spring",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "End Date Heating Period Winter",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Heat Recovery",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Heat Recovery Efficiency",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Heating Cooling",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Heating set point Period Spring",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Heating set point Period Summer",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Heating set point Period Winter",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Heating Temperature",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Humidification set point Period Spring",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Humidification set point Period Summer",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Humidification set point Period Winter",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Manufacturer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Measuring Point",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Nominal Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Start Date Heating Period Winter",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Weighting Factor",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Work Weeks",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "HVAC System Simplified"
+    },
+    {
+      "name": "Working Days",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "HVAC System Simplified"
+    }
+  ]
+}

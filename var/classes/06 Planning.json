@@ -1,0 +1,142 @@
+{
+  "name": "06 Planning",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "06 Planning",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "06 Planning",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "6.1 General",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.1 General",
+      "end": "06 Planning",
+      "type": 3
+    },
+    {
+      "start": "6.2 Actions to Address Risks and Opportunities",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.2 Actions to Address Risks and Opportunities",
+      "end": "06 Planning",
+      "type": 3
+    },
+    {
+      "start": "6.3 Energy Review",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.3 Energy Review",
+      "end": "06 Planning",
+      "type": 3
+    },
+    {
+      "start": "6.4 Energy Performance Indicators",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.4 Energy Performance Indicators",
+      "end": "06 Planning",
+      "type": 3
+    },
+    {
+      "start": "6.5 Energy Baseline",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.5 Energy Baseline",
+      "end": "06 Planning",
+      "type": 3
+    },
+    {
+      "start": "6.6 Objectives, Energy Targets and Planning to Achieve them",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.6 Objectives, Energy Targets and Planning to Achieve them",
+      "end": "06 Planning",
+      "type": 3
+    },
+    {
+      "start": "6.7 Planning for Energy Data Collection",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.7 Planning for Energy Data Collection",
+      "end": "06 Planning",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "06 Planning"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "06 Planning"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "06 Planning"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "06 Planning"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "06 Planning"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "06 Planning"
+    }
+  ]
+}

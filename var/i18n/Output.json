@@ -1,0 +1,24 @@
+{
+  "jevisclass": "Output",
+  "names": {
+    "de": "Output",
+    "ru": "Output",
+    "en": "Output"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Output",
+      "descriptions": {
+        "de": "Output desctiption",
+        "ru": "Output desctiption",
+        "en": "Output desctiption"
+      },
+      "names": {
+        "de": "Output",
+        "ru": "Output",
+        "en": "Output"
+      }
+    }
+  ]
+}

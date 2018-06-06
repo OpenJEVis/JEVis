@@ -1,0 +1,64 @@
+{
+  "name": "JEDataCollector",
+  "description": "JEDataCollector represents an automated data collecting service. JEDataCollector enables the JEVis system to read-out data from different types of data servers, for instance FTP and HTTP servers.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Converter Driver Directory",
+      "end": "JEDataCollector",
+      "type": 3
+    },
+    {
+      "start": "Data Source Driver Directory",
+      "end": "JEDataCollector",
+      "type": 3
+    },
+    {
+      "start": "Importer Driver Directory",
+      "end": "JEDataCollector",
+      "type": 3
+    },
+    {
+      "start": "JEDataCollector",
+      "end": "Service",
+      "type": 0
+    },
+    {
+      "start": "JEDataCollector",
+      "end": "Service Directory",
+      "type": 3
+    },
+    {
+      "start": "Parser Driver Directory",
+      "end": "JEDataCollector",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Data Source Timeout",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEDataCollector"
+    },
+    {
+      "name": "Enable",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEDataCollector"
+    },
+    {
+      "name": "Max Number Threads",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEDataCollector"
+    }
+  ]
+}

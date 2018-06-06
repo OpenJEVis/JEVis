@@ -1,0 +1,26 @@
+{
+  "name": "Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "DWD Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "SQL Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "XML Parser",
+      "end": "Parser",
+      "type": 0
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "jevisclass": "Constants",
+  "names": {
+    "de": "Constants",
+    "ru": "Constants",
+    "en": "Constants"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Attribute",
+      "descriptions": {
+        "de": "Attribute desctiption",
+        "ru": "Attribute desctiption",
+        "en": "Attribute desctiption"
+      },
+      "names": {
+        "de": "Attribute",
+        "ru": "Attribute",
+        "en": "Attribute"
+      }
+    },
+    {
+      "type": "Editable",
+      "descriptions": {
+        "de": "Editable desctiption",
+        "ru": "Editable desctiption",
+        "en": "Editable desctiption"
+      },
+      "names": {
+        "de": "Editable",
+        "ru": "Editable",
+        "en": "Editable"
+      }
+    },
+    {
+      "type": "Entries",
+      "descriptions": {
+        "de": "Entries desctiption",
+        "ru": "Entries desctiption",
+        "en": "Entries desctiption"
+      },
+      "names": {
+        "de": "Entries",
+        "ru": "Entries",
+        "en": "Entries"
+      }
+    }
+  ]
+}

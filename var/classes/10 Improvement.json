@@ -1,0 +1,110 @@
+{
+  "name": "10 Improvement",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "10 Improvement",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "10 Improvement",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "10.1 Nonconformity and Corrective Action",
+      "end": "10 Improvement",
+      "type": 0
+    },
+    {
+      "start": "10.1 Nonconformity and Corrective Action",
+      "end": "10 Improvement",
+      "type": 3
+    },
+    {
+      "start": "10.2 Continual Improvement",
+      "end": "10 Improvement",
+      "type": 0
+    },
+    {
+      "start": "10.2 Continual Improvement",
+      "end": "10 Improvement",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "10 Improvement"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "10 Improvement"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "10 Improvement"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "10 Improvement"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "10 Improvement"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "10 Improvement"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "10 Improvement"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "10 Improvement"
+    }
+  ]
+}

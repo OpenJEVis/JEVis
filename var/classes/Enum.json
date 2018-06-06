@@ -1,0 +1,27 @@
+{
+  "name": "Enum",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Constants",
+      "end": "Enum",
+      "type": 3
+    },
+    {
+      "start": "Enum",
+      "end": "Enum Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "JEVisClass",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Enum"
+    }
+  ]
+}

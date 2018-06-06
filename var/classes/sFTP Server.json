@@ -1,0 +1,90 @@
+{
+  "name": "sFTP Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "sFTP Channel Directory",
+      "end": "sFTP Server",
+      "type": 3
+    },
+    {
+      "start": "sFTP Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "sFTP Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "sFTP Server"
+    },
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "sFTP Server"
+    },
+    {
+      "name": "Host",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "sFTP Server"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "sFTP Server"
+    },
+    {
+      "name": "Port",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "sFTP Server"
+    },
+    {
+      "name": "Read Timeout",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "sFTP Server"
+    },
+    {
+      "name": "Timezone",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "sFTP Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "sFTP Server"
+    }
+  ]
+}

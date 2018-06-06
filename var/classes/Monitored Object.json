@@ -1,0 +1,47 @@
+{
+  "name": "Monitored Object",
+  "description": "Monitored object like an building or ship",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Building",
+      "end": "Monitored Object",
+      "type": 0
+    },
+    {
+      "start": "Data Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "Data Source Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "Document Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "File Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "Monitored Object",
+      "end": "Monitored Object Directory",
+      "type": 3
+    },
+    {
+      "start": "Report Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "View Directory",
+      "end": "Monitored Object",
+      "type": 3
+    }
+  ]
+}

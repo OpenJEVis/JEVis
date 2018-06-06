@@ -1,0 +1,144 @@
+{
+  "name": "Energy Consumption",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Consumption",
+      "end": "Energy Source",
+      "type": 3
+    },
+    {
+      "start": "Energy Consumption",
+      "end": "Monthly Values",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "01 January",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "02 February",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "03 March",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "04 April",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "05 May",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "06 June",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "07 July",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "08 August",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "09 September",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "10 October",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "11 November",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "12 December",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "Energy Supplier",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    },
+    {
+      "name": "Year",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Consumption"
+    }
+  ]
+}

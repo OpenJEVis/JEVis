@@ -1,0 +1,27 @@
+{
+  "name": "Link",
+  "description": "An link to an other object. The linked object will show all attributes and samples of original object",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Link",
+      "end": "Link",
+      "type": 3
+    },
+    {
+      "start": "Link",
+      "end": "Link",
+      "type": 3
+    },
+    {
+      "start": "Link",
+      "end": "View Directory",
+      "type": 3
+    },
+    {
+      "start": "View Directory",
+      "end": "Link",
+      "type": 3
+    }
+  ]
+}

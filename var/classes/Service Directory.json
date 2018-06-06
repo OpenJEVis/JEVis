@@ -1,0 +1,37 @@
+{
+  "name": "Service Directory",
+  "description": "The class Service Directory represents a specific directory for the management of back-end services.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "JEAlarm",
+      "end": "Service Directory",
+      "type": 3
+    },
+    {
+      "start": "JECalc",
+      "end": "Service Directory",
+      "type": 3
+    },
+    {
+      "start": "JEDataCollector",
+      "end": "Service Directory",
+      "type": 3
+    },
+    {
+      "start": "JEReport",
+      "end": "Service Directory",
+      "type": 3
+    },
+    {
+      "start": "Service Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Service Directory",
+      "end": "System",
+      "type": 3
+    }
+  ]
+}

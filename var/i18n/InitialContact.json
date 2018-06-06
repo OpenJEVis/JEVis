@@ -1,0 +1,50 @@
+{
+  "jevisclass": "Initial Contact",
+  "names": {
+    "de": "Initial Contact",
+    "ru": "Initial Contact",
+    "en": "Initial Contact"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Comment",
+      "descriptions": {
+        "de": "Comment desctiption",
+        "ru": "Comment desctiption",
+        "en": "Comment desctiption"
+      },
+      "names": {
+        "de": "Comment",
+        "ru": "Comment",
+        "en": "Comment"
+      }
+    },
+    {
+      "type": "Contact Date",
+      "descriptions": {
+        "de": "Contact Date desctiption",
+        "ru": "Contact Date desctiption",
+        "en": "Contact Date desctiption"
+      },
+      "names": {
+        "de": "Contact Date",
+        "ru": "Contact Date",
+        "en": "Contact Date"
+      }
+    },
+    {
+      "type": "Contact File",
+      "descriptions": {
+        "de": "Contact File desctiption",
+        "ru": "Contact File desctiption",
+        "en": "Contact File desctiption"
+      },
+      "names": {
+        "de": "Contact File",
+        "ru": "Contact File",
+        "en": "Contact File"
+      }
+    }
+  ]
+}

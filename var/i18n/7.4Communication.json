@@ -1,0 +1,119 @@
+{
+  "jevisclass": "7.4 Communication",
+  "names": {
+    "de": "7.4 Communication",
+    "ru": "7.4 Communication",
+    "en": "7.4 Communication"
+  },
+  "descriptions": {
+    "de": "The organization shall determine the internal and external communications relevant to the EnMS,  including:  \na) on what it will communicate;  \nb) when to communicate;  \nc) with whom to communicate;  \nd) how to communicate;  \ne) who communicates.  \nWhen establishing its communication process(es), the organization shall ensure that information  communicated is consistent with information generated within the EnMS and is reliable.    \nThe organization shall establish and implement a process by which any person working for, or on behalf  of the organization can make comments or suggest improvements to the EnMS and to energy  performance. ",
+    "ru": "The organization shall determine the internal and external communications relevant to the EnMS,  including:  \na) on what it will communicate;  \nb) when to communicate;  \nc) with whom to communicate;  \nd) how to communicate;  \ne) who communicates.  \nWhen establishing its communication process(es), the organization shall ensure that information  communicated is consistent with information generated within the EnMS and is reliable.    \nThe organization shall establish and implement a process by which any person working for, or on behalf  of the organization can make comments or suggest improvements to the EnMS and to energy  performance. ",
+    "en": "The organization shall determine the internal and external communications relevant to the EnMS,  including:  \na) on what it will communicate;  \nb) when to communicate;  \nc) with whom to communicate;  \nd) how to communicate;  \ne) who communicates.  \nWhen establishing its communication process(es), the organization shall ensure that information  communicated is consistent with information generated within the EnMS and is reliable.    \nThe organization shall establish and implement a process by which any person working for, or on behalf  of the organization can make comments or suggest improvements to the EnMS and to energy  performance. "
+  },
+  "types": [
+    {
+      "type": "Content",
+      "descriptions": {
+        "de": "Content desctiption",
+        "ru": "Content desctiption",
+        "en": "Content desctiption"
+      },
+      "names": {
+        "de": "Content",
+        "ru": "Content",
+        "en": "Content"
+      }
+    },
+    {
+      "type": "Created by",
+      "descriptions": {
+        "de": "Created by desctiption",
+        "ru": "Created by desctiption",
+        "en": "Created by desctiption"
+      },
+      "names": {
+        "de": "Created by",
+        "ru": "Created by",
+        "en": "Created by"
+      }
+    },
+    {
+      "type": "Date of Creation",
+      "descriptions": {
+        "de": "Date of Creation desctiption",
+        "ru": "Date of Creation desctiption",
+        "en": "Date of Creation desctiption"
+      },
+      "names": {
+        "de": "Date of Creation",
+        "ru": "Date of Creation",
+        "en": "Date of Creation"
+      }
+    },
+    {
+      "type": "Document Number",
+      "descriptions": {
+        "de": "Document Number desctiption",
+        "ru": "Document Number desctiption",
+        "en": "Document Number desctiption"
+      },
+      "names": {
+        "de": "Document Number",
+        "ru": "Document Number",
+        "en": "Document Number"
+      }
+    },
+    {
+      "type": "Release Date",
+      "descriptions": {
+        "de": "Release Date desctiption",
+        "ru": "Release Date desctiption",
+        "en": "Release Date desctiption"
+      },
+      "names": {
+        "de": "Release Date",
+        "ru": "Release Date",
+        "en": "Release Date"
+      }
+    },
+    {
+      "type": "Released by",
+      "descriptions": {
+        "de": "Released by desctiption",
+        "ru": "Released by desctiption",
+        "en": "Released by desctiption"
+      },
+      "names": {
+        "de": "Released by",
+        "ru": "Released by",
+        "en": "Released by"
+      }
+    },
+    {
+      "type": "Title",
+      "descriptions": {
+        "de": "Title desctiption",
+        "ru": "Title desctiption",
+        "en": "Title desctiption"
+      },
+      "names": {
+        "de": "Title",
+        "ru": "Title",
+        "en": "Title"
+      }
+    },
+    {
+      "type": "Version",
+      "descriptions": {
+        "de": "Version desctiption",
+        "ru": "Version desctiption",
+        "en": "Version desctiption"
+      },
+      "names": {
+        "de": "Version",
+        "ru": "Version",
+        "en": "Version"
+      }
+    }
+  ]
+}

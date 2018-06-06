@@ -1,0 +1,22 @@
+{
+  "name": "sFTP Channel Directory",
+  "description": "The class sFTP Channel Directory represents a specific directory for the management of data.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "sFTP Channel",
+      "end": "sFTP Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "sFTP Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "sFTP Channel Directory",
+      "end": "sFTP Server",
+      "type": 3
+    }
+  ]
+}

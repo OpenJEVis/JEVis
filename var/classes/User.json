@@ -1,0 +1,143 @@
+{
+  "name": "User",
+  "description": "User to access the JEVis",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "User",
+      "end": "User Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Activities",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "E-Mail",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "E-Mail Address of the User.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Enable/Disable the user. Only an enabled user can login.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "First Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "First name of the user.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Language",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Language of the user.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Last Login",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Date of the last login.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Last Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Last name of the user.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 7,
+      "guiType": "Password PBKDF2",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Password for this user.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Phone",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Phone number of the User.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Position",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Position of the User in the company.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Sys Admin",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Configure if this user hast the \u0027Sys Admin\u0027 privilege. If true the user can manage Classes. ",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "TimeZone",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Default TimeZone in which the information will be display for the user.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "description": "Title of the User.",
+      "inherited": false,
+      "jevisClass": "User"
+    }
+  ]
+}

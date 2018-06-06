@@ -1,0 +1,77 @@
+{
+  "name": "Equipment Directory",
+  "description": "The class Equipment Directory represents a specific directory for the management of the Equipment of an organization which is important for energy concerning interests.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Air Condition Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Air Conditioning",
+      "end": "Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Building Equipment",
+      "end": "Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Compressor Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Cooling Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Equipment Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Facade",
+      "end": "Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Floor",
+      "end": "Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Heating Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Lighting Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Office Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Pantry Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Production Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Ventilation Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    }
+  ]
+}

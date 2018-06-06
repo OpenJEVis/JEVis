@@ -1,0 +1,60 @@
+{
+  "name": "Loytec XML-DL Channel",
+  "description": "The Loytec XML-DL Channel defines how to access a trend object from LINX Automation Server or LIOB Controller.\n\n- Target ID: JEVis Data target ID\n- Trend ID: 4 digit hex identifier\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Loytec XML-DL Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "Loytec XML-DL Channel",
+      "end": "Loytec XML-DL Bacnet Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "Loytec XML-DL Channel",
+      "end": "Loytec XML-DL CEA709 Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "Loytec XML-DL Channel",
+      "end": "Loytec XML-DL Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "Loytec XML-DL Channel",
+      "end": "Loytec XML-DL Generic Channel Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Last Readout",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Loytec XML-DL Channel"
+    },
+    {
+      "name": "Target ID",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Loytec XML-DL Channel"
+    },
+    {
+      "name": "Trend ID",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Loytec XML-DL Channel"
+    }
+  ]
+}

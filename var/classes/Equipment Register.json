@@ -1,0 +1,61 @@
+{
+  "name": "Equipment Register",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Air Condition Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Compressor Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Cooling Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Equipment Register",
+      "end": "Energy Planning",
+      "type": 3
+    },
+    {
+      "start": "Equipment Register",
+      "end": "Register",
+      "type": 0
+    },
+    {
+      "start": "Heating Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Lighting Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Office Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Pantry Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Production Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Ventilation Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    }
+  ]
+}

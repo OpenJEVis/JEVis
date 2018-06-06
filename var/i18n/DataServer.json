@@ -1,0 +1,102 @@
+{
+  "jevisclass": "Data Server",
+  "names": {
+    "de": "Data Server",
+    "ru": "Data Server",
+    "en": "Data Server"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Connection Timeout",
+      "descriptions": {
+        "de": "Connection Timeout desctiption",
+        "ru": "Connection Timeout desctiption",
+        "en": "Connection Timeout desctiption"
+      },
+      "names": {
+        "de": "Connection Timeout",
+        "ru": "Connection Timeout",
+        "en": "Connection Timeout"
+      }
+    },
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Enabled desctiption",
+        "ru": "Enabled desctiption",
+        "en": "Enabled desctiption"
+      },
+      "names": {
+        "de": "Enabled",
+        "ru": "Enabled",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Host",
+      "descriptions": {
+        "de": "Host desctiption",
+        "ru": "Host desctiption",
+        "en": "Host desctiption"
+      },
+      "names": {
+        "de": "Host",
+        "ru": "Host",
+        "en": "Host"
+      }
+    },
+    {
+      "type": "Manual Trigger",
+      "descriptions": {
+        "de": "Manual Trigger desctiption",
+        "ru": "Manual Trigger desctiption",
+        "en": "Manual Trigger desctiption"
+      },
+      "names": {
+        "de": "Manual Trigger",
+        "ru": "Manual Trigger",
+        "en": "Manual Trigger"
+      }
+    },
+    {
+      "type": "Port",
+      "descriptions": {
+        "de": "Port desctiption",
+        "ru": "Port desctiption",
+        "en": "Port desctiption"
+      },
+      "names": {
+        "de": "Port",
+        "ru": "Port",
+        "en": "Port"
+      }
+    },
+    {
+      "type": "Read Timeout",
+      "descriptions": {
+        "de": "Read Timeout desctiption",
+        "ru": "Read Timeout desctiption",
+        "en": "Read Timeout desctiption"
+      },
+      "names": {
+        "de": "Read Timeout",
+        "ru": "Read Timeout",
+        "en": "Read Timeout"
+      }
+    },
+    {
+      "type": "Timezone",
+      "descriptions": {
+        "de": "Timezone desctiption",
+        "ru": "Timezone desctiption",
+        "en": "Timezone desctiption"
+      },
+      "names": {
+        "de": "Timezone",
+        "ru": "Timezone",
+        "en": "Timezone"
+      }
+    }
+  ]
+}

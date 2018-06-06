@@ -1,0 +1,120 @@
+{
+  "name": "7.5 Documented Information",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "7.5 Documented Information",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.5 Documented Information",
+      "end": "07 Support",
+      "type": 3
+    },
+    {
+      "start": "7.5.1 General",
+      "end": "7.5 Documented Information",
+      "type": 0
+    },
+    {
+      "start": "7.5.1 General",
+      "end": "7.5 Documented Information",
+      "type": 3
+    },
+    {
+      "start": "7.5.2 Creating and Updating",
+      "end": "7.5 Documented Information",
+      "type": 0
+    },
+    {
+      "start": "7.5.2 Creating and Updating",
+      "end": "7.5 Documented Information",
+      "type": 3
+    },
+    {
+      "start": "7.5.3 Control of Documented Information",
+      "end": "7.5 Documented Information",
+      "type": 0
+    },
+    {
+      "start": "7.5.3 Control of Documented Information",
+      "end": "7.5 Documented Information",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5 Documented Information"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5 Documented Information"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5 Documented Information"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5 Documented Information"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5 Documented Information"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5 Documented Information"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5 Documented Information"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5 Documented Information"
+    }
+  ]
+}

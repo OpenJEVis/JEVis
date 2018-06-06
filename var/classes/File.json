@@ -1,0 +1,28 @@
+{
+  "name": "File",
+  "description": "The class File represents a container for a series of files.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Document",
+      "end": "File",
+      "type": 0
+    },
+    {
+      "start": "File",
+      "end": "File Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "File"
+    }
+  ]
+}

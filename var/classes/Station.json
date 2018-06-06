@@ -1,0 +1,54 @@
+{
+  "name": "Station",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Station",
+      "end": "Station Directory",
+      "type": 0
+    },
+    {
+      "start": "Station",
+      "end": "Station Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Device ID",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Station"
+    },
+    {
+      "name": "IP Address",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Station"
+    },
+    {
+      "name": "SubNet Mask",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Station"
+    },
+    {
+      "name": "Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Station"
+    }
+  ]
+}

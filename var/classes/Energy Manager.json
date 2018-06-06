@@ -1,0 +1,67 @@
+{
+  "name": "Energy Manager",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Manager",
+      "end": "Energy Team",
+      "type": 0
+    },
+    {
+      "start": "Energy Manager",
+      "end": "Energy Team Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Appointment Letter",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Manager"
+    },
+    {
+      "name": "EMail",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Manager"
+    },
+    {
+      "name": "Function",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Manager"
+    },
+    {
+      "name": "Name",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Manager"
+    },
+    {
+      "name": "Phone",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Manager"
+    },
+    {
+      "name": "Surname",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Energy Manager"
+    }
+  ]
+}

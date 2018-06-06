@@ -1,0 +1,26 @@
+{
+  "name": "Meter Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Meter",
+      "end": "Meter Directory",
+      "type": 0
+    },
+    {
+      "start": "Meter",
+      "end": "Meter Directory",
+      "type": 3
+    },
+    {
+      "start": "Meter Directory",
+      "end": "Monitoring Register",
+      "type": 0
+    },
+    {
+      "start": "Meter Directory",
+      "end": "Monitoring Register",
+      "type": 3
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "name": "Documents",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "01 Scope",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "02 Normative References",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "03 Terms and Definitions",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "04 Context of the Organization",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "05 Leadership",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "06 Planning",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "07 Support",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "08 Operation",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "09 Performance Evaluation",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "10 Improvement",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "Action Plan",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "Announcement",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "Documents",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Procedural Document",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "Training Course",
+      "end": "Documents",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Documents"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Documents"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Documents"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Documents"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Documents"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Documents"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Documents"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Documents"
+    }
+  ]
+}

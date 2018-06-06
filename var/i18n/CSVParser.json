@@ -1,0 +1,141 @@
+{
+  "jevisclass": "CSV Parser",
+  "names": {
+    "de": "CSV Parser",
+    "ru": "CSV Parser",
+    "en": "CSV Parser"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Datapoint Index",
+      "descriptions": {
+        "de": "Datapoint Index desctiption",
+        "ru": "Datapoint Index desctiption",
+        "en": "Datapoint Index desctiption"
+      },
+      "names": {
+        "de": "Datapoint Index",
+        "ru": "Datapoint Index",
+        "en": "Datapoint Index"
+      }
+    },
+    {
+      "type": "Date Format",
+      "descriptions": {
+        "de": "Date Format desctiption",
+        "ru": "Date Format desctiption",
+        "en": "Date Format desctiption"
+      },
+      "names": {
+        "de": "Date Format",
+        "ru": "Date Format",
+        "en": "Date Format"
+      }
+    },
+    {
+      "type": "Date Index",
+      "descriptions": {
+        "de": "Date Index desctiption",
+        "ru": "Date Index desctiption",
+        "en": "Date Index desctiption"
+      },
+      "names": {
+        "de": "Date Index",
+        "ru": "Date Index",
+        "en": "Date Index"
+      }
+    },
+    {
+      "type": "Decimal Separator",
+      "descriptions": {
+        "de": "Decimal Separator desctiption",
+        "ru": "Decimal Separator desctiption",
+        "en": "Decimal Separator desctiption"
+      },
+      "names": {
+        "de": "Decimal Separator",
+        "ru": "Decimal Separator",
+        "en": "Decimal Separator"
+      }
+    },
+    {
+      "type": "Delimiter",
+      "descriptions": {
+        "de": "Delimiter desctiption",
+        "ru": "Delimiter desctiption",
+        "en": "Delimiter desctiption"
+      },
+      "names": {
+        "de": "Delimiter",
+        "ru": "Delimiter",
+        "en": "Delimiter"
+      }
+    },
+    {
+      "type": "Number Of Headlines",
+      "descriptions": {
+        "de": "Number Of Headlines desctiption",
+        "ru": "Number Of Headlines desctiption",
+        "en": "Number Of Headlines desctiption"
+      },
+      "names": {
+        "de": "Number Of Headlines",
+        "ru": "Number Of Headlines",
+        "en": "Number Of Headlines"
+      }
+    },
+    {
+      "type": "Quote",
+      "descriptions": {
+        "de": "Quote desctiption",
+        "ru": "Quote desctiption",
+        "en": "Quote desctiption"
+      },
+      "names": {
+        "de": "Quote",
+        "ru": "Quote",
+        "en": "Quote"
+      }
+    },
+    {
+      "type": "Thousand Separator",
+      "descriptions": {
+        "de": "Thousand Separator desctiption",
+        "ru": "Thousand Separator desctiption",
+        "en": "Thousand Separator desctiption"
+      },
+      "names": {
+        "de": "Thousand Separator",
+        "ru": "Thousand Separator",
+        "en": "Thousand Separator"
+      }
+    },
+    {
+      "type": "Time Format",
+      "descriptions": {
+        "de": "Time Format desctiption",
+        "ru": "Time Format desctiption",
+        "en": "Time Format desctiption"
+      },
+      "names": {
+        "de": "Time Format",
+        "ru": "Time Format",
+        "en": "Time Format"
+      }
+    },
+    {
+      "type": "Time Index",
+      "descriptions": {
+        "de": "Time Index desctiption",
+        "ru": "Time Index desctiption",
+        "en": "Time Index desctiption"
+      },
+      "names": {
+        "de": "Time Index",
+        "ru": "Time Index",
+        "en": "Time Index"
+      }
+    }
+  ]
+}

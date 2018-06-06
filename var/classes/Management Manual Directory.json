@@ -1,0 +1,66 @@
+{
+  "name": "Management Manual Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "01 Scope",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "02 Normative References",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "03 Terms and Definitions",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "04 Context of the Organization",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "05 Leadership",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "06 Planning",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "07 Support",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "08 Operation",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "09 Performance Evaluation",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "10 Improvement",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "Management Manual Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Management Manual Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Heating Equipment Directory",
+  "names": {
+    "de": "Heating Equipment Directory",
+    "ru": "Heating Equipment Directory",
+    "en": "Heating Equipment Directory"
+  },
+  "descriptions": {
+    "de": "The class Heating Equipment Directory represents a specific directory for the management of the heatings and their pumps of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ru": "The class Heating Equipment Directory represents a specific directory for the management of the heatings and their pumps of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "en": "The class Heating Equipment Directory represents a specific directory for the management of the heatings and their pumps of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+  },
+  "types": []
+}

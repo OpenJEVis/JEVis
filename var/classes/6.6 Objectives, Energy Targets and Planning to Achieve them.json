@@ -1,0 +1,90 @@
+{
+  "name": "6.6 Objectives, Energy Targets and Planning to Achieve them",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "6.6 Objectives, Energy Targets and Planning to Achieve them",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.6 Objectives, Energy Targets and Planning to Achieve them",
+      "end": "06 Planning",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.6 Objectives, Energy Targets and Planning to Achieve them"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.6 Objectives, Energy Targets and Planning to Achieve them"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.6 Objectives, Energy Targets and Planning to Achieve them"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.6 Objectives, Energy Targets and Planning to Achieve them"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.6 Objectives, Energy Targets and Planning to Achieve them"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.6 Objectives, Energy Targets and Planning to Achieve them"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.6 Objectives, Energy Targets and Planning to Achieve them"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.6 Objectives, Energy Targets and Planning to Achieve them"
+    }
+  ]
+}

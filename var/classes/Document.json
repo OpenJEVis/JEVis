@@ -1,0 +1,27 @@
+{
+  "name": "Document",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Document",
+      "end": "Document Directory",
+      "type": 3
+    },
+    {
+      "start": "Document",
+      "end": "File",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Document"
+    }
+  ]
+}

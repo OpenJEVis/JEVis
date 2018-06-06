@@ -1,0 +1,46 @@
+{
+  "name": "Document Directory",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Document",
+      "end": "Document Directory",
+      "type": 3
+    },
+    {
+      "start": "Document Directory",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "Document Directory",
+      "end": "Document Directory",
+      "type": 3
+    },
+    {
+      "start": "Document Directory",
+      "end": "Document Directory",
+      "type": 3
+    },
+    {
+      "start": "Document Directory",
+      "end": "File Directory",
+      "type": 0
+    },
+    {
+      "start": "Document Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "Document Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Document Directory",
+      "end": "System",
+      "type": 3
+    }
+  ]
+}

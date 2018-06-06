@@ -1,0 +1,91 @@
+{
+  "name": "6.1 General",
+  "description": "Planning shall consist of a review of the organization\u0027s activities and processes that can affect energy  performance. Planning shall be consistent with the energy policy (see 5.2) and shall lead to actions that  result in continual improvement of energy performance. The organization shall maintain documented  information on the planning process.  \nNOTE 1 A concept diagram illustrating the energy planning process is shown in Figure A.1.  \nNOTE 2 The output of the energy review is used to identify risks and opportunities in the integrated management  in the organization and input of subsequent energy planning process. ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "6.1 General",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.1 General",
+      "end": "06 Planning",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.1 General"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.1 General"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.1 General"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.1 General"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.1 General"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.1 General"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.1 General"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "6.1 General"
+    }
+  ]
+}

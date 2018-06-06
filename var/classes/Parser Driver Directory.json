@@ -1,0 +1,22 @@
+{
+  "name": "Parser Driver Directory",
+  "description": "The class Parser Driver Directory represents a specific directory for the management of parser driver data.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Parser Driver",
+      "end": "Parser Driver Directory",
+      "type": 3
+    },
+    {
+      "start": "Parser Driver Directory",
+      "end": "Driver Directory",
+      "type": 0
+    },
+    {
+      "start": "Parser Driver Directory",
+      "end": "JEDataCollector",
+      "type": 3
+    }
+  ]
+}

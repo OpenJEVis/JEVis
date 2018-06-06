@@ -1,0 +1,91 @@
+{
+  "name": "7.2 Competence",
+  "description": "The organization shall:  \na) determine the necessary competence of person(s) doing work under its control that affects its  energy performance and EnMS;    \nb) ensure that these persons are competent on the basis of appropriate education, training, skills  or experience;    \nc) where applicable, take actions to acquire the necessary competence, and evaluate the  effectiveness of the actions taken;   \nd) retain appropriate documented information ( see 7.5) as evidence of competence.  \nNOTE Applicable actions can include, for example, the provision of training to, the mentoring of, or the  reassignment of currently employed persons; or the hiring or contracting of competent persons.   ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "7.2 Competence",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.2 Competence",
+      "end": "07 Support",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.2 Competence"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.2 Competence"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.2 Competence"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.2 Competence"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.2 Competence"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.2 Competence"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.2 Competence"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.2 Competence"
+    }
+  ]
+}

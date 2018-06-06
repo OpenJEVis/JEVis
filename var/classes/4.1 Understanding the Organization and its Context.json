@@ -1,0 +1,91 @@
+{
+  "name": "4.1 Understanding the Organization and its Context",
+  "description": "The organization shall determine external and internal issues that are relevant to its purpose and that  affect its ability to achieve the intended outcome(s) of its EnMS and to improve its energy performance.   \nWhen determining organizational context, the organization shall consider the information obtained  from the energy review (see 6.3). ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "4.1 Understanding the Organization and its Context",
+      "end": "04 Context of the Organization",
+      "type": 0
+    },
+    {
+      "start": "4.1 Understanding the Organization and its Context",
+      "end": "04 Context of the Organization",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4.1 Understanding the Organization and its Context"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4.1 Understanding the Organization and its Context"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4.1 Understanding the Organization and its Context"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4.1 Understanding the Organization and its Context"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4.1 Understanding the Organization and its Context"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4.1 Understanding the Organization and its Context"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4.1 Understanding the Organization and its Context"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "4.1 Understanding the Organization and its Context"
+    }
+  ]
+}

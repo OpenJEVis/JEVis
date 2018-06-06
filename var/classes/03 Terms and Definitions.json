@@ -1,0 +1,123 @@
+{
+  "name": "03 Terms and Definitions",
+  "description": "For the purposes of this document, the following terms and definitions apply.\n\nISO and IEC maintain terminological databases for use in standardization at the following addresses:\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "03 Terms and Definitions",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "03 Terms and Definitions",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "3.1 Terms related to the Organization",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.1 Terms related to the Organization",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    },
+    {
+      "start": "3.2 Terms related to the Management System",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.2 Terms related to the Management System",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    },
+    {
+      "start": "3.3 Terms related to Requirement",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.3 Terms related to Requirement",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    },
+    {
+      "start": "3.4 Terms related to Performance",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.4 Terms related to Performance",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    },
+    {
+      "start": "3.5 Terms related to Energy",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.5 Terms related to Energy",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "03 Terms and Definitions"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "03 Terms and Definitions"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "03 Terms and Definitions"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "03 Terms and Definitions"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "03 Terms and Definitions"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "03 Terms and Definitions"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "jevisclass": "Management Review",
+  "names": {
+    "de": "Management Review",
+    "ru": "Management Review",
+    "en": "Management Review"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Content",
+      "descriptions": {
+        "de": "Content desctiption",
+        "ru": "Content desctiption",
+        "en": "Content desctiption"
+      },
+      "names": {
+        "de": "Content",
+        "ru": "Content",
+        "en": "Content"
+      }
+    },
+    {
+      "type": "Management Review File",
+      "descriptions": {
+        "de": "Management Review File desctiption",
+        "ru": "Management Review File desctiption",
+        "en": "Management Review File desctiption"
+      },
+      "names": {
+        "de": "Management Review File",
+        "ru": "Management Review File",
+        "en": "Management Review File"
+      }
+    },
+    {
+      "type": "Management Review PDF",
+      "descriptions": {
+        "de": "Management Review PDF desctiption",
+        "ru": "Management Review PDF desctiption",
+        "en": "Management Review PDF desctiption"
+      },
+      "names": {
+        "de": "Management Review PDF",
+        "ru": "Management Review PDF",
+        "en": "Management Review PDF"
+      }
+    },
+    {
+      "type": "Participants",
+      "descriptions": {
+        "de": "Participants desctiption",
+        "ru": "Participants desctiption",
+        "en": "Participants desctiption"
+      },
+      "names": {
+        "de": "Participants",
+        "ru": "Participants",
+        "en": "Participants"
+      }
+    },
+    {
+      "type": "Review Date",
+      "descriptions": {
+        "de": "Review Date desctiption",
+        "ru": "Review Date desctiption",
+        "en": "Review Date desctiption"
+      },
+      "names": {
+        "de": "Review Date",
+        "ru": "Review Date",
+        "en": "Review Date"
+      }
+    }
+  ]
+}

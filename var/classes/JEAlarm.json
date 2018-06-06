@@ -1,0 +1,16 @@
+{
+  "name": "JEAlarm",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JEAlarm",
+      "end": "Service",
+      "type": 0
+    },
+    {
+      "start": "JEAlarm",
+      "end": "Service Directory",
+      "type": 3
+    }
+  ]
+}

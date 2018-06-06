@@ -1,0 +1,21 @@
+{
+  "name": "Report Link Directory",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Report Link",
+      "end": "Report Link Directory",
+      "type": 3
+    },
+    {
+      "start": "Report Link Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Report Link Directory",
+      "end": "Periodic Report",
+      "type": 3
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Lighting Equipment Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Lighting",
+      "end": "Lighting Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Lighting Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Lighting Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    }
+  ]
+}

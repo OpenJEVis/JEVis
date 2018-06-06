@@ -1,0 +1,41 @@
+{
+  "name": "02 Plan",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "02 Plan",
+      "end": "Internal Audit",
+      "type": 0
+    },
+    {
+      "start": "02 Plan",
+      "end": "Internal Audit",
+      "type": 3
+    },
+    {
+      "start": "Audit Question",
+      "end": "02 Plan",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Audit Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "02 Plan"
+    },
+    {
+      "name": "Auditor",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "02 Plan"
+    }
+  ]
+}

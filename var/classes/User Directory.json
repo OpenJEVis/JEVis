@@ -1,0 +1,22 @@
+{
+  "name": "User Directory",
+  "description": "The class User Directory represents a specific directory for the management of users.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "User",
+      "end": "User Directory",
+      "type": 3
+    },
+    {
+      "start": "User Directory",
+      "end": "Administration Directory",
+      "type": 3
+    },
+    {
+      "start": "User Directory",
+      "end": "Directory",
+      "type": 0
+    }
+  ]
+}

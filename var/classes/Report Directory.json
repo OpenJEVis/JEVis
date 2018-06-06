@@ -1,0 +1,36 @@
+{
+  "name": "Report Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Periodic Report",
+      "end": "Report Directory",
+      "type": 3
+    },
+    {
+      "start": "Report Directory",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "Report Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Report Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "Report Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Report Directory",
+      "end": "System",
+      "type": 3
+    }
+  ]
+}

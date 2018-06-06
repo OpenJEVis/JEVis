@@ -1,0 +1,93 @@
+{
+  "name": "XLS Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "XLS Parser",
+      "end": "CSV Parser",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Datapoint Index",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    },
+    {
+      "name": "Date Format",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    },
+    {
+      "name": "Date Index",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    },
+    {
+      "name": "Decimal Separator",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    },
+    {
+      "name": "Delimiter",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    },
+    {
+      "name": "Number Of Headlines",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    },
+    {
+      "name": "Quote",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    },
+    {
+      "name": "Thousand Separator",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    },
+    {
+      "name": "Time Format",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    },
+    {
+      "name": "Time Index",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "XLS Parser"
+    }
+  ]
+}

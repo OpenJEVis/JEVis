@@ -1,0 +1,21 @@
+{
+  "name": "Action Plan Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Action Plan",
+      "end": "Action Plan Directory",
+      "type": 3
+    },
+    {
+      "start": "Action Plan Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Action Plan Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

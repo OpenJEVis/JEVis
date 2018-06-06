@@ -1,0 +1,21 @@
+{
+  "name": "Management Review Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Management Review",
+      "end": "Management Review Directory",
+      "type": 3
+    },
+    {
+      "start": "Management Review Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Management Review Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "name": "IMAP EMail Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "EMail Channel Directory",
+      "end": "IMAP EMail Server",
+      "type": 3
+    },
+    {
+      "start": "IMAP EMail Server",
+      "end": "Data Source Directory",
+      "type": 3
+    },
+    {
+      "start": "IMAP EMail Server",
+      "end": "EMail Server",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "IMAP EMail Server"
+    },
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "IMAP EMail Server"
+    },
+    {
+      "name": "Folder",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "IMAP EMail Server"
+    },
+    {
+      "name": "Host",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "IMAP EMail Server"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "IMAP EMail Server"
+    },
+    {
+      "name": "Port",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "IMAP EMail Server"
+    },
+    {
+      "name": "Read Timeout",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "IMAP EMail Server"
+    },
+    {
+      "name": "SSL",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "IMAP EMail Server"
+    },
+    {
+      "name": "Timezone",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "IMAP EMail Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "IMAP EMail Server"
+    }
+  ]
+}

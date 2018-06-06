@@ -1,0 +1,54 @@
+{
+  "name": "HTTP Channel",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Parser",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "HTTP Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "HTTP Channel",
+      "end": "HTTP Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "SQL Parser",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "HTTP Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Last Readout",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "HTTP Channel"
+    },
+    {
+      "name": "Path",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HTTP Channel"
+    }
+  ]
+}

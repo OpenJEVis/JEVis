@@ -1,0 +1,63 @@
+{
+  "name": "Energy Team",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Manager",
+      "end": "Energy Team",
+      "type": 0
+    },
+    {
+      "start": "Energy Team",
+      "end": "Responsibilities",
+      "type": 0
+    },
+    {
+      "start": "Energy Team Member",
+      "end": "Energy Team",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "EMail",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Team"
+    },
+    {
+      "name": "Function",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Team"
+    },
+    {
+      "name": "Name",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Team"
+    },
+    {
+      "name": "Phone",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Team"
+    },
+    {
+      "name": "Surname",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Team"
+    }
+  ]
+}

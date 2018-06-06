@@ -1,0 +1,27 @@
+{
+  "name": "Heating Equipment Directory",
+  "description": "The class Heating Equipment Directory represents a specific directory for the management of the heatings and their pumps of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Heater",
+      "end": "Heating Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Heating Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Heating Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Pump",
+      "end": "Heating Equipment Directory",
+      "type": 3
+    }
+  ]
+}

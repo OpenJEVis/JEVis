@@ -1,0 +1,36 @@
+{
+  "name": "Site",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Documents Directory",
+      "end": "Site",
+      "type": 3
+    },
+    {
+      "start": "Energy Planning",
+      "end": "Site",
+      "type": 3
+    },
+    {
+      "start": "ISO 50001 Meetings Directory",
+      "end": "Site",
+      "type": 3
+    },
+    {
+      "start": "Monitoring Register",
+      "end": "Site",
+      "type": 3
+    },
+    {
+      "start": "Site",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Site",
+      "end": "ISO 50001 Directory",
+      "type": 3
+    }
+  ]
+}

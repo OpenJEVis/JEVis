@@ -1,0 +1,128 @@
+{
+  "name": "Automated Working Sheet",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Automated Working Sheet",
+      "end": "Periodic Report",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Attribute Name",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "Condition Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "JEVis ID",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "Last Report",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "Limit",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "Operator",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "PDF",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "PDF Pages",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "Schedule",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "Start Record",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "Template",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    },
+    {
+      "name": "Time Zone",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Automated Working Sheet"
+    }
+  ]
+}

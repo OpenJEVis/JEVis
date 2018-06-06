@@ -1,0 +1,22 @@
+{
+  "name": "HTTP Channel Directory",
+  "description": "The class HTTP Channel Directory represents a specific directory for the management of HTTP concerning data.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "HTTP Channel",
+      "end": "HTTP Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "HTTP Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "HTTP Channel Directory",
+      "end": "HTTP Server",
+      "type": 3
+    }
+  ]
+}

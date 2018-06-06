@@ -1,0 +1,52 @@
+{
+  "name": "Importer Driver",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Importer Driver",
+      "end": "Driver",
+      "type": 0
+    },
+    {
+      "start": "Importer Driver",
+      "end": "Importer Driver Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Importer Driver"
+    },
+    {
+      "name": "JEVis Class",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Importer Driver"
+    },
+    {
+      "name": "Main Class",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Importer Driver"
+    },
+    {
+      "name": "Source File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Importer Driver"
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "name": "Building Equipment",
+  "description": "The class Building Equipment represents a none-specific directory for the structuring of the system. The class Building Equipment is only used for the inheritance of specific equipment types.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Air Conditioning",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Building Equipment",
+      "end": "Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Compressor",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Cooler",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Engine",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Facade",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Floor",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Heater",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "HVAC System Simplified",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Lighting",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Occupancy",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Office Equipment",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Pantry Equipment",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Plug Load",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Production Equipment",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Pump",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Recooler or Condenser",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Ventilation",
+      "end": "Building Equipment",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Daily Operating Hours",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Manufacturer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Measuring Point",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Nominal Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Weighting Factor",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Work Weeks",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Working Days",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "name": "DWD Data Point",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "DWD Data Point",
+      "end": "Data Point",
+      "type": 0
+    },
+    {
+      "start": "DWD Data Point",
+      "end": "DWD Data Point Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Atmospheric Pressure Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "City",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Humidity Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Precipitation Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Temperature Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Wind Speed Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    }
+  ]
+}

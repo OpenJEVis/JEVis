@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Air Condition Equipment Directory",
+  "names": {
+    "de": "Air Condition Equipment Directory",
+    "ru": "Air Condition Equipment Directory",
+    "en": "Air Condition Equipment Directory"
+  },
+  "descriptions": {
+    "de": "The class Air Condition Equipment Directory represents a specific directory for the management of the air conditions of an organization.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ru": "The class Air Condition Equipment Directory represents a specific directory for the management of the air conditions of an organization.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "en": "The class Air Condition Equipment Directory represents a specific directory for the management of the air conditions of an organization.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+  },
+  "types": []
+}

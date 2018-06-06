@@ -1,0 +1,22 @@
+{
+  "name": "Group Directory",
+  "description": "The class Group Directory represents a specific directory for the management of user groups.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Group",
+      "end": "Group Directory",
+      "type": 3
+    },
+    {
+      "start": "Group Directory",
+      "end": "Administration Directory",
+      "type": 3
+    },
+    {
+      "start": "Group Directory",
+      "end": "Directory",
+      "type": 0
+    }
+  ]
+}

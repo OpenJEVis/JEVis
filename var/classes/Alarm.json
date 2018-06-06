@@ -1,0 +1,17 @@
+{
+  "name": "Alarm",
+  "description": "The class Alarm represents a none-specific directory for the structuring of the system. It contains different alarm types.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Dynamic Limit Alarm",
+      "end": "Alarm",
+      "type": 0
+    },
+    {
+      "start": "Static Limit Alarm",
+      "end": "Alarm",
+      "type": 0
+    }
+  ]
+}

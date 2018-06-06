@@ -1,0 +1,22 @@
+{
+  "name": "FTP Channel Directory",
+  "description": "The class FTP Channel Directory represents a specific directory for the management of data.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "FTP Channel",
+      "end": "FTP Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "FTP Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "FTP Channel Directory",
+      "end": "FTP Server",
+      "type": 3
+    }
+  ]
+}

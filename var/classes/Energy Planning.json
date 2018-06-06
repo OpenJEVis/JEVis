@@ -1,0 +1,36 @@
+{
+  "name": "Energy Planning",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Flow Chart Directory",
+      "end": "Energy Planning",
+      "type": 3
+    },
+    {
+      "start": "Energy Planning",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Energy Planning",
+      "end": "Site",
+      "type": 3
+    },
+    {
+      "start": "Energy Sources Directory",
+      "end": "Energy Planning",
+      "type": 3
+    },
+    {
+      "start": "Equipment Register",
+      "end": "Energy Planning",
+      "type": 3
+    },
+    {
+      "start": "Performance Directory",
+      "end": "Energy Planning",
+      "type": 3
+    }
+  ]
+}

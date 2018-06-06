@@ -1,0 +1,21 @@
+{
+  "name": "Ventilation Equipment Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Ventilation",
+      "end": "Ventilation Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Ventilation Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Ventilation Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    }
+  ]
+}

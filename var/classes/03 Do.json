@@ -1,0 +1,41 @@
+{
+  "name": "03 Do",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "03 Do",
+      "end": "Internal Audit",
+      "type": 0
+    },
+    {
+      "start": "03 Do",
+      "end": "Internal Audit",
+      "type": 3
+    },
+    {
+      "start": "Audit Question",
+      "end": "03 Do",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Audit Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "03 Do"
+    },
+    {
+      "name": "Auditor",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "03 Do"
+    }
+  ]
+}

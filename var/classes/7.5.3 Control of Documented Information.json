@@ -1,0 +1,91 @@
+{
+  "name": "7.5.3 Control of Documented Information",
+  "description": "Documented information required by the EnMS and by this document shall be controlled to ensure:  \na) it is available and suitable for use, where and when it is needed;  \nb) it is adequately protected (e.g. from loss of confidentiality, improper use, loss of integrity).  \nFor the control of documented information, the organization shall address the following activities, as  applicable:  \n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "7.5.3 Control of Documented Information",
+      "end": "7.5 Documented Information",
+      "type": 0
+    },
+    {
+      "start": "7.5.3 Control of Documented Information",
+      "end": "7.5 Documented Information",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5.3 Control of Documented Information"
+    },
+    {
+      "name": "Created by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5.3 Control of Documented Information"
+    },
+    {
+      "name": "Date of Creation",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5.3 Control of Documented Information"
+    },
+    {
+      "name": "Document Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5.3 Control of Documented Information"
+    },
+    {
+      "name": "Release Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5.3 Control of Documented Information"
+    },
+    {
+      "name": "Released by",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5.3 Control of Documented Information"
+    },
+    {
+      "name": "Title",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5.3 Control of Documented Information"
+    },
+    {
+      "name": "Version",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "7.5.3 Control of Documented Information"
+    }
+  ]
+}
