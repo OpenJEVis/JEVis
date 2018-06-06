@@ -136,29 +136,16 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      */
     @Override
     public JEVisClassRelationship buildClassRelationship(String fromClass, String toClass, int type) throws JEVisException {
+
+        //TODO: re-impalement after Webservice change
         try {
             JsonClassRelationship newJsonRel = new JsonClassRelationship();
             newJsonRel.setStart(fromClass);
             newJsonRel.setEnd(toClass);
             newJsonRel.setType(type);
+            JEVisClassRelationship rel = new JEVisClassRelationshipWS(this, newJsonRel);
+            return rel;
 
-            String resource = REQUEST.API_PATH_V1
-                    + REQUEST.CLASS_RELATIONSHIPS.PATH;
-
-            Gson gson = new Gson();
-            StringBuffer response = getHTTPConnection().postRequest(resource, gson.toJson(newJsonRel));
-
-            JsonClassRelationship newJson = gson.fromJson(response.toString(), JsonClassRelationship.class);
-            JEVisClassRelationship newRel = new JEVisClassRelationshipWS(this, newJson);
-
-            JEVisClass fromC = getJEVisClass(fromClass);
-            JEVisClass toC = getJEVisClass(toClass);
-            fromC.getRelationships().add(newRel);
-            toC.getRelationships().add(newRel);
-            fromC.notifyListeners(new JEVisEvent(fromC, JEVisEvent.TYPE.CLASS_UPDATE));
-            toC.notifyListeners(new JEVisEvent(toC, JEVisEvent.TYPE.CLASS_UPDATE));
-            System.out.println("new CRel: " + newRel);
-            return newRel;
 
         } catch (Exception ex) {
             logger.catching(ex);
@@ -308,31 +295,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public List<JEVisClassRelationship> getClassRelationships() throws JEVisException {
         logger.trace("Get ALL ClassRelationships");
-        try {
-            List<JEVisClassRelationship> objects = new ArrayList<>();
-            String resource = HTTPConnection.API_PATH_V1
-                    + REQUEST.CLASS_RELATIONSHIPS.PATH;
-//                    + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS;
-            StringBuffer response = con.getRequest(resource);
-
-            Type listType = new TypeToken<List<JsonClassRelationship>>() {
-            }.getType();
-            List<JsonClassRelationship> jsons = gson.fromJson(response.toString(), listType);
-            for (JsonClassRelationship rel : jsons) {
-//                logger.trace("New rel: " + rel);
-                objects.add(new JEVisClassRelationshipWS(this, rel));
-            }
-
-            return objects;
-
-        } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
-            //TODO: throw excption?! so the other function can handel it?
-            return new ArrayList<>();
-        } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
-            return new ArrayList<>();
-        }
+        //TODO: re-impalement after Webservice change
+        return new ArrayList<>();
     }
 
     @Override
@@ -384,38 +348,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public List<JEVisType> getTypes(String className) throws JEVisException {
         logger.trace("Get  getTypes: {}", className);
-        try {
-//            JEVisClass jclass = getJEVisClass(className);
-            List<JEVisType> types = new ArrayList<>();
-            String resource = REQUEST.API_PATH_V1
-                    + REQUEST.CLASSES.PATH
-                    + className + "/"
-                    + REQUEST.CLASSES.TYPES.PATH;
-//                    + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS;
-            StringBuffer response = con.getRequest(resource);
 
-            Type listType = new TypeToken<List<JsonType>>() {
-            }.getType();
-            List<JsonType> jsons = gson.fromJson(response.toString(), listType);
-            for (JsonType type : jsons) {
-//                logger.trace("New rel: " + rel);
-                try {
-                    types.add(new JEVisTypeWS(this, type, className));
-                } catch (Exception ex) {
-                    logger.catching(ex);
-                }
-            }
+        return getJEVisClass(className).getTypes();
 
-            return types;
-
-        } catch (ProtocolException ex) {
-            logger.catching(ex);
-            //TODO: throw excption?! so the other function can handel it?
-            return new ArrayList<>();
-        } catch (IOException ex) {
-            logger.catching(ex);
-            return new ArrayList<>();
-        }
     }
 
     private void removeObjectFromCache(long objectID) {
@@ -536,31 +471,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public boolean deleteClassRelationship(String fromClass, String toClass, int type) throws JEVisException {
-        try {
-            logger.trace("Delete: '{}' -> '{}' type:{}", fromClass, toClass, type);
-
-            String resource = REQUEST.API_PATH_V1
-                    + REQUEST.CLASS_RELATIONSHIPS.PATH
-                    + "?"
-                    + REQUEST.CLASS_RELATIONSHIPS.OPTIONS.FROM + fromClass
-                    + "&"
-                    + REQUEST.CLASS_RELATIONSHIPS.OPTIONS.TO + toClass
-                    + "&"
-                    + REQUEST.CLASS_RELATIONSHIPS.OPTIONS.TYPE + type;
-
-//            Gson gson = new Gson();
-            HttpURLConnection conn = getHTTPConnection().getDeleteConnection(resource);
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                //TODO: maybe remove from the list of cached relationships but for now we dont have such a list
-                return true;
-            }
-
-            return false;
-
-        } catch (Exception ex) {
-            logger.catching(ex);
-            return false;
-        }
+        //TODO: re-implement after webservice change
+        return false;
     }
 
     @Override

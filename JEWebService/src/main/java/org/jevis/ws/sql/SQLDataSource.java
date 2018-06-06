@@ -8,7 +8,10 @@ package org.jevis.ws.sql;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.ws.json.*;
 import org.jevis.rest.Config;
 import org.jevis.rest.ErrorBuilder;
@@ -20,7 +23,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -38,15 +40,12 @@ public class SQLDataSource {
     private LoginTable lTable;
     private ObjectTable oTable;
     private AttributeTable aTable;
-    private RelationshipTable rTable;
-    private ClassTable cTable;
     private SampleTable sTable;
-    private ClassRelationTable crTable;
-    private TypeTable tTable;
+    private RelationshipTable rTable;
 
     private List<JsonRelationship> allRelationships = new LinkedList<>();
-    private List<JsonClassRelationship> allClassRelationships = new LinkedList<>();
-    private List<JsonJEVisClass> allClasses = new LinkedList<>();
+    //    private List<JsonClassRelationship> allClassRelationships = new LinkedList<>();
+//    private List<JsonJEVisClass> allClasses = new LinkedList<>();
     private List<JsonObject> allObjects = new LinkedList<>();
     private Map<String, List<JsonType>> allTypes = new HashMap<>();
     private UserRightManagerForWS um;
@@ -73,10 +72,7 @@ public class SQLDataSource {
                 pf.addEvent("DS", "JEVis user login done");
                 oTable = new ObjectTable(this);
                 aTable = new AttributeTable(this);
-                cTable = new ClassTable(this);
                 sTable = new SampleTable(this);
-                crTable = new ClassRelationTable(this);
-                tTable = new TypeTable(this);
                 rTable = new RelationshipTable(this);
                 um = new UserRightManagerForWS(this);
                 pf.addEvent("DS", "URM done loading");
@@ -105,8 +101,7 @@ public class SQLDataSource {
                     getProfiler().addEvent("DS", "done reloading Relationships");
                     break;
                 case ALL_CLASSES:
-                    allClassRelationships = getClassRelationshipTable().get();
-                    allClasses = getClassTable().getAllObjectClasses();
+                    Config.getClassCache();
 //                    allTypes = getTypeTable().//todo
                     getProfiler().addEvent("DS", "done reloading Classes-/Relationships");
                     break;
@@ -115,7 +110,7 @@ public class SQLDataSource {
                     getProfiler().addEvent("DS", "done reloading Objects");
                     break;
             }
-        } catch (SQLException sx) {
+        } catch (Exception sx) {
             logger.error("Error while reloading", sx);
         }
     }
@@ -128,21 +123,10 @@ public class SQLDataSource {
         return oTable;
     }
 
-    public ClassTable getClassTable() {
-        return cTable;
-    }
-
-    public ClassRelationTable getClassRelationshipTable() {
-        return crTable;
-    }
-
     public SampleTable getSampleTable() {
         return sTable;
     }
 
-    public TypeTable getTypeTable() {
-        return tTable;
-    }
 
     public AttributeTable getAttributeTable() {
         return aTable;
@@ -160,7 +144,7 @@ public class SQLDataSource {
         List<JsonObject> filterd = new ArrayList<>();
         List<String> heir = new ArrayList<>();
         heir.add(jclass);
-        getClassTable().getHeirNames(heir, jclass);
+        JEVisClassHelper.findHeir(jclass, heir);
         for (JsonObject obj : objects) {
             if (heir.contains(obj.getJevisClass())) {
                 filterd.add(obj);
@@ -221,10 +205,6 @@ public class SQLDataSource {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public JsonClassRelationship buildClassRelationship(String fromClass, String toClass, int type) throws JEVisException {
-        return getClassRelationshipTable().insert(fromClass, toClass, type);
-    }
-
     public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) throws JEVisException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -238,7 +218,7 @@ public class SQLDataSource {
         List<String> allHeir = new ArrayList<>();
         allHeir.add(jevisClass);
         if (addheirs) {
-            getClassTable().getHeirNames(allHeir, jevisClass);
+            JEVisClassHelper.findHeir(jevisClass, allHeir);
         }
 
         for (JsonObject ob : getObjects()) {
@@ -301,20 +281,6 @@ public class SQLDataSource {
         return allObjects;
     }
 
-    public boolean deleteType(String jclass, String type) throws JEVisException {
-        return getTypeTable().delete(jclass, type);
-    }
-
-    public boolean setType(String jclass, JsonType type, String oldname) throws JEVisException {
-        JsonType existingType = getType(jclass, type.getName());
-        if (existingType == null) {
-            getTypeTable().insert(jclass, type);
-            existingType = getType(jclass, type.getName());
-        }
-
-        return getTypeTable().update(type, jclass, oldname);
-
-    }
 
     public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) throws JEVisException {
         List<JsonRelationship> newRels = new ArrayList<>();
@@ -333,34 +299,9 @@ public class SQLDataSource {
     }
 
     public JsonJEVisClass getJEVisClass(String name) throws JEVisException {
-        if (!allClasses.isEmpty()) {
-            for (JsonJEVisClass jc : allClasses) {
-                if (jc.getName().equals(name)) {
-                    return jc;
-                }
-            }
-        }
-
-        return cTable.getObjectClass(name);
-
+        return Config.getClassCache().get(name);
     }
 
-    public BufferedImage getJEVisClassIcon(String name) throws JEVisException {
-        return getClassTable().getClassIcon(name);
-    }
-
-    public List<JsonJEVisClass> getJEVisClasses() throws JEVisException {
-        if (!allClasses.isEmpty()) {
-            return allClasses;
-        }
-        try {
-            allClasses = cTable.getAllObjectClasses();
-            return allClasses;
-        } catch (SQLException se) {
-            throw new JEVisException("DB Error while getting JClasses", 7353, se);
-        }
-
-    }
 
     public JEVisUserNew getCurrentUser() {
         if (user == null) {
@@ -371,14 +312,6 @@ public class SQLDataSource {
 
     public List<JsonSample> getSamples(long obj, String attribute, DateTime from, DateTime until, long limit) throws JEVisException {
         return getSampleTable().getSamples(obj, attribute, from, until, limit);
-    }
-
-    public JEVisFile getFile(long obj, String attribute, DateTime date) throws JEVisException {
-        return getSampleTable().getFileSample(obj, attribute, date);
-    }
-
-    public boolean setFile(long obj, String attribute, DateTime date, JEVisFile file) throws JEVisException {
-        return getSampleTable().insertFile(obj, attribute, date, file);
     }
 
     public int setSamples(long obj, String attribute, int pritype, List<JsonSample> samples) throws JEVisException {
@@ -430,21 +363,6 @@ public class SQLDataSource {
 
     }
 
-    public List<JsonClassRelationship> getClassRelationships() throws JEVisException {
-        if (!allClassRelationships.isEmpty()) {
-            return allClassRelationships;
-        }
-
-        return crTable.get();
-
-    }
-
-    public List<JsonClassRelationship> getClassRelationships(String jclass) throws JEVisException {
-        if (!allClassRelationships.isEmpty()) {
-            return allClassRelationships;
-        }
-        return crTable.get(jclass);
-    }
 
     public boolean disconnect() throws JEVisException {
         if (dbConn != null) {
@@ -483,67 +401,11 @@ public class SQLDataSource {
 
     }
 
-    public boolean setJEVisClassIcon(String jclass, BufferedImage icon) throws JEVisException {
-        JsonJEVisClass dbclass = getClassTable().getObjectClass(jclass);
-        System.out.println("dblass: " + dbclass);
-        if (dbclass != null) {
-            return getClassTable().updateClassIcon(jclass, icon);
-        }
-        return false;
-    }
-
-    public boolean setJEVisClass(String oldName, JsonJEVisClass jclass) throws JEVisException {
-
-        if (getClassTable().getObjectClass(jclass.getName()) != null) {
-            getClassTable().updateClass(oldName, jclass);
-        } else {
-            getClassTable().insert(jclass.getName(), jclass.getDescription(), jclass.getUnique());
-        }
-
-        return true;
-    }
-
     public boolean setAttribute(long objectID, JsonAttribute att) throws JEVisException {
         getAttributeTable().updateAttribute(objectID, att);
         return true;
     }
 
-    public JsonType getType(String className, String name) throws JEVisException {
-        for (JsonType type : getTypes(className)) {
-            if (type.getName().equals(name)) {
-                return type;
-            }
-        }
-        return null;
-    }
-
-    public List<JsonType> getAllTypes() throws JEVisException {
-        try {
-            List<JsonType> types = getTypeTable().getAll();
-            //TODO put it into the allTypes List? do we need this list at all?
-//            for(JsonType t:types){
-//                
-//            }
-
-            return types;
-        } catch (SQLException | UnsupportedEncodingException ex) {
-            throw new JEVisException("DB error while fetching types", 6836, ex);
-        }
-
-    }
-
-    public List<JsonType> getTypes(String className) throws JEVisException {
-        if (!allTypes.isEmpty()) {
-            return allTypes.get(className);
-        }
-
-        try {
-            return getTypeTable().getAll(className);
-        } catch (SQLException | UnsupportedEncodingException ex) {
-            throw new JEVisException("DB error while fetching types", 6836, ex);
-        }
-
-    }
 
     public JsonObject buildObject(JsonObject obj, long parent) throws JEVisException {
         return getObjectTable().insertObject(obj.getName(), obj.getJevisClass(), parent, obj.getisPublic());
@@ -553,16 +415,10 @@ public class SQLDataSource {
         return getObjectTable().deleteObject(objectID);
     }
 
-    public boolean deleteClass(String jclass) throws JEVisException {
-        return getClassTable().delete(jclass);
-    }
 
     public boolean deleteRelationship(Long fromObject, Long toObject, int type) throws JEVisException {
         return getRelationshipTable().delete(fromObject, toObject, type);
     }
 
-    public boolean deleteClassRelationship(String fromClass, String toClass, int type) throws JEVisException {
-        return getClassRelationshipTable().delete(fromClass, toClass, type);
-    }
 
 }

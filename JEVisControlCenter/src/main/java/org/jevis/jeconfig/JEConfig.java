@@ -108,6 +108,7 @@ public class JEConfig extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        primaryStage.setTitle(PROGRAMM_INFO.getName());
         JavaVersionCheck checkVersion = new JavaVersionCheck();
         if (!checkVersion.isVersionOK()) {
             System.exit(1);
@@ -123,7 +124,6 @@ public class JEConfig extends Application {
      * @param primaryStage
      */
     private void initGUI(Stage primaryStage) {
-
 
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override

@@ -143,37 +143,8 @@ public class JEVisClassWS implements JEVisClass {
 
     @Override
     public boolean deleteType(String type) throws JEVisException {
-        try {
-            logger.trace("Delete: {}", type);
-
-            String resource = REQUEST.API_PATH_V1
-                    + REQUEST.CLASSES.PATH
-                    + getName() + "/"
-                    + REQUEST.CLASSES.TYPES.PATH
-                    + type;
-
-            HttpURLConnection conn = ds.getHTTPConnection().getDeleteConnection(resource);
-            logger.trace("Connection.ResonseCode: {}", conn.getResponseCode());
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-
-                //TODO: maybe remove from the list of cached relationships but for now we dont have such a list
-                //alternativ whould be to fire an update event but this whould make some gui trouble in this version
-                for (JEVisType ty : types) {
-                    if (ty.getName().equals(type)) {
-                        types.remove(ty);
-                        break;
-                    }
-                }
-
-                return true;
-            }
-
-            return false;
-
-        } catch (Exception ex) {
-            logger.catching(ex);
-            return false;
-        }
+        //TODO re-implement
+        return false;
     }
 
     @Override

@@ -27,6 +27,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.ws.json.*;
+import org.jevis.ws.sql.JEVisClassHelper;
 import org.jevis.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -211,7 +212,8 @@ public class ResourceSample {
             List<JsonSample> samples = new ArrayList<>();
             samples.add(sample);
 
-            JsonType type = ds.getType(obj.getJevisClass(), att.getType());
+            JsonType type = JEVisClassHelper.getType(obj.getJevisClass(), attribute);
+
             int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
 
             return Response.status(200).build();
@@ -230,75 +232,6 @@ public class ResourceSample {
 
     }
 
-//    @POST
-//    @Path("/files/{timestamp}")  //Your Path or URL to call this service
-//    @Consumes(MediaType.MULTIPART_FORM_DATA)
-//    public Response uploadFile(
-//            @Context HttpHeaders httpHeaders,
-//            @Context Request request,
-//            @Context UriInfo url,
-//            @PathParam("id") long id,
-//            @PathParam("attribute") String attribute,
-//            @DefaultValue("true") @FormDataParam("enabled") boolean enabled,
-//            @FormDataParam("file") InputStream uploadedInputStream,
-//            @FormDataParam("file") FormDataContentDisposition fileDetail,
-//            @PathParam("timestamp") String timestamp) throws JEVisException {
-//
-//        System.out.println("---------------------- Post File --------------------");
-//        SQLDataSource ds = null;
-//        try {
-//            ds = new SQLDataSource(httpHeaders, request, url);
-//
-//            JsonObject obj = ds.getObject(id);
-//            if (obj == null) {
-//                return Response.status(Status.NOT_FOUND)
-//                        .entity("Object is not accessible").build();
-//            }
-//
-//            JsonAttribute att = ds.getAttribute(obj.getId(), attribute);
-//
-//            ds.getUserManager().canWrite(obj);//can throw exception
-//
-//            //Your local disk path where you want to store the file
-//            String uploadedFileLocation = createFilePattern(id, attribute, fileDetail.getFileName(), fmt.parseDateTime(timestamp));
-//            System.out.println("upload to: " + uploadedFileLocation);
-//
-//            File objFile = new File(uploadedFileLocation);
-//            if (objFile.exists()) {
-//                objFile.delete();
-//            } else {
-//                if (!objFile.getParentFile().exists()) {
-//                    objFile.getParentFile().mkdirs();
-//                }
-//            }
-//
-//            saveToFile(uploadedInputStream, uploadedFileLocation);
-//
-//            JsonSample sample = new JsonSample();
-//            sample.setTs(JsonFactory.sampleDTF.print(fmt.parseDateTime(timestamp)));
-//            sample.setValue(fileDetail.getFileName());
-//            sample.setNote("Uploaded by " + ds.getCurrentUser().getAccountName());
-//
-//            List<JsonSample> samples = new ArrayList<>();
-//            samples.add(sample);
-//
-//            JsonType type = ds.getType(obj.getJevisClass(), att.getType());
-//            int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-//
-//            String output = "File uploaded via Jersey based RESTFul Webservice to: " + uploadedFileLocation;
-//
-//            return Response.status(200).entity(output).build();
-//        } catch (AuthenticationException ex) {
-//            logger.error("Auth errror: {}", ex);
-//            return Response.status(Response.Status.UNAUTHORIZED).build();
-//        } catch (Exception jex) {
-//            logger.catching(jex);
-//            return Response.serverError().build();
-//        } finally {
-//            Config.CloseDS(ds);
-//        }
-//
-//    }
 
     private String createFilePattern(long id, String attribute, String fileName, DateTime dateTime) {
         String absoluteFileDir = Config.getFileDir().getAbsolutePath()
@@ -310,7 +243,6 @@ public class ResourceSample {
     }
 
     private void saveToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
-        System.out.println("Start writing file: ");
         try {
             OutputStream out = null;
             int read = 0;
@@ -327,7 +259,6 @@ public class ResourceSample {
 
             e.printStackTrace();
         }
-        System.out.println("done");
     }
 
     @GET
@@ -444,7 +375,7 @@ public class ResourceSample {
                 if (att.getType().equals(attribute)) {
                     List<JsonSample> sampes = new Gson().fromJson(input, new TypeToken<List<JsonSample>>() {
                     }.getType());
-                    JsonType type = ds.getType(object.getJevisClass(), att.getType());
+                    JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
                     int result = ds.setSamples(id, attribute, type.getPrimitiveType(), sampes);
                     return Response.status(Status.CREATED).build();
                 }

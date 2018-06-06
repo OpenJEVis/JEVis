@@ -1,39 +1,39 @@
 /**
  * Copyright (C) 2013 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-SQL.
- *
+ * <p>
  * JEAPI-SQL is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-SQL is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql;
+package org.jevis.ws.sql.tables;
 
-import java.sql.Connection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
+import org.jevis.commons.ws.json.JsonRelationship;
+import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.ws.sql.SQLtoJsonFactory;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.commons.utils.Benchmark;
-import org.jevis.commons.ws.json.JsonRelationship;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class RelationshipTable {
@@ -74,14 +74,14 @@ public class RelationshipTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         return relations;
     }
 
     /**
-     *
      * @param id jevisObject id
      * @return
      */
@@ -114,20 +114,21 @@ public class RelationshipTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         return relations;
     }
 
     //todo: implemet the return save and performant
+
     /**
-     * 
      * @param start
      * @param end
      * @param type
      * @return
-     * @throws JEVisException 
+     * @throws JEVisException
      */
     public JsonRelationship insert(long start, long end, int type) throws JEVisException {
 
@@ -150,7 +151,7 @@ public class RelationshipTable {
                 json.setFrom(start);
                 json.setTo(end);
                 json.setType(type);
-                
+
                 return json;
             } else {
                 throw new JEVisException("Could not create the relationship", 1964823);
@@ -164,7 +165,8 @@ public class RelationshipTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
     }
@@ -173,7 +175,6 @@ public class RelationshipTable {
         return delete(rel.getFrom(), rel.getTo(), rel.getType());
     }
 
-  
 
     public boolean delete(long start, long end, int type) throws JEVisException {
 
@@ -207,7 +208,8 @@ public class RelationshipTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
     }
@@ -217,7 +219,7 @@ public class RelationshipTable {
     }
 
     public boolean deleteAll(List<Long> ids) throws JEVisException {
-        System.out.println("delete rel for: "+Arrays.toString(ids.toArray()));
+        System.out.println("delete rel for: " + Arrays.toString(ids.toArray()));
         //TODO make it save with a prepared or so
         PreparedStatement ps = null;
 
@@ -255,11 +257,12 @@ public class RelationshipTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
     }
-    
+
     public List<JsonRelationship> getAllForObject(long object) {
         logger.trace("getSingel Relationship");
         PreparedStatement ps = null;
@@ -267,8 +270,8 @@ public class RelationshipTable {
 
         try {
             String sql = "select * from " + TABLE
-                    +" where "+COLUMN_END+"=?"
-                    +" or "+COLUMN_START+"=?";
+                    + " where " + COLUMN_END + "=?"
+                    + " or " + COLUMN_START + "=?";
 
             ps = _connection.getConnection().prepareStatement(sql);
             ps.setLong(1, object);
@@ -287,7 +290,8 @@ public class RelationshipTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         return relations;
@@ -318,7 +322,8 @@ public class RelationshipTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         return relations;
@@ -368,7 +373,8 @@ public class RelationshipTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         return relations;

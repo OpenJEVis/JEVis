@@ -1,10 +1,5 @@
 package org.jevis.rest;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.security.sasl.SaslServerFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -13,14 +8,16 @@ import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jevis.ws.sql.ConnectionFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.jevis.ws.sql.ConnectionFactory;
 
 /**
  * Main class.
- *
  */
 public class Main {
 
@@ -33,7 +30,7 @@ public class Main {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException,SQLException {
+    public static void main(String[] args) throws IOException, SQLException {
         LOGGER.info("Start - {}", VERSION);
         //read Config
         File configfile;
@@ -51,26 +48,26 @@ public class Main {
                 System.out.println("No config file: try using config.xml");
             }
         }
-	Config.readConfigurationFile(configfile);
+        Config.readConfigurationFile(configfile);
 
-	//Test Connection parameter
-	for(String para:args){
-		System.out.println("para: "+para);
-                if(para.equalsIgnoreCase("-test")){
-                    System.out.println("DBHost: "+Config.getDBHost()
-                            +"\nDBPort: "+ Config.getDBPort()
-                            +"\nDBSchema: "+ Config.getSchema()
-                            +"\nDBUSer: "+Config.getDBUser()
-                            +"\nDBPW: "+Config.getDBPW());
-                    ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
+        //Test Connection parameter
+        for (String para : args) {
+            System.out.println("para: " + para);
+            if (para.equalsIgnoreCase("-test")) {
+                System.out.println("DBHost: " + Config.getDBHost()
+                        + "\nDBPort: " + Config.getDBPort()
+                        + "\nDBSchema: " + Config.getSchema()
+                        + "\nDBUSer: " + Config.getDBUser()
+                        + "\nDBPW: " + Config.getDBPW());
+                ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
 
-                    Connection dbConn = ConnectionFactory.getInstance().getConnection();
-                    if (dbConn.isValid(2000)) {
-                        System.out.println("Database Connection is working");
-                    }else{
-                        System.out.println("Database Connection is NOT working");
-                    }
-		}
+                Connection dbConn = ConnectionFactory.getInstance().getConnection();
+                if (dbConn.isValid(2000)) {
+                    System.out.println("Database Connection is working");
+                } else {
+                    System.out.println("Database Connection is NOT working");
+                }
+            }
         }
 
         final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest");
@@ -83,7 +80,7 @@ public class Main {
             SSLContextConfigurator sslCon = new SSLContextConfigurator();
             sslCon.setKeyStoreFile(Config.getKeyStoreFile());
             sslCon.setKeyStorePass(Config.getKeyStorePW());
-            
+
 
             server = GrizzlyHttpServerFactory.createHttpServer(
                     URI.create(Config.getURI()),
@@ -91,7 +88,7 @@ public class Main {
                     true,
                     new SSLEngineConfigurator(sslCon, false, false, false)
             );
-        }else{
+        } else {
             server = GrizzlyHttpServerFactory.createHttpServer(URI.create(Config.getURI()), rc);
         }
 
@@ -103,6 +100,7 @@ public class Main {
                 server.stop();
             }
         }, "shutdownHook"));
+
 
         // run
         try {
@@ -119,13 +117,12 @@ public class Main {
 
 /**
  * KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-
-char[] password = "some password".toCharArray();
-ks.load(null, password);
-
-// Store away the keystore.
-FileOutputStream fos = new FileOutputStream("newKeyStoreFileName");
-ks.store(fos, password);
-fos.close();
-
+ * <p>
+ * char[] password = "some password".toCharArray();
+ * ks.load(null, password);
+ * <p>
+ * // Store away the keystore.
+ * FileOutputStream fos = new FileOutputStream("newKeyStoreFileName");
+ * ks.store(fos, password);
+ * fos.close();
  */

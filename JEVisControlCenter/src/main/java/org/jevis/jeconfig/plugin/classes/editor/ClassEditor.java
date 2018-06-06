@@ -1,28 +1,24 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.classes.editor;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -34,18 +30,8 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -55,7 +41,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javax.measure.unit.Unit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -67,26 +52,32 @@ import org.jevis.application.type.DisplayType;
 import org.jevis.application.type.GUIConstants;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
-import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.classes.ClassHelper;
 import org.jevis.jeconfig.plugin.classes.ClassTree;
 import org.jevis.jeconfig.plugin.classes.relationship.VaildParentEditor;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
+import javax.measure.unit.Unit;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ClassEditor {
 
-//    private Desktop desktop = Desktop.getDesktop();
+    //    private Desktop desktop = Desktop.getDesktop();
     private JEVisClass _class;
     private TextField fInherit;
     Button fIcon;
     private TitledPane t2;
     private List<JEVisType> _toDelete;
-//    private final UnitChooser pop = new UnitChooser();
+    //    private final UnitChooser pop = new UnitChooser();
     private VBox _view;
     TextField fName = new TextField();
     TextArea fDescription = new TextArea();
@@ -287,8 +278,8 @@ public class ClassEditor {
     }
 
     /**
-     * @TODO: make this an extra GUI class
      * @return
+     * @TODO: make this an extra GUI class
      */
     private Node buildTypeNode() {
         ScrollPane cp = new ScrollPane();
@@ -300,22 +291,22 @@ public class ClassEditor {
         gridPane.setVgap(7);
 
         Label headerName = new Label(I18n.getInstance().getString("plugin.classes.editor.type.name"));
-        Label headerPType = new Label(I18n.getInstance().getString("prim_type"));
-        Label headerUnit = new Label(I18n.getInstance().getString("unit"));
-        Label headerGType = new Label(I18n.getInstance().getString("guitype"));
-        Label headerColtrol = new Label(I18n.getInstance().getString("controls"));
+        Label headerPType = new Label(I18n.getInstance().getString("plugin.classes.editor.type.prim_type"));
+        Label headerUnit = new Label(I18n.getInstance().getString("plugin.classes.editor.type.unit"));
+        Label headerGType = new Label(I18n.getInstance().getString("plugin.classes.editor.type.guitype"));
+        Label headerControl = new Label(I18n.getInstance().getString("plugin.classes.editor.type.controls"));
 
         Separator headerSep = new Separator();
         gridPane.add(headerName, 0, 0);
         gridPane.add(headerPType, 1, 0);
         gridPane.add(headerGType, 2, 0);
         gridPane.add(headerUnit, 3, 0);
-        gridPane.add(headerColtrol, 4, 0);
+        gridPane.add(headerControl, 4, 0);
         gridPane.add(headerSep, 0, 1, 7, 1);
 
         //disabled as long the dont function right
         headerUnit.setVisible(false);
-        headerColtrol.setVisible(false);
+        headerControl.setVisible(false);
         headerSep.setVisible(false);
 
         int row = 2;
@@ -365,9 +356,9 @@ public class ClassEditor {
 
                 try {
                     unitSelector.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent t) {
-                            try {
+                                                 @Override
+                                                 public void handle(ActionEvent t) {
+                                                     try {
 //                                UnitSelectDialog usd = new UnitSelectDialog();
 //                                if (usd.show(JEConfig.getStage(), "Select Unit", _class.getDataSource()) == UnitSelectDialog.Response.YES) {
 //                                    System.out.println("OK");
@@ -379,11 +370,11 @@ public class ClassEditor {
 //
 //                                }
 
-                            } catch (Exception ex) {
-                                logger.catching(ex);
-                            }
-                        }
-                    }
+                                                     } catch (Exception ex) {
+                                                         logger.catching(ex);
+                                                     }
+                                                 }
+                                             }
                     );
                 } catch (Exception ex) {
                     logger.catching(ex);
@@ -604,7 +595,7 @@ public class ClassEditor {
             }
 
             JEVisType newType = _class.buildType(name);
-            
+
             JEVisType lastType = _class.getTypes().get(_class.getTypes().size() - 1);
 //                    newType.setPrimitiveType(ClassHelper.getIDforPrimitiveType(pTypeBox.getSelectionModel().getSelectedItem().toString()));
             newType.setGUIPosition(lastType.getGUIPosition() + 1);
