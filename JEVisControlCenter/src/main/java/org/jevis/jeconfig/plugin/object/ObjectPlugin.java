@@ -1,26 +1,25 @@
 /**
  * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.object;
 
-import java.util.List;
-import java.util.logging.Level;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -31,33 +30,19 @@ import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Separator;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.TreeItem;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javax.measure.unit.Unit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisUnit;
+import org.jevis.api.*;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.InfoDialog;
 import org.jevis.application.dialog.ProgressForm;
-import org.jevis.application.jevistree.JEVisTree;
-import org.jevis.application.jevistree.JEVisTreeFactory;
-import org.jevis.application.jevistree.JEVisTreeItem;
-import org.jevis.application.jevistree.JEVisTreeRow;
-import org.jevis.application.jevistree.TreeHelper;
-import static org.jevis.application.jevistree.TreeHelper.LOGGER;
+import org.jevis.application.jevistree.*;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.Constants;
@@ -71,6 +56,12 @@ import org.jevis.jeconfig.tool.LoadingPane;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import javax.measure.unit.Unit;
+import java.util.List;
+import java.util.logging.Level;
+
+import static org.jevis.application.jevistree.TreeHelper.LOGGER;
+
 /**
  * Theis JEConfig plugin allowes the user con work with the Objects in the JEVis
  * System.
@@ -83,7 +74,7 @@ public class ObjectPlugin implements Plugin {
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane border;
-//    private ObjectTree tf;
+    //    private ObjectTree tf;
 //    private ObjectTree tree;
     private JEVisTree tree;
     private LoadingPane editorLodingPane = new LoadingPane();
@@ -100,14 +91,24 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-        if (tree.getSelectionModel().getSelectedItem() == null) {
-            try {
-                tree.getSelectionModel().selectFirst();
-                tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
-            }catch (NullPointerException np){
-                logger.error("Empty tree can focus first object",np);
+//        if (tree.getSelectionModel().getSelectedItem() == null) {
+        try {
+            if (tree.getSelectionModel().getSelectedItem() == null) {
+                Platform.runLater(() -> {
+                    tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
+                    tree.getSelectionModel().selectFirst();
+                });
             }
+
+            System.out.println("---------- Treee Request focus!!!!!!");
+            Platform.runLater(() -> {
+                tree.requestFocus();
+            });
+
+        } catch (NullPointerException np) {
+            logger.error("Empty tree can focus first object", np);
         }
+//        }
 
     }
 
