@@ -236,7 +236,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     public DateTime getTimestampFromFirstSample() {
         try {
             return attDTF.parseDateTime(json.getBegins());
-        } catch (NullPointerException nex) {
+        } catch (Exception nex) {
             return null;
         }
     }
@@ -245,7 +245,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     public DateTime getTimestampFromLastSample() {
         try {
             return attDTF.parseDateTime(json.getEnds());
-        } catch (NullPointerException nex) {
+        } catch (Exception nex) {
             return null;
         }
     }

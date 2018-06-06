@@ -12,12 +12,15 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
 import org.jevis.rest.Config;
 import org.jevis.rest.ErrorBuilder;
 import org.jevis.ws.sql.tables.*;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
+import javax.measure.unit.Unit;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
@@ -394,10 +397,47 @@ public class SQLDataSource {
     }
 
     public List<JsonAttribute> getAttributes(long objectID) throws JEVisException {
+        System.out.println("getAttributes");
         JsonObject ob = getObject(objectID);
+        JsonJEVisClass jc = Config.getClassCache().get(ob.getJevisClass());
         List<JsonAttribute> atts = getAttributeTable().getAttributes(objectID);
+        List<JsonAttribute> result = new ArrayList<>();
 
-        return atts;
+        System.out.println("Types: " + jc.getTypes().size());
+
+        // because jevis will not create default attributes or manage the update of types
+        // we check that all and only all types are there
+        for (JsonType type : jc.getTypes()) {
+            System.out.println("Type: " + type.getName());
+            boolean exists = false;
+            for (JsonAttribute att : atts) {
+                if (type.getName().equals(att.getType())) {
+                    exists = true;
+                    result.add(att);
+                }
+            }
+            if (!exists) {
+                System.out.println("Does not exists -> add");
+                //new Default Attribute
+                JsonAttribute newAtt = new JsonAttribute();
+                newAtt.setType(type.getName());
+                newAtt.setBegins("");
+                newAtt.setEnds("");
+                newAtt.setDisplaySampleRate(Period.ZERO.toString());
+                newAtt.setInputSampleRate("");
+                newAtt.setSampleCount(0);
+                newAtt.setPrimitiveType(type.getPrimitiveType());
+
+                JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+
+                newAtt.setDisplayUnit(unit);
+                newAtt.setInputUnit(unit);
+                result.add(newAtt);
+            }
+        }
+
+        System.out.println("Result: " + result.size());
+        return result;
 
     }
 

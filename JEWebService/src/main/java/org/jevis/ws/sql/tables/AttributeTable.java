@@ -114,13 +114,13 @@ public class AttributeTable {
         List<JsonAttribute> attributes = new ArrayList<>();
 
 
-        String sqlOrig = "select t.name,t.primitivtype,t.jevisclass,a.*,s.*"
-                + " FROM jevis.type t"
-                + " left join object o on (o.type=t.jevisclass)"
-                + " left join attribute a on (a.name=t.name and a.object=o.id)"
-                + " left join sample s on(s.object=o.id and s.attribute=a.name and s.timestamp=a.maxts )"
-                + " where o.id=?";
-        System.out.println("Original SQL: " + sqlOrig);
+//        String sqlOrig = "select t.name,t.primitivtype,t.jevisclass,a.*,s.*"
+//                + " FROM jevis.type t"
+//                + " left join object o on (o.type=t.jevisclass)"
+//                + " left join attribute a on (a.name=t.name and a.object=o.id)"
+//                + " left join sample s on(s.object=o.id and s.attribute=a.name and s.timestamp=a.maxts )"
+//                + " where o.id=?";
+//        System.out.println("Original SQL: " + sqlOrig);
 
         String sql = "select o.type,a.*,s.*"
                 + "FROM attribute a"
@@ -138,6 +138,7 @@ public class AttributeTable {
             _connection.addQuery("Attribute.get(long)", ps.toString());
             System.out.println("SQL: " + ps);
             ResultSet rs = ps.executeQuery();
+
 
             while (rs.next()) {
                 try {
