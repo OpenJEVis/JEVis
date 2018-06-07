@@ -1,0 +1,8 @@
+Period_Offset=60
+Period=PT15M
+Value_is_a_Quantity=true
+Conversion_to_Differential=false
+Offset=0
+Gap_Filling=STATIC
+Multiplier=1
+Period_Aligned=true

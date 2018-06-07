@@ -22,6 +22,7 @@
         <module>JECalc</module>
         <module>JEReport</module>
         <module>Notifier</module>
+	<module>JEDataProcessor</module>
     </modules>
 
 
@@ -40,6 +41,7 @@
                 <module>JECalc</module>
                 <module>JEReport</module>
                 <module>Notifier</module>
+		<module>JEDataProcessor</module>
             </modules>
         </profile>
     </profiles>
