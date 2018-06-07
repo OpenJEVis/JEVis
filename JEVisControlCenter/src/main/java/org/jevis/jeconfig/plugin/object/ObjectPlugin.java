@@ -100,7 +100,6 @@ public class ObjectPlugin implements Plugin {
                 });
             }
 
-            System.out.println("---------- Treee Request focus!!!!!!");
             Platform.runLater(() -> {
                 tree.requestFocus();
             });

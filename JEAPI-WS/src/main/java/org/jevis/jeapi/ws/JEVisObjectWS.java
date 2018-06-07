@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -183,7 +182,8 @@ public class JEVisObjectWS implements JEVisObject {
                 return list;
             }
 
-        } catch (ExecutionException ex) {
+        } catch (Exception ex) {
+            logger.error(ex);
             return new ArrayList<>();
         }
 

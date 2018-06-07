@@ -1,52 +1,40 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.unit;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -55,7 +43,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.joda.time.Period;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SamplingRateUI extends ComboBox<Period> {
@@ -110,9 +97,8 @@ public class SamplingRateUI extends ComboBox<Period> {
         this.valueProperty().addListener(new ChangeListener<Period>() {
             @Override
             public void changed(ObservableValue<? extends Period> observable, Period oldValue, Period newValue) {
-                System.out.println("Selected: " + newValue);
+
                 if (newValue == FREE_SELECTION) {
-                    System.out.println("sowh free selects");
                     Period newperiod = ShowNewPeriod();
                     if (newperiod != CANCELD_SELECTION) {
                         periodProperty.setValue(newperiod);
@@ -123,7 +109,7 @@ public class SamplingRateUI extends ComboBox<Period> {
                                 SamplingRateUI.this.getSelectionModel().select(periodProperty.getValue());
                             }
                         });
-                        
+
                     } else {
                         SamplingRateUI.this.getItems().add(periodProperty.getValue());
                         Platform.runLater(new Runnable() {
@@ -132,9 +118,11 @@ public class SamplingRateUI extends ComboBox<Period> {
                                 SamplingRateUI.this.getSelectionModel().select(oldValue);
                             }
                         });
-                        
+
                     }
 
+                } else {
+                    periodProperty.setValue(newValue);
                 }
             }
         });
