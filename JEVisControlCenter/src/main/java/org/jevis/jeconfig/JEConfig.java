@@ -452,6 +452,10 @@ public class JEConfig extends Application {
         if (getConfig().getLastPath() == null) {
             getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
         }
+        if (!getConfig().getLastPath().canRead()) {
+            getConfig().setLastPath(new File(System.getProperty("user.home")));
+        }
+
         return getConfig().getLastPath();
     }
 

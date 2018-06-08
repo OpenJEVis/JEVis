@@ -331,7 +331,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
             return attributes;
 
-        } catch (JsonSyntaxException jex) {
+
+        } catch (NullPointerException | JsonSyntaxException jex) {
             Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, jex);
             Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, response.toString());
             return new ArrayList<>();
