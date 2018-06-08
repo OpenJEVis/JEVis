@@ -39,30 +39,12 @@
       "jevisClass": "Lighting"
     },
     {
-      "name": "Daily Operating Hours",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Lighting"
-    },
-    {
       "name": "Domain",
       "primitiveType": 0,
       "guiType": "Text",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Energy Source",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Lighting"
     },
     {
@@ -75,39 +57,12 @@
       "jevisClass": "Lighting"
     },
     {
-      "name": "Manufacturer",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Lighting"
-    },
-    {
       "name": "Measurement",
       "primitiveType": 0,
       "guiType": "Text",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Measuring Point",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Nominal Power",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Lighting"
     },
     {
@@ -135,33 +90,6 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Weighting Factor",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Work Weeks",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Working Days",
-      "primitiveType": 2,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Lighting"
     }
   ]

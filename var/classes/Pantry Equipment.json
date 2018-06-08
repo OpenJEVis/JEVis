@@ -16,33 +16,6 @@
   ],
   "types": [
     {
-      "name": "Daily Operating Hours",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Energy Source",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Manufacturer",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
       "name": "Measurement Type",
       "primitiveType": 0,
       "guiType": "Text",
@@ -52,30 +25,12 @@
       "jevisClass": "Pantry Equipment"
     },
     {
-      "name": "Measuring Point",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
       "name": "Measurment Type",
       "primitiveType": 0,
       "guiType": "Text",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Nominal Power",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Pantry Equipment"
     },
     {
@@ -121,33 +76,6 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Weighting Factor",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Work Weeks",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Working Days",
-      "primitiveType": 2,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Pantry Equipment"
     }
   ]

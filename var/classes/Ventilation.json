@@ -34,30 +34,12 @@
       "jevisClass": "Ventilation"
     },
     {
-      "name": "Daily Operating Hours",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Ventilation"
-    },
-    {
       "name": "Ducted Airflow",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Ventilation"
-    },
-    {
-      "name": "Energy Source",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Ventilation"
     },
     {
@@ -85,33 +67,6 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Ventilation"
-    },
-    {
-      "name": "Manufacturer",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Ventilation"
-    },
-    {
-      "name": "Measuring Point",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Ventilation"
-    },
-    {
-      "name": "Nominal Power",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Ventilation"
     },
     {
@@ -202,33 +157,6 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Ventilation"
-    },
-    {
-      "name": "Weighting Factor",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Ventilation"
-    },
-    {
-      "name": "Work Weeks",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Ventilation"
-    },
-    {
-      "name": "Working Days",
-      "primitiveType": 2,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Ventilation"
     }
   ]

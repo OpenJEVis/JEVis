@@ -79,15 +79,6 @@
       "jevisClass": "E-Mail Notification"
     },
     {
-      "name": "Sent Time",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "E-Mail Notification"
-    },
-    {
       "name": "Subject",
       "primitiveType": 0,
       "guiType": "Text",

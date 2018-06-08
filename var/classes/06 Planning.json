@@ -84,59 +84,5 @@
     }
   ],
   "types": [
-    {
-      "name": "Content",
-      "primitiveType": 0,
-      "guiType": "Text Area",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "06 Planning"
-    },
-    {
-      "name": "Created by",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "06 Planning"
-    },
-    {
-      "name": "Date of Creation",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "06 Planning"
-    },
-    {
-      "name": "Document Number",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "06 Planning"
-    },
-    {
-      "name": "Release Date",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "06 Planning"
-    },
-    {
-      "name": "Released by",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "06 Planning"
-    }
   ]
 }

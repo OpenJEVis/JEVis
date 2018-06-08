@@ -14,45 +14,5 @@
     }
   ],
   "types": [
-    {
-      "name": "EMail",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Team Member"
-    },
-    {
-      "name": "Function",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Team Member"
-    },
-    {
-      "name": "Name",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Team Member"
-    },
-    {
-      "name": "Phone",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Team Member"
-    },
-    {
-      "name": "Surname",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Team Member"
-    }
   ]
 }

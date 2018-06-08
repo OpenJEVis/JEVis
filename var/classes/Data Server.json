@@ -53,15 +53,6 @@
       "jevisClass": "Data Server"
     },
     {
-      "name": "Enabled",
-      "primitiveType": 4,
-      "guiType": "Check Box",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Data Server"
-    },
-    {
       "name": "Host",
       "primitiveType": 0,
       "GUIPosition": 0,
@@ -94,15 +85,6 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Data Server"
-    },
-    {
-      "name": "Timezone",
-      "primitiveType": 0,
-      "guiType": "String Enum",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Data Server"
     }
   ]

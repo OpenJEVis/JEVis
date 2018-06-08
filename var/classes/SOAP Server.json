@@ -20,31 +20,6 @@
   ],
   "types": [
     {
-      "name": "Connection Timeout",
-      "primitiveType": 2,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "SOAP Server"
-    },
-    {
-      "name": "Enabled",
-      "primitiveType": 4,
-      "guiType": "Check Box",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "SOAP Server"
-    },
-    {
-      "name": "Host",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "SOAP Server"
-    },
-    {
       "name": "Password",
       "primitiveType": 0,
       "guiType": "Password",
@@ -54,37 +29,12 @@
       "jevisClass": "SOAP Server"
     },
     {
-      "name": "Port",
-      "primitiveType": 2,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "SOAP Server"
-    },
-    {
-      "name": "Read Timeout",
-      "primitiveType": 2,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "SOAP Server"
-    },
-    {
       "name": "SSL",
       "primitiveType": 4,
       "guiType": "Check Box",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "SOAP Server"
-    },
-    {
-      "name": "Timezone",
-      "primitiveType": 0,
-      "guiType": "String Enum",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "SOAP Server"
     },
     {

@@ -15,24 +15,6 @@
   ],
   "types": [
     {
-      "name": "Audit Date",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "External Audit"
-    },
-    {
-      "name": "Auditor",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "External Audit"
-    },
-    {
       "name": "Certifier",
       "primitiveType": 0,
       "guiType": "Text",

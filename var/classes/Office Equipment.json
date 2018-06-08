@@ -16,33 +16,6 @@
   ],
   "types": [
     {
-      "name": "Daily Operating Hours",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Energy Source",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Manufacturer",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Office Equipment"
-    },
-    {
       "name": "Measurement",
       "primitiveType": 0,
       "guiType": "Text",
@@ -52,30 +25,12 @@
       "jevisClass": "Office Equipment"
     },
     {
-      "name": "Measuring Point",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Office Equipment"
-    },
-    {
       "name": "Name",
       "primitiveType": 0,
       "guiType": "Text",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Nominal Power",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Office Equipment"
     },
     {
@@ -112,33 +67,6 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Weighting Factor",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Work Weeks",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Working Days",
-      "primitiveType": 2,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Office Equipment"
     }
   ]

@@ -21,24 +21,6 @@
   ],
   "types": [
     {
-      "name": "Daily Operating Hours",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Compressor"
-    },
-    {
-      "name": "Energy Source",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Compressor"
-    },
-    {
       "name": "Flow",
       "primitiveType": 1,
       "guiType": "Number with Unit",
@@ -63,33 +45,6 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Compressor"
-    },
-    {
-      "name": "Manufacturer",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Compressor"
-    },
-    {
-      "name": "Measuring Point",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Compressor"
-    },
-    {
-      "name": "Nominal Power",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Compressor"
     },
     {
@@ -126,33 +81,6 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Compressor"
-    },
-    {
-      "name": "Weighting Factor",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Compressor"
-    },
-    {
-      "name": "Work Weeks",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Compressor"
-    },
-    {
-      "name": "Working Days",
-      "primitiveType": 2,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "Compressor"
     }
   ]

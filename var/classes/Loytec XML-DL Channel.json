@@ -31,14 +31,6 @@
   ],
   "types": [
     {
-      "name": "Last Readout",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Loytec XML-DL Channel"
-    },
-    {
       "name": "Target ID",
       "primitiveType": 0,
       "guiType": "Attribute Target",

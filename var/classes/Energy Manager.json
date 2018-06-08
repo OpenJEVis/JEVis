@@ -22,46 +22,6 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Manager"
-    },
-    {
-      "name": "EMail",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Manager"
-    },
-    {
-      "name": "Function",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Manager"
-    },
-    {
-      "name": "Name",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Manager"
-    },
-    {
-      "name": "Phone",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Manager"
-    },
-    {
-      "name": "Surname",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Energy Manager"
     }
   ]
 }
