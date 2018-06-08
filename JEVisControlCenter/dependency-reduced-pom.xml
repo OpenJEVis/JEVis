@@ -9,7 +9,7 @@
   <groupId>org.jevis.jeviscc</groupId>
   <artifactId>JEVisContolCenter</artifactId>
   <name>JEVisControlCenter</name>
-  <version>3.0.27</version>
+    <version>3.1.0</version>
   <organization>
     <name>Envidatec GmbH</name>
   </organization>
@@ -85,6 +85,23 @@
             </configuration>
           </execution>
         </executions>
+          <configuration>
+              <transformers>
+                  <transformer>
+                      <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
+                  </transformer>
+              </transformers>
+              <filters>
+                  <filter>
+                      <artifact>*:*</artifact>
+                      <excludes>
+                          <exclude>META-INF/*.SF</exclude>
+                          <exclude>META-INF/*.DSA</exclude>
+                          <exclude>META-INF/*.RSA</exclude>
+                      </excludes>
+                  </filter>
+              </filters>
+          </configuration>
       </plugin>
       <plugin>
         <groupId>com.zenjava</groupId>
@@ -101,20 +118,51 @@
         </executions>
         <configuration>
           <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
-          <verbose>true</verbose>
+            <verbose>true</verbose>
         </configuration>
       </plugin>
+        <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>webstart-maven-plugin</artifactId>
+            <executions>
+                <execution>
+                    <phase>${skipjnlp}</phase>
+                    <goals>
+                        <goal>jnlp</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <skip>true</skip>
+                <excludeTransitive>false</excludeTransitive>
+                <dependencies/>
+                <jnlp>
+                    <outputFile>jeviscc.jnlp</outputFile>
+                    <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
+                </jnlp>
+                <sign>
+                    <keystore>${project.parent.basedir}/etc/keystore.jks</keystore>
+                    <keypass>${key.password}</keypass>
+                    <storepass>${store.password}</storepass>
+                    <alias>jevis</alias>
+                    <keystoreConfig>
+                        <delete>false</delete>
+                        <gen>false</gen>
+                    </keystoreConfig>
+                </sign>
+                <pack200>
+                    <enabled>false</enabled>
+                </pack200>
+                <gzip>true</gzip>
+                <outputJarVersions>true</outputJarVersions>
+                <verbose>true</verbose>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <id>ossrh</id>
-      <name>OSSRH Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    </repository>
-  </repositories>
   <properties>
     <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
+      <skipjnlp>none</skipjnlp>
     <additionalparam>-Xdoclint:none</additionalparam>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

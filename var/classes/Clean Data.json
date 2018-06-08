@@ -43,6 +43,15 @@
       "jevisClass": "Clean Data"
     },
     {
+      "name": "Gap Filling Config",
+      "primitiveType": 0,
+      "guiType": "Gap Filling Config",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
       "name": "Period Alignment",
       "primitiveType": 4,
       "guiType": "Check Box",
