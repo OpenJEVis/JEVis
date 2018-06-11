@@ -2,7 +2,11 @@
   "name": "Input",
   "unique": false,
   "relationships": [
-    
+    {
+      "start": "Input",
+      "end": "Calculation",
+      "type": 3
+    }
   ],
   "types": [
     {
