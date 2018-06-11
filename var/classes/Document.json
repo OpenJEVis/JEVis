@@ -14,14 +14,5 @@
     }
   ],
   "types": [
-    {
-      "name": "File",
-      "primitiveType": 3,
-      "guiType": "File Selector",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "Document"
-    }
   ]
 }

@@ -35,14 +35,6 @@
   ],
   "types": [
     {
-      "name": "Last Readout",
-      "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "sFTP Channel"
-    },
-    {
       "name": "Path",
       "primitiveType": 0,
       "GUIPosition": 0,

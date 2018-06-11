@@ -65,59 +65,5 @@
     }
   ],
   "types": [
-    {
-      "name": "Content",
-      "primitiveType": 0,
-      "guiType": "Text Area",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "03 Terms and Definitions"
-    },
-    {
-      "name": "Created by",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "03 Terms and Definitions"
-    },
-    {
-      "name": "Date of Creation",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "03 Terms and Definitions"
-    },
-    {
-      "name": "Document Number",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "03 Terms and Definitions"
-    },
-    {
-      "name": "Release Date",
-      "primitiveType": 0,
-      "guiType": "Date",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "03 Terms and Definitions"
-    },
-    {
-      "name": "Released by",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "03 Terms and Definitions"
-    }
   ]
 }

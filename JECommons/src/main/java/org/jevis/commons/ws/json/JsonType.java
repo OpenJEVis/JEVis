@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2013 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEWebService.
- *
+ * <p>
  * JEWebService is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEWebService is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -51,8 +51,7 @@ public class JsonType {
     public void setJevisclass(String jevisClass) {
         this.jevisClass = jevisClass;
     }
-    
-    
+
 
     @XmlElement(name = "inherited")
     public boolean getInherited() {
@@ -122,4 +121,18 @@ public class JsonType {
         return "JsonType{" + "name=" + name + ", primitiveType=" + primitiveType + ", GUIDisplayType=" + guiType + ", GUIPosition=" + GUIPosition + ", validity=" + validity + ", description=" + description + '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JsonType jsonType = (JsonType) o;
+
+        return name != null ? name.equals(jsonType.name) : jsonType.name == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

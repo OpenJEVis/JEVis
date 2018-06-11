@@ -1,27 +1,24 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.sample;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -45,8 +42,11 @@ import org.jevis.jeconfig.sampletable.TableSample;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SampleTabelExtension implements SampleEditorExtension {
@@ -66,7 +66,7 @@ public class SampleTabelExtension implements SampleEditorExtension {
     public SampleTabelExtension(JEVisAttribute att) {
         _att = att;
     }
-    
+
     private void buildGui(final JEVisAttribute att, final List<JEVisSample> samples) {
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER);
@@ -75,152 +75,120 @@ public class SampleTabelExtension implements SampleEditorExtension {
 //        final org.jevis.jeconfig.sampletable.SampleTableView table = new org.jevis.jeconfig.sampletable.SampleTableView(samples);
         table.setPrefSize(1000, 1000);
 
-//        if (box.getScene().getWindow() instanceof Stage) {
-////            Stage stage = (Stage) window;
-//            owner = (Stage) box.getScene().getWindow();
-//            System.out.println("fix fix");
-//        }
         Button deleteAll = new Button("Delete All");
         deleteAll.setOnAction(new EventHandler<ActionEvent>() {
-
             @Override
-            public void handle(ActionEvent t) {
+            public void handle(ActionEvent event) {
+                System.out.println("Delete Event");
                 try {
-//                    if (!samples.isEmpty()) {
                     ConfirmDialog dia = new ConfirmDialog();
                     if (dia.show(JEConfig.getStage(), "Delete", "Delete Samples", "Do you really want to delete all existing samples?") == ConfirmDialog.Response.YES) {
+
                         att.deleteAllSample();
                         setSamples(att, att.getAllSamples());
                         update();
                     }
-//                    }
                 } catch (Exception ex) {
                     //TODO: do something...
                     ex.printStackTrace();
                 }
             }
-        }
-        );
+        });
 
         Button deleteSelected = new Button("Delete Selected");
         deleteSelected.setOnAction(
                 new EventHandler<ActionEvent>() {
 
-            @Override
-            public void handle(ActionEvent t
-            ) {
-                try {
-                    if (!samples.isEmpty()) {
-                        DateTime startDate = samples.get(0).getTimestamp();
-                        DateTime endDate = samples.get(samples.size() - 1).getTimestamp();
-                        ConfirmDialog dia = new ConfirmDialog();
+                    @Override
+                    public void handle(ActionEvent t
+                    ) {
+                        try {
+                            if (!samples.isEmpty()) {
+                                DateTime startDate = samples.get(0).getTimestamp();
+                                DateTime endDate = samples.get(samples.size() - 1).getTimestamp();
+                                ConfirmDialog dia = new ConfirmDialog();
 
-                        if (dia.show(owner, "Delete", "Delete Samples", "Do you really want to delete all selected samples?") == ConfirmDialog.Response.YES) {
-                            ObservableList<TableSample> list = table.getSelectionModel().getSelectedItems();
-                            for (TableSample tsample : list) {
-                                try {
-                                    //TODO: the JEAPI cound use to have an delte funtion for an list of samples
-                                    att.deleteSamplesBetween(tsample.getSample().getTimestamp(), tsample.getSample().getTimestamp());
-                                } catch (JEVisException ex) {
-                                    Logger.getLogger(SampleTabelExtension.class.getName()).log(Level.SEVERE, null, ex);
-                                }
+                                if (dia.show(owner, "Delete", "Delete Samples", "Do you really want to delete all selected samples?") == ConfirmDialog.Response.YES) {
+                                    ObservableList<TableSample> list = table.getSelectionModel().getSelectedItems();
+                                    for (TableSample tsample : list) {
+                                        try {
+                                            //TODO: the JEAPI cound use to have an delte funtion for an list of samples
+                                            att.deleteSamplesBetween(tsample.getSample().getTimestamp(), tsample.getSample().getTimestamp());
+                                        } catch (JEVisException ex) {
+                                            Logger.getLogger(SampleTabelExtension.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
 
-                            }
+                                    }
 
-                            //TODO: add workflow selection
-                            setSamples(att, DataProcessing.getSamples(att, startDate, endDate, ""));
+                                    //TODO: add workflow selection
+                                    setSamples(att, DataProcessing.getSamples(att, startDate, endDate, ""));
 
 //                                    setSamples(att, att.getSamples(startDate, endDate));
-                            update();
-                            System.out.println("-------");
+                                    update();
+                                    System.out.println("-------");
+                                }
+                            }
+
+                        } catch (Exception ex) {
+                            //TODO: do something...
+                            ex.printStackTrace();
                         }
+
                     }
-
-                } catch (Exception ex) {
-                    //TODO: do something...
-                    ex.printStackTrace();
                 }
-
-            }
-        }
         );
 
         Button deleteInBetween = new Button("Delete in between");
         deleteInBetween.setOnAction(
                 new EventHandler<ActionEvent>() {
 
-            @Override
-            public void handle(ActionEvent t
-            ) {
-                try {
-                    if (!samples.isEmpty()) {
-                        DateTime startDate = null;
-                        DateTime endDate = null;
-                        ConfirmDialog dia = new ConfirmDialog();
+                    @Override
+                    public void handle(ActionEvent t
+                    ) {
+                        try {
+                            if (!samples.isEmpty()) {
+                                DateTime startDate = null;
+                                DateTime endDate = null;
+                                ConfirmDialog dia = new ConfirmDialog();
 
-                        ObservableList<TableSample> list = table.getSelectionModel().getSelectedItems();
-                        if (list.size() == 2) {
-                            startDate = list.get(0).getSample().getTimestamp();
-                            endDate = list.get(list.size() - 1).getSample().getTimestamp();
+                                ObservableList<TableSample> list = table.getSelectionModel().getSelectedItems();
+                                if (list.size() == 2) {
+                                    startDate = list.get(0).getSample().getTimestamp();
+                                    endDate = list.get(list.size() - 1).getSample().getTimestamp();
 
-                            if (startDate != null && endDate != null) {
-                                if (dia.show(owner, "Delete", "Delete Samples", "Do you really want to delete all samples between\n "
-                                        + ISODateTimeFormat.dateTime().print(startDate)
-                                        + " and " + ISODateTimeFormat.dateTime().print(endDate)) == ConfirmDialog.Response.YES) {
+                                    if (startDate != null && endDate != null) {
+                                        if (dia.show(owner, "Delete", "Delete Samples", "Do you really want to delete all samples between\n "
+                                                + ISODateTimeFormat.dateTime().print(startDate)
+                                                + " and " + ISODateTimeFormat.dateTime().print(endDate)) == ConfirmDialog.Response.YES) {
 
-                                    att.deleteSamplesBetween(startDate, endDate);
+                                            att.deleteSamplesBetween(startDate, endDate);
 
-                                    //TODO: add workflow selection
-                                    setSamples(att, DataProcessing.getSamples(att, startDate, endDate, ""));
-                                    update();
+                                            //TODO: add workflow selection
+                                            setSamples(att, DataProcessing.getSamples(att, startDate, endDate, ""));
+                                            update();
+                                        }
+                                    }
+
+                                } else {
+                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                    alert.setTitle("Error");
+                                    alert.setHeaderText(null);
+                                    alert.setContentText("Select exactly two samples(from-until)");
+
+                                    alert.showAndWait();
                                 }
+
                             }
 
-                        } else {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Error");
-                            alert.setHeaderText(null);
-                            alert.setContentText("Select exactly two samples(from-until)");
-
-                            alert.showAndWait();
+                        } catch (Exception ex) {
+                            //TODO: do something...
+                            ex.printStackTrace();
                         }
 
                     }
-
-                } catch (Exception ex) {
-                    //TODO: do something...
-                    ex.printStackTrace();
                 }
-
-            }
-        }
         );
 
-//        Button useDataPorcessor = new Button("Clean");
-//        useDataPorcessor.setOnAction(new EventHandler<ActionEvent>() {
-//
-//            @Override
-//            public void handle(ActionEvent t) {
-//                try {
-//                    if (!samples.isEmpty()) {
-//                        List<JEVisObject> dataProcessor = _att.getObject().getChildren(_att.getObject().getDataSource().getJEVisClass("Data Processor"), true);
-//                        if (!dataProcessor.isEmpty()) {
-//                            System.out.println("Class: " + dataProcessor.get(0).getJEVisClass());
-//                            Task cleanTask = ProcessorObjectHandler.getTask(dataProcessor.get(0));
-//                            setSamples(att, cleanTask.getResult());
-//                            update();
-//                        } else {
-//                            System.out.println("has no Data porcessor");
-//                        }
-//
-//                    }
-//                } catch (Exception ex) {
-//                    //TODO: do something...
-//                    ex.printStackTrace();
-//                }
-//            }
-//        }
-//        );
         box.getChildren()
                 .setAll(deleteAll, deleteSelected, deleteInBetween);
 

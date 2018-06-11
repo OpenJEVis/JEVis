@@ -27,7 +27,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -116,7 +115,6 @@ public class FileEdior implements AttributeEditor {
             JEVisSample lsample = _attribute.getLatestSample();
             if (lsample != null) {
                 if (_autoDownload) {
-//                    JEVisFile lasTFile = lsample.getValueAsFile();
                     _downloadButton.setText(lsample.getValueAsString());
                 } else {
                     _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button_emty"));
@@ -156,25 +154,53 @@ public class FileEdior implements AttributeEditor {
                         JEVisSample sample = _attribute.buildSample(new DateTime(), jfile);
                         sample.commit();//Workaround, normally the user need to press save
 
-                        try {
-                            if (_attribute.hasSample()) {
-                                if (_autoDownload) {
-//                                    JEVisFile lasTFile = _attribute.getLatestSample().getValueAsFile();
-                                    _downloadButton.setText(selectedFile.getName());
-                                    _downloadButton.setTooltip(new Tooltip("TS: " + sample.getTimestamp()));
-                                } else {
-                                    _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button_emty"));
-                                }
+                        //-----
+                        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
 
-                            } else {
-                                _downloadButton.setDisable(true);
+                        Task<Void> upload = new Task<Void>() {
+                            @Override
+                            protected Void call() throws Exception {
+
+                                sample.commit();//Workaround, normally the user need to press save
+                                Thread.sleep(60);
+                                return null;
                             }
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                        };
+                        upload.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                            @Override
+                            public void handle(WorkerStateEvent event) {
+                                pForm.getDialogStage().close();
+                                try {
+//                                    _attribute.getDataSource().getAttributes(_attribute.getObjectID());//Reload workaround
+                                    _attribute.getLatestSample();//Reload workaround
+                                    _downloadButton.setText(selectedFile.getName());
+                                    _downloadButton.setDisable(false);
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        });
 
-                        }
+                        upload.setOnCancelled(new EventHandler<WorkerStateEvent>() {
+                            @Override
+                            public void handle(WorkerStateEvent event) {
+                                pForm.getDialogStage().hide();
+                            }
+                        });
 
-//                        mainStage.display(selectedFile);
+                        upload.setOnFailed(new EventHandler<WorkerStateEvent>() {
+                            @Override
+                            public void handle(WorkerStateEvent event) {
+                                pForm.getDialogStage().hide();
+                                System.out.println("Error while upload");
+                            }
+                        });
+
+                        pForm.activateProgressBar(upload);
+                        pForm.getDialogStage().show();
+
+                        new Thread(upload).start();
+
                     } catch (Exception ex) {
                         logger.catching(ex);
                     }
@@ -215,6 +241,7 @@ public class FileEdior implements AttributeEditor {
         _uploadButton.setDisable(_readOnly);
 
     }
+
 
     @Override
     public JEVisAttribute getAttribute() {

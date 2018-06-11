@@ -403,10 +403,12 @@ public class SampleTable {
                 + " where " + COLUMN_ATTRIBUTE + "=?"
                 + " and " + COLUMN_OBJECT + "=?";
 
-        if (from != null) {
+
+        if (from != null && until == null) {
             sql += " and " + COLUMN_TIMESTAMP + ">=?";
         }
-        if (until != null) {
+
+        if (from != null && until != null) {
             sql += " and " + COLUMN_TIMESTAMP + ">=?"
                     + " and " + COLUMN_TIMESTAMP + "<=?";
         }
@@ -417,6 +419,7 @@ public class SampleTable {
             ps = _connection.getConnection().prepareStatement(sql);
             ps.setString(1, att);
             ps.setLong(2, object);
+
             int i = 3;
             if (from != null) {
                 ps.setTimestamp(i, new Timestamp(from.getMillis()));

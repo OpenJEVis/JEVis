@@ -283,6 +283,7 @@ public class JEVisClassWS implements JEVisClass {
             }
         }
 
+
         Collections.sort(vaildParents);
 
         return vaildParents;

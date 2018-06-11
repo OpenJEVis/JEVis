@@ -254,7 +254,12 @@ public class SampleEditor {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                _visibleExtension.sendOKAction();//TODO: send all?
+//                _visibleExtension.sendOKAction();//TODO: send all?
+                stage.close();
+                for (SampleEditorExtension ex : extensions) {
+                    
+                    ex.sendOKAction();
+                }
             }
         });
 
@@ -301,6 +306,7 @@ public class SampleEditor {
             public void handle(ActionEvent t) {
                 stage.close();
                 response = Response.CANCEL;
+                stage.close();
 
             }
         });

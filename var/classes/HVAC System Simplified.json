@@ -38,15 +38,6 @@
       "jevisClass": "HVAC System Simplified"
     },
     {
-      "name": "Daily Operating Hours",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "HVAC System Simplified"
-    },
-    {
       "name": "Dehumidification set point Period Spring",
       "primitiveType": 1,
       "guiType": "Number",
@@ -89,15 +80,6 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "HVAC System Simplified"
-    },
-    {
-      "name": "Energy Source",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "HVAC System Simplified"
     },
     {
@@ -191,66 +173,12 @@
       "jevisClass": "HVAC System Simplified"
     },
     {
-      "name": "Manufacturer",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "HVAC System Simplified"
-    },
-    {
-      "name": "Measuring Point",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "HVAC System Simplified"
-    },
-    {
-      "name": "Nominal Power",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "HVAC System Simplified"
-    },
-    {
       "name": "Start Date Heating Period Winter",
       "primitiveType": 0,
       "guiType": "Date",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "HVAC System Simplified"
-    },
-    {
-      "name": "Weighting Factor",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "HVAC System Simplified"
-    },
-    {
-      "name": "Work Weeks",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
-      "jevisClass": "HVAC System Simplified"
-    },
-    {
-      "name": "Working Days",
-      "primitiveType": 2,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": true,
       "jevisClass": "HVAC System Simplified"
     }
   ]
