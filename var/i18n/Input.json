@@ -1,7 +1,7 @@
 {
   "jevisclass": "Input",
   "names": {
-    "de": "Input",
+    "de": "Eingangsvariable",
     "ru": "Input",
     "en": "Input"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Identifier",
       "descriptions": {
-        "de": "Identifier desctiption",
+        "de": "Definiert den Variablennamen für die Formel",
         "ru": "Identifier desctiption",
-        "en": "Identifier desctiption"
+        "en": "Variable Identifier used in calculation object."
       },
       "names": {
-        "de": "Identifier",
+        "de": "Variablenname",
         "ru": "Identifier",
         "en": "Identifier"
       }
@@ -23,12 +23,12 @@
     {
       "type": "Input Data",
       "descriptions": {
-        "de": "Input Data desctiption",
+        "de": "Definiert die Quelldatenreihe",
         "ru": "Input Data desctiption",
-        "en": "Input Data desctiption"
+        "en": "Defines source input data"
       },
       "names": {
-        "de": "Input Data",
+        "de": "Quelldatenreihe",
         "ru": "Input Data",
         "en": "Input Data"
       }
@@ -36,14 +36,14 @@
     {
       "type": "Input Data Type",
       "descriptions": {
-        "de": "Input Data Type desctiption",
-        "ru": "Input Data Type desctiption",
-        "en": "Input Data Type desctiption"
+        "de": "Definiert den Typ der Datenreihe. ",
+        "ru": "Type of input data",
+        "en": "Type of input data"
       },
       "names": {
-        "de": "Input Data Type",
-        "ru": "Input Data Type",
-        "en": "Input Data Type"
+        "de": "Datenreihentyp",
+        "ru": "Data Type",
+        "en": "Data Type"
       }
     }
   ]

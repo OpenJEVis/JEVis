@@ -1,7 +1,7 @@
 {
   "jevisclass": "Output",
   "names": {
-    "de": "Output",
+    "de": "Ergebnisvariable",
     "ru": "Output",
     "en": "Output"
   },
@@ -10,14 +10,14 @@
     {
       "type": "Output",
       "descriptions": {
-        "de": "Output desctiption",
+        "de": "Definiert das Ziel einer Berechnung",
         "ru": "Output desctiption",
-        "en": "Output desctiption"
+        "en": "Defines output target of a calculation"
       },
       "names": {
-        "de": "Output",
-        "ru": "Output",
-        "en": "Output"
+        "de": "Zieldatenreihe",
+        "ru": "Output Target",
+        "en": "Output Target"
       }
     }
   ]
