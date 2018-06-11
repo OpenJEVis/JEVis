@@ -20,6 +20,9 @@
  */
 package org.jevis.commons.json;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -105,14 +108,8 @@ public class JsonGapFillingConfig {
 
     @Override
     public String toString() {
-        return "JsonGapFillingConfig{" +
-                "name='" + name + '\'' +
-                "type='" + type + '\'' +
-                ", boundary='" + boundary + '\'' +
-                ", defaultvalue='" + defaultvalue + '\'' +
-                ", referenceperiod='" + referenceperiod + '\'' +
-                ", bindtospecific='" + bindtospecific + '\'' +
-                ", referenceperiodcount='" + referenceperiodcount + '\'' +
-                '}';
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String prettyJson = gson.toJson(this);
+        return prettyJson;
     }
 }

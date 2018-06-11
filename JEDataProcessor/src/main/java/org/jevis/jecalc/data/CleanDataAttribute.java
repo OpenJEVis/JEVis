@@ -5,6 +5,7 @@
  */
 package org.jevis.jecalc.data;
 
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
@@ -50,5 +51,7 @@ public interface CleanDataAttribute {
     String getName();
 
     List<JsonGapFillingConfig> getGapFillingConfig();
+
+    JEVisObject getObject();
 
 }

@@ -5,15 +5,16 @@
  */
 package org.jevis.jecalc.calculation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.VirtuelSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -36,7 +37,7 @@ public class ResultCalculatorTest {
 
         List<JEVisSample> expectedSamples = new ArrayList<>();
         for (JEVisSample currentSample : samples) {
-            expectedSamples.add(new VirtuelSample(currentSample.getTimestamp(), currentSample.getValueAsDouble() + 5));
+            expectedSamples.add(new VirtualSample(currentSample.getTimestamp(), currentSample.getValueAsDouble() + 5));
         }
         Assert.assertArrayEquals(expectedSamples.toArray(), resultSamples.toArray());
     }

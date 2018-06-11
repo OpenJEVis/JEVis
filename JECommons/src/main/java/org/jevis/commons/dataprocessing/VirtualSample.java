@@ -19,24 +19,18 @@
  */
 package org.jevis.commons.dataprocessing;
 
+import org.jevis.api.*;
+import org.joda.time.DateTime;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisMultiSelection;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisSelection;
-import org.jevis.api.JEVisUnit;
-import org.joda.time.DateTime;
 
 /**
  * Minimalic implementaions of an JEVisSample to handel temporary Samples.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class VirtuelSample implements JEVisSample {
+public class VirtualSample implements JEVisSample {
 
     private Double _value;
     private DateTime _timeSatmp;
@@ -44,12 +38,12 @@ public class VirtuelSample implements JEVisSample {
     private String _note;
     JEVisDataSource _ds;
 
-    public VirtuelSample(DateTime ts, double value) {
+    public VirtualSample(DateTime ts, double value) {
         _value = value;
         _timeSatmp = ts;
     }
 
-    public VirtuelSample(DateTime ts, double value, JEVisDataSource ds, JEVisAttribute att) {
+    public VirtualSample(DateTime ts, double value, JEVisDataSource ds, JEVisAttribute att) {
         _value = value;
         _timeSatmp = ts;
         _att = att;
@@ -57,93 +51,93 @@ public class VirtuelSample implements JEVisSample {
     }
 
     @Override
-    public DateTime getTimestamp() throws JEVisException {
+    public DateTime getTimestamp() {
         return _timeSatmp;
     }
 
     @Override
-    public Object getValue() throws JEVisException {
+    public Object getValue() {
         return _value;
     }
 
     @Override
-    public String getValueAsString() throws JEVisException {
+    public void setValue(Object value) throws ClassCastException {
+        _value = (Double) value;
+    }
+
+    @Override
+    public String getValueAsString() {
         return _value.toString();
     }
 
     @Override
-    public Long getValueAsLong() throws JEVisException {
+    public Long getValueAsLong() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Long getValueAsLong(JEVisUnit unit) throws JEVisException {
+    public Long getValueAsLong(JEVisUnit unit) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Double getValueAsDouble() throws JEVisException {
+    public Double getValueAsDouble() {
         return _value;
     }
 
     @Override
-    public Double getValueAsDouble(JEVisUnit unit) throws JEVisException {
+    public Double getValueAsDouble(JEVisUnit unit) {
         //TODO implement Unit
         return _value;
     }
 
     @Override
-    public Boolean getValueAsBoolean() throws JEVisException {
+    public Boolean getValueAsBoolean() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public JEVisFile getValueAsFile() throws JEVisException {
+    public JEVisFile getValueAsFile() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public JEVisSelection getValueAsSelection() throws JEVisException {
+    public JEVisSelection getValueAsSelection() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public JEVisMultiSelection getValueAsMultiSelection() throws JEVisException {
+    public JEVisMultiSelection getValueAsMultiSelection() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setValue(Object value) throws JEVisException, ClassCastException {
-        _value = (Double) value;
-    }
-
-    @Override
-    public void setValue(Object value, JEVisUnit unit) throws JEVisException, ClassCastException {
+    public void setValue(Object value, JEVisUnit unit) throws ClassCastException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public JEVisAttribute getAttribute() throws JEVisException {
+    public JEVisAttribute getAttribute() {
         return _att;
     }
 
     @Override
-    public String getNote() throws JEVisException {
+    public String getNote() {
         return _note;
     }
 
     @Override
-    public void setNote(String note) throws JEVisException {
+    public void setNote(String note) {
         _note = note;
     }
 
     @Override
-    public JEVisUnit getUnit() throws JEVisException {
+    public JEVisUnit getUnit() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public JEVisDataSource getDataSource() throws JEVisException {
+    public JEVisDataSource getDataSource() {
         return _ds;
     }
 
@@ -153,7 +147,7 @@ public class VirtuelSample implements JEVisSample {
     }
 
     @Override
-    public void rollBack() throws JEVisException {
+    public void rollBack() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -164,14 +158,14 @@ public class VirtuelSample implements JEVisSample {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof VirtuelSample)){
+        if (!(o instanceof VirtualSample)) {
             return false;
         }
-        VirtuelSample otherSample = (VirtuelSample) o;
+        VirtualSample otherSample = (VirtualSample) o;
         try {
             return otherSample.getTimestamp().equals(this.getTimestamp()) && otherSample.getValue().equals(this.getValue());
         } catch (JEVisException ex) {
-            Logger.getLogger(VirtuelSample.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VirtualSample.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
     }

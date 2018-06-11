@@ -6,6 +6,7 @@
 package org.jevis.jecalc.data;
 
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
@@ -41,6 +42,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private List<JEVisSample> rawSample = new ArrayList<>();
     private boolean periodAligned;
     private List<JsonGapFillingConfig> jsonConfig;
+    private JEVisObject object;
 
     public CleanDataAttributeOffline(String pathToInputFile, String pathToCleanConfigFile, String pathToOutput) {
         initProperties(pathToCleanConfigFile);
@@ -188,5 +190,10 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     @Override
     public String getName() {
         return "offline mode";
+    }
+
+    @Override
+    public JEVisObject getObject() {
+        return object;
     }
 }

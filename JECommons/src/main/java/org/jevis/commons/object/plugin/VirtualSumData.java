@@ -21,23 +21,20 @@ package org.jevis.commons.object.plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.text.DateFormat;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.dataprocessing.v2.DataProcessing;
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static javax.management.Query.value;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.VirtuelSample;
-import org.jevis.commons.dataprocessing.v2.DataProcessing;
-import org.jevis.commons.dataprocessing.v2.DataWorkflow;
-import org.joda.time.DateTime;
 
 /**
  * This virtual data can summarize multible inputes.
@@ -164,7 +161,7 @@ public class VirtualSumData {
 
             DateTime ts = entrySet.getKey();
 
-            JEVisSample newSample = new VirtuelSample(ts, 0);
+            JEVisSample newSample = new VirtualSample(ts, 0);
 //            System.out.println("--- " + ts + " ---");
 
             double newValue = 0;

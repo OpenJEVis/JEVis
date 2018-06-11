@@ -5,12 +5,13 @@
  */
 package org.jevis.jecalc.calculation;
 
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.VirtuelSample;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -23,7 +24,7 @@ public class JEVisSampleCreator {
         List<JEVisSample> samples = new ArrayList<>();
         Random random = new Random();
         while (!currentDate.isAfter(end)) {
-            JEVisSample currentSample = new VirtuelSample(currentDate, random.nextDouble());
+            JEVisSample currentSample = new VirtualSample(currentDate, random.nextDouble());
             samples.add(currentSample);
             currentDate = currentDate.plusMinutes(minutes);
         }

@@ -19,18 +19,15 @@
  */
 package org.jevis.commons.dataprocessing.function;
 
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.dataprocessing.Process;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.ProcessOption;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
-import org.jevis.commons.dataprocessing.ProcessFunction;
-import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.VirtualAttribute;
-import org.jevis.commons.dataprocessing.VirtuelSample;
 
 /**
  *
@@ -79,9 +76,9 @@ public class CounterFunction implements ProcessFunction {
                             diff = sample.getValueAsDouble() - lastSample.getValueAsDouble();
 //                            System.out.println("pV: " + lastSample.getValueAsDouble() + "  nV:" + sample.getValueAsDouble() + "  diff:" + diff);
                             if (mode == TS_MODE.BEGINNING) {
-                                _result.add(new VirtuelSample(lastSample.getTimestamp(), diff, task.getJEVisDataSource(), new VirtualAttribute(null)));
+                                _result.add(new VirtualSample(lastSample.getTimestamp(), diff, task.getJEVisDataSource(), new VirtualAttribute(null)));
                             } else {
-                                _result.add(new VirtuelSample(sample.getTimestamp(), diff, task.getJEVisDataSource(), new VirtualAttribute(null)));
+                                _result.add(new VirtualSample(sample.getTimestamp(), diff, task.getJEVisDataSource(), new VirtualAttribute(null)));
                             }
 
                         } else {
