@@ -25,8 +25,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
-import org.jevis.commons.ws.json.JsonClassRelationship;
 import org.jevis.commons.ws.json.JsonJEVisClass;
+import org.jevis.ws.sql.JEVisClassHelper;
 import org.jevis.ws.sql.SQLDataSource;
 
 import javax.imageio.ImageIO;
@@ -307,39 +307,41 @@ public class ResourceClasses {
             }
         }
 
-        Map<String, JsonClassRelationship> clRelationships = new HashMap<>();
-        //Add cross relationships
-        for (Map.Entry<String, JsonJEVisClass> jc : classMap.entrySet()) {
-            try {
-                for (JsonClassRelationship rel : jc.getValue().getRelationships()) {
-                    try {
-                        String relKey = rel.getStart() + ":" + rel.getEnd() + ":" + rel.getType();
-                        clRelationships.put(relKey, rel);
-                    } catch (Exception ex) {
-                        logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
-                    }
-                }
-            } catch (Exception ex) {
-                logger.error("Error while listing classes[" + jc.getKey() + "]", ex);
-            }
-        }
+        JEVisClassHelper.completeClasses(classMap);
 
-        for (Map.Entry<String, JsonClassRelationship> rel : clRelationships.entrySet()) {
-            try {
-                JsonJEVisClass startClass = classMap.get(rel.getValue().getStart());
-                JsonJEVisClass endClass = classMap.get(rel.getValue().getEnd());
-
-                if (!startClass.getRelationships().contains(rel.getValue())) {
-                    startClass.getRelationships().add(rel.getValue());
-                }
-
-                if (!endClass.getRelationships().contains(rel.getValue())) {
-                    endClass.getRelationships().add(rel.getValue());
-                }
-            } catch (Exception ex) {
-                logger.error("Error while mapping class relationships[" + rel.getKey() + "]", ex);
-            }
-        }
+//        Map<String, JsonClassRelationship> clRelationships = new HashMap<>();
+//        //Add cross relationships
+//        for (Map.Entry<String, JsonJEVisClass> jc : classMap.entrySet()) {
+//            try {
+//                for (JsonClassRelationship rel : jc.getValue().getRelationships()) {
+//                    try {
+//                        String relKey = rel.getStart() + ":" + rel.getEnd() + ":" + rel.getType();
+//                        clRelationships.put(relKey, rel);
+//                    } catch (Exception ex) {
+//                        logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
+//                    }
+//                }
+//            } catch (Exception ex) {
+//                logger.error("Error while listing classes[" + jc.getKey() + "]", ex);
+//            }
+//        }
+//
+//        for (Map.Entry<String, JsonClassRelationship> rel : clRelationships.entrySet()) {
+//            try {
+//                JsonJEVisClass startClass = classMap.get(rel.getValue().getStart());
+//                JsonJEVisClass endClass = classMap.get(rel.getValue().getEnd());
+//
+//                if (!startClass.getRelationships().contains(rel.getValue())) {
+//                    startClass.getRelationships().add(rel.getValue());
+//                }
+//
+//                if (!endClass.getRelationships().contains(rel.getValue())) {
+//                    endClass.getRelationships().add(rel.getValue());
+//                }
+//            } catch (Exception ex) {
+//                logger.error("Error while mapping class relationships[" + rel.getKey() + "]", ex);
+//            }
+//        }
 
         return classMap;
     }

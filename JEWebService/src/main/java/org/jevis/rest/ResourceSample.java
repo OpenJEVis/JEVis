@@ -413,7 +413,6 @@ public class ResourceSample {
             JsonObject object = ds.getObject(id);
             ds.getUserManager().canDelete(object);
 
-            JsonAttribute att = ds.getAttribute(id, attribute);
 
             DateTime startDate = null;
             DateTime endDate = null;

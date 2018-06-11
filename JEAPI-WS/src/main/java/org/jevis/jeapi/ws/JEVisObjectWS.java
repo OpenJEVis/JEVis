@@ -293,7 +293,9 @@ public class JEVisObjectWS implements JEVisObject {
         ArrayList allowedChildern = new ArrayList<>();
         for (JEVisClass vp : getJEVisClass().getValidChildren()) {
             if (vp.isUnique()) {
+                System.out.println("Class.isUniqe: " + vp.getName());
                 if (getChildren(vp, false).isEmpty()) {
+                    System.out.println("Does exist so add");
                     allowedChildern.add(vp);
                 }
             } else {

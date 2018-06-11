@@ -67,7 +67,6 @@ public class ResourceI18n {
             if (Config.getI18nDir().exists() && Config.getI18nDir().isDirectory()) {
                 for (File file : Config.getI18nDir().listFiles()) {
                     try {
-                        System.out.println("File: " + file);
                         if (file.getName().endsWith(".json")) {
                             files.add(loadFile(file));
                         }
