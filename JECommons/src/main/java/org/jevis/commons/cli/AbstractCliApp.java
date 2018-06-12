@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2017 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -21,21 +21,19 @@ package org.jevis.commons.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.configuration.ConfigurationException;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.datasource.DataSourceLoader;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author Artur Iablokov
  */
 public abstract class AbstractCliApp {
@@ -55,7 +53,6 @@ public abstract class AbstractCliApp {
     protected String[] args;
 
     /**
-     * 
      * @param args start params
      */
     public AbstractCliApp(String[] args) {
@@ -63,9 +60,9 @@ public abstract class AbstractCliApp {
         this.args = args;
         comm = JCommander.newBuilder().addObject(settings).build();
     }
+
     /**
-     * 
-     * @param args start params
+     * @param args    start params
      * @param appname application name
      */
     public AbstractCliApp(String[] args, String appname) {
@@ -94,11 +91,12 @@ public abstract class AbstractCliApp {
         try {
             comm.parse(args);
         } catch (ParameterException e) {
+            e.printStackTrace();
             //show help if required params are missing
             e.usage();
             System.exit(1);
         }
-        
+
         handleBasic();
         if (active) {
             handleAdditionalCommands();
@@ -132,18 +130,21 @@ public abstract class AbstractCliApp {
                 Logger.getLogger(AbstractCliApp.class.getName()).log(Level.SEVERE, "JEVisDataSource not created. Сheck the configuration file data.", ex);
             }
 
-            if (settings.cache) {
-                Class[] argsClass = new Class[]{JEVisDataSource.class};
-                try {
-                    Class cacheClass = Class.forName(DS_CACHE);
-                    Constructor ctor = cacheClass.getConstructor(argsClass);
-                    ds = JEVisDataSource.class.cast(ctor.newInstance(ds));
-                } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    Logger.getLogger(AbstractCliApp.class.getName()).log(Level.SEVERE, "Failed to create the cache.", ex);
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(AbstractCliApp.class.getName()).log(Level.SEVERE, "JEVisDataSourceCache class not found. Show org.jevis.application.cache for more info.", ex);
-                }
-            }
+            /**
+             * Caching is not supported by JEAPI-WS. JEVisDataSourceCache is deprecated.
+             */
+//            if (settings.cache) {
+//                Class[] argsClass = new Class[]{JEVisDataSource.class};
+//                try {
+//                    Class cacheClass = Class.forName(DS_CACHE);
+//                    Constructor ctor = cacheClass.getConstructor(argsClass);
+//                    ds = JEVisDataSource.class.cast(ctor.newInstance(ds));
+//                } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+//                    Logger.getLogger(AbstractCliApp.class.getName()).log(Level.SEVERE, "Failed to create the cache.", ex);
+//                } catch (ClassNotFoundException ex) {
+//                    Logger.getLogger(AbstractCliApp.class.getName()).log(Level.SEVERE, "JEVisDataSourceCache class not found. Show org.jevis.application.cache for more info.", ex);
+//                }
+//            }
 
             ds.setConfiguration(new ArrayList<>(optMap.values()));
 
@@ -157,21 +158,20 @@ public abstract class AbstractCliApp {
 
     /**
      * Adds new commands to the program
-     *
+     * <p>
      * EXAMPLE:
-     *
+     * <p>
      * (inner class) - defines additional commands public class Command {
      *
      * @Parameter(names = {"-nc", "--newcommand"}, description = "new command
      * description here") public boolean nc;}
-     *
      * @Override protected void addCommands() { comm.addObject(cm);}
      */
     protected abstract void addCommands();
 
     /**
      * Handles additional commands
-     *
+     * <p>
      * EXAMPLE:
      *
      * @Override protected void handleAdditionalCommands() { if (nc) {{
