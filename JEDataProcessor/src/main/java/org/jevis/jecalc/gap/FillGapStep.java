@@ -8,6 +8,8 @@ package org.jevis.jecalc.gap;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.constants.JEDataProcessorConstants.GapFillingBoundToSpecific;
+import org.jevis.commons.constants.JEDataProcessorConstants.GapFillingReferencePeriod;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
@@ -27,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.jevis.api.JEVisConstants.GapFillingType;
+import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingType;
 
 /**
  * @author broder
@@ -253,7 +255,7 @@ public class FillGapStep implements ProcessStep {
                 }
                 return calcValueWithType(listSamplesNew, c);
 
-            case ("weekday"):
+            case (GapFillingBoundToSpecific.WEEKDAY):
                 boundListSamples.clear();
                 firstDate = getFirstDate(lastDate, c);
                 listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
@@ -265,7 +267,7 @@ public class FillGapStep implements ProcessStep {
                     }
                 }
                 return calcValueWithType(boundListSamples, c);
-            case ("weekofyear"):
+            case (GapFillingBoundToSpecific.WEEKOFYEAR):
                 boundListSamples.clear();
                 firstDate = getFirstDate(lastDate, c);
                 listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
@@ -277,7 +279,7 @@ public class FillGapStep implements ProcessStep {
                     }
                 }
                 return calcValueWithType(boundListSamples, c);
-            case ("monthofyear"):
+            case (GapFillingBoundToSpecific.MONTHOFYEAR):
                 boundListSamples.clear();
                 firstDate = getFirstDate(lastDate, c);
                 listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
@@ -296,13 +298,13 @@ public class FillGapStep implements ProcessStep {
         final String referencePeriod = c.getReferenceperiod();
         Integer referencePeriodCount = Integer.parseInt(c.getReferenceperiodcount());
         switch (referencePeriod) {
-            case ("day"):
+            case (GapFillingReferencePeriod.DAY):
                 return lastDate.minusDays(referencePeriodCount);
-            case ("week"):
+            case (GapFillingReferencePeriod.WEEK):
                 return lastDate.minusWeeks(referencePeriodCount);
-            case ("month"):
+            case (GapFillingReferencePeriod.MONTH):
                 return lastDate.minusMonths(referencePeriodCount);
-            case ("year"):
+            case (GapFillingReferencePeriod.YEAR):
                 return lastDate.minusYears(referencePeriodCount);
             default:
                 return lastDate.minusDays(referencePeriodCount);

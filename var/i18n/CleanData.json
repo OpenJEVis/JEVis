@@ -1,12 +1,12 @@
 {
   "jevisclass": "Clean Data",
   "names": {
-    "de": "Clean Data",
+    "de": "Bereinigte Daten",
     "ru": "Clean Data",
     "en": "Clean Data"
   },
   "descriptions": {
-    "de": "The class Clean Data represents a container for a series of post-processed numeric values.",
+    "de": "Die Klasse Bereinigte Daten repräsentiert einen Behälter für eine Reihe von nachbearbeiteten Werten.",
     "ru": "The class Clean Data represents a container for a series of post-processed numeric values.",
     "en": "The class Clean Data represents a container for a series of post-processed numeric values."
   },
@@ -27,12 +27,12 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
+        "de": "Aktiviert Beschreibung",
         "ru": "Enabled desctiption",
         "en": "Enabled desctiption"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }

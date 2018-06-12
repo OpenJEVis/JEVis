@@ -158,15 +158,4 @@ public interface JEVisConstants {
         int AT_DATE = 1;
     }
 
-    interface GapFillingType {
-        String NONE = "";
-        String STATIC = "static";
-        String INTERPOLATION = "interpolation";
-        String DEFAULT_VALUE = "default value";
-        String MINIMUM = "minimum";
-        String MAXIMUM = "maximum";
-        String MEDIAN = "median";
-        String AVERAGE = "average";
-    }
-
 }

@@ -22,9 +22,6 @@ package org.jevis.commons.dataprocessing;
 import org.jevis.api.*;
 import org.joda.time.DateTime;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Minimalic implementaions of an JEVisSample to handel temporary Samples.
  *
@@ -162,11 +159,6 @@ public class VirtualSample implements JEVisSample {
             return false;
         }
         VirtualSample otherSample = (VirtualSample) o;
-        try {
-            return otherSample.getTimestamp().equals(this.getTimestamp()) && otherSample.getValue().equals(this.getValue());
-        } catch (JEVisException ex) {
-            Logger.getLogger(VirtualSample.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false;
+        return otherSample.getTimestamp().equals(this.getTimestamp()) && otherSample.getValue().equals(this.getValue());
     }
 }

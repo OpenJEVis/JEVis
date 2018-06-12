@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/DataCollector" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/CSV-Driver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/FTP-Driver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/HTTP-Driver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/JEDataCollector" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/SOAP-Driver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/XML-Driver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/sFTP-Driver" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/JEAPI" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/JEAPI-WS" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/JEAlarm" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/JEApplication" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/JECalc" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/JECommons" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/JEDataCollector" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/JEDataProcessor" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/JEReport" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/JEVisControlCenter" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/JEWebService" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Notifier" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Notifier/JENotifier" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Notifier/Notifier" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Notifier/Notifier-EP" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/mysqldb" charset="UTF-8" />
   </component>
 </project>

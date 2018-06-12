@@ -68,14 +68,14 @@ public class NewObjectDialog {
     private boolean userSetName = false;
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 
-    private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
-
     public enum Type {
 
         NEW, RENAME
     }
 
     private Response response = Response.CANCEL;
+
+    private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
 
     public enum Response {
 
