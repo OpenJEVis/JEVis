@@ -5,23 +5,8 @@
 package org.jevis.jedatacollector;
 
 import com.beust.jcommander.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.apache.log4j.Appender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
-import org.apache.log4j.PatternLayout;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisType;
+import org.apache.log4j.*;
+import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.driver.DataCollectorTypes;
@@ -29,16 +14,17 @@ import org.jevis.commons.driver.DataSource;
 import org.jevis.commons.driver.DataSourceFactory;
 import org.jevis.commons.driver.DriverHelper;
 
+import java.util.*;
+
 /**
- *
  * @author broder
  * @author ai
  */
 public class Launcher extends AbstractCliApp {
 
-    public static final String APP_INFO ="JEDataCollector 2018-02-21";
+    public static final String APP_INFO = "JEDataCollector 2018-02-21";
     public static String KEY = "process-id";
-    private Logger logger = Logger.getRootLogger();
+    private static Logger logger = Logger.getRootLogger();
     private final int cycleTime = 3600;
     private final Command commands = new Command();
 
@@ -46,9 +32,14 @@ public class Launcher extends AbstractCliApp {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws JEVisException {
+        System.out.println("Müdfjäposhfaäwhesädoh");
+        try {
+            Appender appender = Logger.getRootLogger().getAppender("FILE");
+            appender.addFilter(new ThreadFilter("-1"));
+        } catch (Exception ex) {
+            logger.error("Error loading log Appender 'FILE'", ex);
+        }
 
-        Appender appender = Logger.getRootLogger().getAppender("FILE");
-        appender.addFilter(new ThreadFilter("-1"));
         MDC.put(Launcher.KEY, "-1");
         Logger.getLogger(Launcher.class.getName()).log(Level.INFO, "-------Start JEDataCollector 2018-02-01-------");
         Launcher app = new Launcher(args, APP_INFO);
@@ -63,9 +54,9 @@ public class Launcher extends AbstractCliApp {
 
         @Parameter(names = {"--jevisid", "-jid"}, description = "if servicemode is 'single', then you can put the JEVis id of the alarm objects you want to run", required = false)
         private List<Long> ids = new ArrayList<>();
-        
+
         @Parameter(names = {"--driver-folder", "-df"}, description = "Sets the root folder for the driver structure")
-        private String driverFolder;    
+        private String driverFolder;
     }
 
     @Override
@@ -119,7 +110,7 @@ public class Launcher extends AbstractCliApp {
     /**
      * Run all datasources in Threads. The maximum number of threads is defined
      * in the JEVis System.
-     *
+     * <p>
      * PROBLEM: with the new structure. Probably not all data sources are able
      * to handle multiple queries. Any solutions? Maybe without threads?
      *

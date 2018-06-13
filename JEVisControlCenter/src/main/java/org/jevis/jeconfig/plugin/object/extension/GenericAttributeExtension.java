@@ -334,7 +334,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 //                    JFXHamburger testB = new JFXHamburger();
 //                    testB.setMaxHeight(18);
 //                    testB.setMaxWidth(18);
-                    name.setText(type.getName() + ":");
+//                    name.setText(type.getName() + ":");
 //                    name.setTextAlignment(TextAlignment.RIGHT);
 //                    name.setContentDisplay(ContentDisplay.RIGHT);
                     name.setAlignment(Pos.CENTER_RIGHT);

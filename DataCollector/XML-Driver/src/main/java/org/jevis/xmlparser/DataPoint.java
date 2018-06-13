@@ -6,7 +6,6 @@
 package org.jevis.xmlparser;
 
 /**
- *
  * @author bf
  */
 public class DataPoint {
@@ -38,5 +37,6 @@ public class DataPoint {
     public void setTarget(Long target) {
         this.target = target;
     }
+
 
 }
