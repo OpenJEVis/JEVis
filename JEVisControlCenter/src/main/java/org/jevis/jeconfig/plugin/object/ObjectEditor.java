@@ -41,6 +41,7 @@ import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.HiddenSidesPane;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.application.application.I18nWS;
@@ -115,7 +116,7 @@ public class ObjectEditor {
 //            _hasChanged = true;
 //            for (ObjectEditorExtension extension : extensions) {
 //                if (extension.needSave()) {
-//                    System.out.println("extension need save: " + extension.getTitel());
+//                    System.out.println("extension need save: " + extension.getTitle());
 //                    needSave.add(extension);
 //                }
 //            }
@@ -203,6 +204,20 @@ public class ObjectEditor {
                         List<TitledPane> taps = new ArrayList<>();
                         extensions = new ArrayList<>();
 
+                        // Add optional extensions
+                        try {
+                            switch (obj.getJEVisClassName()) {
+                                case CalculationExtension.CALC_CLASS_NAME:
+                                    extensions.add(new CalculationExtension(obj));
+                                    break;
+                                default:
+                            }
+                        } catch (JEVisException e) {
+                            logger.error("Could not get object class" + e.getLocalizedMessage());
+                            e.printStackTrace();
+                        }
+
+                        // Add general extensions
                         extensions.add(new GenericAttributeExtension(obj, tree));
 //                extensions.add(new BasicMathExtension(obj));
                         extensions.add(new MemberExtension(obj));
@@ -213,7 +228,7 @@ public class ObjectEditor {
 
                         for (final ObjectEditorExtension ex : extensions) {
                             if (ex.isForObject(obj)) {
-                                TitledPane newTab = new TitledPane(ex.getTitel(), ex.getView());
+                                TitledPane newTab = new TitledPane(ex.getTitle(), ex.getView());
                                 newTab.getStylesheets().add("/styles/objecteditor.css");
 //                        newTab.setStyle("-fx-background-color: transparent;");
 
@@ -242,7 +257,7 @@ public class ObjectEditor {
 
 //                                        updateView(content, ex);
 //                                        loaderP.setProgress(100);
-                                                _lastOpenEditor = ex.getTitel();
+                                                _lastOpenEditor = ex.getTitle();
                                                 JEConfig.loadNotification(false);
                                             } catch (Exception ex) {
                                                 ex.printStackTrace();
@@ -266,7 +281,7 @@ public class ObjectEditor {
                         if (!taps.isEmpty()) {
 
                             for (ObjectEditorExtension ex : extensions) {
-                                if (ex.getTitel().equals(_lastOpenEditor)) {
+                                if (ex.getTitle().equals(_lastOpenEditor)) {
                                     ex.setVisible();
 //                            updateView(content, ex);
                                 }
@@ -287,7 +302,7 @@ public class ObjectEditor {
                             extensions.get(0).setVisible();
                             accordion.setExpandedPane(taps.get(0));
                             taps.get(0).requestFocus();
-                            _lastOpenEditor = extensions.get(0).getTitel();
+                            _lastOpenEditor = extensions.get(0).getTitle();
                         }
 
                         Button helpButton = new Button("", JEConfig.getImage("1400874302_question_blue.png", 34, 34));

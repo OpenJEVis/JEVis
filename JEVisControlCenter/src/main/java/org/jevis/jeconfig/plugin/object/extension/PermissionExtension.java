@@ -102,7 +102,7 @@ public class PermissionExtension implements ObjectEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITEL;
     }
 

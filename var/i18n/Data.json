@@ -1,7 +1,7 @@
 {
   "jevisclass": "Data",
   "names": {
-    "de": "Data",
+    "de": "Daten",
     "ru": "Data",
     "en": "Data"
   },
@@ -19,7 +19,7 @@
         "en": "Value desctiption"
       },
       "names": {
-        "de": "Value",
+        "de": "Werte",
         "ru": "Value",
         "en": "Value"
       }
