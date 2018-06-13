@@ -5,15 +5,16 @@
  */
 package org.jevis.report3.data.reportlink;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.report3.data.report.ReportProperty;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -63,6 +64,7 @@ public class ReportLinkFactory {
     private List<JEVisObject> getAllSubLinkDirs(JEVisObject reportObject, JEVisDataSource ds, String dirName, String objName) {
         JEVisClass reportLinkClass = null;
         JEVisClass reportLinkDirClass = null;
+
         try {
             reportLinkClass = ds.getJEVisClass(objName);
             reportLinkDirClass = ds.getJEVisClass(dirName);
@@ -151,6 +153,6 @@ public class ReportLinkFactory {
 
     public enum ReportLinkType {
 
-        SINGLE, RECURSIVE;
+        SINGLE, RECURSIVE
     }
 }
