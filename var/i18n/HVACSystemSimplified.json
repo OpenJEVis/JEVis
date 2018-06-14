@@ -14,9 +14,9 @@
     {
       "type": "Cooling set point Period Spring",
       "descriptions": {
-        "de": "Cooling set point Period Spring desctiption",
-        "ru": "Cooling set point Period Spring desctiption",
-        "en": "Cooling set point Period Spring desctiption"
+        "de": "Cooling set point Period Spring description",
+        "ru": "Cooling set point Period Spring description",
+        "en": "Cooling set point Period Spring description"
       },
       "names": {
         "de": "Cooling set point Period Spring",
@@ -27,9 +27,9 @@
     {
       "type": "Cooling set point Period Summer",
       "descriptions": {
-        "de": "Cooling set point Period Summer desctiption",
-        "ru": "Cooling set point Period Summer desctiption",
-        "en": "Cooling set point Period Summer desctiption"
+        "de": "Cooling set point Period Summer description",
+        "ru": "Cooling set point Period Summer description",
+        "en": "Cooling set point Period Summer description"
       },
       "names": {
         "de": "Cooling set point Period Summer",
@@ -40,9 +40,9 @@
     {
       "type": "Cooling set point Period Winter",
       "descriptions": {
-        "de": "Cooling set point Period Winter desctiption",
-        "ru": "Cooling set point Period Winter desctiption",
-        "en": "Cooling set point Period Winter desctiption"
+        "de": "Cooling set point Period Winter description",
+        "ru": "Cooling set point Period Winter description",
+        "en": "Cooling set point Period Winter description"
       },
       "names": {
         "de": "Cooling set point Period Winter",
@@ -53,9 +53,9 @@
     {
       "type": "Daily Operating Hours",
       "descriptions": {
-        "de": "Daily Operating Hours desctiption",
-        "ru": "Daily Operating Hours desctiption",
-        "en": "Daily Operating Hours desctiption"
+        "de": "Daily Operating Hours description",
+        "ru": "Daily Operating Hours description",
+        "en": "Daily Operating Hours description"
       },
       "names": {
         "de": "Daily Operating Hours",
@@ -66,9 +66,9 @@
     {
       "type": "Dehumidification set point Period Spring",
       "descriptions": {
-        "de": "Dehumidification set point Period Spring desctiption",
-        "ru": "Dehumidification set point Period Spring desctiption",
-        "en": "Dehumidification set point Period Spring desctiption"
+        "de": "Dehumidification set point Period Spring description",
+        "ru": "Dehumidification set point Period Spring description",
+        "en": "Dehumidification set point Period Spring description"
       },
       "names": {
         "de": "Dehumidification set point Period Spring",
@@ -79,9 +79,9 @@
     {
       "type": "Dehumidification set point Period Summer",
       "descriptions": {
-        "de": "Dehumidification set point Period Summer desctiption",
-        "ru": "Dehumidification set point Period Summer desctiption",
-        "en": "Dehumidification set point Period Summer desctiption"
+        "de": "Dehumidification set point Period Summer description",
+        "ru": "Dehumidification set point Period Summer description",
+        "en": "Dehumidification set point Period Summer description"
       },
       "names": {
         "de": "Dehumidification set point Period Summer",
@@ -92,9 +92,9 @@
     {
       "type": "Dehumidification set point Period Winter",
       "descriptions": {
-        "de": "Dehumidification set point Period Winter desctiption",
-        "ru": "Dehumidification set point Period Winter desctiption",
-        "en": "Dehumidification set point Period Winter desctiption"
+        "de": "Dehumidification set point Period Winter description",
+        "ru": "Dehumidification set point Period Winter description",
+        "en": "Dehumidification set point Period Winter description"
       },
       "names": {
         "de": "Dehumidification set point Period Winter",
@@ -105,9 +105,9 @@
     {
       "type": "End Date Heating Period Spring",
       "descriptions": {
-        "de": "End Date Heating Period Spring desctiption",
-        "ru": "End Date Heating Period Spring desctiption",
-        "en": "End Date Heating Period Spring desctiption"
+        "de": "End Date Heating Period Spring description",
+        "ru": "End Date Heating Period Spring description",
+        "en": "End Date Heating Period Spring description"
       },
       "names": {
         "de": "End Date Heating Period Spring",
@@ -118,9 +118,9 @@
     {
       "type": "End Date Heating Period Winter",
       "descriptions": {
-        "de": "End Date Heating Period Winter desctiption",
-        "ru": "End Date Heating Period Winter desctiption",
-        "en": "End Date Heating Period Winter desctiption"
+        "de": "End Date Heating Period Winter description",
+        "ru": "End Date Heating Period Winter description",
+        "en": "End Date Heating Period Winter description"
       },
       "names": {
         "de": "End Date Heating Period Winter",
@@ -131,9 +131,9 @@
     {
       "type": "Energy Source",
       "descriptions": {
-        "de": "Energy Source desctiption",
-        "ru": "Energy Source desctiption",
-        "en": "Energy Source desctiption"
+        "de": "Energy Source description",
+        "ru": "Energy Source description",
+        "en": "Energy Source description"
       },
       "names": {
         "de": "Energy Source",
@@ -144,9 +144,9 @@
     {
       "type": "Heat Recovery",
       "descriptions": {
-        "de": "Heat Recovery desctiption",
-        "ru": "Heat Recovery desctiption",
-        "en": "Heat Recovery desctiption"
+        "de": "Heat Recovery description",
+        "ru": "Heat Recovery description",
+        "en": "Heat Recovery description"
       },
       "names": {
         "de": "Heat Recovery",
@@ -157,9 +157,9 @@
     {
       "type": "Heat Recovery Efficiency",
       "descriptions": {
-        "de": "Heat Recovery Efficiency desctiption",
-        "ru": "Heat Recovery Efficiency desctiption",
-        "en": "Heat Recovery Efficiency desctiption"
+        "de": "Heat Recovery Efficiency description",
+        "ru": "Heat Recovery Efficiency description",
+        "en": "Heat Recovery Efficiency description"
       },
       "names": {
         "de": "Heat Recovery Efficiency",
@@ -170,9 +170,9 @@
     {
       "type": "Heating Cooling",
       "descriptions": {
-        "de": "Heating Cooling desctiption",
-        "ru": "Heating Cooling desctiption",
-        "en": "Heating Cooling desctiption"
+        "de": "Heating Cooling description",
+        "ru": "Heating Cooling description",
+        "en": "Heating Cooling description"
       },
       "names": {
         "de": "Heating Cooling",
@@ -183,9 +183,9 @@
     {
       "type": "Heating set point Period Spring",
       "descriptions": {
-        "de": "Heating set point Period Spring desctiption",
-        "ru": "Heating set point Period Spring desctiption",
-        "en": "Heating set point Period Spring desctiption"
+        "de": "Heating set point Period Spring description",
+        "ru": "Heating set point Period Spring description",
+        "en": "Heating set point Period Spring description"
       },
       "names": {
         "de": "Heating set point Period Spring",
@@ -196,9 +196,9 @@
     {
       "type": "Heating set point Period Summer",
       "descriptions": {
-        "de": "Heating set point Period Summer desctiption",
-        "ru": "Heating set point Period Summer desctiption",
-        "en": "Heating set point Period Summer desctiption"
+        "de": "Heating set point Period Summer description",
+        "ru": "Heating set point Period Summer description",
+        "en": "Heating set point Period Summer description"
       },
       "names": {
         "de": "Heating set point Period Summer",
@@ -209,9 +209,9 @@
     {
       "type": "Heating set point Period Winter",
       "descriptions": {
-        "de": "Heating set point Period Winter desctiption",
-        "ru": "Heating set point Period Winter desctiption",
-        "en": "Heating set point Period Winter desctiption"
+        "de": "Heating set point Period Winter description",
+        "ru": "Heating set point Period Winter description",
+        "en": "Heating set point Period Winter description"
       },
       "names": {
         "de": "Heating set point Period Winter",
@@ -222,9 +222,9 @@
     {
       "type": "Heating Temperature",
       "descriptions": {
-        "de": "Heating Temperature desctiption",
-        "ru": "Heating Temperature desctiption",
-        "en": "Heating Temperature desctiption"
+        "de": "Heating Temperature description",
+        "ru": "Heating Temperature description",
+        "en": "Heating Temperature description"
       },
       "names": {
         "de": "Heating Temperature",
@@ -235,9 +235,9 @@
     {
       "type": "Humidification set point Period Spring",
       "descriptions": {
-        "de": "Humidification set point Period Spring desctiption",
-        "ru": "Humidification set point Period Spring desctiption",
-        "en": "Humidification set point Period Spring desctiption"
+        "de": "Humidification set point Period Spring description",
+        "ru": "Humidification set point Period Spring description",
+        "en": "Humidification set point Period Spring description"
       },
       "names": {
         "de": "Humidification set point Period Spring",
@@ -248,9 +248,9 @@
     {
       "type": "Humidification set point Period Summer",
       "descriptions": {
-        "de": "Humidification set point Period Summer desctiption",
-        "ru": "Humidification set point Period Summer desctiption",
-        "en": "Humidification set point Period Summer desctiption"
+        "de": "Humidification set point Period Summer description",
+        "ru": "Humidification set point Period Summer description",
+        "en": "Humidification set point Period Summer description"
       },
       "names": {
         "de": "Humidification set point Period Summer",
@@ -261,9 +261,9 @@
     {
       "type": "Humidification set point Period Winter",
       "descriptions": {
-        "de": "Humidification set point Period Winter desctiption",
-        "ru": "Humidification set point Period Winter desctiption",
-        "en": "Humidification set point Period Winter desctiption"
+        "de": "Humidification set point Period Winter description",
+        "ru": "Humidification set point Period Winter description",
+        "en": "Humidification set point Period Winter description"
       },
       "names": {
         "de": "Humidification set point Period Winter",
@@ -274,9 +274,9 @@
     {
       "type": "Manufacturer",
       "descriptions": {
-        "de": "Manufacturer desctiption",
-        "ru": "Manufacturer desctiption",
-        "en": "Manufacturer desctiption"
+        "de": "Manufacturer description",
+        "ru": "Manufacturer description",
+        "en": "Manufacturer description"
       },
       "names": {
         "de": "Manufacturer",
@@ -287,9 +287,9 @@
     {
       "type": "Measuring Point",
       "descriptions": {
-        "de": "Measuring Point desctiption",
-        "ru": "Measuring Point desctiption",
-        "en": "Measuring Point desctiption"
+        "de": "Measuring Point description",
+        "ru": "Measuring Point description",
+        "en": "Measuring Point description"
       },
       "names": {
         "de": "Measuring Point",
@@ -300,9 +300,9 @@
     {
       "type": "Nominal Power",
       "descriptions": {
-        "de": "Nominal Power desctiption",
-        "ru": "Nominal Power desctiption",
-        "en": "Nominal Power desctiption"
+        "de": "Nominal Power description",
+        "ru": "Nominal Power description",
+        "en": "Nominal Power description"
       },
       "names": {
         "de": "Nominal Power",
@@ -313,9 +313,9 @@
     {
       "type": "Start Date Heating Period Winter",
       "descriptions": {
-        "de": "Start Date Heating Period Winter desctiption",
-        "ru": "Start Date Heating Period Winter desctiption",
-        "en": "Start Date Heating Period Winter desctiption"
+        "de": "Start Date Heating Period Winter description",
+        "ru": "Start Date Heating Period Winter description",
+        "en": "Start Date Heating Period Winter description"
       },
       "names": {
         "de": "Start Date Heating Period Winter",
@@ -326,9 +326,9 @@
     {
       "type": "Weighting Factor",
       "descriptions": {
-        "de": "Weighting Factor desctiption",
-        "ru": "Weighting Factor desctiption",
-        "en": "Weighting Factor desctiption"
+        "de": "Weighting Factor description",
+        "ru": "Weighting Factor description",
+        "en": "Weighting Factor description"
       },
       "names": {
         "de": "Weighting Factor",
@@ -339,9 +339,9 @@
     {
       "type": "Work Weeks",
       "descriptions": {
-        "de": "Work Weeks desctiption",
-        "ru": "Work Weeks desctiption",
-        "en": "Work Weeks desctiption"
+        "de": "Work Weeks description",
+        "ru": "Work Weeks description",
+        "en": "Work Weeks description"
       },
       "names": {
         "de": "Work Weeks",
@@ -352,9 +352,9 @@
     {
       "type": "Working Days",
       "descriptions": {
-        "de": "Working Days desctiption",
-        "ru": "Working Days desctiption",
-        "en": "Working Days desctiption"
+        "de": "Working Days description",
+        "ru": "Working Days description",
+        "en": "Working Days description"
       },
       "names": {
         "de": "Working Days",

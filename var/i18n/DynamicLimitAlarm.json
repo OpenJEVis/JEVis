@@ -14,9 +14,9 @@
     {
       "type": "Alarm Log",
       "descriptions": {
-        "de": "Alarm Log desctiption",
-        "ru": "Alarm Log desctiption",
-        "en": "Alarm Log desctiption"
+        "de": "Alarm Log description",
+        "ru": "Alarm Log description",
+        "en": "Alarm Log description"
       },
       "names": {
         "de": "Alarm Log",
@@ -27,9 +27,9 @@
     {
       "type": "Enable",
       "descriptions": {
-        "de": "Enable desctiption",
-        "ru": "Enable desctiption",
-        "en": "Enable desctiption"
+        "de": "Enable description",
+        "ru": "Enable description",
+        "en": "Enable description"
       },
       "names": {
         "de": "Enable",
@@ -40,9 +40,9 @@
     {
       "type": "Limit Data",
       "descriptions": {
-        "de": "Limit Data desctiption",
-        "ru": "Limit Data desctiption",
-        "en": "Limit Data desctiption"
+        "de": "Limit Data description",
+        "ru": "Limit Data description",
+        "en": "Limit Data description"
       },
       "names": {
         "de": "Limit Data",
@@ -53,9 +53,9 @@
     {
       "type": "Operator",
       "descriptions": {
-        "de": "Operator desctiption",
-        "ru": "Operator desctiption",
-        "en": "Operator desctiption"
+        "de": "Operator description",
+        "ru": "Operator description",
+        "en": "Operator description"
       },
       "names": {
         "de": "Operator",
@@ -66,9 +66,9 @@
     {
       "type": "Status",
       "descriptions": {
-        "de": "Status desctiption",
-        "ru": "Status desctiption",
-        "en": "Status desctiption"
+        "de": "Status description",
+        "ru": "Status description",
+        "en": "Status description"
       },
       "names": {
         "de": "Status",
@@ -79,9 +79,9 @@
     {
       "type": "Tolerance",
       "descriptions": {
-        "de": "Tolerance desctiption",
-        "ru": "Tolerance desctiption",
-        "en": "Tolerance desctiption"
+        "de": "Tolerance description",
+        "ru": "Tolerance description",
+        "en": "Tolerance description"
       },
       "names": {
         "de": "Tolerance",

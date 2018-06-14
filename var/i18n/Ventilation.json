@@ -14,9 +14,9 @@
     {
       "type": "Air Exchange Rate",
       "descriptions": {
-        "de": "Air Exchange Rate desctiption",
-        "ru": "Air Exchange Rate desctiption",
-        "en": "Air Exchange Rate desctiption"
+        "de": "Air Exchange Rate description",
+        "ru": "Air Exchange Rate description",
+        "en": "Air Exchange Rate description"
       },
       "names": {
         "de": "Air Exchange Rate",
@@ -27,9 +27,9 @@
     {
       "type": "Controling Air Conditioning System with Time manually and Temperature",
       "descriptions": {
-        "de": "Controling Air Conditioning System with Time manually and Temperature desctiption",
-        "ru": "Controling Air Conditioning System with Time manually and Temperature desctiption",
-        "en": "Controling Air Conditioning System with Time manually and Temperature desctiption"
+        "de": "Controling Air Conditioning System with Time manually and Temperature description",
+        "ru": "Controling Air Conditioning System with Time manually and Temperature description",
+        "en": "Controling Air Conditioning System with Time manually and Temperature description"
       },
       "names": {
         "de": "Controling Air Conditioning System with Time manually and Temperature",
@@ -40,9 +40,9 @@
     {
       "type": "Daily Operating Hours",
       "descriptions": {
-        "de": "Daily Operating Hours desctiption",
-        "ru": "Daily Operating Hours desctiption",
-        "en": "Daily Operating Hours desctiption"
+        "de": "Daily Operating Hours description",
+        "ru": "Daily Operating Hours description",
+        "en": "Daily Operating Hours description"
       },
       "names": {
         "de": "Daily Operating Hours",
@@ -53,9 +53,9 @@
     {
       "type": "Ducted Airflow",
       "descriptions": {
-        "de": "Ducted Airflow desctiption",
-        "ru": "Ducted Airflow desctiption",
-        "en": "Ducted Airflow desctiption"
+        "de": "Ducted Airflow description",
+        "ru": "Ducted Airflow description",
+        "en": "Ducted Airflow description"
       },
       "names": {
         "de": "Ducted Airflow",
@@ -66,9 +66,9 @@
     {
       "type": "Energy Source",
       "descriptions": {
-        "de": "Energy Source desctiption",
-        "ru": "Energy Source desctiption",
-        "en": "Energy Source desctiption"
+        "de": "Energy Source description",
+        "ru": "Energy Source description",
+        "en": "Energy Source description"
       },
       "names": {
         "de": "Energy Source",
@@ -79,9 +79,9 @@
     {
       "type": "Engine Power FROM",
       "descriptions": {
-        "de": "Engine Power FROM desctiption",
-        "ru": "Engine Power FROM desctiption",
-        "en": "Engine Power FROM desctiption"
+        "de": "Engine Power FROM description",
+        "ru": "Engine Power FROM description",
+        "en": "Engine Power FROM description"
       },
       "names": {
         "de": "Engine Power FROM",
@@ -92,9 +92,9 @@
     {
       "type": "Engine Power TO",
       "descriptions": {
-        "de": "Engine Power TO desctiption",
-        "ru": "Engine Power TO desctiption",
-        "en": "Engine Power TO desctiption"
+        "de": "Engine Power TO description",
+        "ru": "Engine Power TO description",
+        "en": "Engine Power TO description"
       },
       "names": {
         "de": "Engine Power TO",
@@ -105,9 +105,9 @@
     {
       "type": "Heat Recovery",
       "descriptions": {
-        "de": "Heat Recovery desctiption",
-        "ru": "Heat Recovery desctiption",
-        "en": "Heat Recovery desctiption"
+        "de": "Heat Recovery description",
+        "ru": "Heat Recovery description",
+        "en": "Heat Recovery description"
       },
       "names": {
         "de": "Heat Recovery",
@@ -118,9 +118,9 @@
     {
       "type": "Manufacturer",
       "descriptions": {
-        "de": "Manufacturer desctiption",
-        "ru": "Manufacturer desctiption",
-        "en": "Manufacturer desctiption"
+        "de": "Manufacturer description",
+        "ru": "Manufacturer description",
+        "en": "Manufacturer description"
       },
       "names": {
         "de": "Manufacturer",
@@ -131,9 +131,9 @@
     {
       "type": "Measuring Point",
       "descriptions": {
-        "de": "Measuring Point desctiption",
-        "ru": "Measuring Point desctiption",
-        "en": "Measuring Point desctiption"
+        "de": "Measuring Point description",
+        "ru": "Measuring Point description",
+        "en": "Measuring Point description"
       },
       "names": {
         "de": "Measuring Point",
@@ -144,9 +144,9 @@
     {
       "type": "Nominal Power",
       "descriptions": {
-        "de": "Nominal Power desctiption",
-        "ru": "Nominal Power desctiption",
-        "en": "Nominal Power desctiption"
+        "de": "Nominal Power description",
+        "ru": "Nominal Power description",
+        "en": "Nominal Power description"
       },
       "names": {
         "de": "Nominal Power",
@@ -157,9 +157,9 @@
     {
       "type": "Power Condenser",
       "descriptions": {
-        "de": "Power Condenser desctiption",
-        "ru": "Power Condenser desctiption",
-        "en": "Power Condenser desctiption"
+        "de": "Power Condenser description",
+        "ru": "Power Condenser description",
+        "en": "Power Condenser description"
       },
       "names": {
         "de": "Power Condenser",
@@ -170,9 +170,9 @@
     {
       "type": "Power Preheater",
       "descriptions": {
-        "de": "Power Preheater desctiption",
-        "ru": "Power Preheater desctiption",
-        "en": "Power Preheater desctiption"
+        "de": "Power Preheater description",
+        "ru": "Power Preheater description",
+        "en": "Power Preheater description"
       },
       "names": {
         "de": "Power Preheater",
@@ -183,9 +183,9 @@
     {
       "type": "Power Reheater",
       "descriptions": {
-        "de": "Power Reheater desctiption",
-        "ru": "Power Reheater desctiption",
-        "en": "Power Reheater desctiption"
+        "de": "Power Reheater description",
+        "ru": "Power Reheater description",
+        "en": "Power Reheater description"
       },
       "names": {
         "de": "Power Reheater",
@@ -196,9 +196,9 @@
     {
       "type": "Proportion of Recirculated Air",
       "descriptions": {
-        "de": "Proportion of Recirculated Air desctiption",
-        "ru": "Proportion of Recirculated Air desctiption",
-        "en": "Proportion of Recirculated Air desctiption"
+        "de": "Proportion of Recirculated Air description",
+        "ru": "Proportion of Recirculated Air description",
+        "en": "Proportion of Recirculated Air description"
       },
       "names": {
         "de": "Proportion of Recirculated Air",
@@ -209,9 +209,9 @@
     {
       "type": "Remark",
       "descriptions": {
-        "de": "Remark desctiption",
-        "ru": "Remark desctiption",
-        "en": "Remark desctiption"
+        "de": "Remark description",
+        "ru": "Remark description",
+        "en": "Remark description"
       },
       "names": {
         "de": "Remark",
@@ -222,9 +222,9 @@
     {
       "type": "Standby Consumption",
       "descriptions": {
-        "de": "Standby Consumption desctiption",
-        "ru": "Standby Consumption desctiption",
-        "en": "Standby Consumption desctiption"
+        "de": "Standby Consumption description",
+        "ru": "Standby Consumption description",
+        "en": "Standby Consumption description"
       },
       "names": {
         "de": "Standby Consumption",
@@ -235,9 +235,9 @@
     {
       "type": "Supply Air Volume Flow",
       "descriptions": {
-        "de": "Supply Air Volume Flow desctiption",
-        "ru": "Supply Air Volume Flow desctiption",
-        "en": "Supply Air Volume Flow desctiption"
+        "de": "Supply Air Volume Flow description",
+        "ru": "Supply Air Volume Flow description",
+        "en": "Supply Air Volume Flow description"
       },
       "names": {
         "de": "Supply Air Volume Flow",
@@ -248,9 +248,9 @@
     {
       "type": "Supply Area",
       "descriptions": {
-        "de": "Supply Area desctiption",
-        "ru": "Supply Area desctiption",
-        "en": "Supply Area desctiption"
+        "de": "Supply Area description",
+        "ru": "Supply Area description",
+        "en": "Supply Area description"
       },
       "names": {
         "de": "Supply Area",
@@ -261,9 +261,9 @@
     {
       "type": "Type of Control",
       "descriptions": {
-        "de": "Type of Control desctiption",
-        "ru": "Type of Control desctiption",
-        "en": "Type of Control desctiption"
+        "de": "Type of Control description",
+        "ru": "Type of Control description",
+        "en": "Type of Control description"
       },
       "names": {
         "de": "Type of Control",
@@ -274,9 +274,9 @@
     {
       "type": "Uptime",
       "descriptions": {
-        "de": "Uptime desctiption",
-        "ru": "Uptime desctiption",
-        "en": "Uptime desctiption"
+        "de": "Uptime description",
+        "ru": "Uptime description",
+        "en": "Uptime description"
       },
       "names": {
         "de": "Uptime",
@@ -287,9 +287,9 @@
     {
       "type": "Weighting Factor",
       "descriptions": {
-        "de": "Weighting Factor desctiption",
-        "ru": "Weighting Factor desctiption",
-        "en": "Weighting Factor desctiption"
+        "de": "Weighting Factor description",
+        "ru": "Weighting Factor description",
+        "en": "Weighting Factor description"
       },
       "names": {
         "de": "Weighting Factor",
@@ -300,9 +300,9 @@
     {
       "type": "Work Weeks",
       "descriptions": {
-        "de": "Work Weeks desctiption",
-        "ru": "Work Weeks desctiption",
-        "en": "Work Weeks desctiption"
+        "de": "Work Weeks description",
+        "ru": "Work Weeks description",
+        "en": "Work Weeks description"
       },
       "names": {
         "de": "Work Weeks",
@@ -313,9 +313,9 @@
     {
       "type": "Working Days",
       "descriptions": {
-        "de": "Working Days desctiption",
-        "ru": "Working Days desctiption",
-        "en": "Working Days desctiption"
+        "de": "Working Days description",
+        "ru": "Working Days description",
+        "en": "Working Days description"
       },
       "names": {
         "de": "Working Days",

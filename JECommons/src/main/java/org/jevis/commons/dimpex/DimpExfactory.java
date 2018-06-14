@@ -14,10 +14,6 @@ public class DimpExfactory {
 
     private static org.apache.logging.log4j.Logger logger = LogManager.getLogger(DimpExfactory.class);
 
-    public enum SampleMode {
-        CONFIGURATION, ALL, NONE
-    }
-
     public static DimpexSample buildSample(JEVisSample sample) throws JEVisException {
         DimpexSample dsample = new DimpexSample();
         dsample.setTimestamp(JsonFactory.sampleDTF.print(sample.getTimestamp()));
@@ -81,5 +77,9 @@ public class DimpExfactory {
 
 
         return newObj;
+    }
+
+    public enum SampleMode {
+        CONFIGURATION, ALL, NONE
     }
 }

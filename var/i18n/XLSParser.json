@@ -10,9 +10,9 @@
     {
       "type": "Datapoint Index",
       "descriptions": {
-        "de": "Datapoint Index desctiption",
-        "ru": "Datapoint Index desctiption",
-        "en": "Datapoint Index desctiption"
+        "de": "Datapoint Index description",
+        "ru": "Datapoint Index description",
+        "en": "Datapoint Index description"
       },
       "names": {
         "de": "Datapoint Index",
@@ -23,9 +23,9 @@
     {
       "type": "Date Format",
       "descriptions": {
-        "de": "Date Format desctiption",
-        "ru": "Date Format desctiption",
-        "en": "Date Format desctiption"
+        "de": "Date Format description",
+        "ru": "Date Format description",
+        "en": "Date Format description"
       },
       "names": {
         "de": "Date Format",
@@ -36,9 +36,9 @@
     {
       "type": "Date Index",
       "descriptions": {
-        "de": "Date Index desctiption",
-        "ru": "Date Index desctiption",
-        "en": "Date Index desctiption"
+        "de": "Date Index description",
+        "ru": "Date Index description",
+        "en": "Date Index description"
       },
       "names": {
         "de": "Date Index",
@@ -49,9 +49,9 @@
     {
       "type": "Decimal Separator",
       "descriptions": {
-        "de": "Decimal Separator desctiption",
-        "ru": "Decimal Separator desctiption",
-        "en": "Decimal Separator desctiption"
+        "de": "Decimal Separator description",
+        "ru": "Decimal Separator description",
+        "en": "Decimal Separator description"
       },
       "names": {
         "de": "Decimal Separator",
@@ -62,9 +62,9 @@
     {
       "type": "Delimiter",
       "descriptions": {
-        "de": "Delimiter desctiption",
-        "ru": "Delimiter desctiption",
-        "en": "Delimiter desctiption"
+        "de": "Delimiter description",
+        "ru": "Delimiter description",
+        "en": "Delimiter description"
       },
       "names": {
         "de": "Delimiter",
@@ -75,9 +75,9 @@
     {
       "type": "Number Of Headlines",
       "descriptions": {
-        "de": "Number Of Headlines desctiption",
-        "ru": "Number Of Headlines desctiption",
-        "en": "Number Of Headlines desctiption"
+        "de": "Number Of Headlines description",
+        "ru": "Number Of Headlines description",
+        "en": "Number Of Headlines description"
       },
       "names": {
         "de": "Number Of Headlines",
@@ -88,9 +88,9 @@
     {
       "type": "Quote",
       "descriptions": {
-        "de": "Quote desctiption",
-        "ru": "Quote desctiption",
-        "en": "Quote desctiption"
+        "de": "Quote description",
+        "ru": "Quote description",
+        "en": "Quote description"
       },
       "names": {
         "de": "Quote",
@@ -101,9 +101,9 @@
     {
       "type": "Thousand Separator",
       "descriptions": {
-        "de": "Thousand Separator desctiption",
-        "ru": "Thousand Separator desctiption",
-        "en": "Thousand Separator desctiption"
+        "de": "Thousand Separator description",
+        "ru": "Thousand Separator description",
+        "en": "Thousand Separator description"
       },
       "names": {
         "de": "Thousand Separator",
@@ -114,9 +114,9 @@
     {
       "type": "Time Format",
       "descriptions": {
-        "de": "Time Format desctiption",
-        "ru": "Time Format desctiption",
-        "en": "Time Format desctiption"
+        "de": "Time Format description",
+        "ru": "Time Format description",
+        "en": "Time Format description"
       },
       "names": {
         "de": "Time Format",
@@ -127,9 +127,9 @@
     {
       "type": "Time Index",
       "descriptions": {
-        "de": "Time Index desctiption",
-        "ru": "Time Index desctiption",
-        "en": "Time Index desctiption"
+        "de": "Time Index description",
+        "ru": "Time Index description",
+        "en": "Time Index description"
       },
       "names": {
         "de": "Time Index",

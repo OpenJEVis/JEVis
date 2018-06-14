@@ -1,20 +1,73 @@
 {
-  "name": "JENotifier",
+  "name": "EMail Plugin",
   "description": " ",
   "unique": false,
   "relationships": [
     {
-      "start": "JENotifier",
-      "end": "Service",
+      "start": "EMail Plugin",
+      "end": "JENotifier Plugin",
       "type": 0
     },
     {
-      "start": "JENotifier",
-      "end": "Service Directory",
+      "start": "EMail Plugin",
+      "end": "JENotifier",
       "type": 3
     }
   ],
   "types": [
-    {  }
+    {
+      "name": "Authenticator",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Plugin"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Plugin"
+    },
+    {
+      "name": "Port",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Plugin"
+    },
+    {
+      "name": "SMTP Server",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Plugin"
+    },
+    {
+      "name": "Server User Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Plugin"
+    },
+    {
+      "name": "Transport Security",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Plugin"
+    }
   ]
 }

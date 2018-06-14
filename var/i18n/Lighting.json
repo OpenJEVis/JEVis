@@ -14,9 +14,9 @@
     {
       "type": "Ballast Power",
       "descriptions": {
-        "de": "Ballast Power desctiption",
-        "ru": "Ballast Power desctiption",
-        "en": "Ballast Power desctiption"
+        "de": "Ballast Power description",
+        "ru": "Ballast Power description",
+        "en": "Ballast Power description"
       },
       "names": {
         "de": "Ballast Power",
@@ -27,9 +27,9 @@
     {
       "type": "Bulbs per Lamp",
       "descriptions": {
-        "de": "Bulbs per Lamp desctiption",
-        "ru": "Bulbs per Lamp desctiption",
-        "en": "Bulbs per Lamp desctiption"
+        "de": "Bulbs per Lamp description",
+        "ru": "Bulbs per Lamp description",
+        "en": "Bulbs per Lamp description"
       },
       "names": {
         "de": "Bulbs per Lamp",
@@ -40,9 +40,9 @@
     {
       "type": "Daily Operating Hours",
       "descriptions": {
-        "de": "Daily Operating Hours desctiption",
-        "ru": "Daily Operating Hours desctiption",
-        "en": "Daily Operating Hours desctiption"
+        "de": "Daily Operating Hours description",
+        "ru": "Daily Operating Hours description",
+        "en": "Daily Operating Hours description"
       },
       "names": {
         "de": "Daily Operating Hours",
@@ -53,9 +53,9 @@
     {
       "type": "Domain",
       "descriptions": {
-        "de": "Domain desctiption",
-        "ru": "Domain desctiption",
-        "en": "Domain desctiption"
+        "de": "Domain description",
+        "ru": "Domain description",
+        "en": "Domain description"
       },
       "names": {
         "de": "Domain",
@@ -66,9 +66,9 @@
     {
       "type": "Energy Source",
       "descriptions": {
-        "de": "Energy Source desctiption",
-        "ru": "Energy Source desctiption",
-        "en": "Energy Source desctiption"
+        "de": "Energy Source description",
+        "ru": "Energy Source description",
+        "en": "Energy Source description"
       },
       "names": {
         "de": "Energy Source",
@@ -79,9 +79,9 @@
     {
       "type": "Lamp Power",
       "descriptions": {
-        "de": "Lamp Power desctiption",
-        "ru": "Lamp Power desctiption",
-        "en": "Lamp Power desctiption"
+        "de": "Lamp Power description",
+        "ru": "Lamp Power description",
+        "en": "Lamp Power description"
       },
       "names": {
         "de": "Lamp Power",
@@ -92,9 +92,9 @@
     {
       "type": "Manufacturer",
       "descriptions": {
-        "de": "Manufacturer desctiption",
-        "ru": "Manufacturer desctiption",
-        "en": "Manufacturer desctiption"
+        "de": "Manufacturer description",
+        "ru": "Manufacturer description",
+        "en": "Manufacturer description"
       },
       "names": {
         "de": "Manufacturer",
@@ -105,9 +105,9 @@
     {
       "type": "Measurement",
       "descriptions": {
-        "de": "Measurement desctiption",
-        "ru": "Measurement desctiption",
-        "en": "Measurement desctiption"
+        "de": "Measurement description",
+        "ru": "Measurement description",
+        "en": "Measurement description"
       },
       "names": {
         "de": "Measurement",
@@ -118,9 +118,9 @@
     {
       "type": "Measuring Point",
       "descriptions": {
-        "de": "Measuring Point desctiption",
-        "ru": "Measuring Point desctiption",
-        "en": "Measuring Point desctiption"
+        "de": "Measuring Point description",
+        "ru": "Measuring Point description",
+        "en": "Measuring Point description"
       },
       "names": {
         "de": "Measuring Point",
@@ -131,9 +131,9 @@
     {
       "type": "Nominal Power",
       "descriptions": {
-        "de": "Nominal Power desctiption",
-        "ru": "Nominal Power desctiption",
-        "en": "Nominal Power desctiption"
+        "de": "Nominal Power description",
+        "ru": "Nominal Power description",
+        "en": "Nominal Power description"
       },
       "names": {
         "de": "Nominal Power",
@@ -144,9 +144,9 @@
     {
       "type": "Number of Lamps",
       "descriptions": {
-        "de": "Number of Lamps desctiption",
-        "ru": "Number of Lamps desctiption",
-        "en": "Number of Lamps desctiption"
+        "de": "Number of Lamps description",
+        "ru": "Number of Lamps description",
+        "en": "Number of Lamps description"
       },
       "names": {
         "de": "Number of Lamps",
@@ -157,9 +157,9 @@
     {
       "type": "Standby Consumption",
       "descriptions": {
-        "de": "Standby Consumption desctiption",
-        "ru": "Standby Consumption desctiption",
-        "en": "Standby Consumption desctiption"
+        "de": "Standby Consumption description",
+        "ru": "Standby Consumption description",
+        "en": "Standby Consumption description"
       },
       "names": {
         "de": "Standby Consumption",
@@ -170,9 +170,9 @@
     {
       "type": "Type",
       "descriptions": {
-        "de": "Type desctiption",
-        "ru": "Type desctiption",
-        "en": "Type desctiption"
+        "de": "Type description",
+        "ru": "Type description",
+        "en": "Type description"
       },
       "names": {
         "de": "Type",
@@ -183,9 +183,9 @@
     {
       "type": "Weighting Factor",
       "descriptions": {
-        "de": "Weighting Factor desctiption",
-        "ru": "Weighting Factor desctiption",
-        "en": "Weighting Factor desctiption"
+        "de": "Weighting Factor description",
+        "ru": "Weighting Factor description",
+        "en": "Weighting Factor description"
       },
       "names": {
         "de": "Weighting Factor",
@@ -196,9 +196,9 @@
     {
       "type": "Work Weeks",
       "descriptions": {
-        "de": "Work Weeks desctiption",
-        "ru": "Work Weeks desctiption",
-        "en": "Work Weeks desctiption"
+        "de": "Work Weeks description",
+        "ru": "Work Weeks description",
+        "en": "Work Weeks description"
       },
       "names": {
         "de": "Work Weeks",
@@ -209,9 +209,9 @@
     {
       "type": "Working Days",
       "descriptions": {
-        "de": "Working Days desctiption",
-        "ru": "Working Days desctiption",
-        "en": "Working Days desctiption"
+        "de": "Working Days description",
+        "ru": "Working Days description",
+        "en": "Working Days description"
       },
       "names": {
         "de": "Working Days",

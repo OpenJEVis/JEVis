@@ -10,9 +10,9 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description"
       },
       "names": {
         "de": "Enabled",
@@ -23,9 +23,9 @@
     {
       "type": "Timezone",
       "descriptions": {
-        "de": "Timezone desctiption",
-        "ru": "Timezone desctiption",
-        "en": "Timezone desctiption"
+        "de": "Timezone description",
+        "ru": "Timezone description",
+        "en": "Timezone description"
       },
       "names": {
         "de": "Timezone",

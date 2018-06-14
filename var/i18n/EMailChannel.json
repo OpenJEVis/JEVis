@@ -14,9 +14,9 @@
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout desctiption",
-        "ru": "Last Readout desctiption",
-        "en": "Last Readout desctiption"
+        "de": "Last Readout description",
+        "ru": "Last Readout description",
+        "en": "Last Readout description"
       },
       "names": {
         "de": "Last Readout",
@@ -27,9 +27,9 @@
     {
       "type": "Sender",
       "descriptions": {
-        "de": "Sender desctiption",
-        "ru": "Sender desctiption",
-        "en": "Sender desctiption"
+        "de": "Sender description",
+        "ru": "Sender description",
+        "en": "Sender description"
       },
       "names": {
         "de": "Sender",
@@ -40,9 +40,9 @@
     {
       "type": "Subject",
       "descriptions": {
-        "de": "Subject desctiption",
-        "ru": "Subject desctiption",
-        "en": "Subject desctiption"
+        "de": "Subject description",
+        "ru": "Subject description",
+        "en": "Subject description"
       },
       "names": {
         "de": "Subject",
