@@ -5,14 +5,14 @@
  */
 package org.jevis.report3.data.report;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import org.jevis.api.JEVisFile;
 import org.jevis.report3.TemplateTransformator;
 import org.jxls.common.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  *
@@ -33,12 +33,13 @@ public class Report {
         //get the template
         JEVisFile template = reportProperty.getTemplate();
         TemplateTransformator transformator = new TemplateTransformator();
+
         Context context = new Context(contextMap);
+
         try {
             transformator.transfrom(template.getBytes(), context);
         } catch (IOException ex) {
-            System.out.println(ex);
-            logger.error("error while transformatin of the template", ex);
+            logger.error("error while transformation of the template", ex);
         }
         return transformator.getOutputBytes();
     }

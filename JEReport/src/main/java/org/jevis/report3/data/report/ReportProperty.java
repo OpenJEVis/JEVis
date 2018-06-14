@@ -5,20 +5,17 @@
  */
 package org.jevis.report3.data.report;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.notification.ReportNotification;
 import org.jevis.report3.data.reportlink.ReportLinkProperty;
 import org.joda.time.DateTimeZone;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -71,7 +68,10 @@ public class ReportProperty {
 //            JEVisSample startRecordSample = reportObject.getAttribute(ReportAttributes.START_RECORD).getLatestSample();
 
             if (!DataHelper.checkAllObjectsNotNull(enabledSample, templateSample)) {
-                throw new RuntimeException("One Sample missing for report Object: id: " + reportObject.getID() + " and name: " + reportObject.getName());
+                String missing = "";
+                if (Objects.isNull(enabledSample)) missing = ReportAttributes.ENABLED;
+                if (Objects.isNull(templateSample)) missing += ReportAttributes.TEMPLATE;
+                throw new RuntimeException("One Sample missing for report Object: id: " + reportObject.getID() + " and name: " + reportObject.getName() + " sample for: " + missing);
             }
 
             enabled = enabledSample.getValueAsBoolean();
@@ -197,6 +197,6 @@ public class ReportProperty {
 
     public enum ReportSchedule {
 
-        DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY;
+        DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY
     }
 }

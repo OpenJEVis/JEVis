@@ -22,6 +22,11 @@
       "start": "JEReport",
       "end": "Service",
       "type": 0
+    },
+    {
+      "start": "JENotifier",
+      "end": "Service",
+      "type": 0
     }
   ]
 }

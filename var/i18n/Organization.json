@@ -14,9 +14,9 @@
     {
       "type": "Address",
       "descriptions": {
-        "de": "Address desctiption",
-        "ru": "Address desctiption",
-        "en": "Address desctiption"
+        "de": "Address description",
+        "ru": "Address description",
+        "en": "Address description"
       },
       "names": {
         "de": "Address",
@@ -27,9 +27,9 @@
     {
       "type": "Branche",
       "descriptions": {
-        "de": "Branche desctiption",
-        "ru": "Branche desctiption",
-        "en": "Branche desctiption"
+        "de": "Branche description",
+        "ru": "Branche description",
+        "en": "Branche description"
       },
       "names": {
         "de": "Branche",
@@ -40,9 +40,9 @@
     {
       "type": "Company Logo",
       "descriptions": {
-        "de": "Company Logo desctiption",
-        "ru": "Company Logo desctiption",
-        "en": "Company Logo desctiption"
+        "de": "Company Logo description",
+        "ru": "Company Logo description",
+        "en": "Company Logo description"
       },
       "names": {
         "de": "Company Logo",
@@ -53,9 +53,9 @@
     {
       "type": "Company Name",
       "descriptions": {
-        "de": "Company Name desctiption",
-        "ru": "Company Name desctiption",
-        "en": "Company Name desctiption"
+        "de": "Company Name description",
+        "ru": "Company Name description",
+        "en": "Company Name description"
       },
       "names": {
         "de": "Company Name",
@@ -66,9 +66,9 @@
     {
       "type": "Location",
       "descriptions": {
-        "de": "Location desctiption",
-        "ru": "Location desctiption",
-        "en": "Location desctiption"
+        "de": "Location description",
+        "ru": "Location description",
+        "en": "Location description"
       },
       "names": {
         "de": "Location",
@@ -79,9 +79,9 @@
     {
       "type": "Mail",
       "descriptions": {
-        "de": "Mail desctiption",
-        "ru": "Mail desctiption",
-        "en": "Mail desctiption"
+        "de": "Mail description",
+        "ru": "Mail description",
+        "en": "Mail description"
       },
       "names": {
         "de": "Mail",
@@ -92,9 +92,9 @@
     {
       "type": "Members",
       "descriptions": {
-        "de": "Members desctiption",
-        "ru": "Members desctiption",
-        "en": "Members desctiption"
+        "de": "Members description",
+        "ru": "Members description",
+        "en": "Members description"
       },
       "names": {
         "de": "Members",
@@ -105,9 +105,9 @@
     {
       "type": "Phone",
       "descriptions": {
-        "de": "Phone desctiption",
-        "ru": "Phone desctiption",
-        "en": "Phone desctiption"
+        "de": "Phone description",
+        "ru": "Phone description",
+        "en": "Phone description"
       },
       "names": {
         "de": "Phone",
@@ -118,9 +118,9 @@
     {
       "type": "Working or Opening Time",
       "descriptions": {
-        "de": "Working or Opening Time desctiption",
-        "ru": "Working or Opening Time desctiption",
-        "en": "Working or Opening Time desctiption"
+        "de": "Working or Opening Time description",
+        "ru": "Working or Opening Time description",
+        "en": "Working or Opening Time description"
       },
       "names": {
         "de": "Working or Opening Time",

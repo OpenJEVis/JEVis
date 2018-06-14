@@ -4,6 +4,11 @@
   "relationships": [
     {
       "start": "Report Period Configuration",
+      "end": "Report Attribute",
+      "type": 3
+    },
+    {
+      "start": "Report Period Configuration",
       "end": "Report Configuration",
       "type": 0
     }

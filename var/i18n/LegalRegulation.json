@@ -10,9 +10,9 @@
     {
       "type": "Content Summary",
       "descriptions": {
-        "de": "Content Summary desctiption",
-        "ru": "Content Summary desctiption",
-        "en": "Content Summary desctiption"
+        "de": "Content Summary description",
+        "ru": "Content Summary description",
+        "en": "Content Summary description"
       },
       "names": {
         "de": "Content Summary",
@@ -23,9 +23,9 @@
     {
       "type": "Date of Review",
       "descriptions": {
-        "de": "Date of Review desctiption",
-        "ru": "Date of Review desctiption",
-        "en": "Date of Review desctiption"
+        "de": "Date of Review description",
+        "ru": "Date of Review description",
+        "en": "Date of Review description"
       },
       "names": {
         "de": "Date of Review",
@@ -36,9 +36,9 @@
     {
       "type": "Issue Date",
       "descriptions": {
-        "de": "Issue Date desctiption",
-        "ru": "Issue Date desctiption",
-        "en": "Issue Date desctiption"
+        "de": "Issue Date description",
+        "ru": "Issue Date description",
+        "en": "Issue Date description"
       },
       "names": {
         "de": "Issue Date",
@@ -49,9 +49,9 @@
     {
       "type": "Last Amended",
       "descriptions": {
-        "de": "Last Amended desctiption",
-        "ru": "Last Amended desctiption",
-        "en": "Last Amended desctiption"
+        "de": "Last Amended description",
+        "ru": "Last Amended description",
+        "en": "Last Amended description"
       },
       "names": {
         "de": "Last Amended",
@@ -62,9 +62,9 @@
     {
       "type": "Regulation Designation",
       "descriptions": {
-        "de": "Regulation Designation desctiption",
-        "ru": "Regulation Designation desctiption",
-        "en": "Regulation Designation desctiption"
+        "de": "Regulation Designation description",
+        "ru": "Regulation Designation description",
+        "en": "Regulation Designation description"
       },
       "names": {
         "de": "Regulation Designation",
@@ -75,9 +75,9 @@
     {
       "type": "Relevance to ISO 50001",
       "descriptions": {
-        "de": "Relevance to ISO 50001 desctiption",
-        "ru": "Relevance to ISO 50001 desctiption",
-        "en": "Relevance to ISO 50001 desctiption"
+        "de": "Relevance to ISO 50001 description",
+        "ru": "Relevance to ISO 50001 description",
+        "en": "Relevance to ISO 50001 description"
       },
       "names": {
         "de": "Relevance to ISO 50001",
@@ -88,9 +88,9 @@
     {
       "type": "Significance to the Company",
       "descriptions": {
-        "de": "Significance to the Company desctiption",
-        "ru": "Significance to the Company desctiption",
-        "en": "Significance to the Company desctiption"
+        "de": "Significance to the Company description",
+        "ru": "Significance to the Company description",
+        "en": "Significance to the Company description"
       },
       "names": {
         "de": "Significance to the Company",

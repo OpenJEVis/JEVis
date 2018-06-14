@@ -41,7 +41,7 @@ public class DimpEX {
         return json;
     }
 
-    public static List<DimpexObject> exportAll(List<JEVisObject> objects, boolean includeChildren, DimpExfactory.SampleMode smode) throws JEVisException {
+    public static List<DimpexObject> exportAll(List<JEVisObject> objects, boolean includeChildren, DimpExfactory.SampleMode smode) {
         List<DimpexObject> jsons = new ArrayList<>();
         for (JEVisObject obj : objects) {
             try {
@@ -74,7 +74,7 @@ public class DimpEX {
 
     }
 
-    public static void importALL(JEVisDataSource ds, List<DimpexObject> objects, JEVisObject parent) throws JEVisException {
+    public static void importALL(JEVisDataSource ds, List<DimpexObject> objects, JEVisObject parent) {
         for (DimpexObject obj : objects) {
             try {
                 JEVisClass jclass = ds.getJEVisClass(obj.getJclass());
@@ -135,20 +135,20 @@ public class DimpEX {
 
     }
 
-    public static void writeFile(DimpexObject objects, File output, boolean gzip) throws FileNotFoundException, UnsupportedEncodingException, IOException {
+    public static void writeFile(DimpexObject objects, File output, boolean gzip) throws IOException {
         List<DimpexObject> jsons = new ArrayList<>();
         jsons.add(objects);
         writeFile(jsons, output, gzip);
     }
 
-    public static void writeFile(List<DimpexObject> objects, File output, boolean gzip) throws FileNotFoundException, UnsupportedEncodingException, IOException {
+    public static void writeFile(List<DimpexObject> objects, File output, boolean gzip) throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileOutputStream fos = new FileOutputStream(output);
              OutputStreamWriter isr = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
 
 
             gson.toJson(objects, isr);
-     
+
             if (gzip) {
                 gzipIt(output.getName(), output.toString() + ".zip");
             }

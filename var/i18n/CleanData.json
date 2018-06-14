@@ -6,7 +6,7 @@
     "en": "Clean Data"
   },
   "descriptions": {
-    "de": "Die Klasse Bereinigte Daten repr‰sentiert einen Beh‰lter f¸r eine Reihe von nachbearbeiteten Werten.",
+    "de": "Die Klasse Bereinigte Daten repr√§sentiert einen Beh√§lter f√ºr eine Reihe von nachbearbeiteten Werten.",
     "ru": "The class Clean Data represents a container for a series of post-processed numeric values.",
     "en": "The class Clean Data represents a container for a series of post-processed numeric values."
   },
@@ -14,9 +14,9 @@
     {
       "type": "Conversion to Differential",
       "descriptions": {
-        "de": "Conversion to Differential desctiption",
-        "ru": "Conversion to Differential desctiption",
-        "en": "Conversion to Differential desctiption"
+        "de": "Conversion to Differential description",
+        "ru": "Conversion to Differential description",
+        "en": "Conversion to Differential description"
       },
       "names": {
         "de": "Conversion to Differential",
@@ -28,8 +28,8 @@
       "type": "Enabled",
       "descriptions": {
         "de": "Aktiviert Beschreibung",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "ru": "Enabled description",
+        "en": "Enabled description"
       },
       "names": {
         "de": "Aktiviert",
@@ -40,9 +40,9 @@
     {
       "type": "Gap Filling",
       "descriptions": {
-        "de": "Gap Filling desctiption",
-        "ru": "Gap Filling desctiption",
-        "en": "Gap Filling desctiption"
+        "de": "Gap Filling description",
+        "ru": "Gap Filling description",
+        "en": "Gap Filling description"
       },
       "names": {
         "de": "Gap Filling",
@@ -53,9 +53,9 @@
     {
       "type": "Period Alignment",
       "descriptions": {
-        "de": "Period Alignment desctiption",
-        "ru": "Period Alignment desctiption",
-        "en": "Period Alignment desctiption"
+        "de": "Period Alignment description",
+        "ru": "Period Alignment description",
+        "en": "Period Alignment description"
       },
       "names": {
         "de": "Period Alignment",
@@ -66,9 +66,9 @@
     {
       "type": "Period Offset",
       "descriptions": {
-        "de": "Period Offset desctiption",
-        "ru": "Period Offset desctiption",
-        "en": "Period Offset desctiption"
+        "de": "Period Offset description",
+        "ru": "Period Offset description",
+        "en": "Period Offset description"
       },
       "names": {
         "de": "Period Offset",
@@ -79,9 +79,9 @@
     {
       "type": "Value",
       "descriptions": {
-        "de": "Value desctiption",
-        "ru": "Value desctiption",
-        "en": "Value desctiption"
+        "de": "Value description",
+        "ru": "Value description",
+        "en": "Value description"
       },
       "names": {
         "de": "Value",
@@ -92,9 +92,9 @@
     {
       "type": "Value is a Quantity",
       "descriptions": {
-        "de": "Value is a Quantity desctiption",
-        "ru": "Value is a Quantity desctiption",
-        "en": "Value is a Quantity desctiption"
+        "de": "Value is a Quantity description",
+        "ru": "Value is a Quantity description",
+        "en": "Value is a Quantity description"
       },
       "names": {
         "de": "Value is a Quantity",
@@ -105,9 +105,9 @@
     {
       "type": "Value Multiplier",
       "descriptions": {
-        "de": "Value Multiplier desctiption",
-        "ru": "Value Multiplier desctiption",
-        "en": "Value Multiplier desctiption"
+        "de": "Value Multiplier description",
+        "ru": "Value Multiplier description",
+        "en": "Value Multiplier description"
       },
       "names": {
         "de": "Value Multiplier",
@@ -118,9 +118,9 @@
     {
       "type": "Value Offset",
       "descriptions": {
-        "de": "Value Offset desctiption",
-        "ru": "Value Offset desctiption",
-        "en": "Value Offset desctiption"
+        "de": "Value Offset description",
+        "ru": "Value Offset description",
+        "en": "Value Offset description"
       },
       "names": {
         "de": "Value Offset",

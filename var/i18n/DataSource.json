@@ -1,34 +1,38 @@
 {
   "jevisclass": "Data Source",
   "names": {
-    "de": "Data Source",
+    "de": "Data Quelle",
     "ru": "Data Source",
     "en": "Data Source"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Eine Data Quelle ist eine generische Klasse, welche für spezielle Daten Quellen, z.B. Datenserver oder Speichermedien, abgeleitet wird.",
+    "ru": "Data Source",
+    "en": "A Data Source is a generic class, to be inherited by specialized Data Sources, such as data servers or storage medias."
+  },
   "types": [
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert/Deaktiviert den Datenserver",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enables/Disables the Data Server"
       }
     },
     {
       "type": "Timezone",
       "descriptions": {
-        "de": "Timezone desctiption",
-        "ru": "Timezone desctiption",
-        "en": "Timezone desctiption"
+        "de": "Bestimmt die Zeitzone des Datenservers",
+        "ru": "Timezone description",
+        "en": "Defines the timezone of the Data Server"
       },
       "names": {
-        "de": "Timezone",
+        "de": "Zeitzone",
         "ru": "Timezone",
         "en": "Timezone"
       }

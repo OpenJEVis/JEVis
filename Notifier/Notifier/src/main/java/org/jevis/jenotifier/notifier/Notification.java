@@ -4,10 +4,12 @@
  */
 package org.jevis.jenotifier.notifier;
 
-import java.util.List;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
+
+import java.util.List;
 
 /**
  *
@@ -15,8 +17,8 @@ import org.joda.time.DateTime;
  */
 public interface Notification {
 
-    public static final String ENABLED = "Enabled";
-    public static final String SENT_TIME = "Sent Time";
+    String ENABLED = "Enabled";
+    String SENT_TIME = "Sent Time";
 
     /**
      * Use the JEVis Object to initialize the Notfication
@@ -24,7 +26,16 @@ public interface Notification {
      * @param notiObj
      * @throws org.jevis.api.JEVisException
      */
-    void setNotificationObject(JEVisObject notiObj) throws JEVisException;//
+    void setNotificationObject(JEVisObject notiObj) throws JEVisException;
+
+    /**
+     * Use the JEVis Object to initialize the Notfication
+     *
+     * @param notiObj
+     * @param file
+     * @throws org.jevis.api.JEVisException
+     */
+    void setNotificationObject(JEVisObject notiObj, JEVisFile file) throws JEVisException;
 
     /**
      * Returns the type of the Notification

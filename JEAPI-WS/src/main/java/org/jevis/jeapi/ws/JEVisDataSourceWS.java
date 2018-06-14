@@ -130,12 +130,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      * @param toClass
      * @param type
      * @return
-     * @throws JEVisException
      * @TODO: we may need to cache the relationships but for now its fast
      * enough. IF so we need an Cach implementaion for the relationships
      */
     @Override
-    public JEVisClassRelationship buildClassRelationship(String fromClass, String toClass, int type) throws JEVisException {
+    public JEVisClassRelationship buildClassRelationship(String fromClass, String toClass, int type) {
 
         //TODO: re-impalement after Webservice change
         try {
@@ -154,7 +153,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) throws JEVisException {
+    public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) {
         try {
             JsonRelationship newJsonRel = new JsonRelationship();
             newJsonRel.setFrom(fromObject);
@@ -164,7 +163,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.RELATIONSHIPS.PATH;
 
-            logger.debug("playload: {}", gson.toJson(newJsonRel));
+            logger.debug("payload: {}", gson.toJson(newJsonRel));
             StringBuffer response = getHTTPConnection().postRequest(resource, gson.toJson(newJsonRel));
 
 
@@ -202,7 +201,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
-    public List<JEVisObject> getObjectsWS() throws JEVisException {
+    public List<JEVisObject> getObjectsWS() {
         logger.trace("Get ALL Objects");
         try {
             List<JEVisObject> objects = new ArrayList<>();
@@ -234,7 +233,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public JEVisUser getCurrentUser() throws JEVisException {
+    public JEVisUser getCurrentUser() {
         return user;
 
     }
@@ -298,19 +297,19 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public List<JEVisClassRelationship> getClassRelationships() throws JEVisException {
+    public List<JEVisClassRelationship> getClassRelationships() {
         logger.trace("Get ALL ClassRelationships");
         //TODO: re-impalement after Webservice change
         return new ArrayList<>();
     }
 
     @Override
-    public List<JEVisClassRelationship> getClassRelationships(String jclass) throws JEVisException {
+    public List<JEVisClassRelationship> getClassRelationships(String jclass) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<JEVisAttribute> getAttributes(long objectID) throws JEVisException {
+    public List<JEVisAttribute> getAttributes(long objectID) {
         logger.trace("Get  getAttributes: {}", objectID);
         StringBuffer response = new StringBuffer();
         try {
@@ -397,7 +396,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public boolean deleteObject(long objectID) throws JEVisException {
+    public boolean deleteObject(long objectID) {
         try {
             logger.error("Delete: {}", objectID);
 
@@ -423,7 +422,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public boolean deleteClass(String jclass) throws JEVisException {
+    public boolean deleteClass(String jclass) {
         try {
             logger.trace("Delete: {}", jclass);
 
@@ -434,11 +433,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             Gson gson = new Gson();
             HttpURLConnection conn = getHTTPConnection().getDeleteConnection(resource);
 
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return true;
-            } else {
-                return false;
-            }
+            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
 
         } catch (Exception ex) {
             logger.catching(ex);
@@ -447,7 +442,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public boolean deleteRelationship(Long fromObject, Long toObject, int type) throws JEVisException {
+    public boolean deleteRelationship(Long fromObject, Long toObject, int type) {
         try {
             logger.trace("Delete: '{}' -> '{}' type:{}", fromObject, toObject, type);
 
@@ -462,12 +457,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
 //            Gson gson = new Gson();
             HttpURLConnection conn = getHTTPConnection().getDeleteConnection(resource);
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                //TODO: maybe remove from the list of cached relationships but for now we dont have such a list
-                return true;
-            }
-
-            return false;
+            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
 
         } catch (Exception ex) {
             logger.catching(ex);
@@ -476,7 +466,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public boolean deleteClassRelationship(String fromClass, String toClass, int type) throws JEVisException {
+    public boolean deleteClassRelationship(String fromClass, String toClass, int type) {
         //TODO: re-implement after webservice change
         return false;
     }
@@ -577,7 +567,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public JEVisClass buildClass(String name) throws JEVisException {
+    public JEVisClass buildClass(String name) {
         JsonJEVisClass json = new JsonJEVisClass();
         json.setName(name);
         JEVisClass newClass = new JEVisClassWS(this, json);
@@ -591,12 +581,12 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public JEVisObject buildLink(String name, JEVisObject parent, JEVisObject linkedObject) throws JEVisException {
+    public JEVisObject buildLink(String name, JEVisObject parent, JEVisObject linkedObject) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<JEVisObject> getRootObjects() throws JEVisException {
+    public List<JEVisObject> getRootObjects() {
 
         try {
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "?root=true";
@@ -764,7 +754,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
-    public JEVisObject getObjectWS(Long id) throws JEVisException {
+    public JEVisObject getObjectWS(Long id) {
         logger.debug("GetObject: {}", id);
         String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "/" + id;
         try {
@@ -794,7 +784,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
-    public JEVisClass getJEVisClassWS(String name) throws JEVisException {
+    public JEVisClass getJEVisClassWS(String name) {
         logger.trace("GetClass: {}", name);
         try {
 
@@ -834,7 +824,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return new ArrayList<>(classCache.values());
     }
 
-    public List<JEVisClass> getJEVisClassesWS() throws JEVisException {
+    public List<JEVisClass> getJEVisClassesWS() {
         logger.error("Connection: " + con);
         try {
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_CLASSES;
@@ -914,13 +904,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public boolean disconnect() throws JEVisException {
+    public boolean disconnect() {
         //TODO: implement
         return true;
     }
 
     @Override
-    public boolean reconnect() throws JEVisException {
+    public boolean reconnect() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -930,7 +920,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public boolean isConnectionAlive() throws JEVisException {
+    public boolean isConnectionAlive() {
         //TODO: implement
         return true;
     }

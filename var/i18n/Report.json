@@ -10,9 +10,9 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description"
       },
       "names": {
         "de": "Enabled",
@@ -23,9 +23,9 @@
     {
       "type": "Last Report",
       "descriptions": {
-        "de": "Last Report desctiption",
-        "ru": "Last Report desctiption",
-        "en": "Last Report desctiption"
+        "de": "Last Report description",
+        "ru": "Last Report description",
+        "en": "Last Report description"
       },
       "names": {
         "de": "Last Report",
@@ -36,9 +36,9 @@
     {
       "type": "PDF",
       "descriptions": {
-        "de": "PDF desctiption",
-        "ru": "PDF desctiption",
-        "en": "PDF desctiption"
+        "de": "PDF description",
+        "ru": "PDF description",
+        "en": "PDF description"
       },
       "names": {
         "de": "PDF",
@@ -49,9 +49,9 @@
     {
       "type": "PDF Pages",
       "descriptions": {
-        "de": "PDF Pages desctiption",
-        "ru": "PDF Pages desctiption",
-        "en": "PDF Pages desctiption"
+        "de": "PDF Pages description",
+        "ru": "PDF Pages description",
+        "en": "PDF Pages description"
       },
       "names": {
         "de": "PDF Pages",
@@ -62,9 +62,9 @@
     {
       "type": "Template",
       "descriptions": {
-        "de": "Template desctiption",
-        "ru": "Template desctiption",
-        "en": "Template desctiption"
+        "de": "Template description",
+        "ru": "Template description",
+        "en": "Template description"
       },
       "names": {
         "de": "Template",
@@ -75,9 +75,9 @@
     {
       "type": "Time Zone",
       "descriptions": {
-        "de": "Time Zone desctiption",
-        "ru": "Time Zone desctiption",
-        "en": "Time Zone desctiption"
+        "de": "Time Zone description",
+        "ru": "Time Zone description",
+        "en": "Time Zone description"
       },
       "names": {
         "de": "Time Zone",

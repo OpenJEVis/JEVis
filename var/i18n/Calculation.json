@@ -10,9 +10,9 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description"
       },
       "names": {
         "de": "Enabled",
@@ -23,9 +23,9 @@
     {
       "type": "Expression",
       "descriptions": {
-        "de": "Expression desctiption",
-        "ru": "Expression desctiption",
-        "en": "Expression desctiption"
+        "de": "Expression description",
+        "ru": "Expression description",
+        "en": "Expression description"
       },
       "names": {
         "de": "Expression",

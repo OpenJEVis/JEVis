@@ -10,9 +10,9 @@
     {
       "type": "Output",
       "descriptions": {
-        "de": "Output desctiption",
-        "ru": "Output desctiption",
-        "en": "Output desctiption"
+        "de": "Output description",
+        "ru": "Output description",
+        "en": "Output description"
       },
       "names": {
         "de": "Output",

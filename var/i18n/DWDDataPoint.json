@@ -10,9 +10,9 @@
     {
       "type": "Atmospheric Pressure Target",
       "descriptions": {
-        "de": "Atmospheric Pressure Target desctiption",
-        "ru": "Atmospheric Pressure Target desctiption",
-        "en": "Atmospheric Pressure Target desctiption"
+        "de": "Atmospheric Pressure Target description",
+        "ru": "Atmospheric Pressure Target description",
+        "en": "Atmospheric Pressure Target description"
       },
       "names": {
         "de": "Atmospheric Pressure Target",
@@ -23,9 +23,9 @@
     {
       "type": "City",
       "descriptions": {
-        "de": "City desctiption",
-        "ru": "City desctiption",
-        "en": "City desctiption"
+        "de": "City description",
+        "ru": "City description",
+        "en": "City description"
       },
       "names": {
         "de": "City",
@@ -36,9 +36,9 @@
     {
       "type": "Humidity Target",
       "descriptions": {
-        "de": "Humidity Target desctiption",
-        "ru": "Humidity Target desctiption",
-        "en": "Humidity Target desctiption"
+        "de": "Humidity Target description",
+        "ru": "Humidity Target description",
+        "en": "Humidity Target description"
       },
       "names": {
         "de": "Humidity Target",
@@ -49,9 +49,9 @@
     {
       "type": "Precipitation Target",
       "descriptions": {
-        "de": "Precipitation Target desctiption",
-        "ru": "Precipitation Target desctiption",
-        "en": "Precipitation Target desctiption"
+        "de": "Precipitation Target description",
+        "ru": "Precipitation Target description",
+        "en": "Precipitation Target description"
       },
       "names": {
         "de": "Precipitation Target",
@@ -62,9 +62,9 @@
     {
       "type": "Temperature Target",
       "descriptions": {
-        "de": "Temperature Target desctiption",
-        "ru": "Temperature Target desctiption",
-        "en": "Temperature Target desctiption"
+        "de": "Temperature Target description",
+        "ru": "Temperature Target description",
+        "en": "Temperature Target description"
       },
       "names": {
         "de": "Temperature Target",
@@ -75,9 +75,9 @@
     {
       "type": "Wind Speed Target",
       "descriptions": {
-        "de": "Wind Speed Target desctiption",
-        "ru": "Wind Speed Target desctiption",
-        "en": "Wind Speed Target desctiption"
+        "de": "Wind Speed Target description",
+        "ru": "Wind Speed Target description",
+        "en": "Wind Speed Target description"
       },
       "names": {
         "de": "Wind Speed Target",

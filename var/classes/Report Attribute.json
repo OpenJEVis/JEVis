@@ -7,11 +7,6 @@
       "start": "Report Attribute",
       "end": "Report Link",
       "type": 3
-    },
-    {
-      "start": "Report Configuration",
-      "end": "Report Attribute",
-      "type": 3
     }
   ],
   "types": [

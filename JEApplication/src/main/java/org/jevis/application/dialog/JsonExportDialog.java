@@ -190,7 +190,7 @@ public class JsonExportDialog {
 
             @Override
             public void handle(ActionEvent event) {
-                System.out.println("");
+                System.out.println();
                 FileChooser fileChooser = new FileChooser();
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
