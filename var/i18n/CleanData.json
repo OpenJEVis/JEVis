@@ -6,7 +6,7 @@
     "en": "Clean Data"
   },
   "descriptions": {
-    "de": "Die Klasse Bereinigte Daten repr�sentiert einen Beh�lter f�r eine Reihe von nachbearbeiteten Werten.",
+    "de": "Die Klasse Bereinigte Daten repräsentiert einen Behälter für eine Reihe von nachbearbeiteten Werten.",
     "ru": "The class Clean Data represents a container for a series of post-processed numeric values.",
     "en": "The class Clean Data represents a container for a series of post-processed numeric values."
   },

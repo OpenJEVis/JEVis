@@ -5,12 +5,12 @@
  */
 package org.jevis.ws.sql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import org.apache.commons.dbcp2.BasicDataSource;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 /**
- *
  * @author fs
  */
 public class ConnectionFactory {
@@ -44,7 +44,7 @@ public class ConnectionFactory {
         if (ds != null) {
             return ds.getConnection();
         } else {
-            throw new SQLException("No database diver resgistert");
+            throw new SQLException("No database driver registered");
         }
 
     }
