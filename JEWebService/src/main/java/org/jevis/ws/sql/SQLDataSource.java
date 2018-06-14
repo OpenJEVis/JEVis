@@ -8,10 +8,7 @@ package org.jevis.ws.sql;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
+import org.jevis.api.*;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
 import org.jevis.rest.Config;
@@ -449,6 +446,48 @@ public class SQLDataSource {
 
     public JsonObject buildObject(JsonObject obj, long parent) throws JEVisException {
         return getObjectTable().insertObject(obj.getName(), obj.getJevisClass(), parent, obj.getisPublic());
+    }
+
+    public void moveObject(long original, long newParentID) throws JEVisException {
+        JsonObject newParent = getObject(newParentID);
+
+        deleteRelationshipsRerecursion(original);
+        addRelationshipsRerecursio(getRelationships(newParentID), original, newParentID);
+
+        buildRelationship(original, newParentID, JEVisConstants.ObjectRelationship.PARENT);
+    }
+
+    private void addRelationshipsRerecursio(List<JsonRelationship> rels, long oID, long oldID) throws JEVisException {
+        for (JsonRelationship rel : getRelationships(oID)) {
+            if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && rel.getTo() == oID) {
+                addRelationshipsRerecursio(rels, rel.getFrom(), oID);
+                for (JsonRelationship copyRel : rels) {
+                    Integer[] rightsTypes = new Integer[]{
+                            JEVisConstants.ObjectRelationship.MEMBER_READ, JEVisConstants.ObjectRelationship.MEMBER_WRITE,
+                            JEVisConstants.ObjectRelationship.MEMBER_DELETE, JEVisConstants.ObjectRelationship.MEMBER_CREATE,
+                            JEVisConstants.ObjectRelationship.MEMBER_EXECUTE, JEVisConstants.ObjectRelationship.OWNER};
+                    if (Arrays.asList(rightsTypes).contains(copyRel.getType())) {
+                        if (copyRel.getFrom() == oldID) {
+                            getRelationshipTable().insert(oID, copyRel.getTo(), copyRel.getType());
+                        } else if (copyRel.getTo() == oldID) {
+                            getRelationshipTable().insert(copyRel.getFrom(), oID, copyRel.getType());
+                        }
+
+                    }
+                }
+
+            }
+        }
+    }
+
+    private void deleteRelationshipsRerecursion(long oID) throws JEVisException {
+        for (JsonRelationship rel : getRelationships(oID)) {
+            if (rel.getType() != JEVisConstants.ObjectRelationship.PARENT) {
+                getRelationshipTable().delete(rel);
+            } else if (rel.getTo() == oID) {
+                deleteRelationshipsRerecursion(rel.getFrom());
+            }
+        }
     }
 
     public boolean deleteObject(JsonObject objectID) throws JEVisException {

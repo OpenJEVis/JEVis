@@ -1,31 +1,26 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.jevistree;
 
 import com.sun.javafx.scene.control.skin.VirtualFlow;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -37,36 +32,26 @@ import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.cache.CacheEvent;
 import org.jevis.application.cache.CacheObjectEvent;
 import org.jevis.application.cache.Cached;
-import org.jevis.application.dialog.CommonDialogs;
-import org.jevis.application.dialog.ExceptionDialog;
-import org.jevis.application.dialog.FindDialog;
-import org.jevis.application.dialog.InfoDialog;
-import org.jevis.application.dialog.NewObjectDialog;
-import org.jevis.application.dialog.ProgressForm;
+import org.jevis.application.dialog.*;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
 
+import java.util.*;
+
 /**
- *
  * @author fs
  */
 public class TreeHelper {
 
     public static Logger LOGGER = LogManager.getLogger(TreeHelper.class);
 
-    private static SaveResourceBundle bundel=new SaveResourceBundle(AppLocale.BUNDEL_ID,AppLocale.getInstance().getLocale());
+    private static SaveResourceBundle bundel = new SaveResourceBundle(AppLocale.BUNDEL_ID, AppLocale.getInstance().getLocale());
 
     /**
      * TODO: make it like the other function where the object is an parameter
@@ -92,10 +77,10 @@ public class TreeHelper {
                 try {
                     for (TreeItem<JEVisTreeRow> item : items) {
                         item.getValue().getJEVisObject().getDataSource().deleteObject(item.getValue().getJEVisObject().getID());
-                        if(item.getParent()!=null){
+                        if (item.getParent() != null) {
                             item.getParent().getChildren().remove(item);
                         }
-                        
+
                     }
 
                 } catch (Exception ex) {
@@ -201,13 +186,12 @@ public class TreeHelper {
             // remove other parent relationships
             for (JEVisRelationship rel : moveObj.getRelationships(JEVisConstants.ObjectRelationship.PARENT)) {
                 if (rel.getStartObject().equals(moveObj)) {
-                    System.out.println("remove relationship " + moveObj.getName() + " -> " + rel.getOtherObject(moveObj).getName());
                     moveObj.deleteRelationship(rel);
                 }
             }
 
-            System.out.println("add new Relationship: " + moveObj.getName() + "-> " + targetObj.getName());
             JEVisRelationship newRel = moveObj.buildRelationship(targetObj, JEVisConstants.ObjectRelationship.PARENT, JEVisConstants.Direction.FORWARD);
+
 
         } catch (Exception ex) {
             LOGGER.catching(ex);
@@ -415,7 +399,7 @@ public class TreeHelper {
 
                         } else {
                             ExceptionDialog errorDia = new ExceptionDialog();
-                            errorDia.show((Stage) tree.getScene().getWindow(), "Error", ex.getLocalizedMessage(),  ex.getLocalizedMessage(), ex, null);
+                            errorDia.show((Stage) tree.getScene().getWindow(), "Error", ex.getLocalizedMessage(), ex.getLocalizedMessage(), ex, null);
 
                         }
 
