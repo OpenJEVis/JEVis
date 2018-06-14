@@ -1,0 +1,8 @@
+Period_Offset=0
+Period=PT0M
+Value_is_a_Quantity=false
+Conversion_to_Differential=true
+Offset=0
+Gap_Filling=STATIC
+Multiplier=2
+Period_Aligned=false

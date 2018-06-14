@@ -1,0 +1,27 @@
+{
+  "name": "Report Attribute",
+  "description": "Every JEVisObject linked by the Report Link can have several attributes. For each attributes the requirements could vary. So for example if you have a Building object maybe you want to collect the last name saved in the JEVis system, but all adresses. Another example could be, if you have a Data Object and you need to collect the data from the current period and/or the last period.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Report Attribute",
+      "end": "Report Link",
+      "type": 3
+    },
+    {
+      "start": "Report Configuration",
+      "end": "Report Attribute",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Attribute Name",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Attribute"
+    }
+  ]
+}

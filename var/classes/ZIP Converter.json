@@ -1,0 +1,52 @@
+{
+  "name": "ZIP Converter",
+  "description": "The Class ZIP Converter ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "ZIP Converter",
+      "end": "Channel",
+      "type": 3
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "Converter",
+      "type": 0
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "sFTP Channel",
+      "type": 3
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "SOAP Channel",
+      "type": 3
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "VIDA350 Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Path",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "ZIP Converter"
+    }
+  ]
+}

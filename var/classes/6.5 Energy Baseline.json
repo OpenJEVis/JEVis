@@ -1,0 +1,19 @@
+{
+  "name": "6.5 Energy Baseline",
+  "description": "The organization shall establish an EnB(s) using the information from the energy review(s) (see 6.3), taking into account a suitable period of time.   \nEnB(s) shall be modified to enable energy performance comparison under equivalent conditions or revised in case of one or more of the following: \na) EnPI(s) no longer reflect the organization",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "6.5 Energy Baseline",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.5 Energy Baseline",
+      "end": "06 Planning",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

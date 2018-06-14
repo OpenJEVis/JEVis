@@ -1,0 +1,91 @@
+{
+  "name": "Data Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Data Server",
+      "end": "Data Source",
+      "type": 0
+    },
+    {
+      "start": "EMail Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "FTP Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "HTTP Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "Loytec XML-DL Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "sFTP Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "SOAP Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "VIDA350",
+      "end": "Data Server",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Server"
+    },
+    {
+      "name": "Host",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Server"
+    },
+    {
+      "name": "Manual Trigger",
+      "primitiveType": 4,
+      "guiType": "Button",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Server"
+    },
+    {
+      "name": "Port",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Server"
+    },
+    {
+      "name": "Read Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Server"
+    }
+  ]
+}

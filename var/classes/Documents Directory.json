@@ -1,0 +1,66 @@
+{
+  "name": "Documents Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Action Plan Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Announcement Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Audit Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Documents Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Documents Directory",
+      "end": "Site",
+      "type": 3
+    },
+    {
+      "start": "Energy Team Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Legal Regulation Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Management Manual Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Management Review Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Procedural Documents Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Training Course Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Training Directory",
+      "end": "Documents Directory",
+      "type": 3
+    }
+  ]
+}

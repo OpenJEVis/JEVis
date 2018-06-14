@@ -1,35 +1,32 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.unit;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import org.jevis.api.JEVisUnit;
+import org.jscience.economics.money.Money;
+
 import javax.measure.quantity.*;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
-import org.jevis.api.JEVisUnit;
-import org.jscience.economics.money.Money;
+import java.util.*;
 
 /**
  * This Class helps with the handling of JScince Lib. This class in not final an
@@ -638,8 +635,8 @@ public class UnitManager {
     }
 
     /**
-     * @TODO: this list comes from the WebServices
      * @return
+     * @TODO: this list comes from the WebServices
      */
     public List<Unit> getAdditonalUnits() {
         if (additonalUnits != null) {
@@ -1045,7 +1042,7 @@ public class UnitManager {
     /**
      * Ask the JEADPI localization feature for the correct name of the unit.
      * Unit is identyfiyed by its symbole(this should be unitq?)
-     *
+     * <p>
      * TODO: The functionality is hardcoded in the moment....
      *
      * @param unit
@@ -1198,6 +1195,15 @@ public class UnitManager {
         list.add(Area.UNIT);
 
         return list;
+    }
+
+    public static JEVisUnit cloneUnit(JEVisUnit unit) {
+
+        JEVisUnit clone = new JEVisUnitImp();
+        clone.setFormula(unit.getFormula());
+        clone.setLabel(unit.getLabel());
+        clone.setPrefix(unit.getPrefix());
+        return clone;
     }
 
 }

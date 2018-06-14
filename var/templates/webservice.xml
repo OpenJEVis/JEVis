@@ -10,7 +10,8 @@
     </datasource>
     <webservice>
         <uri>http://10.0.0.1:8000/</uri>
-        
+	<i18ndir>/home/jevis/jevis/var/templates/i18n</i18ndir>        
+	<filedir>/home/jevis/jevis/var/templates/filedir/</filedir>
         <registration>
             <root>1</root>
             <demogroup>1</demogroup>

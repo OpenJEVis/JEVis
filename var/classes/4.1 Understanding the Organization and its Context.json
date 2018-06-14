@@ -1,0 +1,19 @@
+{
+  "name": "4.1 Understanding the Organization and its Context",
+  "description": "The organization shall determine external and internal issues that are relevant to its purpose and that  affect its ability to achieve the intended outcome(s) of its EnMS and to improve its energy performance.   \nWhen determining organizational context, the organization shall consider the information obtained  from the energy review (see 6.3). ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "4.1 Understanding the Organization and its Context",
+      "end": "04 Context of the Organization",
+      "type": 0
+    },
+    {
+      "start": "4.1 Understanding the Organization and its Context",
+      "end": "04 Context of the Organization",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

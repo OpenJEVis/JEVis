@@ -1,0 +1,76 @@
+{
+  "jevisclass": "Energy Team",
+  "names": {
+    "de": "Energy Team",
+    "ru": "Energy Team",
+    "en": "Energy Team"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "EMail",
+      "descriptions": {
+        "de": "EMail desctiption",
+        "ru": "EMail desctiption",
+        "en": "EMail desctiption"
+      },
+      "names": {
+        "de": "EMail",
+        "ru": "EMail",
+        "en": "EMail"
+      }
+    },
+    {
+      "type": "Function",
+      "descriptions": {
+        "de": "Function desctiption",
+        "ru": "Function desctiption",
+        "en": "Function desctiption"
+      },
+      "names": {
+        "de": "Function",
+        "ru": "Function",
+        "en": "Function"
+      }
+    },
+    {
+      "type": "Name",
+      "descriptions": {
+        "de": "Name desctiption",
+        "ru": "Name desctiption",
+        "en": "Name desctiption"
+      },
+      "names": {
+        "de": "Name",
+        "ru": "Name",
+        "en": "Name"
+      }
+    },
+    {
+      "type": "Phone",
+      "descriptions": {
+        "de": "Phone desctiption",
+        "ru": "Phone desctiption",
+        "en": "Phone desctiption"
+      },
+      "names": {
+        "de": "Phone",
+        "ru": "Phone",
+        "en": "Phone"
+      }
+    },
+    {
+      "type": "Surname",
+      "descriptions": {
+        "de": "Surname desctiption",
+        "ru": "Surname desctiption",
+        "en": "Surname desctiption"
+      },
+      "names": {
+        "de": "Surname",
+        "ru": "Surname",
+        "en": "Surname"
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "ISO 50001 Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "ISO 50001 Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "ISO 50001 Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Site",
+      "end": "ISO 50001 Directory",
+      "type": 3
+    },
+    {
+      "start": "Superior Level Meetings Directory",
+      "end": "ISO 50001 Directory",
+      "type": 3
+    }
+  ]
+}

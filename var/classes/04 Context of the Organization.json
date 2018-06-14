@@ -1,0 +1,58 @@
+{
+  "name": "04 Context of the Organization",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "04 Context of the Organization",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "04 Context of the Organization",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "4 Energy Management System",
+      "end": "04 Context of the Organization",
+      "type": 0
+    },
+    {
+      "start": "4 Energy Management System",
+      "end": "04 Context of the Organization",
+      "type": 3
+    },
+    {
+      "start": "4.1 Understanding the Organization and its Context",
+      "end": "04 Context of the Organization",
+      "type": 0
+    },
+    {
+      "start": "4.1 Understanding the Organization and its Context",
+      "end": "04 Context of the Organization",
+      "type": 3
+    },
+    {
+      "start": "4.2 Understanding the Needs and Expecations of interested parties",
+      "end": "04 Context of the Organization",
+      "type": 0
+    },
+    {
+      "start": "4.2 Understanding the Needs and Expecations of interested parties",
+      "end": "04 Context of the Organization",
+      "type": 3
+    },
+    {
+      "start": "4.3 Determining the Scope and Boundaries of the Energy Management System",
+      "end": "04 Context of the Organization",
+      "type": 0
+    },
+    {
+      "start": "4.3 Determining the Scope and Boundaries of the Energy Management System",
+      "end": "04 Context of the Organization",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

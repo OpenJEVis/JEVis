@@ -1,0 +1,19 @@
+{
+  "name": "02 Normative References",
+  "description": "There are no normative references cited for this document.  This clause is included in order to retain  clause numbering identical with other ISO management system standards. ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "02 Normative References",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "02 Normative References",
+      "end": "Management Manual Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

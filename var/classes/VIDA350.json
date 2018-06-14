@@ -1,0 +1,23 @@
+{
+  "name": "VIDA350",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "VIDA350",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "VIDA350",
+      "end": "Data Source Directory",
+      "type": 3
+    },
+    {
+      "start": "VIDA350 Channel Directory",
+      "end": "VIDA350",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

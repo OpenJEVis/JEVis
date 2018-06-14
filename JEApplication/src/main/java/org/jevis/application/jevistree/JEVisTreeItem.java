@@ -1,49 +1,44 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.jevistree;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisEvent;
-import org.jevis.api.JEVisEventListener;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.application.object.tree.JEVisRootObject;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
-//    final JEVisObject _obj;
+    //    final JEVisObject _obj;
     private boolean _childLoaded = false;
     private final JEVisTree _tree;
     public static Logger LOGGER = LogManager.getLogger(JEVisTreeItem.class);
@@ -94,12 +89,12 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
             getValue().getJEVisObject().addEventListener(new JEVisEventListener() {
                 @Override
                 public void fireEvent(JEVisEvent event) {
+                    System.out.println("TreeItem.event: " + event.getType().toString() + " this: " + JEVisTreeItem.this.getValue().getID());
                     switch (event.getType()) {
                         case OBJECT_DELETE:
                             if (getParent() != null) {
                                 getParent().getChildren().remove(JEVisTreeItem.this);
 
-                                //WTF how cah gte getValue() null haben
                                 try {
                                     LOGGER.error("###Delete### Parent: {}", getParent().getValue().getJEVisObject().getName());
                                     for (JEVisObject child : getParent().getValue().getJEVisObject().getChildren()) {
@@ -118,7 +113,20 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                             }
                             break;
                         case OBJECT_NEW_CHILD:
-                            LOGGER.error("New Child Event: {}", getValue().getJEVisObject().getID());
+                            JEVisObject ob = (JEVisObject) event.getSource();
+                            LOGGER.error("New Child Event: {}", ob.getID());
+
+                            Platform.runLater(() -> {
+                                setExpanded(false);
+                                _childLoaded = false;
+                                getChildren();
+
+                                setExpanded(true);
+
+                            });
+                            break;
+                        case OBJECT_CHILD_DELETED:
+                            LOGGER.error("Delete Child Event: {}", getValue().getJEVisObject().getID());
                             Platform.runLater(() -> {
                                 setExpanded(false);
                                 _childLoaded = false;
@@ -174,7 +182,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                     }
 
                     List<JEVisTreeItem> treeItems = new ArrayList<>();
-                    
+
                     for (JEVisObject child : getValue().getJEVisObject().getChildren()) {
                         try {
                             if (filter.showJEvisClass(child.getJEVisClass())) {
@@ -196,7 +204,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
             FXCollections.sort(super.getChildren(), new Comparator<TreeItem<JEVisTreeRow>>() {
                 @Override
                 public int compare(TreeItem<JEVisTreeRow> o1, TreeItem<JEVisTreeRow> o2) {
-//                    LOGGER.trace("Comparte: {} to: {}", o1.getValue().getID(), o2.getValue().getID());
+//                    LOGGER.trace("Compare: {} to: {}", o1.getValue().getID(), o2.getValue().getID());
 
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
 //                    LOGGER.trace("2");

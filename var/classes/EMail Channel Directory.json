@@ -1,0 +1,27 @@
+{
+  "name": "EMail Channel Directory",
+  "description": "The class EMail Channel Directory represents a specific directory for the management of Email concerning data.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "EMail Channel",
+      "end": "EMail Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "EMail Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "EMail Channel Directory",
+      "end": "IMAP EMail Server",
+      "type": 3
+    },
+    {
+      "start": "EMail Channel Directory",
+      "end": "POP3 EMail Server",
+      "type": 3
+    }
+  ]
+}

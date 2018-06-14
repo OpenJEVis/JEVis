@@ -1,0 +1,63 @@
+{
+  "jevisclass": "Parser Driver",
+  "names": {
+    "de": "Parser Driver",
+    "ru": "Parser Driver",
+    "en": "Parser Driver"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Enabled desctiption",
+        "ru": "Enabled desctiption",
+        "en": "Enabled desctiption"
+      },
+      "names": {
+        "de": "Enabled",
+        "ru": "Enabled",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "JEVis Class",
+      "descriptions": {
+        "de": "JEVis Class desctiption",
+        "ru": "JEVis Class desctiption",
+        "en": "JEVis Class desctiption"
+      },
+      "names": {
+        "de": "JEVis Class",
+        "ru": "JEVis Class",
+        "en": "JEVis Class"
+      }
+    },
+    {
+      "type": "Main Class",
+      "descriptions": {
+        "de": "Main Class desctiption",
+        "ru": "Main Class desctiption",
+        "en": "Main Class desctiption"
+      },
+      "names": {
+        "de": "Main Class",
+        "ru": "Main Class",
+        "en": "Main Class"
+      }
+    },
+    {
+      "type": "Source File",
+      "descriptions": {
+        "de": "Source File desctiption",
+        "ru": "Source File desctiption",
+        "en": "Source File desctiption"
+      },
+      "names": {
+        "de": "Source File",
+        "ru": "Source File",
+        "en": "Source File"
+      }
+    }
+  ]
+}

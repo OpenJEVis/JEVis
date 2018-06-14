@@ -1,0 +1,37 @@
+{
+  "jevisclass": "HTTP Channel",
+  "names": {
+    "de": "HTTP Channel",
+    "ru": "HTTP Channel",
+    "en": "HTTP Channel"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Last Readout",
+      "descriptions": {
+        "de": "Last Readout desctiption",
+        "ru": "Last Readout desctiption",
+        "en": "Last Readout desctiption"
+      },
+      "names": {
+        "de": "Last Readout",
+        "ru": "Last Readout",
+        "en": "Last Readout"
+      }
+    },
+    {
+      "type": "Path",
+      "descriptions": {
+        "de": "Path desctiption",
+        "ru": "Path desctiption",
+        "en": "Path desctiption"
+      },
+      "names": {
+        "de": "Path",
+        "ru": "Path",
+        "en": "Path"
+      }
+    }
+  ]
+}

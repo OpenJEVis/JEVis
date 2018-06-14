@@ -1,0 +1,14 @@
+{
+  "jevisclass": "User Directory",
+  "names": {
+    "de": "User Directory",
+    "ru": "User Directory",
+    "en": "User Directory"
+  },
+  "descriptions": {
+    "de": "The class User Directory represents a specific directory for the management of users.",
+    "ru": "The class User Directory represents a specific directory for the management of users.",
+    "en": "The class User Directory represents a specific directory for the management of users."
+  },
+  "types": []
+}

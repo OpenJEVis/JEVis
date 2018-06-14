@@ -1,0 +1,73 @@
+{
+  "name": "Recooler or Condenser",
+  "description": "The class Recooler or Condenser contains data of the building equipment recooler or condenser. Attributes of the class include a complete description of the specific energy data of the recooler or condenser. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Recooler or Condenser",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Recooler or Condenser",
+      "end": "Cooling Equipment Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Drive Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Recooler or Condenser"
+    },
+    {
+      "name": "Recooling Capacity",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Recooler or Condenser"
+    },
+    {
+      "name": "Remark",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Recooler or Condenser"
+    },
+    {
+      "name": "Standby Consumption",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Recooler or Condenser"
+    },
+    {
+      "name": "Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Recooler or Condenser"
+    },
+    {
+      "name": "Year of Construction and Serial Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Recooler or Condenser"
+    }
+  ]
+}

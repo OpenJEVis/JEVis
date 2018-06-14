@@ -1,0 +1,19 @@
+{
+  "name": "4.2 Understanding the Needs and Expecations of interested parties",
+  "description": "The organization shall determine:  \na) the interested parties that are relevant to energy performance and the EnMS ;  \nb) the risk and opportunities for deviating from energy performance;  \nc) the relevant requirements of these interested parties;  \nd) which of the identified needs and expectations the organization addresses through its EnMS.  \nThe organization shall:  \n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "4.2 Understanding the Needs and Expecations of interested parties",
+      "end": "04 Context of the Organization",
+      "type": 0
+    },
+    {
+      "start": "4.2 Understanding the Needs and Expecations of interested parties",
+      "end": "04 Context of the Organization",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

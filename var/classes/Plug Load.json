@@ -1,0 +1,28 @@
+{
+  "name": "Plug Load",
+  "description": "The class Plug Load contains data of the building equipment plug load connected to the building floor. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Plug Load",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Plug Load",
+      "end": "Floor",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Plug Load",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Plug Load"
+    }
+  ]
+}

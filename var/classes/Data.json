@@ -1,0 +1,43 @@
+{
+  "name": "Data",
+  "description": "The class Data represents a container for a series of numeric values.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Clean Data",
+      "end": "Data",
+      "type": 0
+    },
+    {
+      "start": "Clean Data",
+      "end": "Data",
+      "type": 3
+    },
+    {
+      "start": "Data",
+      "end": "Data Directory",
+      "type": 3
+    },
+    {
+      "start": "Dynamic Limit Alarm",
+      "end": "Data",
+      "type": 3
+    },
+    {
+      "start": "Static Limit Alarm",
+      "end": "Data",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Value",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data"
+    }
+  ]
+}

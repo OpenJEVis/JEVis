@@ -1,0 +1,86 @@
+{
+  "name": "Energy Saving Action",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Saving Action",
+      "end": "Implemented Actions Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Saving Action",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Energy Saving Action",
+      "end": "Planned Actions Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Investment Costs",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Saving Action"
+    },
+    {
+      "name": "Measure",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Saving Action"
+    },
+    {
+      "name": "Payback Time",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Saving Action"
+    },
+    {
+      "name": "Reponsible Person",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Saving Action"
+    },
+    {
+      "name": "Savings Potential Capital",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Saving Action"
+    },
+    {
+      "name": "Savings Potential CO2",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Saving Action"
+    },
+    {
+      "name": "Savings Potential Energy",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Saving Action"
+    }
+  ]
+}

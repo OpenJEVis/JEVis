@@ -1,0 +1,27 @@
+{
+  "name": "Energy Manager",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Manager",
+      "end": "Energy Team",
+      "type": 0
+    },
+    {
+      "start": "Energy Manager",
+      "end": "Energy Team Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Appointment Letter",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Energy Manager"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Data Source Driver Directory",
+  "description": "The class Data Source Driver Directory represents a specific directory for the management of source driver data.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Data Source Driver",
+      "end": "Data Source Driver Directory",
+      "type": 3
+    },
+    {
+      "start": "Data Source Driver Directory",
+      "end": "Driver Directory",
+      "type": 0
+    },
+    {
+      "start": "Data Source Driver Directory",
+      "end": "JEDataCollector",
+      "type": 3
+    }
+  ]
+}

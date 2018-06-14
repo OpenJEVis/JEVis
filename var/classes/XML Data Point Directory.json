@@ -1,0 +1,22 @@
+{
+  "name": "XML Data Point Directory",
+  "description": "The class XML Data Point Directory represents a specific directory for the management of XML data.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "XML Data Point",
+      "end": "XML Data Point Directory",
+      "type": 3
+    },
+    {
+      "start": "XML Data Point Directory",
+      "end": "Data Point Directory",
+      "type": 0
+    },
+    {
+      "start": "XML Data Point Directory",
+      "end": "XML Parser",
+      "type": 3
+    }
+  ]
+}

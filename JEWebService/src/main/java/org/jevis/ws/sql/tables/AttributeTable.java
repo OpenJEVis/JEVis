@@ -1,21 +1,21 @@
-/*
-  Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
-
-  This file is part of JEWebService.
-
-  JEAPI-SQL is free software: you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free Software
-  Foundation in version 3.
-
-  JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License along with
-  JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
-
-  JEAPI-SQL is part of the OpenJEVis project, further project information are
-  published at <http://www.OpenJEVis.org/>.
+/**
+ * Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
+ * <p>
+ * This file is part of JEWebService.
+ * <p>
+ * JEAPI-SQL is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ * <p>
+ * JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License along with
+ * JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * JEAPI-SQL is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql.tables;
 
@@ -33,11 +33,11 @@ import org.joda.time.Period;
 import javax.measure.unit.Unit;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author florian.simon@envidatec.com
  */
 public class AttributeTable {
@@ -49,7 +49,7 @@ public class AttributeTable {
     public final static String COLUMN_NAME = "name";
     public final static String COLUMN_MIN_TS = "mints";
     public final static String COLUMN_MAX_TS = "maxts";
-//    public final static String COLUMN_PERIOD = "period";//depricated
+    //    public final static String COLUMN_PERIOD = "period";//depricated
 //    public final static String COLUMN_UNIT = "unit";//depricated
     public final static String COLUMN_COUNT = "samplecount";
 //    public final static String COLUMN_ALT_SYMBOL = "altsymbol";
@@ -62,7 +62,7 @@ public class AttributeTable {
 
     private final SQLDataSource _connection;
 
-    public AttributeTable(SQLDataSource ds) {
+    public AttributeTable(SQLDataSource ds) throws JEVisException {
         _connection = ds;
     }
 
@@ -105,7 +105,6 @@ public class AttributeTable {
     }
 
     /**
-     *
      * @param object
      * @return
      * @throws JEVisException
@@ -114,31 +113,21 @@ public class AttributeTable {
         logger.trace("getAttributes ");
         List<JsonAttribute> attributes = new ArrayList<>();
 
-//        String sql = "select * from " + TABLE
-//                + " where " + COLUMN_OBJECT + "=?";
-//        String sql = "SELECT a.*, o.type,t.primitivtype"
-//                + " FROM jevis.attribute a "
-//                + " LEFT JOIN  object o on(o.id=a.object)"
-//                + " LEFT JOIN  type t on (o.type=t.jevisclass and t.name=a.name)"
-//                + " where object=?";
-//        String sql = "SELECT a.*, o.type,t.primitivtype,s.value,s.note"
-//                + " FROM jevis.attribute a "
-//                + " right JOIN object o on(o.id=a.object)"
-//                + " right JOIN type t on (o.type=t.jevisclass and t.name=a.name)"
-//                + " right JOIN sample s on (s.attribute=a.name and s.object=a.object and s.timestamp=a.maxts)"
-//                + " where a.object=?";
-//        String sql = "SELECT a.*, o.type,t.primitivtype,s.value,s.note"
-//                + " FROM jevis.object o "
-//                + " LEFT JOIN attribute a on(o.id=a.object)"
-//                + " right JOIN type t on (o.type=t.jevisclass and t.name=a.name)"
-//                + " LEFT JOIN sample s on (s.attribute=a.name and s.object=a.object and s.timestamp=a.maxts)"
-//                + " where a.object=? ";
-        String sql = "select t.name,t.primitivtype,t.jevisclass,a.*,s.*"
-                + " FROM jevis.type t"
-                + " left join object o on (o.type=t.jevisclass)"
-                + " left join attribute a on (a.name=t.name and a.object=o.id)"
-                + " left join sample s on(s.object=o.id and s.attribute=a.name and s.timestamp=a.maxts )"
-                + " where o.id=?";
+
+//        String sqlOrig = "select t.name,t.primitivtype,t.jevisclass,a.*,s.*"
+//                + " FROM jevis.type t"
+//                + " left join object o on (o.type=t.jevisclass)"
+//                + " left join attribute a on (a.name=t.name and a.object=o.id)"
+//                + " left join sample s on(s.object=o.id and s.attribute=a.name and s.timestamp=a.maxts )"
+//                + " where o.id=?";
+//        System.out.println("Original SQL: " + sqlOrig);
+
+        String sql = "select o.type,a.*,s.*"
+                + "FROM attribute a"
+                + " left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts )"
+                + " left join object o on (o.id=a.object)"
+                + " where a.object=?;";
+
 
         try {
             PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
@@ -147,11 +136,17 @@ public class AttributeTable {
 //            System.out.println("SQL: " + ps);
             logger.trace("SQL {}", ps);
             _connection.addQuery("Attribute.get(long)", ps.toString());
+            System.out.println("SQL: " + ps);
             ResultSet rs = ps.executeQuery();
+
 
             while (rs.next()) {
                 try {
-                    attributes.add(SQLtoJsonFactory.buildAttributeThisLastValue(rs));
+                    JsonAttribute att = SQLtoJsonFactory.buildAttributeThisLastValue(rs);
+                    if (att != null) {
+                        attributes.add(SQLtoJsonFactory.buildAttributeThisLastValue(rs));
+                    }
+
                 } catch (Exception ex) {
                     logger.trace(ex);
                 }
@@ -166,7 +161,7 @@ public class AttributeTable {
         return attributes;
     }
 
-//    public List<JsonAttribute> getAttributesWithType(JEVisObject object, JEVisUser user) throws JEVisException {
+    //    public List<JsonAttribute> getAttributesWithType(JEVisObject object, JEVisUser user) throws JEVisException {
 //        logger.trace("getAttributesWithType2 ");
 //        List<JsonAttribute> attributes = new ArrayList<>();
 //
@@ -285,7 +280,10 @@ public class AttributeTable {
                 + "   " + COLUMN_MAX_TS + "=(select max(" + SampleTable.COLUMN_TIMESTAMP + ") from " + SampleTable.TABLE + " where " + SampleTable.COLUMN_OBJECT + "=?  and " + SampleTable.COLUMN_ATTRIBUTE + "=?),"
                 + "   " + COLUMN_COUNT + "=(select count(*) from " + SampleTable.TABLE + " where " + SampleTable.COLUMN_OBJECT + "=?  and " + SampleTable.COLUMN_ATTRIBUTE + "=?)";
 
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+        PreparedStatement ps = null;
+
+        try {
+            ps = _connection.getConnection().prepareStatement(sql);
 
             //insert
             ps.setLong(1, objectID);
@@ -309,15 +307,22 @@ public class AttributeTable {
 
         } catch (Exception ex) {
             logger.error(ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /*ignored*/
+                }
+            }
         }
-        /*ignored*/
 
     }
 
     /**
-     * @TODO: this could be a SQL trigger but my fu**** trigger wont work
      * @param att
      * @throws JEVisException
+     * @TODO: this could be a SQL trigger but my fu**** trigger wont work
      */
     public void updateAttribute(long object, JsonAttribute att) throws JEVisException {
 
@@ -344,8 +349,10 @@ public class AttributeTable {
                 + COLUMN_DISPLAY_RATE + "=?,"
                 + COLUMN_INPUT_RATE + "=?";
 
+        PreparedStatement ps = null;
         Gson gson = new Gson();
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+        try {
+            ps = _connection.getConnection().prepareStatement(sql);
 
             JEVisUnit fallbackUnit = new JEVisUnitImp(Unit.ONE);
 
@@ -398,8 +405,15 @@ public class AttributeTable {
         } catch (Exception ex) {
             logger.error(ex);
             throw new JEVisException("Error while updateing attribute ", 4233, ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /*ignored*/
+                }
+            }
         }
-        /*ignored*/
 
     }
 }

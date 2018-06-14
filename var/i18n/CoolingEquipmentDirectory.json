@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Cooling Equipment Directory",
+  "names": {
+    "de": "Cooling Equipment Directory",
+    "ru": "Cooling Equipment Directory",
+    "en": "Cooling Equipment Directory"
+  },
+  "descriptions": {
+    "de": "The class Cooling Equipment Directory represents a specific directory for the management of the cooler and recooler/condenser of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ru": "The class Cooling Equipment Directory represents a specific directory for the management of the cooler and recooler/condenser of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "en": "The class Cooling Equipment Directory represents a specific directory for the management of the cooler and recooler/condenser of an organization. \n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+  },
+  "types": []
+}

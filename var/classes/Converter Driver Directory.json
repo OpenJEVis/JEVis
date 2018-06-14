@@ -1,0 +1,22 @@
+{
+  "name": "Converter Driver Directory",
+  "description": "The class Converter Driver Directory represents a specific directory for the management of converter driver data.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Converter Driver",
+      "end": "Converter Driver Directory",
+      "type": 3
+    },
+    {
+      "start": "Converter Driver Directory",
+      "end": "Driver Directory",
+      "type": 0
+    },
+    {
+      "start": "Converter Driver Directory",
+      "end": "JEDataCollector",
+      "type": 3
+    }
+  ]
+}

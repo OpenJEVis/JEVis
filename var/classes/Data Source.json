@@ -1,0 +1,36 @@
+{
+  "name": "Data Source",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Data Server",
+      "end": "Data Source",
+      "type": 0
+    },
+    {
+      "start": "Data Source",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Source"
+    },
+    {
+      "name": "Timezone",
+      "primitiveType": 0,
+      "guiType": "Time Zone",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Source"
+    }
+  ]
+}

@@ -770,11 +770,10 @@ public class FXLogin extends AnchorPane {
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 
-        //TODO: load default lange from Configfile or so
-        comboBox.getSelectionModel().select(UK);//Default
 
         comboBox.setMinWidth(250);
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
+
 
         comboBox.valueProperty().addListener(new ChangeListener<Locale>() {
             @Override
@@ -783,6 +782,16 @@ public class FXLogin extends AnchorPane {
                 //TODO reload UI
             }
         });
+
+        for(Locale l:comboBox.getItems()){
+            if(l.equals(Locale.getDefault())){
+                comboBox.getSelectionModel().select(l);
+                break;
+            }else if(l.getLanguage().equals(Locale.getDefault().getLanguage())){
+                comboBox.getSelectionModel().select(l);
+            }
+        }
+
 
         return comboBox;
 

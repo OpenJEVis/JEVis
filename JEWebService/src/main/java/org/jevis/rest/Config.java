@@ -1,22 +1,22 @@
-/*
-  Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
-
-  This file is part of JEWebService.
-
-  JEWebService is free software: you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free Software
-  Foundation in version 3.
-
-  JEWebService is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-  details.
-
-  You should have received a copy of the GNU General Public License along with
-  JEWebService. If not, see <http://www.gnu.org/licenses/>.
-
-  JEWebService is part of the OpenJEVis project, further project information
-  are published at <http://www.OpenJEVis.org/>.
+/**
+ * Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
+ * <p>
+ * This file is part of JEWebService.
+ * <p>
+ * JEWebService is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ * <p>
+ * JEWebService is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * <p>
+ * You should have received a copy of the GNU General Public License along with
+ * JEWebService. If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * JEWebService is part of the OpenJEVis project, further project information
+ * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.rest;
 
@@ -25,12 +25,17 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.ws.json.JsonClassRelationship;
+import org.jevis.commons.ws.json.JsonJEVisClass;
 import org.jevis.ws.sql.SQLDataSource;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
- *
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class Config {
@@ -51,13 +56,22 @@ public class Config {
     public static String _keyFile = "";
     public static String _keyFilePW = "";
 
+
     public static long _demoRoot = -1;
     public static long _demoGroup = -1;
     public static String _registratioKey = "";
 
     private static boolean _loadFromFile = true;
     private static boolean _fileIsLoaded = false;
-    
+
+    private static File _i18nDir;
+    private static File _fileDir;
+    private static File _classDir;
+
+    public static File getClassDir() {
+        return _classDir;
+    }
+
 
     public static String getDBHost() {
         return _dbip;
@@ -79,12 +93,19 @@ public class Config {
         return _schema;
     }
 
-    
-    public static String getKeyStoreFile(){
+    public static File getFileDir() {
+        return _fileDir;
+    }
+
+    public static File getI18nDir() {
+        return _i18nDir;
+    }
+
+    public static String getKeyStoreFile() {
         return _keyFile;
     }
-    
-    public static String getKeyStorePW(){
+
+    public static String getKeyStorePW() {
         return _keyFilePW;
     }
 
@@ -92,38 +113,88 @@ public class Config {
         return _uri;
     }
 
+    private static Map<String, JsonJEVisClass> _classCache = Collections.synchronizedMap(new HashMap<String, JsonJEVisClass>());
+    private static Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
+
+
+    public static synchronized Map<String, JsonJEVisClass> getClassCache() {
+        if (_classCache.isEmpty()) {
+            logger.info("initialize class cache");
+            try {
+                _classCache = (new ResourceClasses()).loadJsonClasses();
+                logger.info("Done");
+            } catch (Exception ex) {
+                logger.error("Error while caching classes", ex);
+            }
+
+        }
+        return _classCache;
+    }
+
+    public static synchronized void setClassCache(Map<String, JsonJEVisClass> map) {
+        _classCache = map;
+    }
+
+    public static String getParameter(XMLConfiguration config, String key, String defaultValue) {
+        try {
+            return config.getString(key);
+        } catch (NullPointerException nex) {
+            logger.error("Missing parameter in config file: '" + key + "' using default value: '" + defaultValue + "'");
+            return defaultValue;
+        }
+    }
+
+    public static long getParameter(XMLConfiguration config, String key, long defaultValue) {
+        try {
+            return config.getLong(key);
+        } catch (NullPointerException nex) {
+            logger.error("Missing parameter in config file: '" + key + "' using default value: '" + defaultValue + "'");
+            return defaultValue;
+        }
+    }
+
     public static void readConfigurationFile(File cfile) {
         try {
+
             if (!_fileIsLoaded) {
 //                File cfile = new File("config.xml");
                 if (cfile.exists()) {
+                    String homeDir = System.getProperty("user.home");
 //                    Logger.getLogger(Config.class.getName()).log(Level.INFO, "using Configfile: " + cfile.getAbsolutePath());
                     logger.info("using Configfile: {}", cfile.getAbsolutePath());
                     XMLConfiguration config = new XMLConfiguration(cfile);
 
-                    _dbport = config.getString("datasource.port");
-                    _dbip = config.getString("datasource.url");
-                    _dbuser = config.getString("datasource.login");
-                    _dbpw = config.getString("datasource.password");
-                    _schema = config.getString("datasource.schema");
+                    _dbport = getParameter(config, "datasource.port", "8000");
+                    _dbip = getParameter(config, "datasource.url", "localhost");
+                    _dbuser = getParameter(config, "datasource.login", "jevis");
+                    _dbpw = getParameter(config, "datasource.password", "jevispw");
+                    _schema = getParameter(config, "datasource.schema", "jevis");
+
+
+                    _rootUser = getParameter(config, "sysadmin.username", "Sys Admin");
+                    _rootPW = getParameter(config, "sysadmin.password", "jevispw");
+//                    _port = getParameter(config,"webservice.port","8000");//part of the uri now
+                    _uri = getParameter(config, "webservice.uri", "http://127.0.0.1:8000/");
+
+                    _keyFile = getParameter(config, "webservice.keystore", homeDir + "/etc/keystore.jks");
+                    _keyFilePW = getParameter(config, "webservice.keystorepw", "jevispw");
+
+
+                    _i18nDir = new File(getParameter(config, "webservice.i18ndir", homeDir + "/jevis/var/i18n/").replaceAll("%$", ""));
+                    _fileDir = new File(getParameter(config, "webservice.filedir", homeDir + "/jevis/var/files/").replaceAll("%$", ""));
+                    _classDir = new File(getParameter(config, "webservice.classdir", homeDir + "/jevis/var/classes/").replaceAll("%$", ""));
 
                     //Woraround solution for the registration service
-                    _rootUser = config.getString("sysadmin.username");
-                    _rootPW = config.getString("sysadmin.password");
-                    _port = config.getString("webservice.port");
-                    _uri = config.getString("webservice.uri");
-                    _keyFile= config.getString("webservice.keystore");
-                    _keyFilePW= config.getString("webservice.keystorepw");
-                    
-                    
-                    _demoRoot = config.getLong("webservice.registration.root");
-                    _demoGroup = config.getLong("webservice.registration.demogroup");
-                    _registratioKey = config.getString("webservice.registration.apikey");
+
+                    _demoRoot = getParameter(config, "webservice.registration.root", -1);
+                    _demoGroup = getParameter(config, "webservice.registration.demogroup", -1);
+                    _registratioKey = getParameter(config, "webservice.registration.apikey", UUID.randomUUID().toString());
+
 
                     _fileIsLoaded = true;
                 } else {
-                    logger.fatal("Warning configfile does not exist: {}", cfile.getAbsolutePath());
-//                    Logger.getLogger(Config.class.getName()).log(Level.SEVERE, "Warning configfile does not exist: " + cfile.getAbsolutePath());
+                    logger.fatal("Warning config file does not exist: {}", cfile.getAbsolutePath());
+//                    Logger.getLogger(Config.class.getName()).log(Level.SEVERE, "Warning config file does not exist: " + cfile.getAbsolutePath());
                 }
 
             }
@@ -149,8 +220,7 @@ public class Config {
         return _demoRoot;
     }
 
-    
-    
+
     public static void CloseDS(JEVisDataSource ds) {
         try {
             if (ds != null) {

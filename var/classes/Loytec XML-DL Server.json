@@ -1,0 +1,71 @@
+{
+  "name": "Loytec XML-DL Server",
+  "description": "The Loytec XML-DL Driver supports LINX Automation Server and LIOB Controller devices.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Loytec XML-DL Bacnet Channel Directory",
+      "end": "Loytec XML-DL Server",
+      "type": 3
+    },
+    {
+      "start": "Loytec XML-DL CEA709 Channel Directory",
+      "end": "Loytec XML-DL Server",
+      "type": 3
+    },
+    {
+      "start": "Loytec XML-DL Generic Channel Directory",
+      "end": "Loytec XML-DL Server",
+      "type": 3
+    },
+    {
+      "start": "Loytec XML-DL Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "Loytec XML-DL Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Loytec XML-DL Server"
+    },
+    {
+      "name": "SSL",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Loytec XML-DL Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Loytec XML-DL Server"
+    },
+    {
+      "name": "LogHandle Base Path",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Loytec XML-DL Server"
+    }
+
+  ]
+}

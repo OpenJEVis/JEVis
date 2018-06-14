@@ -1,0 +1,14 @@
+{
+  "jevisclass": "sFTP Channel Directory",
+  "names": {
+    "de": "sFTP Channel Directory",
+    "ru": "sFTP Channel Directory",
+    "en": "sFTP Channel Directory"
+  },
+  "descriptions": {
+    "de": "The class sFTP Channel Directory represents a specific directory for the management of data.\n",
+    "ru": "The class sFTP Channel Directory represents a specific directory for the management of data.\n",
+    "en": "The class sFTP Channel Directory represents a specific directory for the management of data.\n"
+  },
+  "types": []
+}

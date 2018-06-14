@@ -1,0 +1,18 @@
+{
+  "name": "3.5 Terms related to Energy",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "3.5 Terms related to Energy",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.5 Terms related to Energy",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

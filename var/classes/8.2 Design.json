@@ -1,0 +1,19 @@
+{
+  "name": "8.2 Design",
+  "description": "The organization shall consider energy performance improvement opportunities and operational control in the design of new, modified and renovated facilities, equipment, systems and energy-using processes that can have a significant impact on its energy performance over the planned or expected operating lifetime.   \nWhere appropriate, the results of the energy performance evaluation shall be incorporated into the specification, design and procurement activities.  \nThe results of the design activities shall be retained as documented information (see 7.5).   ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "8.2 Design",
+      "end": "08 Operation",
+      "type": 0
+    },
+    {
+      "start": "8.2 Design",
+      "end": "08 Operation",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

@@ -1,34 +1,33 @@
-/*
-  Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
-
-  This file is part of JEWebService.
-
-  JEWebService is free software: you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free Software
-  Foundation in version 3.
-
-  JEWebService is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-  details.
-
-  You should have received a copy of the GNU General Public License along with
-  JEWebService. If not, see <http://www.gnu.org/licenses/>.
-
-  JEWebService is part of the OpenJEVis project, further project information
-  are published at <http://www.OpenJEVis.org/>.
+/**
+ * Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
+ * <p>
+ * This file is part of JEWebService.
+ * <p>
+ * JEWebService is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ * <p>
+ * JEWebService is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * <p>
+ * You should have received a copy of the GNU General Public License along with
+ * JEWebService. If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * JEWebService is part of the OpenJEVis project, further project information
+ * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.rest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonJEVisClass;
+import org.jevis.ws.sql.JEVisClassHelper;
 import org.jevis.ws.sql.SQLDataSource;
-import org.jevis.ws.sql.SQLtoJsonFactory;
 
 import javax.imageio.ImageIO;
 import javax.security.sasl.AuthenticationException;
@@ -36,14 +35,14 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class handels all the JEVIsOBjects related requests
+ * This class handel all the JEVIsObjects related requests
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -51,14 +50,13 @@ import java.util.logging.Logger;
 public class ResourceClasses {
 
     private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceClasses.class);
-    public final static String TEMPDIR = "JEWebService";
-    public final static String TEMPFILE = "Classes.json";
 
     /**
      * Returns an List of JEVisClasses as Json
      *
      * @param httpHeaders
      * @return
+     * @throws JEVisException
      */
     @GET
     @Logged
@@ -66,16 +64,16 @@ public class ResourceClasses {
     public Response getAll(
             @Context HttpHeaders httpHeaders,
             @Context Request request,
-            @Context UriInfo url,
-            @DefaultValue("false") @QueryParam("includeType") boolean includeType) {
-
+            @Context UriInfo url) throws JEVisException {
+        System.out.println("get all classes");
         SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
-            return getCacheFile(ds);
+
+            return getClassResponse(null);
         } catch (JEVisException jex) {
-            jex.printStackTrace();
+            logger.error(jex);
             return Response.serverError().build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
@@ -89,7 +87,6 @@ public class ResourceClasses {
      * Returns the requested JEVisClass
      *
      * @param httpHeaders
-     * @param context
      * @param name
      * @return
      */
@@ -106,13 +103,8 @@ public class ResourceClasses {
         SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            JsonJEVisClass jclass = ds.getJEVisClass(name);
 
-            if (jclass != null) {
-                return Response.ok(jclass).build();
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
+            return getClassResponse(name);
 
         } catch (JEVisException jex) {
             logger.catching(jex);
@@ -138,18 +130,26 @@ public class ResourceClasses {
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
-            JsonJEVisClass jclass = ds.getJEVisClass(name);
-            if (jclass != null || ds.getUserManager().isSysAdmin()) {
-                boolean delete = ds.deleteClass(name);
-                if (delete) {
-                    FileCache.deleteClassCachFiles();
-                    return Response.ok().build();
-                } else {
 
-                    return Response.notModified().build();
+            JsonJEVisClass jclass = Config.getClassCache().get(name);
+            if (jclass != null || ds.getUserManager().isSysAdmin()) {
+                //TODO: delete orphaned relationships on other classes
+//                for (Map.Entry<String, JsonJEVisClass> jc : Config.getClassCache().entrySet()) {
+//                    //delete.relationship with delete class
+//                }
+
+                for (File file : Config.getClassDir().listFiles()) {
+                    if (file.getName().equalsIgnoreCase(name) && file.canWrite()) {
+                        file.delete();
+                        //TODO: Also delete Icon
+                        return Response.ok().build();
+                    }
                 }
-            } else {
+
                 return Response.status(Response.Status.NOT_FOUND).build();
+
+            } else {
+                return Response.status(Response.Status.UNAUTHORIZED).build();
             }
 
         } catch (JEVisException jex) {
@@ -181,9 +181,15 @@ public class ResourceClasses {
             ds = new SQLDataSource(httpHeaders, request, url);
 
             if (ds.getUserManager().isSysAdmin()) {
-                JsonJEVisClass json = (new Gson()).fromJson(input, JsonJEVisClass.class);
-                ds.setJEVisClass(name, json);
-                FileCache.deleteClassCachFiles();
+                JsonJEVisClass json = (new Gson()).fromJson(input, JsonJEVisClass.class);//parse it again to be save and to make it pretty
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+                PrintWriter writer = new PrintWriter(Config.getClassDir().getAbsoluteFile() + "/" + name + ".json", "UTF-8");
+                writer.println(gson.toJson(json));
+                writer.close();
+
+
+                Config.getClassCache().clear();
                 return Response.ok(ds.getJEVisClass(name)).build();
             } else {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -204,7 +210,6 @@ public class ResourceClasses {
      * Returns the Icon of the requested JEVisClass
      *
      * @param httpHeaders
-     * @param context
      * @param name
      * @return
      */
@@ -222,78 +227,128 @@ public class ResourceClasses {
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
-            BufferedImage img = ds.getJEVisClassIcon(name);
-            if (img != null) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                try {
-                    ImageIO.write(img, "png", baos);
-                } catch (IOException ex) {
-                    Logger.getLogger(ResourceClasses.class.getName()).log(Level.SEVERE, null, ex);
+            FileFilter ff = new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    if (pathname.getName().endsWith(".png")) {
+                        return true;
+                    } else if (pathname.getName().endsWith(".jpg")) {
+                        return true;
+                    } else if (pathname.getName().endsWith(".gif")) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
-                byte[] imageData = baos.toByteArray();
-                return Response.ok(new ByteArrayInputStream(imageData), MediaType.valueOf("image/png")).build();
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).build();
+            };
+
+            for (File icon : Config.getClassDir().listFiles(ff)) {
+                int lastDot = icon.getName().lastIndexOf(".");
+                if (name.equalsIgnoreCase(icon.getName().substring(0, lastDot))) {
+                    return Response.ok(ImageIO.read(icon)).build();
+                }
             }
+            File placeholder = new File(Config.getClassDir().getAbsolutePath() + "MissingPlaceholder.png");
+            return Response.ok(ImageIO.read(placeholder)).build();
+
 
         } catch (JEVisException jex) {
             Logger.getLogger(ResourceClasses.class.getName()).log(Level.SEVERE, null, jex);
             return Response.serverError().build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+        } catch (IOException ioex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ioex.getMessage()).build();
         } finally {
             Config.CloseDS(ds);
         }
 
     }
 
-    public Response getCacheFile(SQLDataSource ds) {
 
-        try {
-            ds.getProfiler().addEvent("ResourceClasses", "getCachedClasses");
-
-            File tmpZipFile = FileCache.getClassFile();
-            if (tmpZipFile.exists()) {
-                Type REVIEW_TYPE = new TypeToken<List<JsonJEVisClass>>() {
-                }.getType();
-                Gson gson = new Gson();
-                JsonReader reader = new JsonReader(new FileReader(tmpZipFile));
-                List<JsonJEVisClass> data = gson.fromJson(reader, REVIEW_TYPE);
-                ds.getProfiler().addEvent("ResourceClasses", "done from cache");
-                return Response.ok(data).build();
+    public Response getClassResponse(String classname) throws JEVisException {
+        if (classname == null || classname.isEmpty()) {
+            return Response.ok(Config.getClassCache().values()).build();
+        } else {
+            if (Config.getClassCache().containsKey(classname)) {
+                return Response.ok(Config.getClassCache().get(classname)).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
+        }
+    }
 
-            List<JsonJEVisClass> jclasses = ds.getJEVisClasses();
-            Map<String, JsonJEVisClass> map = SQLtoJsonFactory.toMap(jclasses);
-            SQLtoJsonFactory.addTypesToClasses(map, ds.getAllTypes());
-            SQLtoJsonFactory.addRelationhipsToClasses(map, ds.getClassRelationships());
+    public Map<String, JsonJEVisClass> loadJsonClasses() throws JEVisException {
+        Gson gson = new GsonBuilder().create();
+        Map<String, JsonJEVisClass> classMap = Collections.synchronizedMap(new HashMap<String, JsonJEVisClass>());
 
-            try (Writer writer = new FileWriter(tmpZipFile)) {
-                Gson gson = new GsonBuilder().create();
-                gson.toJson(jclasses, writer);
+        File classDir = Config.getClassDir();
 
+        if (classDir.exists()) {
+            FileFilter jsonFilter = new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    if (pathname.getName().endsWith(".json")) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            };
+            for (File jsonFile : classDir.listFiles(jsonFilter)) {
+                try {
+                    JsonReader reader = new JsonReader(new FileReader(jsonFile));
+                    JsonJEVisClass data = gson.fromJson(reader, JsonJEVisClass.class);
+                    classMap.put(data.getName(), data);
+
+                } catch (Exception ex) {
+                    logger.error("Error while loading Classfile: " + jsonFile.getName(), ex);
+                }
             }
-            ds.getProfiler().addEvent("ResourceIcons", "done build cache");
-
-            Response re = Response.ok(jclasses).build();
-            ds.getProfiler().addEvent("ResourceIcons", "done");
-            return re;
-
-        } catch (AuthenticationException ex) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
-        } catch (Exception jex) {
-            return Response.serverError().build();
-        } finally {
-            Config.CloseDS(ds);
         }
 
+        JEVisClassHelper.completeClasses(classMap);
+
+//        Map<String, JsonClassRelationship> clRelationships = new HashMap<>();
+//        //Add cross relationships
+//        for (Map.Entry<String, JsonJEVisClass> jc : classMap.entrySet()) {
+//            try {
+//                for (JsonClassRelationship rel : jc.getValue().getRelationships()) {
+//                    try {
+//                        String relKey = rel.getStart() + ":" + rel.getEnd() + ":" + rel.getType();
+//                        clRelationships.put(relKey, rel);
+//                    } catch (Exception ex) {
+//                        logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
+//                    }
+//                }
+//            } catch (Exception ex) {
+//                logger.error("Error while listing classes[" + jc.getKey() + "]", ex);
+//            }
+//        }
+//
+//        for (Map.Entry<String, JsonClassRelationship> rel : clRelationships.entrySet()) {
+//            try {
+//                JsonJEVisClass startClass = classMap.get(rel.getValue().getStart());
+//                JsonJEVisClass endClass = classMap.get(rel.getValue().getEnd());
+//
+//                if (!startClass.getRelationships().contains(rel.getValue())) {
+//                    startClass.getRelationships().add(rel.getValue());
+//                }
+//
+//                if (!endClass.getRelationships().contains(rel.getValue())) {
+//                    endClass.getRelationships().add(rel.getValue());
+//                }
+//            } catch (Exception ex) {
+//                logger.error("Error while mapping class relationships[" + rel.getKey() + "]", ex);
+//            }
+//        }
+
+        return classMap;
     }
+
 
     /**
-     *
      * @param httpHeaders
-     * @param fileInputStream
-     * @param fileMetaData
      * @param name
      * @param imageBytes
      * @return
@@ -313,27 +368,28 @@ public class ResourceClasses {
             ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("ResourceClasses", "putClassIcon");
 
-            JsonJEVisClass jclass = ds.getJEVisClass(name);
-            System.out.println("found jclass?: " + jclass);
 
             if (!ds.getUserManager().isSysAdmin()) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
-            if (jclass == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("JEVisClass not found").build();
-            }
+
 
             try {
+                File newFile = new File(Config.getClassDir().getAbsoluteFile() + "/" + name + ".png");
+                System.out.println("class.icon: " + newFile + "  size: " + newFile.length());
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(imageBytes));
-                System.out.println("ClassIcon.width: " + img.getWidth());
-                ds.setJEVisClassIcon(name, img);
+                //TODO: maybe resize the image to an default size
+                ImageIO.write(img, "png", newFile);
+
+                //clean cache
+                File tmpZipFile = new File(FileCache.CLASS_ICON_FILE);
+                tmpZipFile.delete();
+
+                return Response.status(Response.Status.OK).build();
             } catch (IOException ioex) {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ioex.getMessage()).build();
             }
-            System.out.println("Pre clean cache");
-            FileCache.deleteClassCachFiles();
-            System.out.println("---- return OK");
-            return Response.status(Response.Status.OK).build();
+
 
         } catch (JEVisException jex) {
             logger.error("ClassIcon upload error: {}", jex);

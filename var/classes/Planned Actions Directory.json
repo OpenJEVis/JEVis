@@ -1,0 +1,21 @@
+{
+  "name": "Planned Actions Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Saving Action",
+      "end": "Planned Actions Directory",
+      "type": 3
+    },
+    {
+      "start": "Planned Actions Directory",
+      "end": "Action Plan",
+      "type": 3
+    },
+    {
+      "start": "Planned Actions Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

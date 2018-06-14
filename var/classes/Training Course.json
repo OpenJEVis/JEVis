@@ -1,0 +1,27 @@
+{
+  "name": "Training Course",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Training Course",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "Training Course",
+      "end": "Training Course Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Presentation File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Training Course"
+    }
+  ]
+}

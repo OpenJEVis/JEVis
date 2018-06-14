@@ -1,22 +1,22 @@
-/*
-  Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
-
-  This file is part of JEWebService.
-
-  JEWebService is free software: you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free Software
-  Foundation in version 3.
-
-  JEWebService is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-  details.
-
-  You should have received a copy of the GNU General Public License along with
-  JEWebService. If not, see <http://www.gnu.org/licenses/>.
-
-  JEWebService is part of the OpenJEVis project, further project information
-  are published at <http://www.OpenJEVis.org/>.
+/**
+ * Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
+ * <p>
+ * This file is part of JEWebService.
+ * <p>
+ * JEWebService is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ * <p>
+ * JEWebService is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * <p>
+ * You should have received a copy of the GNU General Public License along with
+ * JEWebService. If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * JEWebService is part of the OpenJEVis project, further project information
+ * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.rest;
 
@@ -46,8 +46,7 @@ public class ResourceAttribute {
     private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceAttribute.class);
     private Date start = new Date();
 
-    
-    
+
     /**
      * Returns an list of all attributes under the given JEVisClass
      *
@@ -102,6 +101,7 @@ public class ResourceAttribute {
      * @param id
      * @param attribute
      * @return
+     * @throws JEVisException
      */
     @GET
     @Logged
@@ -112,7 +112,7 @@ public class ResourceAttribute {
             @Context Request request,
             @Context UriInfo url,
             @PathParam("id") long id,
-            @PathParam("attribute") String attribute) {
+            @PathParam("attribute") String attribute) throws JEVisException {
 
         SQLDataSource ds = null;
         try {
@@ -155,10 +155,12 @@ public class ResourceAttribute {
             @Context UriInfo url,
             @PathParam("id") long id,
             @PathParam("attribute") String attribute,
-            String payload) {
+            String payload) throws JEVisException {
 
         SQLDataSource ds = null;
         try {
+
+            System.out.println("PostAtt: " + payload);
             ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject obj = ds.getObject(id);
@@ -179,7 +181,7 @@ public class ResourceAttribute {
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } finally {
-           Config.CloseDS(ds);
+            Config.CloseDS(ds);
         }
 
     }

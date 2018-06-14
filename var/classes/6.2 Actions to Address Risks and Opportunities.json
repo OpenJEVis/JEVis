@@ -1,0 +1,19 @@
+{
+  "name": "6.2 Actions to Address Risks and Opportunities",
+  "description": "6.2.1 When planning for the EnMS, the organization shall consider the issues referred to in 4.1, 4.2, and  outputs of energy review (see 6.3) and determine the risks and opportunities that need to be addressed  to:  \n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "6.2 Actions to Address Risks and Opportunities",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.2 Actions to Address Risks and Opportunities",
+      "end": "06 Planning",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

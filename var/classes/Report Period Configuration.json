@@ -1,0 +1,31 @@
+{
+  "name": "Report Period Configuration",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Report Period Configuration",
+      "end": "Report Configuration",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Aggregation",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Period Configuration"
+    },
+    {
+      "name": "Period",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Period Configuration"
+    }
+  ]
+}

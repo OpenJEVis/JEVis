@@ -1,0 +1,19 @@
+{
+  "name": "7.2 Competence",
+  "description": "The organization shall:  \na) determine the necessary competence of person(s) doing work under its control that affects its  energy performance and EnMS;    \nb) ensure that these persons are competent on the basis of appropriate education, training, skills  or experience;    \nc) where applicable, take actions to acquire the necessary competence, and evaluate the  effectiveness of the actions taken;   \nd) retain appropriate documented information ( see 7.5) as evidence of competence.  \nNOTE Applicable actions can include, for example, the provision of training to, the mentoring of, or the  reassignment of currently employed persons; or the hiring or contracting of competent persons.   ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "7.2 Competence",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.2 Competence",
+      "end": "07 Support",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

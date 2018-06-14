@@ -1,26 +1,24 @@
 /**
  * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig;
 
-import java.util.ArrayList;
-import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -38,17 +36,19 @@ import javafx.scene.layout.StackPane;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.map.MapViewPlugin;
+import org.jevis.jeconfig.plugin.browser.ISO5001Browser;
 import org.jevis.jeconfig.plugin.dashboard.DashboardPlugin;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
-import org.jevis.jeconfig.plugin.browser.ISO5001Browser;
-import org.jevis.jeconfig.plugin.browser.LoytecBrowser;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.tool.I18n;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The PluginManger controls the view of the different Plugins
  *
- * i* @author Florian Simon <florian.simon@envidatec.com>
+ * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PluginManager {
 
@@ -89,12 +89,12 @@ public class PluginManager {
 //        _plugins.add(new ObjectPlugin(_ds, "Resources"));
         _plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         _plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
-        _plugins.add(new DashboardPlugin(_ds));        
+        _plugins.add(new DashboardPlugin(_ds));
         _plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.gis.title")));
         _plugins.add(new ISO5001Browser(_ds));
         _plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
         _plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
-        
+
 //        _plugins.add(new LoytecBrowser(_ds));
 
     }

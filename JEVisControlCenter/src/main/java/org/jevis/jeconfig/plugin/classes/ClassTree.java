@@ -1,67 +1,47 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.classes;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Callback;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisClassRelationship;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
+import org.jevis.api.*;
 import org.jevis.application.cache.CacheEvent;
 import org.jevis.application.cache.CacheEventHandler;
 import org.jevis.application.cache.Cached;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.commons.drivermanagment.ClassExporter;
 import org.jevis.commons.relationship.RelationshipFactory;
-import static org.jevis.jeapi.ws.JEVisClassWS.getImage;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.tool.I18n;
@@ -70,8 +50,15 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ClassTree extends TreeView<JEVisClass> {
@@ -111,7 +98,7 @@ public class ClassTree extends TreeView<JEVisClass> {
 
             setCellFactory(new Callback<TreeView<JEVisClass>, TreeCell<JEVisClass>>() {
 
-//                @Override
+                //                @Override
 //                public TreeCell<JEVisClass> call(TreeView<JEVisClass> p) {
 //                    return new ClassCell();
 //                }
@@ -242,7 +229,8 @@ public class ClassTree extends TreeView<JEVisClass> {
             for (JEVisClass child : item.getValue().getHeirs()) {
 
                 //what was this again? Case rootnode maybe?
-                if (item.getValue().getName().equals("Classes")) {
+                //if (item.getValue().getName().equals("Classes")) {
+                if (item.getValue().getName().equals(JEVisRootClass._name)) {
                     TreeItem<JEVisClass> newItem = buildItem(child);
                     list.add(newItem);
                 } else if (child.getInheritance() != null && item.getValue().equals(child.getInheritance())) {
@@ -519,7 +507,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                 //allway set the default icon
                 if (dia.getInheritance() != null && dia.getInheritance().getIcon() != null) {
                     newClass.setIcon(dia.getInheritance().getIcon());
-                } 
+                }
                 newClass.commit();
                 TreeItem<JEVisClass> newItem;
                 if (dia.getInheritance() != null) {

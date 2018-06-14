@@ -1,0 +1,63 @@
+{
+  "name": "Management Review",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Management Review",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Management Review",
+      "end": "Management Review Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Management Review"
+    },
+    {
+      "name": "Management Review File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Management Review"
+    },
+    {
+      "name": "Management Review PDF",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Management Review"
+    },
+    {
+      "name": "Participants",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Management Review"
+    },
+    {
+      "name": "Review Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Management Review"
+    }
+  ]
+}

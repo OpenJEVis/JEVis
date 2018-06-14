@@ -1,0 +1,27 @@
+{
+  "name": "Data Point",
+  "description": "The class Data Point represents a none-specific directory for the structuring of the system. The class Data Point is only used for the inheritance of specific data point types.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Data Point",
+      "end": "Data Point",
+      "type": 0
+    },
+    {
+      "start": "DWD Data Point",
+      "end": "Data Point",
+      "type": 0
+    },
+    {
+      "start": "SQL Data Point",
+      "end": "Data Point",
+      "type": 0
+    },
+    {
+      "start": "XML Data Point",
+      "end": "Data Point",
+      "type": 0
+    }
+  ]
+}

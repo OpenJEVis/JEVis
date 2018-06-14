@@ -1,0 +1,96 @@
+{
+  "name": "Lighting",
+  "description": "The class Lighting contains data of the building equipment lightning. Attributes of the class include a complete description of the specific energy data of the lighting. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Lighting",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Lighting",
+      "end": "Floor",
+      "type": 3
+    },
+    {
+      "start": "Lighting",
+      "end": "Lighting Equipment Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Ballast Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Lighting"
+    },
+    {
+      "name": "Bulbs per Lamp",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Lighting"
+    },
+    {
+      "name": "Domain",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Lighting"
+    },
+    {
+      "name": "Lamp Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Lighting"
+    },
+    {
+      "name": "Measurement",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Lighting"
+    },
+    {
+      "name": "Number of Lamps",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Lighting"
+    },
+    {
+      "name": "Standby Consumption",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Lighting"
+    },
+    {
+      "name": "Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Lighting"
+    }
+  ]
+}

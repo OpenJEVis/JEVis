@@ -1,0 +1,176 @@
+{
+  "name": "ISO 50001",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Action Plan Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Announcement Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Audit",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Audit Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Audit Question",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Documents",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Documents Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Energy Flow Chart Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Energy Planning",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Energy Saving Action",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Energy Source",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Energy Sources Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Energy Team Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Evaluated Output",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Implemented Actions Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Initial Contact",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "ISO 50001 Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "ISO 50001 Meetings Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Legal Regulation",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Legal Regulation Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Management Manual Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Management Review",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Management Review Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Meeting",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Monitoring Register",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Monthly Values",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Performance Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Planned Actions Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Procedural Documents Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Responsibilities",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Site",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Superior Level Meetings Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Training Course Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Training Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

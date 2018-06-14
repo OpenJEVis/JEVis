@@ -1,0 +1,19 @@
+{
+  "name": "10.1 Nonconformity and Corrective Action",
+  "description": "When a nonconformity is identified occurs, the organization shall:  \na) react to the nonconformity and, as applicable:  \n1. take action to control and correct it;  \n2. deal with the consequences;  \nb) evaluate the need for action to eliminate the cause(s) of the nonconformity, in order that it does  not recur or occur elsewhere, by:   \n1. reviewing the nonconformity;  \n2. determining the causes of the nonconformity;  \n3. determining if similar nonconformities exist, or could can potentially occur;  \nc) implement any action needed;  \nd) review the effectiveness of any corrective action taken;  \ne) make changes to the EnMS, if necessary.  \nCorrective actions shall be appropriate to the effects of the nonconformities encountered.    \nThe organization shall retain documented information as evidence of:  \n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "10.1 Nonconformity and Corrective Action",
+      "end": "10 Improvement",
+      "type": 0
+    },
+    {
+      "start": "10.1 Nonconformity and Corrective Action",
+      "end": "10 Improvement",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

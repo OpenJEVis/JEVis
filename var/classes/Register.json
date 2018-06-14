@@ -1,0 +1,11 @@
+{
+  "name": "Register",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Equipment Register",
+      "end": "Register",
+      "type": 0
+    }
+  ]
+}

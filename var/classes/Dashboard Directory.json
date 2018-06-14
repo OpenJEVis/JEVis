@@ -1,0 +1,16 @@
+{
+  "name": "Dashboard Directory",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Dashboard Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Dashboard Directory",
+      "end": "System",
+      "type": 3
+    }
+  ]
+}

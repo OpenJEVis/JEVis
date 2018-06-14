@@ -1,23 +1,48 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.sample;
+
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.*;
+import javafx.stage.FileChooser;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
+import org.jevis.application.dialog.ExceptionDialog;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,46 +54,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.stage.FileChooser;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.application.dialog.ExceptionDialog;
-import org.jevis.application.dialog.InfoDialog;
-import org.jevis.jeconfig.JEConfig;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 /**
  * This Dialog export JEVisSamples as csv files with different configurations.
@@ -86,12 +71,12 @@ public class SampleExportExtension implements SampleEditorExtension {
     public static enum Response {
 
         YES, CANCEL
-    };
+    }
 
     public static enum FIELDS {
 
         DATE, TIME, VALUE, DATE_TIME
-    };
+    }
 
     final Button ok = new Button("OK");
     Label lLineSep = new Label("Field Seperator:");
@@ -192,14 +177,20 @@ public class SampleExportExtension implements SampleEditorExtension {
 
     @Override
     public boolean sendOKAction() {
-        System.out.println("sendOk to Export");
         try {
-            InfoDialog info = new InfoDialog();
+
             if (doExport()) {
-                info.show(JEConfig.getStage(), "Success", "Export was successful", "Export was successful");
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.success.header"));
+                alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
+                alert.showAndWait();
                 return true;
             } else {
-                info.show(JEConfig.getStage(), "Info", "Missing parameters", "Soem parameters are not configured");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.failed.header"));
+                alert.setContentText(I18n.getInstance().getString("csv.export.dialog.failed.message"));
+                alert.showAndWait();
+
                 return false;
             }
 
@@ -310,7 +301,7 @@ public class SampleExportExtension implements SampleEditorExtension {
         group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
             public void changed(ObservableValue<? extends Toggle> ov,
-                    Toggle old_toggle, Toggle new_toggle) {
+                                Toggle old_toggle, Toggle new_toggle) {
                 if (group.getSelectedToggle() != null) {
                     dateChanged();
                     updateOderField();
@@ -551,12 +542,12 @@ public class SampleExportExtension implements SampleEditorExtension {
                                 break;
                             case JEVisConstants.PrimitiveType.STRING:
                                 if (guiType == JEVisConstants.DisplayType.TEXT_PASSWORD) {
-                                    sb.append(sample.getValueAsString().replaceAll("*", "*"));
+                                    sb.append("**********");
                                 }
                                 sb.append(sample.getValueAsString());
                                 break;
                             case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
-                                sb.append(sample.getValueAsString().replaceAll("*", "*"));
+                                sb.append("**********");
                                 break;
                             default:
                                 sb.append(sample.getValueAsString());

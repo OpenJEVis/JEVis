@@ -1,0 +1,27 @@
+{
+  "name": "Service",
+  "description": "The class Service represents a JEVis back-end application which is registered at the JEVis system. A Service class provide all information for an application which interacts with the JEVis system. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JEAlarm",
+      "end": "Service",
+      "type": 0
+    },
+    {
+      "start": "JECalc",
+      "end": "Service",
+      "type": 0
+    },
+    {
+      "start": "JEDataCollector",
+      "end": "Service",
+      "type": 0
+    },
+    {
+      "start": "JEReport",
+      "end": "Service",
+      "type": 0
+    }
+  ]
+}

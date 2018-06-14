@@ -1,0 +1,23 @@
+{
+  "name": "04 Check",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "04 Check",
+      "end": "Internal Audit",
+      "type": 0
+    },
+    {
+      "start": "04 Check",
+      "end": "Internal Audit",
+      "type": 3
+    },
+    {
+      "start": "Audit Question",
+      "end": "04 Check",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

@@ -5,11 +5,12 @@
  */
 package org.jevis.application.type;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @deprecated This class is an temporary solution and maybe not used in the
@@ -38,6 +39,7 @@ public class GUIConstants {
     public static DisplayType DATE_TIME = new DisplayType("Date Time", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType SCHEDULE = new DisplayType("Schedule", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType TIME_ZONE = new DisplayType("Time Zone", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType GAP_FILLING_CONFIG = new DisplayType("Gap Filling Config", JEVisConstants.PrimitiveType.STRING);
     
     public static Logger LOGGER = LogManager.getLogger(GUIConstants.class);
 
@@ -62,6 +64,7 @@ public class GUIConstants {
             add(TIME_ZONE);
             add(BASIC_ENUM);
             add(LOCALE);
+            add(GAP_FILLING_CONFIG);
         }
     };
 

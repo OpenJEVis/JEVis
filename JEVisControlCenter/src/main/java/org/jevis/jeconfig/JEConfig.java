@@ -1,35 +1,26 @@
 /**
  * Copyright (C) 2009 - 2018 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig;
 
-import java.awt.Toolkit;
-import java.io.File;
-import java.lang.reflect.Field;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.Preferences;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -50,18 +41,33 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
+import org.jevis.application.application.I18nWS;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.login.FXLogin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.ws.json.JsonI18nClass;
+import org.jevis.commons.ws.json.JsonI18nType;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.connectionencoder.ConnectionEncoderWindow;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
+
+import java.awt.*;
+import java.io.File;
+import java.io.PrintWriter;
+import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 /**
  * This is the main class of the JEConfig. The JEConfig is an JAVAFX programm,
@@ -72,7 +78,7 @@ import org.joda.time.DateTime;
  */
 public class JEConfig extends Application {
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.1.0");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.3.0");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
     /*
@@ -83,6 +89,7 @@ public class JEConfig extends Application {
 
     private static JEVisDataSource _mainDS;
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEConfig.class);
+
 
     /**
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
@@ -101,11 +108,12 @@ public class JEConfig extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        primaryStage.setTitle(PROGRAMM_INFO.getName());
         JavaVersionCheck checkVersion = new JavaVersionCheck();
         if (!checkVersion.isVersionOK()) {
             System.exit(1);
         }
-      
+
         _primaryStage = primaryStage;
         initGUI(primaryStage);
     }
@@ -116,7 +124,6 @@ public class JEConfig extends Application {
      * @param primaryStage
      */
     private void initGUI(Stage primaryStage) {
-
 
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
@@ -158,19 +165,23 @@ public class JEConfig extends Application {
                 if (newValue) {
                     logger.debug("Start JEVis Control Center");
                     _mainDS = login.getDataSource();
-                    JEConfig.userpassword=login.getUserPassword();
+                    JEConfig.userpassword = login.getUserPassword();
                     I18n.getInstance().loadBundel(login.getSelectedLocale());
+                    I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
+                    _config.setLocale(login.getSelectedLocale());
 
                     try {
                         _mainDS.preload();
                     } catch (Exception ex) {
+                        logger.error("Error while preloading datasource", ex);
                         ex.printStackTrace();
                     }
+
                     ExecutorService exe = Executors.newSingleThreadExecutor();
                     exe.submit(() -> {
                         try {
                             JEVisAttribute activities = _mainDS.getCurrentUser().getUserObject().getAttribute("Activities");
-                            
+
                             JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
                             log.commit();
 
@@ -204,7 +215,6 @@ public class JEConfig extends Application {
                     //Disable GUI is StatusBar note an disconnect
                     border.disableProperty().bind(statusBar.connectedProperty.not());
 
-                 
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
@@ -216,7 +226,7 @@ public class JEConfig extends Application {
 
                             jeconfigRoot.getChildren().setAll(border);
                             try {
-                                
+
                                 WelcomePage welcome = new WelcomePage();
                                 welcome.show(primaryStage, _config.getWelcomeURL());
                             } catch (URISyntaxException ex) {
@@ -276,6 +286,7 @@ public class JEConfig extends Application {
 //        ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
         final KeyCombination openEncoder = KeyCodeCombination.keyCombination("Ctrl+Shift+L");
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
             public void handle(KeyEvent ke) {
                 if (openEncoder.match(ke)) {
                     ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
@@ -283,6 +294,123 @@ public class JEConfig extends Application {
             }
         });
 
+    }
+
+    private void printClasses2(JEVisDataSource ds) {
+
+
+        try {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+
+            for (JEVisClass jc : ds.getJEVisClasses()) {
+                PrintWriter writer = new PrintWriter("/tmp/json/" + jc.getName().replaceAll(" ", "") + ".json", "UTF-8");
+
+                Map<String, String> cnames = new HashMap<>();
+                cnames.put("en", jc.getName());
+                cnames.put("de", jc.getName());
+                cnames.put("ru", jc.getName());
+
+                Map<String, String> descriptions = new HashMap<>();
+                descriptions.put("en", jc.getDescription());
+                descriptions.put("de", jc.getDescription());
+                descriptions.put("ru", jc.getDescription());
+
+
+                List<JsonI18nType> types = new ArrayList<>();
+                for (JEVisType type : jc.getTypes()) {
+                    Map<String, String> tnames = new HashMap<>();
+                    tnames.put("en", type.getName());
+                    tnames.put("de", type.getName());
+                    tnames.put("ru", type.getName());
+
+                    Map<String, String> tdescriptions = new HashMap<>();
+                    tdescriptions.put("en", type.getName() + " desctiption");
+                    tdescriptions.put("de", type.getName() + " desctiption");
+                    tdescriptions.put("ru", type.getName() + " desctiption");
+
+
+                    JsonI18nType jtype = new JsonI18nType();
+                    jtype.setType(type.getName());
+                    jtype.setNames(tnames);
+                    jtype.setDescriptions(tdescriptions);
+                    types.add(jtype);
+                }
+
+                JsonI18nClass jClass = new JsonI18nClass();
+                jClass.setJevisclass(jc.getName());
+                jClass.setNames(cnames);
+                jClass.setDescriptions(descriptions);
+                jClass.setTypes(types);
+
+                writer.println(gson.toJson(jClass));
+                writer.close();
+            }
+
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
+
+    private void printClasses3(JEVisDataSource ds) {
+
+
+        try {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+            PrintWriter writer = new PrintWriter("/tmp/json/all.csv", "UTF-8");
+            StringBuilder sb = new StringBuilder();
+
+            for (JEVisClass jc : ds.getJEVisClasses()) {
+
+                sb.append(jc.getName());
+                sb.append(";");
+                if (jc.getInheritance() != null) {
+                    sb.append(jc.getInheritance().getName());
+                } else {
+                    sb.append("-");
+                }
+                sb.append(";");
+                sb.append(jc.getName());
+                sb.append(";");
+                sb.append(";");
+                sb.append(";");
+                sb.append(jc.getDescription());
+                sb.append(";");
+                sb.append(";");
+                sb.append(";");
+                sb.append("\n");
+
+                for (JEVisType type : jc.getTypes()) {
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(type.getName());
+                    sb.append(";");
+                    sb.append(type.getName());
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+                    sb.append(";");
+
+                    sb.append("\n");
+                }
+            }
+
+            writer.println(sb.toString());
+            writer.close();
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
     }
 
     /**
@@ -319,9 +447,13 @@ public class JEConfig extends Application {
      * @deprecated Will be moved into the Configuration -> user settings
      */
     public static File getLastPath() {
-        if (getConfig().getLastPath()==null) {
+        if (getConfig().getLastPath() == null) {
             getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
         }
+        if (!getConfig().getLastPath().canRead()) {
+            getConfig().setLastPath(new File(System.getProperty("user.home")));
+        }
+
         return getConfig().getLastPath();
     }
 
@@ -332,10 +464,9 @@ public class JEConfig extends Application {
      * @deprecated Will be moved into the Configuration -> user settings
      */
     public static void setLastPath(File file) {
-        getConfig().setLastPath(file);
-        if(file.exists()){
+        if (file.exists()) {
             getConfig().setLastPath(file.getParentFile());
-        }else{
+        } else {
             getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
         }
     }
@@ -343,8 +474,8 @@ public class JEConfig extends Application {
     /**
      * maximized the given stage
      *
-     * @deprecated
      * @param primaryStage
+     * @deprecated
      */
     public static void maximize(Stage primaryStage) {
         Screen screen = Screen.getPrimary();
@@ -360,12 +491,13 @@ public class JEConfig extends Application {
     /**
      * Get the configuration for the app
      *
-     * @deprecated will be replaced by an singleton
      * @return
+     * @deprecated will be replaced by an singleton
      */
-    public static Configuration getConfig(){
+    public static Configuration getConfig() {
         return _config;
     }
+
     /**
      * Return an common resource
      *

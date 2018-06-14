@@ -1,0 +1,47 @@
+{
+  "name": "FTP Channel",
+  "description": "The class FTP Channel ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "FTP Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "FTP Channel",
+      "end": "FTP Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "SQL Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "FTP Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Path",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "FTP Channel"
+    }
+  ]
+}

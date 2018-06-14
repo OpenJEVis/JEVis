@@ -1,0 +1,18 @@
+{
+  "name": "Parser Driver",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Parser Driver",
+      "end": "Driver",
+      "type": 0
+    },
+    {
+      "start": "Parser Driver",
+      "end": "Parser Driver Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

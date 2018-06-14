@@ -1,0 +1,51 @@
+{
+  "name": "Facade",
+  "description": "The class Farcade contains data of the building equipment farcade. Attributes of the class include a complete description of the specific farcade. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Facade",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Facade",
+      "end": "Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Facade",
+      "end": "Floor",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "U Value Ground",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Facade"
+    },
+    {
+      "name": "U Value Outerwall",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Facade"
+    },
+    {
+      "name": "U Value Roof",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Facade"
+    }
+  ]
+}

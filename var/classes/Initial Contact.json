@@ -1,0 +1,45 @@
+{
+  "name": "Initial Contact",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Initial Contact",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Initial Contact",
+      "end": "Superior Level Meetings Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Comment",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Initial Contact"
+    },
+    {
+      "name": "Contact Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Initial Contact"
+    },
+    {
+      "name": "Contact File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Initial Contact"
+    }
+  ]
+}

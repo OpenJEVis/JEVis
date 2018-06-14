@@ -41,7 +41,8 @@ public class JEVisRootClass implements JEVisClass {
 
     private List<JEVisClass> _children = new ArrayList<JEVisClass>();
     private final JEVisDataSource _ds;
-    private String _name = I18n.getInstance().getString("plugin.classes.title");
+    public static String _name = I18n.getInstance().getString("plugin.classes.title");
+    //private String _name = "Classes";
 
     public JEVisRootClass(JEVisDataSource ds) throws JEVisException {
         this._ds = ds;

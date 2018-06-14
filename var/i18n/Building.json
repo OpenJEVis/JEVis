@@ -1,0 +1,63 @@
+{
+  "jevisclass": "Building",
+  "names": {
+    "de": "Building",
+    "ru": "Building",
+    "en": "Building"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Address",
+      "descriptions": {
+        "de": "Address desctiption",
+        "ru": "Address desctiption",
+        "en": "Address desctiption"
+      },
+      "names": {
+        "de": "Address",
+        "ru": "Address",
+        "en": "Address"
+      }
+    },
+    {
+      "type": "Building Area",
+      "descriptions": {
+        "de": "Building Area desctiption",
+        "ru": "Building Area desctiption",
+        "en": "Building Area desctiption"
+      },
+      "names": {
+        "de": "Building Area",
+        "ru": "Building Area",
+        "en": "Building Area"
+      }
+    },
+    {
+      "type": "Location",
+      "descriptions": {
+        "de": "Location desctiption",
+        "ru": "Location desctiption",
+        "en": "Location desctiption"
+      },
+      "names": {
+        "de": "Location",
+        "ru": "Location",
+        "en": "Location"
+      }
+    },
+    {
+      "type": "Year of Construction",
+      "descriptions": {
+        "de": "Year of Construction desctiption",
+        "ru": "Year of Construction desctiption",
+        "en": "Year of Construction desctiption"
+      },
+      "names": {
+        "de": "Year of Construction",
+        "ru": "Year of Construction",
+        "en": "Year of Construction"
+      }
+    }
+  ]
+}

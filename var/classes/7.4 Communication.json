@@ -1,0 +1,19 @@
+{
+  "name": "7.4 Communication",
+  "description": "The organization shall determine the internal and external communications relevant to the EnMS,  including:  \na) on what it will communicate;  \nb) when to communicate;  \nc) with whom to communicate;  \nd) how to communicate;  \ne) who communicates.  \nWhen establishing its communication process(es), the organization shall ensure that information  communicated is consistent with information generated within the EnMS and is reliable.    \nThe organization shall establish and implement a process by which any person working for, or on behalf  of the organization can make comments or suggest improvements to the EnMS and to energy  performance. ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "7.4 Communication",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.4 Communication",
+      "end": "07 Support",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

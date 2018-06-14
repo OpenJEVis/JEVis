@@ -1,0 +1,19 @@
+{
+  "name": "10.2 Continual Improvement",
+  "description": "The organization shall continually improve its energy performance. The organization shall continually  improve the suitability, adequacy and effectiveness of the EnMS.   ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "10.2 Continual Improvement",
+      "end": "10 Improvement",
+      "type": 0
+    },
+    {
+      "start": "10.2 Continual Improvement",
+      "end": "10 Improvement",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

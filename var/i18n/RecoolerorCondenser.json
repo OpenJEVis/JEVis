@@ -1,0 +1,197 @@
+{
+  "jevisclass": "Recooler or Condenser",
+  "names": {
+    "de": "Recooler or Condenser",
+    "ru": "Recooler or Condenser",
+    "en": "Recooler or Condenser"
+  },
+  "descriptions": {
+    "de": "The class Recooler or Condenser contains data of the building equipment recooler or condenser. Attributes of the class include a complete description of the specific energy data of the recooler or condenser. ",
+    "ru": "The class Recooler or Condenser contains data of the building equipment recooler or condenser. Attributes of the class include a complete description of the specific energy data of the recooler or condenser. ",
+    "en": "The class Recooler or Condenser contains data of the building equipment recooler or condenser. Attributes of the class include a complete description of the specific energy data of the recooler or condenser. "
+  },
+  "types": [
+    {
+      "type": "Daily Operating Hours",
+      "descriptions": {
+        "de": "Daily Operating Hours desctiption",
+        "ru": "Daily Operating Hours desctiption",
+        "en": "Daily Operating Hours desctiption"
+      },
+      "names": {
+        "de": "Daily Operating Hours",
+        "ru": "Daily Operating Hours",
+        "en": "Daily Operating Hours"
+      }
+    },
+    {
+      "type": "Drive Power",
+      "descriptions": {
+        "de": "Drive Power desctiption",
+        "ru": "Drive Power desctiption",
+        "en": "Drive Power desctiption"
+      },
+      "names": {
+        "de": "Drive Power",
+        "ru": "Drive Power",
+        "en": "Drive Power"
+      }
+    },
+    {
+      "type": "Energy Source",
+      "descriptions": {
+        "de": "Energy Source desctiption",
+        "ru": "Energy Source desctiption",
+        "en": "Energy Source desctiption"
+      },
+      "names": {
+        "de": "Energy Source",
+        "ru": "Energy Source",
+        "en": "Energy Source"
+      }
+    },
+    {
+      "type": "Manufacturer",
+      "descriptions": {
+        "de": "Manufacturer desctiption",
+        "ru": "Manufacturer desctiption",
+        "en": "Manufacturer desctiption"
+      },
+      "names": {
+        "de": "Manufacturer",
+        "ru": "Manufacturer",
+        "en": "Manufacturer"
+      }
+    },
+    {
+      "type": "Measuring Point",
+      "descriptions": {
+        "de": "Measuring Point desctiption",
+        "ru": "Measuring Point desctiption",
+        "en": "Measuring Point desctiption"
+      },
+      "names": {
+        "de": "Measuring Point",
+        "ru": "Measuring Point",
+        "en": "Measuring Point"
+      }
+    },
+    {
+      "type": "Nominal Power",
+      "descriptions": {
+        "de": "Nominal Power desctiption",
+        "ru": "Nominal Power desctiption",
+        "en": "Nominal Power desctiption"
+      },
+      "names": {
+        "de": "Nominal Power",
+        "ru": "Nominal Power",
+        "en": "Nominal Power"
+      }
+    },
+    {
+      "type": "Recooling Capacity",
+      "descriptions": {
+        "de": "Recooling Capacity desctiption",
+        "ru": "Recooling Capacity desctiption",
+        "en": "Recooling Capacity desctiption"
+      },
+      "names": {
+        "de": "Recooling Capacity",
+        "ru": "Recooling Capacity",
+        "en": "Recooling Capacity"
+      }
+    },
+    {
+      "type": "Remark",
+      "descriptions": {
+        "de": "Remark desctiption",
+        "ru": "Remark desctiption",
+        "en": "Remark desctiption"
+      },
+      "names": {
+        "de": "Remark",
+        "ru": "Remark",
+        "en": "Remark"
+      }
+    },
+    {
+      "type": "Standby Consumption",
+      "descriptions": {
+        "de": "Standby Consumption desctiption",
+        "ru": "Standby Consumption desctiption",
+        "en": "Standby Consumption desctiption"
+      },
+      "names": {
+        "de": "Standby Consumption",
+        "ru": "Standby Consumption",
+        "en": "Standby Consumption"
+      }
+    },
+    {
+      "type": "Type",
+      "descriptions": {
+        "de": "Type desctiption",
+        "ru": "Type desctiption",
+        "en": "Type desctiption"
+      },
+      "names": {
+        "de": "Type",
+        "ru": "Type",
+        "en": "Type"
+      }
+    },
+    {
+      "type": "Weighting Factor",
+      "descriptions": {
+        "de": "Weighting Factor desctiption",
+        "ru": "Weighting Factor desctiption",
+        "en": "Weighting Factor desctiption"
+      },
+      "names": {
+        "de": "Weighting Factor",
+        "ru": "Weighting Factor",
+        "en": "Weighting Factor"
+      }
+    },
+    {
+      "type": "Work Weeks",
+      "descriptions": {
+        "de": "Work Weeks desctiption",
+        "ru": "Work Weeks desctiption",
+        "en": "Work Weeks desctiption"
+      },
+      "names": {
+        "de": "Work Weeks",
+        "ru": "Work Weeks",
+        "en": "Work Weeks"
+      }
+    },
+    {
+      "type": "Working Days",
+      "descriptions": {
+        "de": "Working Days desctiption",
+        "ru": "Working Days desctiption",
+        "en": "Working Days desctiption"
+      },
+      "names": {
+        "de": "Working Days",
+        "ru": "Working Days",
+        "en": "Working Days"
+      }
+    },
+    {
+      "type": "Year of Construction and Serial Number",
+      "descriptions": {
+        "de": "Year of Construction and Serial Number desctiption",
+        "ru": "Year of Construction and Serial Number desctiption",
+        "en": "Year of Construction and Serial Number desctiption"
+      },
+      "names": {
+        "de": "Year of Construction and Serial Number",
+        "ru": "Year of Construction and Serial Number",
+        "en": "Year of Construction and Serial Number"
+      }
+    }
+  ]
+}

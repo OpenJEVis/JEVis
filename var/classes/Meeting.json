@@ -1,0 +1,68 @@
+{
+  "name": "Meeting",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Meeting",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Meeting",
+      "end": "ISO 50001 Meetings Directory",
+      "type": 3
+    },
+    {
+      "start": "Meeting",
+      "end": "Superior Level Meetings Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content of Meeting and Results",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Meeting"
+    },
+    {
+      "name": "Meeting Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Meeting"
+    },
+    {
+      "name": "Meeting Participants",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Meeting"
+    },
+    {
+      "name": "Meeting Time",
+      "primitiveType": 0,
+      "guiType": "Schedule",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Meeting"
+    },
+    {
+      "name": "Minutes of Meeting",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Meeting"
+    }
+  ]
+}

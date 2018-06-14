@@ -1,0 +1,19 @@
+{
+  "name": "7.3 Awareness",
+  "description": "Persons doing work under the organization",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "7.3 Awareness",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.3 Awareness",
+      "end": "07 Support",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

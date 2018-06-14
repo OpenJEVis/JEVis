@@ -1,0 +1,740 @@
+[
+  {
+    "uid": "1d546205-c8f0-4cbd-91f0-b44c887cac09",
+    "name": "Enum Directory",
+    "jclass": "Enum Directory",
+    "action": "ADD",
+    "isPublic": false,
+    "children": [
+      {
+        "uid": "be81bdec-5d06-4d4d-8134-12b1ab4c5b55",
+        "name": "Dynamic Limit Alarm",
+        "jclass": "Enum",
+        "action": "ADD",
+        "isPublic": false,
+        "children": [
+          {
+            "uid": "14389436-23a5-44bc-be7d-8078ecd66201",
+            "name": "Operator",
+            "jclass": "Constants",
+            "action": "ADD",
+            "isPublic": false,
+            "children": [],
+            "attributes": [
+              {
+                "name": "Attribute",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:23:50.000+02:00",
+                    "value": "Operator"
+                  }
+                ]
+              },
+              {
+                "name": "Editable",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": []
+              },
+              {
+                "name": "Entries",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:23:51.000+02:00",
+                    "value": "\u003c;\u003e;\u003d;!\u003d"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "attributes": [
+          {
+            "name": "JEVisClass",
+            "inputUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "displayUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "inputRate": "PT0S",
+            "displayRate": "PT0S",
+            "sampleID": "",
+            "samples": [
+              {
+                "ts": "2018-06-13T17:11:34.000+02:00",
+                "value": "Dynamic Limit Alarm"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uid": "ce2802f0-301c-4e4d-a61b-8b90c4995941",
+        "name": "Static Limit Alarm",
+        "jclass": "Enum",
+        "action": "ADD",
+        "isPublic": false,
+        "children": [
+          {
+            "uid": "c282655f-5586-4a62-9571-c7b90bbcee26",
+            "name": "Operator",
+            "jclass": "Constants",
+            "action": "ADD",
+            "isPublic": false,
+            "children": [],
+            "attributes": [
+              {
+                "name": "Attribute",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:27:03.000+02:00",
+                    "value": "Operator"
+                  }
+                ]
+              },
+              {
+                "name": "Editable",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": []
+              },
+              {
+                "name": "Entries",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:27:04.000+02:00",
+                    "value": "\u003c;\u003e;\u003d;!\u003d"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "attributes": [
+          {
+            "name": "JEVisClass",
+            "inputUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "displayUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "inputRate": "PT0S",
+            "displayRate": "PT0S",
+            "sampleID": "",
+            "samples": [
+              {
+                "ts": "2018-06-13T17:10:57.000+02:00",
+                "value": "Static Limit Alarm"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uid": "f0145fa7-f91f-427a-abee-360d9bfe2f48",
+        "name": "Periodic Report",
+        "jclass": "Enum",
+        "action": "ADD",
+        "isPublic": false,
+        "children": [
+          {
+            "uid": "a43bce40-552b-47b1-b648-f58fd72e81d3",
+            "name": "Schedule",
+            "jclass": "Constants",
+            "action": "ADD",
+            "isPublic": false,
+            "children": [],
+            "attributes": [
+              {
+                "name": "Attribute",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:26:02.000+02:00",
+                    "value": "Schedule"
+                  }
+                ]
+              },
+              {
+                "name": "Editable",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": []
+              },
+              {
+                "name": "Entries",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:26:02.000+02:00",
+                    "value": "DAILY;WEEKLY;MONTHLY;YEARLY"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "attributes": [
+          {
+            "name": "JEVisClass",
+            "inputUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "displayUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "inputRate": "PT0S",
+            "displayRate": "PT0S",
+            "sampleID": "",
+            "samples": [
+              {
+                "ts": "2018-06-13T17:11:10.000+02:00",
+                "value": "Periodic Report"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uid": "074fc0ba-0731-40c6-a14c-be4d9c875bdb",
+        "name": "Email Server",
+        "jclass": "Enum",
+        "action": "ADD",
+        "isPublic": false,
+        "children": [
+          {
+            "uid": "1ccdd5c6-923d-40af-b931-7fecd60dbc56",
+            "name": "SSL",
+            "jclass": "Constants",
+            "action": "ADD",
+            "isPublic": false,
+            "children": [],
+            "attributes": [
+              {
+                "name": "Attribute",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:24:18.000+02:00",
+                    "value": "SSL"
+                  }
+                ]
+              },
+              {
+                "name": "Editable",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": []
+              },
+              {
+                "name": "Entries",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:24:18.000+02:00",
+                    "value": "SSL/TLS;STARTTLS"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "attributes": [
+          {
+            "name": "JEVisClass",
+            "inputUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "displayUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "inputRate": "PT0S",
+            "displayRate": "PT0S",
+            "sampleID": "",
+            "samples": [
+              {
+                "ts": "2018-06-13T17:11:29.000+02:00",
+                "value": "Email Server"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uid": "dfd68506-68b5-40e6-b7d8-6fc7aedb4aaa",
+        "name": "Clean Data",
+        "jclass": "Enum",
+        "action": "ADD",
+        "isPublic": false,
+        "children": [
+          {
+            "uid": "1d6ce048-2e04-4ed8-94ea-ebc302eea47a",
+            "name": "Gap Filling",
+            "jclass": "Constants",
+            "action": "ADD",
+            "isPublic": false,
+            "children": [],
+            "attributes": [
+              {
+                "name": "Attribute",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:22:53.000+02:00",
+                    "value": "Gap Filling"
+                  }
+                ]
+              },
+              {
+                "name": "Editable",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": []
+              },
+              {
+                "name": "Entries",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:22:53.000+02:00",
+                    "value": "STATIC;INTERPOLATION;DEFAULT"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "attributes": [
+          {
+            "name": "JEVisClass",
+            "inputUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "displayUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "inputRate": "PT0S",
+            "displayRate": "PT0S",
+            "sampleID": "",
+            "samples": [
+              {
+                "ts": "2018-06-13T17:11:48.000+02:00",
+                "value": "Clean Data"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uid": "d50486d0-03eb-4848-86e4-418c3f01539d",
+        "name": "Report Period Configuration",
+        "jclass": "Enum",
+        "action": "ADD",
+        "isPublic": false,
+        "children": [
+          {
+            "uid": "b20dd3ac-4f3b-4eb0-ae33-9aba84622f09",
+            "name": "Aggregation",
+            "jclass": "Constants",
+            "action": "ADD",
+            "isPublic": false,
+            "children": [],
+            "attributes": [
+              {
+                "name": "Attribute",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:26:44.000+02:00",
+                    "value": "Aggregation"
+                  }
+                ]
+              },
+              {
+                "name": "Editable",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": []
+              },
+              {
+                "name": "Entries",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:26:44.000+02:00",
+                    "value": "NONE;DAILY_TOTAL;DAILY_AVERAGE;WEEKLY_TOTAL;WEEKLY_AVERAGE;MONTHLY_TOTAL;MONTHLY_AVERAGE;YEARLY_TOTAL;YEARLY_AVERAGE"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "attributes": [
+          {
+            "name": "JEVisClass",
+            "inputUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "displayUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "inputRate": "PT0S",
+            "displayRate": "PT0S",
+            "sampleID": "",
+            "samples": [
+              {
+                "ts": "2018-06-13T17:11:04.000+02:00",
+                "value": "Report Period Configuration"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uid": "0218511c-b50c-49d3-9ce1-581c52b0df8e",
+        "name": "Input",
+        "jclass": "Enum",
+        "action": "ADD",
+        "isPublic": false,
+        "children": [
+          {
+            "uid": "7dc03b36-cc1b-4c08-ad7e-1b2db61fc9c3",
+            "name": "Input Data Type",
+            "jclass": "Constants",
+            "action": "ADD",
+            "isPublic": false,
+            "children": [],
+            "attributes": [
+              {
+                "name": "Attribute",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:24:47.000+02:00",
+                    "value": "Input Data Type"
+                  }
+                ]
+              },
+              {
+                "name": "Editable",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": []
+              },
+              {
+                "name": "Entries",
+                "inputUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "displayUnit": {
+                  "formula": "",
+                  "label": "",
+                  "prefix": "None"
+                },
+                "inputRate": "PT0S",
+                "displayRate": "PT0S",
+                "sampleID": "",
+                "samples": [
+                  {
+                    "ts": "2018-06-13T17:24:47.000+02:00",
+                    "value": "PERIODIC;STATIC;NON_PERIODIC"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "attributes": [
+          {
+            "name": "JEVisClass",
+            "inputUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "displayUnit": {
+              "formula": "",
+              "label": "",
+              "prefix": "None"
+            },
+            "inputRate": "PT0S",
+            "displayRate": "PT0S",
+            "sampleID": "",
+            "samples": [
+              {
+                "ts": "2018-06-13T17:11:22.000+02:00",
+                "value": "Input"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "attributes": []
+  }
+]

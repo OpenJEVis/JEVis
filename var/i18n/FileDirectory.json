@@ -1,0 +1,14 @@
+{
+  "jevisclass": "File Directory",
+  "names": {
+    "de": "File Directory",
+    "ru": "File Directory",
+    "en": "File Directory"
+  },
+  "descriptions": {
+    "de": "The class File Directory represents a specific directory for the management of files.",
+    "ru": "The class File Directory represents a specific directory for the management of files.",
+    "en": "The class File Directory represents a specific directory for the management of files."
+  },
+  "types": []
+}

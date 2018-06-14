@@ -1,0 +1,21 @@
+{
+  "name": "Training Course Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Training Course",
+      "end": "Training Course Directory",
+      "type": 3
+    },
+    {
+      "start": "Training Course Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Training Course Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

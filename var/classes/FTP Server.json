@@ -1,0 +1,49 @@
+{
+  "name": "FTP Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "FTP Channel Directory",
+      "end": "FTP Server",
+      "type": 3
+    },
+    {
+      "start": "FTP Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "FTP Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "FTP Server"
+    },
+    {
+      "name": "SSL",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "FTP Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "FTP Server"
+    }
+  ]
+}

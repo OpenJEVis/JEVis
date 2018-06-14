@@ -1,0 +1,47 @@
+{
+  "name": "Channel Directory",
+  "description": "The class Channel Directory represents a specific directory for the management of different channel data.\n\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Channel Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "EMail Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "FTP Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "HTTP Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "Loytec XML-DL Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "sFTP Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "SOAP Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "VIDA350 Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    }
+  ]
+}

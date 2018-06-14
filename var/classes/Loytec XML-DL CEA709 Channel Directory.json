@@ -1,0 +1,22 @@
+{
+  "name": "Loytec XML-DL CEA709 Channel Directory",
+  "description": "The Loytec XML-DL CEA709 Channel Directory contains Loytec XML-DL Channels that use CEA709 technology.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Loytec XML-DL CEA709 Channel Directory",
+      "end": "Loytec XML-DL Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "Loytec XML-DL CEA709 Channel Directory",
+      "end": "Loytec XML-DL Server",
+      "type": 3
+    },
+    {
+      "start": "Loytec XML-DL Channel",
+      "end": "Loytec XML-DL CEA709 Channel Directory",
+      "type": 3
+    }
+  ]
+}

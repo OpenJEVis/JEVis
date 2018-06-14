@@ -1,0 +1,27 @@
+{
+  "name": "Announcement",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Announcement",
+      "end": "Announcement Directory",
+      "type": 3
+    },
+    {
+      "start": "Announcement",
+      "end": "Documents",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Announcement File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Announcement"
+    }
+  ]
+}

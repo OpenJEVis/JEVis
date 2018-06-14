@@ -1,0 +1,14 @@
+{
+  "jevisclass": "HTTP Channel Directory",
+  "names": {
+    "de": "HTTP Channel Directory",
+    "ru": "HTTP Channel Directory",
+    "en": "HTTP Channel Directory"
+  },
+  "descriptions": {
+    "de": "The class HTTP Channel Directory represents a specific directory for the management of HTTP concerning data.\n",
+    "ru": "The class HTTP Channel Directory represents a specific directory for the management of HTTP concerning data.\n",
+    "en": "The class HTTP Channel Directory represents a specific directory for the management of HTTP concerning data.\n"
+  },
+  "types": []
+}

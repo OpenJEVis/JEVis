@@ -1,0 +1,184 @@
+{
+  "jevisclass": "Engine",
+  "names": {
+    "de": "Engine",
+    "ru": "Engine",
+    "en": "Engine"
+  },
+  "descriptions": {
+    "de": "The class Engine contains data of the building equipment engine. Attributes of the class include a complete description of the specific energy data of the engine. ",
+    "ru": "The class Engine contains data of the building equipment engine. Attributes of the class include a complete description of the specific energy data of the engine. ",
+    "en": "The class Engine contains data of the building equipment engine. Attributes of the class include a complete description of the specific energy data of the engine. "
+  },
+  "types": [
+    {
+      "type": "Current",
+      "descriptions": {
+        "de": "Current desctiption",
+        "ru": "Current desctiption",
+        "en": "Current desctiption"
+      },
+      "names": {
+        "de": "Current",
+        "ru": "Current",
+        "en": "Current"
+      }
+    },
+    {
+      "type": "Daily Operating Hours",
+      "descriptions": {
+        "de": "Daily Operating Hours desctiption",
+        "ru": "Daily Operating Hours desctiption",
+        "en": "Daily Operating Hours desctiption"
+      },
+      "names": {
+        "de": "Daily Operating Hours",
+        "ru": "Daily Operating Hours",
+        "en": "Daily Operating Hours"
+      }
+    },
+    {
+      "type": "Energy Source",
+      "descriptions": {
+        "de": "Energy Source desctiption",
+        "ru": "Energy Source desctiption",
+        "en": "Energy Source desctiption"
+      },
+      "names": {
+        "de": "Energy Source",
+        "ru": "Energy Source",
+        "en": "Energy Source"
+      }
+    },
+    {
+      "type": "Kilo Watt",
+      "descriptions": {
+        "de": "Kilo Watt desctiption",
+        "ru": "Kilo Watt desctiption",
+        "en": "Kilo Watt desctiption"
+      },
+      "names": {
+        "de": "Kilo Watt",
+        "ru": "Kilo Watt",
+        "en": "Kilo Watt"
+      }
+    },
+    {
+      "type": "KVA",
+      "descriptions": {
+        "de": "KVA desctiption",
+        "ru": "KVA desctiption",
+        "en": "KVA desctiption"
+      },
+      "names": {
+        "de": "KVA",
+        "ru": "KVA",
+        "en": "KVA"
+      }
+    },
+    {
+      "type": "Manufacturer",
+      "descriptions": {
+        "de": "Manufacturer desctiption",
+        "ru": "Manufacturer desctiption",
+        "en": "Manufacturer desctiption"
+      },
+      "names": {
+        "de": "Manufacturer",
+        "ru": "Manufacturer",
+        "en": "Manufacturer"
+      }
+    },
+    {
+      "type": "Measuring Point",
+      "descriptions": {
+        "de": "Measuring Point desctiption",
+        "ru": "Measuring Point desctiption",
+        "en": "Measuring Point desctiption"
+      },
+      "names": {
+        "de": "Measuring Point",
+        "ru": "Measuring Point",
+        "en": "Measuring Point"
+      }
+    },
+    {
+      "type": "Nominal Power",
+      "descriptions": {
+        "de": "Nominal Power desctiption",
+        "ru": "Nominal Power desctiption",
+        "en": "Nominal Power desctiption"
+      },
+      "names": {
+        "de": "Nominal Power",
+        "ru": "Nominal Power",
+        "en": "Nominal Power"
+      }
+    },
+    {
+      "type": "Power Factor",
+      "descriptions": {
+        "de": "Power Factor desctiption",
+        "ru": "Power Factor desctiption",
+        "en": "Power Factor desctiption"
+      },
+      "names": {
+        "de": "Power Factor",
+        "ru": "Power Factor",
+        "en": "Power Factor"
+      }
+    },
+    {
+      "type": "Voltage",
+      "descriptions": {
+        "de": "Voltage desctiption",
+        "ru": "Voltage desctiption",
+        "en": "Voltage desctiption"
+      },
+      "names": {
+        "de": "Voltage",
+        "ru": "Voltage",
+        "en": "Voltage"
+      }
+    },
+    {
+      "type": "Weighting Factor",
+      "descriptions": {
+        "de": "Weighting Factor desctiption",
+        "ru": "Weighting Factor desctiption",
+        "en": "Weighting Factor desctiption"
+      },
+      "names": {
+        "de": "Weighting Factor",
+        "ru": "Weighting Factor",
+        "en": "Weighting Factor"
+      }
+    },
+    {
+      "type": "Work Weeks",
+      "descriptions": {
+        "de": "Work Weeks desctiption",
+        "ru": "Work Weeks desctiption",
+        "en": "Work Weeks desctiption"
+      },
+      "names": {
+        "de": "Work Weeks",
+        "ru": "Work Weeks",
+        "en": "Work Weeks"
+      }
+    },
+    {
+      "type": "Working Days",
+      "descriptions": {
+        "de": "Working Days desctiption",
+        "ru": "Working Days desctiption",
+        "en": "Working Days desctiption"
+      },
+      "names": {
+        "de": "Working Days",
+        "ru": "Working Days",
+        "en": "Working Days"
+      }
+    }
+  ]
+}

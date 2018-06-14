@@ -4,7 +4,7 @@ etc/jevis.xml
 etc/jevis.conf
 etc/log4j2.xml
 etc/log4j.properties
-ect/keystore.jks
+etc/keystore.jks
 
 # Created by https://www.gitignore.io/api/intellij
 

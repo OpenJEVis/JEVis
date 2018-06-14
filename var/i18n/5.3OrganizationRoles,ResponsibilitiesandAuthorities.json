@@ -1,0 +1,119 @@
+{
+  "jevisclass": "5.3 Organization Roles, Responsibilities and Authorities",
+  "names": {
+    "de": "5.3 Organization Roles, Responsibilities and Authorities",
+    "ru": "5.3 Organization Roles, Responsibilities and Authorities",
+    "en": "5.3 Organization Roles, Responsibilities and Authorities"
+  },
+  "descriptions": {
+    "de": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective.",
+    "ru": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective.",
+    "en": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective."
+  },
+  "types": [
+    {
+      "type": "Content",
+      "descriptions": {
+        "de": "Content desctiption",
+        "ru": "Content desctiption",
+        "en": "Content desctiption"
+      },
+      "names": {
+        "de": "Content",
+        "ru": "Content",
+        "en": "Content"
+      }
+    },
+    {
+      "type": "Created by",
+      "descriptions": {
+        "de": "Created by desctiption",
+        "ru": "Created by desctiption",
+        "en": "Created by desctiption"
+      },
+      "names": {
+        "de": "Created by",
+        "ru": "Created by",
+        "en": "Created by"
+      }
+    },
+    {
+      "type": "Date of Creation",
+      "descriptions": {
+        "de": "Date of Creation desctiption",
+        "ru": "Date of Creation desctiption",
+        "en": "Date of Creation desctiption"
+      },
+      "names": {
+        "de": "Date of Creation",
+        "ru": "Date of Creation",
+        "en": "Date of Creation"
+      }
+    },
+    {
+      "type": "Document Number",
+      "descriptions": {
+        "de": "Document Number desctiption",
+        "ru": "Document Number desctiption",
+        "en": "Document Number desctiption"
+      },
+      "names": {
+        "de": "Document Number",
+        "ru": "Document Number",
+        "en": "Document Number"
+      }
+    },
+    {
+      "type": "Release Date",
+      "descriptions": {
+        "de": "Release Date desctiption",
+        "ru": "Release Date desctiption",
+        "en": "Release Date desctiption"
+      },
+      "names": {
+        "de": "Release Date",
+        "ru": "Release Date",
+        "en": "Release Date"
+      }
+    },
+    {
+      "type": "Released by",
+      "descriptions": {
+        "de": "Released by desctiption",
+        "ru": "Released by desctiption",
+        "en": "Released by desctiption"
+      },
+      "names": {
+        "de": "Released by",
+        "ru": "Released by",
+        "en": "Released by"
+      }
+    },
+    {
+      "type": "Title",
+      "descriptions": {
+        "de": "Title desctiption",
+        "ru": "Title desctiption",
+        "en": "Title desctiption"
+      },
+      "names": {
+        "de": "Title",
+        "ru": "Title",
+        "en": "Title"
+      }
+    },
+    {
+      "type": "Version",
+      "descriptions": {
+        "de": "Version desctiption",
+        "ru": "Version desctiption",
+        "en": "Version desctiption"
+      },
+      "names": {
+        "de": "Version",
+        "ru": "Version",
+        "en": "Version"
+      }
+    }
+  ]
+}

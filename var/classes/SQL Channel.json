@@ -1,0 +1,22 @@
+{
+  "name": "SQL Channel",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "SQL Channel",
+      "end": "Channel",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Query",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "SQL Channel"
+    }
+  ]
+}

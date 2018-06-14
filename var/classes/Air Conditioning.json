@@ -1,0 +1,29 @@
+{
+  "name": "Air Conditioning",
+  "description": "The class Air Conditioning contains data of the building equipment air condition. Attributes of the class include a complete description of the specific energy data of the air condition. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Air Conditioning",
+      "end": "Air Condition Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Air Conditioning",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Air Conditioning",
+      "end": "Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Air Conditioning",
+      "end": "Floor",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

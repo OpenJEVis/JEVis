@@ -1,0 +1,51 @@
+{
+  "name": "Report Link",
+  "description": "The Report Link is needed for the data filling process. It links a JEVisObject in the tree of the JEConfig to a variable in the template file.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Report Attribute",
+      "end": "Report Link",
+      "type": 3
+    },
+    {
+      "start": "Report Link",
+      "end": "Periodic Report",
+      "type": 3
+    },
+    {
+      "start": "Report Link",
+      "end": "Report Link Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "JEVis ID",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Link"
+    },
+    {
+      "name": "Optional",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Link"
+    },
+    {
+      "name": "Template Variable Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Link"
+    }
+  ]
+}

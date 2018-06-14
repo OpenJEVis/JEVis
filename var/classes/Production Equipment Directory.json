@@ -1,0 +1,21 @@
+{
+  "name": "Production Equipment Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Production Equipment",
+      "end": "Production Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Production Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Production Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    }
+  ]
+}

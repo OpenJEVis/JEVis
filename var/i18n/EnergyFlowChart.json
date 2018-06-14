@@ -1,0 +1,50 @@
+{
+  "jevisclass": "Energy Flow Chart",
+  "names": {
+    "de": "Energy Flow Chart",
+    "ru": "Energy Flow Chart",
+    "en": "Energy Flow Chart"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Created On",
+      "descriptions": {
+        "de": "Created On desctiption",
+        "ru": "Created On desctiption",
+        "en": "Created On desctiption"
+      },
+      "names": {
+        "de": "Created On",
+        "ru": "Created On",
+        "en": "Created On"
+      }
+    },
+    {
+      "type": "Image File",
+      "descriptions": {
+        "de": "Image File desctiption",
+        "ru": "Image File desctiption",
+        "en": "Image File desctiption"
+      },
+      "names": {
+        "de": "Image File",
+        "ru": "Image File",
+        "en": "Image File"
+      }
+    },
+    {
+      "type": "Original File",
+      "descriptions": {
+        "de": "Original File desctiption",
+        "ru": "Original File desctiption",
+        "en": "Original File desctiption"
+      },
+      "names": {
+        "de": "Original File",
+        "ru": "Original File",
+        "en": "Original File"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Energy Bills",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Bills",
+      "end": "Energy Source",
+      "type": 3
+    },
+    {
+      "start": "Energy Bills",
+      "end": "Monthly Values",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

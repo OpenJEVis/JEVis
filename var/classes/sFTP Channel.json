@@ -1,0 +1,46 @@
+{
+  "name": "sFTP Channel",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Parser",
+      "end": "sFTP Channel",
+      "type": 3
+    },
+    {
+      "start": "sFTP Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "sFTP Channel",
+      "end": "sFTP Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "SQL Parser",
+      "end": "sFTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "sFTP Channel",
+      "type": 3
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "sFTP Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Path",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "sFTP Channel"
+    }
+  ]
+}

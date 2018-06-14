@@ -1,0 +1,16 @@
+{
+  "name": "DWD Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "DWD Data Point Directory",
+      "end": "DWD Parser",
+      "type": 3
+    },
+    {
+      "start": "DWD Parser",
+      "end": "Parser",
+      "type": 0
+    }
+  ]
+}

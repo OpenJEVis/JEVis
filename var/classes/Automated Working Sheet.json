@@ -1,0 +1,13 @@
+{
+  "name": "Automated Working Sheet",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Automated Working Sheet",
+      "end": "Periodic Report",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

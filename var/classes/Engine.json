@@ -1,0 +1,59 @@
+{
+  "name": "Engine",
+  "description": "The class Engine contains data of the building equipment engine. Attributes of the class include a complete description of the specific energy data of the engine. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Engine",
+      "end": "Building Equipment",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Current",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Engine"
+    },
+    {
+      "name": "Kilo Watt",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Engine"
+    },
+    {
+      "name": "KVA",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Engine"
+    },
+    {
+      "name": "Power Factor",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Engine"
+    },
+    {
+      "name": "Voltage",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Engine"
+    }
+  ]
+}

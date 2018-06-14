@@ -1,0 +1,135 @@
+{
+  "name": "Organization",
+  "description": "Organization unit.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Administration Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Alarm Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Document Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "File Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "ISO 50001 Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Monitored Object Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Organization",
+      "end": "Organization Directory",
+      "type": 3
+    },
+    {
+      "start": "Report Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "View Directory",
+      "end": "Organization",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Address",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Organization"
+    },
+    {
+      "name": "Branche",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Organization"
+    },
+    {
+      "name": "Company Logo",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Organization"
+    },
+    {
+      "name": "Company Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Organization"
+    },
+    {
+      "name": "Location",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Organization"
+    },
+    {
+      "name": "Mail",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Organization"
+    },
+    {
+      "name": "Members",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Organization"
+    },
+    {
+      "name": "Phone",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Organization"
+    },
+    {
+      "name": "Working or Opening Time",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Organization"
+    }
+  ]
+}

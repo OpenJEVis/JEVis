@@ -1,0 +1,21 @@
+{
+  "name": "Announcement Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Announcement",
+      "end": "Announcement Directory",
+      "type": 3
+    },
+    {
+      "start": "Announcement Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Announcement Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

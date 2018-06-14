@@ -1,0 +1,171 @@
+{
+  "name": "XML Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "XML Data Point Directory",
+      "end": "XML Parser",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "EMail Channel",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "XML Parser",
+      "end": "sFTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "SOAP Channel",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "VIDA350 Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Date Attribute",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Date Element",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Date Format",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Date in Element",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Decimal Separator",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Main Attribute",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Main Element",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Thousand Separator",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Time Attribute",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Time Element",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Time Format",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Time in Element",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Value Attribute",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Value Element",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    },
+    {
+      "name": "Value in Element",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XML Parser"
+    }
+  ]
+}

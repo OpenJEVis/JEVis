@@ -1,0 +1,70 @@
+{
+  "name": "Floor",
+  "description": "The class Floor contains data of the building equipment floor. Attributes of the class include a complete description of the specific floor. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Air Conditioning",
+      "end": "Floor",
+      "type": 3
+    },
+    {
+      "start": "Compressor",
+      "end": "Floor",
+      "type": 3
+    },
+    {
+      "start": "Facade",
+      "end": "Floor",
+      "type": 3
+    },
+    {
+      "start": "Floor",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Floor",
+      "end": "Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Heater",
+      "end": "Floor",
+      "type": 3
+    },
+    {
+      "start": "Lighting",
+      "end": "Floor",
+      "type": 3
+    },
+    {
+      "start": "Occupancy",
+      "end": "Floor",
+      "type": 3
+    },
+    {
+      "start": "Plug Load",
+      "end": "Floor",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Floor",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Floor"
+    },
+    {
+      "name": "Usage",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Floor"
+    }
+  ]
+}

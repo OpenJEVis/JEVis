@@ -187,7 +187,7 @@ public class ClassPlugin implements Plugin {
             try {
                 toolBar.setDisable(!JEConfig.getDataSource().getCurrentUser().isSysAdmin());
             } catch (Exception ex) {
-
+                logger.error(ex);
             }
 
         }
@@ -245,6 +245,7 @@ public class ClassPlugin implements Plugin {
                     System.out.println("Unknows command ignore...");
             }
         } catch (Exception ex) {
+            logger.error(ex);
         }
 
     }

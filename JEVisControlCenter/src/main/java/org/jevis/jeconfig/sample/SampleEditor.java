@@ -1,32 +1,24 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.sample;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -38,45 +30,35 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.application.dialog.DialogHeader;
-import org.jevis.commons.dataprocessing.BasicProcess;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
+import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.ProcessChains;
-import org.jevis.commons.dataprocessing.ProcessOptions;
 import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.datepicker.DatePicker;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Period;
 
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * GUI Dialog to configure attributes and there sample.
  *
- * @TODO: rename it to Attribute editor or something?!
  * @author Florian Simon <florian.simon@envidatec.com>
+ * @TODO: rename it to Attribute editor or something?!
  */
 public class SampleEditor {
 
@@ -101,19 +83,19 @@ public class SampleEditor {
     public static enum Response {
 
         YES, CANCEL
-    };
+    }
+
     List<JEVisSample> samples = new ArrayList<>();
 
     private Response response = Response.CANCEL;
 
-//    final Label passL = new Label("New Password:");
+    //    final Label passL = new Label("New Password:");
 //    final Label confirmL = new Label("Comfirm Password:");
 //    final PasswordField pass = new PasswordField();
 //    final PasswordField comfirm = new PasswordField();
-    final Button ok = new Button("Save");
+    final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
 
     /**
-     *
      * @param owner
      * @param attribute
      * @return
@@ -122,7 +104,7 @@ public class SampleEditor {
         final Stage stage = new Stage();
 
         _attribute = attribute;
-        stage.setTitle("Attribute Editor");
+        stage.setTitle(I18n.getInstance().getString("attribute.editor.title"));
         stage.initModality(Modality.NONE);
         stage.initOwner(owner);
 
@@ -147,13 +129,13 @@ public class SampleEditor {
         ok.setDefaultButton(true);
 
 //        Button export = new Button("Export");
-        Button cancel = new Button("Close");
+        Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
         cancel.setCancelButton(true);
 
         Region spacer = new Region();
         spacer.setMaxWidth(2000);
 
-        Label startLabel = new Label("From:");
+        Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
         DatePicker startdate = new DatePicker();
 
         startdate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
@@ -161,7 +143,7 @@ public class SampleEditor {
         startdate.getCalendarView().setShowWeeks(false);
         startdate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
 
-        Label endLabel = new Label("Until:");
+        Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
         DatePicker enddate = new DatePicker();
 
         enddate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
@@ -195,7 +177,7 @@ public class SampleEditor {
 
         Node preclean = buildProcessorBox(attribute.getObject());
 
-        Label timeRangeL = new Label("Time range");
+        Label timeRangeL = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
         timeRangeL.setStyle("-fx-font-weight: bold");
         GridPane timeSpan = new GridPane();
         timeSpan.setHgap(5);
@@ -262,7 +244,7 @@ public class SampleEditor {
         int y = 0;
         gp.add(tabPane, 0, y);
 
-        Node header = DialogHeader.getDialogHeader(ICON, "Sample Editor");//new Separator(Orientation.HORIZONTAL),
+        Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("attribute.editor.title"));//new Separator(Orientation.HORIZONTAL),
 
         root.getChildren().addAll(header, gp, new Separator(Orientation.HORIZONTAL), buttonPanel);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
@@ -272,8 +254,12 @@ public class SampleEditor {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                System.out.println("OK action to: " + _visibleExtension.getTitel());
-                _visibleExtension.sendOKAction();//TODO: send all?
+//                _visibleExtension.sendOKAction();//TODO: send all?
+                stage.close();
+                for (SampleEditorExtension ex : extensions) {
+                    
+                    ex.sendOKAction();
+                }
             }
         });
 
@@ -320,6 +306,7 @@ public class SampleEditor {
             public void handle(ActionEvent t) {
                 stage.close();
                 response = Response.CANCEL;
+                stage.close();
 
             }
         });
@@ -368,7 +355,6 @@ public class SampleEditor {
 
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                System.out.println("Select GUI Tpye: " + newValue);
                 //TODO:replace this quick and dirty workaround
 
                 try {
@@ -398,6 +384,7 @@ public class SampleEditor {
         });
 //
         List<String> aggList = new ArrayList<>();
+        //TODO: i18n
         aggList.add("None");
         aggList.add("Daily");
         aggList.add("Weekly");
@@ -411,7 +398,6 @@ public class SampleEditor {
 
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                System.out.println("Select Aggrigation Tpye: " + newValue);
                 //TODO:replace this quick and dirty workaround
 
                 switch (newValue) {
@@ -444,10 +430,10 @@ public class SampleEditor {
 
         HBox hbox = new HBox(2);
 
-        Label header = new Label("Data Processing");
+        Label header = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));
         header.setStyle("-fx-font-weight: bold");
-        Label settingL = new Label("Setting:");
-        Label aggregation = new Label("Aggregation:");//("Aggrigation");
+        Label settingL = new Label(I18n.getInstance().getString("attribute.editor.setting"));
+        Label aggregation = new Label(I18n.getInstance().getString("attribute.editor.aggregate"));
 
         Button config = new Button();
         config.setGraphic(JEConfig.getImage("Service Manager.png", 16, 16));
@@ -473,7 +459,6 @@ public class SampleEditor {
     }
 
     /**
-     *
      * @param att
      * @param from
      * @param until

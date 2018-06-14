@@ -1,0 +1,19 @@
+{
+  "name": "7.1 Resources",
+  "description": "The organization shall determine and provide the resources needed for the establishment,  implementation, maintenance and continual improvement of:  \na) the EnMS;  \nb) energy performance. ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "7.1 Resources",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.1 Resources",
+      "end": "07 Support",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

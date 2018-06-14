@@ -1,0 +1,132 @@
+{
+  "jevisclass": "Clean Data",
+  "names": {
+    "de": "Bereinigte Daten",
+    "ru": "Clean Data",
+    "en": "Clean Data"
+  },
+  "descriptions": {
+    "de": "Die Klasse Bereinigte Daten repräsentiert einen Behälter für eine Reihe von nachbearbeiteten Werten.",
+    "ru": "The class Clean Data represents a container for a series of post-processed numeric values.",
+    "en": "The class Clean Data represents a container for a series of post-processed numeric values."
+  },
+  "types": [
+    {
+      "type": "Conversion to Differential",
+      "descriptions": {
+        "de": "Conversion to Differential desctiption",
+        "ru": "Conversion to Differential desctiption",
+        "en": "Conversion to Differential desctiption"
+      },
+      "names": {
+        "de": "Conversion to Differential",
+        "ru": "Conversion to Differential",
+        "en": "Conversion to Differential"
+      }
+    },
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Aktiviert Beschreibung",
+        "ru": "Enabled desctiption",
+        "en": "Enabled desctiption"
+      },
+      "names": {
+        "de": "Aktiviert",
+        "ru": "Enabled",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Gap Filling",
+      "descriptions": {
+        "de": "Gap Filling desctiption",
+        "ru": "Gap Filling desctiption",
+        "en": "Gap Filling desctiption"
+      },
+      "names": {
+        "de": "Gap Filling",
+        "ru": "Gap Filling",
+        "en": "Gap Filling"
+      }
+    },
+    {
+      "type": "Period Alignment",
+      "descriptions": {
+        "de": "Period Alignment desctiption",
+        "ru": "Period Alignment desctiption",
+        "en": "Period Alignment desctiption"
+      },
+      "names": {
+        "de": "Period Alignment",
+        "ru": "Period Alignment",
+        "en": "Period Alignment"
+      }
+    },
+    {
+      "type": "Period Offset",
+      "descriptions": {
+        "de": "Period Offset desctiption",
+        "ru": "Period Offset desctiption",
+        "en": "Period Offset desctiption"
+      },
+      "names": {
+        "de": "Period Offset",
+        "ru": "Period Offset",
+        "en": "Period Offset"
+      }
+    },
+    {
+      "type": "Value",
+      "descriptions": {
+        "de": "Value desctiption",
+        "ru": "Value desctiption",
+        "en": "Value desctiption"
+      },
+      "names": {
+        "de": "Value",
+        "ru": "Value",
+        "en": "Value"
+      }
+    },
+    {
+      "type": "Value is a Quantity",
+      "descriptions": {
+        "de": "Value is a Quantity desctiption",
+        "ru": "Value is a Quantity desctiption",
+        "en": "Value is a Quantity desctiption"
+      },
+      "names": {
+        "de": "Value is a Quantity",
+        "ru": "Value is a Quantity",
+        "en": "Value is a Quantity"
+      }
+    },
+    {
+      "type": "Value Multiplier",
+      "descriptions": {
+        "de": "Value Multiplier desctiption",
+        "ru": "Value Multiplier desctiption",
+        "en": "Value Multiplier desctiption"
+      },
+      "names": {
+        "de": "Value Multiplier",
+        "ru": "Value Multiplier",
+        "en": "Value Multiplier"
+      }
+    },
+    {
+      "type": "Value Offset",
+      "descriptions": {
+        "de": "Value Offset desctiption",
+        "ru": "Value Offset desctiption",
+        "en": "Value Offset desctiption"
+      },
+      "names": {
+        "de": "Value Offset",
+        "ru": "Value Offset",
+        "en": "Value Offset"
+      }
+    }
+  ]
+}

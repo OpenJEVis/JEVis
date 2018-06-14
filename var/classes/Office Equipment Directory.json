@@ -1,0 +1,21 @@
+{
+  "name": "Office Equipment Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Office Equipment",
+      "end": "Office Equipment Directory",
+      "type": 3
+    },
+    {
+      "start": "Office Equipment Directory",
+      "end": "Equipment Directory",
+      "type": 0
+    },
+    {
+      "start": "Office Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    }
+  ]
+}

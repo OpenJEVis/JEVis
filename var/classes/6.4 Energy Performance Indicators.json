@@ -1,0 +1,19 @@
+{
+  "name": "6.4 Energy Performance Indicators",
+  "description": "The organization shall determine EnPIs that are appropriate for measuring and monitoring its energy performance and enable the organization to demonstrate energy performance improvement. The method for determining and updating the EnPIs shall be maintained as documented information. Where the organization has data indicating that relevant variables significantly affect energy performance, consideration of relevant variables and static factors is appropriate.  \nEnPI values shall be reviewed and compared to their respective energy baseline(s), as appropriate. EnPI value(s) shall be retained as documented information. ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "6.4 Energy Performance Indicators",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.4 Energy Performance Indicators",
+      "end": "06 Planning",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

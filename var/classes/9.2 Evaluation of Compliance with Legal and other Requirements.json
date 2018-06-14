@@ -1,0 +1,19 @@
+{
+  "name": "9.2 Evaluation of Compliance with Legal and other Requirements",
+  "description": "At planned intervals, the organization shall evaluate compliance with legal and other requirements (see 4.2) related to its energy use, energy consumption, energy efficiency, and the EnMS.  The organization shall retain documented information (see 7.5) on the results of the evaluation of compliance and any actions taken.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "9.2 Evaluation of Compliance with Legal and other Requirements",
+      "end": "09 Performance Evaluation",
+      "type": 0
+    },
+    {
+      "start": "9.2 Evaluation of Compliance with Legal and other Requirements",
+      "end": "09 Performance Evaluation",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

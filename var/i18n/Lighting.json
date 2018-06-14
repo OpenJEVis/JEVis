@@ -1,0 +1,223 @@
+{
+  "jevisclass": "Lighting",
+  "names": {
+    "de": "Lighting",
+    "ru": "Lighting",
+    "en": "Lighting"
+  },
+  "descriptions": {
+    "de": "The class Lighting contains data of the building equipment lightning. Attributes of the class include a complete description of the specific energy data of the lighting. ",
+    "ru": "The class Lighting contains data of the building equipment lightning. Attributes of the class include a complete description of the specific energy data of the lighting. ",
+    "en": "The class Lighting contains data of the building equipment lightning. Attributes of the class include a complete description of the specific energy data of the lighting. "
+  },
+  "types": [
+    {
+      "type": "Ballast Power",
+      "descriptions": {
+        "de": "Ballast Power desctiption",
+        "ru": "Ballast Power desctiption",
+        "en": "Ballast Power desctiption"
+      },
+      "names": {
+        "de": "Ballast Power",
+        "ru": "Ballast Power",
+        "en": "Ballast Power"
+      }
+    },
+    {
+      "type": "Bulbs per Lamp",
+      "descriptions": {
+        "de": "Bulbs per Lamp desctiption",
+        "ru": "Bulbs per Lamp desctiption",
+        "en": "Bulbs per Lamp desctiption"
+      },
+      "names": {
+        "de": "Bulbs per Lamp",
+        "ru": "Bulbs per Lamp",
+        "en": "Bulbs per Lamp"
+      }
+    },
+    {
+      "type": "Daily Operating Hours",
+      "descriptions": {
+        "de": "Daily Operating Hours desctiption",
+        "ru": "Daily Operating Hours desctiption",
+        "en": "Daily Operating Hours desctiption"
+      },
+      "names": {
+        "de": "Daily Operating Hours",
+        "ru": "Daily Operating Hours",
+        "en": "Daily Operating Hours"
+      }
+    },
+    {
+      "type": "Domain",
+      "descriptions": {
+        "de": "Domain desctiption",
+        "ru": "Domain desctiption",
+        "en": "Domain desctiption"
+      },
+      "names": {
+        "de": "Domain",
+        "ru": "Domain",
+        "en": "Domain"
+      }
+    },
+    {
+      "type": "Energy Source",
+      "descriptions": {
+        "de": "Energy Source desctiption",
+        "ru": "Energy Source desctiption",
+        "en": "Energy Source desctiption"
+      },
+      "names": {
+        "de": "Energy Source",
+        "ru": "Energy Source",
+        "en": "Energy Source"
+      }
+    },
+    {
+      "type": "Lamp Power",
+      "descriptions": {
+        "de": "Lamp Power desctiption",
+        "ru": "Lamp Power desctiption",
+        "en": "Lamp Power desctiption"
+      },
+      "names": {
+        "de": "Lamp Power",
+        "ru": "Lamp Power",
+        "en": "Lamp Power"
+      }
+    },
+    {
+      "type": "Manufacturer",
+      "descriptions": {
+        "de": "Manufacturer desctiption",
+        "ru": "Manufacturer desctiption",
+        "en": "Manufacturer desctiption"
+      },
+      "names": {
+        "de": "Manufacturer",
+        "ru": "Manufacturer",
+        "en": "Manufacturer"
+      }
+    },
+    {
+      "type": "Measurement",
+      "descriptions": {
+        "de": "Measurement desctiption",
+        "ru": "Measurement desctiption",
+        "en": "Measurement desctiption"
+      },
+      "names": {
+        "de": "Measurement",
+        "ru": "Measurement",
+        "en": "Measurement"
+      }
+    },
+    {
+      "type": "Measuring Point",
+      "descriptions": {
+        "de": "Measuring Point desctiption",
+        "ru": "Measuring Point desctiption",
+        "en": "Measuring Point desctiption"
+      },
+      "names": {
+        "de": "Measuring Point",
+        "ru": "Measuring Point",
+        "en": "Measuring Point"
+      }
+    },
+    {
+      "type": "Nominal Power",
+      "descriptions": {
+        "de": "Nominal Power desctiption",
+        "ru": "Nominal Power desctiption",
+        "en": "Nominal Power desctiption"
+      },
+      "names": {
+        "de": "Nominal Power",
+        "ru": "Nominal Power",
+        "en": "Nominal Power"
+      }
+    },
+    {
+      "type": "Number of Lamps",
+      "descriptions": {
+        "de": "Number of Lamps desctiption",
+        "ru": "Number of Lamps desctiption",
+        "en": "Number of Lamps desctiption"
+      },
+      "names": {
+        "de": "Number of Lamps",
+        "ru": "Number of Lamps",
+        "en": "Number of Lamps"
+      }
+    },
+    {
+      "type": "Standby Consumption",
+      "descriptions": {
+        "de": "Standby Consumption desctiption",
+        "ru": "Standby Consumption desctiption",
+        "en": "Standby Consumption desctiption"
+      },
+      "names": {
+        "de": "Standby Consumption",
+        "ru": "Standby Consumption",
+        "en": "Standby Consumption"
+      }
+    },
+    {
+      "type": "Type",
+      "descriptions": {
+        "de": "Type desctiption",
+        "ru": "Type desctiption",
+        "en": "Type desctiption"
+      },
+      "names": {
+        "de": "Type",
+        "ru": "Type",
+        "en": "Type"
+      }
+    },
+    {
+      "type": "Weighting Factor",
+      "descriptions": {
+        "de": "Weighting Factor desctiption",
+        "ru": "Weighting Factor desctiption",
+        "en": "Weighting Factor desctiption"
+      },
+      "names": {
+        "de": "Weighting Factor",
+        "ru": "Weighting Factor",
+        "en": "Weighting Factor"
+      }
+    },
+    {
+      "type": "Work Weeks",
+      "descriptions": {
+        "de": "Work Weeks desctiption",
+        "ru": "Work Weeks desctiption",
+        "en": "Work Weeks desctiption"
+      },
+      "names": {
+        "de": "Work Weeks",
+        "ru": "Work Weeks",
+        "en": "Work Weeks"
+      }
+    },
+    {
+      "type": "Working Days",
+      "descriptions": {
+        "de": "Working Days desctiption",
+        "ru": "Working Days desctiption",
+        "en": "Working Days desctiption"
+      },
+      "names": {
+        "de": "Working Days",
+        "ru": "Working Days",
+        "en": "Working Days"
+      }
+    }
+  ]
+}

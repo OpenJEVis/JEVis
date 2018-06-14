@@ -1,0 +1,102 @@
+{
+  "name": "Directory",
+  "description": "The class Directory represents a none-specific directory for the structuring of the system. The class Directory is only used for the inheritance of specific directory types.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Administration Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Alarm Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Channel Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Dashboard Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Data Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Data Point Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Data Source Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Driver Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Enum Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Equipment Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "File Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Group Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Monitored Object Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Organization Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Report Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Report Link Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Service Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "User Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "View Directory",
+      "end": "Directory",
+      "type": 0
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Energy Sources Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Source",
+      "end": "Energy Sources Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Sources Directory",
+      "end": "Energy Planning",
+      "type": 3
+    },
+    {
+      "start": "Energy Sources Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

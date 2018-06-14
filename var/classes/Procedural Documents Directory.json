@@ -1,0 +1,21 @@
+{
+  "name": "Procedural Documents Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Procedural Document",
+      "end": "Procedural Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Procedural Documents Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Procedural Documents Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

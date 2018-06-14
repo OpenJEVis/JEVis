@@ -1,0 +1,81 @@
+{
+  "name": "Legal Regulation",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Legal Regulation",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Legal Regulation",
+      "end": "Legal Regulation Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Content Summary",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Legal Regulation"
+    },
+    {
+      "name": "Date of Review",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Legal Regulation"
+    },
+    {
+      "name": "Issue Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Legal Regulation"
+    },
+    {
+      "name": "Last Amended",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Legal Regulation"
+    },
+    {
+      "name": "Regulation Designation",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Legal Regulation"
+    },
+    {
+      "name": "Relevance to ISO 50001",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Legal Regulation"
+    },
+    {
+      "name": "Significance to the Company",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Legal Regulation"
+    }
+  ]
+}

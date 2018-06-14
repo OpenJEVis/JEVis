@@ -1,0 +1,57 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package org.jevis.jecalc.data;
+
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.jecalc.gap.Gap.GapStrategy;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+
+import java.util.List;
+
+/**
+ *
+ * @author broder
+ */
+public interface CleanDataAttribute {
+
+    DateTime getFirstDate();
+
+    DateTime getMaxEndDate();
+
+    Period getPeriodAlignment();
+
+    List<JEVisSample> getRawSamples();
+
+    Boolean getConversionDifferential();
+
+    Boolean getValueIsQuantity();
+
+    Integer getPeriodOffset();
+
+    Double getLastDiffValue();
+
+    Double getMultiplier();
+
+    Double getOffset();
+
+    Double getLastCleanValue();
+
+    GapStrategy getGapFillingMode();
+
+    Boolean getIsPeriodAligned();
+
+    Boolean getEnabled();
+
+    String getName();
+
+    List<JsonGapFillingConfig> getGapFillingConfig();
+
+    JEVisObject getObject();
+
+}

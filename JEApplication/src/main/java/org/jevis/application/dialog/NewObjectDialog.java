@@ -1,69 +1,61 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.dialog;
 
-import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.I18nWS;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.resource.ImageConverter;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.tools.NumberSpinner;
 
+import java.math.BigDecimal;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author fs
  */
 public class NewObjectDialog {
@@ -74,18 +66,21 @@ public class NewObjectDialog {
     private JEVisClass createClass;
     private String createName = "No Name";
     private boolean userSetName = false;
+    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 
-    public static enum Type {
+    public enum Type {
 
         NEW, RENAME
-    };
-
-    public static enum Response {
-
-        NO, YES, CANCEL
-    };
+    }
 
     private Response response = Response.CANCEL;
+
+    private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
+
+    public enum Response {
+
+        NO, YES, CANCEL
+    }
 
     public int getCreateCount() {
         if (createCount > 0 && createCount < 100) {
@@ -104,7 +99,6 @@ public class NewObjectDialog {
     }
 
     /**
-     *
      * @param owner
      * @param jclass
      * @param parent
@@ -114,61 +108,16 @@ public class NewObjectDialog {
      * @return
      */
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
-        final Stage stage = new Stage();
 
-        final BooleanProperty isOK = new SimpleBooleanProperty(false);
-
-        stage.setTitle("New Object");
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initOwner(owner);
-
-//        BorderPane root = new BorderPane();
+        Dialog<ButtonType> dialog = new Dialog();
+        dialog.setTitle("jevistree.dialog.new.title");
+        dialog.setHeaderText(rb.getString("jevistree.dialog.new.header"));
+        dialog.getDialogPane().getButtonTypes().setAll();
+        dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
         VBox root = new VBox();
 
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.setWidth(380);
-        stage.setHeight(260);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(false);
+        dialog.getDialogPane().setContent(root);
 
-        BorderPane header = new BorderPane();
-        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
-        header.setPadding(new Insets(10, 10, 10, 10));
-
-        Label topTitle = new Label("New Object");
-        topTitle.setTextFill(Color.web("#0076a3"));
-        topTitle.setFont(Font.font("Cambria", 25));
-
-        ImageView imageView = ResourceLoader.getImage(ICON, 50, 50);
-
-        stage.getIcons().add(imageView.getImage());
-
-        VBox vboxLeft = new VBox();
-        VBox vboxRight = new VBox();
-        vboxLeft.getChildren().add(topTitle);
-        vboxLeft.setAlignment(Pos.CENTER_LEFT);
-        vboxRight.setAlignment(Pos.CENTER_LEFT);
-        vboxRight.getChildren().add(imageView);
-
-        header.setLeft(vboxLeft);
-
-        header.setRight(vboxRight);
-
-        HBox buttonPanel = new HBox();
-
-        final Button ok = new Button("OK");
-        ok.setDefaultButton(true);
-        ok.setDisable(true);
-
-        Button cancel = new Button("Cancel");
-        cancel.setCancelButton(true);
-
-        buttonPanel.getChildren().addAll(ok, cancel);
-        buttonPanel.setAlignment(Pos.CENTER_RIGHT);
-        buttonPanel.setPadding(new Insets(10, 10, 10, 10));
-        buttonPanel.setSpacing(10);
-        buttonPanel.setMaxHeight(25);
 
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(10));
@@ -176,9 +125,9 @@ public class NewObjectDialog {
         gp.setVgap(5);
         int x = 0;
 
-        Label lName = new Label("Name:");
+        Label lName = new Label(rb.getString("jevistree.dialog.new.name"));
         final TextField fName = new TextField();
-        fName.setPromptText("Name of the Object");
+        fName.setPromptText(rb.getString("jevistree.dialog.new.name.prompt"));
 
         if (objName != null) {
             fName.setText(objName);
@@ -193,7 +142,7 @@ public class NewObjectDialog {
             }
         });
 
-        Label lClass = new Label("Class:");
+        Label lClass = new Label(rb.getString("jevistree.dialog.new.class"));
 
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
 
@@ -227,7 +176,8 @@ public class NewObjectDialog {
                             box.setAlignment(Pos.CENTER_LEFT);
                             try {
                                 ImageView icon = ImageConverter.convertToImageView(item.getIcon(), 15, 15);
-                                Label cName = new Label(item.getName());
+                                //Label cName = new Label(item.getName());
+                                Label cName = new Label(I18nWS.getInstance().getClassName(item.getName()));
                                 cName.setTextFill(Color.BLACK);
                                 box.getChildren().setAll(icon, cName);
 
@@ -269,7 +219,7 @@ public class NewObjectDialog {
         comboBox.setMinWidth(250);
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
 
-        Label lCount = new Label("Count:");
+        Label lCount = new Label(rb.getString("jevistree.dialog.new.amount"));
         //TODo: disable spinner if class is uniq also disable OK button if there is allready one of its kind
         final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
@@ -291,55 +241,29 @@ public class NewObjectDialog {
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
 
-        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), gp, buttonPanel);
+        root.getChildren().addAll(gp);
         VBox.setVgrow(gp, Priority.ALWAYS);
-        VBox.setVgrow(buttonPanel, Priority.NEVER);
-        VBox.setVgrow(header, Priority.NEVER);
 
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
-                stage.close();
-
-                createName = fName.getText();
-                createClass = comboBox.getSelectionModel().getSelectedItem();
-                createCount = Integer.parseInt(count.getNumber().toString());//dirty :)
-//                isOK.setValue(true);
-                response = Response.YES;
-
-            }
-        });
-
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                stage.close();
-                response = Response.CANCEL;
-
-            }
-        });
 
         fName.setOnKeyReleased(new EventHandler<KeyEvent>() {
 
             @Override
             public void handle(KeyEvent t) {
                 if (!fName.getText().equals("")) {
-                    ok.setDisable(false);
+//                    ok.setDisable(false);
+                    //@ TODO
                 }
             }
         });
 
         fName.setDisable(true);
         comboBox.setDisable(true);
-        ok.setDisable(true);
         count.setDisable(true);
 
         try {
             if (parent.getDataSource().getCurrentUser().canWrite(parent.getID())) {
                 fName.setDisable(false);
                 comboBox.setDisable(false);
-                ok.setDisable(false);
                 count.setDisable(false);
             }
         } catch (JEVisException ex) {
@@ -347,18 +271,53 @@ public class NewObjectDialog {
         }
 
         if (type == Type.NEW) {
-            stage.setTitle("New Object");
-            topTitle.setText("New Object");
+            dialog.setTitle(rb.getString("jevistree.dialog.new.title"));
+            dialog.setHeaderText(rb.getString("jevistree.dialog.new.title"));
             comboBox.getSelectionModel().selectFirst();
         } else if (type == Type.RENAME) {
-            stage.setTitle("Rename Object");
-            topTitle.setText("Rename Object");
+            dialog.setTitle(rb.getString("jevistree.dialog.rename.title"));
+            dialog.setHeaderText(rb.getString("jevistree.dialog.rename.header"));
+            fName.focusedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue ov, Boolean t, Boolean t1) {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (fName.isFocused() && !fName.getText().isEmpty()) {
+                                fName.selectAll();
+                            }
+                        }
+                    });
+                }
+            });
+
             count.setDisable(true);
             comboBox.getSelectionModel().select(jclass);
         }
 
-        stage.showAndWait();
+
+        final ButtonType ok = new ButtonType(rb.getString("jevistree.dialog.new.ok"), ButtonBar.ButtonData.FINISH);
+        final ButtonType cancel = new ButtonType(rb.getString("jevistree.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
+
+        Platform.runLater(() -> fName.requestFocus());
+        dialog.showAndWait()
+                .ifPresent(response -> {
+                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+
+                        createName = fName.getText();
+                        createClass = comboBox.getSelectionModel().getSelectedItem();
+                        createCount = Integer.parseInt(count.getNumber().toString());//dirty :)
+
+                        NewObjectDialog.this.response = Response.YES;
+                    } else {
+                        NewObjectDialog.this.response = Response.CANCEL;
+                    }
+                });
+
+
         return response;
     }
+
 
 }

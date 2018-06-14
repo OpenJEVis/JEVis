@@ -1,68 +1,51 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeapi.ws;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisMultiSelection;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisSelection;
-import org.jevis.api.JEVisUnit;
+import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.ws.json.JsonSample;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author fs
  */
 public class JEVisSampleWS implements JEVisSample {
 
     private DateTime timestamp;
-    private Object value;
     private JEVisAttribute attribute;
     private JsonSample json;
-    JEVisDataSourceWS ds;
+    private JEVisDataSourceWS ds;
     private Logger logger = LogManager.getLogger(JEVisSampleWS.class);
     public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
     private JEVisFile file = null;
 
-//    public JEVisSampleWS(JEVisDataSourceWS ds, JEVisAttributeWS att, DateTime ts, Object value) {
-//        this.attribute = att;
-//        this.ds = ds;
-//        json= new JsonSample();
-//        json.setTs(ts.toString());
-//        json.setNote("");
-//        json.set
-//    }
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att) {
         this.attribute = att;
-        this.value = json.getValue();
         this.ds = ds;
         this.json = json;
 
@@ -70,7 +53,6 @@ public class JEVisSampleWS implements JEVisSample {
 
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att, JEVisFile file) {
         this.attribute = att;
-        this.value = json.getValue();
         this.ds = ds;
         this.json = json;
         this.file = file;
@@ -151,6 +133,7 @@ public class JEVisSampleWS implements JEVisSample {
                 return file;
 
             } catch (Exception ex) {
+                ex.printStackTrace();
                 return null;
             }
         }

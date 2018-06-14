@@ -6,24 +6,22 @@
 package org.jevis.rest;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.commons.ws.json.JsonJEVisClass;
+import org.jevis.api.JEVisException;
 import org.jevis.ws.sql.SQLDataSource;
 
-import javax.imageio.ImageIO;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- *
  * @author fs
  */
 @Path("/JEWebService/v1/classicons")
@@ -41,7 +39,7 @@ public class ResourceIcons {
     public Response get(
             @Context HttpHeaders httpHeaders,
             @Context Request request,
-            @Context UriInfo url) {
+            @Context UriInfo url) throws JEVisException {
 
         SQLDataSource ds = null;
         try {
@@ -53,7 +51,7 @@ public class ResourceIcons {
                 ds.getProfiler().addEvent("ResourceIcons", "done cache");
                 return Response.ok(new FileInputStream(tmpZipFile), MediaType.valueOf("application/zip")).build();
             } else {
-                System.out.println("icon cache does not exists: " + tmpZipFile);
+                tmpZipFile.getParentFile().mkdirs();
             }
 
             //else, create new file
@@ -63,35 +61,32 @@ public class ResourceIcons {
 
             byte[] buffer = new byte[1024];
 
-            for (JsonJEVisClass jc : ds.getJEVisClasses()) {
-                try {
-                    BufferedImage icon = ds.getJEVisClassIcon(jc.getName());
-                    if (icon != null) {
-                        File outputfile = new File(FileCache.CACH_PATH + "/" + jc.getName() + ".png");
-                        ImageIO.write(icon, "png", outputfile);
-                        ZipEntry ze = new ZipEntry(outputfile.getName());
-                        zos.putNextEntry(ze);
-                        FileInputStream in = new FileInputStream(outputfile);
-
-                        int len;
-                        while ((len = in.read(buffer)) > 0) {
-                            zos.write(buffer, 0, len);
-                        }
-                        in.close();
-                        ds.getProfiler().addEvent("ResourceIcons", "done putting " + outputfile);
-                        outputfile.delete();
-
+            FileFilter ff = new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    if (pathname.getName().endsWith(".png")) {
+                        return true;
                     }
-                } catch (Exception ex) {
-                    System.out.println("Class ison error for: "+jc.getName());
+                    return false;
                 }
+            };
+            for (File imageFile : Config.getClassDir().listFiles(ff)) {
+                ZipEntry ze = new ZipEntry(imageFile.getName());
+                zos.putNextEntry(ze);
+                FileInputStream in = new FileInputStream(imageFile);
+
+                int len;
+                while ((len = in.read(buffer)) > 0) {
+                    zos.write(buffer, 0, len);
+                }
+                in.close();
 
             }
             zos.closeEntry();
             zos.close();
 
             Response re = Response.ok(new FileInputStream(tmpZipFile), MediaType.valueOf("application/zip")).build();
-//            tmpfolder.delete();
+
             ds.getProfiler().addEvent("ResourceIcons", "done");
             return re;
 

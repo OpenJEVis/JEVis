@@ -1,29 +1,24 @@
 /**
  * Copyright (C) 2014-2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.csv;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -36,38 +31,31 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.application.AppLocale;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class CSVImportDialog {
@@ -84,7 +72,7 @@ public class CSVImportDialog {
     final Button fileButton = new Button(I18n.getInstance().getString("csv.file_select"));
     final Button saveFormat = new Button(I18n.getInstance().getString("csv.save_formate"));
     Button reload = new Button(I18n.getInstance().getString("csv.reload"));//, JEConfig.getImage("1403018303_Refresh.png", 20, 20));
-    final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+    final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(0), BigDecimal.valueOf(1));
 
     RadioButton tab = new RadioButton(I18n.getInstance().getString("csv.seperators.tab"));
     RadioButton semicolon = new RadioButton(I18n.getInstance().getString("csv.seperators.semi"));
@@ -110,16 +98,17 @@ public class CSVImportDialog {
     private JEVisDataSource _ds;
     private CSVTable table;
     private Stage stage;
+    private Charset charset = Charset.defaultCharset();
 
     public static enum Format {
 
         Default, ARA01, Custom
-    };
+    }
 
     public static enum Response {
 
         OK, CANCEL
-    };
+    }
 
     private Response response = Response.CANCEL;
 
@@ -176,7 +165,7 @@ public class CSVImportDialog {
         Button cancel = new Button(I18n.getInstance().getString("csv.cancel"));
         cancel.setCancelButton(true);
 
-        buttonPanel.getChildren().setAll(saveFormat, ok, cancel);
+        buttonPanel.getChildren().setAll(ok, cancel);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(5));
 
@@ -229,15 +218,18 @@ public class CSVImportDialog {
             @Override
             public void handle(ActionEvent t) {
                 if (table.doImport()) {
-//                    Alert alert = new Alert(AlertType.INFORMATION);
-//                    alert.setTitle("Import Success");
-//                    alert.setHeaderText("Import was successful");
-//                    alert.setContentText("Import was successful.");
-//
-//                    alert.showAndWait();
-
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle(I18n.getInstance().getString("csv.export.dialog.success.header"));
+                    alert.setHeaderText(null);
+                    alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
+                    alert.showAndWait();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle(I18n.getInstance().getString("csv.export.dialog.failed.title"));
+                    alert.setHeaderText(null);
+                    alert.setContentText(I18n.getInstance().getString("ccsv.export.dialog.failed.message"));
+                    alert.showAndWait();
                 }
-//                stage.hide();
             }
         });
 
@@ -249,19 +241,25 @@ public class CSVImportDialog {
 
     private void updateTree() {
 //        System.out.println("UpdateTree");
-        final CSVParser parser = parseCSV();
-        table = new CSVTable(_ds, parser);
-        tableRootPane.getChildren().setAll(table);
-        tableRootPane.heightProperty().addListener(new ChangeListener<Number>() {
+        if (_csvFile != null) {
+            Platform.runLater(() -> {
+                final CSVParser parser = parseCSV();
+                table = new CSVTable(_ds, parser);
+                tableRootPane.getChildren().setAll(table);
+                tableRootPane.heightProperty().addListener(new ChangeListener<Number>() {
 
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
-                if (table != null) {
-                    table.setPrefHeight(t1.doubleValue());
-                }
-            }
-        });
-        VBox.setVgrow(table, Priority.ALWAYS);
+                    @Override
+                    public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
+                        if (table != null) {
+                            table.setPrefHeight(t1.doubleValue());
+                        }
+                    }
+                });
+                VBox.setVgrow(table, Priority.ALWAYS);
+            });
+
+        }
+
     }
 
     private Node buildTablePane() {
@@ -270,7 +268,7 @@ public class CSVImportDialog {
 
         TableView placeholderTree = new TableView();
         TableColumn firstNameCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
-        TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
+        TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("csv.table.second_col"));
         firstNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
         lastNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
         placeholderTree.getColumns().addAll(firstNameCol, lastNameCol);
@@ -281,10 +279,7 @@ public class CSVImportDialog {
     }
 
     private CSVParser parseCSV() {
-//        System.out.println("_encloser: " + getEncloser());
-//        System.out.println("_seperator: " + getSeperator());
-        CSVParser parser = new CSVParser(_csvFile, getEncloser(), getSeperator(), getStartLine());
-//        CSVParser parser = new CSVParser(_csvFile, _encloser, _seperator, getStartLine());
+        CSVParser parser = new CSVParser(_csvFile, getEncloser(), getSeperator(), getStartLine(), charset);
         return parser;
     }
 
@@ -551,10 +546,43 @@ public class CSVImportDialog {
         Label fromRow = new Label(I18n.getInstance().getString("csv.from_rowFrom"));
         final Label fileNameL = new Label();
 
-        ObservableList<String> options = FXCollections.observableArrayList();
-        options = FXCollections.observableArrayList("UTF-8");
-        final ComboBox<String> chaset = new ComboBox<String>(options);
-        chaset.getSelectionModel().selectFirst();
+        ObservableList<Charset> options = FXCollections.observableArrayList();
+        for (Charset set : Charset.availableCharsets().values()) {
+            options.add(set);
+        }
+
+        Callback<ListView<Charset>, ListCell<Charset>> cellFactory = new Callback<ListView<Charset>, ListCell<Charset>>() {
+            @Override
+            public ListCell<Charset> call(ListView<Charset> param) {
+                final ListCell<Charset> cell = new ListCell<Charset>() {
+                    {
+                        super.setPrefWidth(260);
+                    }
+
+                    @Override
+                    public void updateItem(Charset item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            setText(item.displayName(AppLocale.getInstance().getLocale()));
+                            setGraphic(null);
+
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+
+        final ComboBox<Charset> charsetBox = new ComboBox<Charset>(options);
+        charsetBox.setCellFactory(cellFactory);
+        charsetBox.setButtonCell(cellFactory.call(null));
+        charsetBox.valueProperty().addListener(new ChangeListener<Charset>() {
+            @Override
+            public void changed(ObservableValue<? extends Charset> observable, Charset oldValue, Charset newValue) {
+                charset = newValue;
+            }
+        });
+        charsetBox.getSelectionModel().select(Charset.defaultCharset());
 
         formatOptions = FXCollections.observableArrayList();
         for (Format format : Format.values()) {
@@ -568,9 +596,9 @@ public class CSVImportDialog {
         Node title = buildTitle(I18n.getInstance().getString("csv.tab.title.field_options"));
 
         fileButton.setPrefWidth(100);
-        chaset.setPrefWidth(100);
+        charsetBox.setPrefWidth(100);
         formats.setPrefWidth(100);
-        chaset.setMaxWidth(1000);
+        charsetBox.setMaxWidth(1000);
         formats.setMaxWidth(1000);
 
         count.setMinHeight(22);
@@ -622,27 +650,41 @@ public class CSVImportDialog {
                 fileChooser.getExtensionFilters().addAll(csvFilter, allFilter);
 
                 final File file = fileChooser.showOpenDialog(JEConfig.getStage());
-                if (file != null) {
-                    JEConfig.setLastPath(file);
-//                    System.out.println("file: " + file);
-                    try {
-                        //                    fileButton.setText(file.getName());
-                        fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
-                    } catch (IOException ex) {
-                        Logger.getLogger(CSVImportDialog.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    openFile(file);
-                    automatic.setDisable(false);
-//                    updateTree();
+                if (file != null && file.canRead()) {
 
-                    CSVAnalyser analys = new CSVAnalyser(_csvFile);
+                    Platform.runLater(() -> {
+                        try {
+                            JEConfig.setLastPath(file);
+                            System.out.println("file: " + file);
 
-                    setEncloser(analys.getEnclosed());
-                    setSeperator(analys.getSeperator());
-                    formats.getSelectionModel().select(Format.Custom.name());
-                    updateTree();
+                            fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
 
-//                    System.out.println("size.dfs: " + otherColumnF.getHeight());
+                            openFile(file);
+                            automatic.setDisable(false);
+                            CSVAnalyser analyse = new CSVAnalyser(_csvFile);
+
+                            setEncloser(analyse.getEnclosed());
+                            setSeperator(analyse.getSeperator());
+                            formats.getSelectionModel().select(Format.Custom.name());
+                            updateTree();
+                        } catch (IOException ex) {
+                            Logger.getLogger(CSVImportDialog.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    });
+//                        JEConfig.setLastPath(file);
+//                        System.out.println("file: " + file);
+//
+//                        fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
+//
+//                        openFile(file);
+//                        automatic.setDisable(false);
+//                        CSVAnalyser analys = new CSVAnalyser(_csvFile);
+//
+//                        setEncloser(analys.getEnclosed());
+//                        setSeperator(analys.getSeperator());
+//                        formats.getSelectionModel().select(Format.Custom.name());
+//                        updateTree();
+
                 }
             }
         });
@@ -654,17 +696,20 @@ public class CSVImportDialog {
         gp.add(fileButton, 1, x);
         gp.add(fileNameL, 2, x);
 
-        gp.add(formatL, 0, ++x);
-        gp.add(formats, 1, x);
+        //@TODO: implement format function
+//        gp.add(formatL, 0, ++x);
+//        gp.add(formats, 1, x);
 //        gp.add(automatic, 2, x);
 
         gp.add(charSetL, 0, ++x);
-        gp.add(chaset, 1, x);
+        gp.add(charsetBox, 1, x);
 
         gp.add(fromRow, 0, ++x);
         gp.add(count, 1, x);
 
         GridPane.setHgrow(title, Priority.ALWAYS);
+
+        updateTree();
 
         return gp;
 

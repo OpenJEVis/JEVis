@@ -1,27 +1,24 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.sample;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
@@ -38,8 +35,11 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SampleGraphExtension implements SampleEditorExtension {
@@ -189,13 +189,16 @@ public class SampleGraphExtension implements SampleEditorExtension {
         XYChart.Series series1 = new XYChart.Series();
 
         try {
-            xAxis.setLowerBound((samples.get(0).getTimestamp().getMillis() / 1000 / 60));
-            xAxis.setUpperBound((samples.get(samples.size() - 1).getTimestamp().getMillis() / 1000 / 60));
+            if (samples != null && samples.isEmpty()) {
+                xAxis.setLowerBound((samples.get(0).getTimestamp().getMillis() / 1000 / 60));
+                xAxis.setUpperBound((samples.get(samples.size() - 1).getTimestamp().getMillis() / 1000 / 60));
 
-            double total = (samples.get(samples.size() - 1).getTimestamp().getMillis() / 1000 / 60) - (samples.get(0).getTimestamp().getMillis() / 1000 / 60);
+                double total = (samples.get(samples.size() - 1).getTimestamp().getMillis() / 1000 / 60) - (samples.get(0).getTimestamp().getMillis() / 1000 / 60);
 
 //            System.out.println("Size: " + (total / 75d));
-            lineChart.setPrefWidth(total * 100 / 75d);
+                lineChart.setPrefWidth(total * 100 / 75d);
+            }
+
 
         } catch (JEVisException ex) {
             Logger.getLogger(SampleGraphExtension.class.getName()).log(Level.SEVERE, null, ex);
@@ -229,6 +232,10 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
     private XYChart.Series buildSeries(List<JEVisSample> samples, int intervall) throws JEVisException {
         XYChart.Series series1 = new XYChart.Series();
+        if (samples == null || samples.isEmpty()) {
+            return series1;
+        }
+
 
         DateTime firstDate = samples.get(0).getTimestamp();
         DateTime lastDate = samples.get(samples.size() - 1).getTimestamp();
@@ -248,7 +255,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
                     Tooltip.install(data.getNode(), new Tooltip(
                             "Timestamp: " + sample.getTimestamp().toString() + "\n"
-                            + "value : " + sample.getValueAsString()));
+                                    + "value : " + sample.getValueAsString()));
 
                     series1.getData().add(data);
 //                    series1.getData().add(new XYChart.Data((Number) (ts.getMillis() / 1000 / 60), sample.getValueAsDouble()));
@@ -258,7 +265,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
                     Tooltip.install(data.getNode(), new Tooltip(
                             "Timestamp: " + sample.getTimestamp().toString() + "\n"
-                            + "value : " + sample.getValueAsString()));
+                                    + "value : " + sample.getValueAsString()));
 //                    System.out.println("add TS2: " + (ts.getMillis() / 1000 / 60) + "  " + sample.getValueAsDouble());
                     series1.getData().add(data);
 //                    series1.getData().add(new XYChart.Data((Number) (ts.getMillis() / 1000 / 60), sample.getValueAsDouble()));

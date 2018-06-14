@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2009 - 2013 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEWebService.
- *
+ * <p>
  * JEWebService is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEWebService is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -35,13 +35,13 @@ import org.jevis.ws.sql.SQLtoJsonFactory;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class SampleTable {
@@ -59,7 +59,7 @@ public class SampleTable {
     private SQLDataSource _connection;
     private Logger logger = LogManager.getLogger(SampleTable.class);
 
-    public SampleTable(SQLDataSource ds) {
+    public SampleTable(SQLDataSource ds) throws JEVisException {
         _connection = ds;
     }
 
@@ -93,7 +93,6 @@ public class SampleTable {
         String sql = "INSERT IGNORE into " + TABLE
                 + "(" + COLUMN_OBJECT + "," + COLUMN_ATTRIBUTE + "," + COLUMN_TIMESTAMP
                 + "," + COLUMN_VALUE + "," + COLUMN_MANID + "," + COLUMN_NOTE + "," + COLUMN_INSERT_TIMESTAMP
-                + "," + COLUMN_FILE_NAME + "," + COLUMN_FILE
                 + ") VALUES";
 
 //        System.out.println("SQL raw: "+sql);
@@ -105,7 +104,7 @@ public class SampleTable {
             StringBuilder build = new StringBuilder(sql);
 
             for (int i = 0; i < samples.size(); i++) {
-                build.append("(?,?,?,?,?,?,?,?,?)");
+                build.append("(?,?,?,?,?,?,?)");
                 if (i < samples.size() - 1) {
                     build.append(", ");
                 } else {
@@ -116,17 +115,11 @@ public class SampleTable {
             String sqlWithUpdate = build.toString();
             sqlWithUpdate = sqlWithUpdate += " ON DUPLICATE KEY UPDATE "
                     + COLUMN_VALUE + "=VALUES(" + COLUMN_VALUE + "), "
-                    + COLUMN_FILE_NAME + "=VALUES(" + COLUMN_FILE_NAME + "), "
                     + COLUMN_NOTE + "=VALUES(" + COLUMN_NOTE + "), "
-                    + COLUMN_FILE + "=VALUES(" + COLUMN_FILE + "), "
-                    + COLUMN_MANID + "=VALUES(" + COLUMN_MANID + "), "
-                    + COLUMN_FILE_NAME + "=VALUES(" + COLUMN_FILE_NAME + "),"
-                    + COLUMN_FILE + "=VALUES(" + COLUMN_FILE + ")";
+                    + COLUMN_MANID + "=VALUES(" + COLUMN_MANID + ") ";
 
             ps = _connection.getConnection().prepareStatement(sqlWithUpdate);
 
-//            ps = _connection.prepareStatement(build.toString());
-//            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));//care tor TZ?
             Calendar cal = Calendar.getInstance();//care tor TZ?
             long now = cal.getTimeInMillis();
 
@@ -141,11 +134,11 @@ public class SampleTable {
                 switch (priType) {
                     case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
                         //Passwords will be stored as Saled Hash
-                        ps.setString(++p, PasswordHash.createHash(sample.getValue()));
+                        ps.setString(++p, PasswordHash.createHash(sample.getValue().toString()));
                         break;
-                    case JEVisConstants.PrimitiveType.FILE:
-                        ps.setNull(++p, Types.VARCHAR);
-                        break;
+//                    case JEVisConstants.PrimitiveType.FILE:
+//                        ps.setNull(++p, Types.VARCHAR);
+//                        break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
                         ps.setBoolean(++p, Boolean.valueOf(sample.getValue()));
                         break;
@@ -165,16 +158,16 @@ public class SampleTable {
                 ps.setString(++p, sample.getNote());
                 ps.setTimestamp(++p, new Timestamp(now));
 
-                if (priType == JEVisConstants.PrimitiveType.FILE) {
-                    //TODO nedd extra function
-//                    ps.setString(++p, sample.getValueAsFile().getFilename());
-
-//                    ByteArrayInputStream bis = new ByteArrayInputStream(sample.getValueAsFile().getBytes());
-//                    ps.setBlob(++p, bis);
-                } else {
-                    ps.setNull(++p, Types.BLOB);
-                    ps.setNull(++p, Types.VARCHAR);
-                }
+//                if (priType == JEVisConstants.PrimitiveType.FILE) {
+//                    //TODO nedd extra function
+////                    ps.setString(++p, sample.getValueAsFile().getFilename());
+//
+////                    ByteArrayInputStream bis = new ByteArrayInputStream(sample.getValueAsFile().getBytes());
+////                    ps.setBlob(++p, bis);
+//                } else {
+//                    ps.setNull(++p, Types.BLOB);
+//                    ps.setNull(++p, Types.VARCHAR);
+//                }
             }
 //            System.out.println("SamplDB.putSample SQL: \n" + ps);
             logger.trace("SQL: {}", ps);
@@ -192,7 +185,8 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
 
@@ -228,12 +222,16 @@ public class SampleTable {
 
 //            System.out.println("SamplDB.putSample SQL: \n" + ps);
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.setFile()", ps.toString());
+            _connection.addQuery("Sample.setFile()", ps.toString());
             count = ps.executeUpdate();
 
             _connection.getAttributeTable().updateMinMaxTS(object, att);
 
-            return count > 0;
+            if (count > 0) {
+                return true;
+            } else {
+                return false;
+            }
         } catch (Exception ex) {
             logger.error(ex);
             throw new JEVisException("Error while inserting Sample ", 4234, ex);
@@ -242,7 +240,8 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
 
@@ -252,8 +251,8 @@ public class SampleTable {
 
         String sql = "select " + COLUMN_FILE + "," + COLUMN_FILE_NAME + " from " + TABLE
                 + " where " + COLUMN_OBJECT + "=?"
-                + " and " + COLUMN_ATTRIBUTE + "=?";
-        //+ " " + COLUMN_TIMESTAMP + "=?";
+                + " and " + COLUMN_ATTRIBUTE + "=?"
+                + " " + COLUMN_TIMESTAMP + "=?";
 
         PreparedStatement ps = null;
 
@@ -262,7 +261,7 @@ public class SampleTable {
             if (from != null) {
                 sql += " " + COLUMN_TIMESTAMP + "=?";
             } else {
-                sql += "order by " + COLUMN_TIMESTAMP + " DESC limit 1";
+                sql += "order by " + COLUMN_TIMESTAMP + " limit 1";
             }
 
             ps = _connection.getConnection().prepareStatement(sql);
@@ -275,7 +274,7 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.getFile()", ps.toString());
+            _connection.addQuery("Sample.getFile()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -283,7 +282,6 @@ public class SampleTable {
                     JEVisFile jFile = new JEVisFileImp();
 
                     String _filename = rs.getString(SampleTable.COLUMN_FILE_NAME);
-                    System.out.println("Filename from SampleTable: " + _filename);
 
                     Blob fileBlob = rs.getBlob(SampleTable.COLUMN_FILE);
                     byte[] _fileBytes = fileBlob.getBytes(1, (int) fileBlob.length());
@@ -304,7 +302,8 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         return null;
@@ -323,7 +322,7 @@ public class SampleTable {
         if (until != null) {
             sql += " and " + COLUMN_TIMESTAMP + "<=?";
         }
-        sql += " order by " + COLUMN_TIMESTAMP+" limit "+limit;
+        sql += " order by " + COLUMN_TIMESTAMP + " limit " + limit;
 
         PreparedStatement ps = null;
 
@@ -342,7 +341,7 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.get()", ps.toString());
+            _connection.addQuery("Sample.get()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -357,13 +356,14 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         return samples;
     }
 
-    public boolean deleteAllSamples(long object, String att) {
+    public boolean deleteAllSamples(long object, String att) throws JEVisException {
         String sql = "delete from " + TABLE
                 + " where " + COLUMN_ATTRIBUTE + "=?"
                 + " and " + COLUMN_OBJECT + "=?";
@@ -375,7 +375,7 @@ public class SampleTable {
             ps.setString(1, att);
             ps.setLong(2, object);
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.deleteAll()", ps.toString());
+            _connection.addQuery("Sample.deleteAll()", ps.toString());
             if (ps.executeUpdate() > 0) {
                 _connection.getAttributeTable().updateMinMaxTS(object, att);
                 return true;
@@ -392,20 +392,23 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
     }
 
-    public boolean deleteSamples(long object, String att, DateTime from, DateTime until) {
+    public boolean deleteSamples(long object, String att, DateTime from, DateTime until) throws JEVisException {
         String sql = "delete from " + TABLE
                 + " where " + COLUMN_ATTRIBUTE + "=?"
                 + " and " + COLUMN_OBJECT + "=?";
 
-        if (from != null) {
+
+        if (from != null && until == null) {
             sql += " and " + COLUMN_TIMESTAMP + ">=?";
         }
-        if (until != null) {
+
+        if (from != null && until != null) {
             sql += " and " + COLUMN_TIMESTAMP + ">=?"
                     + " and " + COLUMN_TIMESTAMP + "<=?";
         }
@@ -416,6 +419,7 @@ public class SampleTable {
             ps = _connection.getConnection().prepareStatement(sql);
             ps.setString(1, att);
             ps.setLong(2, object);
+
             int i = 3;
             if (from != null) {
                 ps.setTimestamp(i, new Timestamp(from.getMillis()));
@@ -426,7 +430,7 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-             _connection.addQuery("Sample.delete(fom,to)", ps.toString());
+            _connection.addQuery("Sample.delete(fom,to)", ps.toString());
             if (ps.executeUpdate() > 0) {
                 _connection.getAttributeTable().updateMinMaxTS(object, att);
                 return true;
@@ -443,12 +447,13 @@ public class SampleTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
     }
 
-    public List<JsonSample> getAll(long object, String att) throws SQLException {
+    public List<JsonSample> getAll(long object, String att) throws SQLException, UnsupportedEncodingException, JEVisException {
 //        System.out.println("SampleTable.getAll");
         List<JsonSample> samples = new ArrayList<>();
 
@@ -462,7 +467,7 @@ public class SampleTable {
         ps.setString(2, att);
 
         logger.trace("SQL: {}", ps);
-         _connection.addQuery("Sample.getAll()", ps.toString());
+        _connection.addQuery("Sample.getAll()", ps.toString());
         ResultSet rs = ps.executeQuery();
 
         while (rs.next()) {
@@ -488,7 +493,7 @@ public class SampleTable {
 //        ps.setTimestamp(3, new Timestamp(att.getTimestampFromLastSample().getMillis()));
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Sample.getLatest()", ps.toString());
+            _connection.addQuery("Sample.getLastes()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {

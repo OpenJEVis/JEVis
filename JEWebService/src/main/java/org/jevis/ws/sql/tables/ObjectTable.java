@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2009 - 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-SQL.
- *
+ * <p>
  * JEAPI-SQL is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-SQL is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -36,7 +36,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class ObjectTable {
@@ -52,7 +51,7 @@ public class ObjectTable {
     private SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
 
-    public ObjectTable(SQLDataSource ds) {
+    public ObjectTable(SQLDataSource ds) throws JEVisException {
         _connection = ds;
     }
 
@@ -92,7 +91,6 @@ public class ObjectTable {
     }
 
     /**
-     *
      * @param name
      * @param jclass
      * @param parent
@@ -154,7 +152,7 @@ public class ObjectTable {
 
     }
 
-    public JsonObject updateObject(JsonObject object) throws JEVisException {
+    public JsonObject updateObject(long id, String newname, boolean ispublic) throws JEVisException {
         String sql = "update " + TABLE
                 + " set " + COLUMN_NAME + "=?,"
                 + COLUMN_PUBLIC + "=?"
@@ -165,15 +163,15 @@ public class ObjectTable {
 
         try {
             ps = _connection.getConnection().prepareStatement(sql);
-            ps.setString(1, object.getName());
-            ps.setBoolean(2, object.getisPublic());
-            ps.setLong(3, object.getId());
+            ps.setString(1, newname);
+            ps.setBoolean(2, ispublic);
+            ps.setLong(3, id);
 
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Object.update()", ps.toString());
             int count = ps.executeUpdate();
             if (count == 1) {
-                return object;//TODO: maybe reselect the object but since we only change the name pff
+                return getObject(id);
             } else {
                 throw new JEVisException("Error while updating object", 234236);//ToDo real number
             }
@@ -266,7 +264,8 @@ public class ObjectTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
 
@@ -331,7 +330,8 @@ public class ObjectTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
 
@@ -360,7 +360,7 @@ public class ObjectTable {
                     logger.error("Cound not load Object: " + ex.getMessage());
                 }
             }
-            System.out.println("Total Objects after sql: "+objects.size());
+            System.out.println("Total Objects after sql: " + objects.size());
 
         } catch (SQLException ex) {
             logger.error("Error while selecting Object: {} ", ex.getMessage());
@@ -374,14 +374,15 @@ public class ObjectTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
         logger.debug("getObjects.size: {}", objects.size());
         return objects;
     }
 
-    public void getAllChildren(List<JsonObject> objs, JsonObject parentObj) {
+    public void getAllChildren(List<JsonObject> objs, JsonObject parentObj) throws JEVisException {
 
         List<JsonRelationship> allObjects = _connection.getRelationships(JEVisConstants.ObjectRelationship.PARENT);
 
@@ -404,7 +405,7 @@ public class ObjectTable {
 
     }
 
-    public boolean deleteObject(JsonObject obj) {
+    public boolean deleteObject(JsonObject obj) throws JEVisException {
         String sql = "update " + TABLE
                 + " set " + COLUMN_DELETE + "=?"
                 + " where " + COLUMN_ID + " IN(";
@@ -470,7 +471,8 @@ public class ObjectTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
     }
@@ -506,7 +508,8 @@ public class ObjectTable {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    /*ignored*/ }
+                    /*ignored*/
+                }
             }
         }
     }

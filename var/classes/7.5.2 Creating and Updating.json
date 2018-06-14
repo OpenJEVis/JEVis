@@ -1,0 +1,19 @@
+{
+  "name": "7.5.2 Creating and Updating",
+  "description": "When creating and updating documented information, the organization shall ensure appropriate:  \na) identification and description (e.g. a title, date, author or reference number);  \nb) format (e.g. language, software version, graphics) and media (e.g. paper, electronic);  \nc) review and approval for suitability and adequacy. ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "7.5.2 Creating and Updating",
+      "end": "7.5 Documented Information",
+      "type": 0
+    },
+    {
+      "start": "7.5.2 Creating and Updating",
+      "end": "7.5 Documented Information",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

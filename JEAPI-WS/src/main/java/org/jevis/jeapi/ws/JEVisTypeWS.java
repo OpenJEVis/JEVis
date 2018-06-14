@@ -1,53 +1,48 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeapi.ws;
 
-import com.google.gson.Gson;
-import javax.measure.unit.Unit;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisType;
-import org.jevis.api.JEVisUnit;
+import org.jevis.api.*;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonType;
 
+import javax.measure.unit.Unit;
+
 /**
- *
  * @author fs
  */
 public class JEVisTypeWS implements JEVisType {
 
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisDataSourceWS.class);
-    private JEVisClass jclass = null;
+    private String jclass = null;
     private JEVisDataSourceWS ds;
     private JsonType json;
 
-    public JEVisTypeWS(JEVisDataSourceWS ds, JsonType json, JEVisClass jclass) {
+    public JEVisTypeWS(JEVisDataSourceWS ds, JsonType json, String jclass) {
         this.jclass = jclass;
         this.ds = ds;
         this.json = json;
     }
 
-    public JEVisTypeWS(JEVisDataSourceWS ds, String name, JEVisClass jclass) {
+    public JEVisTypeWS(JEVisDataSourceWS ds, String name, String jclass) {
         this.json = new JsonType();
         this.json.setName(name);
         this.jclass = jclass;
@@ -96,7 +91,7 @@ public class JEVisTypeWS implements JEVisType {
 
     @Override
     public JEVisClass getJEVisClass() throws JEVisException {
-        return jclass;
+        return ds.getJEVisClass(jclass);
     }
 
     @Override
@@ -116,12 +111,10 @@ public class JEVisTypeWS implements JEVisType {
 
     @Override
     public void setConfigurationValue(String value) throws JEVisException {
-        ;
     }
 
     @Override
     public void setUnit(JEVisUnit unit) throws JEVisException {
-        ;
     }
 
     @Override
@@ -136,7 +129,6 @@ public class JEVisTypeWS implements JEVisType {
 
     @Override
     public void setAlternativSymbol(String symbol) throws JEVisException {
-        ;
     }
 
     @Override
@@ -161,23 +153,7 @@ public class JEVisTypeWS implements JEVisType {
 
     @Override
     public void commit() throws JEVisException {
-        try {
-
-            String resource = REQUEST.API_PATH_V1
-                    + REQUEST.CLASSES.PATH
-                    + jclass.getName() + "/"
-                    + REQUEST.CLASSES.TYPES.PATH
-                    + getName();
-//                    + getName();
-            Gson gson = new Gson();
-            StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
-
-            JsonType newJson = gson.fromJson(response.toString(), JsonType.class);
-            this.json = newJson;
-
-        } catch (Exception ex) {
-            logger.catching(ex);
-        }
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -203,7 +179,7 @@ public class JEVisTypeWS implements JEVisType {
 
     @Override
     public String getJEVisClassName() throws JEVisException {
-        return jclass.getName();
+        return jclass;
     }
 
     @Override

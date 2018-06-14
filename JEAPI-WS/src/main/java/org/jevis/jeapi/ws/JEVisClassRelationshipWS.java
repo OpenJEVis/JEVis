@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -25,7 +25,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonClassRelationship;
 
 /**
- *
  * @author fs
  */
 public class JEVisClassRelationshipWS implements org.jevis.api.JEVisClassRelationship {
@@ -102,4 +101,12 @@ public class JEVisClassRelationshipWS implements org.jevis.api.JEVisClassRelatio
         return ds;
     }
 
+    @Override
+    public String toString() {
+        return "JEVisClassRelationshipWS{" +
+                "from=" + json.getStart() +
+                "  to=" + json.getEnd() +
+                "  type=" + json.getType() +
+                '}';
+    }
 }

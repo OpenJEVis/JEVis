@@ -1,0 +1,26 @@
+{
+  "name": "Energy Team Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Manager",
+      "end": "Energy Team Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Team Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Team Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Energy Team Member",
+      "end": "Energy Team Directory",
+      "type": 3
+    }
+  ]
+}

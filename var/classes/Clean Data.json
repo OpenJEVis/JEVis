@@ -1,0 +1,91 @@
+{
+  "name": "Clean Data",
+  "description": "The class Clean Data represents a container for a series of post-processed numeric values.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Clean Data",
+      "end": "Data",
+      "type": 0
+    },
+    {
+      "start": "Clean Data",
+      "end": "Data",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Conversion to Differential",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Gap Filling Config",
+      "primitiveType": 0,
+      "guiType": "Gap Filling Config",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Period Alignment",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Period Offset",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Value is a Quantity",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Value Multiplier",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Value Offset",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    }
+  ]
+}

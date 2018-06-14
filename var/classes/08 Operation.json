@@ -1,0 +1,48 @@
+{
+  "name": "08 Operation",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "08 Operation",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "08 Operation",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "8.1 Operational Planning and Control",
+      "end": "08 Operation",
+      "type": 0
+    },
+    {
+      "start": "8.1 Operational Planning and Control",
+      "end": "08 Operation",
+      "type": 3
+    },
+    {
+      "start": "8.2 Design",
+      "end": "08 Operation",
+      "type": 0
+    },
+    {
+      "start": "8.2 Design",
+      "end": "08 Operation",
+      "type": 3
+    },
+    {
+      "start": "8.3 Procurement",
+      "end": "08 Operation",
+      "type": 0
+    },
+    {
+      "start": "8.3 Procurement",
+      "end": "08 Operation",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

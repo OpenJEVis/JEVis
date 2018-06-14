@@ -1,0 +1,26 @@
+{
+  "name": "Superior Level Meetings Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Initial Contact",
+      "end": "Superior Level Meetings Directory",
+      "type": 3
+    },
+    {
+      "start": "Meeting",
+      "end": "Superior Level Meetings Directory",
+      "type": 3
+    },
+    {
+      "start": "Superior Level Meetings Directory",
+      "end": "ISO 50001",
+      "type": 0
+    },
+    {
+      "start": "Superior Level Meetings Directory",
+      "end": "ISO 50001 Directory",
+      "type": 3
+    }
+  ]
+}

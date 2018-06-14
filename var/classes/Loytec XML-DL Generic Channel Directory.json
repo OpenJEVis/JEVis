@@ -1,0 +1,22 @@
+{
+  "name": "Loytec XML-DL Generic Channel Directory",
+  "description": "The Loytec XML-DL Generic Channel Directory contains Loytec XML-DL Channels of the specified technology type.\n\n- Technology: dpal, bacnet (default: dpal)",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Loytec XML-DL Channel",
+      "end": "Loytec XML-DL Generic Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "Loytec XML-DL Generic Channel Directory",
+      "end": "Loytec XML-DL Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "Loytec XML-DL Generic Channel Directory",
+      "end": "Loytec XML-DL Server",
+      "type": 3
+    }
+  ]
+}

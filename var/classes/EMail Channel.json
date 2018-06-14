@@ -1,0 +1,50 @@
+{
+  "name": "EMail Channel",
+  "description": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Parser",
+      "end": "EMail Channel",
+      "type": 3
+    },
+    {
+      "start": "EMail Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "EMail Channel",
+      "end": "EMail Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "SQL Parser",
+      "end": "EMail Channel",
+      "type": 3
+    },
+    {
+      "start": "XML Parser",
+      "end": "EMail Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Sender",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Channel"
+    },
+    {
+      "name": "Subject",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Channel"
+    }
+  ]
+}

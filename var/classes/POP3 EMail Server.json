@@ -1,0 +1,23 @@
+{
+  "name": "POP3 EMail Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "EMail Channel Directory",
+      "end": "POP3 EMail Server",
+      "type": 3
+    },
+    {
+      "start": "POP3 EMail Server",
+      "end": "Data Source Directory",
+      "type": 3
+    },
+    {
+      "start": "POP3 EMail Server",
+      "end": "EMail Server",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Calculation",
+  "unique": false,
+  "relationships": [
+    
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Calculation"
+    },
+    {
+      "name": "Expression",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Calculation"
+    }
+  ]
+}

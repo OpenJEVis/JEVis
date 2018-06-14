@@ -1,0 +1,8 @@
+Period_Offset=0
+Period=PT15M
+Value_is_a_Quantity=false
+Conversion_to_Differential=false
+Offset=0
+Gap_Filling=INTERPOLATION
+Multiplier=1
+Period_Aligned=true

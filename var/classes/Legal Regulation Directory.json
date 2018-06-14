@@ -1,0 +1,21 @@
+{
+  "name": "Legal Regulation Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Legal Regulation",
+      "end": "Legal Regulation Directory",
+      "type": 3
+    },
+    {
+      "start": "Legal Regulation Directory",
+      "end": "Documents Directory",
+      "type": 3
+    },
+    {
+      "start": "Legal Regulation Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

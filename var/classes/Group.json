@@ -1,0 +1,12 @@
+{
+  "name": "Group",
+  "description": "Group for user rights",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Group",
+      "end": "Group Directory",
+      "type": 3
+    }
+  ]
+}

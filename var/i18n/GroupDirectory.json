@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Group Directory",
+  "names": {
+    "de": "Group Directory",
+    "ru": "Group Directory",
+    "en": "Group Directory"
+  },
+  "descriptions": {
+    "de": "The class Group Directory represents a specific directory for the management of user groups.",
+    "ru": "The class Group Directory represents a specific directory for the management of user groups.",
+    "en": "The class Group Directory represents a specific directory for the management of user groups."
+  },
+  "types": []
+}

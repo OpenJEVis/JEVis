@@ -1,0 +1,16 @@
+{
+  "name": "JECalc",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JECalc",
+      "end": "Service",
+      "type": 0
+    },
+    {
+      "start": "JECalc",
+      "end": "Service Directory",
+      "type": 3
+    }
+  ]
+}

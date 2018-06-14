@@ -59,15 +59,15 @@ public class JEVisRelationshipWS implements JEVisRelationship {
 
     @Override
     public JEVisObject[] getObjects() throws JEVisException {
-        return new JEVisObject[]{startObj, endObject};
+        return new JEVisObject[]{getStartObject(), getEndObject()};
     }
 
     @Override
     public JEVisObject getOtherObject(JEVisObject object) throws JEVisException {
-        if (object.equals(startObj)) {
-            return endObject;
+        if (object.getID().equals(getStartID())) {
+            return getEndObject();
         } else {
-            return startObj;
+            return getStartObject();
         }
     }
 

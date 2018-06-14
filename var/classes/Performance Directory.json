@@ -1,0 +1,21 @@
+{
+  "name": "Performance Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Evaluated Output",
+      "end": "Performance Directory",
+      "type": 3
+    },
+    {
+      "start": "Performance Directory",
+      "end": "Energy Planning",
+      "type": 3
+    },
+    {
+      "start": "Performance Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

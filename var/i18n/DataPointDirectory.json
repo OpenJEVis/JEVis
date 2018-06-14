@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Data Point Directory",
+  "names": {
+    "de": "Data Point Directory",
+    "ru": "Data Point Directory",
+    "en": "Data Point Directory"
+  },
+  "descriptions": {
+    "de": "The class Data Point Directory represents a specific directory for the management of miscellaneous data points.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ru": "The class Data Point Directory represents a specific directory for the management of miscellaneous data points.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "en": "The class Data Point Directory represents a specific directory for the management of miscellaneous data points.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+  },
+  "types": []
+}

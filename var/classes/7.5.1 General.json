@@ -1,0 +1,19 @@
+{
+  "name": "7.5.1 General",
+  "description": "The organization",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "7.5.1 General",
+      "end": "7.5 Documented Information",
+      "type": 0
+    },
+    {
+      "start": "7.5.1 General",
+      "end": "7.5 Documented Information",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

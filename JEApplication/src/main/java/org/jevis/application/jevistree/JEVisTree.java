@@ -22,6 +22,8 @@ package org.jevis.application.jevistree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -42,7 +44,10 @@ import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.object.tree.UserSelection;
+import org.jscience.mathematics.function.Variable;
 
 /**
  *
@@ -58,10 +63,20 @@ public class JEVisTree extends TreeTableView {
 //    private ObservableList<ViewFilter> filter = FXCollections.observableArrayList();
 
     private JEVisTreeRow dragItem;
+    private SaveResourceBundle rb;
+
+    public SaveResourceBundle getRB(){
+        return rb;
+    }
+
+    public void setLocale(Locale locale){
+        rb = new SaveResourceBundle("jeapplication", locale);
+    }
 
     public JEVisTree(JEVisDataSource ds) {
         super();
         this.ds = ds;
+        rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
         try {
             JEVisTreeItem root = new JEVisTreeItem(this, ds);
             root.setExpanded(true);
@@ -195,7 +210,6 @@ public class JEVisTree extends TreeTableView {
     public void openUserSelection(List<UserSelection> selection) {
 //        System.out.println("OpenUserselection: " + selection.size());
         for (UserSelection sel : selection) {
-            System.out.println("Open: " + sel.getSelectedObject());
             List<JEVisObject> parents = new ArrayList<>();
             parents.add(sel.getSelectedObject());
             findNodePath(parents, sel.getSelectedObject());
@@ -204,7 +218,6 @@ public class JEVisTree extends TreeTableView {
     }
 
     private void openPath(List<JEVisObject> toOpen, TreeItem<JEVisTreeRow> parentNode) {
-//        System.out.println("OpenPath: " + parentNode.getValue().getID());
         for (TreeItem<JEVisTreeRow> child : parentNode.getChildren()) {
             for (JEVisObject findObj : toOpen) {
                 if (findObj.getID().equals(child.getValue().getJEVisObject().getID())) {
@@ -217,7 +230,6 @@ public class JEVisTree extends TreeTableView {
     }
 
     private void findNodePath(List<JEVisObject> parents, JEVisObject obj) {
-//        System.out.println("findNodePath: " + parents.size() + " obj: " + obj);
         try {
             if (obj.getParents().size() >= 1) {
                 JEVisObject parent = obj.getParents().get(0);

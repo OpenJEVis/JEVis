@@ -1,0 +1,17 @@
+{
+  "name": "Report Configuration",
+  "description": "The Report Configuration influences the type of data collection. The most important part for the Report Configuration are at the moment the period configuration. Here you can define if the data period is the current or the last one. In the future other period types are added, for example the period the last year etc.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Report Configuration",
+      "end": "Report Attribute",
+      "type": 3
+    },
+    {
+      "start": "Report Period Configuration",
+      "end": "Report Configuration",
+      "type": 0
+    }
+  ]
+}

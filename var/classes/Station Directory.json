@@ -1,0 +1,26 @@
+{
+  "name": "Station Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Station",
+      "end": "Station Directory",
+      "type": 0
+    },
+    {
+      "start": "Station",
+      "end": "Station Directory",
+      "type": 3
+    },
+    {
+      "start": "Station Directory",
+      "end": "Monitoring Register",
+      "type": 0
+    },
+    {
+      "start": "Station Directory",
+      "end": "Monitoring Register",
+      "type": 3
+    }
+  ]
+}

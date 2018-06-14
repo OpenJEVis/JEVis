@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -21,18 +21,19 @@ package org.jevis.commons.unit;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.text.ParsePosition;
-import java.util.Locale;
-import java.util.Objects;
-import javax.measure.converter.ConversionException;
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonUnit;
+
+import javax.measure.converter.ConversionException;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
+import java.text.ParsePosition;
+import java.util.Locale;
+import java.util.Objects;
 
 /**
  * JEVisUnit implementation based on the javax.measure.unit
@@ -53,6 +54,12 @@ public class JEVisUnitImp implements JEVisUnit {
         _prefix = Prefix.NONE;//todo but how
     }
 
+    public JEVisUnitImp() {
+        _unit = Unit.ONE;
+        _label = _unit.toString();
+        _prefix = Prefix.NONE;//todo but how
+    }
+
     public JEVisUnitImp(org.jevis.commons.ws.json.JsonUnit json) {
 
         Gson gson = new Gson();
@@ -61,19 +68,20 @@ public class JEVisUnitImp implements JEVisUnit {
         _prefix = UnitManager.getInstance().getPrefix(json.getPrefix(), Locale.getDefault());
         ParsePosition pp = new ParsePosition(0);
         _unit = UnitFormat.getInstance().parseObject(json.getFormula(), pp);
-        
-        try{
+
+        try {
             UnitManager.getInstance().getUnitWithPrefix(_unit, getPrefix());
             _unit.toString();
-      }catch(Exception ex){
-             System.out.println("Warning! Could not parse unit from json: '" + gson.toJson(json) + "' " + ex.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Warning! Could not parse unit from json: '" + gson.toJson(json) + "' " + ex.getMessage());
             _unit = Unit.ONE;
             _label = "Unknown";
             _prefix = Prefix.NONE;
         }
 
     }
-  @Override
+
+    @Override
     public String toJSON() {
         Gson gson = new GsonBuilder().create();
         JsonUnit junit = JsonFactory.buildUnit(this);
@@ -88,7 +96,6 @@ public class JEVisUnitImp implements JEVisUnit {
     }
 
     /**
-     *
      * @param unit
      * @param label
      * @param prefix
@@ -108,10 +115,9 @@ public class JEVisUnitImp implements JEVisUnit {
      * Create an new JEVisUnit from an JEVisUnit string
      *
      * @param prefix
-     * @TODO example of an string
-     *
      * @param unit
      * @param label
+     * @TODO example of an string
      */
     public JEVisUnitImp(String unit, String label, Prefix prefix) {
 //        System.out.println("new JEVisUnitImp2: " + unit + " - " + label + " - " + prefix);
@@ -226,10 +232,7 @@ public class JEVisUnitImp implements JEVisUnit {
         hash = 97 * hash + Objects.hashCode(this._prefix);
         return hash;
     }
-    
-    
 
-    
 
 //    @Override
 //    public boolean equals(Object obj) {
@@ -272,7 +275,7 @@ public class JEVisUnitImp implements JEVisUnit {
 //        }
 //        return true;
 //    }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -282,21 +285,28 @@ public class JEVisUnitImp implements JEVisUnit {
             return false;
         }
         if (obj instanceof JEVisUnit) {
-            
-        }else{
+
+        } else {
             return false;
         }
         final JEVisUnit other = (JEVisUnit) obj;
-        if (!Objects.equals(this.getLabel(),other.getLabel())) {
+        if (!Objects.equals(this.getLabel(), other.getLabel())) {
             return false;
         }
         if (!Objects.equals(this.getFormula(), other.getFormula())) {
             return false;
         }
-       if (!Objects.equals(this.getPrefix(), other.getPrefix())) {
+        if (!Objects.equals(this.getPrefix(), other.getPrefix())) {
             return false;
         }
         return true;
     }
 
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        JEVisUnit clone = new JEVisUnitImp(_unit);
+
+        return clone;
+    }
 }

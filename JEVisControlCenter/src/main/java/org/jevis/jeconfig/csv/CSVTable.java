@@ -1,37 +1,30 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.csv;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.geometry.Orientation;
-import javafx.scene.Node;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
@@ -42,15 +35,17 @@ import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class CSVTable extends TableView<CSVLine> {
 
     private CSVParser _parser;
-    private double _lastBarPositionV;
-    private double _lastBarPositionH;
     private JEVisDataSource _ds;
     private List<CSVColumnHeader> _header = new ArrayList<>();
 
@@ -70,16 +65,7 @@ public class CSVTable extends TableView<CSVLine> {
 
         for (int i = 0; i < _parser.getColumnCount(); i++) {
             String columnName = "Column " + i;
-//            try {
-//                if (_parser.getRows().size() - 1 > 1) {
-//                    CSVLine testLIne = _parser.getRows().get(_parser.getRows().size() - 1);
-//                    System.out.println("guess for: " + testLIne.getColumn(i));
-//                    columnName += "\n" + CSVValueGuesser.guessType(testLIne.getColumn(i));
-//
-//                }
-//            } catch (Exception ex) {
-//                System.out.println("error while guessing values");
-//            }
+
             columnName = "";
 
             TableColumn<CSVLine, String> column = new TableColumn(columnName);
@@ -129,7 +115,7 @@ public class CSVTable extends TableView<CSVLine> {
                             if (header.getMeaning() == CSVColumnHeader.Meaning.DateTime) {
                                 tsColumn = header;
                                 break;
-                            }else if(header.getMeaning() == CSVColumnHeader.Meaning.Date){
+                            } else if (header.getMeaning() == CSVColumnHeader.Meaning.Date) {
                                 tsColumn = header;
                                 break;
                             }
@@ -151,7 +137,7 @@ public class CSVTable extends TableView<CSVLine> {
 
                                 for (CSVLine line : _parser.getRows()) {
                                     try {
-                                        DateTime ts= tsColumn.getValueAsDate(line.getColumn(tsColumn.getColumn()));
+                                        DateTime ts = tsColumn.getValueAsDate(line.getColumn(tsColumn.getColumn()));
                                         if (header.getMeaning() == CSVColumnHeader.Meaning.Value) {
                                             Double value = header.getValueAsDouble(line.getColumn(header.getColumn()));
                                             JEVisSample newSample = header.getTarget().buildSample(ts, value, "CSV Import by " + _ds.getCurrentUser().getAccountName());
@@ -183,7 +169,7 @@ public class CSVTable extends TableView<CSVLine> {
         ProgressDialog pd = new ProgressDialog(service);
         pd.setHeaderText(I18n.getInstance().getString("csv.progress.header"));
         pd.setTitle(I18n.getInstance().getString("csv.progress.title"));
-//        pd.setContentText("Importing Samples2");
+
         service.start();
         return true;
     }
@@ -196,76 +182,15 @@ public class CSVTable extends TableView<CSVLine> {
         final int size = getItems().size();
         if (size > 0) {
             scrollTo(1);
-        };
-    }
-
-    public void setScrollBottom() {
-        final int size = getItems().size();
-        if (size > 0) {
-            scrollTo(size - 1);
-        };
-
-//        getItems().addListener(new ListChangeListener<CSVLine>() {
-//
-//            @Override
-//            public void onChanged(ListChangeListener.Change<? extends CSVLine> change) {
-//                final int size = getItems().size();
-//                if (size > 0) {
-//                    scrollTo(size - 1);
-//                }
-//            }
-//        });
-//        for (Node n : lookupAll(".scroll-bar")) {
-//            if (n instanceof ScrollBar) {
-//                ScrollBar bar = (ScrollBar) n;
-//                System.out.println(bar.getOrientation() + ": range " + bar.getMin() + " => " + bar.getMax() + ", value " + bar.getValue());
-////                if (bar.getOrientation().equals(Orientation.VERTICAL)) {
-////                    _lastBarPositionV = bar.getValue();
-////                } else {
-////                    _lastBarPositionH = bar.getValue();
-////                }
-//
-//                if (bar.getOrientation().equals(Orientation.VERTICAL)) {
-//                    bar.setValue(100.0d);
-//                    System.out.println(bar.getOrientation() + ": range " + bar.getMin() + " => " + bar.getMax() + ", value " + bar.getValue());
-//                }
-//
-//            }
-//        }
-    }
-
-    public void setLastScrollPosition() {
-//        System.out.println("Set last Pos: " + _lastBarPositionV + " " + _lastBarPositionH);
-        for (Node n : lookupAll(".scroll-bar")) {
-            if (n instanceof ScrollBar) {
-                ScrollBar bar = (ScrollBar) n;
-                if (bar.getOrientation().equals(Orientation.VERTICAL)) {
-                    bar.setValue(_lastBarPositionV);
-                } else {
-                    bar.setValue(_lastBarPositionH);
-                }
-            }
         }
     }
+
 
     public void refreshTable() {
         ObservableList<CSVLine> tmpItem = FXCollections.observableArrayList();
         FXCollections.copy(tmpItem, getItems());
         setItems(tmpItem);
 
-//        final List<CSVLine> items = getItems();
-//        if (items == null || items.size() == 0) {
-//            return;
-//        }
-//
-//        final CSVLine item = getItems().get(0);
-//        items.remove(0);
-//        Platform.runLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                items.add(0, item);
-//            }
-//        });
     }
 
 }

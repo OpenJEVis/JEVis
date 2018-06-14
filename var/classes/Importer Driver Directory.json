@@ -1,0 +1,22 @@
+{
+  "name": "Importer Driver Directory",
+  "description": "The class Importer Driver Directory represents a specific directory for the management of importer driver data.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Importer Driver",
+      "end": "Importer Driver Directory",
+      "type": 3
+    },
+    {
+      "start": "Importer Driver Directory",
+      "end": "Driver Directory",
+      "type": 0
+    },
+    {
+      "start": "Importer Driver Directory",
+      "end": "JEDataCollector",
+      "type": 3
+    }
+  ]
+}

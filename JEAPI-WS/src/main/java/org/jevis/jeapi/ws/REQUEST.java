@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -22,8 +22,8 @@ package org.jevis.jeapi.ws;
 /**
  * Simple JEWebService URL building constats interfaces
  *
- * @TODO Add an URL building function
  * @author fs
+ * @TODO Add an URL building function
  */
 public interface REQUEST {
 
@@ -94,27 +94,9 @@ public interface REQUEST {
             public static String PATH = "icon/";
         }
 
-        public interface TYPES {
-
-            public static String PATH = "types/";
-
-            public interface OPTIONS {
-
-                public static String INCLUDE_RELATIONSHIPS = "rel=true";
-            }
-        }
 
     }
 
-    public interface TYPES {
-
-        public static String PATH = "types/";
-
-        public interface OPTIONS {
-
-            public static String INCLUDE_RELATIONSHIPS = "rel=true";
-        }
-    }
 
     public interface RELATIONSHIPS {
 
@@ -128,20 +110,20 @@ public interface REQUEST {
             public static String TYPE = "type=";
         }
     }
-
-    public interface CLASS_RELATIONSHIPS {
-
-        public static String PATH = "classrelationships/";
-
-        public interface OPTIONS {
-
-            public static String INCLUDE_RELATIONSHIPS = "rel=true";
-            public static String FROM = "from=";
-            public static String TO = "to=";
-            public static String TYPE = "type=";
-        }
-
-    }
+//
+//    public interface CLASS_RELATIONSHIPS {
+//
+//        public static String PATH = "classrelationships/";
+//
+//        public interface OPTIONS {
+//
+//            public static String INCLUDE_RELATIONSHIPS = "rel=true";
+//            public static String FROM = "from=";
+//            public static String TO = "to=";
+//            public static String TYPE = "type=";
+//        }
+//
+//    }
 
     public interface JEVISUSER {
 

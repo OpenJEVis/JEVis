@@ -1,0 +1,68 @@
+{
+  "name": "07 Support",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "07 Support",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "07 Support",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "7.1 Resources",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.1 Resources",
+      "end": "07 Support",
+      "type": 3
+    },
+    {
+      "start": "7.2 Competence",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.2 Competence",
+      "end": "07 Support",
+      "type": 3
+    },
+    {
+      "start": "7.3 Awareness",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.3 Awareness",
+      "end": "07 Support",
+      "type": 3
+    },
+    {
+      "start": "7.4 Communication",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.4 Communication",
+      "end": "07 Support",
+      "type": 3
+    },
+    {
+      "start": "7.5 Documented Information",
+      "end": "07 Support",
+      "type": 0
+    },
+    {
+      "start": "7.5 Documented Information",
+      "end": "07 Support",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Converter",
+  "description": "The class Converter represents a none-specific directory for the structuring of the system. The class Converter is only used for the inheritance of specific converter types.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "ZIP Converter",
+      "end": "Converter",
+      "type": 0
+    }
+  ]
+}

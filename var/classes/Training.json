@@ -1,0 +1,63 @@
+{
+  "name": "Training",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Training",
+      "end": "Training Directory",
+      "type": 0
+    },
+    {
+      "start": "Training",
+      "end": "Training Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Participants",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Training"
+    },
+    {
+      "name": "Trainer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Training"
+    },
+    {
+      "name": "Training Course",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Training"
+    },
+    {
+      "name": "Training Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Training"
+    },
+    {
+      "name": "Training Time",
+      "primitiveType": 0,
+      "guiType": "Schedule",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Training"
+    }
+  ]
+}

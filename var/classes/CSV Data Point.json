@@ -1,0 +1,43 @@
+{
+  "name": "CSV Data Point",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Data Point",
+      "end": "CSV Data Point Directory",
+      "type": 3
+    },
+    {
+      "start": "CSV Data Point",
+      "end": "Data Point",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Mapping Identifier",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Data Point"
+    },
+    {
+      "name": "Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Data Point"
+    },
+    {
+      "name": "Value Index",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Data Point"
+    }
+  ]
+}

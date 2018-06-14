@@ -1,22 +1,22 @@
-/*
-  Copyright (C) 2013 - 2018 Envidatec GmbH <info@envidatec.com>
-
-  This file is part of JEWebService.
-
-  JEWebService is free software: you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free Software
-  Foundation in version 3.
-
-  JEWebService is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-  details.
-
-  You should have received a copy of the GNU General Public License along with
-  JEWebService. If not, see <http://www.gnu.org/licenses/>.
-
-  JEWebService is part of the OpenJEVis project, further project information
-  are published at <http://www.OpenJEVis.org/>.
+/**
+ * Copyright (C) 2013 - 2018 Envidatec GmbH <info@envidatec.com>
+ * <p>
+ * This file is part of JEWebService.
+ * <p>
+ * JEWebService is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ * <p>
+ * JEWebService is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * <p>
+ * You should have received a copy of the GNU General Public License along with
+ * JEWebService. If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * JEWebService is part of the OpenJEVis project, further project information
+ * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql;
 
@@ -25,9 +25,13 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisException;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
-import org.jevis.ws.sql.tables.*;
+import org.jevis.ws.sql.tables.AttributeTable;
+import org.jevis.ws.sql.tables.ObjectTable;
+import org.jevis.ws.sql.tables.RelationshipTable;
+import org.jevis.ws.sql.tables.SampleTable;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -57,7 +61,7 @@ public class SQLtoJsonFactory {
 
     private static final Gson gson = new Gson();
 
-//    public static JsonAttribute buildAttribute(ResultSet rs) throws JEVisException, SQLException {
+    //    public static JsonAttribute buildAttribute(ResultSet rs) throws JEVisException, SQLException {
 //        JsonAttribute jatt = new JsonAttribute();
 //
 //        Long sampleCount = rs.getLong(AttributeTable.COLUMN_COUNT);
@@ -93,7 +97,11 @@ public class SQLtoJsonFactory {
 //
 //        return jatt;
 //    }
-public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQLException {
+    public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws JEVisException, SQLException {
+        JsonType type = JEVisClassHelper.getType(rs.getString(ObjectTable.COLUMN_CLASS), rs.getString(AttributeTable.COLUMN_NAME));
+        if (type == null) {
+            return null;
+        }
         JsonAttribute jatt = new JsonAttribute();
 
         Long sampleCount = rs.getLong(AttributeTable.COLUMN_COUNT);
@@ -128,21 +136,21 @@ public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQL
         }
 
         try {
-            jatt.setPrimitiveType(rs.getInt(TypeTable.COLUMN_PRIMITIV_TYPE));
+            jatt.setPrimitiveType(type.getPrimitiveType());
             //TODO getLastSample bease on priType
 //            jatt.setLatestValue(rs.getString(SampleTable.COLUMN_VALUE));
             if (rs.getString(SampleTable.COLUMN_VALUE) != null) {
                 JsonSample sample = new JsonSample();
                 sample.setNote(rs.getString(SampleTable.COLUMN_NOTE));
                 sample.setTs(sampleDTF.print(new DateTime(rs.getTimestamp(AttributeTable.COLUMN_MAX_TS))));
-                
-                if(jatt.getPrimitiveType()==JEVisConstants.PrimitiveType.BOOLEAN){
-                    sample.setValue(""+rs.getBoolean(SampleTable.COLUMN_VALUE));
-                }else{
+
+                if (jatt.getPrimitiveType() == JEVisConstants.PrimitiveType.BOOLEAN) {
+                    sample.setValue("" + rs.getBoolean(SampleTable.COLUMN_VALUE));
+                } else {
                     sample.setValue(rs.getString(SampleTable.COLUMN_VALUE));
                 }
-                
-                
+
+
                 jatt.setLatestValue(sample);
             }
 
@@ -153,45 +161,14 @@ public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQL
         return jatt;
     }
 
-    public static JsonClassRelationship buildClassRelationship(ResultSet rs) throws SQLException {
 
-        JsonClassRelationship json = new JsonClassRelationship();
-        json.setStart(rs.getString(ClassRelationTable.COLUMN_START));
-        json.setEnd(rs.getString(ClassRelationTable.COLUMN_END));
-        json.setType(rs.getInt(ClassRelationTable.COLUMN_TYPE));
-
-        return json;
-    }
-
-    //used by the android app?
-//    public static JsonObject buildDetailedObject(JEVisObject obj) throws JEVisException {
-//        JsonObject json = new JsonObject();
-//        json.setName(obj.getName());
-//        json.setId(obj.getID());
-//        json.setJevisClass(obj.getJEVisClass().getName());
-//        json.setRelationships(JsonSQLFactory.buildRelationship(obj.getRelationships()));
-//        List<JsonAttribute> attributes = new ArrayList<JsonAttribute>();
-//        for (JEVisAttribute att : obj.getAttributes()) {
-//            attributes.add(buildAttribute(att));
-//        }
-//        json.setAttributes(attributes);
-//
-//        List<JsonObject> children = new ArrayList<JsonObject>();
-//        for (JEVisObject child : obj.getChildren()) {
-//            children.add(buildDetailedObject(child));
-//        }
-//        json.setObjects(children);
-//
-//        return json;
-//    }
     /**
      * Build a JSON representation of a JEVisObject
      *
-     * @param obj
-     * @param includeRelationships
      * @return
+     * @throws JEVisException
      */
-    public static JsonObject buildObject(ResultSet rs) throws SQLException {
+    public static JsonObject buildObject(ResultSet rs) throws JEVisException, SQLException {
         JsonObject json = new JsonObject();
         json.setName(rs.getString(ObjectTable.COLUMN_NAME));
         json.setId(rs.getLong(ObjectTable.COLUMN_ID));
@@ -203,10 +180,10 @@ public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQL
     /**
      * Build a JSON representation of a JEVisRelationship
      *
-     * @param rel
      * @return
+     * @throws JEVisException
      */
-    public static JsonRelationship buildRelationship(ResultSet rs) throws SQLException {
+    public static JsonRelationship buildRelationship(ResultSet rs) throws JEVisException, SQLException {
         JsonRelationship json = new JsonRelationship();
         json.setFrom(rs.getLong(RelationshipTable.COLUMN_START));
         json.setTo(rs.getLong(RelationshipTable.COLUMN_END));
@@ -214,22 +191,6 @@ public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQL
         return json;
     }
 
-    /**
-     * Builds a JSON representation of a JEVisClass
-     *
-     * @param jclass
-     * @return
-     */
-    public static JsonJEVisClass buildJEVisClass(ResultSet rs) throws SQLException {
-        JsonJEVisClass json = new JsonJEVisClass();
-
-        json.setName(rs.getString(ClassTable.COLUMN_NAME));
-        json.setDescription(rs.getString(ClassTable.COLUMN_DESCRIPTION));
-        json.setUnique(rs.getBoolean(ClassTable.COLUMN_UNIQUE));
-//        json.setRelationships(buildClassRelationships(jclass.getRelationships()));
-
-        return json;
-    }
 
     public static void addTypesToClasses(Map<String, JsonJEVisClass> classes, List<JsonType> types) {
         for (JsonType t : types) {
@@ -237,54 +198,33 @@ public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQL
                 JsonJEVisClass jc = classes.get(t.getJevisClass());
 
                 if (jc.getTypes() == null) {
-                    jc.setTypes(new ArrayList<>());
+                    jc.setTypes(new ArrayList<JsonType>());
                 }
                 jc.getTypes().add(t);
             } catch (Exception ex) {
-                
+
             }
 
         }
     }
 
     public static Map<String, JsonJEVisClass> toMap(List<JsonJEVisClass> classes) {
-        return Maps.uniqueIndex(classes, new Function<JsonJEVisClass, String>() {
+        Map<String, JsonJEVisClass> map = Maps.uniqueIndex(classes, new Function<JsonJEVisClass, String>() {
             @Override
             public String apply(JsonJEVisClass f) {
                 return f.getName();
             }
         });
-    }
-
-    public static void addRelationhipsToClasses(Map<String, JsonJEVisClass> classes, List<JsonClassRelationship> classRels) {
-        for (JsonClassRelationship t : classRels) {
-            try {
-                JsonJEVisClass toJC = classes.get(t.getEnd());
-                JsonJEVisClass fromJC = classes.get(t.getStart());
-
-                if (toJC.getRelationships() == null) {
-                    toJC.setRelationships(new ArrayList<>());
-                }
-                if (fromJC.getRelationships() == null) {
-                    fromJC.setRelationships(new ArrayList<>());
-                }
-
-                toJC.getRelationships().add(t);
-                fromJC.getRelationships().add(t);
-            } catch (NullPointerException np) {
-                np.printStackTrace();
-            }
-
-        }
+        return map;
     }
 
     /**
      * Build a JSON representation of a JEVIsSample
      *
-     * @param sample
      * @return
+     * @throws JEVisException
      */
-    public static JsonSample buildSample(ResultSet rs) throws SQLException {
+    public static JsonSample buildSample(ResultSet rs) throws JEVisException, SQLException {
         JsonSample json = new JsonSample();
         json.setNote(rs.getString(SampleTable.COLUMN_NOTE));
         json.setTs(sampleDTF.print(new DateTime(rs.getTimestamp(SampleTable.COLUMN_TIMESTAMP))));
@@ -293,23 +233,4 @@ public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQL
         return json;
     }
 
-    /**
-     * Build a JSON representation of a JEVisType
-     *
-     * @param type
-     * @return
-     */
-    public static JsonType buildType(ResultSet rs) throws SQLException {
-        JsonType json = new JsonType();
-        json.setDescription(rs.getString(TypeTable.COLUMN_DESCRIPTION));
-        json.setGuiType(rs.getString(TypeTable.COLUMN_DISPLAY_TYPE));
-        json.setPrimitiveType(rs.getInt(TypeTable.COLUMN_PRIMITIV_TYPE));
-        json.setName(rs.getString(TypeTable.COLUMN_NAME));
-        json.setValidity(rs.getInt(TypeTable.COLUMN_VALIDITY));
-        json.setInherited(rs.getBoolean(TypeTable.COLUMN_INHERITEDT));
-        json.setJevisclass(rs.getString(TypeTable.COLUMN_CLASS));
-
-//        String unitString = rs.getString(TypeTable.COLUMN_DEFAULT_UNIT);
-        return json;
-    }
 }

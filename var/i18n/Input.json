@@ -1,0 +1,50 @@
+{
+  "jevisclass": "Input",
+  "names": {
+    "de": "Input",
+    "ru": "Input",
+    "en": "Input"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Identifier",
+      "descriptions": {
+        "de": "Identifier desctiption",
+        "ru": "Identifier desctiption",
+        "en": "Identifier desctiption"
+      },
+      "names": {
+        "de": "Identifier",
+        "ru": "Identifier",
+        "en": "Identifier"
+      }
+    },
+    {
+      "type": "Input Data",
+      "descriptions": {
+        "de": "Input Data desctiption",
+        "ru": "Input Data desctiption",
+        "en": "Input Data desctiption"
+      },
+      "names": {
+        "de": "Input Data",
+        "ru": "Input Data",
+        "en": "Input Data"
+      }
+    },
+    {
+      "type": "Input Data Type",
+      "descriptions": {
+        "de": "Input Data Type desctiption",
+        "ru": "Input Data Type desctiption",
+        "en": "Input Data Type desctiption"
+      },
+      "names": {
+        "de": "Input Data Type",
+        "ru": "Input Data Type",
+        "en": "Input Data Type"
+      }
+    }
+  ]
+}

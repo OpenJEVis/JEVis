@@ -1,0 +1,18 @@
+{
+  "name": "Importer Driver",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Importer Driver",
+      "end": "Driver",
+      "type": 0
+    },
+    {
+      "start": "Importer Driver",
+      "end": "Importer Driver Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

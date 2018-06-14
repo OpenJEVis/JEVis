@@ -1,0 +1,99 @@
+{
+  "name": "Periodic Report",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Automated Working Sheet",
+      "end": "Periodic Report",
+      "type": 0
+    },
+    {
+      "start": "E-Mail Notification",
+      "end": "Periodic Report",
+      "type": 3
+    },
+    {
+      "start": "Periodic Report",
+      "end": "Report",
+      "type": 0
+    },
+    {
+      "start": "Periodic Report",
+      "end": "Report Directory",
+      "type": 3
+    },
+    {
+      "start": "Report Link",
+      "end": "Periodic Report",
+      "type": 3
+    },
+    {
+      "start": "Report Link Directory",
+      "end": "Periodic Report",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Attribute Name",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    },
+    {
+      "name": "Condition Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    },
+    {
+      "name": "JEVis ID",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    },
+    {
+      "name": "Limit",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    },
+    {
+      "name": "Operator",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    },
+    {
+      "name": "Schedule",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    },
+    {
+      "name": "Start Record",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    }
+  ]
+}

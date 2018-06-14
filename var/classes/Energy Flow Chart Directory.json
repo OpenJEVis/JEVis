@@ -1,0 +1,26 @@
+{
+  "name": "Energy Flow Chart Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Energy Flow Chart",
+      "end": "Energy Flow Chart Directory",
+      "type": 0
+    },
+    {
+      "start": "Energy Flow Chart",
+      "end": "Energy Flow Chart Directory",
+      "type": 3
+    },
+    {
+      "start": "Energy Flow Chart Directory",
+      "end": "Energy Planning",
+      "type": 3
+    },
+    {
+      "start": "Energy Flow Chart Directory",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

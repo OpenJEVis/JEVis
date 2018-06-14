@@ -1,0 +1,49 @@
+{
+  "name": "05 Leadership",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "05 Leadership",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "05 Leadership",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "5.1 Leadership and Commitment",
+      "end": "05 Leadership",
+      "type": 0
+    },
+    {
+      "start": "5.1 Leadership and Commitment",
+      "end": "05 Leadership",
+      "type": 3
+    },
+    {
+      "start": "5.2 Energy Policy",
+      "end": "05 Leadership",
+      "type": 0
+    },
+    {
+      "start": "5.2 Energy Policy",
+      "end": "05 Leadership",
+      "type": 3
+    },
+    {
+      "start": "5.3 Organization Roles, Responsibilities and Authorities",
+      "end": "05 Leadership",
+      "type": 0
+    },
+    {
+      "start": "5.3 Organization Roles, Responsibilities and Authorities",
+      "end": "05 Leadership",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

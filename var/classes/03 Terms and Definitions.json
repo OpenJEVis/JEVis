@@ -1,0 +1,69 @@
+{
+  "name": "03 Terms and Definitions",
+  "description": "For the purposes of this document, the following terms and definitions apply.\n\nISO and IEC maintain terminological databases for use in standardization at the following addresses:\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "03 Terms and Definitions",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "03 Terms and Definitions",
+      "end": "Management Manual Directory",
+      "type": 3
+    },
+    {
+      "start": "3.1 Terms related to the Organization",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.1 Terms related to the Organization",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    },
+    {
+      "start": "3.2 Terms related to the Management System",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.2 Terms related to the Management System",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    },
+    {
+      "start": "3.3 Terms related to Requirement",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.3 Terms related to Requirement",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    },
+    {
+      "start": "3.4 Terms related to Performance",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.4 Terms related to Performance",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    },
+    {
+      "start": "3.5 Terms related to Energy",
+      "end": "03 Terms and Definitions",
+      "type": 0
+    },
+    {
+      "start": "3.5 Terms related to Energy",
+      "end": "03 Terms and Definitions",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

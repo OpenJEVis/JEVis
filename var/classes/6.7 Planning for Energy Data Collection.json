@@ -1,0 +1,18 @@
+{
+  "name": "6.7 Planning for Energy Data Collection",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "6.7 Planning for Energy Data Collection",
+      "end": "06 Planning",
+      "type": 0
+    },
+    {
+      "start": "6.7 Planning for Energy Data Collection",
+      "end": "06 Planning",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

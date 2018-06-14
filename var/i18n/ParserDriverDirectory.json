@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Parser Driver Directory",
+  "names": {
+    "de": "Parser Driver Directory",
+    "ru": "Parser Driver Directory",
+    "en": "Parser Driver Directory"
+  },
+  "descriptions": {
+    "de": "The class Parser Driver Directory represents a specific directory for the management of parser driver data.",
+    "ru": "The class Parser Driver Directory represents a specific directory for the management of parser driver data.",
+    "en": "The class Parser Driver Directory represents a specific directory for the management of parser driver data."
+  },
+  "types": []
+}

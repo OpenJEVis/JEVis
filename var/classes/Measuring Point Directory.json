@@ -1,0 +1,26 @@
+{
+  "name": "Measuring Point Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Measuring Point",
+      "end": "Measuring Point Directory",
+      "type": 0
+    },
+    {
+      "start": "Measuring Point",
+      "end": "Measuring Point Directory",
+      "type": 3
+    },
+    {
+      "start": "Measuring Point Directory",
+      "end": "Monitoring Register",
+      "type": 0
+    },
+    {
+      "start": "Measuring Point Directory",
+      "end": "Monitoring Register",
+      "type": 3
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "jevisclass": "6.5 Energy Baseline",
+  "names": {
+    "de": "6.5 Energy Baseline",
+    "ru": "6.5 Energy Baseline",
+    "en": "6.5 Energy Baseline"
+  },
+  "descriptions": {
+    "de": "The organization shall establish an EnB(s) using the information from the energy review(s) (see 6.3), taking into account a suitable period of time.   \nEnB(s) shall be modified to enable energy performance comparison under equivalent conditions or revised in case of one or more of the following: \na) EnPI(s) no longer reflect the organization",
+    "ru": "The organization shall establish an EnB(s) using the information from the energy review(s) (see 6.3), taking into account a suitable period of time.   \nEnB(s) shall be modified to enable energy performance comparison under equivalent conditions or revised in case of one or more of the following: \na) EnPI(s) no longer reflect the organization",
+    "en": "The organization shall establish an EnB(s) using the information from the energy review(s) (see 6.3), taking into account a suitable period of time.   \nEnB(s) shall be modified to enable energy performance comparison under equivalent conditions or revised in case of one or more of the following: \na) EnPI(s) no longer reflect the organization"
+  },
+  "types": [
+    {
+      "type": "Content",
+      "descriptions": {
+        "de": "Content desctiption",
+        "ru": "Content desctiption",
+        "en": "Content desctiption"
+      },
+      "names": {
+        "de": "Content",
+        "ru": "Content",
+        "en": "Content"
+      }
+    },
+    {
+      "type": "Created by",
+      "descriptions": {
+        "de": "Created by desctiption",
+        "ru": "Created by desctiption",
+        "en": "Created by desctiption"
+      },
+      "names": {
+        "de": "Created by",
+        "ru": "Created by",
+        "en": "Created by"
+      }
+    },
+    {
+      "type": "Date of Creation",
+      "descriptions": {
+        "de": "Date of Creation desctiption",
+        "ru": "Date of Creation desctiption",
+        "en": "Date of Creation desctiption"
+      },
+      "names": {
+        "de": "Date of Creation",
+        "ru": "Date of Creation",
+        "en": "Date of Creation"
+      }
+    },
+    {
+      "type": "Document Number",
+      "descriptions": {
+        "de": "Document Number desctiption",
+        "ru": "Document Number desctiption",
+        "en": "Document Number desctiption"
+      },
+      "names": {
+        "de": "Document Number",
+        "ru": "Document Number",
+        "en": "Document Number"
+      }
+    },
+    {
+      "type": "Release Date",
+      "descriptions": {
+        "de": "Release Date desctiption",
+        "ru": "Release Date desctiption",
+        "en": "Release Date desctiption"
+      },
+      "names": {
+        "de": "Release Date",
+        "ru": "Release Date",
+        "en": "Release Date"
+      }
+    },
+    {
+      "type": "Released by",
+      "descriptions": {
+        "de": "Released by desctiption",
+        "ru": "Released by desctiption",
+        "en": "Released by desctiption"
+      },
+      "names": {
+        "de": "Released by",
+        "ru": "Released by",
+        "en": "Released by"
+      }
+    },
+    {
+      "type": "Title",
+      "descriptions": {
+        "de": "Title desctiption",
+        "ru": "Title desctiption",
+        "en": "Title desctiption"
+      },
+      "names": {
+        "de": "Title",
+        "ru": "Title",
+        "en": "Title"
+      }
+    },
+    {
+      "type": "Version",
+      "descriptions": {
+        "de": "Version desctiption",
+        "ru": "Version desctiption",
+        "en": "Version desctiption"
+      },
+      "names": {
+        "de": "Version",
+        "ru": "Version",
+        "en": "Version"
+      }
+    }
+  ]
+}

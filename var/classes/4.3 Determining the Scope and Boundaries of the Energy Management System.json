@@ -1,0 +1,19 @@
+{
+  "name": "4.3 Determining the Scope and Boundaries of the Energy Management System",
+  "description": "The organization shall determine the boundaries and applicability of the EnMS to establish its EnMS  scope.   \nWhen determining this the EnMS scope, the organization shall consider:  \na) the external and internal issues referred to in 4.1;  \nb) the requirements referred to in 4.2.  \n\nThe organization shall ensure that it has the authority to control its energy use, energy consumption,  and energy efficiency within the scope and boundaries.  The EnMS scope and boundaries shall be  available maintained as documented information (see 7.5). ",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "4.3 Determining the Scope and Boundaries of the Energy Management System",
+      "end": "04 Context of the Organization",
+      "type": 0
+    },
+    {
+      "start": "4.3 Determining the Scope and Boundaries of the Energy Management System",
+      "end": "04 Context of the Organization",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

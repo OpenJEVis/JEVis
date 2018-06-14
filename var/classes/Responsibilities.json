@@ -1,0 +1,16 @@
+{
+  "name": "Responsibilities",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Energy Team",
+      "end": "Responsibilities",
+      "type": 0
+    },
+    {
+      "start": "Responsibilities",
+      "end": "ISO 50001",
+      "type": 0
+    }
+  ]
+}

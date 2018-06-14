@@ -1,0 +1,108 @@
+{
+  "name": "Measuring Point",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Measuring Point",
+      "end": "Measuring Point Directory",
+      "type": 0
+    },
+    {
+      "start": "Measuring Point",
+      "end": "Measuring Point Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Comment",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    },
+    {
+      "name": "Data Point Assignment",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    },
+    {
+      "name": "Installation Location",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    },
+    {
+      "name": "Meter",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    },
+    {
+      "name": "Monitoring ID",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    },
+    {
+      "name": "Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    },
+    {
+      "name": "Photo",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    },
+    {
+      "name": "Physical Property",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    },
+    {
+      "name": "Station",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    },
+    {
+      "name": "Unit",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measuring Point"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Data Source Driver Directory",
+  "names": {
+    "de": "Data Source Driver Directory",
+    "ru": "Data Source Driver Directory",
+    "en": "Data Source Driver Directory"
+  },
+  "descriptions": {
+    "de": "The class Data Source Driver Directory represents a specific directory for the management of source driver data.",
+    "ru": "The class Data Source Driver Directory represents a specific directory for the management of source driver data.",
+    "en": "The class Data Source Driver Directory represents a specific directory for the management of source driver data."
+  },
+  "types": []
+}

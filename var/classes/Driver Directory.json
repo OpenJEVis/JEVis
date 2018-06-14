@@ -1,0 +1,32 @@
+{
+  "name": "Driver Directory",
+  "description": "The class Driver Directory represents a specific directory for the management of  data concerning miscellaneous drivers.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Converter Driver Directory",
+      "end": "Driver Directory",
+      "type": 0
+    },
+    {
+      "start": "Data Source Driver Directory",
+      "end": "Driver Directory",
+      "type": 0
+    },
+    {
+      "start": "Driver Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Importer Driver Directory",
+      "end": "Driver Directory",
+      "type": 0
+    },
+    {
+      "start": "Parser Driver Directory",
+      "end": "Driver Directory",
+      "type": 0
+    }
+  ]
+}

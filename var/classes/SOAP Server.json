@@ -1,0 +1,49 @@
+{
+  "name": "SOAP Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "SOAP Channel Directory",
+      "end": "SOAP Server",
+      "type": 3
+    },
+    {
+      "start": "SOAP Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "SOAP Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "SOAP Server"
+    },
+    {
+      "name": "SSL",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "SOAP Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "SOAP Server"
+    }
+  ]
+}

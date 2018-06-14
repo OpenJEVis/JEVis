@@ -1,26 +1,24 @@
 /**
  * Copyright (C) 2014-2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
-import java.util.ArrayList;
-import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -33,48 +31,33 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
+import org.jevis.application.application.I18nWS;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.SelectTargetDialog2;
 import org.jevis.application.jevistree.JEVisTree;
-import org.jevis.application.login.FXLogin;
 import org.jevis.application.type.GUIConstants;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
-import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
-import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
-import org.jevis.jeconfig.plugin.object.attribute.BasicEditorNew;
-import org.jevis.jeconfig.plugin.object.attribute.BooleanButton;
-import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
-import org.jevis.jeconfig.plugin.object.attribute.DateEditor;
-import org.jevis.jeconfig.plugin.object.attribute.DateTimeEditor2;
-import org.jevis.jeconfig.plugin.object.attribute.EnumEditor;
-import org.jevis.jeconfig.plugin.object.attribute.ErrorEditor;
-import org.jevis.jeconfig.plugin.object.attribute.FileEdior;
-import org.jevis.jeconfig.plugin.object.attribute.AttributeAdvSettingDialogButton;
-import org.jevis.jeconfig.plugin.object.attribute.LanguageEditor;
-import org.jevis.jeconfig.plugin.object.attribute.NumberWithUnit;
-import org.jevis.jeconfig.plugin.object.attribute.PasswordEditor;
-import org.jevis.jeconfig.plugin.object.attribute.ReadablePasswordEditor;
-import org.jevis.jeconfig.plugin.object.attribute.ScheduleEditor;
-import org.jevis.jeconfig.plugin.object.attribute.StringMultyLine;
-import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
-import org.jevis.jeconfig.plugin.object.attribute.TargetEditor;
-import org.jevis.jeconfig.plugin.object.attribute.TimeZoneEditor;
+import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.sample.SampleEditor;
 import org.jevis.jeconfig.tool.I18n;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class GenericAttributeExtension implements ObjectEditorExtension {
@@ -167,15 +150,15 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         return true;
     }
 
-    private JEVisAttribute getAttribute(String name,List<JEVisAttribute> atts){
-        for(JEVisAttribute att:atts){
-            if(att.getName().equals(name)){
+    private JEVisAttribute getAttribute(String name, List<JEVisAttribute> atts) {
+        for (JEVisAttribute att : atts) {
+            if (att.getName().equals(name)) {
                 return att;
             }
         }
         return null;
     }
-    
+
     private void buildGui(JEVisObject obj) {
         logger.trace("load: {}", obj.getID());
         _needSave = false;
@@ -196,18 +179,18 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         try {
             int coloum = 0;
 
-            
+
             if (!obj.getJEVisClass().getTypes().isEmpty()) {
                 List<JEVisAttribute> attributes = obj.getAttributes();//load once because this function is not cached
-                for(JEVisType type:obj.getJEVisClass().getTypes()){//loop types not attributes to be sure only no deletet type are shown
+                for (JEVisType type : obj.getJEVisClass().getTypes()) {//loop types not attributes to be sure only no deletet type are shown
                     JEVisAttribute att = getAttribute(type.getName(), attributes);
-                    if(att==null){
+                    if (att == null) {
                         continue;
                     }
                     AttributeEditor editor = new ErrorEditor();
 
                     try {
-                        String guiDisplayType = type.getGUIDisplayType();                        
+                        String guiDisplayType = type.getGUIDisplayType();
 
                         //hier ClassTable.getObjectClass
                         switch (type.getPrimitiveType()) {
@@ -237,8 +220,10 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                         editor = new TimeZoneEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_ENUM.getId())) {
                                         editor = new EnumEditor(att);
-                                    }else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LOCALE.getId())) {
+                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LOCALE.getId())) {
                                         editor = new LanguageEditor(att);
+                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.GAP_FILLING_CONFIG.getId())) {
+                                        editor = new GapFillingEditor(att);
                                     }
 
 //                                else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TIME_ZONE.getId())) {
@@ -307,7 +292,14 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         logger.catching(ex);
                     }
 
-                    Label name = new Label(I18n.getInstance().getString("plugin.object.attribute.missingname"));
+                    //Label name = new Label(I18n.getInstance().getString("plugin.object.attribute.missingname"));
+                    //Label name = new Label(I18n.getInstance().getString(I18nWS.TYPE_NAME,type.getJEVisClassName()+type.getName()));
+                    Label name = new Label(I18nWS.getInstance().getAttributeName(att));
+                    Tooltip tt = new Tooltip(I18nWS.getInstance().getAttributeDescription(att));
+                    if (!tt.getText().isEmpty()) {
+                        name.setTooltip(tt);
+                    }
+
 
 //                    name.setId("attributelabel");
                     SampleEditor se = new SampleEditor();
@@ -317,14 +309,14 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                     Node editNode = editor.getEditor();
                     editNode.maxWidth(editorWhith.getValue());
-                    
-                    
+
+
                     gridPane.add(name, 0, coloum);
                     gridPane.add(editNode, 2, coloum);
                     gridPane.add(attSettingsButton, 1, coloum);
 
 //                    name.setTextFill(Color.CORNFLOWERBLUE);
-                    
+
                     coloum++;
                     Separator sep = new Separator(Orientation.HORIZONTAL);
                     sep.setOpacity(0.2d);
@@ -344,7 +336,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 //                    JFXHamburger testB = new JFXHamburger();
 //                    testB.setMaxHeight(18);
 //                    testB.setMaxWidth(18);
-                    name.setText(type.getName() + ":");
+//                    name.setText(type.getName() + ":");
 //                    name.setTextAlignment(TextAlignment.RIGHT);
 //                    name.setContentDisplay(ContentDisplay.RIGHT);
                     name.setAlignment(Pos.CENTER_RIGHT);
