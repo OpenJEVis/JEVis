@@ -246,13 +246,33 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public JEVisRelationship buildRelationship(JEVisObject obj, int type, int direction) throws JEVisException {
-        return ds.buildRelationship(getID(), obj.getID(), direction);
+    public JEVisRelationship buildRelationship(JEVisObject otherObj, int type, int direction) throws JEVisException {
+        JEVisRelationship rel;
+        if (direction == JEVisConstants.Direction.FORWARD) {
+            rel = ds.buildRelationship(getID(), otherObj.getID(), type);
+
+            if (type == JEVisConstants.ObjectRelationship.PARENT) {
+                System.out.println("Event for: " + rel.getEndObject() + " " + rel.getStartObject() + " " + otherObj.getID());
+                otherObj.notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+            }
+
+        } else {
+            rel = otherObj.buildRelationship(this, type, JEVisConstants.Direction.FORWARD);
+        }
+
+
+        return rel;
     }
 
     @Override
     public void deleteRelationship(JEVisRelationship rel) throws JEVisException {
         ds.deleteRelationship(rel.getStartID(), rel.getEndID(), rel.getType());
+        if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
+            rel.getEndObject().notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_CHILD_DELETED));
+
+        }
+
+        notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
     }
 
     @Override

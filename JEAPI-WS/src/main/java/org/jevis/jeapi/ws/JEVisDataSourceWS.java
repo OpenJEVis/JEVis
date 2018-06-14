@@ -166,6 +166,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.debug("payload: {}", gson.toJson(newJsonRel));
             StringBuffer response = getHTTPConnection().postRequest(resource, gson.toJson(newJsonRel));
 
+
             JsonRelationship newJson = gson.fromJson(response.toString(), JsonRelationship.class);
             JEVisRelationship newRel = new JEVisRelationshipWS(this, newJson);
 
@@ -173,6 +174,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     && newRel.getType() <= JEVisConstants.ObjectRelationship.MEMBER_DELETE) || newRel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
                 getCurrentUser().reload();
             }
+
+
+            objectRelMapCache.get(newRel.getStartID()).add(newRel);
+            objectRelMapCache.get(newRel.getEndID()).add(newRel);
 
             return newRel;
 
