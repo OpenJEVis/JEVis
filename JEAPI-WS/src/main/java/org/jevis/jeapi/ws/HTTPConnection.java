@@ -160,9 +160,8 @@ public class HTTPConnection {
         int responseCode = conn.getResponseCode();
 
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
-        logger.error("resonseCode {}", responseCode);
-
-
+        logger.trace("responseCode {}", responseCode);
+      
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             byte[] bytes = IOUtils.toByteArray(conn.getInputStream());
