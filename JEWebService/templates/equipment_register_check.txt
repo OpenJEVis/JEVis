@@ -1,0 +1,62 @@
+Compressor
+Flow -> Flow Rate
+Fuel-> ?
+Normal Operating Preasure -> Normal Operating Pressure
+Power at Full Load -> Full Load Power
+Standby Consumption -> ? standyby consumption or standby power
+
+Chiller
+Performance Number Compressor - COP
+Power -> ?
+Served Area -> Cooling Area
+Standby Consumption -> ? standyby consumption or standby power
+
+heating
+Domain -> ?
+Standby Consumption -> ? standyby consumption or standby power
+
+lighting
+Bulbs per Lamp -> lamps per luminaire
+Domain -> ?
+luminaire type
+luminaire power
+ballast type
+ballst power
+Standby Consumption -> ? standyby consumption or standby power
+
+office
+Measurement ?
+power ?
+sector ?
+
+pantry
+measurement type
+power
+number
+remark -> remark(s)
+
+production
+measurement
+power
+sector
+standby consumption
+
+ventilation
+Controling Air Conditioning System with Time manually and Temperature ?
+Ducted Airflow -> Airflow
+Engine Power FROM -> Inlet Motor Power (check)
+Engine Power TO -> 
+Power Condenser -> Condenser Power
+Power Preheater -> Preheater Power
+Power Reheater -> Reheater Power (need really two?)
+remark -> remark(s)
+standby consumption
+air flow needs evaluation
+uptime?
+
+meeting
+Minutes of the Meeting -> minutes of meeting
+
+measuring point
+Data Point Assignment -> assigned data point
+current/voltage transformer ?
