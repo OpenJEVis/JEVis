@@ -92,7 +92,7 @@ public class SQLDataSource {
         return um;
     }
 
-    public void preload(PRELOAD preload) throws JEVisException {
+    public void preload(PRELOAD preload) {
         logger.debug("prelaod {}", preload.toString());
         try {
             switch (preload) {
@@ -140,7 +140,7 @@ public class SQLDataSource {
         return dbConn;
     }
 
-    public List<JsonObject> filterObjectByClass(List<JsonObject> objects, String jclass) throws JEVisException {
+    public List<JsonObject> filterObjectByClass(List<JsonObject> objects, String jclass) {
         List<JsonObject> filterd = new ArrayList<>();
         List<String> heir = new ArrayList<>();
         heir.add(jclass);
@@ -153,7 +153,7 @@ public class SQLDataSource {
         return filterd;
     }
 
-    private void jevisLogin(HttpHeaders httpHeaders) throws AuthenticationException, JEVisException {
+    private void jevisLogin(HttpHeaders httpHeaders) throws AuthenticationException {
         if (httpHeaders.getRequestHeader("authorization") == null || httpHeaders.getRequestHeader("authorization").isEmpty()) {
             throw new AuthenticationException("Authorization header is missing");
         }
@@ -197,19 +197,19 @@ public class SQLDataSource {
 //        }
     }
 
-    public JEVisClass buildClass(String name) throws JEVisException {
+    public JEVisClass buildClass(String name) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public JEVisObject buildLink(String name, JEVisObject parent, JEVisObject linkedObject) throws JEVisException {
+    public JEVisObject buildLink(String name, JEVisObject parent, JEVisObject linkedObject) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) throws JEVisException {
+    public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public List<JsonObject> getRootObjects() throws JEVisException {
+    public List<JsonObject> getRootObjects() {
         return getUserManager().getRoots();
     }
 
@@ -282,7 +282,7 @@ public class SQLDataSource {
     }
 
 
-    public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) throws JEVisException {
+    public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) {
         List<JsonRelationship> newRels = new ArrayList<>();
         for (JsonRelationship rel : rels) {
             try {
@@ -298,7 +298,7 @@ public class SQLDataSource {
         return getRelationshipTable().insert(rel.getFrom(), rel.getTo(), rel.getType());
     }
 
-    public JsonJEVisClass getJEVisClass(String name) throws JEVisException {
+    public JsonJEVisClass getJEVisClass(String name) {
         return Config.getClassCache().get(name);
     }
 
@@ -322,7 +322,7 @@ public class SQLDataSource {
         return getSampleTable().getLatest(obj, attribute);
     }
 
-    public List<JsonRelationship> getRelationships(long object) throws JEVisException {
+    public List<JsonRelationship> getRelationships(long object) {
         if (!allRelationships.isEmpty()) {
             //TODO
             List<JsonRelationship> list = new LinkedList<>();
@@ -338,7 +338,7 @@ public class SQLDataSource {
 
     }
 
-    public List<JsonRelationship> getRelationships(int type) throws JEVisException {
+    public List<JsonRelationship> getRelationships(int type) {
         List<JsonRelationship> list = new ArrayList<>();
 
         for (JsonRelationship rel : getRelationships()) {
@@ -350,7 +350,7 @@ public class SQLDataSource {
         return list;
     }
 
-    public List<JsonRelationship> getRelationships() throws JEVisException {
+    public List<JsonRelationship> getRelationships() {
         logger.debug("getRelationships");
         if (!allRelationships.isEmpty()) {
             logger.debug("getRelationships - cache");

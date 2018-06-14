@@ -79,7 +79,7 @@ public class HTTPConnection {
         conn.setRequestProperty("Authorization", "Basic " + auth);
     }
 
-    public InputStream getInputStreamRequest(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public InputStream getInputStreamRequest(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -108,7 +108,7 @@ public class HTTPConnection {
 
     }
 
-    public BufferedImage getIconRequest(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public BufferedImage getIconRequest(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -142,7 +142,7 @@ public class HTTPConnection {
 
     }
 
-    public byte[] getByteRequest(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public byte[] getByteRequest(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -175,7 +175,7 @@ public class HTTPConnection {
 
     }
 
-    public StringBuffer postRequest(String resource, String json) throws MalformedURLException, ProtocolException, IOException, JEVisException {
+    public StringBuffer postRequest(String resource, String json) throws IOException, JEVisException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -240,7 +240,7 @@ public class HTTPConnection {
 
     }
 
-    public StringBuffer getRequest(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public StringBuffer getRequest(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -366,7 +366,7 @@ public class HTTPConnection {
 
     }
 
-    public HttpURLConnection getGetConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public HttpURLConnection getGetConnection(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -387,7 +387,7 @@ public class HTTPConnection {
 
     }
 
-    public HttpURLConnection getDeleteConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public HttpURLConnection getDeleteConnection(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");

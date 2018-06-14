@@ -6,11 +6,6 @@ import java.util.UUID;
 
 public class DimpexObject {
 
-    public enum Action {
-        DELETE, ADD, UPDATE
-    }
-
-
     private String uid = UUID.randomUUID().toString();
     private String name = "NO NAME";
     private String jclass = "";
@@ -18,7 +13,6 @@ public class DimpexObject {
     private boolean isPublic = false;
     private List<DimpexObject> children = new ArrayList<>();
     private List<DimpexAttribute> attributes = new ArrayList<>();
-
 
     public String getUid() {
         return uid;
@@ -74,5 +68,9 @@ public class DimpexObject {
 
     public void setPublic(boolean aPublic) {
         isPublic = aPublic;
+    }
+
+    public enum Action {
+        DELETE, ADD, UPDATE
     }
 }
