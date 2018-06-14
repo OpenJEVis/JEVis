@@ -19,17 +19,19 @@
  */
 package org.jevis.commons.dataprocessing.v2;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisOption;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualAttribute;
-import org.jevis.commons.dataprocessing.VirtuelSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.function.CounterFunction;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static org.jevis.commons.dataprocessing.v2.TransformerProcessor.METER_CONSTANT;
 
 /**
@@ -86,9 +88,9 @@ public class DifferentialProcessor implements Function {
                         diff = sample.getValueAsDouble() - lastSample.getValueAsDouble();
 //                            System.out.println("pV: " + lastSample.getValueAsDouble() + "  nV:" + sample.getValueAsDouble() + "  diff:" + diff);
                         if (mode == TS_MODE.BEGINNING) {
-                            samples.add(new VirtuelSample(lastSample.getTimestamp(), diff, dpObject.getDataSource(), new VirtualAttribute(null)));
+                            samples.add(new VirtualSample(lastSample.getTimestamp(), diff, dpObject.getDataSource(), new VirtualAttribute(null)));
                         } else {
-                            samples.add(new VirtuelSample(sample.getTimestamp(), diff, dpObject.getDataSource(), new VirtualAttribute(null)));
+                            samples.add(new VirtualSample(sample.getTimestamp(), diff, dpObject.getDataSource(), new VirtualAttribute(null)));
                         }
 
                     } else {

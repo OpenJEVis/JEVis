@@ -5,6 +5,7 @@
  */
 package org.jevis.jecalc.workflow;
 
+import org.jevis.api.JEVisException;
 import org.jevis.jecalc.data.ResourceManager;
 
 /**
@@ -13,6 +14,6 @@ import org.jevis.jecalc.data.ResourceManager;
  */
 public interface ProcessStep {
 
-    public void run(ResourceManager resourceManager);
+    void run(ResourceManager resourceManager) throws JEVisException;
     
 }

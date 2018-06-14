@@ -26,136 +26,136 @@ package org.jevis.api;
  */
 public interface JEVisConstants {
 
-    public interface PrimitiveType {
+    interface PrimitiveType {
 
-        public static final int STRING = 0;
-        public static final int DOUBLE = 1;
-        public static final int LONG = 2;
-        public static final int FILE = 3;
-        public static final int BOOLEAN = 4;
-        public static final int SELECTION = 5;
-        public static final int MULTI_SELECTION = 6;
-        public static final int PASSWORD_PBKDF2 = 7;
+        int STRING = 0;
+        int DOUBLE = 1;
+        int LONG = 2;
+        int FILE = 3;
+        int BOOLEAN = 4;
+        int SELECTION = 5;
+        int MULTI_SELECTION = 6;
+        int PASSWORD_PBKDF2 = 7;
     }
 
-    public interface DisplayType {
+    interface DisplayType {
 
-        public static final int TEXT_FIELD = 1;
-        public static final int TEXT_PASSWORD = 2;
-        public static final int NUMBER = 3;
-        public static final int DATE = 3;
+        int TEXT_FIELD = 1;
+        int TEXT_PASSWORD = 2;
+        int NUMBER = 3;
+        int DATE = 3;
     }
 
-    public interface Direction {
+    interface Direction {
 
         /**
          * From Object to target
          */
-        public static final int FORWARD = 0;
+        int FORWARD = 0;
         /**
          * From Target to object
          */
-        public static final int BACKWARD = 1;
+        int BACKWARD = 1;
     }
 
-    public interface ObjectRelationship {
+    interface ObjectRelationship {
 
         /**
          * From child to parent
          */
-        public static final int PARENT = 1;
+        int PARENT = 1;
         /**
          * From link to original
          */
-        public static final int LINK = 2;
+        int LINK = 2;
         /**
          * From group to root
          */
-        public static final int ROOT = 3;
+        int ROOT = 3;
         /**
          * From object to source
          */
-        public static final int SOURCE = 4;
+        int SOURCE = 4;
         /**
          * From object to service
          */
-        public static final int SERVICE = 5;
+        int SERVICE = 5;
         /**
          * from object to input
          */
-        public static final int INPUT = 6;
+        int INPUT = 6;
         /**
          * From object to data
          */
-        public static final int DATA = 7;
+        int DATA = 7;
         /**
          * from nested to parent
          */
-        public static final int NESTED_CLASS = 8;
+        int NESTED_CLASS = 8;
         /**
          * From object to group
          */
-        public static final int OWNER = 100;
+        int OWNER = 100;
         /**
          * From user to group
          */
-        public static final int MEMBER_READ = 101;
+        int MEMBER_READ = 101;
         /**
          * From user to group
          */
-        public static final int MEMBER_WRITE = 102;
+        int MEMBER_WRITE = 102;
         /**
          * From user to group
          */
-        public static final int MEMBER_EXECUTE = 103;
+        int MEMBER_EXECUTE = 103;
         /**
          * From user to group
          */
-        public static final int MEMBER_CREATE = 104;
+        int MEMBER_CREATE = 104;
         /**
          * From user to group
          */
-        public static final int MEMBER_DELETE = 105;
+        int MEMBER_DELETE = 105;
         
     }
 
-    public interface ClassRelationship {
+    interface ClassRelationship {
 
         /**
          * From subclass to superclass
          */
-        public static final int INHERIT = 0;
+        int INHERIT = 0;
         /**
          * From host to nested
          */
-        public static final int NESTED = 1;//better name = integrated?
+        int NESTED = 1;//better name = integrated?
         /**
          * From class to possible parent
          */
-        public static final int OK_PARENT = 3;
+        int OK_PARENT = 3;
     }
 
-    public interface Class {
+    interface Class {
 
-        public static final String USER = "User";
-        public static final String GROUP = "Group";
+        String USER = "User";
+        String GROUP = "Group";
     }
 
-    public interface Attribute {
+    interface Attribute {
 
-        public static final String USER_EMAIL = "Email";
-        public static final String USER_SYS_ADMIN = "Sys Admin";
-        public static final String USER_PASSWORD = "Password";
-        public static final String USER_ENABLED = "Enabled";
-        public static final String USER_FIRST_NAME = "First Name";
-        public static final String USER_LAST_NAME = "Last Name";
+        String USER_EMAIL = "Email";
+        String USER_SYS_ADMIN = "Sys Admin";
+        String USER_PASSWORD = "Password";
+        String USER_ENABLED = "Enabled";
+        String USER_FIRST_NAME = "First Name";
+        String USER_LAST_NAME = "Last Name";
 
     }
 
-    public interface Validity {
+    interface Validity {
 
-        public static final int LAST = 0;
-        public static final int AT_DATE = 1;
+        int LAST = 0;
+        int AT_DATE = 1;
     }
 
 }

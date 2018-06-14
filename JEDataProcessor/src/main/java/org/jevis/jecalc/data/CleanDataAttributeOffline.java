@@ -5,6 +5,16 @@
  */
 package org.jevis.jecalc.data;
 
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.jecalc.gap.Gap.GapStrategy;
+import org.jevis.jecalc.util.DataRowReader;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.ISOPeriodFormat;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,13 +22,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.jecalc.gap.Gap.GapStrategy;
-import org.jevis.jecalc.util.DataRowReader;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
-import org.joda.time.format.ISOPeriodFormat;
 
 /**
  *
@@ -38,6 +41,8 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
 
     private List<JEVisSample> rawSample = new ArrayList<>();
     private boolean periodAligned;
+    private List<JsonGapFillingConfig> jsonConfig;
+    private JEVisObject object;
 
     public CleanDataAttributeOffline(String pathToInputFile, String pathToCleanConfigFile, String pathToOutput) {
         initProperties(pathToCleanConfigFile);
@@ -178,7 +183,17 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     }
 
     @Override
+    public List<JsonGapFillingConfig> getGapFillingConfig() {
+        return jsonConfig;
+    }
+
+    @Override
     public String getName() {
         return "offline mode";
+    }
+
+    @Override
+    public JEVisObject getObject() {
+        return object;
     }
 }

@@ -5,18 +5,15 @@
  */
 package org.jevis.jecalc.workflow;
 
-import org.jevis.jecalc.data.ResourceManager;
-import org.jevis.jecalc.scaling.ScalingStep;
-import org.jevis.jecalc.differential.DifferentialStep;
-import org.jevis.jecalc.alignment.PeriodAlignmentStep;
-import org.jevis.jecalc.gap.FillGapStep;
-import org.jevis.jecalc.save.ImportStep;
-import org.jevis.jecalc.data.CleanDataAttribute;
-import java.util.ArrayList;
-import java.util.List;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.jecalc.data.CleanDataAttribute;
+import org.jevis.jecalc.data.ResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -41,7 +38,11 @@ public class ProcessManager {
         logger.info("---------------------------------------------");
         logger.info("Current Clean Data Object: {}", resourceManager.getCalcAttribute().getName());
         processSteps.stream().forEach((currentStep) -> {
-            currentStep.run(resourceManager);
+            try {
+                currentStep.run(resourceManager);
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
         });
     }
 

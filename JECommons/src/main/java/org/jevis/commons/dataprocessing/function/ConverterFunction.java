@@ -19,19 +19,15 @@
  */
 package org.jevis.commons.dataprocessing.function;
 
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.dataprocessing.Process;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.ProcessOption;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
-import org.jevis.commons.dataprocessing.ProcessOptions;
-import org.jevis.commons.dataprocessing.ProcessFunction;
-import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.VirtualAttribute;
-import org.jevis.commons.dataprocessing.VirtuelSample;
 
 /**
  *
@@ -72,7 +68,7 @@ public class ConverterFunction implements ProcessFunction {
                 try {
                     double sum = (sample.getValueAsDouble() * m) + b;
 //                    System.out.println("TS: " + sample.getTimestamp() + " new Value: " + sum);
-                    _result.add(new VirtuelSample(sample.getTimestamp(), sum, mainTask.getJEVisDataSource(), new VirtualAttribute(null)));
+                    _result.add(new VirtualSample(sample.getTimestamp(), sum, mainTask.getJEVisDataSource(), new VirtualAttribute(null)));
                 } catch (JEVisException ex) {
                     Logger.getLogger(ConverterFunction.class.getName()).log(Level.SEVERE, null, ex);
                 }

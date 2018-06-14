@@ -19,22 +19,19 @@
  */
 package org.jevis.commons.dataprocessing.function;
 
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.dataprocessing.*;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.ProcessOption;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
-import org.jevis.commons.dataprocessing.ProcessFunction;
-import org.jevis.commons.dataprocessing.ProcessOptions;
-import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.VirtuelSample;
+
 import static org.jevis.commons.dataprocessing.ProcessOptions.getAllTimestamps;
-import org.jevis.commons.dataprocessing.VirtualAttribute;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
 
 /**
  *
@@ -91,7 +88,7 @@ public class AggrigatorFunction implements ProcessFunction {
                     }
                 }
 
-                JEVisSample resultSum = new VirtuelSample(interval.getStart(), sum, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
+                JEVisSample resultSum = new VirtualSample(interval.getStart(), sum, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
                 result.add(resultSum);
                 try {
                     System.out.println("resultSum: " + resultSum.getTimestamp() + "  " + resultSum.getValueAsDouble());
