@@ -177,7 +177,6 @@ public class JEConfig extends Application {
                         ex.printStackTrace();
                     }
 
-
                     ExecutorService exe = Executors.newSingleThreadExecutor();
                     exe.submit(() -> {
                         try {
@@ -215,7 +214,6 @@ public class JEConfig extends Application {
 
                     //Disable GUI is StatusBar note an disconnect
                     border.disableProperty().bind(statusBar.connectedProperty.not());
-
 
                     Platform.runLater(new Runnable() {
                         @Override

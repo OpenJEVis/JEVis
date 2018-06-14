@@ -1,7 +1,7 @@
 {
   "jevisclass": "System",
   "names": {
-    "de": "System",
+    "de": "System DE",
     "ru": "System",
     "en": "System"
   },
@@ -45,7 +45,7 @@
         "en": "Language desctiption"
       },
       "names": {
-        "de": "Language",
+        "de": "Sprache",
         "ru": "Language",
         "en": "Language"
       }
@@ -84,7 +84,7 @@
         "en": "TimeZone desctiption"
       },
       "names": {
-        "de": "TimeZone",
+        "de": "Zeitzone",
         "ru": "TimeZone",
         "en": "TimeZone"
       }

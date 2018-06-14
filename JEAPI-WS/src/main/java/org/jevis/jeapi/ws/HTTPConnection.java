@@ -160,10 +160,11 @@ public class HTTPConnection {
         int responseCode = conn.getResponseCode();
 
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
-//        logger.trace("resonseCode {}", responseCode);
+        logger.trace("resonseCode {}", responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             byte[] bytes = IOUtils.toByteArray(conn.getInputStream());
+
 //            JEVisFile jf = new JEVisFileImp("tmp.file", bytes);//filename comes from the samples
 
             return bytes;
