@@ -4,20 +4,18 @@
  */
 package org.jevis.jenotifier.notifier.AppPush;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.jenotifier.notifier.Notification;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -486,6 +484,11 @@ public class PushNotification implements Notification {
         } else {
             Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, notiObj + " is not suitable for Push Notification");
         }
+    }
+
+    @Override
+    public void setNotificationObject(JEVisObject notiObj, JEVisFile file) {
+
     }
 
     /**

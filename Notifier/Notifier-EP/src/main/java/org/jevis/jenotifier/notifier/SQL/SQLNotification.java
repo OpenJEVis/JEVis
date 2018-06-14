@@ -20,21 +20,17 @@
  */
 package org.jevis.jenotifier.notifier.SQL;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jevis.api.*;
+import org.jevis.jenotifier.notifier.Notification;
+import org.joda.time.DateTime;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.jenotifier.notifier.Notification;
-import static org.jevis.jenotifier.notifier.Notification.SENT_TIME;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -152,6 +148,11 @@ public class SQLNotification implements Notification {
         }
     }
 
+    @Override
+    public void setNotificationObject(JEVisObject notiObj, JEVisFile file) {
+
+    }
+
 
     /**
      * Get the url, which depends on the type of the SQL database. The
@@ -227,11 +228,7 @@ public class SQLNotification implements Notification {
      * @return
      */
     public boolean isDataOutputconfigured() {
-        if (_sqltype != null && !_sqltype.isEmpty() && _host != null && _schema != null && _username != null && _password != null && !_host.isEmpty() && !_schema.isEmpty() && !_username.isEmpty() && !_password.isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
+        return _sqltype != null && !_sqltype.isEmpty() && _host != null && _schema != null && _username != null && _password != null && !_host.isEmpty() && !_schema.isEmpty() && !_username.isEmpty() && !_password.isEmpty();
     }
 
     /**

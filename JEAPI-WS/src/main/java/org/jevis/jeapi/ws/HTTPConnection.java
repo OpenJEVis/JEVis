@@ -160,23 +160,19 @@ public class HTTPConnection {
         int responseCode = conn.getResponseCode();
 
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
-//        logger.trace("resonseCode {}", responseCode);
+        logger.error("resonseCode {}", responseCode);
+
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             byte[] bytes = IOUtils.toByteArray(conn.getInputStream());
-            while (bytes.length < 10) {
-                try {
-                    Thread.sleep(100);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
+
 //            JEVisFile jf = new JEVisFileImp("tmp.file", bytes);//filename comes from the samples
 
             return bytes;
 
         } else {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!! Not file");
             return null;
         }
 

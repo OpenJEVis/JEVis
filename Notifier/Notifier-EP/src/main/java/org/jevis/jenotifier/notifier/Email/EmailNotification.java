@@ -646,17 +646,8 @@ public class EmailNotification implements Notification {
         }
     }
 
-    /**
-     * Call the function getAttribute(,) to get parameters of the notification
-     * in Database and use the setter to assign the global variables. If there
-     * is an IllegalArgumentException, the complex variable will be assigned
-     * with null and the simple variables will not be dealed. The information of
-     * the exception will also be printed.
-     *
-     * @param notiObj
-     * @throws JEVisException
-     */
-    public synchronized void setNotificationObject(JEVisObject notiObj) throws JEVisException {
+    @Override
+    public void setNotificationObject(JEVisObject notiObj) throws JEVisException {
         if (notiObj.getJEVisClass().getName().equals(_type)) {
             _jenoti = notiObj;
             try {
@@ -697,6 +688,87 @@ public class EmailNotification implements Notification {
                 do {
                     file = getJEVisFile(notiObj, ATTACHMENTS); //TODO this workaround needs to be fixed
                 } while (Objects.isNull(file.getBytes()));
+
+
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+            }
+
+            try {
+                setAttachmentsAsFile(file);
+            } catch (IllegalArgumentException ex) {
+                setAttachments(null);
+                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+            }
+
+            try {
+                setIsHTML(Boolean.valueOf(String.valueOf(getAttribute(notiObj, HTML_EMAIL))));
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+            }
+            try {
+                _enabled = Boolean.valueOf(String.valueOf(getAttribute(notiObj, ENABLED)));
+            } catch (IllegalArgumentException ex) {
+                _enabled = false;
+                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+            }
+        } else {
+            Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, notiObj + " is not suitable for Email Notification");
+        }
+    }
+
+    /**
+     * Call the function getAttribute(,) to get parameters of the notification
+     * in Database and use the setter to assign the global variables. If there
+     * is an IllegalArgumentException, the complex variable will be assigned
+     * with null and the simple variables will not be dealed. The information of
+     * the exception will also be printed.
+     *
+     * @param notiObj
+     * @throws JEVisException
+     */
+    public synchronized void setNotificationObject(JEVisObject notiObj, JEVisFile file) throws JEVisException {
+        if (notiObj.getJEVisClass().getName().equals(_type)) {
+            _jenoti = notiObj;
+            try {
+                setReceivers(String.valueOf(getAttribute(notiObj, RECIPIENTS)));//the second parameter should one to one correspondance with the name in JEConfig
+            } catch (IllegalArgumentException ex) {
+                setReceivers(null);
+                Logger.getLogger(EmailNotification.class.getName()).log(Level.ERROR, ex);
+            }
+            try {
+                setCarbonCopys(String.valueOf(getAttribute(notiObj, CARBON_COPYS)));
+            } catch (IllegalArgumentException ex) {
+                setCarbonCopys(null);
+                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+            }
+            try {
+                setBlindCarbonCopys(String.valueOf(getAttribute(notiObj, BLIND_CARBON_COPYS)));
+            } catch (IllegalArgumentException ex) {
+                setBlindCarbonCopys(null);
+                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+            }
+            try {
+                setSubject(String.valueOf(getAttribute(notiObj, SUBJECT)));
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+            }
+            try {
+                setMessage(String.valueOf(getAttribute(notiObj, MESSAGE)));
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+            }
+
+            try {
+//                System.out.println(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
+//                setAttachments(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
+
+                System.out.println("notiObj: " + notiObj.getName() + " Attachment: " + !ATTACHMENTS.isEmpty());
+
+//                do {
+//                    file = getJEVisFile(notiObj, ATTACHMENTS); //TODO this workaround needs to be fixed
+//                } while (Objects.isNull(file.getBytes()));
+
 
             } catch (IllegalArgumentException ex) {
                 Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
