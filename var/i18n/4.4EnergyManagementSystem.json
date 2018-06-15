@@ -1,12 +1,12 @@
 {
-  "jevisclass": "4 Energy Management System",
+  "jevisclass": "4.4 Energy Management System",
   "names": {
-    "de": "4 Energy Management System",
-    "ru": "4 Energy Management System",
-    "en": "4 Energy Management System"
+    "de": "4.4 Energiemanagementsystem",
+    "ru": "4.4 Energy Management System",
+    "en": "4.4 Energy Management System"
   },
   "descriptions": {
-    "de": "The organization shall establish, implement, maintain and continually improve an the EnMS and its  energy performance an energy management system, including the processes needed and their  interactions, in accordance with the requirements of this document.    \nNOTE:  The processes required can differ from one organization to another due to:  ",
+    "de": "Die Organisation muss entsprechend den Anforderungen dieses Dokuments ein das EnMS und seine energiebezogene Leistung aufbauen, verwirklichen, aufrechterhalten und fortlaufend verbessern, einschließlich der benötigten Prozesse und ihrer Wechselwirkungen.\nANMERKUNG Die erforderlichen Prozesse können von einer Organisation zur anderen abweichen, aufgrund:\n— der Größe der Organisation und der Art ihrer Tätigkeiten, Prozesse, Produkte und Dienstleistungen;\n— der Komplexität ihrer Prozesse und deren Wechselwirkungen;\n— der Kompetenz der Personen.",
     "ru": "The organization shall establish, implement, maintain and continually improve an the EnMS and its  energy performance an energy management system, including the processes needed and their  interactions, in accordance with the requirements of this document.    \nNOTE:  The processes required can differ from one organization to another due to:  ",
     "en": "The organization shall establish, implement, maintain and continually improve an the EnMS and its  energy performance an energy management system, including the processes needed and their  interactions, in accordance with the requirements of this document.    \nNOTE:  The processes required can differ from one organization to another due to:  "
   },
@@ -14,12 +14,12 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content description",
+        "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
         "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by description",
+        "de": "Der Autor des Dokuments",
         "ru": "Created by description",
         "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation description",
+        "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
         "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number description",
+        "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
         "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date description",
+        "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
         "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by description",
+        "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
         "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title description",
+        "de": "Titel des Dokuments",
         "ru": "Title description",
         "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -105,7 +105,7 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version description",
+        "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
         "en": "Version description"
       },

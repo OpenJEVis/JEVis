@@ -1,12 +1,12 @@
 {
   "jevisclass": "4.3 Determining the Scope and Boundaries of the Energy Management System",
   "names": {
-    "de": "4.3 Determining the Scope and Boundaries of the Energy Management System",
+    "de": "4.3 Festlegen des Anwendungsbereichs und der Grenzen des Energiemanagementsystems",
     "ru": "4.3 Determining the Scope and Boundaries of the Energy Management System",
     "en": "4.3 Determining the Scope and Boundaries of the Energy Management System"
   },
   "descriptions": {
-    "de": "The organization shall determine the boundaries and applicability of the EnMS to establish its EnMS  scope.   \nWhen determining this the EnMS scope, the organization shall consider:  \na) the external and internal issues referred to in 4.1;  \nb) the requirements referred to in 4.2.  \n\nThe organization shall ensure that it has the authority to control its energy use, energy consumption,  and energy efficiency within the scope and boundaries.  The EnMS scope and boundaries shall be  available maintained as documented information (see 7.5). ",
+    "de": "Die Organisation muss die Grenzen und die Anwendbarkeit des Energiemanagementsystems bestimmen, um dessen EnMS-Anwendungsbereich festzulegen. Bei der Festlegung des Anwendungsbereichs des EnMS muss die Organisation:\na) die unter 4.1 genannten externen und internen Themen;\nb) die unter 4.2 genannten Anforderungen\nberücksichtigen.\nDie Organisation muss sicherstellen, dass sie die Befugnis zur Steuerung und Lenkung ihres Energieeinsatzes, Energieverbrauchs und ihrer Energieeffizienz innerhalb des Anwendungsbereiches und der Grenzen besitzt. Der Anwendungsbereich des EnMS und die EnMS-Grenzen müssen als dokumentierte Information (siehe 7.5) aufrechterhalten werden.",
     "ru": "The organization shall determine the boundaries and applicability of the EnMS to establish its EnMS  scope.   \nWhen determining this the EnMS scope, the organization shall consider:  \na) the external and internal issues referred to in 4.1;  \nb) the requirements referred to in 4.2.  \n\nThe organization shall ensure that it has the authority to control its energy use, energy consumption,  and energy efficiency within the scope and boundaries.  The EnMS scope and boundaries shall be  available maintained as documented information (see 7.5). ",
     "en": "The organization shall determine the boundaries and applicability of the EnMS to establish its EnMS  scope.   \nWhen determining this the EnMS scope, the organization shall consider:  \na) the external and internal issues referred to in 4.1;  \nb) the requirements referred to in 4.2.  \n\nThe organization shall ensure that it has the authority to control its energy use, energy consumption,  and energy efficiency within the scope and boundaries.  The EnMS scope and boundaries shall be  available maintained as documented information (see 7.5). "
   },
@@ -14,12 +14,12 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content description",
+        "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
         "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by description",
+        "de": "Der Autor des Dokuments",
         "ru": "Created by description",
         "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation description",
+        "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
         "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number description",
+        "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
         "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date description",
+        "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
         "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by description",
+        "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
         "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title description",
+        "de": "Titel des Dokuments",
         "ru": "Title description",
         "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -105,7 +105,7 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version description",
+        "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
         "en": "Version description"
       },
