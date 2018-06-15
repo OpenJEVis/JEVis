@@ -243,7 +243,7 @@ public class DocumentsDirectory {
             for (JsonObject obj : getDs().getObjects(ISO50001.getJc().getActionPlanDir().getName(), false)) {
                 Snippets.getParent(getDs(), obj);
                 if (obj.getParent() == getObject().getId()) {
-                    for (JsonObject m : getDs().getChildren(obj)) {
+                    for (JsonObject m : Snippets.getAllChildren(getDs(), obj)) {
                         Snippets.getParent(getDs(), m);
                         if (m.getParent() == obj.getId()) {
                             ap = new ActionPlan(getDs(), m);

@@ -28,14 +28,13 @@ import java.util.logging.Logger;
 import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.*;
 
 /**
- *
  * @author broder
  */
 public class CleanDataAttributeJEVis implements CleanDataAttribute {
 
     public static final String CLASS_NAME = "Clean Data";
     public static final String VALUE_ATTRIBUTE_NAME = "Value";
-
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CleanDataAttributeJEVis.class);
     private final JEVisObject object;
     private JEVisObject rawDataObject;
     //attributes
@@ -55,8 +54,6 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     private SampleHandler sampleHandler;
     private List<JsonGapFillingConfig> jsonConfig;
     private String gapFillingConfig;
-
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CleanDataAttributeJEVis.class);
 
     public CleanDataAttributeJEVis(JEVisObject calcObject) {
         object = calcObject;

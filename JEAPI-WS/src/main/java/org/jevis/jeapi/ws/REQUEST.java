@@ -27,46 +27,46 @@ package org.jevis.jeapi.ws;
  */
 public interface REQUEST {
 
-    public static String API_PATH_V1 = "JEWebService/v1/";
+    String API_PATH_V1 = "JEWebService/v1/";
 
-    public interface OBJECTS {
+    interface OBJECTS {
 
-        public static String PATH = "objects/";
+        String PATH = "objects/";
 
-        public interface OPTIONS {
+        interface OPTIONS {
 
-            public static String INCLUDE_RELATIONSHIPS = "rel=";
-            public static String ONLY_ROOT = "root=";
+            String INCLUDE_RELATIONSHIPS = "rel=";
+            String ONLY_ROOT = "root=";
         }
 
-        public interface ATTRIBUTES {
+        interface ATTRIBUTES {
 
-            public static String PATH = "attributes/";
+            String PATH = "attributes/";
 
-            public interface OPTIONS {
+            interface OPTIONS {
 
-                public static String INCLUDE_RELATIONSHIPS = "rel=true";
+                String INCLUDE_RELATIONSHIPS = "rel=true";
             }
 
-            public interface SAMPLES {
+            interface SAMPLES {
 
-                public static String PATH = "samples/";
+                String PATH = "samples/";
 
-                public interface OPTIONS {
+                interface OPTIONS {
 
-                    public static String FROM = "from=";
-                    public static String UNTIL = "until=";
-                    public static String LASTEST = "onlyLatest=";
+                    String FROM = "from=";
+                    String UNTIL = "until=";
+                    String LASTEST = "onlyLatest=";
                 }
 
-                public interface FILES {
+                interface FILES {
 
-                    public static String PATH = "files/";
+                    String PATH = "files/";
 
-                    public interface OPTIONS {
+                    interface OPTIONS {
 
-                        public static String FILENAME = "filename=";
-                        public static String TIMESTAMP = "timestamp=";
+                        String FILENAME = "filename=";
+                        String TIMESTAMP = "timestamp=";
                     }
                 }
 
@@ -75,39 +75,39 @@ public interface REQUEST {
         }
     }
 
-    public interface CLASS_ICONS {
+    interface CLASS_ICONS {
 
-        public static String PATH = "classicons/";
+        String PATH = "classicons/";
     }
 
-    public interface CLASSES {
+    interface CLASSES {
 
-        public static String PATH = "classes/";
+        String PATH = "classes/";
 
-        public interface OPTIONS {
+        interface OPTIONS {
 
-            public static String INCLUDE_RELATIONSHIPS = "rel=true";
+            String INCLUDE_RELATIONSHIPS = "rel=true";
         }
 
-        public interface ICON {
+        interface ICON {
 
-            public static String PATH = "icon/";
+            String PATH = "icon/";
         }
 
 
     }
 
 
-    public interface RELATIONSHIPS {
+    interface RELATIONSHIPS {
 
-        public static String PATH = "relationships/";
+        String PATH = "relationships/";
 
-        public interface OPTIONS {
+        interface OPTIONS {
 
-            public static String INCLUDE_RELATIONSHIPS = "rel=true";
-            public static String FROM = "from=";
-            public static String TO = "to=";
-            public static String TYPE = "type=";
+            String INCLUDE_RELATIONSHIPS = "rel=true";
+            String FROM = "from=";
+            String TO = "to=";
+            String TYPE = "type=";
         }
     }
 //
@@ -125,13 +125,13 @@ public interface REQUEST {
 //
 //    }
 
-    public interface JEVISUSER {
+    interface JEVISUSER {
 
-        public static String PATH = "user/";
+        String PATH = "user/";
 
-        public interface OPTIONS {
+        interface OPTIONS {
 
-            public static String INCLUDE_RELATIONSHIPS = "rel=true";
+            String INCLUDE_RELATIONSHIPS = "rel=true";
         }
     }
 

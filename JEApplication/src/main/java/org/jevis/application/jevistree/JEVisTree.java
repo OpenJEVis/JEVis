@@ -20,12 +20,6 @@
  */
 package org.jevis.application.jevistree;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -36,18 +30,19 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.object.tree.UserSelection;
-import org.jscience.mathematics.function.Variable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -64,14 +59,6 @@ public class JEVisTree extends TreeTableView {
 
     private JEVisTreeRow dragItem;
     private SaveResourceBundle rb;
-
-    public SaveResourceBundle getRB(){
-        return rb;
-    }
-
-    public void setLocale(Locale locale){
-        rb = new SaveResourceBundle("jeapplication", locale);
-    }
 
     public JEVisTree(JEVisDataSource ds) {
         super();
@@ -192,6 +179,14 @@ public class JEVisTree extends TreeTableView {
             Logger.getLogger(JEVisTree.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+
+    public SaveResourceBundle getRB() {
+        return rb;
+    }
+
+    public void setLocale(Locale locale) {
+        rb = new SaveResourceBundle("jeapplication", locale);
     }
 
     @Deprecated

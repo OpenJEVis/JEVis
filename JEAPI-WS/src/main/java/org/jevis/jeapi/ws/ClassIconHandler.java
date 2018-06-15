@@ -5,22 +5,18 @@
  */
 package org.jevis.jeapi.ws;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.imageio.ImageIO;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Class to load an Zipfile with all classicons from the JEVisWebservice.
@@ -39,7 +35,7 @@ public class ClassIconHandler {
     private final Logger logger = LogManager.getLogger(ClassIconHandler.class);
     File zipFile;
 
-    public ClassIconHandler(File tmpDir) throws Exception {
+    public ClassIconHandler(File tmpDir) {
         this.tmpDir = tmpDir;
 
         zipFile = new File(tmpDir + "/classicons.zip");
@@ -71,9 +67,9 @@ public class ClassIconHandler {
 
     public Map<String, BufferedImage> getClassIcon() throws Exception {
         Map<String, BufferedImage> map = new HashMap<>();
-        for (File file : tmpDir.listFiles()) {      
+        for (File file : tmpDir.listFiles()) {
             if (file.getName().contains(".png")) {
-                map.put(file.getName().replaceAll(".png", ""), ImageIO.read(file));                
+                map.put(file.getName().replaceAll(".png", ""), ImageIO.read(file));
             }
         }
         return map;

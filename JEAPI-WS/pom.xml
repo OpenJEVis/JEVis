@@ -15,10 +15,10 @@
     </parent>
   
     <dependencies>
-         <dependency>
-             <groupId>com.google.guava</groupId>
-             <artifactId>guava</artifactId>
-             <version>24.0-jre</version>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>24.0-jre</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>

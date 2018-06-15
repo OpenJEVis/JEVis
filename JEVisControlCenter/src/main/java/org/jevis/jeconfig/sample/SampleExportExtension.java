@@ -68,113 +68,6 @@ public class SampleExportExtension implements SampleEditorExtension {
     private final BorderPane _view = new BorderPane();
     private JEVisAttribute _att;
 
-    public static enum Response {
-
-        YES, CANCEL
-    }
-
-    public static enum FIELDS {
-
-        DATE, TIME, VALUE, DATE_TIME
-    }
-
-    final Button ok = new Button("OK");
-    Label lLineSep = new Label("Field Seperator:");
-    TextField fLineSep = new TextField(";");
-    Label lEnclosedBy = new Label("Enclosed by:");
-    TextField fEnclosedBy = new TextField("");
-
-    Label lDateTimeFormat = new Label("Date Formate:");
-    TextField fDateTimeFormat = new TextField("yyyy-MM-dd HH:mm:ss");
-    Label lTimeFormate = new Label("Time Formate:");
-    Label lDateFormat = new Label("Date Formate:");
-    TextField fTimeFormate = new TextField("HH:mm:ss");
-    TextField fDateFormat = new TextField("yyyy-MM-dd");
-
-    RadioButton bDateTime = new RadioButton("Date and time in one field:");
-    RadioButton bDateTime2 = new RadioButton("Date and time seperated:");
-
-    Label lValueFormate = new Label("Value Formate:");
-    TextField fValueFormat = new TextField("###.###");
-
-    Label lHeader = new Label("Custom CSV Header");
-    TextField fHeader = new TextField("Example header mit Attribute namen");
-
-    Label lExample = new Label("Preview:");
-    TextArea fTextArea = new TextArea("Example");
-
-    Label lPFilePath = new Label("File:");
-    TextField fFile = new TextField();
-    Button bFile = new Button("Change");
-
-    Button export = new Button("Export");
-
-    File destinationFile;
-
-    List<JEVisSample> _samples = new ArrayList<>();
-
-    TableView tabel = new TableView();
-    TableColumn dateTimeColumn = new TableColumn("Datetime");
-    TableColumn dateColum = new TableColumn("Date");
-    TableColumn valueColum = new TableColumn("Value");
-    TableColumn timeColum = new TableColumn("Time");
-    private boolean _isBuild = false;
-
-    public SampleExportExtension(JEVisAttribute att) {
-        _att = att;
-
-    }
-
-    @Override
-    public boolean isForAttribute(JEVisAttribute obj) {
-        return true;
-    }
-
-    @Override
-    public Node getView() {
-        return _view;
-    }
-
-    @Override
-    public String getTitel() {
-        return TITEL;
-    }
-
-    @Override
-    public void update() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if (!_isBuild) {
-                    buildGUI(_att, _samples);
-                } else {
-//                    _samples = samples;
-//                    updateOderField();
-                    updatePreview();
-                }
-            }
-        });
-    }
-
-    @Override
-    public void setSamples(final JEVisAttribute att, final List<JEVisSample> samples) {
-        _samples = samples;
-        _att = att;
-    }
-
-    public boolean doExport() throws FileNotFoundException, UnsupportedEncodingException {
-
-        String exportStrg = createCSVString(Integer.MAX_VALUE);
-
-        if (!fFile.getText().isEmpty() && exportStrg.length() > 90) {
-            writeFile(fFile.getText(), exportStrg);
-            return true;
-        }
-
-        return false;
-
-    }
-
     @Override
     public boolean sendOKAction() {
         try {
@@ -430,56 +323,100 @@ public class SampleExportExtension implements SampleEditorExtension {
 //        return gp;
     }
 
-    private void updateOderField() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if (bDateTime.isSelected()) {
-                    tabel.getColumns().removeAll(dateColum, timeColum, valueColum);
-                    tabel.getColumns().addAll(dateTimeColumn, valueColum);
-                } else {
-                    tabel.getColumns().removeAll(dateTimeColumn, valueColum);
-                    tabel.getColumns().addAll(dateColum, timeColum, valueColum);
-                }
-            }
-        });
+    final Button ok = new Button("OK");
+    Label lLineSep = new Label("Field Seperator:");
+    TextField fLineSep = new TextField(";");
+    Label lEnclosedBy = new Label("Enclosed by:");
+    TextField fEnclosedBy = new TextField("");
+
+    Label lDateTimeFormat = new Label("Date Formate:");
+    TextField fDateTimeFormat = new TextField("yyyy-MM-dd HH:mm:ss");
+    Label lTimeFormate = new Label("Time Formate:");
+    Label lDateFormat = new Label("Date Formate:");
+    TextField fTimeFormate = new TextField("HH:mm:ss");
+    TextField fDateFormat = new TextField("yyyy-MM-dd");
+
+    RadioButton bDateTime = new RadioButton("Date and time in one field:");
+    RadioButton bDateTime2 = new RadioButton("Date and time seperated:");
+
+    Label lValueFormate = new Label("Value Formate:");
+    TextField fValueFormat = new TextField("###.###");
+
+    Label lHeader = new Label("Custom CSV Header");
+    TextField fHeader = new TextField("Example header mit Attribute namen");
+
+    Label lExample = new Label("Preview:");
+    TextArea fTextArea = new TextArea("Example");
+
+    Label lPFilePath = new Label("File:");
+    TextField fFile = new TextField();
+    Button bFile = new Button("Change");
+
+    Button export = new Button("Export");
+
+    File destinationFile;
+
+    List<JEVisSample> _samples = new ArrayList<>();
+
+    TableView tabel = new TableView();
+    TableColumn dateTimeColumn = new TableColumn("Datetime");
+    TableColumn dateColum = new TableColumn("Date");
+    TableColumn valueColum = new TableColumn("Value");
+    TableColumn timeColum = new TableColumn("Time");
+    private boolean _isBuild = false;
+
+    public SampleExportExtension(JEVisAttribute att) {
+        _att = att;
 
     }
 
-    private Node buildFildOrder() {
-        HBox root = new HBox();
+    @Override
+    public boolean isForAttribute(JEVisAttribute obj) {
+        return true;
+    }
 
-//        String help = "Use Drag&Drop to change the oder.";
-        tabel.setMaxHeight(18);
-        tabel.setPlaceholder(new Region());
+    @Override
+    public Node getView() {
+        return _view;
+    }
 
-        dateColum.setSortable(false);
-        dateColum.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("Date"));
+    @Override
+    public String getTitel() {
+        return TITEL;
+    }
 
-        valueColum.setSortable(false);
-        valueColum.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("Value"));
-
-        timeColum.setSortable(false);
-        timeColum.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("time"));
-
-        dateTimeColumn.setSortable(false);
-        dateTimeColumn.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("Datetime"));
-
-        tabel.setMinWidth(555d);//TODo: replace Dirty workaround
-        tabel.setPrefHeight(200d);//TODo: replace Dirty workaround
-        tabel.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        tabel.getColumns().addListener(new ListChangeListener() {
-
+    @Override
+    public void update() {
+        Platform.runLater(new Runnable() {
             @Override
-            public void onChanged(ListChangeListener.Change change) {
-                updatePreview();
+            public void run() {
+                if (!_isBuild) {
+                    buildGUI(_att, _samples);
+                } else {
+//                    _samples = samples;
+//                    updateOderField();
+                    updatePreview();
+                }
             }
         });
+    }
 
-        root.getChildren().add(tabel);
+    @Override
+    public void setSamples(final JEVisAttribute att, final List<JEVisSample> samples) {
+        _samples = samples;
+        _att = att;
+    }
 
-        return root;
+    public boolean doExport() throws FileNotFoundException, UnsupportedEncodingException {
+
+        String exportStrg = createCSVString(Integer.MAX_VALUE);
+
+        if (!fFile.getText().isEmpty() && exportStrg.length() > 90) {
+            writeFile(fFile.getText(), exportStrg);
+            return true;
+        }
+
+        return false;
 
     }
 
@@ -586,6 +523,69 @@ public class SampleExportExtension implements SampleEditorExtension {
         }
 
         return sb.toString();
+    }
+
+    private void updateOderField() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                if (bDateTime.isSelected()) {
+                    tabel.getColumns().removeAll(dateColum, timeColum, valueColum);
+                    tabel.getColumns().addAll(dateTimeColumn, valueColum);
+                } else {
+                    tabel.getColumns().removeAll(dateTimeColumn, valueColum);
+                    tabel.getColumns().addAll(dateColum, timeColum, valueColum);
+                }
+            }
+        });
+
+    }
+
+    private Node buildFildOrder() {
+        HBox root = new HBox();
+
+//        String help = "Use Drag&Drop to change the oder.";
+        tabel.setMaxHeight(18);
+        tabel.setPlaceholder(new Region());
+
+        dateColum.setSortable(false);
+        dateColum.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("Date"));
+
+        valueColum.setSortable(false);
+        valueColum.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("Value"));
+
+        timeColum.setSortable(false);
+        timeColum.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("time"));
+
+        dateTimeColumn.setSortable(false);
+        dateTimeColumn.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("Datetime"));
+
+        tabel.setMinWidth(555d);//TODo: replace Dirty workaround
+        tabel.setPrefHeight(200d);//TODo: replace Dirty workaround
+        tabel.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        tabel.getColumns().addListener(new ListChangeListener() {
+
+            @Override
+            public void onChanged(ListChangeListener.Change change) {
+                updatePreview();
+            }
+        });
+
+        root.getChildren().add(tabel);
+
+        return root;
+
+    }
+
+    public enum Response {
+
+        YES, CANCEL
+    }
+
+    public enum FIELDS {
+
+        DATE, TIME, VALUE, DATE_TIME
     }
 
     private void writeFile(String file, String text) throws FileNotFoundException, UnsupportedEncodingException {

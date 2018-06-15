@@ -67,10 +67,7 @@ public class Config {
     private static File _i18nDir;
     private static File _fileDir;
     private static File _classDir;
-
-    public static File getClassDir() {
-        return _classDir;
-    }
+    private static Map<String, JsonJEVisClass> _classCache = Collections.synchronizedMap(new HashMap<String, JsonJEVisClass>());
 
 
     public static String getDBHost() {
@@ -93,12 +90,22 @@ public class Config {
         return _schema;
     }
 
+    private static Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
+
+    public static File getClassDir() {
+        return _classDir;
+    }
+
     public static File getFileDir() {
         return _fileDir;
     }
 
     public static File getI18nDir() {
         return _i18nDir;
+    }
+
+    public static String getURI() {
+        return _uri;
     }
 
     public static String getKeyStoreFile() {
@@ -108,14 +115,6 @@ public class Config {
     public static String getKeyStorePW() {
         return _keyFilePW;
     }
-
-    public static String getURI() {
-        return _uri;
-    }
-
-    private static Map<String, JsonJEVisClass> _classCache = Collections.synchronizedMap(new HashMap<String, JsonJEVisClass>());
-    private static Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
-
 
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (_classCache.isEmpty()) {

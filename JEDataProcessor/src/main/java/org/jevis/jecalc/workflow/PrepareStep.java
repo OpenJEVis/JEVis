@@ -5,14 +5,11 @@
  */
 package org.jevis.jecalc.workflow;
 
-import org.jevis.jecalc.data.ResourceManager;
-import org.jevis.jecalc.data.CleanInterval;
-import org.jevis.jecalc.data.CleanDataAttribute;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.jecalc.data.CleanDataAttribute;
+import org.jevis.jecalc.data.CleanInterval;
+import org.jevis.jecalc.data.ResourceManager;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
@@ -24,6 +21,10 @@ import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Creates empty interval classes from start date to end date

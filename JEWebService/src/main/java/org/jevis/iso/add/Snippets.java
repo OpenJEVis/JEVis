@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Snippets {
 
-    public static void getParent(SQLDataSource ds, JsonObject obj) {
+    public static void getParent(SQLDataSource ds, JsonObject obj) throws JEVisException {
         if (obj != null) {
             for (JsonRelationship rel : ds.getRelationships()) {
                 if (rel.getFrom() == obj.getId()) {

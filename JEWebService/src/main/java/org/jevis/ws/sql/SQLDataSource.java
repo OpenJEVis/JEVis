@@ -5,10 +5,12 @@
  */
 package org.jevis.ws.sql;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
 import org.jevis.rest.Config;
@@ -16,6 +18,7 @@ import org.jevis.rest.ErrorBuilder;
 import org.jevis.ws.sql.tables.*;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
 
 import javax.measure.unit.Unit;
 import javax.security.sasl.AuthenticationException;
@@ -23,7 +26,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -51,6 +54,67 @@ public class SQLDataSource {
     private UserRightManagerForWS um;
     private Profiler pf = new Profiler();
     private List<String> sqlLog = new ArrayList<>();
+
+    public List<JsonClassRelationship> getClassRelationships() {
+        List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());
+        List<JsonClassRelationship> tempjcr = new ArrayList<>();
+        for (JsonJEVisClass jjc : list) {
+            tempjcr.addAll(jjc.getRelationships());
+        }
+        return null;
+    }
+
+    public List<JsonClassRelationship> getClassRelationships(String className) {
+        List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());
+        List<JsonClassRelationship> tempjcr = new ArrayList<>();
+        for (JsonJEVisClass jjc : list) {
+            if (jjc.getName().equals(className)) tempjcr.addAll(jjc.getRelationships());
+        }
+        return null;
+    }
+
+    public List<JsonType> getTypes(JsonJEVisClass jevisClass) {
+        List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());
+        if (list.contains(jevisClass)) {
+            return list.get(list.indexOf(jevisClass)).getTypes();
+        } else return null;
+    }
+
+    public JEVisFile getFile(SQLDataSource ds, long id, String attribute) throws JEVisException, IOException {
+        DateTime ts = null;
+        JEVisFile jFile = new JEVisFileImp();
+        List<JsonSample> samples = ds.getSamples(id, attribute, ts, ts, 1);
+        if (!samples.isEmpty()) {
+            JsonSample sample = samples.get(0);
+
+            DateTime dbTS = JsonFactory.sampleDTF.parseDateTime(samples.get(0).getTs());
+
+            //Pattern  /path/to/filedir/yyyyMMdd/ID_HHmmss_filename
+            String fileName = createFilePattern(id, attribute, sample.getValue(), dbTS);
+            File file = new File(fileName);
+            if (file.exists() && file.canRead()) {
+                jFile.setFilename(file.getName());
+                InputStream is = new FileInputStream(file.getName());
+                jFile.setBytes(IOUtils.toByteArray(is));
+
+                return jFile;
+            }
+        }
+        return null;
+    }
+
+    private String createFilePattern(long id, String attribute, String fileName, DateTime dateTime) {
+        String absoluteFileDir = Config.getFileDir().getAbsolutePath()
+                + File.separator + id
+                + File.separator + attribute
+                + File.separator + DateTimeFormat.forPattern("yyyyMMddHHmmss").withZoneUTC().print(dateTime)
+                + "_" + fileName;
+        return absoluteFileDir;
+    }
+
+    public List<JsonJEVisClass> getJEVisClasses() {
+        return new ArrayList<>(Config.getClassCache().values());
+    }
 
     public enum PRELOAD {
         ALL_REL, ALL_CLASSES, ALL_OBJECT
@@ -92,7 +156,7 @@ public class SQLDataSource {
         return um;
     }
 
-    public void preload(PRELOAD preload) throws JEVisException {
+    public void preload(PRELOAD preload) {
         logger.debug("prelaod {}", preload.toString());
         try {
             switch (preload) {
@@ -140,7 +204,7 @@ public class SQLDataSource {
         return dbConn;
     }
 
-    public List<JsonObject> filterObjectByClass(List<JsonObject> objects, String jclass) throws JEVisException {
+    public List<JsonObject> filterObjectByClass(List<JsonObject> objects, String jclass) {
         List<JsonObject> filterd = new ArrayList<>();
         List<String> heir = new ArrayList<>();
         heir.add(jclass);
@@ -153,7 +217,7 @@ public class SQLDataSource {
         return filterd;
     }
 
-    private void jevisLogin(HttpHeaders httpHeaders) throws AuthenticationException, JEVisException {
+    private void jevisLogin(HttpHeaders httpHeaders) throws AuthenticationException {
         if (httpHeaders.getRequestHeader("authorization") == null || httpHeaders.getRequestHeader("authorization").isEmpty()) {
             throw new AuthenticationException("Authorization header is missing");
         }
@@ -197,19 +261,19 @@ public class SQLDataSource {
 //        }
     }
 
-    public JEVisClass buildClass(String name) throws JEVisException {
+    public JEVisClass buildClass(String name) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public JEVisObject buildLink(String name, JEVisObject parent, JEVisObject linkedObject) throws JEVisException {
+    public JEVisObject buildLink(String name, JEVisObject parent, JEVisObject linkedObject) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) throws JEVisException {
+    public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public List<JsonObject> getRootObjects() throws JEVisException {
+    public List<JsonObject> getRootObjects() {
         return getUserManager().getRoots();
     }
 
@@ -282,7 +346,7 @@ public class SQLDataSource {
     }
 
 
-    public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) throws JEVisException {
+    public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) {
         List<JsonRelationship> newRels = new ArrayList<>();
         for (JsonRelationship rel : rels) {
             try {
@@ -298,7 +362,7 @@ public class SQLDataSource {
         return getRelationshipTable().insert(rel.getFrom(), rel.getTo(), rel.getType());
     }
 
-    public JsonJEVisClass getJEVisClass(String name) throws JEVisException {
+    public JsonJEVisClass getJEVisClass(String name) {
         return Config.getClassCache().get(name);
     }
 
@@ -322,7 +386,7 @@ public class SQLDataSource {
         return getSampleTable().getLatest(obj, attribute);
     }
 
-    public List<JsonRelationship> getRelationships(long object) throws JEVisException {
+    public List<JsonRelationship> getRelationships(long object) {
         if (!allRelationships.isEmpty()) {
             //TODO
             List<JsonRelationship> list = new LinkedList<>();
@@ -350,7 +414,7 @@ public class SQLDataSource {
         return list;
     }
 
-    public List<JsonRelationship> getRelationships() throws JEVisException {
+    public List<JsonRelationship> getRelationships() {
         logger.debug("getRelationships");
         if (!allRelationships.isEmpty()) {
             logger.debug("getRelationships - cache");
@@ -385,11 +449,11 @@ public class SQLDataSource {
         return null;
     }
 
-    public boolean deleteAllSample(long object, String attribute) throws JEVisException {
+    public boolean deleteAllSample(long object, String attribute) {
         return getSampleTable().deleteAllSamples(object, attribute);
     }
 
-    public boolean deleteSamplesBetween(long object, String attribute, DateTime startDate, DateTime endDate) throws JEVisException {
+    public boolean deleteSamplesBetween(long object, String attribute, DateTime startDate, DateTime endDate) {
         return getSampleTable().deleteSamples(object, attribute, startDate, endDate);
     }
 
@@ -490,12 +554,12 @@ public class SQLDataSource {
         }
     }
 
-    public boolean deleteObject(JsonObject objectID) throws JEVisException {
+    public boolean deleteObject(JsonObject objectID) {
         return getObjectTable().deleteObject(objectID);
     }
 
 
-    public boolean deleteRelationship(Long fromObject, Long toObject, int type) throws JEVisException {
+    public boolean deleteRelationship(Long fromObject, Long toObject, int type) {
         return getRelationshipTable().delete(fromObject, toObject, type);
     }
 

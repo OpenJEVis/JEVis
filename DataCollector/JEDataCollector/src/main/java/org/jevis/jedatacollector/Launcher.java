@@ -31,7 +31,7 @@ public class Launcher extends AbstractCliApp {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws JEVisException {
+    public static void main(String[] args) {
         System.out.println("Müdfjäposhfaäwhesädoh");
         try {
             Appender appender = Logger.getRootLogger().getAppender("FILE");
@@ -48,63 +48,6 @@ public class Launcher extends AbstractCliApp {
 
     public Launcher(String[] args, String appname) {
         super(args, appname);
-    }
-
-    protected class Command {
-
-        @Parameter(names = {"--jevisid", "-jid"}, description = "if servicemode is 'single', then you can put the JEVis id of the alarm objects you want to run", required = false)
-        private List<Long> ids = new ArrayList<>();
-
-        @Parameter(names = {"--driver-folder", "-df"}, description = "Sets the root folder for the driver structure")
-        private String driverFolder;
-    }
-
-    @Override
-    protected void addCommands() {
-        comm.addObject(commands);
-    }
-
-    @Override
-    protected void handleAdditionalCommands() {
-        DriverHelper.loadDriver(ds, commands.driverFolder);
-    }
-
-    @Override
-    protected void runSingle() {
-        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Singel Mode");
-        try {
-            List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
-
-            for (long id : commands.ids) {
-                dataSources.add(ds.getObject(id));
-            }
-
-            excecuteDataSources(dataSources);
-        } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    protected void runService() {
-        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Service Mode");
-        List<JEVisObject> dataSources = new ArrayList<>();
-        dataSources = getEnabledDataSources(ds);
-        excecuteDataSources(dataSources);
-        try {
-            Thread.sleep(cycleTime);
-            runService();
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    protected void runComplete() {
-        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Compete Mode");
-        List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
-        dataSources = getEnabledDataSources(ds);
-        excecuteDataSources(dataSources);
     }
 
     /**
@@ -241,6 +184,63 @@ public class Launcher extends AbstractCliApp {
         }
         System.out.println("---------------------finish------------------------");
 
+    }
+
+    @Override
+    protected void addCommands() {
+        comm.addObject(commands);
+    }
+
+    @Override
+    protected void handleAdditionalCommands() {
+        DriverHelper.loadDriver(ds, commands.driverFolder);
+    }
+
+    @Override
+    protected void runSingle() {
+        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Singel Mode");
+        try {
+            List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
+
+            for (long id : commands.ids) {
+                dataSources.add(ds.getObject(id));
+            }
+
+            excecuteDataSources(dataSources);
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    protected void runService() {
+        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Service Mode");
+        List<JEVisObject> dataSources = new ArrayList<>();
+        dataSources = getEnabledDataSources(ds);
+        excecuteDataSources(dataSources);
+        try {
+            Thread.sleep(cycleTime);
+            runService();
+        } catch (InterruptedException ex) {
+            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    protected void runComplete() {
+        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Compete Mode");
+        List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
+        dataSources = getEnabledDataSources(ds);
+        excecuteDataSources(dataSources);
+    }
+
+    protected class Command {
+
+        @Parameter(names = {"--jevisid", "-jid"}, description = "if servicemode is 'single', then you can put the JEVis id of the alarm objects you want to run", required = false)
+        private List<Long> ids = new ArrayList<>();
+
+        @Parameter(names = {"--driver-folder", "-df"}, description = "Sets the root folder for the driver structure")
+        private String driverFolder;
     }
 
     private int getNumberOfMaxThreads() {

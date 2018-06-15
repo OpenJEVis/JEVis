@@ -341,7 +341,7 @@ public class ClassTree extends TreeView<JEVisClass> {
 //        edit(_cl.getCurrentItem());
     }
 
-    public void fireSaveAttributes(boolean ask) throws JEVisException {
+    public void fireSaveAttributes(boolean ask) {
 //        TreeItem<JEVisClass> selectedItem = getSelectionModel().getSelectedItem();
 
 //        getSelectionModel().getSelectedItem().getParent().setExpanded(false);
@@ -420,16 +420,12 @@ public class ClassTree extends TreeView<JEVisClass> {
 
                         for (Map.Entry<TreeItem<JEVisClass>, ObservableList<TreeItem<JEVisClass>>> entry : _itemChildren.entrySet()) {
 
-                            if (entry.getValue().contains(item)) {
-                                entry.getValue().remove(item);
-                            }
+                            entry.getValue().remove(item);
                         }
 
                         getSelectionModel().select(item.getParent());
 
-                        if (_graphicCache.containsKey(className)) {
-                            _graphicCache.remove(className);
-                        }
+                        _graphicCache.remove(className);
 
 //                    parentItem.setExpanded(false);
                     } catch (JEVisException ex) {

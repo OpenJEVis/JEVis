@@ -19,12 +19,7 @@
  */
 package org.jevis.jeapi.ws;
 
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUser;
+import org.jevis.api.*;
 import org.jevis.commons.user.UserRightManager;
 
 /**
@@ -79,7 +74,7 @@ public class JEVisUserWS implements JEVisUser {
                 case JEVisConstants.Attribute.USER_ENABLED:
                     //can only be true in the moment because if not the user can not access this information for him self
                     JEVisSample enabledAtt = att.getLatestSample();
-                    System.out.println("enabledAtt: "+enabledAtt);
+                    System.out.println("enabledAtt: " + enabledAtt);
                     if (enabledAtt != null) {
                         enabled = enabledAtt.getValueAsBoolean();
                     } else {

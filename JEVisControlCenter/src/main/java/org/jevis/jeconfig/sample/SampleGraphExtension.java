@@ -251,7 +251,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
                 DateTime ts = sample.getTimestamp();
                 if (ts.isBefore(newStep)) {
 //                    System.out.println("add TS1: " + (ts.getMillis() / 1000 / 60) + "  " + sample.getValueAsDouble());
-                    XYChart.Data data = new XYChart.Data((Number) (ts.getMillis() / 1000 / 60), sample.getValueAsDouble());
+                    XYChart.Data data = new XYChart.Data(ts.getMillis() / 1000 / 60, sample.getValueAsDouble());
 
                     Tooltip.install(data.getNode(), new Tooltip(
                             "Timestamp: " + sample.getTimestamp().toString() + "\n"
@@ -261,7 +261,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
 //                    series1.getData().add(new XYChart.Data((Number) (ts.getMillis() / 1000 / 60), sample.getValueAsDouble()));
                     lastPos = i;
                 } else if (ts.equals(newStep)) {
-                    XYChart.Data data = new XYChart.Data((Number) (ts.getMillis() / 1000 / 60), sample.getValueAsDouble());
+                    XYChart.Data data = new XYChart.Data(ts.getMillis() / 1000 / 60, sample.getValueAsDouble());
 
                     Tooltip.install(data.getNode(), new Tooltip(
                             "Timestamp: " + sample.getTimestamp().toString() + "\n"
@@ -273,7 +273,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
                     break;
                 } else {
 //                    System.out.println("add TS3: " + (ts.getMillis() / 1000 / 60) + "  " + sample.getValueAsDouble());
-                    series1.getData().add(new XYChart.Data((Number) (newStep.getMillis() / 1000 / 60), 0));//? get Last Sample
+                    series1.getData().add(new XYChart.Data(newStep.getMillis() / 1000 / 60, 0));//? get Last Sample
 
                     break;
                 }

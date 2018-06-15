@@ -9,11 +9,10 @@ import org.jevis.api.JEVisException;
 import org.jevis.jecalc.data.ResourceManager;
 
 /**
- *
  * @author broder
  */
 public interface ProcessStep {
 
     void run(ResourceManager resourceManager) throws JEVisException;
-    
+
 }

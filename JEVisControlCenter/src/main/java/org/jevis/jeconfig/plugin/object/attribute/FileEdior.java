@@ -101,7 +101,7 @@ public class FileEdior implements AttributeEditor {
         return box;
     }
 
-    private void init() throws JEVisException {
+    private void init() {
 
         _downloadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.download")
                 , JEConfig.getImage("698925-icon-92-inbox-download-48.png", 18, 18));

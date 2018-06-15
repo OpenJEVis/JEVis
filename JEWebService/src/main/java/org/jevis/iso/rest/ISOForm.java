@@ -70,7 +70,7 @@ public class ISOForm {
                     for (JsonAttribute att : listAttributes) {
                         if (att.getSampleCount() > 0) {
                             String guiDisplayType = "";
-                            for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
+                            for (JsonType jt : ds.getTypes(ds.getJEVisClass(obj.getJevisClass()))) {
                                 if (jt.getName().equals(att.getType())) {
                                     guiDisplayType = jt.getGuiType();
                                 }
@@ -108,7 +108,7 @@ public class ISOForm {
                             }
                         } else {
                             String guiDisplayType = "";
-                            for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
+                            for (JsonType jt : ds.getTypes(ds.getJEVisClass(obj.getJevisClass()))) {
                                 if (jt.getName().equals(att.getType())) {
                                     guiDisplayType = jt.getGuiType();
                                 }

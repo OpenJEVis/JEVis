@@ -8,10 +8,14 @@ import java.util.Locale;
 public class AppLocale {
 
 
+    public static String BUNDEL_ID = "jeapplication";
     private static AppLocale appLocale;
     private Locale locale;
-    public static String BUNDEL_ID= "jeapplication";
 
+
+    public AppLocale() {
+        locale = Locale.getDefault();
+    }
 
     public static synchronized AppLocale getInstance() {
         if (appLocale == null)
@@ -19,16 +23,12 @@ public class AppLocale {
         return appLocale;
     }
 
-    public AppLocale() {
-        locale=Locale.getDefault();
-    }
-
-    public void setLocale(Locale locale){
-        this.locale=locale;
-    }
-
-    public Locale getLocale(){
+    public Locale getLocale() {
         return this.locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
 }
