@@ -5,7 +5,12 @@
  */
 package org.jevis.jecalc.util;
 
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.jecalc.data.CleanDataAttributeOffline;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -14,13 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.VirtuelSample;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 /**
- *
  * @author broder
  */
 public class DataRowReader {
@@ -38,7 +38,7 @@ public class DataRowReader {
                 String valueAsString = delimLine[1];
                 Double value = Double.parseDouble(valueAsString);
 
-                JEVisSample sample = new VirtuelSample(currentdate, value);
+                JEVisSample sample = new VirtualSample(currentdate, value);
                 jevisSamples.add(sample);
                 line = br.readLine();
             }

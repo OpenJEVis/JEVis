@@ -49,38 +49,20 @@ import java.util.List;
 public class JEVisClassWS implements JEVisClass {
 
     private Logger logger = LogManager.getLogger(JEVisClassWS.class);
+    private final EventListenerList listeners = new EventListenerList();
     //    private String name = "";
     private JEVisDataSourceWS ds = null;
+    private List<JEVisType> types = null;
     //    private String description = "";
 //    private boolean isUnique = false;
     private BufferedImage image = null;
-    private List<JEVisType> types = null;
-    private List<JEVisClassRelationship> relations = new ArrayList<>();
     private JsonJEVisClass json;
-    private final EventListenerList listeners = new EventListenerList();
+    private List<JEVisClassRelationship> relations = new ArrayList<>();
     private boolean iconChanged = false;
 
     public JEVisClassWS(JEVisDataSourceWS ds, JsonJEVisClass json) {
         this.ds = ds;
         this.json = json;
-    }
-
-    @Override
-    public void addEventListener(JEVisEventListener listener) {
-        listeners.add(JEVisEventListener.class, listener);
-    }
-
-    @Override
-    public void removeEventListener(JEVisEventListener listener) {
-        listeners.remove(JEVisEventListener.class, listener);
-    }
-
-    @Override
-    public synchronized void notifyListeners(JEVisEvent event) {
-
-        for (JEVisEventListener l : listeners.getListeners(JEVisEventListener.class)) {
-            l.fireEvent(event);
-        }
     }
 
     /**
@@ -106,6 +88,24 @@ public class JEVisClassWS implements JEVisClass {
         } catch (Exception ex) {
             System.out.println("Could not load icon: " + "/icons/   " + icon);
             return new Image(JEVisClassWS.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
+        }
+    }
+
+    @Override
+    public void addEventListener(JEVisEventListener listener) {
+        listeners.add(JEVisEventListener.class, listener);
+    }
+
+    @Override
+    public void removeEventListener(JEVisEventListener listener) {
+        listeners.remove(JEVisEventListener.class, listener);
+    }
+
+    @Override
+    public synchronized void notifyListeners(JEVisEvent event) {
+
+        for (JEVisEventListener l : listeners.getListeners(JEVisEventListener.class)) {
+            l.fireEvent(event);
         }
     }
 
@@ -142,23 +142,23 @@ public class JEVisClassWS implements JEVisClass {
     }
 
     @Override
-    public boolean deleteType(String type) throws JEVisException {
+    public boolean deleteType(String type) {
         //TODO re-implement
         return false;
     }
 
     @Override
-    public String getName() throws JEVisException {
+    public String getName() {
         return this.json.getName();
     }
 
     @Override
-    public void setName(String name) throws JEVisException {
+    public void setName(String name) {
         this.json.setName(name);
     }
 
     @Override
-    public BufferedImage getIcon() throws JEVisException {
+    public BufferedImage getIcon() {
         if (image == null) {
             image = ds.getClassIcon(json.getName());
         }
@@ -172,14 +172,14 @@ public class JEVisClassWS implements JEVisClass {
     }
 
     @Override
-    public void setIcon(BufferedImage icon) throws JEVisException {
+    public void setIcon(BufferedImage icon) {
         this.image = icon;
         iconChanged = true;
 
     }
 
     @Override
-    public void setIcon(File icon) throws JEVisException {
+    public void setIcon(File icon) {
         try {
             this.image = ImageIO.read(icon);
             iconChanged = true;
@@ -190,17 +190,17 @@ public class JEVisClassWS implements JEVisClass {
     }
 
     @Override
-    public String getDescription() throws JEVisException {
+    public String getDescription() {
         return json.getDescription();
     }
 
     @Override
-    public void setDescription(String description) throws JEVisException {
+    public void setDescription(String description) {
         json.setDescription(description);
     }
 
     @Override
-    public List<JEVisType> getTypes() throws JEVisException {
+    public List<JEVisType> getTypes() {
 
         if (types == null && json.getTypes() != null) {
             types = new ArrayList<>();
@@ -301,22 +301,22 @@ public class JEVisClassWS implements JEVisClass {
     }
 
     @Override
-    public boolean isUnique() throws JEVisException {
+    public boolean isUnique() {
         return json.getUnique();
     }
 
     @Override
-    public void setUnique(boolean unique) throws JEVisException {
+    public void setUnique(boolean unique) {
         json.setUnique(unique);
     }
 
     @Override
-    public boolean delete() throws JEVisException {
+    public boolean delete() {
         return ds.deleteClass(getName());
     }
 
     @Override
-    public List<JEVisClassRelationship> getRelationships() throws JEVisException {
+    public List<JEVisClassRelationship> getRelationships() {
         if (relations.isEmpty() && json.getRelationships() != null) {
             for (JsonClassRelationship crel : json.getRelationships()) {
                 relations.add(new JEVisClassRelationshipWS(ds, crel));
@@ -377,7 +377,7 @@ public class JEVisClassWS implements JEVisClass {
     }
 
     @Override
-    public JEVisDataSource getDataSource() throws JEVisException {
+    public JEVisDataSource getDataSource() {
         return ds;
     }
 
@@ -441,7 +441,7 @@ public class JEVisClassWS implements JEVisClass {
     }
 
     @Override
-    public void rollBack() throws JEVisException {
+    public void rollBack() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

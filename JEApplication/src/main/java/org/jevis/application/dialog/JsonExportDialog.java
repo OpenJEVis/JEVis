@@ -1,30 +1,25 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.dialog;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -36,33 +31,29 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.resource.ResourceLoader;
-import org.jevis.commons.json.JsonFactory;
-import org.jevis.commons.json.JsonFileExporter;
-import org.jevis.commons.json.JsonObject;
+import org.jevis.commons.dimpex.DimpEX;
+import org.jevis.commons.dimpex.DimpExfactory;
+import org.jevis.commons.dimpex.DimpexObject;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
  * @author fs
  */
 public class JsonExportDialog {
@@ -82,7 +73,7 @@ public class JsonExportDialog {
         final Button fileSelect = new Button("Change...");
         final CheckBox allChildren = new CheckBox("Include all sub-Objects");
         final CheckBox allSamples = new CheckBox("Include all Samples");
-        final CheckBox attributes = new CheckBox("Include Attributes");
+        final CheckBox attributes = new CheckBox("Include Configuration");
         allSamples.setDisable(true);
 
         HBox fileBox = new HBox(5);
@@ -122,7 +113,7 @@ public class JsonExportDialog {
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setWidth(500);
-        stage.setHeight(270);
+        stage.setHeight(300);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(false);
 
@@ -199,7 +190,7 @@ public class JsonExportDialog {
 
             @Override
             public void handle(ActionEvent event) {
-                System.out.println("");
+                System.out.println();
                 FileChooser fileChooser = new FileChooser();
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -229,17 +220,30 @@ public class JsonExportDialog {
 
                 boolean isChildren = allChildren.isSelected();
                 boolean isAattributes = attributes.isSelected();
-                boolean isSamples = false;
+                boolean isSamples = allSamples.isSelected();
+                DimpExfactory.SampleMode smode = DimpExfactory.SampleMode.NONE;
                 if (isAattributes) {
-                    isSamples = allSamples.isSelected();;
+                    smode = DimpExfactory.SampleMode.CONFIGURATION;
+                }
+                if (isSamples) {
+                    smode = DimpExfactory.SampleMode.ALL;
                 }
 
                 tartetFile = new File(destinationF.getText());
 
                 try {
-                    JsonObject jobj = JsonFactory.buildObject(obj, isAattributes, isChildren, isSamples);
-                    JsonFileExporter.writeToFile(tartetFile, jobj);
-                } catch (JEVisException ex) {
+
+                    try {
+                        DimpexObject dObject = DimpEX.export(obj, true, smode);
+                        DimpEX.writeFile(dObject, tartetFile, false);
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+
+//                    JsonObject jobj = JsonFactory.buildObject(obj, isAattributes, isChildren, isSamples);
+//                    JsonFileExporter.writeToFile(tartetFile, jobj);
+                } catch (Exception ex) {
                     Logger.getLogger(JsonExportDialog.class.getName()).log(Level.SEVERE, null, ex);
                 }
 

@@ -90,6 +90,7 @@
     {
       "name": "Start Record",
       "primitiveType": 0,
+      "guiType": "Date Time",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,

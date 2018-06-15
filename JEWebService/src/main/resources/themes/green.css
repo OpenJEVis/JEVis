@@ -1,0 +1,88 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 11.03.2018, 12:49:09
+    Author     : <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
+*/
+
+.body-background, .container-nav {
+    /*  this setting is the background of the whole site*/
+    background: #E8F5E9;
+}
+
+.top-header {
+    /*  this setting is for the background of the top header (background of the navigation bar)*/
+    background: #4CAF50;
+}
+
+.nav, .navbar-select-sites {
+    /*  this is the background color of the navbar itself*/
+    background-color: #1B5E20;
+}
+
+.nav > li:hover {
+    /*  color of hover in navigation bar*/
+    background-color: #00E676;
+}
+
+.nav .column ul li a:hover {
+    /*  this is the color of hover in dropdown menu*/
+    color: #00E676;
+}
+
+.nav a, .nav a:link, .nav a:visited, .nav a:hover, .nav a:focus, span, .nav > li.dropdown > a:after, .nav .column h3 {
+    /*  this is the text color in the navigation bar*/
+    color: #fff;
+}
+
+.nav > li > .fulldrop {
+    /*  background color of the dropdown menu of the navigation bar */
+    background-color: #1B5E20;
+}
+
+.vertical-navbar {
+    /*  background color of the vertical navigation bar*/
+    background-color: #4CAF50;
+}
+
+.css-treeview label, .css-treeview a {
+    /*  text color of the vertical navigation bar*/
+    color: #fff;
+}
+
+.body-column {
+    border: 0.5px solid #A5D6A7;
+}
+
+.data-form {
+    background: #C8E6C9;
+}
+
+.data-form p, input, textarea, select, button {
+    color: #1B5E20;
+}
+
+.input {
+    background-color: transparent;
+    color: #1B5E20;
+}
+
+input:focus::-webkit-input-placeholder {
+    color: #00E676;
+}
+
+.wrapper {
+    box-shadow: 0px 2px 1px 0px #A5D6A7;
+}
+
+.underline {
+    background-color: #00E676;
+}
+
+.data-form-button {
+    background: #E8F5E9;
+    border-color: #69F0AE;
+}

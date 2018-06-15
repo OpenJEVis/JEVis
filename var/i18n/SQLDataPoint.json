@@ -10,9 +10,9 @@
     {
       "type": "Target Attribute",
       "descriptions": {
-        "de": "Target Attribute desctiption",
-        "ru": "Target Attribute desctiption",
-        "en": "Target Attribute desctiption"
+        "de": "Target Attribute description",
+        "ru": "Target Attribute description",
+        "en": "Target Attribute description"
       },
       "names": {
         "de": "Target Attribute",
@@ -23,9 +23,9 @@
     {
       "type": "Target ID",
       "descriptions": {
-        "de": "Target ID desctiption",
-        "ru": "Target ID desctiption",
-        "en": "Target ID desctiption"
+        "de": "Target ID description",
+        "ru": "Target ID description",
+        "en": "Target ID description"
       },
       "names": {
         "de": "Target ID",
@@ -36,9 +36,9 @@
     {
       "type": "Timestamp Column",
       "descriptions": {
-        "de": "Timestamp Column desctiption",
-        "ru": "Timestamp Column desctiption",
-        "en": "Timestamp Column desctiption"
+        "de": "Timestamp Column description",
+        "ru": "Timestamp Column description",
+        "en": "Timestamp Column description"
       },
       "names": {
         "de": "Timestamp Column",
@@ -49,9 +49,9 @@
     {
       "type": "Timestamp Type",
       "descriptions": {
-        "de": "Timestamp Type desctiption",
-        "ru": "Timestamp Type desctiption",
-        "en": "Timestamp Type desctiption"
+        "de": "Timestamp Type description",
+        "ru": "Timestamp Type description",
+        "en": "Timestamp Type description"
       },
       "names": {
         "de": "Timestamp Type",
@@ -62,9 +62,9 @@
     {
       "type": "Value Column",
       "descriptions": {
-        "de": "Value Column desctiption",
-        "ru": "Value Column desctiption",
-        "en": "Value Column desctiption"
+        "de": "Value Column description",
+        "ru": "Value Column description",
+        "en": "Value Column description"
       },
       "names": {
         "de": "Value Column",
@@ -75,9 +75,9 @@
     {
       "type": "Value Type",
       "descriptions": {
-        "de": "Value Type desctiption",
-        "ru": "Value Type desctiption",
-        "en": "Value Type desctiption"
+        "de": "Value Type description",
+        "ru": "Value Type description",
+        "en": "Value Type description"
       },
       "names": {
         "de": "Value Type",

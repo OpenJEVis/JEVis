@@ -65,7 +65,6 @@ public class ResourceSample {
      * @param end
      * @param onlyLatest
      * @return
-     * @throws JEVisException
      */
     @GET
     @Logged
@@ -80,7 +79,7 @@ public class ResourceSample {
             @QueryParam("until") String end,
             @DefaultValue("1000000") @QueryParam("limit") long limit,
             @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest
-    ) throws JEVisException {
+    ) {
 
         SQLDataSource ds = null;
         try {
@@ -163,7 +162,7 @@ public class ResourceSample {
             @DefaultValue("now") @PathParam("timestamp") String timestamp,
             //            @DefaultValue("file.file") @QueryParam("filename") String filename,
             InputStream payload
-    ) throws JEVisException {
+    ) {
         SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
@@ -272,7 +271,7 @@ public class ResourceSample {
             @PathParam("id") long id,
             @PathParam("attribute") String attribute,
             @DefaultValue("latest") @PathParam("timestamp") String timestamp
-    ) throws JEVisException {
+    ) {
         SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);

@@ -1,43 +1,40 @@
-/**
- * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JECommons.
- *
- * JECommons is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
- * JECommons is part of the OpenJEVis project, further project information are
- * published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JECommons.
+
+  JECommons is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with
+  JECommons. If not, see <http://www.gnu.org/licenses/>.
+
+  JECommons is part of the OpenJEVis project, further project information are
+  published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.ws.sql;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
- *
  * @author fs
  */
 public class UserRightManagerForWS {
 
-    private Logger logger = LogManager.getLogger(UserRightManagerForWS.class);
     private final JEVisUserNew user;
     private SQLDataSource ds;
     private List<Long> readGIDS = new ArrayList<>();
@@ -46,9 +43,8 @@ public class UserRightManagerForWS {
     private List<Long> exeGIDS = new ArrayList<>();
     private List<Long> writeGIDS = new ArrayList<>();
 
-    private List<JsonRelationship> userRel;
-
     public UserRightManagerForWS(SQLDataSource ds) throws JEVisException {
+        Logger logger = LogManager.getLogger(UserRightManagerForWS.class);
         logger.trace("Init UserRightManagerForWS for user");
         this.user = ds.getCurrentUser();
         this.ds = ds;
@@ -57,7 +53,7 @@ public class UserRightManagerForWS {
 
     private void init() throws JEVisException {
         //get user groups
-        userRel = ds.getRelationships(ds.getCurrentUser().getUserObject().getId());
+        List<JsonRelationship> userRel = ds.getRelationships(ds.getCurrentUser().getUserObject().getId());
         for (JsonRelationship rel : userRel) {
             switch (rel.getType()) {
                 case JEVisConstants.ObjectRelationship.MEMBER_READ:
@@ -79,27 +75,27 @@ public class UserRightManagerForWS {
         }
     }
 
-    public List<JsonRelationship> filterReadRelationships(List<JsonRelationship> rels) throws JEVisException {
+    public List<JsonRelationship> filterReadRelationships(List<JsonRelationship> rels) {
         //Sys Admin can read it all
         if (isSysAdmin()) {
             return rels;
         }
-        
+
         List<JsonRelationship> list = new ArrayList<>();
         List<Long> objectIDOFGroupOwenedObj = new LinkedList<>();
-        
-        //hmm what is with object wich are public??
-        
-        
+
+        //hmm what is with object which are public??
+
+
         for (JsonRelationship rel : rels) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && readGIDS.contains(rel.getTo())) {
                 objectIDOFGroupOwenedObj.add(rel.getFrom());
             }
         }
-        System.out.println("User owned: "+objectIDOFGroupOwenedObj.size());
+        System.out.println("User owned: " + objectIDOFGroupOwenedObj.size());
 
         for (JsonRelationship rel : rels) {
-            if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) ||  objectIDOFGroupOwenedObj.contains(rel.getTo())) {
+            if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) || objectIDOFGroupOwenedObj.contains(rel.getTo())) {
 //            if ( readGIDS.contains(rel.getTo()) || readGIDS.contains(rel.getFrom())) {
                 list.add(rel);
             }
@@ -148,22 +144,22 @@ public class UserRightManagerForWS {
     }
 
     public List<JsonObject> filterList(List<JsonObject> objects) throws JEVisException {
-        System.out.println("filterList: "+isSysAdmin()+ "   - "+objects.size());
+        System.out.println("filterList: " + isSysAdmin() + "   - " + objects.size());
         //Sys Admin can read it all
         if (isSysAdmin()) {
             return objects;
         }
         System.out.println("isnotAdmin");
-        
+
         List<JsonObject> list = new LinkedList<>();
         List<JsonRelationship> allRel = ds.getRelationships();
-        
+
         for (JsonObject obj : objects) {
             if (obj.getisPublic()) {
                 list.add(obj);
                 continue;
             }
-            if(isReadOK(allRel, obj)){
+            if (isReadOK(allRel, obj)) {
                 list.add(obj);
             }
         }
@@ -171,10 +167,26 @@ public class UserRightManagerForWS {
         return list;
     }
 
+    public JsonObject filterObject(JsonObject object) throws JEVisException {
+        System.out.println("filterObject: " + isSysAdmin());
+        //Sys Admin can read it all
+        if (isSysAdmin()) {
+            return object;
+        }
+        System.out.println("isnotAdmin");
+
+        List<JsonRelationship> allRel = ds.getRelationships();
+
+
+        if (object.getisPublic() || isReadOK(allRel, object)) {
+            return object;
+        } else return null;
+    }
+
     private boolean isReadOK(List<JsonRelationship> rels, JsonObject obj) {
         for (JsonRelationship rel : rels) {
-            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER 
-                    && rel.getFrom() == obj.getId() 
+            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER
+                    && rel.getFrom() == obj.getId()
                     && readGIDS.contains(rel.getTo())) {
                 return true;
             }
@@ -246,7 +258,7 @@ public class UserRightManagerForWS {
 
         //check for group permissions
         for (JsonRelationship rel : ds.getRelationships(object.getId())) {
-            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && exeGIDS.contains(rel.getTo())) {
+            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && deleteGIDS.contains(rel.getTo())) {
                 return true;
             }
         }

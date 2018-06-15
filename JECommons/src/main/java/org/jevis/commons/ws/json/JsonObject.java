@@ -20,10 +20,10 @@
  */
 package org.jevis.commons.ws.json;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This Class is used to represents an JEVisObject in JSON by the WebService
@@ -104,19 +104,19 @@ public class JsonObject {
     public void setId(long id) {
         this.id = id;
     }
-    
+
     /**
      * Returns true is the object has public access
-     * @return 
+     * @return
      */
     @XmlElement(name = "isPublic")
     public boolean getisPublic() {
         return isPublic;
     }
-    
+
     /**
      * Set if the objetc allows public access
-     * @param isPublic 
+     * @param isPublic
      */
     public void setisPublic(boolean isPublic) {
         this.isPublic = isPublic;
@@ -164,12 +164,37 @@ public class JsonObject {
         this.relationships = relationships;
     }
 
+    /**
+     * Returns the Parent of this JEVisObject.
+     *
+     * @return Parent of this JEVisObject.
+     */
+    @XmlElement(name = "parent")
     public long getParent() {
         return parent;
     }
 
+    /**
+     * Set the Parent of this JEVisObject.
+     *
+     * @param parent
+     */
     public void setParent(long parent) {
         this.parent = parent;
     }
 
+
+    @Override
+    public String toString() {
+        return "JsonObject{" +
+                "name='" + name + '\'' +
+                ", id=" + id +
+                ", jevisClass='" + jevisClass + '\'' +
+                ", parent=" + parent +
+                ", relationships=" + relationships +
+                ", objects=" + objects +
+                ", attributes=" + attributes +
+                ", isPublic=" + isPublic +
+                '}';
+    }
 }

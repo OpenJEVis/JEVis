@@ -45,7 +45,7 @@ public class RelationshipTable {
     private SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(RelationshipTable.class);
 
-    public RelationshipTable(SQLDataSource ds) throws JEVisException {
+    public RelationshipTable(SQLDataSource ds) {
         _connection = ds;
     }
 
@@ -171,12 +171,12 @@ public class RelationshipTable {
         }
     }
 
-    public boolean delete(JsonRelationship rel) throws JEVisException {
+    public boolean delete(JsonRelationship rel) {
         return delete(rel.getFrom(), rel.getTo(), rel.getType());
     }
 
 
-    public boolean delete(long start, long end, int type) throws JEVisException {
+    public boolean delete(long start, long end, int type) {
 
         String sql = "delete from " + TABLE
                 + " where " + COLUMN_START + "=?"
@@ -214,11 +214,11 @@ public class RelationshipTable {
         }
     }
 
-    public boolean deleteAll(long id) throws JEVisException {
+    public boolean deleteAll(long id) {
         return deleteAll(new LinkedList<Long>(Arrays.asList(id)));
     }
 
-    public boolean deleteAll(List<Long> ids) throws JEVisException {
+    public boolean deleteAll(List<Long> ids) {
         System.out.println("delete rel for: " + Arrays.toString(ids.toArray()));
         //TODO make it save with a prepared or so
         PreparedStatement ps = null;
@@ -242,11 +242,7 @@ public class RelationshipTable {
             _connection.addQuery("Relationship.deleteAll()", ps.toString());
             int count = ps.executeUpdate();
 
-            if (count == 1) {
-                return true;
-            } else {
-                return false;
-            }
+            return count == 1;
 
         } catch (Exception ex) {
             logger.error("Error while deleting relationship from DB: {}", ex.getMessage());

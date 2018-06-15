@@ -51,7 +51,7 @@ public class ObjectTable {
     private SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
 
-    public ObjectTable(SQLDataSource ds) throws JEVisException {
+    public ObjectTable(SQLDataSource ds) {
         _connection = ds;
     }
 
@@ -405,7 +405,7 @@ public class ObjectTable {
 
     }
 
-    public boolean deleteObject(JsonObject obj) throws JEVisException {
+    public boolean deleteObject(JsonObject obj) {
         String sql = "update " + TABLE
                 + " set " + COLUMN_DELETE + "=?"
                 + " where " + COLUMN_ID + " IN(";

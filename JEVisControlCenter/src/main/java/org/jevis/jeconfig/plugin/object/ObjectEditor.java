@@ -153,7 +153,7 @@ public class ObjectEditor {
     public void setObject(final JEVisObject obj) {
         Task<Void> load = new Task<Void>() {
             @Override
-            protected Void call() throws Exception {
+            protected Void call() {
                 loadObject(obj);
                 return null;
             }

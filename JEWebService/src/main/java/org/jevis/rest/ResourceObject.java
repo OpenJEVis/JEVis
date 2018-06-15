@@ -133,7 +133,7 @@ public class ResourceObject {
             @PathParam("id") long id,
             @Context Request request,
             @Context UriInfo url,
-            @Context HttpHeaders httpHeaders) throws JEVisException {
+            @Context HttpHeaders httpHeaders) {
 
         SQLDataSource ds = null;
         try {
@@ -201,6 +201,7 @@ public class ResourceObject {
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url,
+            @DefaultValue("-999") @QueryParam("copy") long copyObject,
             String object) {
 
         SQLDataSource ds = null;
@@ -213,12 +214,29 @@ public class ResourceObject {
                 return Response.status(Response.Status.NOT_FOUND).entity("JEVisClass not found").build();
             }
 
-            JsonObject paretOb = ds.getObject(json.getParent());
-            if (paretOb != null && ds.getUserManager().canCreate(paretOb)) {
+            JsonObject parentObj = ds.getObject(json.getParent());
+            if (parentObj != null && ds.getUserManager().canCreate(parentObj)) {
 
-                JsonObject newObj = ds.buildObject(json, paretOb.getId());
 
-                return Response.ok(newObj).build();
+                //resful way of moving and object to an other parent while keeping the IDs?
+                if (copyObject != -999) {
+                    JsonObject toCopyObj = ds.getObject(copyObject);
+
+                    if (toCopyObj != null && ds.getUserManager().canCreate(toCopyObj)) {
+                        ds.moveObject(toCopyObj.getId(), parentObj.getId());
+                        return Response.ok(ds.getObject(copyObject)).build();
+                    } else {
+                        return Response.status(Response.Status.UNAUTHORIZED).build();
+                    }
+                } else {
+                    JsonObject newObj = ds.buildObject(json, parentObj.getId());
+
+                    return Response.ok(newObj).build();
+                }
+
+
+                //normal create object function
+
             } else {
                 return Response.status(Response.Status.NOT_FOUND).entity("Parent not found").build();
             }

@@ -5,47 +5,52 @@
  */
 package org.jevis.jecalc.data;
 
-import org.jevis.jecalc.gap.Gap.GapMode;
-import java.util.List;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.util.List;
+
 /**
- *
  * @author broder
  */
 public interface CleanDataAttribute {
 
-    public DateTime getFirstDate();
+    DateTime getFirstDate();
 
-    public DateTime getMaxEndDate();
+    DateTime getMaxEndDate();
 
-    public Period getPeriodAlignment();
+    Period getPeriodAlignment();
 
-    public List<JEVisSample> getRawSamples();
+    List<JEVisSample> getRawSamples();
 
-    public Boolean getConversionDifferential();
+    Boolean getConversionDifferential();
 
-    public Boolean getValueIsQuantity();
+    Boolean getValueIsQuantity();
 
-    public Integer getPeriodOffset();
+    Integer getPeriodOffset();
 
-    public Double getLastDiffValue();
+    Double getLastDiffValue();
 
-    public Double getMultiplier();
+    Double getMultiplier();
 
-    public Double getOffset();
+    Double getOffset();
 
-    public Double getLastCleanValue();
+    Double getLastCleanValue();
 
-    public GapStrategy getGapFillingMode();
+    GapStrategy getGapFillingMode();
 
-    public Boolean getIsPeriodAligned();
+    Boolean getIsPeriodAligned();
 
-    public Boolean getEnabled();
+    Boolean getEnabled();
 
-    public String getName();
+    String getName();
+
+    List<JsonGapFillingConfig> getGapFillingConfig();
+
+    JEVisObject getObject();
 
 }

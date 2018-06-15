@@ -14,9 +14,9 @@
     {
       "type": "Data Source Timeout",
       "descriptions": {
-        "de": "Data Source Timeout desctiption",
-        "ru": "Data Source Timeout desctiption",
-        "en": "Data Source Timeout desctiption"
+        "de": "Data Source Timeout description",
+        "ru": "Data Source Timeout description",
+        "en": "Data Source Timeout description"
       },
       "names": {
         "de": "Data Source Timeout",
@@ -27,9 +27,9 @@
     {
       "type": "Enable",
       "descriptions": {
-        "de": "Enable desctiption",
-        "ru": "Enable desctiption",
-        "en": "Enable desctiption"
+        "de": "Enable description",
+        "ru": "Enable description",
+        "en": "Enable description"
       },
       "names": {
         "de": "Enable",
@@ -40,9 +40,9 @@
     {
       "type": "Max Number Threads",
       "descriptions": {
-        "de": "Max Number Threads desctiption",
-        "ru": "Max Number Threads desctiption",
-        "en": "Max Number Threads desctiption"
+        "de": "Max Number Threads description",
+        "ru": "Max Number Threads description",
+        "en": "Max Number Threads description"
       },
       "names": {
         "de": "Max Number Threads",

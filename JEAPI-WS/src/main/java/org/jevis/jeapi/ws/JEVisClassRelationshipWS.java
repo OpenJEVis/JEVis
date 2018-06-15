@@ -39,17 +39,17 @@ public class JEVisClassRelationshipWS implements org.jevis.api.JEVisClassRelatio
     }
 
     @Override
-    public String getStartName() throws JEVisException {
+    public String getStartName() {
         return json.getStart();
     }
 
     @Override
-    public String getEndName() throws JEVisException {
+    public String getEndName() {
         return json.getEnd();
     }
 
     @Override
-    public String getOtherClassName(String name) throws JEVisException {
+    public String getOtherClassName(String name) {
         if (json.getStart().equals(name)) {
             return json.getEnd();
         } else {
@@ -68,12 +68,12 @@ public class JEVisClassRelationshipWS implements org.jevis.api.JEVisClassRelatio
     }
 
     @Override
-    public int getType() throws JEVisException {
+    public int getType() {
         return json.getType();
     }
 
     @Override
-    public JEVisClass[] getJEVisClasses() throws JEVisException {
+    public JEVisClass[] getJEVisClasses() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -87,17 +87,17 @@ public class JEVisClassRelationshipWS implements org.jevis.api.JEVisClassRelatio
     }
 
     @Override
-    public boolean isType(int type) throws JEVisException {
+    public boolean isType(int type) {
         return type == getType();
     }
 
     @Override
-    public boolean isInHerited() throws JEVisException {
+    public boolean isInHerited() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public JEVisDataSource getDataSource() throws JEVisException {
+    public JEVisDataSource getDataSource() {
         return ds;
     }
 

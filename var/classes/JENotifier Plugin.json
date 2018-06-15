@@ -1,0 +1,12 @@
+{
+  "name": "JENotifier Plugin",
+  "description": " ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "EMail Plugin",
+      "end": "JENotifier Plugin",
+      "type": 0
+    }
+  ]
+}

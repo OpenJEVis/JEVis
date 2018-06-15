@@ -1,7 +1,7 @@
 {
   "jevisclass": "01 General",
   "names": {
-    "de": "01 General",
+    "de": "01 Allgemein",
     "ru": "01 General",
     "en": "01 General"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Auditor",
       "descriptions": {
-        "de": "Auditor desctiption",
-        "ru": "Auditor desctiption",
-        "en": "Auditor desctiption"
+        "de": "Der durchführende Auditor",
+        "ru": "Auditor description",
+        "en": "Auditor description"
       },
       "names": {
         "de": "Auditor",

@@ -34,9 +34,9 @@
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Gap Filling",
+      "name": "Gap Filling Config",
       "primitiveType": 0,
-      "guiType": "String Enum",
+      "guiType": "Gap Filling Config",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,

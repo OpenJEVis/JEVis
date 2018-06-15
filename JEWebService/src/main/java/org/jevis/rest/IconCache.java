@@ -1,22 +1,22 @@
-/**
- * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEWebService.
- *
- * JEWebService is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEWebService is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
- * JEWebService is part of the OpenJEVis project, further project information
- * are published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEWebService.
+
+  JEWebService is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEWebService is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+  details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEWebService. If not, see <http://www.gnu.org/licenses/>.
+
+  JEWebService is part of the OpenJEVis project, further project information
+  are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.rest;
 
@@ -24,7 +24,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -44,17 +44,13 @@ public class IconCache {
         _cache = CacheBuilder.newBuilder()
                 .maximumSize(1000)
                 .expireAfterWrite(24, TimeUnit.HOURS)
-                .removalListener(new RemovalListener<String, ClassIcon>() {
-
-                    @Override
-                    public void onRemoval(RemovalNotification<String, ClassIcon> notification) {
+                .removalListener((RemovalListener<String, ClassIcon>) notification -> {
 //                        System.out.println("Remove cached icon for: " + notification.getKey() + " because: " + notification.getCause());
-                    }
                 })
                 .build(new CacheLoader<String, ClassIcon>() {
 
                     @Override
-                    public ClassIcon load(String key) throws Exception {
+                    public ClassIcon load(String key) {
                         return new ClassIcon(key, null);
                     }
                 });

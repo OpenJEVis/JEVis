@@ -9,26 +9,24 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.patch.Patch;
 
 /**
- *
  * @author broder
  */
 public enum ProcessPatch implements Patch {
 
     ALL_CLASSES("all") {
+        @Override
+        public void apply() {
+            ProcessPatchBuildAllClasses.createAllClasses(datasource);
+        }
 
-                @Override
-                public void apply() {
-                    ProcessPatchBuildAllClasses.createAllClasses(datasource);
-                }
+        @Override
+        public void undo() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
 
-                @Override
-                public void undo() {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                }
-
-            };
-    private final String version;
+    };
     private static JEVisDataSource datasource;
+    private final String version;
 
     ProcessPatch(String version) {
         this.version = version;

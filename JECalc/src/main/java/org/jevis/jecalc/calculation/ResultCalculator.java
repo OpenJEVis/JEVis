@@ -5,12 +5,13 @@
  */
 package org.jevis.jecalc.calculation;
 
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.VirtuelSample;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -33,7 +34,7 @@ public class ResultCalculator {
                 template.put(sample.getVariable(), sample.getValue());
             }
             double evaluate = template.evaluate();
-            resultList.add(new VirtuelSample(entry.getKey(), evaluate));
+            resultList.add(new VirtualSample(entry.getKey(), evaluate));
         }
         return resultList;
     }

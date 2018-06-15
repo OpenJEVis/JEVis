@@ -67,10 +67,8 @@ public class Config {
     private static File _i18nDir;
     private static File _fileDir;
     private static File _classDir;
-
-    public static File getClassDir() {
-        return _classDir;
-    }
+    private static File _freemarkerDir;
+    private static Map<String, JsonJEVisClass> _classCache = Collections.synchronizedMap(new HashMap<String, JsonJEVisClass>());
 
 
     public static String getDBHost() {
@@ -93,12 +91,22 @@ public class Config {
         return _schema;
     }
 
+    private static Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
+
+    public static File getClassDir() {
+        return _classDir;
+    }
+
     public static File getFileDir() {
         return _fileDir;
     }
 
     public static File getI18nDir() {
         return _i18nDir;
+    }
+
+    public static String getURI() {
+        return _uri;
     }
 
     public static String getKeyStoreFile() {
@@ -109,13 +117,13 @@ public class Config {
         return _keyFilePW;
     }
 
-    public static String getURI() {
-        return _uri;
+    public static File getFreemarkerDir() {
+        return _freemarkerDir;
     }
 
-    private static Map<String, JsonJEVisClass> _classCache = Collections.synchronizedMap(new HashMap<String, JsonJEVisClass>());
-    private static Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
-
+    public static void setFreemarkerDir(File _freemarkerDir) {
+        Config._freemarkerDir = _freemarkerDir;
+    }
 
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (_classCache.isEmpty()) {
@@ -183,6 +191,7 @@ public class Config {
                     _i18nDir = new File(getParameter(config, "webservice.i18ndir", homeDir + "/jevis/var/i18n/").replaceAll("%$", ""));
                     _fileDir = new File(getParameter(config, "webservice.filedir", homeDir + "/jevis/var/files/").replaceAll("%$", ""));
                     _classDir = new File(getParameter(config, "webservice.classdir", homeDir + "/jevis/var/classes/").replaceAll("%$", ""));
+                    _freemarkerDir = new File(getParameter(config, "webservice.freemarkerdir", homeDir + "/jevis/var/freemarker/").replaceAll("%$", ""));
 
                     //Woraround solution for the registration service
 

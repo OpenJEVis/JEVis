@@ -20,20 +20,6 @@
  */
 package org.jevis.application.login;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import static java.util.Locale.GERMANY;
-import static java.util.Locale.UK;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -46,25 +32,13 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
@@ -73,7 +47,6 @@ import org.apache.logging.log4j.LogManager;
 import org.controlsfx.control.PopOver;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisOption;
 import org.jevis.application.ParameterHelper;
@@ -81,6 +54,21 @@ import org.jevis.application.resource.ResourceLoader;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.datasource.DataSourceLoader;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
+import static java.util.Locale.GERMANY;
+import static java.util.Locale.UK;
 
 /**
  * The FXLogin represents the common JEVis login dialog with all necessary
@@ -132,14 +120,76 @@ public class FXLogin extends AnchorPane {
     private Locale selectedLocale = Locale.getDefault();
 
 
-    public interface Color {
+    /**
+     * This function will try to connect to the JEVisDataSource with the
+     * configures server settings.
+     */
+    private void doLogin() {
 
-        public static String MID_BLUE = "#005782";
-        public static String MID_GREY = "#666666";
-        public static String LIGHT_BLUE = "#1a719c";
-        public static String LIGHT_BLUE2 = "#0E8CCC";
-        public static String LIGHT_GREY = "#efefef";
-        public static String LIGHT_GREY2 = "#f4f4f4";
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                loginButton.setDisable(true);
+                authGrid.setDisable(true);
+                progress.setVisible(true);
+                progress.setVisible(true);
+            }
+        });
+        //start animation, todo make an own thred..
+        Runnable runnable = () -> {
+            try {
+//                Platform.runLater(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        loginButton.setDisable(true);
+//                        authGrid.setDisable(true);
+//                        progress.setVisible(true);
+//                        progress.setVisible(true);
+//                    }
+//                });
+
+                if (_ds.connect(userName.getText(), userPassword.getText())) {
+                    logger.trace("Login succeeded");
+                    if (storeConfig.isSelected()) {
+                        storePreference();
+                    }
+
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            loginStatus.setValue(Boolean.TRUE);
+                            statusDialog.hide();
+                        }
+                    });
+
+                } else {
+                    throw new RuntimeException("Error while connection to the JEVis Server");
+                }
+            } catch (Exception ex) {
+                logger.trace("Login faild with error: {}", ex);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Error while connection to the JEVis Server");
+                        alert.setContentText(ex.getMessage());
+                        alert.showAndWait();
+
+                        loginButton.setDisable(false);
+                        authGrid.setDisable(false);
+                        progress.setVisible(false);
+                        progress.setVisible(false);
+                    }
+                });
+
+            }
+
+        };
+
+        Thread thread = new Thread(runnable);
+        thread.start();
+
     }
 
     private FXLogin() {
@@ -259,76 +309,80 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * This function will try to connect to the JEVisDataSource with the
-     * configures server settings.
+     * Build an language selection box
      *
-     * @throws JEVisException
+     * @return
      */
-    private void doLogin() throws JEVisException {
+    private ComboBox buildLanguageBox() {
+        List<Locale> availableLang = new ArrayList<>();
+        availableLang.add(UK);
+        availableLang.add(GERMANY);
 
-        Platform.runLater(new Runnable() {
+        Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
-            public void run() {
-                loginButton.setDisable(true);
-                authGrid.setDisable(true);
-                progress.setVisible(true);
-                progress.setVisible(true);
-            }
-        });
-        //start animation, todo make an own thred..
-        Runnable runnable = () -> {
-            try {
-//                Platform.runLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        loginButton.setDisable(true);
-//                        authGrid.setDisable(true);
-//                        progress.setVisible(true);
-//                        progress.setVisible(true);
-//                    }
-//                });
-
-                if (_ds.connect(userName.getText(), userPassword.getText())) {
-                    logger.trace("Login succeeded");
-                    if (storeConfig.isSelected()) {
-                        storePreference();
+            public ListCell<Locale> call(ListView<Locale> param) {
+                final ListCell<Locale> cell = new ListCell<Locale>() {
+                    {
+                        super.setPrefWidth(260);
                     }
 
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            loginStatus.setValue(Boolean.TRUE);
-                            statusDialog.hide();
-                        }
-                    });
-
-                } else {
-                    throw new RuntimeException("Error while connection to the JEVis Server");
-                }
-            } catch (Exception ex) {
-                logger.trace("Login faild with error: {}", ex);
-                Platform.runLater(new Runnable() {
                     @Override
-                    public void run() {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText("Error while connection to the JEVis Server");
-                        alert.setContentText(ex.getMessage());
-                        alert.showAndWait();
+                    public void updateItem(Locale item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null) {
 
-                        loginButton.setDisable(false);
-                        authGrid.setDisable(false);
-                        progress.setVisible(false);
-                        progress.setVisible(false);
+                            HBox box = new HBox(5);
+                            box.setAlignment(Pos.CENTER_LEFT);
+
+                            Image img = new Image("/icons/" + item.getLanguage() + ".png");
+                            ImageView iv = new ImageView(img);
+                            iv.fitHeightProperty().setValue(20);
+                            iv.fitWidthProperty().setValue(20);
+                            iv.setSmooth(true);
+
+                            Label name = new Label(item.getDisplayLanguage());
+                            name.setTextFill(javafx.scene.paint.Color.BLACK);
+
+                            box.getChildren().setAll(iv, name);
+                            setGraphic(box);
+
+                        }
                     }
-                });
-
+                };
+                return cell;
             }
-
         };
 
-        Thread thread = new Thread(runnable);
-        thread.start();
+        ObservableList<Locale> options = FXCollections.observableArrayList(availableLang);
+
+        final ComboBox<Locale> comboBox = new ComboBox<Locale>(options);
+        comboBox.setCellFactory(cellFactory);
+        comboBox.setButtonCell(cellFactory.call(null));
+
+
+        comboBox.setMinWidth(250);
+        comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
+
+
+        comboBox.valueProperty().addListener(new ChangeListener<Locale>() {
+            @Override
+            public void changed(ObservableValue<? extends Locale> observable, Locale oldValue, Locale newValue) {
+                selectedLocale = newValue;
+                //TODO reload UI
+            }
+        });
+
+        for (Locale l : comboBox.getItems()) {
+            if (l.equals(Locale.getDefault())) {
+                comboBox.getSelectionModel().select(l);
+                break;
+            } else if (l.getLanguage().equals(Locale.getDefault().getLanguage())) {
+                comboBox.getSelectionModel().select(l);
+            }
+        }
+
+
+        return comboBox;
 
     }
 
@@ -475,14 +529,8 @@ public class FXLogin extends AnchorPane {
 
             @Override
             public void handle(ActionEvent event) {
-                try {
-                    loginButton.setDisable(true);
-                    doLogin();
-
-                } catch (JEVisException ex) {
-                    Logger.getLogger(FXLogin.class.getName()).log(Level.SEVERE, null, ex);
-                    ex.printStackTrace();
-                }
+                loginButton.setDisable(true);
+                doLogin();
 
             }
         });
@@ -719,83 +767,16 @@ public class FXLogin extends AnchorPane {
         }
     }
 
-    /**
-     * Build an language selection box
-     *
-     * @return
-     */
-    private ComboBox buildLanguageBox() {
-        List<Locale> availableLang = new ArrayList<>();
-        availableLang.add(UK);
-        availableLang.add(GERMANY);
+    public interface Color {
 
-        Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
-            @Override
-            public ListCell<Locale> call(ListView<Locale> param) {
-                final ListCell<Locale> cell = new ListCell<Locale>() {
-                    {
-                        super.setPrefWidth(260);
-                    }
-
-                    @Override
-                    public void updateItem(Locale item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null) {
-
-                            HBox box = new HBox(5);
-                            box.setAlignment(Pos.CENTER_LEFT);
-
-                            Image img = new Image("/icons/" + item.getLanguage() + ".png");
-                            ImageView iv = new ImageView(img);
-                            iv.fitHeightProperty().setValue(20);
-                            iv.fitWidthProperty().setValue(20);
-                            iv.setSmooth(true);
-
-                            Label name = new Label(item.getDisplayLanguage());
-                            name.setTextFill(javafx.scene.paint.Color.BLACK);
-
-                            box.getChildren().setAll(iv, name);
-                            setGraphic(box);
-
-                        }
-                    }
-                };
-                return cell;
-            }
-        };
-
-        ObservableList<Locale> options = FXCollections.observableArrayList(availableLang);
-
-        final ComboBox<Locale> comboBox = new ComboBox<Locale>(options);
-        comboBox.setCellFactory(cellFactory);
-        comboBox.setButtonCell(cellFactory.call(null));
-
-
-        comboBox.setMinWidth(250);
-        comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
-
-
-        comboBox.valueProperty().addListener(new ChangeListener<Locale>() {
-            @Override
-            public void changed(ObservableValue<? extends Locale> observable, Locale oldValue, Locale newValue) {
-                selectedLocale=newValue;
-                //TODO reload UI
-            }
-        });
-
-        for(Locale l:comboBox.getItems()){
-            if(l.equals(Locale.getDefault())){
-                comboBox.getSelectionModel().select(l);
-                break;
-            }else if(l.getLanguage().equals(Locale.getDefault().getLanguage())){
-                comboBox.getSelectionModel().select(l);
-            }
-        }
-
-
-        return comboBox;
-
+        String MID_BLUE = "#005782";
+        String MID_GREY = "#666666";
+        String LIGHT_BLUE = "#1a719c";
+        String LIGHT_BLUE2 = "#0E8CCC";
+        String LIGHT_GREY = "#efefef";
+        String LIGHT_GREY2 = "#f4f4f4";
     }
+
     public Locale getSelectedLocale(){
         return selectedLocale;
     }

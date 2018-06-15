@@ -1,0 +1,17 @@
+{
+  "name": "JENotifier",
+  "description": " ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JENotifier",
+      "end": "Service",
+      "type": 0
+    },
+    {
+      "start": "JENotifier",
+      "end": "Service Directory",
+      "type": 3
+    }
+  ]
+}

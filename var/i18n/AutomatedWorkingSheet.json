@@ -10,9 +10,9 @@
     {
       "type": "Attribute Name",
       "descriptions": {
-        "de": "Attribute Name desctiption",
-        "ru": "Attribute Name desctiption",
-        "en": "Attribute Name desctiption"
+        "de": "Attribute Name description",
+        "ru": "Attribute Name description",
+        "en": "Attribute Name description"
       },
       "names": {
         "de": "Attribute Name",
@@ -23,9 +23,9 @@
     {
       "type": "Condition Enabled",
       "descriptions": {
-        "de": "Condition Enabled desctiption",
-        "ru": "Condition Enabled desctiption",
-        "en": "Condition Enabled desctiption"
+        "de": "Condition Enabled description",
+        "ru": "Condition Enabled description",
+        "en": "Condition Enabled description"
       },
       "names": {
         "de": "Condition Enabled",
@@ -36,9 +36,9 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description"
       },
       "names": {
         "de": "Enabled",
@@ -49,9 +49,9 @@
     {
       "type": "JEVis ID",
       "descriptions": {
-        "de": "JEVis ID desctiption",
-        "ru": "JEVis ID desctiption",
-        "en": "JEVis ID desctiption"
+        "de": "JEVis ID description",
+        "ru": "JEVis ID description",
+        "en": "JEVis ID description"
       },
       "names": {
         "de": "JEVis ID",
@@ -62,9 +62,9 @@
     {
       "type": "Last Report",
       "descriptions": {
-        "de": "Last Report desctiption",
-        "ru": "Last Report desctiption",
-        "en": "Last Report desctiption"
+        "de": "Last Report description",
+        "ru": "Last Report description",
+        "en": "Last Report description"
       },
       "names": {
         "de": "Last Report",
@@ -75,9 +75,9 @@
     {
       "type": "Limit",
       "descriptions": {
-        "de": "Limit desctiption",
-        "ru": "Limit desctiption",
-        "en": "Limit desctiption"
+        "de": "Limit description",
+        "ru": "Limit description",
+        "en": "Limit description"
       },
       "names": {
         "de": "Limit",
@@ -88,9 +88,9 @@
     {
       "type": "Operator",
       "descriptions": {
-        "de": "Operator desctiption",
-        "ru": "Operator desctiption",
-        "en": "Operator desctiption"
+        "de": "Operator description",
+        "ru": "Operator description",
+        "en": "Operator description"
       },
       "names": {
         "de": "Operator",
@@ -101,9 +101,9 @@
     {
       "type": "PDF",
       "descriptions": {
-        "de": "PDF desctiption",
-        "ru": "PDF desctiption",
-        "en": "PDF desctiption"
+        "de": "PDF description",
+        "ru": "PDF description",
+        "en": "PDF description"
       },
       "names": {
         "de": "PDF",
@@ -114,9 +114,9 @@
     {
       "type": "PDF Pages",
       "descriptions": {
-        "de": "PDF Pages desctiption",
-        "ru": "PDF Pages desctiption",
-        "en": "PDF Pages desctiption"
+        "de": "PDF Pages description",
+        "ru": "PDF Pages description",
+        "en": "PDF Pages description"
       },
       "names": {
         "de": "PDF Pages",
@@ -127,9 +127,9 @@
     {
       "type": "Schedule",
       "descriptions": {
-        "de": "Schedule desctiption",
-        "ru": "Schedule desctiption",
-        "en": "Schedule desctiption"
+        "de": "Schedule description",
+        "ru": "Schedule description",
+        "en": "Schedule description"
       },
       "names": {
         "de": "Schedule",
@@ -140,9 +140,9 @@
     {
       "type": "Start Record",
       "descriptions": {
-        "de": "Start Record desctiption",
-        "ru": "Start Record desctiption",
-        "en": "Start Record desctiption"
+        "de": "Start Record description",
+        "ru": "Start Record description",
+        "en": "Start Record description"
       },
       "names": {
         "de": "Start Record",
@@ -153,9 +153,9 @@
     {
       "type": "Template",
       "descriptions": {
-        "de": "Template desctiption",
-        "ru": "Template desctiption",
-        "en": "Template desctiption"
+        "de": "Template description",
+        "ru": "Template description",
+        "en": "Template description"
       },
       "names": {
         "de": "Template",
@@ -166,9 +166,9 @@
     {
       "type": "Time Zone",
       "descriptions": {
-        "de": "Time Zone desctiption",
-        "ru": "Time Zone desctiption",
-        "en": "Time Zone desctiption"
+        "de": "Time Zone description",
+        "ru": "Time Zone description",
+        "en": "Time Zone description"
       },
       "names": {
         "de": "Time Zone",

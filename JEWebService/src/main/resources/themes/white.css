@@ -1,0 +1,133 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/*
+    Created on : 11.03.2018, 11:44:26
+    Author     : <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
+*/
+
+html, body {
+    background: #f2f2f2;
+    border-color: #c8ccd0;
+    color: #3b4045;
+}
+
+.top-header {
+    /*  this setting is for the background of the top header (background of the navigation bar)*/
+    background: #f5f5f5;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgba(0, 0, 0, .08);
+}
+
+.nav {
+    /*  this is the background color of the navbar itself*/
+    background: #fff;
+}
+
+.nav > li > ul li:hover {
+    background-color: #006191;
+}
+
+.nav ul li:hover > a {
+    color: #1e0fb2;
+}
+
+.nav > li > ul li ul li:hover {
+    background-color: #004b6f;
+}
+
+.nav > li > ul li ul li ul li:hover {
+    background-color: #00344d;
+}
+
+.nav > li:hover > a {
+    color: #1e0fb2;
+}
+
+.nav > li:hover {
+    /*  color of hover in navigation bar*/
+    /* background-color: #fa8231; */
+    background-color: rgba(0, 0, 0, .06);
+    border-radius: 7px;
+}
+
+.nav .column ul li a:hover {
+    /*  this is the color of hover in dropdown menu*/
+    color: #fa8231;
+}
+
+.nav ul li:hover:after {
+    color: white;
+}
+
+.nav a, .nav a:link, .nav a:visited, .nav a:hover, .nav a:focus, span, .nav > li.dropdown > a:after, .nav .column h3 {
+    /*  this is the text color in the navigation bar*/
+    /* color: #1e0fb2; */
+    color: #666;
+}
+
+.nav > li > .fulldrop {
+    /*  background color of the dropdown menu of the navigation bar */
+    background-color: #fff;
+}
+
+#content-nav {
+    /*  background color of the vertical navigation bar*/
+    background-color: #f2f2f2;
+    border: none;
+}
+
+.css-treeview label, .css-treeview a {
+    /*  text color of the vertical navigation bar*/
+    color: #666;
+}
+
+.css-treeview label:hover, .css-treeview a:hover {
+    color: #1e0fb2;
+}
+
+.body-column,
+.data-form-container {
+    background: #ffffff;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, .08);
+}
+
+#content-dash .body-column {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+}
+
+input, textarea, select {
+    border: 0px solid #CCC;
+    color: #3b4045;
+    background-color: #f2f2f2;
+}
+
+.input {
+    color: #555;
+    border: 0px solid #CCC;
+}
+
+input:focus::-webkit-input-placeholder {
+    color: #1e0fb2;
+}
+
+.underline {
+    background-color: #1e0fb2;
+}
+
+button,
+.data-form-button {
+    border-color: #1e0fb2;
+    background-color: #1e0fb2;
+    color: #fff;
+}
+
+#id-MinutesoftheMeeting {
+    background-color: #f2f2f2;
+    border: 1px solid #c8ccd0;
+    color: #000;
+}

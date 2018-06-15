@@ -48,9 +48,7 @@ import java.util.Map;
  */
 public class GraphSelectionDialog {
 
-    public static enum Response {
-        OK, CANCEL
-    }
+    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 
     private Response _response = Response.CANCEL;
 
@@ -60,21 +58,9 @@ public class GraphSelectionDialog {
     private Stage stage;
     private boolean init = true;
     private JEVisTree _tree;
-    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 
     public GraphSelectionDialog(JEVisDataSource ds) {
         _ds = ds;
-    }
-
-    public JEVisTree getTree() {
-        if (!init) {
-            return _tree;
-        }
-
-        _tree = JEVisTreeFactory.buildDefaultGraphTree(_ds);
-        init = false;
-
-        return _tree;
     }
 
     public Response show(Stage owner) {
@@ -100,7 +86,7 @@ public class GraphSelectionDialog {
         VBox root = new VBox();
 
         DialogHeader header = new DialogHeader();
-        Node headerNode = header.getDialogHeader(ICON, rb.getString("graph.selection.header"));
+        Node headerNode = DialogHeader.getDialogHeader(ICON, rb.getString("graph.selection.header"));
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
 
@@ -155,6 +141,21 @@ public class GraphSelectionDialog {
         stage.showAndWait();
 
         return _response;
+    }
+
+    public JEVisTree getTree() {
+        if (!init) {
+            return _tree;
+        }
+
+        _tree = JEVisTreeFactory.buildDefaultGraphTree(_ds);
+        init = false;
+
+        return _tree;
+    }
+
+    public enum Response {
+        OK, CANCEL
     }
 
     public Map<String, BarchartPlugin.DataModel> getSelectedData() {

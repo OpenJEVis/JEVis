@@ -10,9 +10,9 @@
     {
       "type": "Address",
       "descriptions": {
-        "de": "Address desctiption",
-        "ru": "Address desctiption",
-        "en": "Address desctiption"
+        "de": "Address description",
+        "ru": "Address description",
+        "en": "Address description"
       },
       "names": {
         "de": "Address",
@@ -23,9 +23,9 @@
     {
       "type": "Building Area",
       "descriptions": {
-        "de": "Building Area desctiption",
-        "ru": "Building Area desctiption",
-        "en": "Building Area desctiption"
+        "de": "Building Area description",
+        "ru": "Building Area description",
+        "en": "Building Area description"
       },
       "names": {
         "de": "Building Area",
@@ -36,9 +36,9 @@
     {
       "type": "Location",
       "descriptions": {
-        "de": "Location desctiption",
-        "ru": "Location desctiption",
-        "en": "Location desctiption"
+        "de": "Location description",
+        "ru": "Location description",
+        "en": "Location description"
       },
       "names": {
         "de": "Location",
@@ -49,9 +49,9 @@
     {
       "type": "Year of Construction",
       "descriptions": {
-        "de": "Year of Construction desctiption",
-        "ru": "Year of Construction desctiption",
-        "en": "Year of Construction desctiption"
+        "de": "Year of Construction description",
+        "ru": "Year of Construction description",
+        "en": "Year of Construction description"
       },
       "names": {
         "de": "Year of Construction",

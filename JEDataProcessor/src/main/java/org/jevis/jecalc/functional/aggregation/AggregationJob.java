@@ -5,23 +5,22 @@
  */
 package org.jevis.jecalc.functional.aggregation;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.jecalc.functional.aggregation.Aggregator.AggregationModus;
-import org.jevis.jecalc.functional.avg.AverageStep;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.PeriodFormat;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author broder
  */
 public class AggregationJob {
@@ -40,22 +39,6 @@ public class AggregationJob {
         this.cleanData = cleanData;
     }
 
-    public AggregationModus getAggregationModus() {
-        return aggregationModus;
-    }
-
-    public List<JEVisSample> getCleanSamples() {
-        return cleanSamples;
-    }
-
-    public JEVisObject getCleanData() {
-        return cleanData;
-    }
-
-    public Period getPeriod() {
-        return period;
-    }
-
     public static AggregationJob createAggregationJob(JEVisObject aggregationObject, JEVisObject cleanData, DateTime startDate, AggregationModus aggregationModus) {
         try {
             if (startDate == null) {
@@ -64,7 +47,7 @@ public class AggregationJob {
             logger.debug("Starttime: {}", startDate.toString(DateTimeFormat.fullDateTime()));
             Period inputSampleRate = aggregationObject.getAttribute("Value").getInputSampleRate();
             logger.debug("inputSampleRate: {}", inputSampleRate.toString(PeriodFormat.getDefault()));
-            if(inputSampleRate.equals(Period.ZERO)){
+            if (inputSampleRate.equals(Period.ZERO)) {
                 throw new RuntimeException("Cant calculate with a zero period");
             }
             List<JEVisSample> cleanSamples = cleanData.getAttribute("Value").getSamples(startDate, new DateTime());
@@ -80,6 +63,22 @@ public class AggregationJob {
         SampleHandler sampleHandler = new SampleHandler();
         DateTime lastSampleTimestamp = sampleHandler.getTimeStampFromLastSample(aggregationObject, "Value");
         return createAggregationJob(aggregationObject, cleanData, lastSampleTimestamp, aggregationModus);
+    }
+
+    public AggregationModus getAggregationModus() {
+        return aggregationModus;
+    }
+
+    public List<JEVisSample> getCleanSamples() {
+        return cleanSamples;
+    }
+
+    public JEVisObject getCleanData() {
+        return cleanData;
+    }
+
+    public Period getPeriod() {
+        return period;
     }
 
 }

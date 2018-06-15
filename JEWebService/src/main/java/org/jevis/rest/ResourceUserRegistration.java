@@ -1,42 +1,38 @@
-/**
- * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
- * This file is part of JEWebService.
- *
- * JEWebService is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation in version 3.
- *
- * JEWebService is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
- * JEWebService is part of the OpenJEVis project, further project information
- * are published at <http://www.OpenJEVis.org/>.
+/*
+  Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
+
+  This file is part of JEWebService.
+
+  JEWebService is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation in version 3.
+
+  JEWebService is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+  details.
+
+  You should have received a copy of the GNU General Public License along with
+  JEWebService. If not, see <http://www.gnu.org/licenses/>.
+
+  JEWebService is part of the OpenJEVis project, further project information
+  are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.rest;
 
+import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.ws.json.JsonUser;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.commons.ws.json.JsonUser;
 
 /**
  * @deprecated TODO need an update to the new SQL Datasource

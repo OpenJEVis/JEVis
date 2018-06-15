@@ -5,10 +5,6 @@
  */
 package org.jevis.application.jevistree.plugin;
 
-import java.time.LocalDate;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -16,40 +12,28 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.DateCell;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
+import org.jevis.api.*;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
 import org.jevis.application.jevistree.TreePlugin;
-import org.jevis.commons.dataprocessing.BasicProcess;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
+import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.ProcessChains;
-import org.jevis.commons.dataprocessing.ProcessOptions;
 import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+
+import java.time.LocalDate;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -93,12 +77,12 @@ public class BarchartPlugin implements TreePlugin {
         column.setGraphic(textField);
 
         TreeTableColumn<JEVisTreeRow, Color> colorColumn = buildColorColumn(_tree, rb.getString("graph.table.color"));
-        TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree,  rb.getString("graph.table.load"));
-        TreeTableColumn<JEVisTreeRow, AGGREGATION> aggregationColumn = buildAggregationColumn(_tree,  rb.getString("graph.table.interval"));
-        TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn = buildDataPorcessorColumn(_tree,  rb.getString("graph.table.cleaning"));
-        TreeTableColumn<JEVisTreeRow, DateTime> startDateColumn = buildDateColumn(_tree,  rb.getString("graph.table.startdate"), DATE_TYPE.START);
-        TreeTableColumn<JEVisTreeRow, DateTime> endDateColumn = buildDateColumn(_tree,  rb.getString("graph.table.enddate"), DATE_TYPE.END);
-        TreeTableColumn<JEVisTreeRow, JEVisUnit> unitColumn = buildUnitColumn(_tree,  rb.getString("graph.table.unit"));
+        TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, rb.getString("graph.table.load"));
+        TreeTableColumn<JEVisTreeRow, AGGREGATION> aggregationColumn = buildAggregationColumn(_tree, rb.getString("graph.table.interval"));
+        TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn = buildDataPorcessorColumn(_tree, rb.getString("graph.table.cleaning"));
+        TreeTableColumn<JEVisTreeRow, DateTime> startDateColumn = buildDateColumn(_tree, rb.getString("graph.table.startdate"), DATE_TYPE.START);
+        TreeTableColumn<JEVisTreeRow, DateTime> endDateColumn = buildDateColumn(_tree, rb.getString("graph.table.enddate"), DATE_TYPE.END);
+        TreeTableColumn<JEVisTreeRow, JEVisUnit> unitColumn = buildUnitColumn(_tree, rb.getString("graph.table.unit"));
 
         column.getColumns().addAll(selectColumn, colorColumn, aggregationColumn, dataProcessorColumn, startDateColumn, endDateColumn, unitColumn);
 
@@ -371,11 +355,11 @@ public class BarchartPlugin implements TreePlugin {
     private ChoiceBox buildAggregateBox(final DataModel data) {
         List<String> aggList = new ArrayList<>();
 
-        final String keyPreset=rb.getString("graph.interval.preset");
-        String keyDaily=rb.getString("graph.interval.daily");
-        String keyWeekly=rb.getString("graph.interval.weekly");
-        String keyMonthly=rb.getString("graph.interval.monthly");
-        String keyYearly=rb.getString("graph.interval.yearly");
+        final String keyPreset = rb.getString("graph.interval.preset");
+        String keyDaily = rb.getString("graph.interval.daily");
+        String keyWeekly = rb.getString("graph.interval.weekly");
+        String keyMonthly = rb.getString("graph.interval.monthly");
+        String keyYearly = rb.getString("graph.interval.yearly");
 
 
         aggList.add(keyPreset);
@@ -411,18 +395,17 @@ public class BarchartPlugin implements TreePlugin {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 //TODO:replace this quick and dirty workaround
 
-                if(newValue.equals(keyPreset)){
+                if (newValue.equals(keyPreset)) {
                     data.setAggrigation(AGGREGATION.None);
-                } else if(newValue.equals(keyDaily)){
+                } else if (newValue.equals(keyDaily)) {
                     data.setAggrigation(AGGREGATION.Daily);
-                }else if(newValue.equals(keyWeekly)){
+                } else if (newValue.equals(keyWeekly)) {
                     data.setAggrigation(AGGREGATION.Weekly);
-                }else if(newValue.equals(keyMonthly)){
+                } else if (newValue.equals(keyMonthly)) {
                     data.setAggrigation(AGGREGATION.Monthly);
-                }else if(newValue.equals(keyYearly)){
+                } else if (newValue.equals(keyYearly)) {
                     data.setAggrigation(AGGREGATION.Yearly);
                 }
-
 
 
             }
@@ -1051,11 +1034,7 @@ public class BarchartPlugin implements TreePlugin {
         }
 
         public boolean isSelectable() {
-            if (getAttribute() != null && getAttribute().hasSample()) {
-                return true;
-            } else {
-                return false;
-            }
+            return getAttribute() != null && getAttribute().hasSample();
         }
 
     }

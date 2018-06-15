@@ -5,20 +5,21 @@
  */
 package org.jevis.jecalc.alignment;
 
-import org.jevis.jecalc.workflow.ProcessStep;
-import org.jevis.jecalc.data.ResourceManager;
-import org.jevis.jecalc.data.CleanInterval;
-import org.jevis.jecalc.data.CleanDataAttribute;
-import java.util.List;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.VirtuelSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.jecalc.data.CleanDataAttribute;
+import org.jevis.jecalc.data.CleanInterval;
+import org.jevis.jecalc.data.ResourceManager;
+import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * align the raw samples and calculate the value per interval if possible
@@ -87,20 +88,20 @@ public class PeriodAlignmentStep implements ProcessStep {
                 } else if (last) { //last sample
                     DateTime date = currentInterval.getDate();
                     Double valueAsDouble = currentRawSamples.get(currentRawSamples.size() - 1).getValueAsDouble();
-                    JEVisSample sample = new VirtuelSample(date, valueAsDouble);
+                    JEVisSample sample = new VirtualSample(date, valueAsDouble);
                     sample.setNote("alignment(yes," + currentRawSamples.size() + ",last)");
                     currentInterval.addTmpSample(sample);
 
                 } else if (avg) {
                     Double currentValue = calcAvgSample(currentRawSamples);
                     DateTime date = currentInterval.getDate();
-                    JEVisSample sample = new VirtuelSample(date, currentValue);
+                    JEVisSample sample = new VirtualSample(date, currentValue);
                     sample.setNote("alignment(yes," + currentRawSamples.size() + ",avg)");
                     currentInterval.addTmpSample(sample);
                 } else if (sum) {
                     Double currentValue = calcSumSample(currentRawSamples);
                     DateTime date = currentInterval.getDate();
-                    JEVisSample sample = new VirtuelSample(date, currentValue);
+                    JEVisSample sample = new VirtualSample(date, currentValue);
                     sample.setNote("alignment(yes," + currentRawSamples.size() + ",sum)");
                     currentInterval.addTmpSample(sample);
                 }

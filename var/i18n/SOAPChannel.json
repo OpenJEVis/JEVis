@@ -10,9 +10,9 @@
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout desctiption",
-        "ru": "Last Readout desctiption",
-        "en": "Last Readout desctiption"
+        "de": "Last Readout description",
+        "ru": "Last Readout description",
+        "en": "Last Readout description"
       },
       "names": {
         "de": "Last Readout",
@@ -23,9 +23,9 @@
     {
       "type": "Path",
       "descriptions": {
-        "de": "Path desctiption",
-        "ru": "Path desctiption",
-        "en": "Path desctiption"
+        "de": "Path description",
+        "ru": "Path description",
+        "en": "Path description"
       },
       "names": {
         "de": "Path",
@@ -36,9 +36,9 @@
     {
       "type": "Template",
       "descriptions": {
-        "de": "Template desctiption",
-        "ru": "Template desctiption",
-        "en": "Template desctiption"
+        "de": "Template description",
+        "ru": "Template description",
+        "en": "Template description"
       },
       "names": {
         "de": "Template",

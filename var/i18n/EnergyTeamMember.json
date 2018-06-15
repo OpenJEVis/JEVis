@@ -10,9 +10,9 @@
     {
       "type": "EMail",
       "descriptions": {
-        "de": "EMail desctiption",
-        "ru": "EMail desctiption",
-        "en": "EMail desctiption"
+        "de": "EMail description",
+        "ru": "EMail description",
+        "en": "EMail description"
       },
       "names": {
         "de": "EMail",
@@ -23,9 +23,9 @@
     {
       "type": "Function",
       "descriptions": {
-        "de": "Function desctiption",
-        "ru": "Function desctiption",
-        "en": "Function desctiption"
+        "de": "Function description",
+        "ru": "Function description",
+        "en": "Function description"
       },
       "names": {
         "de": "Function",
@@ -36,9 +36,9 @@
     {
       "type": "Name",
       "descriptions": {
-        "de": "Name desctiption",
-        "ru": "Name desctiption",
-        "en": "Name desctiption"
+        "de": "Name description",
+        "ru": "Name description",
+        "en": "Name description"
       },
       "names": {
         "de": "Name",
@@ -49,9 +49,9 @@
     {
       "type": "Phone",
       "descriptions": {
-        "de": "Phone desctiption",
-        "ru": "Phone desctiption",
-        "en": "Phone desctiption"
+        "de": "Phone description",
+        "ru": "Phone description",
+        "en": "Phone description"
       },
       "names": {
         "de": "Phone",
@@ -62,9 +62,9 @@
     {
       "type": "Surname",
       "descriptions": {
-        "de": "Surname desctiption",
-        "ru": "Surname desctiption",
-        "en": "Surname desctiption"
+        "de": "Surname description",
+        "ru": "Surname description",
+        "en": "Surname description"
       },
       "names": {
         "de": "Surname",

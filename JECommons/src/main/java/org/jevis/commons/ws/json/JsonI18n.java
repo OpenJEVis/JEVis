@@ -14,7 +14,6 @@ public class JsonI18n {
 
 
     public JsonI18n() {
-        ;
     }
 
     @XmlElement(name = "value")
