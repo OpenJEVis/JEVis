@@ -12,11 +12,6 @@
       "start": "Loytec XML-DL Bacnet Channel Directory",
       "end": "Loytec XML-DL Server",
       "type": 3
-    },
-    {
-      "start": "Loytec XML-DL Channel",
-      "end": "Loytec XML-DL Bacnet Channel Directory",
-      "type": 3
     }
   ]
 }
