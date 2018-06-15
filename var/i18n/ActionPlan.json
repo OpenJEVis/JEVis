@@ -1,7 +1,7 @@
 {
   "jevisclass": "Action Plan",
   "names": {
-    "de": "Action Plan",
+    "de": "Aktionsplan",
     "ru": "Action Plan",
     "en": "Action Plan"
   },
@@ -15,7 +15,7 @@
         "en": "Action Plan File description"
       },
       "names": {
-        "de": "Action Plan File",
+        "de": "Datei des Aktionsplans",
         "ru": "Action Plan File",
         "en": "Action Plan File"
       }
@@ -28,7 +28,7 @@
         "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -41,7 +41,7 @@
         "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -54,7 +54,7 @@
         "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -67,7 +67,7 @@
         "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -80,7 +80,7 @@
         "en": "Participants description"
       },
       "names": {
-        "de": "Participants",
+        "de": "Teilnehmer",
         "ru": "Participants",
         "en": "Participants"
       }
@@ -93,7 +93,7 @@
         "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Datum der Veröffentlichung",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -106,7 +106,7 @@
         "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -119,7 +119,7 @@
         "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }

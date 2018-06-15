@@ -1,12 +1,12 @@
 {
   "jevisclass": "5.3 Organization Roles, Responsibilities and Authorities",
   "names": {
-    "de": "5.3 Organization Roles, Responsibilities and Authorities",
+    "de": "5.3 Rollen, Verantwortlichkeiten und Befugnisse in der Organisation",
     "ru": "5.3 Organization Roles, Responsibilities and Authorities",
     "en": "5.3 Organization Roles, Responsibilities and Authorities"
   },
   "descriptions": {
-    "de": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective.",
+    "de": "Die oberste Leitung muss sicherstellen, dass die Verantwortlichkeiten und Befugnisse für relevante Rollen zugewiesen und innerhalb der Organisation bekannt gemacht werden. Die oberste Leitung muss dem Energiemanagement-Team die Verantwortlichkeit und Befugnis zuweisen für:\na) das Sicherstellen, dass das EnMS aufgebaut, verwirklicht, aufrechterhalten und fortlaufend verbessert wird;\nb) das Sicherstellen, dass das EnMS die Anforderungen dieses Dokuments erfüllt;\nc) die Einführung von Aktionsplänen (siehe 6.6.3) zur fortlaufenden Verbesserung der energiebezogenen Leistung;\nd) das Berichten in bestimmten Zeitabständen an die oberste Leitung über die Leistung des EnMS und die Verbesserung der energiebezogenen Leistung;\ne) das Festlegen von Kriterien und Verfahren, die für das Sicherstellen einer wirksamen Funktion und Steuerung des EnMS erforderlich sind;\n",
     "ru": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective.",
     "en": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective."
   },
@@ -14,12 +14,12 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content description",
+        "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
         "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by description",
+        "de": "Der Autor des Dokuments",
         "ru": "Created by description",
         "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation description",
+        "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
         "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number description",
+        "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
         "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date description",
+        "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
         "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by description",
+        "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
         "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title description",
+        "de": "Titel des Dokuments",
         "ru": "Title description",
         "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -105,7 +105,7 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version description",
+        "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
         "en": "Version description"
       },

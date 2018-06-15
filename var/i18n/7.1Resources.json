@@ -1,12 +1,12 @@
 {
   "jevisclass": "7.1 Resources",
   "names": {
-    "de": "7.1 Resources",
+    "de": "7.1 Ressourcen",
     "ru": "7.1 Resources",
     "en": "7.1 Resources"
   },
   "descriptions": {
-    "de": "The organization shall determine and provide the resources needed for the establishment,  implementation, maintenance and continual improvement of:  \na) the EnMS;  \nb) energy performance. ",
+    "de": "Die Organisation muss die erforderlichen Ressourcen für den Aufbau, die Verwirklichung, die Aufrechterhaltung und die fortlaufende Verbesserung\na) des EnMS\nb) und der energiebezogenen Leistung bestimmen und bereitstellen.",
     "ru": "The organization shall determine and provide the resources needed for the establishment,  implementation, maintenance and continual improvement of:  \na) the EnMS;  \nb) energy performance. ",
     "en": "The organization shall determine and provide the resources needed for the establishment,  implementation, maintenance and continual improvement of:  \na) the EnMS;  \nb) energy performance. "
   },
@@ -14,12 +14,12 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content description",
+        "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
         "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by description",
+        "de": "Der Autor des Dokuments",
         "ru": "Created by description",
         "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation description",
+        "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
         "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number description",
+        "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
         "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date description",
+        "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
         "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by description",
+        "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
         "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title description",
+        "de": "Titel des Dokuments",
         "ru": "Title description",
         "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -105,7 +105,7 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version description",
+        "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
         "en": "Version description"
       },

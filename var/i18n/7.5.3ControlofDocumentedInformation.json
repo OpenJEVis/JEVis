@@ -1,12 +1,12 @@
 {
   "jevisclass": "7.5.3 Control of Documented Information",
   "names": {
-    "de": "7.5.3 Control of Documented Information",
+    "de": "7.5.3 Lenkung dokumentierter Informationen",
     "ru": "7.5.3 Control of Documented Information",
     "en": "7.5.3 Control of Documented Information"
   },
   "descriptions": {
-    "de": "Documented information required by the EnMS and by this document shall be controlled to ensure:  \na) it is available and suitable for use, where and when it is needed;  \nb) it is adequately protected (e.g. from loss of confidentiality, improper use, loss of integrity).  \nFor the control of documented information, the organization shall address the following activities, as  applicable:  \n",
+    "de": "Die für das EnMS erforderliche und von diesem Dokument geforderte dokumentierte Information muss gelenkt werden, um sicherzustellen, dass sie:\na) verfügbar und für die Verwendung geeignet ist, wo und wann sie benötigt wird;\nb) angemessen geschützt wird (z.B. vor Verlust der Vertraulichkeit, unsachgemäßem Gebrauch oder Verlust der Integrität).\nZur Lenkung dokumentierter Information muss die Organisation, falls zutreffend, folgende Tätigkeiten berücksichtigen:\n— Verteilung, Zugriff, Auffindung und Verwendung;\n— Ablage/Speicherung und Erhaltung, einschließlich Erhaltung der Lesbarkeit;\n— Überwachung von Änderungen (z.B. Versionskontrolle);\n— Aufbewahrung und Verfügung über den weiteren Verbleib.\nDokumentierte Information externer Herkunft, die von der Organisation als notwendig für Planung und Betrieb des EnMS bestimmt wurde, muss angemessen gekennzeichnet und gelenkt werden.\n\nANMERKUNG Zugriff kann eine Entscheidung voraussetzen, mit der die Erlaubnis erteilt wird, dokumentierte Information lediglich zu lesen, oder die Erlaubnis und Befugnis zum Lesen und Ändern dokumentierter Information.",
     "ru": "Documented information required by the EnMS and by this document shall be controlled to ensure:  \na) it is available and suitable for use, where and when it is needed;  \nb) it is adequately protected (e.g. from loss of confidentiality, improper use, loss of integrity).  \nFor the control of documented information, the organization shall address the following activities, as  applicable:  \n",
     "en": "Documented information required by the EnMS and by this document shall be controlled to ensure:  \na) it is available and suitable for use, where and when it is needed;  \nb) it is adequately protected (e.g. from loss of confidentiality, improper use, loss of integrity).  \nFor the control of documented information, the organization shall address the following activities, as  applicable:  \n"
   },
@@ -14,12 +14,12 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content description",
+        "de": "Beschreibt wie die Lenkung der Dokumentation auszusehen hat",
         "ru": "Content description",
         "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by description",
+        "de": "Der Autor des Dokuments",
         "ru": "Created by description",
         "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation description",
+        "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
         "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number description",
+        "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
         "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date description",
+        "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
         "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by description",
+        "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
         "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title description",
+        "de": "Titel des Dokuments",
         "ru": "Title description",
         "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -105,7 +105,7 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version description",
+        "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
         "en": "Version description"
       },

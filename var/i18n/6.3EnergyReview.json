@@ -1,11 +1,13 @@
 {
   "jevisclass": "6.3 Energy Review",
   "names": {
-    "de": "6.3 Energy Review",
+    "de": "6.3 Energetische Bewertung",
     "ru": "6.3 Energy Review",
     "en": "6.3 Energy Review"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Die Organisation muss eine energetische Bewertung entwickeln und durchführen. Die Ergebnisse der energetischen Bewertung müssen als dokumentierte Information aufrechterhalten werden. Die Verfahren und Kriterien, die bei der Durchführung der energetischen Bewertung angewendet werden, müssen als dokumentierte Information aufrechterhalten werden. Für die Ausführung der energetischen Bewertung muss die Organisation:\na) den Energieeinsatz und -verbrauch auf Grundlage von Messungen und anderen Daten analysieren, indem sie:\n	1) aktuelle Energiearten identifiziert;\n	2) den früheren und gegenwärtigen Energieeinsatz und -verbrauch bewertet;\nb) auf Grundlage der Analyse von Energieeinsatz und -verbrauch die Bereiche mit wesentlichem Energieeinsatz (SEU) identifizieren, d.h.\n		— Ermittlung der Anlagen/Standorte, Einrichtungen, Systeme und Prozesse, die wesentlichen Einfluss auf Energieeinsatz und Energieverbrauch haben;\nc) für jeden SEU:\n	1) die relevanten Variablen bestimmen;\n	2) die aktuelle energiebezogene Leistung bestimmen;\n	3) die Personen ermitteln, die den/die SEU(s) beeinflussen oder beeinträchtigen;\nd) die Chancen zur Verbesserung der energiebezogenen Leistung bestimmen und priorisieren;\ne) den künftigen Energieeinsatz und den künftigen Energieverbrauch abschätzen.\nDie energetische Bewertung muss in festgelegten Zeitabständen sowie auch in der Folge wesentlicher Änderungen in Anlagen/Standorten, Einrichtungen, Systemen oder Energie nutzenden Prozessen aktualisiert werden.\n\nANMERKUNG Das Ergebnis der energetischen Bewertung bietet Informationen für den Kontext der Organisation (siehe 4.1)."
+  },
   "types": [
     {
       "type": "Content",

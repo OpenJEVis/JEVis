@@ -1,12 +1,12 @@
 {
   "jevisclass": "10.1 Nonconformity and Corrective Action",
   "names": {
-    "de": "10.1 Nonconformity and Corrective Action",
+    "de": "10.1 Nichtkonformität und Korrekturmaßnahmen",
     "ru": "10.1 Nonconformity and Corrective Action",
     "en": "10.1 Nonconformity and Corrective Action"
   },
   "descriptions": {
-    "de": "When a nonconformity is identified occurs, the organization shall:  \na) react to the nonconformity and, as applicable:  \n1. take action to control and correct it;  \n2. deal with the consequences;  \nb) evaluate the need for action to eliminate the cause(s) of the nonconformity, in order that it does  not recur or occur elsewhere, by:   \n1. reviewing the nonconformity;  \n2. determining the causes of the nonconformity;  \n3. determining if similar nonconformities exist, or could can potentially occur;  \nc) implement any action needed;  \nd) review the effectiveness of any corrective action taken;  \ne) make changes to the EnMS, if necessary.  \nCorrective actions shall be appropriate to the effects of the nonconformities encountered.    \nThe organization shall retain documented information as evidence of:  \n",
+    "de": "Wenn eine Nichtkonformität auftritt erkannt wird, muss die Organisation:\na) darauf reagieren und, falls zutreffend:\n	1) Maßnahmen zur Überwachung und zur Korrektur ergreifen;\n	2) mit den Folgen umgehen;\nb) die Notwendigkeit von Maßnahmen zur Beseitigung der Ursache von Nichtkonformitäten bewerten, damit diese nicht erneut oder an anderer Stelle auftreten, und zwar durch:\n	1) Überprüfen der Nichtkonformität;\n	2) Bestimmen der Ursachen der Nichtkonformität;\n	3) Bestimmen, ob vergleichbare Nichtkonformitäten bestehen, oder möglicherweise auftreten können;\nc) jegliche erforderliche Maßnahme einleiten;\nd) die Wirksamkeit jeglicher ergriffener Korrekturmaßnahme überprüfen;\ne) sofern erforderlich, das EnMS ändern.\nKorrekturmaßnahmen müssen den Auswirkungen der aufgetretenen Nichtkonformitäten angemessen sein.\nDie Organisation muss dokumentierte Information aufbewahren, als Nachweis:\n	— der Art der Nichtkonformität sowie jeder daraufhin getroffenen Maßnahme;\n	— der Ergebnisse jeder Korrekturmaßnahme.",
     "ru": "When a nonconformity is identified occurs, the organization shall:  \na) react to the nonconformity and, as applicable:  \n1. take action to control and correct it;  \n2. deal with the consequences;  \nb) evaluate the need for action to eliminate the cause(s) of the nonconformity, in order that it does  not recur or occur elsewhere, by:   \n1. reviewing the nonconformity;  \n2. determining the causes of the nonconformity;  \n3. determining if similar nonconformities exist, or could can potentially occur;  \nc) implement any action needed;  \nd) review the effectiveness of any corrective action taken;  \ne) make changes to the EnMS, if necessary.  \nCorrective actions shall be appropriate to the effects of the nonconformities encountered.    \nThe organization shall retain documented information as evidence of:  \n",
     "en": "When a nonconformity is identified occurs, the organization shall:  \na) react to the nonconformity and, as applicable:  \n1. take action to control and correct it;  \n2. deal with the consequences;  \nb) evaluate the need for action to eliminate the cause(s) of the nonconformity, in order that it does  not recur or occur elsewhere, by:   \n1. reviewing the nonconformity;  \n2. determining the causes of the nonconformity;  \n3. determining if similar nonconformities exist, or could can potentially occur;  \nc) implement any action needed;  \nd) review the effectiveness of any corrective action taken;  \ne) make changes to the EnMS, if necessary.  \nCorrective actions shall be appropriate to the effects of the nonconformities encountered.    \nThe organization shall retain documented information as evidence of:  \n"
   },
@@ -14,12 +14,12 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content description",
+        "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
         "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by description",
+        "de": "Der Autor des Dokuments",
         "ru": "Created by description",
         "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation description",
+        "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
         "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number description",
+        "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
         "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date description",
+        "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
         "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by description",
+        "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
         "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title description",
+        "de": "Titel des Dokuments",
         "ru": "Title description",
         "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -105,7 +105,7 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version description",
+        "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
         "en": "Version description"
       },
