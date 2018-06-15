@@ -318,7 +318,7 @@ public class TreeHelper {
 
             Task<Void> upload = new Task<Void>() {
                 @Override
-                protected Void call() throws Exception {
+                protected Void call() {
 
                     try {
                         copyObjectUnder(toCopyObj, newParent, newName, includeContent, recursive);

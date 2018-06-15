@@ -15,7 +15,6 @@ import org.joda.time.Period;
 import java.util.List;
 
 /**
- *
  * @author broder
  */
 public interface CleanDataAttribute {

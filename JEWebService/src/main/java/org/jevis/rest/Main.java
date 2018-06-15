@@ -11,7 +11,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.jevis.ws.sql.ConnectionFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,9 +27,8 @@ public class Main {
      * Main method.
      *
      * @param args
-     * @throws IOException
      */
-    public static void main(String[] args) throws IOException, SQLException {
+    public static void main(String[] args) throws SQLException {
         LOGGER.info("Start - {}", VERSION);
         //read Config
         File configfile;
@@ -70,7 +68,7 @@ public class Main {
             }
         }
 
-        final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest");
+        final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest");
         rc.setApplicationName("JEWebservice");
         rc.register(MultiPartFeature.class);
 

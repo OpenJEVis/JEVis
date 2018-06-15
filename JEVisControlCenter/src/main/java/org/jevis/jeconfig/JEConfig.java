@@ -59,7 +59,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
@@ -104,6 +103,90 @@ public class JEConfig extends Application {
         _config.parseParameters(parameters);
         I18n.getInstance().loadBundel(Locale.getDefault());
         JEConfig.PROGRAMM_INFO.setName(I18n.getInstance().getString("appname"));
+    }
+
+    /**
+     * Returns the last path the local user selected
+     *
+     * @return
+     * @deprecated Will be moved into the Configuration -> user settings
+     */
+    public static File getLastPath() {
+        if (getConfig().getLastPath() == null) {
+            getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
+        }
+        if (!getConfig().getLastPath().canRead()) {
+            getConfig().setLastPath(new File(System.getProperty("user.home")));
+        }
+
+        return getConfig().getLastPath();
+    }
+
+    /**
+     * Set the last path the user selected for an file opration
+     *
+     * @param file
+     * @deprecated Will be moved into the Configuration -> user settings
+     */
+    public static void setLastPath(File file) {
+        if (file.exists()) {
+            getConfig().setLastPath(file.getParentFile());
+        } else {
+            getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
+        }
+    }
+
+    /**
+     * maximized the given stage
+     *
+     * @param primaryStage
+     * @deprecated
+     */
+    public static void maximize(Stage primaryStage) {
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+
+        primaryStage.setX(bounds.getMinX());
+        primaryStage.setY(bounds.getMinY());
+        primaryStage.setWidth(bounds.getWidth());
+        primaryStage.setHeight(bounds.getHeight());
+    }
+
+    /**
+     * Get the configuration for the app
+     *
+     * @return
+     * @deprecated will be replaced by an singleton
+     */
+    public static Configuration getConfig() {
+        return _config;
+    }
+
+    /**
+     * The main() method is ignored in correctly deployed JavaFX application.
+     * main() serves only as fallback in case the application can not be
+     * launched through deployment artifacts, e.g., in IDEs with limited FX
+     * support. NetBeans ignores main().
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    /**
+     * Returns the main JEVis Datasource of this JEConfig Try not to use this
+     * because it may disapear
+     *
+     * @return
+     * @deprecated
+     */
+    public static JEVisDataSource getDataSource() {
+        return _mainDS;
+    }
+
+    public static Stage getStage() {
+        return _primaryStage;
     }
 
     @Override
@@ -230,8 +313,6 @@ public class JEConfig extends Application {
                                 WelcomePage welcome = new WelcomePage();
                                 welcome.show(primaryStage, _config.getWelcomeURL());
                             } catch (URISyntaxException ex) {
-                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (MalformedURLException ex) {
                                 Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
                             }
 
@@ -411,91 +492,6 @@ public class JEConfig extends Application {
         } catch (Exception ex) {
             System.out.println(ex);
         }
-    }
-
-    /**
-     * The main() method is ignored in correctly deployed JavaFX application.
-     * main() serves only as fallback in case the application can not be
-     * launched through deployment artifacts, e.g., in IDEs with limited FX
-     * support. NetBeans ignores main().
-     *
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    /**
-     * Returns the main JEVis Datasource of this JEConfig Try not to use this
-     * because it may disapear
-     *
-     * @return
-     * @deprecated
-     */
-    public static JEVisDataSource getDataSource() {
-        return _mainDS;
-    }
-
-    public static Stage getStage() {
-        return _primaryStage;
-    }
-
-    /**
-     * Returns the last path the local user selected
-     *
-     * @return
-     * @deprecated Will be moved into the Configuration -> user settings
-     */
-    public static File getLastPath() {
-        if (getConfig().getLastPath() == null) {
-            getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
-        }
-        if (!getConfig().getLastPath().canRead()) {
-            getConfig().setLastPath(new File(System.getProperty("user.home")));
-        }
-
-        return getConfig().getLastPath();
-    }
-
-    /**
-     * Set the last path the user selected for an file opration
-     *
-     * @param file
-     * @deprecated Will be moved into the Configuration -> user settings
-     */
-    public static void setLastPath(File file) {
-        if (file.exists()) {
-            getConfig().setLastPath(file.getParentFile());
-        } else {
-            getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
-        }
-    }
-
-    /**
-     * maximized the given stage
-     *
-     * @param primaryStage
-     * @deprecated
-     */
-    public static void maximize(Stage primaryStage) {
-        Screen screen = Screen.getPrimary();
-        Rectangle2D bounds = screen.getVisualBounds();
-
-        primaryStage.setX(bounds.getMinX());
-        primaryStage.setY(bounds.getMinY());
-        primaryStage.setWidth(bounds.getWidth());
-        primaryStage.setHeight(bounds.getHeight());
-    }
-
-
-    /**
-     * Get the configuration for the app
-     *
-     * @return
-     * @deprecated will be replaced by an singleton
-     */
-    public static Configuration getConfig() {
-        return _config;
     }
 
     /**

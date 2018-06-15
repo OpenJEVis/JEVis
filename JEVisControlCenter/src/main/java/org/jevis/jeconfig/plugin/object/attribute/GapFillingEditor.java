@@ -54,6 +54,17 @@ public class GapFillingEditor implements AttributeEditor {
     private List<JsonGapFillingConfig> _listConfig;
     private Response response = GapFillingEditor.Response.CANCEL;
 
+    public GapFillingEditor(JEVisAttribute att) {
+        logger.debug("==init== for: {}", att.getName());
+        _attribute = att;
+        _changed.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                logger.debug("------------------> StringValueChanged: {}", newValue);
+            }
+        });
+    }
+
     private void init() {
         Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
 
@@ -105,17 +116,6 @@ public class GapFillingEditor implements AttributeEditor {
 //        _field.setId("attributelabel");
 //
 //        box.getChildren().add(_field);
-    }
-
-    public GapFillingEditor(JEVisAttribute att) {
-        logger.debug("==init== for: {}", att.getName());
-        _attribute = att;
-        _changed.addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                logger.debug("------------------> StringValueChanged: {}", newValue);
-            }
-        });
     }
 
     @Override
@@ -243,11 +243,6 @@ public class GapFillingEditor implements AttributeEditor {
         logger.trace("Done");
 
         return response;
-    }
-
-    public enum Response {
-
-        NO, YES, CANCEL
     }
 
     private Tab generateTab(int i) {
@@ -503,5 +498,10 @@ public class GapFillingEditor implements AttributeEditor {
         tab.setText(_listConfig.get(i).getName());
 
         return tab;
+    }
+
+    public enum Response {
+
+        NO, YES, CANCEL
     }
 }

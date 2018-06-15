@@ -119,8 +119,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             //TODO: throw excption?! so the other function can handel it?
         } catch (IOException ex) {
             Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JEVisException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
         }
         return new ArrayList<>();
     }
@@ -189,7 +187,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public List<JEVisObject> getObjects() throws JEVisException {
+    public List<JEVisObject> getObjects() {
         if (!objectLoaded) {
             for (JEVisObject o : getObjectsWS()) {
                 objectCache.put(o.getID(), o);
@@ -266,7 +264,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return objectRelCache;
     }
 
-    public List<JEVisRelationship> getRelationshipsWS() throws JEVisException {
+    public List<JEVisRelationship> getRelationshipsWS() {
         logger.error("Get ALL RelationshipsWS");
         try {
             Benchmark bm = new Benchmark();
@@ -740,7 +738,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public JEVisObject getObject(Long id) throws JEVisException {
+    public JEVisObject getObject(Long id) {
         if (objectCache.get(id) != null) {
             return objectCache.get(id);
         }
@@ -804,7 +802,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public List<JEVisClass> getJEVisClasses() throws JEVisException {
+    public List<JEVisClass> getJEVisClasses() {
         if (!classLoaded) {
             //For now we allways cache all classes because there are quit static
             Map<String, JEVisClass> map = Maps.uniqueIndex(getJEVisClassesWS(), new Function<JEVisClass, String>() {

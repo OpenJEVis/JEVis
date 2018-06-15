@@ -509,7 +509,7 @@ public class ObjectPlugin implements Plugin {
 
     //@AITBilal - Create a new Wizard-Table!
     //parent kommt von --> tree.fireEventCreateWizard(tree.getSelectedObject());
-    public void fireEventCreateWizard(final JEVisObject parent) throws JEVisException {
+    public void fireEventCreateWizard(final JEVisObject parent) {
         //TODO:
 
 //        WizardMain wizardmain = new WizardMain(parent, this);
@@ -528,7 +528,7 @@ public class ObjectPlugin implements Plugin {
     }
 
     //@AITBilal - Create a new Table!
-    public void fireEventCreateTable(final JEVisObject parent) throws JEVisException {
+    public void fireEventCreateTable(final JEVisObject parent) {
         CreateTable table = new CreateTable();
         if (parent != null) {
             if (table.show(JEConfig.getStage(), null, parent, false, CreateTable.Type.NEW, null) == CreateTable.Response.YES) {

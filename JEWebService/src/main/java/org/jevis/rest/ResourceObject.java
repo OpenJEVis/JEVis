@@ -133,7 +133,7 @@ public class ResourceObject {
             @PathParam("id") long id,
             @Context Request request,
             @Context UriInfo url,
-            @Context HttpHeaders httpHeaders) throws JEVisException {
+            @Context HttpHeaders httpHeaders) {
 
         SQLDataSource ds = null;
         try {

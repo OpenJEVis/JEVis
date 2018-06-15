@@ -80,20 +80,15 @@ public class SampleEditor {
 
     private AGGREGATION _mode = AGGREGATION.None;
 
-    public static enum Response {
-
-        YES, CANCEL
-    }
-
-    List<JEVisSample> samples = new ArrayList<>();
-
-    private Response response = Response.CANCEL;
-
     //    final Label passL = new Label("New Password:");
 //    final Label confirmL = new Label("Comfirm Password:");
 //    final PasswordField pass = new PasswordField();
 //    final PasswordField comfirm = new PasswordField();
     final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
+
+    List<JEVisSample> samples = new ArrayList<>();
+
+    private Response response = Response.CANCEL;
 
     /**
      * @param owner
@@ -257,7 +252,7 @@ public class SampleEditor {
 //                _visibleExtension.sendOKAction();//TODO: send all?
                 stage.close();
                 for (SampleEditorExtension ex : extensions) {
-                    
+
                     ex.sendOKAction();
                 }
             }
@@ -452,6 +447,11 @@ public class SampleEditor {
         grid.add(aggrigate, 1, 2, 1, 1); // column=1 row=0
 
         return grid;
+    }
+
+    public enum Response {
+
+        YES, CANCEL
     }
 
     private void update() {

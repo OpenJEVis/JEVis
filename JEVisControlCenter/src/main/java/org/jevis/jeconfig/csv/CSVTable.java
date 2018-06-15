@@ -108,7 +108,7 @@ public class CSVTable extends TableView<CSVLine> {
             protected Task<Void> createTask() {
                 return new Task<Void>() {
                     @Override
-                    protected Void call() throws Exception {
+                    protected Void call() {
                         updateMessage(I18n.getInstance().getString("csv.progress.message"));
                         CSVColumnHeader tsColumn = null;
                         for (CSVColumnHeader header : _header) {

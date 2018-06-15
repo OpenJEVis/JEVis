@@ -19,6 +19,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -62,7 +63,7 @@ public class FormAttribute {
                     //String
 
                     String GuiDisplayType = "";
-                    for (JsonType jt : ds.getTypes(obj.getJevisClass())) {
+                    for (JsonType jt : ds.getTypes(ds.getJEVisClass(obj.getJevisClass()))) {
                         if (jt.getName().equals(ja.getType())) {
                             GuiDisplayType = jt.getGuiType();
                         }
@@ -232,10 +233,10 @@ public class FormAttribute {
         this.setDateTimeValue(AttributeValue);
     }
 
-    public FormAttribute(SQLDataSource ds, JsonObject obj, String type, FormAttributeType output, JsonAttribute att) throws JEVisException {
+    public FormAttribute(SQLDataSource ds, JsonObject obj, String type, FormAttributeType output, JsonAttribute att) throws JEVisException, IOException {
         this.setName(att.getType());
         this.setType(output);
-        JEVisFile file = ds.getFile(obj.getId(), att.getType(), null);
+        JEVisFile file = ds.getFile(ds, obj.getId(), att.getType());
         if (Objects.nonNull(file)) {
             String filename = file.getFilename();
             this.file = new File(filename);

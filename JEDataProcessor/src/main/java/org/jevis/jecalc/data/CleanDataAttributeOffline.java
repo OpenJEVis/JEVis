@@ -24,11 +24,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author broder
  */
 public class CleanDataAttributeOffline implements CleanDataAttribute {
 
+    private final String pathToOutput;
     private DateTime date;
     private int periodOffset;
     private Period periodAlignment;
@@ -36,7 +36,6 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private boolean isConversionToDifferential;
     private Double multiplier;
     private Double offset;
-    private final String pathToOutput;
     private GapStrategy gapStrategy;
 
     private List<JEVisSample> rawSample = new ArrayList<>();

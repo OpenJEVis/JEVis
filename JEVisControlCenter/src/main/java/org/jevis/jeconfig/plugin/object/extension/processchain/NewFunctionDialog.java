@@ -20,9 +20,6 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
-import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -35,20 +32,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -63,6 +50,10 @@ import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
+import java.math.BigDecimal;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author fs
@@ -75,26 +66,6 @@ public class NewFunctionDialog {
     private JEVisClass createClass;
     private String createName = "No Name";
     private boolean userSetName = false;
-
-    public static enum Type {
-
-        NEW, RENAME
-    };
-
-    public static enum Response {
-
-        NO, YES, CANCEL
-    };
-
-    private Response response = Response.CANCEL;
-
-    public String getCreateName() {
-        return createName;
-    }
-
-    public JEVisClass getCreateClass() {
-        return createClass;
-    }
 
     /**
      *
@@ -352,6 +323,26 @@ public class NewFunctionDialog {
 
         stage.showAndWait();
         return response;
+    }
+
+    private Response response = Response.CANCEL;
+
+    public String getCreateName() {
+        return createName;
+    }
+
+    public JEVisClass getCreateClass() {
+        return createClass;
+    }
+
+    public enum Type {
+
+        NEW, RENAME
+    }
+
+    public enum Response {
+
+        NO, YES, CANCEL
     }
 
 }

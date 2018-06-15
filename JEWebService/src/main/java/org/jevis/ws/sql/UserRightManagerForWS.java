@@ -43,7 +43,7 @@ public class UserRightManagerForWS {
     private List<Long> exeGIDS = new ArrayList<>();
     private List<Long> writeGIDS = new ArrayList<>();
 
-    public UserRightManagerForWS(SQLDataSource ds) {
+    public UserRightManagerForWS(SQLDataSource ds) throws JEVisException {
         Logger logger = LogManager.getLogger(UserRightManagerForWS.class);
         logger.trace("Init UserRightManagerForWS for user");
         this.user = ds.getCurrentUser();
@@ -51,7 +51,7 @@ public class UserRightManagerForWS {
         init();
     }
 
-    private void init() {
+    private void init() throws JEVisException {
         //get user groups
         List<JsonRelationship> userRel = ds.getRelationships(ds.getCurrentUser().getUserObject().getId());
         for (JsonRelationship rel : userRel) {
@@ -143,7 +143,7 @@ public class UserRightManagerForWS {
         return roots;
     }
 
-    public List<JsonObject> filterList(List<JsonObject> objects) {
+    public List<JsonObject> filterList(List<JsonObject> objects) throws JEVisException {
         System.out.println("filterList: " + isSysAdmin() + "   - " + objects.size());
         //Sys Admin can read it all
         if (isSysAdmin()) {
@@ -167,7 +167,7 @@ public class UserRightManagerForWS {
         return list;
     }
 
-    public JsonObject filterObject(JsonObject object) {
+    public JsonObject filterObject(JsonObject object) throws JEVisException {
         System.out.println("filterObject: " + isSysAdmin());
         //Sys Admin can read it all
         if (isSysAdmin()) {
