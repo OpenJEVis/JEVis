@@ -6,22 +6,14 @@
 package org.jevis.report3.data.report;
 
 import com.google.inject.assistedinject.Assisted;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import javax.inject.Inject;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.jenotifier.mode.Single;
+import org.jevis.jenotifier.mode.SendNotification;
+import org.jevis.jenotifier.notifier.Email.EmailNotification;
+import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
+import org.jevis.jenotifier.notifier.Notification;
+import org.jevis.jenotifier.notifier.NotificationDriver;
 import org.jevis.report3.DateHelper;
 import org.jevis.report3.PdfConverter;
 import org.jevis.report3.PdfFileSplitter;
@@ -38,6 +30,13 @@ import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 
 /**
  *
@@ -79,6 +78,7 @@ public class ReportExecutor {
         //check if links contain data
         boolean isDataAvailable = true;
         DateTime end = intervalCalculator.getInterval(IntervalCalculator.PeriodModus.CURRENT).getEnd();
+
         for (ReportData curData : reportLinks) {
             ReportData.LinkStatus reportLinkStatus = curData.getReportLinkStatus(end);
             if (!reportLinkStatus.isSanityCheck()) {
@@ -86,6 +86,7 @@ public class ReportExecutor {
                 isDataAvailable = false;
             }
         }
+
         if (!isDataAvailable) {
             return;
         }
@@ -133,7 +134,7 @@ public class ReportExecutor {
             JEVisObject notificationObject = property.getNotificationObject();
             sendNotification(notificationObject, fileForNotification);
         } catch (JEVisException ex) {
-
+            java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -143,7 +144,6 @@ public class ReportExecutor {
     public boolean isPeriodicConditionReached(JEVisObject reportObject, SampleHandler samplesHandler) {
 
         try {
-
             String startRecordString = samplesHandler.getLastSampleAsString(reportObject, "Start Record");
             DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
 
@@ -187,8 +187,22 @@ public class ReportExecutor {
             JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
             attachmentAttribute.deleteAllSample();
             attachmentAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
-            Single single = new Single(notificationObject.getID(), service.getMailID(), reportObject.getDataSource(), notifierFile, ReportConfiguration.NOTIFICATION, ReportConfiguration.NOTIFICATION_DRIVER);
-            single.start();
+
+            /* This is from Thread stuff */
+            //Single single = new Single(notificationObject.getID(), service.getMailID(), reportObject.getDataSource(), notifierFile, ReportConfiguration.NOTIFICATION, ReportConfiguration.NOTIFICATION_DRIVER);
+            //single.start();
+
+            JEVisObject notiObj = reportObject.getDataSource().getObject(notificationObject.getID());
+            Notification nofi = new EmailNotification();
+            nofi.setNotificationObject(notiObj, jeVisFileImp);
+            NotificationDriver emailNofi = new EmailNotificationDriver();
+
+            JEVisObject notiDriObj = reportObject.getDataSource().getObject(service.getMailID());
+            emailNofi.setNotificationDriverObject(notiDriObj);
+
+            SendNotification sn = new SendNotification(nofi, emailNofi);
+            sn.run();
+
         } catch (JEVisException ex) {
             java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
         }

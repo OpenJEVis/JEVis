@@ -10,9 +10,9 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content desctiption",
-        "ru": "Content desctiption",
-        "en": "Content desctiption"
+        "de": "Content description",
+        "ru": "Content description",
+        "en": "Content description"
       },
       "names": {
         "de": "Content",
@@ -23,9 +23,9 @@
     {
       "type": "Management Review File",
       "descriptions": {
-        "de": "Management Review File desctiption",
-        "ru": "Management Review File desctiption",
-        "en": "Management Review File desctiption"
+        "de": "Management Review File description",
+        "ru": "Management Review File description",
+        "en": "Management Review File description"
       },
       "names": {
         "de": "Management Review File",
@@ -36,9 +36,9 @@
     {
       "type": "Management Review PDF",
       "descriptions": {
-        "de": "Management Review PDF desctiption",
-        "ru": "Management Review PDF desctiption",
-        "en": "Management Review PDF desctiption"
+        "de": "Management Review PDF description",
+        "ru": "Management Review PDF description",
+        "en": "Management Review PDF description"
       },
       "names": {
         "de": "Management Review PDF",
@@ -49,9 +49,9 @@
     {
       "type": "Participants",
       "descriptions": {
-        "de": "Participants desctiption",
-        "ru": "Participants desctiption",
-        "en": "Participants desctiption"
+        "de": "Participants description",
+        "ru": "Participants description",
+        "en": "Participants description"
       },
       "names": {
         "de": "Participants",
@@ -62,9 +62,9 @@
     {
       "type": "Review Date",
       "descriptions": {
-        "de": "Review Date desctiption",
-        "ru": "Review Date desctiption",
-        "en": "Review Date desctiption"
+        "de": "Review Date description",
+        "ru": "Review Date description",
+        "en": "Review Date description"
       },
       "names": {
         "de": "Review Date",

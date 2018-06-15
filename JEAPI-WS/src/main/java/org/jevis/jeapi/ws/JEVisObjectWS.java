@@ -46,8 +46,8 @@ public class JEVisObjectWS implements JEVisObject {
     private List<JEVisObject> children = null;
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisObjectWS.class);
     private JsonObject json;
-    private Cache<String, List> attributeCache;
     private final EventListenerList listeners = new EventListenerList();
+    private Cache<String, List> attributeCache;
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
         this.ds = ds;
@@ -82,7 +82,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public void setName(String name) throws JEVisException {
+    public void setName(String name) {
         json.setName(name);
     }
 
@@ -112,7 +112,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public String getJEVisClassName() throws JEVisException {
+    public String getJEVisClassName() {
         return json.getJevisClass();
     }
 
@@ -160,7 +160,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public List<JEVisAttribute> getAttributes() throws JEVisException {
+    public List<JEVisAttribute> getAttributes() {
         //temp cache for attributes because a lot of clients call a obj.getAttribute(type) 
         if (attributeCache == null) {
             attributeCache = CacheBuilder.newBuilder()
@@ -189,7 +189,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     }
 
-    public List<JEVisAttribute> getAttributesWS() throws JEVisException {
+    public List<JEVisAttribute> getAttributesWS() {
         return ds.getAttributes(getID());
     }
 
@@ -205,7 +205,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public JEVisAttribute getAttribute(String type) throws JEVisException {
+    public JEVisAttribute getAttribute(String type) {
         if (type == null) {
             return null;
         }
@@ -220,7 +220,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public boolean delete() throws JEVisException {
+    public boolean delete() {
         System.out.println("delete WS object");
         boolean delete = ds.deleteObject(getID());
 
@@ -241,18 +241,38 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public JEVisObject getLinkedObject() throws JEVisException {
+    public JEVisObject getLinkedObject() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public JEVisRelationship buildRelationship(JEVisObject obj, int type, int direction) throws JEVisException {
-        return ds.buildRelationship(getID(), obj.getID(), direction);
+    public JEVisRelationship buildRelationship(JEVisObject otherObj, int type, int direction) throws JEVisException {
+        JEVisRelationship rel;
+        if (direction == JEVisConstants.Direction.FORWARD) {
+            rel = ds.buildRelationship(getID(), otherObj.getID(), type);
+
+            if (type == JEVisConstants.ObjectRelationship.PARENT) {
+                System.out.println("Event for: " + rel.getEndObject() + " " + rel.getStartObject() + " " + otherObj.getID());
+                otherObj.notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+            }
+
+        } else {
+            rel = otherObj.buildRelationship(this, type, JEVisConstants.Direction.FORWARD);
+        }
+
+
+        return rel;
     }
 
     @Override
     public void deleteRelationship(JEVisRelationship rel) throws JEVisException {
         ds.deleteRelationship(rel.getStartID(), rel.getEndID(), rel.getType());
+        if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
+            rel.getEndObject().notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_CHILD_DELETED));
+
+        }
+
+        notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
     }
 
     @Override
@@ -312,7 +332,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public JEVisDataSource getDataSource() throws JEVisException {
+    public JEVisDataSource getDataSource() {
         return ds;
     }
 
@@ -359,7 +379,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public void rollBack() throws JEVisException {
+    public void rollBack() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -411,7 +431,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public void setIsPublic(boolean ispublic) throws JEVisException {
+    public void setIsPublic(boolean ispublic) {
         json.setisPublic(ispublic);
     }
 

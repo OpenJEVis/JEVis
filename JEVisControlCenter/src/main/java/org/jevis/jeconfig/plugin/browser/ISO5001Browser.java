@@ -5,7 +5,6 @@
  */
 package org.jevis.jeconfig.plugin.browser;
 
-import java.net.URI;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -32,6 +31,8 @@ import org.w3c.dom.Text;
 import org.w3c.dom.html.HTMLFormElement;
 import org.w3c.dom.html.HTMLInputElement;
 import org.w3c.dom.html.HTMLSelectElement;
+
+import java.net.URI;
 
 /**
  *
@@ -64,7 +65,7 @@ public class ISO5001Browser implements Plugin {
                         
                         urlProperty.setValue(
                                  jewebseriveURI.getScheme()+"://"
-                                +jewebseriveURI.getHost()+":8001"
+                                         + jewebseriveURI.getHost() + ":" + jewebseriveURI.getPort()
                                 +"/JEWebService/v1/login"
                         );
                     }

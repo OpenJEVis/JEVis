@@ -34,7 +34,6 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -252,19 +251,11 @@ public class ClassPlugin implements Plugin {
 
     @Override
     public void fireCloseEvent() {
-        try {
-            tree.fireSaveAttributes(true);
-        } catch (JEVisException ex) {
-            logger.catching(ex);
-        }
+        tree.fireSaveAttributes(true);
     }
 
     public void Save() {
-        try {
-            tree.fireSaveAttributes(false);
-        } catch (JEVisException ex) {
-            logger.catching(ex);
-        }
+        tree.fireSaveAttributes(false);
     }
 
     @Override

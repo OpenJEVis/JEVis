@@ -11,7 +11,7 @@
       "type": "Output",
       "descriptions": {
         "de": "Definiert das Ziel einer Berechnung",
-        "ru": "Output desctiption",
+        "ru": "Output description",
         "en": "Defines output target of a calculation"
       },
       "names": {

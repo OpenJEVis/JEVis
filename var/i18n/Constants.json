@@ -10,9 +10,9 @@
     {
       "type": "Attribute",
       "descriptions": {
-        "de": "Attribute desctiption",
-        "ru": "Attribute desctiption",
-        "en": "Attribute desctiption"
+        "de": "Attribute description",
+        "ru": "Attribute description",
+        "en": "Attribute description"
       },
       "names": {
         "de": "Attribute",
@@ -23,9 +23,9 @@
     {
       "type": "Editable",
       "descriptions": {
-        "de": "Editable desctiption",
-        "ru": "Editable desctiption",
-        "en": "Editable desctiption"
+        "de": "Editable description",
+        "ru": "Editable description",
+        "en": "Editable description"
       },
       "names": {
         "de": "Editable",
@@ -36,9 +36,9 @@
     {
       "type": "Entries",
       "descriptions": {
-        "de": "Entries desctiption",
-        "ru": "Entries desctiption",
-        "en": "Entries desctiption"
+        "de": "Entries description",
+        "ru": "Entries description",
+        "en": "Entries description"
       },
       "names": {
         "de": "Entries",

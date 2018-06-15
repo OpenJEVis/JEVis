@@ -14,9 +14,9 @@
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout desctiption",
-        "ru": "Last Readout desctiption",
-        "en": "Last Readout desctiption"
+        "de": "Last Readout description",
+        "ru": "Last Readout description",
+        "en": "Last Readout description"
       },
       "names": {
         "de": "Last Readout",
@@ -27,9 +27,9 @@
     {
       "type": "Target ID",
       "descriptions": {
-        "de": "Target ID desctiption",
-        "ru": "Target ID desctiption",
-        "en": "Target ID desctiption"
+        "de": "Target ID description",
+        "ru": "Target ID description",
+        "en": "Target ID description"
       },
       "names": {
         "de": "Target ID",
@@ -40,9 +40,9 @@
     {
       "type": "Trend ID",
       "descriptions": {
-        "de": "Trend ID desctiption",
-        "ru": "Trend ID desctiption",
-        "en": "Trend ID desctiption"
+        "de": "Trend ID description",
+        "ru": "Trend ID description",
+        "en": "Trend ID description"
       },
       "names": {
         "de": "Trend ID",

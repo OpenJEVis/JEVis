@@ -10,9 +10,9 @@
     {
       "type": "Device ID",
       "descriptions": {
-        "de": "Device ID desctiption",
-        "ru": "Device ID desctiption",
-        "en": "Device ID desctiption"
+        "de": "Device ID description",
+        "ru": "Device ID description",
+        "en": "Device ID description"
       },
       "names": {
         "de": "Device ID",
@@ -23,9 +23,9 @@
     {
       "type": "IP Address",
       "descriptions": {
-        "de": "IP Address desctiption",
-        "ru": "IP Address desctiption",
-        "en": "IP Address desctiption"
+        "de": "IP Address description",
+        "ru": "IP Address description",
+        "en": "IP Address description"
       },
       "names": {
         "de": "IP Address",
@@ -36,9 +36,9 @@
     {
       "type": "SubNet Mask",
       "descriptions": {
-        "de": "SubNet Mask desctiption",
-        "ru": "SubNet Mask desctiption",
-        "en": "SubNet Mask desctiption"
+        "de": "SubNet Mask description",
+        "ru": "SubNet Mask description",
+        "en": "SubNet Mask description"
       },
       "names": {
         "de": "SubNet Mask",
@@ -49,9 +49,9 @@
     {
       "type": "Type",
       "descriptions": {
-        "de": "Type desctiption",
-        "ru": "Type desctiption",
-        "en": "Type desctiption"
+        "de": "Type description",
+        "ru": "Type description",
+        "en": "Type description"
       },
       "names": {
         "de": "Type",

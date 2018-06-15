@@ -6,19 +6,19 @@
 package org.jevis.rest;
 
 import com.google.gson.Gson;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.apache.commons.net.util.Base64;
+import org.apache.logging.log4j.LogManager;
+import org.glassfish.jersey.message.internal.ReaderWriter;
+import org.joda.time.DateTime;
+
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
-import org.apache.commons.net.util.Base64;
-import org.apache.logging.log4j.LogManager;
-import org.glassfish.jersey.message.internal.ReaderWriter;
-import org.joda.time.DateTime;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 /**
  *
@@ -31,12 +31,12 @@ public class RLF implements ContainerRequestFilter, ContainerResponseFilter {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(RLF.class);
 
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext) {
         requestContext.setProperty("StartTime", new DateTime());
     }
 
     @Override
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
         try {
             String username = getUserName(requestContext.getHeaderString("authorization"));
             DateTime now = new DateTime();

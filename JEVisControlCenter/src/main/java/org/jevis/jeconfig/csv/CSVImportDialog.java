@@ -100,18 +100,6 @@ public class CSVImportDialog {
     private Stage stage;
     private Charset charset = Charset.defaultCharset();
 
-    public static enum Format {
-
-        Default, ARA01, Custom
-    }
-
-    public static enum Response {
-
-        OK, CANCEL
-    }
-
-    private Response response = Response.CANCEL;
-
     public Response show(Stage owner, JEVisDataSource ds) {
         stage = new Stage();
         _ds = ds;
@@ -262,6 +250,8 @@ public class CSVImportDialog {
 
     }
 
+    private Response response = Response.CANCEL;
+
     private Node buildTablePane() {
 
         tableRootPane.setPadding(new Insets(10, 10, 5, LEFT_PADDING));
@@ -281,6 +271,194 @@ public class CSVImportDialog {
     private CSVParser parseCSV() {
         CSVParser parser = new CSVParser(_csvFile, getEncloser(), getSeperator(), getStartLine(), charset);
         return parser;
+    }
+
+    private Node buildFileOptions() {
+        GridPane gp = new GridPane();
+        gp.setPadding(new Insets(0, 10, 10, LEFT_PADDING));
+//        gp.setPadding(new Insets(10));
+        gp.setHgap(10);
+        gp.setVgap(5);
+
+//        gp.setStyle("-fx-background-color: #EBED50;");
+        Label fileL = new Label(I18n.getInstance().getString("csv.file"));
+        Label formatL = new Label(I18n.getInstance().getString("csv.format"));
+        Label charSetL = new Label(I18n.getInstance().getString("csv.charset"));
+        Label fromRow = new Label(I18n.getInstance().getString("csv.from_rowFrom"));
+        final Label fileNameL = new Label();
+
+        ObservableList<Charset> options = FXCollections.observableArrayList();
+        for (Charset set : Charset.availableCharsets().values()) {
+            options.add(set);
+        }
+
+        Callback<ListView<Charset>, ListCell<Charset>> cellFactory = new Callback<ListView<Charset>, ListCell<Charset>>() {
+            @Override
+            public ListCell<Charset> call(ListView<Charset> param) {
+                final ListCell<Charset> cell = new ListCell<Charset>() {
+                    {
+                        super.setPrefWidth(260);
+                    }
+
+                    @Override
+                    public void updateItem(Charset item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            setText(item.displayName(AppLocale.getInstance().getLocale()));
+                            setGraphic(null);
+
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+
+        final ComboBox<Charset> charsetBox = new ComboBox<Charset>(options);
+        charsetBox.setCellFactory(cellFactory);
+        charsetBox.setButtonCell(cellFactory.call(null));
+        charsetBox.valueProperty().addListener(new ChangeListener<Charset>() {
+            @Override
+            public void changed(ObservableValue<? extends Charset> observable, Charset oldValue, Charset newValue) {
+                charset = newValue;
+            }
+        });
+        charsetBox.getSelectionModel().select(Charset.defaultCharset());
+
+        formatOptions = FXCollections.observableArrayList();
+        for (Format format : Format.values()) {
+            formatOptions.add(format.name());
+        }
+
+//        formatOptions = FXCollections.observableArrayList("MS Office, ARA01, Custom");
+        final ComboBox<String> formats = new ComboBox<String>(formatOptions);
+        formats.getSelectionModel().selectFirst();
+
+        Node title = buildTitle(I18n.getInstance().getString("csv.tab.title.field_options"));
+
+        fileButton.setPrefWidth(100);
+        charsetBox.setPrefWidth(100);
+        formats.setPrefWidth(100);
+        charsetBox.setMaxWidth(1000);
+        formats.setMaxWidth(1000);
+
+        count.setMinHeight(22);
+        count.numberProperty().addListener(new ChangeListener<BigDecimal>() {
+
+            @Override
+            public void changed(ObservableValue<? extends BigDecimal> ov, BigDecimal t, BigDecimal t1) {
+                updateTree();
+            }
+        });
+
+        automatic.setDisable(true);
+        automatic.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                if (_csvFile != null) {
+                    try {
+                        CSVAnalyser analys = new CSVAnalyser(_csvFile);
+                        setEncloser(analys.getEnclosed());
+                        setSeperator(analys.getSeperator());
+                        formats.getSelectionModel().select(Format.Custom.name());
+                        updateTree();
+
+                    } catch (Exception ex) {
+                        System.out.println("Error while anylysing csv: " + ex);
+                    }
+                }
+
+            }
+        });
+
+        fileButton.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+
+                FileChooser fileChooser = new FileChooser();
+                if (JEConfig.getLastPath() != null) {
+//                    System.out.println("Last Path: " + JEConfig.getLastPath().getParentFile());
+                    File file = JEConfig.getLastPath();
+                    if (file.exists() && file.canRead()) {
+                        fileChooser.setInitialDirectory(file);
+                    }
+                }
+
+                FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
+                FileChooser.ExtensionFilter allFilter = new FileChooser.ExtensionFilter("All files ", "*");
+                fileChooser.getExtensionFilters().addAll(csvFilter, allFilter);
+
+                final File file = fileChooser.showOpenDialog(JEConfig.getStage());
+                if (file != null && file.canRead()) {
+
+                    Platform.runLater(() -> {
+                        try {
+                            JEConfig.setLastPath(file);
+                            System.out.println("file: " + file);
+
+                            fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
+
+                            openFile(file);
+                            automatic.setDisable(false);
+                            CSVAnalyser analyse = new CSVAnalyser(_csvFile);
+
+                            setEncloser(analyse.getEnclosed());
+                            setSeperator(analyse.getSeperator());
+                            formats.getSelectionModel().select(Format.Custom.name());
+                            updateTree();
+                        } catch (IOException ex) {
+                            Logger.getLogger(CSVImportDialog.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    });
+//                        JEConfig.setLastPath(file);
+//                        System.out.println("file: " + file);
+//
+//                        fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
+//
+//                        openFile(file);
+//                        automatic.setDisable(false);
+//                        CSVAnalyser analys = new CSVAnalyser(_csvFile);
+//
+//                        setEncloser(analys.getEnclosed());
+//                        setSeperator(analys.getSeperator());
+//                        formats.getSelectionModel().select(Format.Custom.name());
+//                        updateTree();
+
+                }
+            }
+        });
+
+        int x = 0;
+
+//        gp.add(title, 0, x, 3, 1);
+        gp.add(fileL, 0, ++x);
+        gp.add(fileButton, 1, x);
+        gp.add(fileNameL, 2, x);
+
+        //@TODO: implement format function
+//        gp.add(formatL, 0, ++x);
+//        gp.add(formats, 1, x);
+//        gp.add(automatic, 2, x);
+
+        gp.add(charSetL, 0, ++x);
+        gp.add(charsetBox, 1, x);
+
+        gp.add(fromRow, 0, ++x);
+        gp.add(count, 1, x);
+
+        GridPane.setHgrow(title, Priority.ALWAYS);
+
+        updateTree();
+
+        return gp;
+
+    }
+
+    public enum Format {
+
+        Default, ARA01, Custom
     }
 
     private Node buildSeparatorPane() {
@@ -532,187 +710,9 @@ public class CSVImportDialog {
 
     }
 
-    private Node buildFileOptions() {
-        GridPane gp = new GridPane();
-        gp.setPadding(new Insets(0, 10, 10, LEFT_PADDING));
-//        gp.setPadding(new Insets(10));
-        gp.setHgap(10);
-        gp.setVgap(5);
+    public enum Response {
 
-//        gp.setStyle("-fx-background-color: #EBED50;");
-        Label fileL = new Label(I18n.getInstance().getString("csv.file"));
-        Label formatL = new Label(I18n.getInstance().getString("csv.format"));
-        Label charSetL = new Label(I18n.getInstance().getString("csv.charset"));
-        Label fromRow = new Label(I18n.getInstance().getString("csv.from_rowFrom"));
-        final Label fileNameL = new Label();
-
-        ObservableList<Charset> options = FXCollections.observableArrayList();
-        for (Charset set : Charset.availableCharsets().values()) {
-            options.add(set);
-        }
-
-        Callback<ListView<Charset>, ListCell<Charset>> cellFactory = new Callback<ListView<Charset>, ListCell<Charset>>() {
-            @Override
-            public ListCell<Charset> call(ListView<Charset> param) {
-                final ListCell<Charset> cell = new ListCell<Charset>() {
-                    {
-                        super.setPrefWidth(260);
-                    }
-
-                    @Override
-                    public void updateItem(Charset item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            setText(item.displayName(AppLocale.getInstance().getLocale()));
-                            setGraphic(null);
-
-                        }
-                    }
-                };
-                return cell;
-            }
-        };
-
-        final ComboBox<Charset> charsetBox = new ComboBox<Charset>(options);
-        charsetBox.setCellFactory(cellFactory);
-        charsetBox.setButtonCell(cellFactory.call(null));
-        charsetBox.valueProperty().addListener(new ChangeListener<Charset>() {
-            @Override
-            public void changed(ObservableValue<? extends Charset> observable, Charset oldValue, Charset newValue) {
-                charset = newValue;
-            }
-        });
-        charsetBox.getSelectionModel().select(Charset.defaultCharset());
-
-        formatOptions = FXCollections.observableArrayList();
-        for (Format format : Format.values()) {
-            formatOptions.add(format.name());
-        }
-
-//        formatOptions = FXCollections.observableArrayList("MS Office, ARA01, Custom");
-        final ComboBox<String> formats = new ComboBox<String>(formatOptions);
-        formats.getSelectionModel().selectFirst();
-
-        Node title = buildTitle(I18n.getInstance().getString("csv.tab.title.field_options"));
-
-        fileButton.setPrefWidth(100);
-        charsetBox.setPrefWidth(100);
-        formats.setPrefWidth(100);
-        charsetBox.setMaxWidth(1000);
-        formats.setMaxWidth(1000);
-
-        count.setMinHeight(22);
-        count.numberProperty().addListener(new ChangeListener<BigDecimal>() {
-
-            @Override
-            public void changed(ObservableValue<? extends BigDecimal> ov, BigDecimal t, BigDecimal t1) {
-                updateTree();
-            }
-        });
-
-        automatic.setDisable(true);
-        automatic.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
-                if (_csvFile != null) {
-                    try {
-                        CSVAnalyser analys = new CSVAnalyser(_csvFile);
-                        setEncloser(analys.getEnclosed());
-                        setSeperator(analys.getSeperator());
-                        formats.getSelectionModel().select(Format.Custom.name());
-                        updateTree();
-
-                    } catch (Exception ex) {
-                        System.out.println("Error while anylysing csv: " + ex);
-                    }
-                }
-
-            }
-        });
-
-        fileButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
-
-                FileChooser fileChooser = new FileChooser();
-                if (JEConfig.getLastPath() != null) {
-//                    System.out.println("Last Path: " + JEConfig.getLastPath().getParentFile());
-                    File file = JEConfig.getLastPath();
-                    if (file.exists() && file.canRead()) {
-                        fileChooser.setInitialDirectory(file);
-                    }
-                }
-
-                FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
-                FileChooser.ExtensionFilter allFilter = new FileChooser.ExtensionFilter("All files ", "*");
-                fileChooser.getExtensionFilters().addAll(csvFilter, allFilter);
-
-                final File file = fileChooser.showOpenDialog(JEConfig.getStage());
-                if (file != null && file.canRead()) {
-
-                    Platform.runLater(() -> {
-                        try {
-                            JEConfig.setLastPath(file);
-                            System.out.println("file: " + file);
-
-                            fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
-
-                            openFile(file);
-                            automatic.setDisable(false);
-                            CSVAnalyser analyse = new CSVAnalyser(_csvFile);
-
-                            setEncloser(analyse.getEnclosed());
-                            setSeperator(analyse.getSeperator());
-                            formats.getSelectionModel().select(Format.Custom.name());
-                            updateTree();
-                        } catch (IOException ex) {
-                            Logger.getLogger(CSVImportDialog.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    });
-//                        JEConfig.setLastPath(file);
-//                        System.out.println("file: " + file);
-//
-//                        fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
-//
-//                        openFile(file);
-//                        automatic.setDisable(false);
-//                        CSVAnalyser analys = new CSVAnalyser(_csvFile);
-//
-//                        setEncloser(analys.getEnclosed());
-//                        setSeperator(analys.getSeperator());
-//                        formats.getSelectionModel().select(Format.Custom.name());
-//                        updateTree();
-
-                }
-            }
-        });
-
-        int x = 0;
-
-//        gp.add(title, 0, x, 3, 1);
-        gp.add(fileL, 0, ++x);
-        gp.add(fileButton, 1, x);
-        gp.add(fileNameL, 2, x);
-
-        //@TODO: implement format function
-//        gp.add(formatL, 0, ++x);
-//        gp.add(formats, 1, x);
-//        gp.add(automatic, 2, x);
-
-        gp.add(charSetL, 0, ++x);
-        gp.add(charsetBox, 1, x);
-
-        gp.add(fromRow, 0, ++x);
-        gp.add(count, 1, x);
-
-        GridPane.setHgrow(title, Priority.ALWAYS);
-
-        updateTree();
-
-        return gp;
-
+        OK, CANCEL
     }
 
     private void openFile(File file) {

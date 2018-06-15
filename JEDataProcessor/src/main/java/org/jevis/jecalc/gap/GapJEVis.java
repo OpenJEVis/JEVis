@@ -6,11 +6,11 @@
 package org.jevis.jecalc.gap;
 
 import org.jevis.jecalc.data.CleanInterval;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author broder
  */
 public class GapJEVis implements Gap {
@@ -25,16 +25,6 @@ public class GapJEVis implements Gap {
     }
 
     @Override
-    public void setLastValue(Double lastValue) {
-        this.lastValue = lastValue;
-    }
-
-    @Override
-    public void setFirstValue(Double firstValue) {
-        this.firstValue = firstValue;
-    }
-
-    @Override
     public List<CleanInterval> getIntervals() {
         return intervals;
     }
@@ -45,8 +35,18 @@ public class GapJEVis implements Gap {
     }
 
     @Override
+    public void setFirstValue(Double firstValue) {
+        this.firstValue = firstValue;
+    }
+
+    @Override
     public Double getLastValue() {
         return lastValue;
+    }
+
+    @Override
+    public void setLastValue(Double lastValue) {
+        this.lastValue = lastValue;
     }
 
 }

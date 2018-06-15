@@ -5,39 +5,36 @@
  */
 package org.jevis.jecalc.data;
 
-import org.jevis.jecalc.gap.Gap.GapMode;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
-import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.CONVERSION_DIFFERENTIAL;
-import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.ENABLED;
-import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.GAP_FILLING;
-import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.MULTIPLIER;
-import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.OFFSET;
-import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.PERIOD_ALIGNMENT;
-import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.PERIOD_OFFSET;
-import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.VALUE_QUANTITY;
+import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.jecalc.gap.Gap.GapMode;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.*;
+
 /**
- *
  * @author broder
  */
 public class CleanDataAttributeJEVis implements CleanDataAttribute {
 
     public static final String CLASS_NAME = "Clean Data";
     public static final String VALUE_ATTRIBUTE_NAME = "Value";
-
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CleanDataAttributeJEVis.class);
     private final JEVisObject object;
     private JEVisObject rawDataObject;
     //attributes
@@ -55,8 +52,8 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     private DateTime lastDate;
     private List<JEVisSample> rawSamples;
     private SampleHandler sampleHandler;
-
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CleanDataAttributeJEVis.class);
+    private List<JsonGapFillingConfig> jsonConfig;
+    private String gapFillingConfig;
 
     public CleanDataAttributeJEVis(JEVisObject calcObject) {
         object = calcObject;
@@ -65,6 +62,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     public CleanDataAttributeJEVis(JEVisObject calcObject, ObjectHandler objectHandler) {
         object = calcObject;
         rawDataObject = objectHandler.getFirstParent(calcObject);
+        offset = 0.0;
 
         sampleHandler = new SampleHandler();
         //get the period from the value attribute slider
@@ -77,9 +75,16 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         periodOffset = (int) (long) periodOffsetLong;
         valueIsQuantity = sampleHandler.getLastSample(calcObject, VALUE_QUANTITY.getAttributeName(), false);
         multiplier = sampleHandler.getLastSample(calcObject, MULTIPLIER.getAttributeName(), 1.0);
-        offset = sampleHandler.getLastSample(calcObject, OFFSET.getAttributeName(), 0.0);
 
-        //first date is the lastdate of clen datarow + period or the year of the first sample of the raw data
+
+        gapFillingConfig = sampleHandler.getLastSample(calcObject, GAP_FILLING_CONFIG.getAttributeName(), "");
+        jsonConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
+        }.getType());
+        for (JsonGapFillingConfig jgfc : jsonConfig) {
+            System.out.println("ConfigString" + jgfc.toString());
+        }
+
+        //first date is the lastdate of clean datarow + period or the year of the first sample of the raw data
         DateTime timestampFromLastCleanSample = sampleHandler.getTimeStampFromLastSample(calcObject, VALUE_ATTRIBUTE_NAME);
         if (timestampFromLastCleanSample != null) {
             firstDate = timestampFromLastCleanSample.plus(period);
@@ -140,6 +145,11 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     @Override
     public DateTime getMaxEndDate() {
         return lastDate;
+    }
+
+    @Override
+    public List<JsonGapFillingConfig> getGapFillingConfig() {
+        return jsonConfig;
     }
 
     @Override
@@ -223,7 +233,8 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         OFFSET("Value Offset"),
         VALUE("Value"),
         GAP_FILLING("Gap Filling"),
-        ENABLED("Enabled");
+        ENABLED("Enabled"),
+        GAP_FILLING_CONFIG("Gap Filling Config");
 
         private final String attributeName;
 

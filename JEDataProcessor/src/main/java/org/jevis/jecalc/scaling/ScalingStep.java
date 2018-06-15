@@ -5,20 +5,20 @@
  */
 package org.jevis.jecalc.scaling;
 
-import org.jevis.jecalc.workflow.ProcessStep;
-import org.jevis.jecalc.data.ResourceManager;
-import org.jevis.jecalc.data.CleanInterval;
-import org.jevis.jecalc.data.CleanDataAttribute;
-import java.util.List;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.jecalc.data.CleanDataAttribute;
+import org.jevis.jecalc.data.CleanInterval;
+import org.jevis.jecalc.data.ResourceManager;
+import org.jevis.jecalc.workflow.ProcessStep;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
- *
  * @author broder
  */
 public class ScalingStep implements ProcessStep {

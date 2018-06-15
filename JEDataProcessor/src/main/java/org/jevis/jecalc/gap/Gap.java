@@ -5,31 +5,43 @@
  */
 package org.jevis.jecalc.gap;
 
-import java.util.HashMap;
 import org.jevis.jecalc.data.CleanInterval;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import static org.jevis.jecalc.gap.Gap.GapAttribute.DEFAULT_VALUE;
 
 /**
- *
  * @author broder
  */
 public interface Gap {
 
-    public void addInterval(CleanInterval currentInterval);
+    void addInterval(CleanInterval currentInterval);
 
-    public void setLastValue(Double rawValue);
+    List<CleanInterval> getIntervals();
 
-    public void setFirstValue(Double lastValue);
+    Double getFirstValue();
 
-    public List<CleanInterval> getIntervals();
+    void setFirstValue(Double lastValue);
 
-    public Double getFirstValue();
+    Double getLastValue();
 
-    public Double getLastValue();
+    void setLastValue(Double rawValue);
 
-    public class GapStrategy {
+    enum GapMode {
+
+        NONE, STATIC, INTERPOLATION, DEFAULT
+
+    }
+
+    enum GapAttribute {
+
+        DEFAULT_VALUE
+    }
+
+    class GapStrategy {
 
         private final GapMode gapMode;
         private final Map<GapAttribute, String> attributeMap = new HashMap<>();
@@ -51,16 +63,5 @@ public interface Gap {
             return attributeMap.get(gapAttribute);
         }
 
-    }
-
-    public enum GapMode {
-
-        NONE, STATIC, INTERPOLATION, DEFAULT;
-
-    }
-
-    public enum GapAttribute {
-
-        DEFAULT_VALUE;
     }
 }

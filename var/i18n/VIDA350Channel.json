@@ -10,9 +10,9 @@
     {
       "type": "Index",
       "descriptions": {
-        "de": "Index desctiption",
-        "ru": "Index desctiption",
-        "en": "Index desctiption"
+        "de": "Index description",
+        "ru": "Index description",
+        "en": "Index description"
       },
       "names": {
         "de": "Index",
@@ -23,9 +23,9 @@
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout desctiption",
-        "ru": "Last Readout desctiption",
-        "en": "Last Readout desctiption"
+        "de": "Last Readout description",
+        "ru": "Last Readout description",
+        "en": "Last Readout description"
       },
       "names": {
         "de": "Last Readout",
@@ -36,9 +36,9 @@
     {
       "type": "Target",
       "descriptions": {
-        "de": "Target desctiption",
-        "ru": "Target desctiption",
-        "en": "Target desctiption"
+        "de": "Target description",
+        "ru": "Target description",
+        "en": "Target description"
       },
       "names": {
         "de": "Target",

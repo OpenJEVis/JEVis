@@ -10,9 +10,9 @@
     {
       "type": "Mapping Identifier",
       "descriptions": {
-        "de": "Mapping Identifier desctiption",
-        "ru": "Mapping Identifier desctiption",
-        "en": "Mapping Identifier desctiption"
+        "de": "Mapping Identifier description",
+        "ru": "Mapping Identifier description",
+        "en": "Mapping Identifier description"
       },
       "names": {
         "de": "Mapping Identifier",
@@ -23,9 +23,9 @@
     {
       "type": "Target",
       "descriptions": {
-        "de": "Target desctiption",
-        "ru": "Target desctiption",
-        "en": "Target desctiption"
+        "de": "Target description",
+        "ru": "Target description",
+        "en": "Target description"
       },
       "names": {
         "de": "Target",
@@ -36,9 +36,9 @@
     {
       "type": "Value Index",
       "descriptions": {
-        "de": "Value Index desctiption",
-        "ru": "Value Index desctiption",
-        "en": "Value Index desctiption"
+        "de": "Value Index description",
+        "ru": "Value Index description",
+        "en": "Value Index description"
       },
       "names": {
         "de": "Value Index",

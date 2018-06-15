@@ -51,30 +51,13 @@ public class UnitManager {
     private HashMap<Unit, String> dimNames;
     private HashMap<JEVisUnit, String> _dimNamesJUnit;
 
-    public interface PrefixName {
+    public static JEVisUnit cloneUnit(JEVisUnit unit) {
 
-        //TODO: remove this
-        public static String ZETTA = "Zetta";
-        public static String EXA = "Exa";
-        public static String PETA = "Peta";
-        public static String TERA = "Tera";
-        public static String GIGA = "Giga";
-        public static String MEGA = "Mega";
-        public static String KILO = "Kilo";
-        public static String HECTO = "Hecto";
-        public static String DEKA = "Deka";
-        public static String DECI = "Deci";
-        public static String CENTI = "Centi";
-        public static String MILLI = "Milli";
-        public static String MICRO = "Micro";
-        public static String NANO = "Nano";
-        public static String PICO = "Pico";
-        public static String FEMTO = "Femto";
-        public static String ATTO = "Atto";
-        public static String ZEPTO = "Zepto";
-        public static String YOCTO = "Yocto";
-        public static String NONE = "None";
-
+        JEVisUnit clone = new JEVisUnitImp();
+        clone.setFormula(unit.getFormula());
+        clone.setLabel(unit.getLabel());
+        clone.setPrefix(unit.getPrefix());
+        return clone;
     }
 
     /* A private Constructor prevents any other
@@ -666,7 +649,7 @@ public class UnitManager {
         additonalUnits.add(SI.CENTIMETER.pow(2));
         additonalUnits.add(SI.KILOMETER.pow(2));
 
-        additonalUnits.add(Dimensionless.UNIT.ONE.times(1E-6));//ppm
+        additonalUnits.add(Unit.ONE.times(1E-6));//ppm
 
         additonalUnits.add(SI.KILO(SI.WATT).times(NonSI.HOUR.times(SI.SECOND).times(Unit.ONE)));
 
@@ -1197,13 +1180,30 @@ public class UnitManager {
         return list;
     }
 
-    public static JEVisUnit cloneUnit(JEVisUnit unit) {
+    public interface PrefixName {
 
-        JEVisUnit clone = new JEVisUnitImp();
-        clone.setFormula(unit.getFormula());
-        clone.setLabel(unit.getLabel());
-        clone.setPrefix(unit.getPrefix());
-        return clone;
+        //TODO: remove this
+        String ZETTA = "Zetta";
+        String EXA = "Exa";
+        String PETA = "Peta";
+        String TERA = "Tera";
+        String GIGA = "Giga";
+        String MEGA = "Mega";
+        String KILO = "Kilo";
+        String HECTO = "Hecto";
+        String DEKA = "Deka";
+        String DECI = "Deci";
+        String CENTI = "Centi";
+        String MILLI = "Milli";
+        String MICRO = "Micro";
+        String NANO = "Nano";
+        String PICO = "Pico";
+        String FEMTO = "Femto";
+        String ATTO = "Atto";
+        String ZEPTO = "Zepto";
+        String YOCTO = "Yocto";
+        String NONE = "None";
+
     }
 
 }

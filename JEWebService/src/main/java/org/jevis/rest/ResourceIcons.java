@@ -6,7 +6,6 @@
 package org.jevis.rest;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisException;
 import org.jevis.ws.sql.SQLDataSource;
 
 import javax.security.sasl.AuthenticationException;
@@ -39,7 +38,7 @@ public class ResourceIcons {
     public Response get(
             @Context HttpHeaders httpHeaders,
             @Context Request request,
-            @Context UriInfo url) throws JEVisException {
+            @Context UriInfo url) {
 
         SQLDataSource ds = null;
         try {
@@ -64,10 +63,7 @@ public class ResourceIcons {
             FileFilter ff = new FileFilter() {
                 @Override
                 public boolean accept(File pathname) {
-                    if (pathname.getName().endsWith(".png")) {
-                        return true;
-                    }
-                    return false;
+                    return pathname.getName().endsWith(".png");
                 }
             };
             for (File imageFile : Config.getClassDir().listFiles(ff)) {

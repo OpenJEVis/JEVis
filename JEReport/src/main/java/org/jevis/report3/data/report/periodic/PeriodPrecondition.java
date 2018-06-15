@@ -5,7 +5,6 @@
  */
 package org.jevis.report3.data.report.periodic;
 
-import javax.inject.Inject;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.report3.DateHelper;
@@ -14,6 +13,8 @@ import org.jevis.report3.data.report.ReportConfiguration;
 import org.jevis.report3.data.report.ReportProperty;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+
+import javax.inject.Inject;
 
 /**
  *
@@ -37,10 +38,6 @@ public class PeriodPrecondition implements Precondition {
         DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
         DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule);
 
-        if (endRecord != null) {
-            return true;
-            //return endRecord.isBefore(new DateTime());
-        }
-        return false;
+        return endRecord != null;
     }
 }

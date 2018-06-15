@@ -14,9 +14,9 @@
     {
       "type": "Chiller Control",
       "descriptions": {
-        "de": "Chiller Control desctiption",
-        "ru": "Chiller Control desctiption",
-        "en": "Chiller Control desctiption"
+        "de": "Chiller Control description",
+        "ru": "Chiller Control description",
+        "en": "Chiller Control description"
       },
       "names": {
         "de": "Chiller Control",
@@ -27,9 +27,9 @@
     {
       "type": "Composite or single Plant",
       "descriptions": {
-        "de": "Composite or single Plant desctiption",
-        "ru": "Composite or single Plant desctiption",
-        "en": "Composite or single Plant desctiption"
+        "de": "Composite or single Plant description",
+        "ru": "Composite or single Plant description",
+        "en": "Composite or single Plant description"
       },
       "names": {
         "de": "Composite or single Plant",
@@ -40,9 +40,9 @@
     {
       "type": "Cooling Capacity",
       "descriptions": {
-        "de": "Cooling Capacity desctiption",
-        "ru": "Cooling Capacity desctiption",
-        "en": "Cooling Capacity desctiption"
+        "de": "Cooling Capacity description",
+        "ru": "Cooling Capacity description",
+        "en": "Cooling Capacity description"
       },
       "names": {
         "de": "Cooling Capacity",
@@ -53,9 +53,9 @@
     {
       "type": "Daily Operating Hours",
       "descriptions": {
-        "de": "Daily Operating Hours desctiption",
-        "ru": "Daily Operating Hours desctiption",
-        "en": "Daily Operating Hours desctiption"
+        "de": "Daily Operating Hours description",
+        "ru": "Daily Operating Hours description",
+        "en": "Daily Operating Hours description"
       },
       "names": {
         "de": "Daily Operating Hours",
@@ -66,9 +66,9 @@
     {
       "type": "Energy Source",
       "descriptions": {
-        "de": "Energy Source desctiption",
-        "ru": "Energy Source desctiption",
-        "en": "Energy Source desctiption"
+        "de": "Energy Source description",
+        "ru": "Energy Source description",
+        "en": "Energy Source description"
       },
       "names": {
         "de": "Energy Source",
@@ -79,9 +79,9 @@
     {
       "type": "Heat Recovery",
       "descriptions": {
-        "de": "Heat Recovery desctiption",
-        "ru": "Heat Recovery desctiption",
-        "en": "Heat Recovery desctiption"
+        "de": "Heat Recovery description",
+        "ru": "Heat Recovery description",
+        "en": "Heat Recovery description"
       },
       "names": {
         "de": "Heat Recovery",
@@ -92,9 +92,9 @@
     {
       "type": "Manufacturer",
       "descriptions": {
-        "de": "Manufacturer desctiption",
-        "ru": "Manufacturer desctiption",
-        "en": "Manufacturer desctiption"
+        "de": "Manufacturer description",
+        "ru": "Manufacturer description",
+        "en": "Manufacturer description"
       },
       "names": {
         "de": "Manufacturer",
@@ -105,9 +105,9 @@
     {
       "type": "Measuring Point",
       "descriptions": {
-        "de": "Measuring Point desctiption",
-        "ru": "Measuring Point desctiption",
-        "en": "Measuring Point desctiption"
+        "de": "Measuring Point description",
+        "ru": "Measuring Point description",
+        "en": "Measuring Point description"
       },
       "names": {
         "de": "Measuring Point",
@@ -118,9 +118,9 @@
     {
       "type": "Nominal Power",
       "descriptions": {
-        "de": "Nominal Power desctiption",
-        "ru": "Nominal Power desctiption",
-        "en": "Nominal Power desctiption"
+        "de": "Nominal Power description",
+        "ru": "Nominal Power description",
+        "en": "Nominal Power description"
       },
       "names": {
         "de": "Nominal Power",
@@ -131,9 +131,9 @@
     {
       "type": "Number of Compressors",
       "descriptions": {
-        "de": "Number of Compressors desctiption",
-        "ru": "Number of Compressors desctiption",
-        "en": "Number of Compressors desctiption"
+        "de": "Number of Compressors description",
+        "ru": "Number of Compressors description",
+        "en": "Number of Compressors description"
       },
       "names": {
         "de": "Number of Compressors",
@@ -144,9 +144,9 @@
     {
       "type": "Performance Number Compressor",
       "descriptions": {
-        "de": "Performance Number Compressor desctiption",
-        "ru": "Performance Number Compressor desctiption",
-        "en": "Performance Number Compressor desctiption"
+        "de": "Performance Number Compressor description",
+        "ru": "Performance Number Compressor description",
+        "en": "Performance Number Compressor description"
       },
       "names": {
         "de": "Performance Number Compressor",
@@ -157,9 +157,9 @@
     {
       "type": "Power",
       "descriptions": {
-        "de": "Power desctiption",
-        "ru": "Power desctiption",
-        "en": "Power desctiption"
+        "de": "Power description",
+        "ru": "Power description",
+        "en": "Power description"
       },
       "names": {
         "de": "Power",
@@ -170,9 +170,9 @@
     {
       "type": "Refrigerant",
       "descriptions": {
-        "de": "Refrigerant desctiption",
-        "ru": "Refrigerant desctiption",
-        "en": "Refrigerant desctiption"
+        "de": "Refrigerant description",
+        "ru": "Refrigerant description",
+        "en": "Refrigerant description"
       },
       "names": {
         "de": "Refrigerant",
@@ -183,9 +183,9 @@
     {
       "type": "Remark",
       "descriptions": {
-        "de": "Remark desctiption",
-        "ru": "Remark desctiption",
-        "en": "Remark desctiption"
+        "de": "Remark description",
+        "ru": "Remark description",
+        "en": "Remark description"
       },
       "names": {
         "de": "Remark",
@@ -196,9 +196,9 @@
     {
       "type": "Served Area",
       "descriptions": {
-        "de": "Served Area desctiption",
-        "ru": "Served Area desctiption",
-        "en": "Served Area desctiption"
+        "de": "Served Area description",
+        "ru": "Served Area description",
+        "en": "Served Area description"
       },
       "names": {
         "de": "Served Area",
@@ -209,9 +209,9 @@
     {
       "type": "Standby Consumption",
       "descriptions": {
-        "de": "Standby Consumption desctiption",
-        "ru": "Standby Consumption desctiption",
-        "en": "Standby Consumption desctiption"
+        "de": "Standby Consumption description",
+        "ru": "Standby Consumption description",
+        "en": "Standby Consumption description"
       },
       "names": {
         "de": "Standby Consumption",
@@ -222,9 +222,9 @@
     {
       "type": "Type",
       "descriptions": {
-        "de": "Type desctiption",
-        "ru": "Type desctiption",
-        "en": "Type desctiption"
+        "de": "Type description",
+        "ru": "Type description",
+        "en": "Type description"
       },
       "names": {
         "de": "Type",
@@ -235,9 +235,9 @@
     {
       "type": "Weighting Factor",
       "descriptions": {
-        "de": "Weighting Factor desctiption",
-        "ru": "Weighting Factor desctiption",
-        "en": "Weighting Factor desctiption"
+        "de": "Weighting Factor description",
+        "ru": "Weighting Factor description",
+        "en": "Weighting Factor description"
       },
       "names": {
         "de": "Weighting Factor",
@@ -248,9 +248,9 @@
     {
       "type": "Work Weeks",
       "descriptions": {
-        "de": "Work Weeks desctiption",
-        "ru": "Work Weeks desctiption",
-        "en": "Work Weeks desctiption"
+        "de": "Work Weeks description",
+        "ru": "Work Weeks description",
+        "en": "Work Weeks description"
       },
       "names": {
         "de": "Work Weeks",
@@ -261,9 +261,9 @@
     {
       "type": "Working Days",
       "descriptions": {
-        "de": "Working Days desctiption",
-        "ru": "Working Days desctiption",
-        "en": "Working Days desctiption"
+        "de": "Working Days description",
+        "ru": "Working Days description",
+        "en": "Working Days description"
       },
       "names": {
         "de": "Working Days",
@@ -274,9 +274,9 @@
     {
       "type": "Year and Serial Number",
       "descriptions": {
-        "de": "Year and Serial Number desctiption",
-        "ru": "Year and Serial Number desctiption",
-        "en": "Year and Serial Number desctiption"
+        "de": "Year and Serial Number description",
+        "ru": "Year and Serial Number description",
+        "en": "Year and Serial Number description"
       },
       "names": {
         "de": "Year and Serial Number",

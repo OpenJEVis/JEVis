@@ -5,14 +5,14 @@
  */
 package org.jevis.jecalc.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author broder
  */
 public class CleanInterval {

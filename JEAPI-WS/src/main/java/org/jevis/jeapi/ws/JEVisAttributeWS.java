@@ -225,11 +225,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public boolean hasSample() {
-        if (getTimestampFromFirstSample() != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return getTimestampFromFirstSample() != null;
     }
 
     @Override
@@ -251,13 +247,13 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public boolean deleteAllSample() throws JEVisException {
+    public boolean deleteAllSample() {
 
         return deleteSamplesBetween(null, null);
     }
 
     @Override
-    public boolean deleteSamplesBetween(DateTime from, DateTime to) throws JEVisException {
+    public boolean deleteSamplesBetween(DateTime from, DateTime to) {
         try {
             logger.trace("Delete samples for: {}", getName());
 
@@ -292,18 +288,14 @@ public class JEVisAttributeWS implements JEVisAttribute {
             Gson gson = new Gson();
             HttpURLConnection conn = ds.getHTTPConnection().getDeleteConnection(resource);
 
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return true;
-            } else {
-                return false;
-            }
+            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
         } catch (Exception ex) {
             return false;
         }
     }
 
     @Override
-    public JEVisUnit getDisplayUnit() throws JEVisException {
+    public JEVisUnit getDisplayUnit() {
         try {
             return new JEVisUnitImp(json.getDisplayUnit());
         } catch (Exception ex) {
@@ -312,12 +304,12 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public void setDisplayUnit(JEVisUnit unit) throws JEVisException {
+    public void setDisplayUnit(JEVisUnit unit) {
         json.setDisplayUnit(JsonFactory.buildUnit(unit));
     }
 
     @Override
-    public JEVisUnit getInputUnit() throws JEVisException {
+    public JEVisUnit getInputUnit() {
         try {
             return new JEVisUnitImp(json.getInputUnit());
         } catch (Exception ex) {
@@ -326,7 +318,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public void setInputUnit(JEVisUnit unit) throws JEVisException {
+    public void setInputUnit(JEVisUnit unit) {
         json.setInputUnit(JsonFactory.buildUnit(unit));
     }
 
@@ -397,7 +389,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public JEVisDataSource getDataSource() throws JEVisException {
+    public JEVisDataSource getDataSource() {
         return ds;
     }
 
@@ -426,7 +418,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public void rollBack() throws JEVisException {
+    public void rollBack() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

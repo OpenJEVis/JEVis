@@ -13,7 +13,8 @@ public class ReportConfiguration {
 
     //attributes
     //date format
-    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    //public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     //notification configs
     public static final Long REPORT_DRIVER_OBJECT_ID = 4158l;

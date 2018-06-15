@@ -79,7 +79,7 @@ public class HTTPConnection {
         conn.setRequestProperty("Authorization", "Basic " + auth);
     }
 
-    public InputStream getInputStreamRequest(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public InputStream getInputStreamRequest(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -108,7 +108,7 @@ public class HTTPConnection {
 
     }
 
-    public BufferedImage getIconRequest(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public BufferedImage getIconRequest(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -142,7 +142,7 @@ public class HTTPConnection {
 
     }
 
-    public byte[] getByteRequest(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public byte[] getByteRequest(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -160,21 +160,24 @@ public class HTTPConnection {
         int responseCode = conn.getResponseCode();
 
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
-//        logger.trace("resonseCode {}", responseCode);
+        logger.trace("responseCode {}", responseCode);
+      
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             byte[] bytes = IOUtils.toByteArray(conn.getInputStream());
+
 //            JEVisFile jf = new JEVisFileImp("tmp.file", bytes);//filename comes from the samples
 
             return bytes;
 
         } else {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!! Not file");
             return null;
         }
 
     }
 
-    public StringBuffer postRequest(String resource, String json) throws MalformedURLException, ProtocolException, IOException, JEVisException {
+    public StringBuffer postRequest(String resource, String json) throws IOException, JEVisException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -239,7 +242,7 @@ public class HTTPConnection {
 
     }
 
-    public StringBuffer getRequest(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public StringBuffer getRequest(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -365,7 +368,7 @@ public class HTTPConnection {
 
     }
 
-    public HttpURLConnection getGetConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public HttpURLConnection getGetConnection(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
@@ -386,7 +389,7 @@ public class HTTPConnection {
 
     }
 
-    public HttpURLConnection getDeleteConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
+    public HttpURLConnection getDeleteConnection(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");

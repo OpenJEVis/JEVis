@@ -67,35 +67,8 @@ public class NewObjectDialog {
     private String createName = "No Name";
     private boolean userSetName = false;
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
-
-    public static enum Type {
-
-        NEW, RENAME
-    }
-
-    public static enum Response {
-
-        NO, YES, CANCEL
-    }
-
     private Response response = Response.CANCEL;
-    private ObjectProperty<Response> respnoneProperty = new SimpleObjectProperty<>(response);
-
-    public int getCreateCount() {
-        if (createCount > 0 && createCount < 100) {
-            return createCount;
-        } else {
-            return 1;
-        }
-    }
-
-    public String getCreateName() {
-        return createName;
-    }
-
-    public JEVisClass getCreateClass() {
-        return createClass;
-    }
+    private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
 
     /**
      * @param owner
@@ -316,6 +289,32 @@ public class NewObjectDialog {
 
 
         return response;
+    }
+
+    public int getCreateCount() {
+        if (createCount > 0 && createCount < 100) {
+            return createCount;
+        } else {
+            return 1;
+        }
+    }
+
+    public String getCreateName() {
+        return createName;
+    }
+
+    public JEVisClass getCreateClass() {
+        return createClass;
+    }
+
+    public enum Type {
+
+        NEW, RENAME
+    }
+
+    public enum Response {
+
+        NO, YES, CANCEL
     }
 
 

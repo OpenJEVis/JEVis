@@ -6,14 +6,6 @@
 package org.jevis.report3;
 
 import com.google.inject.Injector;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -27,6 +19,15 @@ import org.jevis.report3.policy.ReportPolicy;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  *
@@ -62,7 +63,7 @@ public class ReportLauncher {
         logger.info("connect to jevis server");
         establishConnection();
 
-        createObjects();
+        //createObjects();
 
         JEVisCommandLine cmd = JEVisCommandLine.getInstance();
         List<JEVisObject> reportObjects = new ArrayList<>();
@@ -122,7 +123,7 @@ public class ReportLauncher {
 
     private void createObjects() {
         try {
-            Path path = Paths.get("/Users/broder/Downloads/CineStar_Kundenexport_senkrecht_AdHoc_2017.06.28_102224.csv");
+            Path path = Paths.get("");
             List<String> lines = Files.readAllLines(path,StandardCharsets.ISO_8859_1);
             int curLine = 0;
             List<String> dps = new ArrayList<>();

@@ -14,9 +14,9 @@
     {
       "type": "Attribute Name",
       "descriptions": {
-        "de": "Attribute Name desctiption",
-        "ru": "Attribute Name desctiption",
-        "en": "Attribute Name desctiption"
+        "de": "Attribute Name description",
+        "ru": "Attribute Name description",
+        "en": "Attribute Name description"
       },
       "names": {
         "de": "Attribute Name",

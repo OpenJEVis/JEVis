@@ -19,17 +19,16 @@
  */
 package org.jevis.jeconfig;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Locale;
-
 import javafx.application.Application;
 import org.jevis.api.JEVisOption;
 import org.jevis.application.ParameterHelper;
 import org.jevis.commons.config.OptionFactory;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This class holds the configutraion for the JEConfig.
@@ -55,19 +54,18 @@ public class Configuration {
 //    private final String _defaultServerURL = "user:password@server:3306/jevis";
     private File lastPath = null;
     private File lastFile = null;
-    private Locale appLoccale=Locale.getDefault();
+    private Locale appLoccale = Locale.getDefault();
 
-    public static enum COLORS {
-
-        BACKGROUND
-    }
-
-
-    public void setLocale(Locale locale){
-        appLoccale=locale;
-    }
-    public Locale getLocale(){
+    public Locale getLocale() {
         return appLoccale;
+    }
+
+    public void setLocale(Locale locale) {
+        appLoccale = locale;
+    }
+
+    public URI getWelcomeURL() throws URISyntaxException {
+        return new URI(_welcomeURL);
     }
 
     public File getLastFile(){
@@ -117,8 +115,9 @@ public class Configuration {
         return _loginIcon;
     }
 
-    public URI getWelcomeURL() throws MalformedURLException, URISyntaxException {
-        return new URI(_welcomeURL);
+    public enum COLORS {
+
+        BACKGROUND
     }
 
     public String getWatermark() {

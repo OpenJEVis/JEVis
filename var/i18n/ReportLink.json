@@ -14,9 +14,9 @@
     {
       "type": "JEVis ID",
       "descriptions": {
-        "de": "JEVis ID desctiption",
-        "ru": "JEVis ID desctiption",
-        "en": "JEVis ID desctiption"
+        "de": "JEVis ID description",
+        "ru": "JEVis ID description",
+        "en": "JEVis ID description"
       },
       "names": {
         "de": "JEVis ID",
@@ -27,9 +27,9 @@
     {
       "type": "Optional",
       "descriptions": {
-        "de": "Optional desctiption",
-        "ru": "Optional desctiption",
-        "en": "Optional desctiption"
+        "de": "Optional description",
+        "ru": "Optional description",
+        "en": "Optional description"
       },
       "names": {
         "de": "Optional",
@@ -40,9 +40,9 @@
     {
       "type": "Template Variable Name",
       "descriptions": {
-        "de": "Template Variable Name desctiption",
-        "ru": "Template Variable Name desctiption",
-        "en": "Template Variable Name desctiption"
+        "de": "Template Variable Name description",
+        "ru": "Template Variable Name description",
+        "en": "Template Variable Name description"
       },
       "names": {
         "de": "Template Variable Name",

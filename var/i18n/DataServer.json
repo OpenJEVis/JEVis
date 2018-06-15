@@ -5,17 +5,21 @@
     "ru": "Data Server",
     "en": "Data Server"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Ein Datenserver ist eine Datenquelle, welche über TCP/IP kommuniziert.",
+    "ru": "",
+    "en": "A Data Server is a data source communicating via TCP/IP"
+  },
   "types": [
     {
       "type": "Connection Timeout",
       "descriptions": {
-        "de": "Verbindungs-Time-out in Sekunden",
-        "ru": "Connection Timeout desctiption",
-        "en": "Connection Timeout desctiption"
+        "de": "Bestimmt die Wartezeit eines Verbindungsaufbaus. Der Verbindungsaufbau wird abgebrochen, wenn das Verbindungszeitlimit überschritten wird.",
+        "ru": "Connection Timeout description",
+        "en": "Defines the time limit for establishing a connection. The connection process will be cancelled when the Connection Timeout is reached."
       },
       "names": {
-        "de": "Verbindungs-Time-out",
+        "de": "Verbindungszeitlimit",
         "ru": "Connection Timeout",
         "en": "Connection Timeout"
       }
@@ -23,9 +27,9 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Aktiviert die Geräteauslesung",
+        "de": "Aktiviert/Deaktiviert den Datenserver",
         "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "en": "Enables/Disables the Data Server"
       },
       "names": {
         "de": "Aktiviert",
@@ -36,9 +40,9 @@
     {
       "type": "Host",
       "descriptions": {
-        "de": "Host desctiption",
+        "de": "Hostname oder IP-Adresse des Datenservers",
         "ru": "Host desctiption",
-        "en": "Host desctiption"
+        "en": "Host name or IP address of the Data Server"
       },
       "names": {
         "de": "Host",
@@ -49,22 +53,22 @@
     {
       "type": "Manual Trigger",
       "descriptions": {
-        "de": "Manual Trigger desctiption",
+        "de": "Ermöglicht das manuelle Auslösen der Datenauslesung",
         "ru": "Manual Trigger desctiption",
-        "en": "Manual Trigger desctiption"
+        "en": "Allows the manual trigger of the data read-out"
       },
       "names": {
         "de": "Manual Trigger",
-        "ru": "Manual Trigger",
+        "ru": "Manueller Auslöser",
         "en": "Manual Trigger"
       }
     },
     {
       "type": "Port",
       "descriptions": {
-        "de": "Port desctiption",
+        "de": "IP-Port des Datenservers",
         "ru": "Port desctiption",
-        "en": "Port desctiption"
+        "en": "IP-Port of the Data Server"
       },
       "names": {
         "de": "Port",
@@ -75,12 +79,12 @@
     {
       "type": "Read Timeout",
       "descriptions": {
-        "de": "Read Timeout desctiption",
+        "de": "Bestimmt die Wartezeit einer Datenauslesung. Die Datenauslesung wird abgebrochen, wenn das Auslesezeitlimit überschritten wird.",
         "ru": "Read Timeout desctiption",
-        "en": "Read Timeout desctiption"
+        "en": "Defines the time limit for a data read-out. The read-out process will be cancelled when the Readout Timeout is reached."
       },
       "names": {
-        "de": "Read Timeout",
+        "de": "Auslesezeitlimit",
         "ru": "Read Timeout",
         "en": "Read Timeout"
       }
@@ -88,12 +92,12 @@
     {
       "type": "Timezone",
       "descriptions": {
-        "de": "Timezone desctiption",
+        "de": "Bestimmt die Zeitzone des Datenservers",
         "ru": "Timezone desctiption",
-        "en": "Timezone desctiption"
+        "en": "Defines the timezone of the Data Server"
       },
       "names": {
-        "de": "Timezone",
+        "de": "Zeitzone",
         "ru": "Timezone",
         "en": "Timezone"
       }

@@ -14,9 +14,9 @@
     {
       "type": "Path",
       "descriptions": {
-        "de": "Path desctiption",
-        "ru": "Path desctiption",
-        "en": "Path desctiption"
+        "de": "Path description",
+        "ru": "Path description",
+        "en": "Path description"
       },
       "names": {
         "de": "Path",

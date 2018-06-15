@@ -5,19 +5,15 @@
  */
 package org.jevis.jecalc.calculation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.VirtuelSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.jecalc.calculation.SampleMerger.InputType;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.*;
 
 /**
  *
@@ -28,13 +24,13 @@ public class SampleMergerTest {
     SampleMerger drMerger;
 
     @Before
-    public void setUp() throws JEVisException {
+    public void setUp() {
         drMerger = new SampleMerger();
 
     }
 
     @Test
-    public void shouldContainAllDates() throws JEVisException {
+    public void shouldContainAllDates() {
         List<JEVisSample> samples1 = JEVisSampleCreator.getSamples(15, new DateTime(2000, 1, 1, 0, 0), new DateTime(2000, 1, 1, 2, 0));
         List<JEVisSample> samples2 = JEVisSampleCreator.getSamples(30, new DateTime(2000, 1, 1, 1, 0), new DateTime(2000, 1, 1, 3, 0));
         drMerger.addSamples(samples1, "server1", InputType.PERIODIC);
@@ -51,30 +47,30 @@ public class SampleMergerTest {
     }
 
     @Test
-    public void shouldAddConstant() throws JEVisException {
+    public void shouldAddConstant() {
         List<JEVisSample> samples1 = JEVisSampleCreator.getSamples(15, new DateTime(2000, 1, 1, 0, 0), new DateTime(2000, 1, 1, 2, 0));
         List<JEVisSample> samples2 = JEVisSampleCreator.getSamples(30, new DateTime(2000, 1, 1, 1, 0), new DateTime(2000, 1, 1, 3, 0));
         drMerger.addSamples(samples1, "server1", InputType.PERIODIC);
         drMerger.addSamples(samples2, "server2", InputType.PERIODIC);
-        JEVisSample currentSample = new VirtuelSample(new DateTime(2000, 1, 1, 1, 0), 5.0);
+        JEVisSample currentSample = new VirtualSample(new DateTime(2000, 1, 1, 1, 0), 5.0);
         drMerger.addSamples(Arrays.asList(currentSample), "constant", InputType.STATIC);
         mergeAndCompareResults(3, 3);
     }
 
     @Test
-    public void shouldAddPeriodConstant() throws JEVisException {
+    public void shouldAddPeriodConstant() {
         List<JEVisSample> samples1 = JEVisSampleCreator.getSamples(15, new DateTime(2000, 1, 1, 0, 0), new DateTime(2000, 1, 1, 3, 0));
         List<JEVisSample> samples2 = JEVisSampleCreator.getSamples(15, new DateTime(2000, 1, 1, 1, 0), new DateTime(2000, 1, 1, 3, 0));
         drMerger.addSamples(samples1, "server1", InputType.PERIODIC);
         drMerger.addSamples(samples2, "server2", InputType.PERIODIC);
-        JEVisSample currentSample1 = new VirtuelSample(new DateTime(2000, 1, 1, 1, 0), 5.0);
-        JEVisSample currentSample2 = new VirtuelSample(new DateTime(2000, 1, 1, 2, 0), 10.0);
+        JEVisSample currentSample1 = new VirtualSample(new DateTime(2000, 1, 1, 1, 0), 5.0);
+        JEVisSample currentSample2 = new VirtualSample(new DateTime(2000, 1, 1, 2, 0), 10.0);
         drMerger.addSamples(Arrays.asList(currentSample1, currentSample2), "constant", InputType.NON_PERIODIC);
         mergeAndCompareResults(9, 3);
     }
 
     @Test
-    public void shouldMergeTwoNotScheduleEqualDatarows() throws JEVisException {
+    public void shouldMergeTwoNotScheduleEqualDatarows() {
         List<JEVisSample> samples1 = JEVisSampleCreator.getSamples(15, new DateTime(2000, 1, 1, 0, 0), new DateTime(2000, 1, 1, 2, 0));
         List<JEVisSample> samples2 = JEVisSampleCreator.getSamples(30, new DateTime(2000, 1, 1, 1, 0), new DateTime(2000, 1, 1, 3, 0));
         drMerger.addSamples(samples1, "server1", InputType.PERIODIC);

@@ -50,43 +50,43 @@ public class JEVisTypeWS implements JEVisType {
     }
 
     @Override
-    public String getName() throws JEVisException {
+    public String getName() {
         return json.getName();
     }
 
     @Override
-    public void setName(String name) throws JEVisException {
+    public void setName(String name) {
         json.setName(name);
     }
 
     @Override
-    public int getPrimitiveType() throws JEVisException {
+    public int getPrimitiveType() {
         return json.getPrimitiveType();
     }
 
     @Override
-    public void setPrimitiveType(int type) throws JEVisException {
+    public void setPrimitiveType(int type) {
         json.setPrimitiveType(type);
     }
 
     @Override
-    public String getGUIDisplayType() throws JEVisException {
+    public String getGUIDisplayType() {
         return json.getGuiType();
     }
 
     @Override
-    public void setGUIDisplayType(String type) throws JEVisException {
+    public void setGUIDisplayType(String type) {
         json.setGuiType(type);
     }
 
     @Override
-    public void setGUIPosition(int pos) throws JEVisException {
-        json.setGUIPosition(pos);
+    public int getGUIPosition() {
+        return json.getGUIPosition();
     }
 
     @Override
-    public int getGUIPosition() throws JEVisException {
-        return json.getGUIPosition();
+    public void setGUIPosition(int pos) {
+        json.setGUIPosition(pos);
     }
 
     @Override
@@ -95,59 +95,59 @@ public class JEVisTypeWS implements JEVisType {
     }
 
     @Override
-    public int getValidity() throws JEVisException {
+    public int getValidity() {
         return json.getValidity();
     }
 
     @Override
-    public void setValidity(int validity) throws JEVisException {
+    public void setValidity(int validity) {
         json.setValidity(validity);
     }
 
     @Override
-    public String getConfigurationValue() throws JEVisException {
+    public String getConfigurationValue() {
         return "";
     }
 
     @Override
-    public void setConfigurationValue(String value) throws JEVisException {
+    public void setConfigurationValue(String value) {
     }
 
     @Override
-    public void setUnit(JEVisUnit unit) throws JEVisException {
-    }
-
-    @Override
-    public JEVisUnit getUnit() throws JEVisException {
+    public JEVisUnit getUnit() {
         return new JEVisUnitImp(Unit.ONE);
     }
 
     @Override
-    public String getAlternativSymbol() throws JEVisException {
+    public void setUnit(JEVisUnit unit) {
+    }
+
+    @Override
+    public String getAlternativSymbol() {
         return "";
     }
 
     @Override
-    public void setAlternativSymbol(String symbol) throws JEVisException {
+    public void setAlternativSymbol(String symbol) {
     }
 
     @Override
-    public String getDescription() throws JEVisException {
+    public String getDescription() {
         return json.getDescription();
     }
 
     @Override
-    public void setDescription(String discription) throws JEVisException {
+    public void setDescription(String discription) {
         json.setDescription(discription);
     }
 
     @Override
-    public boolean delete() throws JEVisException {
+    public boolean delete() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public JEVisDataSource getDataSource() throws JEVisException {
+    public JEVisDataSource getDataSource() {
         return ds;
     }
 
@@ -157,7 +157,7 @@ public class JEVisTypeWS implements JEVisType {
     }
 
     @Override
-    public void rollBack() throws JEVisException {
+    public void rollBack() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -178,17 +178,17 @@ public class JEVisTypeWS implements JEVisType {
     }
 
     @Override
-    public String getJEVisClassName() throws JEVisException {
+    public String getJEVisClassName() {
         return jclass;
     }
 
     @Override
-    public boolean isInherited() throws JEVisException {
+    public boolean isInherited() {
         return json.getInherited();
     }
 
     @Override
-    public void setInherited(boolean inherited) throws JEVisException {
+    public void setInherited(boolean inherited) {
         json.setInherited(inherited);
     }
 
@@ -206,10 +206,7 @@ public class JEVisTypeWS implements JEVisType {
             if ((this.getName() == null) ? (other.getName() != null) : !this.getName().equals(other.getName())) {
                 return false;
             }
-            if (this.getJEVisClass() != other.getJEVisClass() && (this.getJEVisClass() == null || !this.getJEVisClass().equals(other.getJEVisClass()))) {
-                return false;
-            }
-            return true;
+            return this.getJEVisClass() == other.getJEVisClass() || (this.getJEVisClass() != null && this.getJEVisClass().equals(other.getJEVisClass()));
         } catch (Exception ex) {
             return false;
         }

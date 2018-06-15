@@ -19,18 +19,18 @@
  */
 package org.jevis.commons.dataprocessing.v2;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisOption;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.config.Options;
 import org.jevis.commons.dataprocessing.VirtualAttribute;
-import org.jevis.commons.dataprocessing.VirtuelSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.function.ConverterFunction;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -71,7 +71,7 @@ public class TransformerProcessor implements Function {
         double m = 1;
         double b = 0;
 
-        System.out.println("");
+        System.out.println();
 
         m = DataProcessing.<Double>GetOptionValue(option, METER_CONSTANT, 1d);
         b = DataProcessing.<Double>GetOptionValue(option, OFFSET, 0d);
@@ -106,7 +106,7 @@ public class TransformerProcessor implements Function {
 
             try {
                 double sum = (sample.getValueAsDouble() * m) + b;
-                samples.add(new VirtuelSample(sample.getTimestamp(), sum, dataProcessorObject.getDataSource(), new VirtualAttribute(null)));
+                samples.add(new VirtualSample(sample.getTimestamp(), sum, dataProcessorObject.getDataSource(), new VirtualAttribute(null)));
             } catch (JEVisException ex) {
                 Logger.getLogger(ConverterFunction.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -122,7 +122,7 @@ public class TransformerProcessor implements Function {
     public void setOptions(JEVisOption option) {
         System.out.print("TransformerProcessor.setOptions: " + option);
         System.out.println("  key: " + option.getKey());
-        this.option = option;;
+        this.option = option;
     }
 
     @Override

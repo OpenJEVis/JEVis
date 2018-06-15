@@ -222,6 +222,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                         editor = new EnumEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LOCALE.getId())) {
                                         editor = new LanguageEditor(att);
+                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.GAP_FILLING_CONFIG.getId())) {
+                                        editor = new GapFillingEditor(att);
                                     }
 
 //                                else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TIME_ZONE.getId())) {

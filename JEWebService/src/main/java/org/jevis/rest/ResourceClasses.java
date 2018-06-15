@@ -56,7 +56,6 @@ public class ResourceClasses {
      *
      * @param httpHeaders
      * @return
-     * @throws JEVisException
      */
     @GET
     @Logged
@@ -64,7 +63,7 @@ public class ResourceClasses {
     public Response getAll(
             @Context HttpHeaders httpHeaders,
             @Context Request request,
-            @Context UriInfo url) throws JEVisException {
+            @Context UriInfo url) {
         System.out.println("get all classes");
         SQLDataSource ds = null;
         try {
@@ -234,11 +233,7 @@ public class ResourceClasses {
                         return true;
                     } else if (pathname.getName().endsWith(".jpg")) {
                         return true;
-                    } else if (pathname.getName().endsWith(".gif")) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    } else return pathname.getName().endsWith(".gif");
                 }
             };
 
@@ -266,7 +261,7 @@ public class ResourceClasses {
     }
 
 
-    public Response getClassResponse(String classname) throws JEVisException {
+    public Response getClassResponse(String classname) {
         if (classname == null || classname.isEmpty()) {
             return Response.ok(Config.getClassCache().values()).build();
         } else {
@@ -278,7 +273,7 @@ public class ResourceClasses {
         }
     }
 
-    public Map<String, JsonJEVisClass> loadJsonClasses() throws JEVisException {
+    public Map<String, JsonJEVisClass> loadJsonClasses() {
         Gson gson = new GsonBuilder().create();
         Map<String, JsonJEVisClass> classMap = Collections.synchronizedMap(new HashMap<String, JsonJEVisClass>());
 
@@ -288,11 +283,7 @@ public class ResourceClasses {
             FileFilter jsonFilter = new FileFilter() {
                 @Override
                 public boolean accept(File pathname) {
-                    if (pathname.getName().endsWith(".json")) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    return pathname.getName().endsWith(".json");
                 }
             };
             for (File jsonFile : classDir.listFiles(jsonFilter)) {

@@ -14,9 +14,9 @@
     {
       "type": "Notification File",
       "descriptions": {
-        "de": "Notification File desctiption",
-        "ru": "Notification File desctiption",
-        "en": "Notification File desctiption"
+        "de": "Notification File description",
+        "ru": "Notification File description",
+        "en": "Notification File description"
       },
       "names": {
         "de": "Notification File",
@@ -27,9 +27,9 @@
     {
       "type": "Report Notification ID",
       "descriptions": {
-        "de": "Report Notification ID desctiption",
-        "ru": "Report Notification ID desctiption",
-        "en": "Report Notification ID desctiption"
+        "de": "Report Notification ID description",
+        "ru": "Report Notification ID description",
+        "en": "Report Notification ID description"
       },
       "names": {
         "de": "Report Notification ID",

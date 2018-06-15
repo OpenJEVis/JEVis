@@ -62,7 +62,7 @@ public class AttributeTable {
 
     private final SQLDataSource _connection;
 
-    public AttributeTable(SQLDataSource ds) throws JEVisException {
+    public AttributeTable(SQLDataSource ds) {
         _connection = ds;
     }
 

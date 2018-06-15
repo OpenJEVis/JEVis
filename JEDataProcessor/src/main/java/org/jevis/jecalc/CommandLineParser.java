@@ -5,25 +5,15 @@
  */
 package org.jevis.jecalc;
 
+import org.apache.commons.cli.*;
+
 import java.util.List;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.jevis.commons.cli.JEVisCommandLine;
 
 /**
- *
  * @author broder
  */
 public class CommandLineParser {
 
-    private static CommandLineParser _instance = null;
-    private Options _options;
-    private org.apache.commons.cli.CommandLineParser _parser;
-    private CommandLine _cmd;
     //the default options
     private static final String CONFIG = "jevis-config";
     private static final String JEVIS_ALL = "jevis-all";
@@ -33,6 +23,10 @@ public class CommandLineParser {
     private static final String INPUT = "input";
     private static final String OUTPUT = "output";
     private static final String HELP = "help";
+    private static CommandLineParser _instance = null;
+    private Options _options;
+    private org.apache.commons.cli.CommandLineParser _parser;
+    private CommandLine _cmd;
 
     private CommandLineParser() {
         _options = new Options();

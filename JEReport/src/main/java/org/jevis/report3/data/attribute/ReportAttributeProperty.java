@@ -5,18 +5,19 @@
  */
 package org.jevis.report3.data.attribute;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.inject.Inject;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.JEVisObjectDataManager;
 import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.report3.data.attribute.AttributeConfigurationFactory.ReportConfigurationName;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -42,7 +43,7 @@ public class ReportAttributeProperty {
 
     public static ReportAttributeProperty buildDefault(String attributeName) {
         List<AttributeConfiguration> attributeConfigurations = new ArrayList<>();
-        AttributeConfiguration attrConfig = new AttributeConfiguration(AttributeConfigurationFactory.ReportConfigurationName.SpecificValue, AttributeConfigurationFactory.ReportConfigurationType.SampleGenerator, new HashMap<>());
+        AttributeConfiguration attrConfig = new AttributeConfiguration(ReportConfigurationName.SpecificValue, AttributeConfigurationFactory.ReportConfigurationType.SampleGenerator, new HashMap<>());
         attributeConfigurations.add(attrConfig);
         ReportAttributeProperty attributeProperty = new ReportAttributeProperty(attributeConfigurations, attributeName);
         return attributeProperty;
