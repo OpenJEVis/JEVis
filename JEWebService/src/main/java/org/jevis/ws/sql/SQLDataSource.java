@@ -59,18 +59,19 @@ public class SQLDataSource {
         List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());
         List<JsonClassRelationship> tempjcr = new ArrayList<>();
         for (JsonJEVisClass jjc : list) {
-            tempjcr.addAll(jjc.getRelationships());
+            if (jjc.getRelationships() != null) tempjcr.addAll(jjc.getRelationships());
         }
-        return null;
+        return tempjcr;
     }
 
     public List<JsonClassRelationship> getClassRelationships(String className) {
         List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());
         List<JsonClassRelationship> tempjcr = new ArrayList<>();
         for (JsonJEVisClass jjc : list) {
-            if (jjc.getName().equals(className)) tempjcr.addAll(jjc.getRelationships());
+            if ((jjc.getRelationships() != null) && (jjc.getName().equals(className)))
+                tempjcr.addAll(jjc.getRelationships());
         }
-        return null;
+        return tempjcr;
     }
 
     public List<JsonType> getTypes(JsonJEVisClass jevisClass) {
@@ -402,7 +403,7 @@ public class SQLDataSource {
 
     }
 
-    public List<JsonRelationship> getRelationships(int type) throws JEVisException {
+    public List<JsonRelationship> getRelationships(int type) {
         List<JsonRelationship> list = new ArrayList<>();
 
         for (JsonRelationship rel : getRelationships()) {
@@ -544,7 +545,7 @@ public class SQLDataSource {
         }
     }
 
-    private void deleteRelationshipsRerecursion(long oID) throws JEVisException {
+    private void deleteRelationshipsRerecursion(long oID) {
         for (JsonRelationship rel : getRelationships(oID)) {
             if (rel.getType() != JEVisConstants.ObjectRelationship.PARENT) {
                 getRelationshipTable().delete(rel);
