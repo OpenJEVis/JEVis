@@ -5,8 +5,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import org.apache.logging.log4j.LogManager;
 
 public class CalculationViewController {
+
+    private final org.apache.logging.log4j.Logger log = LogManager.getLogger(CalculationViewController.class);
 
     @FXML
     private Button buttonCeil;
@@ -393,7 +396,9 @@ public class CalculationViewController {
 
     @FXML
     void onEquals(ActionEvent event) {
-
+        log.info("SRC: " + event.getSource().toString());
+        log.info("TAR: " + event.getTarget().toString());
+        log.info("TYPE: " + event.getEventType().toString());
     }
 
     @FXML
@@ -419,5 +424,10 @@ public class CalculationViewController {
     @FXML
     void onValidate(ActionEvent event) {
 
+        log.info("you clicked the validate button!");
+
+        buttonSqrt.setText("\u221a");
+        buttonSqrt.textProperty().setValue("\u221a");
     }
+
 }
