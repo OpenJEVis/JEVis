@@ -9,9 +9,11 @@
         <schema>jevis</schema>
     </datasource>
     <webservice>
-        <uri>http://10.0.0.1:8000/</uri>
+        <uri>http://hostname:8000/</uri>
         <i18ndir>/home/jevis/jevis/var/templates/i18n</i18ndir>
         <filedir>/home/jevis/jevis/var/templates/filedir/</filedir>
+        <classdir>/home/jevis/JEVis/var/classes/</classdir>
+        <freemarkerdir>/home/jevis/JEVis/var/freemarker/</freemarkerdir>
         <registration>
             <root>1</root>
             <demogroup>1</demogroup>
