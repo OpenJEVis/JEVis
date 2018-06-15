@@ -108,7 +108,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITEL;
     }
 
@@ -129,7 +129,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         logger.debug("Extensions: {}", _attributesEditor.size());
         for (AttributeEditor editor : _attributesEditor) {
             try {
-                logger.debug("{}.save(): {}", this.getTitel(), editor.getAttribute().getName());
+                logger.debug("{}.save(): {}", this.getTitle(), editor.getAttribute().getName());
                 editor.commit();
 
             } catch (Exception ex) {

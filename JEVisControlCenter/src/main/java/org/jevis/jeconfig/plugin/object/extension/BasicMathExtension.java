@@ -7,10 +7,6 @@ package org.jevis.jeconfig.plugin.object.extension;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -36,15 +32,16 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.commons.dataprocessing.v2.DataProcessing;
-import org.jevis.commons.object.plugin.FomulaInput;
-import org.jevis.commons.object.plugin.Input;
-import org.jevis.commons.object.plugin.JsonInput;
-import org.jevis.commons.object.plugin.JsonVirtualCalc;
-import org.jevis.commons.object.plugin.VirtualSumData;
+import org.jevis.commons.object.plugin.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * TODO: has to be an JEConfig Driver at runtime TODO: Delete?
@@ -356,7 +353,7 @@ public class BasicMathExtension implements ObjectEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITLE;
     }
 

@@ -1,7 +1,7 @@
 {
   "jevisclass": "Data Source",
   "names": {
-    "de": "Data Quelle",
+    "de": "Datenquelle",
     "ru": "Data Source",
     "en": "Data Source"
   },
@@ -14,11 +14,12 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled description",
-        "ru": "Enabled description",
-        "en": "Enabled description"
+        "de": "Aktiviert das Auslesen der Datenquelle",
+        "ru": "Enabled desctiption",
+        "en": "Enabled desctiption"
       },
       "names": {
+
         "de": "Aktiviert/Deaktiviert den Datenserver",
         "ru": "Enabled",
         "en": "Enables/Disables the Data Server"

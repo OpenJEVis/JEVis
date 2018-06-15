@@ -2,7 +2,23 @@
   "name": "Calculation Directory",
   "unique": false,
   "relationships": [
+    {
+      "start": "Calculation Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Calculation Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "Calculation Directory",
+      "end": "Building",
+      "type": 3
+    }
   ],
   "types": [
+    
   ]
 }

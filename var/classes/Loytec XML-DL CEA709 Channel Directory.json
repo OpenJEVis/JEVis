@@ -12,11 +12,6 @@
       "start": "Loytec XML-DL CEA709 Channel Directory",
       "end": "Loytec XML-DL Server",
       "type": 3
-    },
-    {
-      "start": "Loytec XML-DL Channel",
-      "end": "Loytec XML-DL CEA709 Channel Directory",
-      "type": 3
     }
   ]
 }

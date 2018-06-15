@@ -2,6 +2,11 @@
   "name": "Calculation",
   "unique": false,
   "relationships": [
+    {
+      "start": "Calculation",
+      "end": "Calculation Directory",
+      "type": 3
+    }
   ],
   "types": [
     {

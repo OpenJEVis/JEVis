@@ -2,6 +2,11 @@
   "name": "Output",
   "unique": false,
   "relationships": [
+    {
+      "start": "Output",
+      "end": "Calculation",
+      "type": 3
+    }
   ],
   "types": [
     {
