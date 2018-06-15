@@ -43,7 +43,9 @@ public class Navbar {
             ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
             ds.preload(SQLDataSource.PRELOAD.ALL_REL);
             ISO50001 iso = new ISO50001(ds);
-            String SupMeetingsDirName = iso.getOrganisation().getSuperiorMeetingsDirName();
+            String SupMeetingsDirName = "";
+            if (iso.getOrganisation().getSuperiorMeetingsDirName() != null)
+                SupMeetingsDirName = iso.getOrganisation().getSuperiorMeetingsDirName();
             List<String> sites = iso.getOrganisation().getSiteNames();
             sites.sort(new NaturalOrderComparator());
 

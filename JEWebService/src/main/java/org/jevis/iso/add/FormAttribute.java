@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -51,104 +49,103 @@ public class FormAttribute {
     }
 
     public FormAttribute(SQLDataSource ds, JsonObject obj, String AttributeName, FormAttributeType AttributeType, JsonAttribute ja, JsonSample js) {
-        try {
 
-            this.setName(AttributeName);
-            this.setType(AttributeType);
+        this.setName(AttributeName);
+        this.setType(AttributeType);
 
-            int primitiveType = ja.getPrimitiveType();
+        int primitiveType = ja.getPrimitiveType();
 
-            switch (primitiveType) {
-                case JEVisConstants.PrimitiveType.STRING:
-                    //String
+        switch (primitiveType) {
+            case JEVisConstants.PrimitiveType.STRING:
+                //String
 
-                    String GuiDisplayType = "";
-                    for (JsonType jt : ds.getTypes(ds.getJEVisClass(obj.getJevisClass()))) {
-                        if (jt.getName().equals(ja.getType())) {
-                            GuiDisplayType = jt.getGuiType();
-                        }
+                String GuiDisplayType = "";
+                for (JsonType jt : ds.getTypes(ds.getJEVisClass(obj.getJevisClass()))) {
+                    if (jt.getName().equals(ja.getType())) {
+                        GuiDisplayType = jt.getGuiType();
                     }
+                }
 
-                    if (GuiDisplayType != null) {
-                        switch (GuiDisplayType) {
-                            case ("Text"):
-                                //Simple String
-                                if (js != null) {
-                                    this.setValue(js.getValue());
+                if (GuiDisplayType != null) {
+                    switch (GuiDisplayType) {
+                        case ("Text"):
+                            //Simple String
+                            if (js != null) {
+                                this.setValue(js.getValue());
+                            }
+                            break;
+                        case ("Text Area"):
+                            //Text Field
+                            if (js != null) {
+                                this.setValue(js.getValue());
+                            }
+                            break;
+                        case ("Password"):
+                            //Text Password
+                            if (js != null) {
+                                this.setValue(js.getValue());
+                            }
+                            break;
+                        case ("Date"):
+                            //Date
+                            if (js != null) {
+                                if (!js.getValue().equals("") && !js.getValue().equals("NaN.NaN.NaN")) {
+                                    DateTime dt = DateTime.parse(js.getValue(), DateTimeFormat.forPattern("dd.MM.yyyy"));
+                                    this.setValue(dt.toString("yyyy-MM-dd"));
                                 }
-                                break;
-                            case ("Text Area"):
-                                //Text Field
-                                if (js != null) {
-                                    this.setValue(js.getValue());
+                            }
+                            break;
+                        case ("Date Time"):
+                            if (js != null) {
+                                DateTimeFormatter parser = ISODateTimeFormat.dateTimeParser();
+                                DateTime date = parser.parseDateTime(js.getValue());
+                                this.setDateTimeValue(date);
+                            }
+                            break;
+                        case ("Schedule"):
+                            if (js != null) {
+                                //...
+                            }
+                            break;
+                        case ("Time Zone"):
+                            if (js != null) {
+                                //...
+                            }
+                            break;
+                        case ("Object Target"):
+                            if (js != null) {
+                                this.setValue(js.getValue());
+                                TargetHelper th = new TargetHelper(ds, ja);
+                                if (th.hasObject() && th.isValid()) {
+                                    this.setTargetname(th.getObject().getName());
                                 }
-                                break;
-                            case ("Password"):
-                                //Text Password
-                                if (js != null) {
-                                    this.setValue(js.getValue());
-                                }
-                                break;
-                            case ("Date"):
-                                //Date
-                                if (js != null) {
-                                    if (!js.getValue().equals("") && !js.getValue().equals("NaN.NaN.NaN")) {
-                                        DateTime dt = DateTime.parse(js.getValue(), DateTimeFormat.forPattern("dd.MM.yyyy"));
-                                        this.setValue(dt.toString("yyyy-MM-dd"));
-                                    }
-                                }
-                                break;
-                            case ("Date Time"):
-                                if (js != null) {
-                                    DateTimeFormatter parser = ISODateTimeFormat.dateTimeParser();
-                                    DateTime date = parser.parseDateTime(js.getValue());
-                                    this.setDateTimeValue(date);
-                                }
-                                break;
-                            case ("Schedule"):
-                                if (js != null) {
-                                    //...
-                                }
-                                break;
-                            case ("Time Zone"):
-                                if (js != null) {
-                                    //...
-                                }
-                                break;
-                            case ("Object Target"):
-                                if (js != null) {
-                                    this.setValue(js.getValue());
-                                    TargetHelper th = new TargetHelper(ds, ja);
-                                    if (th.hasObject() && th.isValid()) {
-                                        this.setTargetname(th.getObject().getName());
-                                    }
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    } else {
-                        if (js != null) {
-                            this.setValue(js.getValue());
-                        }
+                            }
+                            break;
+                        default:
+                            break;
                     }
-                    break;
-                case JEVisConstants.PrimitiveType.DOUBLE:
-                    //Double
-                    //make choices for different type
+                } else {
                     if (js != null) {
-                        this.setDoubleValue(Double.parseDouble(js.getValue()));
-                        this.setUnit(ja.getInputUnit().getLabel());
+                        this.setValue(js.getValue());
                     }
-                    break;
-                case JEVisConstants.PrimitiveType.LONG:
-                    //Long
-                    if (js != null) {
-                        this.setLongValue(Long.parseLong(js.getValue()));
-                    }
-                    break;
-                case JEVisConstants.PrimitiveType.FILE:
-                    //File
+                }
+                break;
+            case JEVisConstants.PrimitiveType.DOUBLE:
+                //Double
+                //make choices for different type
+                if (js != null) {
+                    this.setDoubleValue(Double.parseDouble(js.getValue()));
+                    this.setUnit(ja.getInputUnit().getLabel());
+                }
+                break;
+            case JEVisConstants.PrimitiveType.LONG:
+                //Long
+                if (js != null) {
+                    this.setLongValue(Long.parseLong(js.getValue()));
+                }
+                break;
+            case JEVisConstants.PrimitiveType.FILE:
+                //File
 //                    if (js != null) {
 //                        System.out.println("File found.");
 //                        String filename = "";
@@ -158,38 +155,35 @@ public class FormAttribute {
 //                        this.file = new File(filename);
 //                        this.setValue(js.getTs());
 //                    }
-                    break;
-                case JEVisConstants.PrimitiveType.BOOLEAN:
-                    //Boolean
-                    if (js != null) {
-                        this.setBooleanValue(Boolean.parseBoolean(js.getValue()));
-                    }
-                    break;
-                case JEVisConstants.PrimitiveType.SELECTION:
-                    //Selection
-                    if (js != null) {
-                        //...
-                    }
-                    break;
-                case JEVisConstants.PrimitiveType.MULTI_SELECTION:
-                    //Multi Selection
-                    if (js != null) {
-                        //...
-                    }
-                    break;
-                case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
-                    //Password PBKDF2
-                    if (js != null) {
-                        //...
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-        } catch (JEVisException ex) {
-            Logger.getLogger(FormAttribute.class.getName()).log(Level.SEVERE, null, ex);
+                break;
+            case JEVisConstants.PrimitiveType.BOOLEAN:
+                //Boolean
+                if (js != null) {
+                    this.setBooleanValue(Boolean.parseBoolean(js.getValue()));
+                }
+                break;
+            case JEVisConstants.PrimitiveType.SELECTION:
+                //Selection
+                if (js != null) {
+                    //...
+                }
+                break;
+            case JEVisConstants.PrimitiveType.MULTI_SELECTION:
+                //Multi Selection
+                if (js != null) {
+                    //...
+                }
+                break;
+            case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
+                //Password PBKDF2
+                if (js != null) {
+                    //...
+                }
+                break;
+            default:
+                break;
         }
+
     }
 
     public FormAttribute(String AttributeName, FormAttributeType AttributeType) {
