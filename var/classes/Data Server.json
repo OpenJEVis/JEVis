@@ -45,25 +45,8 @@
   ],
   "types": [
     {
-      "name": "Connection Timeout",
-      "primitiveType": 2,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Data Server"
-    },
-    {
       "name": "Host",
       "primitiveType": 0,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Data Server"
-    },
-    {
-      "name": "Manual Trigger",
-      "primitiveType": 4,
-      "guiType": "Button",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
@@ -82,6 +65,15 @@
       "name": "Read Timeout",
       "primitiveType": 2,
       "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Server"
+    },
+    {
+      "name": "Manual Trigger",
+      "primitiveType": 4,
+      "guiType": "Button",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
