@@ -2,18 +2,21 @@ package org.jevis.jeconfig.plugin.object.extension;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.tool.I18n;
+
+import java.io.IOException;
 
 public class CalculationExtension implements ObjectEditorExtension {
 
@@ -59,11 +62,24 @@ public class CalculationExtension implements ObjectEditorExtension {
 
         AnchorPane ap = new AnchorPane();
 
-        Button button = new Button();
-        button.setText("Calc");
-        ap.getChildren().add(button);
+        //    Button button = new Button();
+        //  button.setText("Calc");
+        //ap.getChildren().add(button);
 
+        Pane editConfigPane = new Pane();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/EditCalculation.fxml"));
+        //fxmlLoader.setRoot();
+        //fxmlLoader.setController(new CalculationViewController());
+        try {
+            editConfigPane = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//            editConfigPane = FXMLLoader.load(getClass().getResource("/fxml/EditConfiguration.fxml"));
+
+        ap.getChildren().add(editConfigPane);
         view.setCenter(ap);
+
     }
 
     @Override
