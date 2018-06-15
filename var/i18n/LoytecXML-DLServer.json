@@ -14,8 +14,8 @@
     {
       "type": "Connection Timeout",
       "descriptions": {
-        "de": "Verbindungs Timeout in Sekunden []",
-        "ru": "Connection Timeout desctiption",
+        "de": "Verbindungs Timeout in Sekunden [90]",
+        "ru": "Connection Timeout description",
         "en": "Connection Timeout in seconds"
       },
       "names": {
@@ -28,7 +28,7 @@
       "type": "Enabled",
       "descriptions": {
         "de": "Aktiviert das Auslesen des Gerätes",
-        "ru": "Enabled desctiption",
+        "ru": "Enabled description",
         "en": "Enables read out of the device"
       },
       "names": {
@@ -41,7 +41,7 @@
       "type": "Host",
       "descriptions": {
         "de": "Hostname oder IP-Adresse des Gerätes",
-        "ru": "Host desctiption",
+        "ru": "Host description",
         "en": "Host name or ip address"
       },
       "names": {
@@ -54,8 +54,8 @@
       "type": "Password",
       "descriptions": {
         "de": "Gerätepasswort, das auch auf der Web-UI des Gerätes benutzt wird. [loytec4u]",
-        "ru": "Password desctiption",
-        "en": "Password desctiption"
+        "ru": "Password description",
+        "en": "Password description"
       },
       "names": {
         "de": "Passwort",
@@ -80,8 +80,8 @@
       "type": "Read Timeout",
       "descriptions": {
         "de": "Lese-Time-out [60]",
-        "ru": "Read Timeout desctiption",
-        "en": "Read Timeout desctiption"
+        "ru": "Read Timeout description",
+        "en": "Read Timeout description"
       },
       "names": {
         "de": "Lese-Time-out",
@@ -93,7 +93,7 @@
       "type": "SSL",
       "descriptions": {
         "de": "SSL Verbindung. Das Gerät ist über HTTPS erreichbar. [aus]",
-        "ru": "SSL desctiption",
+        "ru": "SSL description",
         "en": "SSL encryped connection. [off]"
       },
       "names": {
@@ -106,8 +106,8 @@
       "type": "Timezone",
       "descriptions": {
         "de": "Eingestellte Zeitzone am Gerät. [UTC]",
-        "ru": "Timezone desctiption",
-        "en": "Timezone desctiption"
+        "ru": "Timezone description",
+        "en": "Timezone description"
       },
       "names": {
         "de": "Zeitzone",
@@ -119,8 +119,8 @@
       "type": "User",
       "descriptions": {
         "de": "Benutzername [operator]",
-        "ru": "User desctiption",
-        "en": "User desctiption"
+        "ru": "User description",
+        "en": "User description"
       },
       "names": {
         "de": "Benutzer",
