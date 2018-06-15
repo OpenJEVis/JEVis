@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity" xmlns="http://javafx.com/javafx/8"
+            minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.121"
             fx:controller="org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController">
     <children>
         <VBox layoutX="115.0" layoutY="78.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
@@ -15,7 +15,7 @@
                         <VBox HBox.hgrow="ALWAYS">
                             <children>
                                 <Label text="Basic"/>
-                                <GridPane alignment="CENTER">
+                                <GridPane alignment="CENTER" maxWidth="500.0">
                                     <columnConstraints>
                                         <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
                                                            prefWidth="100.0"/>
@@ -201,7 +201,7 @@
                                         <Insets top="15.0"/>
                                     </VBox.margin>
                                 </Label>
-                                <GridPane alignment="CENTER">
+                                <GridPane alignment="CENTER" maxWidth="500.0">
                                     <children>
                                         <Button fx:id="buttonSmaller" alignment="CENTER" contentDisplay="CENTER"
                                                 minWidth="50.0" mnemonicParsing="false" onAction="#onSmaller"
@@ -264,7 +264,7 @@
                         <TextField fx:id="expressionField" onAction="#onExpressionField" promptText="tada"
                                    HBox.hgrow="ALWAYS"/>
                         <Button alignment="CENTER" contentDisplay="CENTER" minWidth="50.0" mnemonicParsing="false"
-                                onMouseClicked="#onValidate" text="Validate"/>
+                                onAction="#onValidate" text="Validate"/>
                     </children>
                 </HBox>
             </children>
