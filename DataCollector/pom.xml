@@ -20,7 +20,7 @@
     </parent>
 
     <modules>
-	<module>JEDataCollector</module>
+        <module>JEDataCollector</module>
         <module>CSV-Driver</module>
         <module>FTP-Driver</module>
         <module>HTTP-Driver</module>

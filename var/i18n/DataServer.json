@@ -1,7 +1,7 @@
 {
   "jevisclass": "Data Server",
   "names": {
-    "de": "Data Server",
+    "de": "Datenserver",
     "ru": "Data Server",
     "en": "Data Server"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Connection Timeout",
       "descriptions": {
-        "de": "Connection Timeout desctiption",
+        "de": "Verbindungs-Time-out in Sekunden",
         "ru": "Connection Timeout desctiption",
         "en": "Connection Timeout desctiption"
       },
       "names": {
-        "de": "Connection Timeout",
+        "de": "Verbindungs-Time-out",
         "ru": "Connection Timeout",
         "en": "Connection Timeout"
       }
@@ -23,12 +23,12 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
+        "de": "Aktiviert die Geräteauslesung",
         "ru": "Enabled desctiption",
         "en": "Enabled desctiption"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }

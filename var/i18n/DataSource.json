@@ -1,7 +1,7 @@
 {
   "jevisclass": "Data Source",
   "names": {
-    "de": "Data Source",
+    "de": "Datenquelle",
     "ru": "Data Source",
     "en": "Data Source"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
+        "de": "Aktiviert das Auslesen der Datenquelle",
         "ru": "Enabled desctiption",
         "en": "Enabled desctiption"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -23,12 +23,12 @@
     {
       "type": "Timezone",
       "descriptions": {
-        "de": "Timezone desctiption",
+        "de": "Zeitzone in der die Daten zur Verfügung gestellt werden.",
         "ru": "Timezone desctiption",
         "en": "Timezone desctiption"
       },
       "names": {
-        "de": "Timezone",
+        "de": "Zeitzone",
         "ru": "Timezone",
         "en": "Timezone"
       }
