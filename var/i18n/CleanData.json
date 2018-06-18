@@ -6,20 +6,20 @@
     "en": "Clean Data"
   },
   "descriptions": {
-    "de": "Die Klasse Bereinigte Daten repräsentiert einen Behälter für eine Reihe von nachbearbeiteten Werten.",
+    "de": "Bereinigte Daten ist ein Datenobjekt für eine Reihe von manipulierten Daten.",
     "ru": "The class Clean Data represents a container for a series of post-processed numeric values.",
-    "en": "The class Clean Data represents a container for a series of post-processed numeric values."
+    "en": "Clean Data is a data object for manipulated data."
   },
   "types": [
     {
       "type": "Conversion to Differential",
       "descriptions": {
-        "de": "Conversion to Differential description",
+        "de": "Wandelt kumulative Daten zu differenziellen Daten um.",
         "ru": "Conversion to Differential description",
-        "en": "Conversion to Differential description"
+        "en": "Converts cumulative data to differential values."
       },
       "names": {
-        "de": "Conversion to Differential",
+        "de": "Umwandlung zu Differenz",
         "ru": "Conversion to Differential",
         "en": "Conversion to Differential"
       }
@@ -27,9 +27,9 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Aktiviert Beschreibung",
+        "de": "Aktiviert die Datenbereinigung",
         "ru": "Enabled description",
-        "en": "Enabled description"
+        "en": "Enabled the data cleaning"
       },
       "names": {
         "de": "Aktiviert",
@@ -40,12 +40,12 @@
     {
       "type": "Gap Filling",
       "descriptions": {
-        "de": "Gap Filling description",
+        "de": "Definiert die Methode zur Ersatzwertbildung",
         "ru": "Gap Filling description",
-        "en": "Gap Filling description"
+        "en": "Define the method for the gap filling"
       },
       "names": {
-        "de": "Gap Filling",
+        "de": "Ersatzwertbildung",
         "ru": "Gap Filling",
         "en": "Gap Filling"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Period Alignment",
       "descriptions": {
-        "de": "Period Alignment description",
+        "de": "Definiert die zeitliche Ausrichtung auf die erwartete Periode bei abweichenden Zeitstempeln",
         "ru": "Period Alignment description",
-        "en": "Period Alignment description"
+        "en": "Defines the alignment of timestemp if they differ from the expected period."
       },
       "names": {
-        "de": "Period Alignment",
+        "de": "Zeitliche Ausrichtung",
         "ru": "Period Alignment",
         "en": "Period Alignment"
       }
@@ -66,9 +66,9 @@
     {
       "type": "Period Offset",
       "descriptions": {
-        "de": "Period Offset description",
+        "de": "Definiert den zeitlichen Offset, z.B. zum Vorziehen eines Wertes auf den Anfang der Messperiode",
         "ru": "Period Offset description",
-        "en": "Period Offset description"
+        "en": "Defines the time offset, i.e. for moving a value to the beginning of the metering period."
       },
       "names": {
         "de": "Period Offset",
@@ -79,12 +79,12 @@
     {
       "type": "Value",
       "descriptions": {
-        "de": "Value description",
+        "de": "Beinhaltet die Werteserie",
         "ru": "Value description",
-        "en": "Value description"
+        "en": "Contains the series of values"
       },
       "names": {
-        "de": "Value",
+        "de": "Wert",
         "ru": "Value",
         "en": "Value"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Value is a Quantity",
       "descriptions": {
-        "de": "Value is a Quantity description",
+        "de": "Definiert ob es sich bei den Wert um eine Mengenangabe handelt, wie z.B. kWh.",
         "ru": "Value is a Quantity description",
-        "en": "Value is a Quantity description"
+        "en": "Defines if the value represents a quantity, such as kWh."
       },
       "names": {
-        "de": "Value is a Quantity",
+        "de": "Mengeneinheit
         "ru": "Value is a Quantity",
         "en": "Value is a Quantity"
       }
@@ -105,12 +105,12 @@
     {
       "type": "Value Multiplier",
       "descriptions": {
-        "de": "Value Multiplier description",
+        "de": "Definiert einen Multiplikator zur Interpretation des Messwertes.",
         "ru": "Value Multiplier description",
-        "en": "Value Multiplier description"
+        "en": "Defines a multiplicator for the interpretation of the metering value."
       },
       "names": {
-        "de": "Value Multiplier",
+        "de": "Werte Multiplikator",
         "ru": "Value Multiplier",
         "en": "Value Multiplier"
       }
@@ -118,12 +118,12 @@
     {
       "type": "Value Offset",
       "descriptions": {
-        "de": "Value Offset description",
+        "de": "Definiert einen Offset zur Interpretation des Messwertes",
         "ru": "Value Offset description",
-        "en": "Value Offset description"
+        "en": "Defines a offset for the interpretation of the metering value."
       },
       "names": {
-        "de": "Value Offset",
+        "de": "Werte Offset",
         "ru": "Value Offset",
         "en": "Value Offset"
       }
