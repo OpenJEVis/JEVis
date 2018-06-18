@@ -1,14 +1,14 @@
 {
   "jevisclass": "Channel Directory",
   "names": {
-    "de": "Channel Directory",
+    "de": "Channel Verzeichnis",
     "ru": "Channel Directory",
     "en": "Channel Directory"
   },
   "descriptions": {
-    "de": "The class Channel Directory represents a specific directory for the management of different channel data.\n\n",
+    "de": "Das Channel Verzeichnis kann zur Ordnung verschiedener Dateikanäle bzw. Dateipfade verwendet werden.",
     "ru": "The class Channel Directory represents a specific directory for the management of different channel data.\n\n",
-    "en": "The class Channel Directory represents a specific directory for the management of different channel data.\n\n"
+    "en": "The Channel Directory can be used to sort different data channels or data paths."
   },
   "types": []
 }
