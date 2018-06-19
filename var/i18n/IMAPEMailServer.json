@@ -15,7 +15,7 @@
         "en": "Connection Timeout description"
       },
       "names": {
-        "de": "Connection Timeout",
+        "de": "Verbindungs-Timeout",
         "ru": "Connection Timeout",
         "en": "Connection Timeout"
       }
@@ -28,7 +28,7 @@
         "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -41,7 +41,7 @@
         "en": "Folder description"
       },
       "names": {
-        "de": "Folder",
+        "de": "Verzeichnis",
         "ru": "Folder",
         "en": "Folder"
       }
@@ -67,7 +67,7 @@
         "en": "Password description"
       },
       "names": {
-        "de": "Password",
+        "de": "Passwort",
         "ru": "Password",
         "en": "Password"
       }
@@ -93,7 +93,7 @@
         "en": "Read Timeout description"
       },
       "names": {
-        "de": "Read Timeout",
+        "de": "Lese-Timeout",
         "ru": "Read Timeout",
         "en": "Read Timeout"
       }
@@ -119,7 +119,7 @@
         "en": "Timezone description"
       },
       "names": {
-        "de": "Timezone",
+        "de": "Zeitzone",
         "ru": "Timezone",
         "en": "Timezone"
       }
@@ -132,7 +132,7 @@
         "en": "User description"
       },
       "names": {
-        "de": "User",
+        "de": "Benutzer",
         "ru": "User",
         "en": "User"
       }
