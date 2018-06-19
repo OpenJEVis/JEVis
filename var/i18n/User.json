@@ -1,12 +1,12 @@
 {
   "jevisclass": "User",
   "names": {
-    "de": "User",
+    "de": "Benutzer",
     "ru": "User",
     "en": "User"
   },
   "descriptions": {
-    "de": "User to access the JEVis",
+    "de": "Benutzer für den Zugang zum JEVis",
     "ru": "User to access the JEVis",
     "en": "User to access the JEVis"
   },
@@ -19,7 +19,7 @@
         "en": "Activities description"
       },
       "names": {
-        "de": "Activities",
+        "de": "Tätigkeiten",
         "ru": "Activities",
         "en": "Activities"
       }
@@ -45,7 +45,7 @@
         "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -58,7 +58,7 @@
         "en": "First Name description"
       },
       "names": {
-        "de": "First Name",
+        "de": "Vorname",
         "ru": "First Name",
         "en": "First Name"
       }
@@ -71,7 +71,7 @@
         "en": "Language description"
       },
       "names": {
-        "de": "Language",
+        "de": "Sprache",
         "ru": "Language",
         "en": "Language"
       }
@@ -84,7 +84,7 @@
         "en": "Last Login description"
       },
       "names": {
-        "de": "Last Login",
+        "de": "Letzter Login",
         "ru": "Last Login",
         "en": "Last Login"
       }
@@ -97,7 +97,7 @@
         "en": "Last Name description"
       },
       "names": {
-        "de": "Last Name",
+        "de": "Nachname",
         "ru": "Last Name",
         "en": "Last Name"
       }
@@ -110,7 +110,7 @@
         "en": "Password description"
       },
       "names": {
-        "de": "Password",
+        "de": "Passwort",
         "ru": "Password",
         "en": "Password"
       }
@@ -123,7 +123,7 @@
         "en": "Phone description"
       },
       "names": {
-        "de": "Phone",
+        "de": "Telefon",
         "ru": "Phone",
         "en": "Phone"
       }
@@ -162,7 +162,7 @@
         "en": "TimeZone description"
       },
       "names": {
-        "de": "TimeZone",
+        "de": "Zeitzone",
         "ru": "TimeZone",
         "en": "TimeZone"
       }
@@ -175,7 +175,7 @@
         "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
