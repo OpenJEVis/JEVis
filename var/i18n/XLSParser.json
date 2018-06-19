@@ -15,7 +15,7 @@
         "en": "Datapoint Index description"
       },
       "names": {
-        "de": "Datapoint Index",
+        "de": "Datenpunkt Index",
         "ru": "Datapoint Index",
         "en": "Datapoint Index"
       }
@@ -28,7 +28,7 @@
         "en": "Date Format description"
       },
       "names": {
-        "de": "Date Format",
+        "de": "Datumsformat",
         "ru": "Date Format",
         "en": "Date Format"
       }
@@ -41,7 +41,7 @@
         "en": "Date Index description"
       },
       "names": {
-        "de": "Date Index",
+        "de": "Datum Index",
         "ru": "Date Index",
         "en": "Date Index"
       }
@@ -54,7 +54,7 @@
         "en": "Decimal Separator description"
       },
       "names": {
-        "de": "Decimal Separator",
+        "de": "Dezimaltrennzeichen",
         "ru": "Decimal Separator",
         "en": "Decimal Separator"
       }
@@ -67,7 +67,7 @@
         "en": "Delimiter description"
       },
       "names": {
-        "de": "Delimiter",
+        "de": "Begrenzungszeichen",
         "ru": "Delimiter",
         "en": "Delimiter"
       }
@@ -80,7 +80,7 @@
         "en": "Number Of Headlines description"
       },
       "names": {
-        "de": "Number Of Headlines",
+        "de": "Anzahl Kopfzeilen",
         "ru": "Number Of Headlines",
         "en": "Number Of Headlines"
       }
@@ -93,7 +93,7 @@
         "en": "Quote description"
       },
       "names": {
-        "de": "Quote",
+        "de": "Zitat",
         "ru": "Quote",
         "en": "Quote"
       }
@@ -106,7 +106,7 @@
         "en": "Thousand Separator description"
       },
       "names": {
-        "de": "Thousand Separator",
+        "de": "Tausendertrennzeichen",
         "ru": "Thousand Separator",
         "en": "Thousand Separator"
       }
@@ -119,7 +119,7 @@
         "en": "Time Format description"
       },
       "names": {
-        "de": "Time Format",
+        "de": "Zeitformat",
         "ru": "Time Format",
         "en": "Time Format"
       }
@@ -132,7 +132,7 @@
         "en": "Time Index description"
       },
       "names": {
-        "de": "Time Index",
+        "de": "Zeit Index",
         "ru": "Time Index",
         "en": "Time Index"
       }
