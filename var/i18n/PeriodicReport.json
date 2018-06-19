@@ -1,7 +1,7 @@
 {
   "jevisclass": "Periodic Report",
   "names": {
-    "de": "Periodic Report",
+    "de": "Periodischer Bericht",
     "ru": "Periodic Report",
     "en": "Periodic Report"
   },
@@ -15,7 +15,7 @@
         "en": "Attribute Name description"
       },
       "names": {
-        "de": "Attribute Name",
+        "de": "Attributname",
         "ru": "Attribute Name",
         "en": "Attribute Name"
       }
@@ -28,7 +28,7 @@
         "en": "Condition Enabled description"
       },
       "names": {
-        "de": "Condition Enabled",
+        "de": "Bedingung aktiviert",
         "ru": "Condition Enabled",
         "en": "Condition Enabled"
       }
@@ -41,7 +41,7 @@
         "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -67,7 +67,7 @@
         "en": "Last Report description"
       },
       "names": {
-        "de": "Last Report",
+        "de": "Letzter Bericht",
         "ru": "Last Report",
         "en": "Last Report"
       }
@@ -80,7 +80,7 @@
         "en": "Limit description"
       },
       "names": {
-        "de": "Limit",
+        "de": "Grenze",
         "ru": "Limit",
         "en": "Limit"
       }
@@ -93,7 +93,7 @@
         "en": "Operator description"
       },
       "names": {
-        "de": "Operator",
+        "de": "Betrieber",
         "ru": "Operator",
         "en": "Operator"
       }
@@ -119,7 +119,7 @@
         "en": "PDF Pages description"
       },
       "names": {
-        "de": "PDF Pages",
+        "de": "Anzahl PDF Seiten",
         "ru": "PDF Pages",
         "en": "PDF Pages"
       }
@@ -132,7 +132,7 @@
         "en": "Schedule description"
       },
       "names": {
-        "de": "Schedule",
+        "de": "Zeitplan",
         "ru": "Schedule",
         "en": "Schedule"
       }
@@ -145,7 +145,7 @@
         "en": "Start Record description"
       },
       "names": {
-        "de": "Start Record",
+        "de": "Start Zeitpunkt",
         "ru": "Start Record",
         "en": "Start Record"
       }
@@ -158,7 +158,7 @@
         "en": "Template description"
       },
       "names": {
-        "de": "Template",
+        "de": "Vorlage",
         "ru": "Template",
         "en": "Template"
       }
@@ -171,7 +171,7 @@
         "en": "Time Zone description"
       },
       "names": {
-        "de": "Time Zone",
+        "de": "Zeitzone",
         "ru": "Time Zone",
         "en": "Time Zone"
       }
