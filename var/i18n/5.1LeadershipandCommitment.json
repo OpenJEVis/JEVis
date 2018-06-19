@@ -1,21 +1,23 @@
 {
   "jevisclass": "5.1 Leadership and Commitment",
   "names": {
-    "de": "5.1 Leadership and Commitment",
+    "de": "5.1 Führung und Verpflichtung",
     "ru": "5.1 Leadership and Commitment",
     "en": "5.1 Leadership and Commitment"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Die oberste Leitung muss in Bezug auf die fortlaufende Verbesserung der energiebezogenen Leistung und Wirksamkeit des EnMS Führung und Verpflichtung zeigen, indem sie:\na) sicherstellt, dass der Anwendungsbereich des EnMS und die EnMS-Grenzen festgelegt werden;\nb) sicherstellt, dass die Energiepolitik (siehe 5.2), die Ziele (siehe 6.6) und die Energieziele festgelegt und mit der strategischen Ausrichtung der Organisation vereinbar sind;\nc) sicherstellt, dass die Anforderungen des EnMS in die Geschäftsprozesse der Organisation integriert werden;\n\nANMERKUNG Wenn in diesem Dokument das Wort „Geschäft“ (en: business) verwendet wird, kann dieses im weiteren Sinne verstanden werden und bezieht sich auf Tätigkeiten, die für den Zweck der Organisation bzw. deren Existenz entscheidend sind.\n\nd) sicherstellt, dass die Aktionspläne genehmigt und umgesetzt werden;\ne) sicherstellt, dass die für das EnMS erforderlichen Ressourcen zur Verfügung stehen;\nf) die Bedeutung eines wirksamen Energiemanagements sowie die Wichtigkeit der Erfüllung der Anforderungen des EnMS vermittelt;\ng) sicherstellt, dass das EnMS sein beabsichtigtes Ergebnis bzw. seine beabsichtigten Ergebnisse erzielt;\nh) Personen anleitet und unterstützt, damit diese zur Wirksamkeit des EnMS und der Verbesserung der energiebezogenen Leistung beitragen können;\ni) fortlaufende Verbesserung der energiebezogenen Leistung und des EnMS fördert;\nj) andere relevante Führungskräfte unterstützt, um deren Führungsrolle in deren jeweiligen Verantwortungsbereichen deutlich zu machen;\nk) die Bildung eines Energiemanagement-Teams sicherstellt;\nl) sicherstellt, dass EnPI für die Organisation geeignet sind;\nm) sicherstellt, dass Prozesse festgelegt und umgesetzt werden, um Veränderungen zu bestimmen und zu adressieren, die das EnMS und die energiebezogene Leistung beeinflussen."
+  },
   "types": [
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content description",
+        "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
         "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -23,12 +25,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by description",
+        "de": "Der Autor des Dokuments",
         "ru": "Created by description",
         "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -36,12 +38,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation description",
+        "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
         "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -49,12 +51,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number description",
+        "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
         "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -62,12 +64,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date description",
+        "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
         "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -75,12 +77,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by description",
+        "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
         "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -88,12 +90,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title description",
+        "de": "Titel des Dokuments",
         "ru": "Title description",
         "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -101,7 +103,7 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version description",
+        "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
         "en": "Version description"
       },

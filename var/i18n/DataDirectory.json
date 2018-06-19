@@ -1,12 +1,12 @@
 {
   "jevisclass": "Data Directory",
   "names": {
-    "de": "Daten",
+    "de": "Datenverzeichnis",
     "ru": "Data Directory",
     "en": "Data Directory"
   },
   "descriptions": {
-    "de": "The class Data Directory represents a specific directory for the management of metering data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "de": "Die Klasse Datenverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Messdaten dar.\n\n\nDie Klasse ist eindeutig, was bedeutet, dass es nicht möglich ist, ein Objekt dieser Klasse parallel zu einem bereits existierenden Objekt derselben Klasse zu erstellen.",
     "ru": "The class Data Directory represents a specific directory for the management of metering data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
     "en": "The class Data Directory represents a specific directory for the management of metering data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
   },

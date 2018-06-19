@@ -1,12 +1,12 @@
 {
   "jevisclass": "Service Directory",
   "names": {
-    "de": "Service Directory",
+    "de": "Dienstverzeichnis",
     "ru": "Service Directory",
     "en": "Service Directory"
   },
   "descriptions": {
-    "de": "The class Service Directory represents a specific directory for the management of back-end services.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class",
+    "de": "Die Klasse Dienstverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Backend-Services dar.\n\n\nDie Klasse ist eindeutig, was bedeutet, dass es nicht möglich ist, ein Objekt dieser Klasse parallel zu einem bereits existierenden Objekt derselben Klasse anzulegen.",
     "ru": "The class Service Directory represents a specific directory for the management of back-end services.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class",
     "en": "The class Service Directory represents a specific directory for the management of back-end services.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class"
   },

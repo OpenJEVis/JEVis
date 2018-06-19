@@ -10,12 +10,12 @@
     {
       "type": "Datapoint Index",
       "descriptions": {
-        "de": "Datapoint Index description",
+        "de": "Der Datenpunkt Index definiert die Spalte bzw. Zeile der CSV-Datei in der der Datenpunkt angegeben wird.",
         "ru": "Datapoint Index description",
-        "en": "Datapoint Index description"
+        "en": "The Datapoint Index defines the column or row of the CSV file where the data point is specified."
       },
       "names": {
-        "de": "Datapoint Index",
+        "de": "Datenpunkt Index",
         "ru": "Datapoint Index",
         "en": "Datapoint Index"
       }
@@ -23,12 +23,12 @@
     {
       "type": "Date Format",
       "descriptions": {
-        "de": "Date Format description",
+        "de": "Gibt die Formatierung des Zeitstempels an.",
         "ru": "Date Format description",
-        "en": "Date Format description"
+        "en": "Defines the format of the timestemp."
       },
       "names": {
-        "de": "Date Format",
+        "de": "Datumsformat",
         "ru": "Date Format",
         "en": "Date Format"
       }
@@ -36,25 +36,25 @@
     {
       "type": "Date Index",
       "descriptions": {
-        "de": "Date Index description",
+        "de": "Gibt die Spalte bzw. Zeile an, in der das Datum angegeben wird.",
         "ru": "Date Index description",
-        "en": "Date Index description"
+        "en": "Defines the column or row, where the date is stored."
       },
       "names": {
         "de": "Date Index",
         "ru": "Date Index",
-        "en": "Date Index"
+        "en": "Datum Index"
       }
     },
     {
       "type": "Decimal Separator",
       "descriptions": {
-        "de": "Decimal Separator description",
+        "de": "Definiert das Dezimaltrennzeichen",
         "ru": "Decimal Separator description",
-        "en": "Decimal Separator description"
+        "en": "Defines the character for separating decimals."
       },
       "names": {
-        "de": "Decimal Separator",
+        "de": "Dezimaltrennzeichen",
         "ru": "Decimal Separator",
         "en": "Decimal Separator"
       }
@@ -62,12 +62,12 @@
     {
       "type": "Delimiter",
       "descriptions": {
-        "de": "Delimiter description",
+        "de": "Definiert das Trennzeichen zwischen zwei CSV Daten",
         "ru": "Delimiter description",
-        "en": "Delimiter description"
+        "en": "Defines the delimiter between two CSV values"
       },
       "names": {
-        "de": "Delimiter",
+        "de": "Trennzeichen",
         "ru": "Delimiter",
         "en": "Delimiter"
       }
@@ -75,25 +75,25 @@
     {
       "type": "Number Of Headlines",
       "descriptions": {
-        "de": "Number Of Headlines description",
+        "de": "Definiert die Anzahl der Kopfzeilen der CSV-Datei, welche ignoriert werden.",
         "ru": "Number Of Headlines description",
-        "en": "Number Of Headlines description"
+        "en": "Defines the number of headlines of the CSV file to be ignored."
       },
       "names": {
         "de": "Number Of Headlines",
         "ru": "Number Of Headlines",
-        "en": "Number Of Headlines"
+        "en": "Anzahl Kopfzeilen"
       }
     },
     {
       "type": "Quote",
       "descriptions": {
-        "de": "Quote description",
+        "de": "Definiert ob bzw. mit welchen Anführungszeichen CSV Daten umfasst werden",
         "ru": "Quote description",
-        "en": "Quote description"
+        "en": "Defines if or respectively which quote characeters are used to surround CSV data."
       },
       "names": {
-        "de": "Quote",
+        "de": "Anführungszeichen",
         "ru": "Quote",
         "en": "Quote"
       }
@@ -101,12 +101,12 @@
     {
       "type": "Thousand Separator",
       "descriptions": {
-        "de": "Thousand Separator description",
+        "de": "Definiert welches Tausender-Trennzeichen verwendet wird",
         "ru": "Thousand Separator description",
-        "en": "Thousand Separator description"
+        "en": "Defines which character is used to separate thousands."
       },
       "names": {
-        "de": "Thousand Separator",
+        "de": "Tausender-Trennzeichen",
         "ru": "Thousand Separator",
         "en": "Thousand Separator"
       }
@@ -114,12 +114,12 @@
     {
       "type": "Time Format",
       "descriptions": {
-        "de": "Time Format description",
+        "de": "Definiert das verwendete Zeitformat",
         "ru": "Time Format description",
-        "en": "Time Format description"
+        "en": "Defines the used time format."
       },
       "names": {
-        "de": "Time Format",
+        "de": "Zeitformat",
         "ru": "Time Format",
         "en": "Time Format"
       }
@@ -132,9 +132,9 @@
         "en": "Time Index description"
       },
       "names": {
-        "de": "Time Index",
+        "de": "Gibt die Spalte bzw. Zeile an, in der die Zeit angegeben wird.",
         "ru": "Time Index",
-        "en": "Time Index"
+        "en": "Defines the column or row, where the time is stored."
       }
     }
   ]

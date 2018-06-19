@@ -1,12 +1,12 @@
 {
   "jevisclass": "Monitored Object",
   "names": {
-    "de": "Monitored Object",
+    "de": "Überwachtes Objekt",
     "ru": "Monitored Object",
     "en": "Monitored Object"
   },
   "descriptions": {
-    "de": "Monitored object like an building or ship",
+    "de": "Ein überwachtes Objekte, wie ein Gebäude oder ein Schiff",
     "ru": "Monitored object like an building or ship",
     "en": "Monitored object like an building or ship"
   },

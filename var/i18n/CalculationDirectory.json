@@ -1,12 +1,12 @@
 {
   "jevisclass": "Calculation Directory",
   "names": {
-    "de": "Berechnungen",
+    "de": "Kalkulationsverzeichnis",
     "ru": "Calculation Directory",
     "en": "Calculation Directory"
   },
   "descriptions": {
-    "de": "Ordner für Berechnungen",
+    "de": "Ordner für Kalkulationen",
     "ru": "Enabled desctiption",
     "en": "Directory that contains calculations"
   },

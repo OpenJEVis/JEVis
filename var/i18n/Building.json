@@ -1,7 +1,7 @@
 {
   "jevisclass": "Building",
   "names": {
-    "de": "Building",
+    "de": "Gebäude",
     "ru": "Building",
     "en": "Building"
   },
@@ -15,7 +15,7 @@
         "en": "Address description"
       },
       "names": {
-        "de": "Address",
+        "de": "Addresse",
         "ru": "Address",
         "en": "Address"
       }
@@ -28,7 +28,7 @@
         "en": "Building Area description"
       },
       "names": {
-        "de": "Building Area",
+        "de": "Gebäudebereich",
         "ru": "Building Area",
         "en": "Building Area"
       }
@@ -41,7 +41,7 @@
         "en": "Location description"
       },
       "names": {
-        "de": "Location",
+        "de": "Standort",
         "ru": "Location",
         "en": "Location"
       }
@@ -54,7 +54,7 @@
         "en": "Year of Construction description"
       },
       "names": {
-        "de": "Year of Construction",
+        "de": "Konstruktionsjahr",
         "ru": "Year of Construction",
         "en": "Year of Construction"
       }

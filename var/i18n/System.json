@@ -1,12 +1,12 @@
 {
   "jevisclass": "System",
   "names": {
-    "de": "System DE",
+    "de": "System",
     "ru": "System",
     "en": "System"
   },
   "descriptions": {
-    "de": "JEVis Root Node whit system informations",
+    "de": "JEVis Root Node mit Systeminformationen",
     "ru": "JEVis Root Node whit system informations",
     "en": "JEVis Root Node whit system informations"
   },
@@ -58,7 +58,7 @@
         "en": "Local IP description"
       },
       "names": {
-        "de": "Local IP",
+        "de": "Lokale IP",
         "ru": "Local IP",
         "en": "Local IP"
       }
@@ -71,7 +71,7 @@
         "en": "Public IP description"
       },
       "names": {
-        "de": "Public IP",
+        "de": "Öffentliche IP",
         "ru": "Public IP",
         "en": "Public IP"
       }

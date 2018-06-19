@@ -1,7 +1,7 @@
 {
   "jevisclass": "Audit Question",
   "names": {
-    "de": "Audit Question",
+    "de": "Auditfrage",
     "ru": "Audit Question",
     "en": "Audit Question"
   },
@@ -15,7 +15,7 @@
         "en": "Audit Observation description"
       },
       "names": {
-        "de": "Audit Observation",
+        "de": "Audit Beobachtung",
         "ru": "Audit Observation",
         "en": "Audit Observation"
       }
@@ -28,7 +28,7 @@
         "en": "Evaluation 000 points description"
       },
       "names": {
-        "de": "Evaluation 000 points",
+        "de": "Bewertung 0 Punkte",
         "ru": "Evaluation 000 points",
         "en": "Evaluation 000 points"
       }
@@ -41,7 +41,7 @@
         "en": "Evaluation 025 points description"
       },
       "names": {
-        "de": "Evaluation 025 points",
+        "de": "Bewertung 25 Punkte",
         "ru": "Evaluation 025 points",
         "en": "Evaluation 025 points"
       }
@@ -54,7 +54,7 @@
         "en": "Evaluation 050 points description"
       },
       "names": {
-        "de": "Evaluation 050 points",
+        "de": "Bewertung 50 Punkte",
         "ru": "Evaluation 050 points",
         "en": "Evaluation 050 points"
       }
@@ -67,7 +67,7 @@
         "en": "Evaluation 075 points description"
       },
       "names": {
-        "de": "Evaluation 075 points",
+        "de": "Bewertung 75 Punkte",
         "ru": "Evaluation 075 points",
         "en": "Evaluation 075 points"
       }
@@ -80,7 +80,7 @@
         "en": "Evaluation 100 points description"
       },
       "names": {
-        "de": "Evaluation 100 points",
+        "de": "Bewertung 100 Punkte",
         "ru": "Evaluation 100 points",
         "en": "Evaluation 100 points"
       }
@@ -93,7 +93,7 @@
         "en": "Norm Chapter description"
       },
       "names": {
-        "de": "Norm Chapter",
+        "de": "Norm Kapitel",
         "ru": "Norm Chapter",
         "en": "Norm Chapter"
       }
@@ -106,7 +106,7 @@
         "en": "Proposed Measures description"
       },
       "names": {
-        "de": "Proposed Measures",
+        "de": "Vorgeschlagene Maßnahme",
         "ru": "Proposed Measures",
         "en": "Proposed Measures"
       }
@@ -119,7 +119,7 @@
         "en": "Question description"
       },
       "names": {
-        "de": "Question",
+        "de": "Frage",
         "ru": "Question",
         "en": "Question"
       }

@@ -1,12 +1,12 @@
 {
   "jevisclass": "Report Link",
   "names": {
-    "de": "Report Link",
+    "de": "Berichtsverknüpfung",
     "ru": "Report Link",
     "en": "Report Link"
   },
   "descriptions": {
-    "de": "The Report Link is needed for the data filling process. It links a JEVisObject in the tree of the JEConfig to a variable in the template file.\n",
+    "de": "Die Berichtsverknüpfung wird für die Datenbefüllung benötigt. Sie verknüpft ein JEVis-Objekt im Baum des JEVisControlCenters mit einer Variablen in der Vorlagen-Datei.",
     "ru": "The Report Link is needed for the data filling process. It links a JEVisObject in the tree of the JEConfig to a variable in the template file.\n",
     "en": "The Report Link is needed for the data filling process. It links a JEVisObject in the tree of the JEConfig to a variable in the template file.\n"
   },
@@ -45,7 +45,7 @@
         "en": "Template Variable Name description"
       },
       "names": {
-        "de": "Template Variable Name",
+        "de": "Vorlagenvariablenname",
         "ru": "Template Variable Name",
         "en": "Template Variable Name"
       }

@@ -1,12 +1,12 @@
 {
   "jevisclass": "Converter Driver Directory",
   "names": {
-    "de": "Converter Driver Directory",
+    "de": "Konvertertreiberverzeichnis",
     "ru": "Converter Driver Directory",
     "en": "Converter Driver Directory"
   },
   "descriptions": {
-    "de": "The class Converter Driver Directory represents a specific directory for the management of converter driver data.\n",
+    "de": "Die Klasse Konvertertreiberverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Konverter-Treiberdaten dar.",
     "ru": "The class Converter Driver Directory represents a specific directory for the management of converter driver data.\n",
     "en": "The class Converter Driver Directory represents a specific directory for the management of converter driver data.\n"
   },

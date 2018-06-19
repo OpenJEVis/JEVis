@@ -1,7 +1,7 @@
 {
   "jevisclass": "DWD Data Point",
   "names": {
-    "de": "DWD Data Point",
+    "de": "DWD Datenpunkt",
     "ru": "DWD Data Point",
     "en": "DWD Data Point"
   },
@@ -15,7 +15,7 @@
         "en": "Atmospheric Pressure Target description"
       },
       "names": {
-        "de": "Atmospheric Pressure Target",
+        "de": "Atmosphärischer Druck Ziel",
         "ru": "Atmospheric Pressure Target",
         "en": "Atmospheric Pressure Target"
       }
@@ -28,7 +28,7 @@
         "en": "City description"
       },
       "names": {
-        "de": "City",
+        "de": "Stadt",
         "ru": "City",
         "en": "City"
       }
@@ -41,7 +41,7 @@
         "en": "Humidity Target description"
       },
       "names": {
-        "de": "Humidity Target",
+        "de": "Luftfeuchte Ziel",
         "ru": "Humidity Target",
         "en": "Humidity Target"
       }
@@ -54,7 +54,7 @@
         "en": "Precipitation Target description"
       },
       "names": {
-        "de": "Precipitation Target",
+        "de": "Niederschlag Ziel",
         "ru": "Precipitation Target",
         "en": "Precipitation Target"
       }
@@ -67,7 +67,7 @@
         "en": "Temperature Target description"
       },
       "names": {
-        "de": "Temperature Target",
+        "de": "Temperatur Ziel",
         "ru": "Temperature Target",
         "en": "Temperature Target"
       }
@@ -80,7 +80,7 @@
         "en": "Wind Speed Target description"
       },
       "names": {
-        "de": "Wind Speed Target",
+        "de": "Windgeschwindigkeit Ziel",
         "ru": "Wind Speed Target",
         "en": "Wind Speed Target"
       }

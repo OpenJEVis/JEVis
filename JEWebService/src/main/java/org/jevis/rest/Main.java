@@ -11,6 +11,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.jevis.ws.sql.ConnectionFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -91,24 +92,22 @@ public class Main {
         }
 
         // register shutdown hook
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("Stopping server..");
-                server.stop();
-            }
-        }, "shutdownHook"));
-
+        Runtime.getRuntime().addShutdownHook(
+                new GrizzlyServerShutdownHookThread(server)
+        );
 
         // run
         try {
             server.start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
             System.out.println("Press CTRL^C to exit..");
             Thread.currentThread().join();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-
     }
 }
 
