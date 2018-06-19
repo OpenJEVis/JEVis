@@ -1,12 +1,12 @@
 {
   "jevisclass": "Loytec XML-DL CEA709 Channel Directory",
   "names": {
-    "de": "Loytec XML-DL CEA709 Channel Directory",
+    "de": "Loytec XML-DL CEA709 Kanalverzeichnis",
     "ru": "Loytec XML-DL CEA709 Channel Directory",
     "en": "Loytec XML-DL CEA709 Channel Directory"
   },
   "descriptions": {
-    "de": "The Loytec XML-DL CEA709 Channel Directory contains Loytec XML-DL Channels that use CEA709 technology.",
+    "de": "Das Loytec XML-DL CEA709 Kanalverzeichnis enthält Loytec XML-DL Channels, die die CEA709 Technologie verwenden.",
     "ru": "The Loytec XML-DL CEA709 Channel Directory contains Loytec XML-DL Channels that use CEA709 technology.",
     "en": "The Loytec XML-DL CEA709 Channel Directory contains Loytec XML-DL Channels that use CEA709 technology."
   },
