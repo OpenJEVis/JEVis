@@ -1,12 +1,12 @@
 {
   "jevisclass": "Static Limit Alarm",
   "names": {
-    "de": "Static Limit Alarm",
+    "de": "Statischer Grenzwertalarm",
     "ru": "Static Limit Alarm",
     "en": "Static Limit Alarm"
   },
   "descriptions": {
-    "de": "The class Static Limit Alarm contains data of elements of an alarm with a static limit.",
+    "de": "Die Klasse Statischer Grenzwertalarm enthält Daten von Elementen eines Alarms mit einem statischen Grenzwert.",
     "ru": "The class Static Limit Alarm contains data of elements of an alarm with a static limit.",
     "en": "The class Static Limit Alarm contains data of elements of an alarm with a static limit."
   },
@@ -19,7 +19,7 @@
         "en": "Alarm Log description"
       },
       "names": {
-        "de": "Alarm Log",
+        "de": "Alarmprotokoll",
         "ru": "Alarm Log",
         "en": "Alarm Log"
       }
@@ -32,7 +32,7 @@
         "en": "Enable description"
       },
       "names": {
-        "de": "Enable",
+        "de": "Aktiviert",
         "ru": "Enable",
         "en": "Enable"
       }
@@ -45,7 +45,7 @@
         "en": "Limit description"
       },
       "names": {
-        "de": "Limit",
+        "de": "Grenze",
         "ru": "Limit",
         "en": "Limit"
       }
@@ -58,7 +58,7 @@
         "en": "Operator description"
       },
       "names": {
-        "de": "Operator",
+        "de": "Betreiber",
         "ru": "Operator",
         "en": "Operator"
       }
@@ -71,7 +71,7 @@
         "en": "Status description"
       },
       "names": {
-        "de": "Status",
+        "de": "Zustand",
         "ru": "Status",
         "en": "Status"
       }
