@@ -1,7 +1,7 @@
 {
   "jevisclass": "Report",
   "names": {
-    "de": "Report",
+    "de": "Bericht",
     "ru": "Report",
     "en": "Report"
   },
@@ -15,7 +15,7 @@
         "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -28,7 +28,7 @@
         "en": "Last Report description"
       },
       "names": {
-        "de": "Last Report",
+        "de": "Letzter Bericht",
         "ru": "Last Report",
         "en": "Last Report"
       }
@@ -54,7 +54,7 @@
         "en": "PDF Pages description"
       },
       "names": {
-        "de": "PDF Pages",
+        "de": "Anzahl PDF Seiten",
         "ru": "PDF Pages",
         "en": "PDF Pages"
       }
@@ -67,7 +67,7 @@
         "en": "Template description"
       },
       "names": {
-        "de": "Template",
+        "de": "Vorlage",
         "ru": "Template",
         "en": "Template"
       }
@@ -80,7 +80,7 @@
         "en": "Time Zone description"
       },
       "names": {
-        "de": "Time Zone",
+        "de": "Zeitzone",
         "ru": "Time Zone",
         "en": "Time Zone"
       }
