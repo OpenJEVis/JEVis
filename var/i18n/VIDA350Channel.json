@@ -1,7 +1,7 @@
 {
   "jevisclass": "VIDA350 Channel",
   "names": {
-    "de": "VIDA350 Channel",
+    "de": "VIDA350 Kanal",
     "ru": "VIDA350 Channel",
     "en": "VIDA350 Channel"
   },
@@ -28,7 +28,7 @@
         "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -41,7 +41,7 @@
         "en": "Target description"
       },
       "names": {
-        "de": "Target",
+        "de": "Ziel",
         "ru": "Target",
         "en": "Target"
       }
