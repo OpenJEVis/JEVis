@@ -15,7 +15,7 @@
         "en": "Date Attribute description"
       },
       "names": {
-        "de": "Date Attribute",
+        "de": "Datumsattribut",
         "ru": "Date Attribute",
         "en": "Date Attribute"
       }
@@ -28,7 +28,7 @@
         "en": "Date Element description"
       },
       "names": {
-        "de": "Date Element",
+        "de": "Datumselement",
         "ru": "Date Element",
         "en": "Date Element"
       }
@@ -41,7 +41,7 @@
         "en": "Date Format description"
       },
       "names": {
-        "de": "Date Format",
+        "de": "Datumsformat",
         "ru": "Date Format",
         "en": "Date Format"
       }
@@ -54,7 +54,7 @@
         "en": "Date in Element description"
       },
       "names": {
-        "de": "Date in Element",
+        "de": "Daum im Element",
         "ru": "Date in Element",
         "en": "Date in Element"
       }
@@ -67,7 +67,7 @@
         "en": "Decimal Separator description"
       },
       "names": {
-        "de": "Decimal Separator",
+        "de": "Dezimaltrennzeichen",
         "ru": "Decimal Separator",
         "en": "Decimal Separator"
       }
@@ -80,7 +80,7 @@
         "en": "Main Attribute description"
       },
       "names": {
-        "de": "Main Attribute",
+        "de": "Hauptattribut",
         "ru": "Main Attribute",
         "en": "Main Attribute"
       }
@@ -93,7 +93,7 @@
         "en": "Main Element description"
       },
       "names": {
-        "de": "Main Element",
+        "de": "Hauptelement",
         "ru": "Main Element",
         "en": "Main Element"
       }
@@ -106,7 +106,7 @@
         "en": "Thousand Separator description"
       },
       "names": {
-        "de": "Thousand Separator",
+        "de": "Tausendertrennzeichen",
         "ru": "Thousand Separator",
         "en": "Thousand Separator"
       }
@@ -119,7 +119,7 @@
         "en": "Time Attribute description"
       },
       "names": {
-        "de": "Time Attribute",
+        "de": "Zeitattribut",
         "ru": "Time Attribute",
         "en": "Time Attribute"
       }
@@ -132,7 +132,7 @@
         "en": "Time Element description"
       },
       "names": {
-        "de": "Time Element",
+        "de": "Zeitelement",
         "ru": "Time Element",
         "en": "Time Element"
       }
@@ -145,7 +145,7 @@
         "en": "Time Format description"
       },
       "names": {
-        "de": "Time Format",
+        "de": "Zeitformat",
         "ru": "Time Format",
         "en": "Time Format"
       }
@@ -158,7 +158,7 @@
         "en": "Time in Element description"
       },
       "names": {
-        "de": "Time in Element",
+        "de": "Zeit im Element",
         "ru": "Time in Element",
         "en": "Time in Element"
       }
@@ -171,7 +171,7 @@
         "en": "Value Attribute description"
       },
       "names": {
-        "de": "Value Attribute",
+        "de": "Wertattribut",
         "ru": "Value Attribute",
         "en": "Value Attribute"
       }
@@ -184,7 +184,7 @@
         "en": "Value Element description"
       },
       "names": {
-        "de": "Value Element",
+        "de": "Wertelement",
         "ru": "Value Element",
         "en": "Value Element"
       }
@@ -197,7 +197,7 @@
         "en": "Value in Element description"
       },
       "names": {
-        "de": "Value in Element",
+        "de": "Wert im Element",
         "ru": "Value in Element",
         "en": "Value in Element"
       }
