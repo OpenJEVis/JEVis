@@ -1,7 +1,7 @@
 {
   "jevisclass": "sFTP Channel",
   "names": {
-    "de": "sFTP Channel",
+    "de": "sFTP Kanal",
     "ru": "sFTP Channel",
     "en": "sFTP Channel"
   },
@@ -15,7 +15,7 @@
         "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letze Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -28,7 +28,7 @@
         "en": "Path description"
       },
       "names": {
-        "de": "Path",
+        "de": "Pfad",
         "ru": "Path",
         "en": "Path"
       }
