@@ -2,7 +2,7 @@
 
 source /home/jevis/.profile
 
-cd ${JEVIS_HOME}/JEWebService/target/
-java -jar ${JEVIS_HOME}/JEWebService/target/JEWebservice-1.6.jar ${JEVIS_HOME}/etc/webservice.xml &
+cd /home/gs/IdeaProjects/JEVis/JEWebService/target/
+java -jar /home/gs/IdeaProjects/JEVis/JEWebService/target/JEWebservice-1.6.jar /home/gs/IdeaProjects/JEVis/etc/webservice.xml &
 
 
