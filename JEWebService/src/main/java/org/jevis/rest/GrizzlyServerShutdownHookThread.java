@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 public class GrizzlyServerShutdownHookThread extends Thread {
     public static final String THREAD_NAME = "Grizzly Server Shutdown Hook";
 
-    public static final int GRACE_PERIOD = 60;
+    public static final int GRACE_PERIOD = 0;
     public static final TimeUnit GRACE_PERIOD_TIME_UNIT = TimeUnit.SECONDS;
 
     private final HttpServer server;
@@ -26,7 +26,8 @@ public class GrizzlyServerShutdownHookThread extends Thread {
     public void run() {
         System.out.println("Running Grizzly Server Shutdown Hook.");
         System.out.println("Shutting down server.");
-        GrizzlyFuture<HttpServer> future = server.shutdown(GRACE_PERIOD, GRACE_PERIOD_TIME_UNIT);
+        //GrizzlyFuture<HttpServer> future = server.shutdown(GRACE_PERIOD, GRACE_PERIOD_TIME_UNIT);
+        GrizzlyFuture<HttpServer> future = server.shutdown();
 
         try {
             System.out.println("Waiting for server to shut down... Grace period is " + GRACE_PERIOD + GRACE_PERIOD_TIME_UNIT);
