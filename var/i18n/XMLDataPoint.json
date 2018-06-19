@@ -1,7 +1,7 @@
 {
   "jevisclass": "XML Data Point",
   "names": {
-    "de": "XML Data Point",
+    "de": "XML Datenpunkt",
     "ru": "XML Data Point",
     "en": "XML Data Point"
   },
@@ -15,7 +15,7 @@
         "en": "Mapping Identifier description"
       },
       "names": {
-        "de": "Mapping Identifier",
+        "de": "Mapping Bezeichner",
         "ru": "Mapping Identifier",
         "en": "Mapping Identifier"
       }
@@ -28,7 +28,7 @@
         "en": "Target description"
       },
       "names": {
-        "de": "Target",
+        "de": "Ziel",
         "ru": "Target",
         "en": "Target"
       }
@@ -41,7 +41,7 @@
         "en": "Value Identifier description"
       },
       "names": {
-        "de": "Value Identifier",
+        "de": "Wert Bezeichner",
         "ru": "Value Identifier",
         "en": "Value Identifier"
       }
