@@ -1,7 +1,7 @@
 {
   "jevisclass": "HTTP Channel",
   "names": {
-    "de": "HTTP Channel",
+    "de": "HTTP Kanal",
     "ru": "HTTP Channel",
     "en": "HTTP Channel"
   },
@@ -15,7 +15,7 @@
         "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -28,7 +28,7 @@
         "en": "Path description"
       },
       "names": {
-        "de": "Path",
+        "de": "Pfad",
         "ru": "Path",
         "en": "Path"
       }
