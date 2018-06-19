@@ -29,6 +29,7 @@ import org.jevis.commons.ws.json.JsonI18nClass;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
