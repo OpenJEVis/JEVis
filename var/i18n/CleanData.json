@@ -97,7 +97,7 @@
         "en": "Defines if the value represents a quantity, such as kWh."
       },
       "names": {
-        "de": "Mengeneinheit
+        "de": "Mengeneinheit",
         "ru": "Value is a Quantity",
         "en": "Value is a Quantity"
       }
