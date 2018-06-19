@@ -1,12 +1,12 @@
 {
   "jevisclass": "Dynamic Limit Alarm",
   "names": {
-    "de": "Dynamic Limit Alarm",
+    "de": "Dynamischer Grenzwertalarm",
     "ru": "Dynamic Limit Alarm",
     "en": "Dynamic Limit Alarm"
   },
   "descriptions": {
-    "de": "The class Dynamic Limit Alarm contains data of elements of an alarm with a dynamic limit.",
+    "de": "Die Klasse Dynamischer Grenzwertalarm enthält Daten von Elementen eines Alarms mit einem dynamischen Grenzwert.",
     "ru": "The class Dynamic Limit Alarm contains data of elements of an alarm with a dynamic limit.",
     "en": "The class Dynamic Limit Alarm contains data of elements of an alarm with a dynamic limit."
   },
@@ -19,7 +19,7 @@
         "en": "Alarm Log description"
       },
       "names": {
-        "de": "Alarm Log",
+        "de": "Alarmprotokoll",
         "ru": "Alarm Log",
         "en": "Alarm Log"
       }
@@ -32,7 +32,7 @@
         "en": "Enable description"
       },
       "names": {
-        "de": "Enable",
+        "de": "Aktiviert",
         "ru": "Enable",
         "en": "Enable"
       }
@@ -45,7 +45,7 @@
         "en": "Limit Data description"
       },
       "names": {
-        "de": "Limit Data",
+        "de": "Grenzwert Daten",
         "ru": "Limit Data",
         "en": "Limit Data"
       }
@@ -58,7 +58,7 @@
         "en": "Operator description"
       },
       "names": {
-        "de": "Operator",
+        "de": "Betreiber",
         "ru": "Operator",
         "en": "Operator"
       }
@@ -71,7 +71,7 @@
         "en": "Status description"
       },
       "names": {
-        "de": "Status",
+        "de": "Zustand",
         "ru": "Status",
         "en": "Status"
       }
@@ -84,7 +84,7 @@
         "en": "Tolerance description"
       },
       "names": {
-        "de": "Tolerance",
+        "de": "Toleranz",
         "ru": "Tolerance",
         "en": "Tolerance"
       }

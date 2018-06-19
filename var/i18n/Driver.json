@@ -1,7 +1,7 @@
 {
   "jevisclass": "Driver",
   "names": {
-    "de": "Driver",
+    "de": "Treiber",
     "ru": "Driver",
     "en": "Driver"
   },
@@ -15,7 +15,7 @@
         "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -28,7 +28,7 @@
         "en": "JEVis Class description"
       },
       "names": {
-        "de": "JEVis Class",
+        "de": "JEVis-Klasse",
         "ru": "JEVis Class",
         "en": "JEVis Class"
       }
@@ -41,7 +41,7 @@
         "en": "Main Class description"
       },
       "names": {
-        "de": "Main Class",
+        "de": "Hauptklasse",
         "ru": "Main Class",
         "en": "Main Class"
       }
@@ -54,7 +54,7 @@
         "en": "Source File description"
       },
       "names": {
-        "de": "Source File",
+        "de": "Quelldatei",
         "ru": "Source File",
         "en": "Source File"
       }

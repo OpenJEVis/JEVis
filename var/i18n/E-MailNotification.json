@@ -1,7 +1,7 @@
 {
   "jevisclass": "E-Mail Notification",
   "names": {
-    "de": "E-Mail Notification",
+    "de": "E-Mail Benachrichtigung",
     "ru": "E-Mail Notification",
     "en": "E-Mail Notification"
   },
@@ -15,7 +15,7 @@
         "en": "Attachments description"
       },
       "names": {
-        "de": "Attachments",
+        "de": "Anhänge",
         "ru": "Attachments",
         "en": "Attachments"
       }
@@ -41,9 +41,9 @@
         "en": "Carbon Copys description"
       },
       "names": {
-        "de": "Carbon Copys",
-        "ru": "Carbon Copys",
-        "en": "Carbon Copys"
+        "de": "CC",
+        "ru": "CC",
+        "en": "CC"
       }
     },
     {
@@ -67,7 +67,7 @@
         "en": "Message description"
       },
       "names": {
-        "de": "Message",
+        "de": "Nachricht",
         "ru": "Message",
         "en": "Message"
       }
@@ -80,7 +80,7 @@
         "en": "Recipients description"
       },
       "names": {
-        "de": "Recipients",
+        "de": "Empfänger",
         "ru": "Recipients",
         "en": "Recipients"
       }
@@ -93,7 +93,7 @@
         "en": "Sent Time description"
       },
       "names": {
-        "de": "Sent Time",
+        "de": "Versandzeitpunkt",
         "ru": "Sent Time",
         "en": "Sent Time"
       }
@@ -106,7 +106,7 @@
         "en": "Subject description"
       },
       "names": {
-        "de": "Subject",
+        "de": "Betreff",
         "ru": "Subject",
         "en": "Subject"
       }
