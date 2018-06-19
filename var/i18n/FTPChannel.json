@@ -1,7 +1,7 @@
 {
   "jevisclass": "FTP Channel",
   "names": {
-    "de": "FTP Channel",
+    "de": "FTP Kanal",
     "ru": "FTP Channel",
     "en": "FTP Channel"
   },
@@ -19,7 +19,7 @@
         "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -32,7 +32,7 @@
         "en": "Path description"
       },
       "names": {
-        "de": "Path",
+        "de": "Pfad",
         "ru": "Path",
         "en": "Path"
       }
