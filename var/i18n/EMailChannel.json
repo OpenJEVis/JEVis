@@ -1,12 +1,12 @@
 {
   "jevisclass": "EMail Channel",
   "names": {
-    "de": "EMail Channel",
+    "de": "EMail Kanal",
     "ru": "EMail Channel",
     "en": "EMail Channel"
   },
   "descriptions": {
-    "de": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox.",
+    "de": "Die Klasse EMail Kanal repräsentiert die Nachricht und enthält die notwendigen Parameter, um sie aus der Mailbox auszuwählen.",
     "ru": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox.",
     "en": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox."
   },
@@ -19,7 +19,7 @@
         "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -32,7 +32,7 @@
         "en": "Sender description"
       },
       "names": {
-        "de": "Sender",
+        "de": "Versender",
         "ru": "Sender",
         "en": "Sender"
       }
@@ -45,7 +45,7 @@
         "en": "Subject description"
       },
       "names": {
-        "de": "Subject",
+        "de": "Betreff",
         "ru": "Subject",
         "en": "Subject"
       }
