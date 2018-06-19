@@ -1,7 +1,7 @@
 {
   "jevisclass": "SQL Data Point",
   "names": {
-    "de": "SQL Data Point",
+    "de": "SQL Datenpunkt",
     "ru": "SQL Data Point",
     "en": "SQL Data Point"
   },
@@ -15,7 +15,7 @@
         "en": "Target Attribute description"
       },
       "names": {
-        "de": "Target Attribute",
+        "de": "Zielattribut",
         "ru": "Target Attribute",
         "en": "Target Attribute"
       }
@@ -28,7 +28,7 @@
         "en": "Target ID description"
       },
       "names": {
-        "de": "Target ID",
+        "de": "Ziel ID",
         "ru": "Target ID",
         "en": "Target ID"
       }
@@ -41,7 +41,7 @@
         "en": "Timestamp Column description"
       },
       "names": {
-        "de": "Timestamp Column",
+        "de": "Zeitstempel Spalte",
         "ru": "Timestamp Column",
         "en": "Timestamp Column"
       }
@@ -54,7 +54,7 @@
         "en": "Timestamp Type description"
       },
       "names": {
-        "de": "Timestamp Type",
+        "de": "Zeitstempel Typ",
         "ru": "Timestamp Type",
         "en": "Timestamp Type"
       }
@@ -67,7 +67,7 @@
         "en": "Value Column description"
       },
       "names": {
-        "de": "Value Column",
+        "de": "Wert Spalte",
         "ru": "Value Column",
         "en": "Value Column"
       }
@@ -80,7 +80,7 @@
         "en": "Value Type description"
       },
       "names": {
-        "de": "Value Type",
+        "de": "Wert Typ",
         "ru": "Value Type",
         "en": "Value Type"
       }
