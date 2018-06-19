@@ -29,7 +29,6 @@ import org.jevis.commons.ws.json.JsonI18nClass;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,8 +95,7 @@ public class ResourceI18n {
 
     }
 
-
-    private JsonI18nClass loadFile(File file) throws FileNotFoundException {
+    private JsonI18nClass loadFile(File file) throws Exception {
         Gson gson = new Gson();
         JsonReader reader = new JsonReader(new FileReader(file));
         JsonI18nClass data = gson.fromJson(reader, JsonI18nClass.class);
