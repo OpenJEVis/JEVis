@@ -1,7 +1,7 @@
 {
   "jevisclass": "SOAP Channel",
   "names": {
-    "de": "SOAP Channel",
+    "de": "SOAP Kanal",
     "ru": "SOAP Channel",
     "en": "SOAP Channel"
   },
@@ -15,7 +15,7 @@
         "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -28,7 +28,7 @@
         "en": "Path description"
       },
       "names": {
-        "de": "Path",
+        "de": "Pfad",
         "ru": "Path",
         "en": "Path"
       }
@@ -41,7 +41,7 @@
         "en": "Template description"
       },
       "names": {
-        "de": "Template",
+        "de": "Vorlage",
         "ru": "Template",
         "en": "Template"
       }
