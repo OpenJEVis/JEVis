@@ -15,7 +15,7 @@
         "en": "Connection Timeout description"
       },
       "names": {
-        "de": "Connection Timeout",
+        "de": "Verbindungs-Timeout",
         "ru": "Connection Timeout",
         "en": "Connection Timeout"
       }
@@ -28,7 +28,7 @@
         "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -67,7 +67,7 @@
         "en": "Read Timeout description"
       },
       "names": {
-        "de": "Read Timeout",
+        "de": "Lese-Timeout",
         "ru": "Read Timeout",
         "en": "Read Timeout"
       }
@@ -80,7 +80,7 @@
         "en": "Timezone description"
       },
       "names": {
-        "de": "Timezone",
+        "de": "Zeitzone",
         "ru": "Timezone",
         "en": "Timezone"
       }
