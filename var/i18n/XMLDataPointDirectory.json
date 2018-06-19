@@ -1,12 +1,12 @@
 {
   "jevisclass": "XML Data Point Directory",
   "names": {
-    "de": "XML Data Point Directory",
+    "de": "XML Datenpunktverzeichnis",
     "ru": "XML Data Point Directory",
     "en": "XML Data Point Directory"
   },
   "descriptions": {
-    "de": "The class XML Data Point Directory represents a specific directory for the management of XML data.\n",
+    "de": "Die Klasse XML Datenpunktverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von XML-Daten dar.",
     "ru": "The class XML Data Point Directory represents a specific directory for the management of XML data.\n",
     "en": "The class XML Data Point Directory represents a specific directory for the management of XML data.\n"
   },
