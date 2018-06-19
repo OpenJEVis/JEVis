@@ -1,12 +1,12 @@
 {
   "jevisclass": "Loytec XML-DL Channel",
   "names": {
-    "de": "Loytec XML-DL Channel",
+    "de": "Loytec XML-DL Kanal",
     "ru": "Loytec XML-DL Channel",
     "en": "Loytec XML-DL Channel"
   },
   "descriptions": {
-    "de": "The Loytec XML-DL Channel defines how to access a trend object from LINX Automation Server or LIOB Controller.\n\n- Target ID: JEVis Data target ID\n- Trend ID: 4 digit hex identifier\n",
+    "de": "Der Loytec XML-DL Kanal definiert den Zugriff auf ein Trendobjekt vom LINX Automation Server oder LIOB Controller:\nJEVis Data target ID\n- Trend ID: 4-stellige Hex-Kennung",
     "ru": "The Loytec XML-DL Channel defines how to access a trend object from LINX Automation Server or LIOB Controller.\n\n- Target ID: JEVis Data target ID\n- Trend ID: 4 digit hex identifier\n",
     "en": "The Loytec XML-DL Channel defines how to access a trend object from LINX Automation Server or LIOB Controller.\n\n- Target ID: JEVis Data target ID\n- Trend ID: 4 digit hex identifier\n"
   },
@@ -19,7 +19,7 @@
         "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -32,7 +32,7 @@
         "en": "Target ID description"
       },
       "names": {
-        "de": "Target ID",
+        "de": "Ziel ID",
         "ru": "Target ID",
         "en": "Target ID"
       }
