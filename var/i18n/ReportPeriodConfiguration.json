@@ -1,7 +1,7 @@
 {
   "jevisclass": "Report Period Configuration",
   "names": {
-    "de": "Report Period Configuration",
+    "de": "Berichtsperiodenkonfiguration",
     "ru": "Report Period Configuration",
     "en": "Report Period Configuration"
   },
@@ -28,7 +28,7 @@
         "en": "Period description"
       },
       "names": {
-        "de": "Period",
+        "de": "Periode",
         "ru": "Period",
         "en": "Period"
       }
