@@ -1,12 +1,12 @@
 {
   "jevisclass": "File",
   "names": {
-    "de": "File",
+    "de": "Datei",
     "ru": "File",
     "en": "File"
   },
   "descriptions": {
-    "de": "The class File represents a container for a series of files.",
+    "de": "Die Klasse Datei repräsentiert einen Container für eine Reihe von Dateien.",
     "ru": "The class File represents a container for a series of files.",
     "en": "The class File represents a container for a series of files."
   },
@@ -19,7 +19,7 @@
         "en": "File description"
       },
       "names": {
-        "de": "File",
+        "de": "Datei",
         "ru": "File",
         "en": "File"
       }
