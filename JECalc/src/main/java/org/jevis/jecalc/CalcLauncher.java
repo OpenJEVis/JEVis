@@ -6,8 +6,6 @@
 package org.jevis.jecalc;
 
 import com.beust.jcommander.Parameter;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -16,6 +14,9 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.utils.Benchmark;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -84,7 +85,7 @@ public class CalcLauncher extends AbstractCliApp {
     }
 
     @Override
-    protected void runService() {
+    protected void runService(Integer cycle_time) {
         java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, "JECalc: service mode not supported");
     }
 
