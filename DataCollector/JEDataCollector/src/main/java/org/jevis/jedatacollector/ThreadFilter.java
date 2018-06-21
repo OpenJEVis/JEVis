@@ -13,7 +13,7 @@ import org.apache.log4j.spi.LoggingEvent;
  */
 public class ThreadFilter extends Filter {
 
-    private String _value;
+    private String _value = "";
 
     public ThreadFilter(String key) {
         _value = key;
@@ -24,7 +24,7 @@ public class ThreadFilter extends Filter {
         String mdc = (String) le.getMDC(Launcher.KEY);
 //        System.out.println("MDC: " + mdc);
 //        System.out.println("key: " + _value);
-        if (mdc.equals(_value)) {
+        if (mdc != null && mdc.equals(_value)) {
             return Filter.ACCEPT;
         } else {
             return Filter.DENY;
