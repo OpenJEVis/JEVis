@@ -21,6 +21,7 @@ package org.jevis.commons.cli;
 
 import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.Parameter;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,8 +60,13 @@ public class BasicSettings {
     public static final String SINGLE = "single";
     public static final String COMPLETE = "complete";
     public static final String SERVICE = "service";
-    private static final String DESC_MODE = "Configure the serice mode ("+SINGLE+", "+SERVICE+", "+COMPLETE+")";
+    private static final String DESC_MODE = "Configure the service mode (" + SINGLE + ", " + SERVICE + ", " + COMPLETE + ")";
     @Parameter(names = {"--servicemode", "-sm"}, required = false,  description = DESC_MODE, validateWith = CliServiceModeValidator.class)
     public String servicemode = COMPLETE;
+
+
+    private static final String CYCLE_TIME = "Cycle Time";
+    @Parameter(names = {"--cycle-time", "cc"}, required = false, description = CYCLE_TIME)
+    public Integer cycle_time;
 }
 

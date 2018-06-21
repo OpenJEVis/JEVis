@@ -25,14 +25,14 @@ public class Launcher extends AbstractCliApp {
     public static final String APP_INFO = "JEDataCollector 2018-02-21";
     public static String KEY = "process-id";
     private static Logger logger = Logger.getRootLogger();
-    private final int cycleTime = 3600;
+    private int cycleTime = 1800000;
     private final Command commands = new Command();
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("Müdfjäposhfaäwhesädoh");
+
         try {
             Appender appender = Logger.getRootLogger().getAppender("FILE");
             appender.addFilter(new ThreadFilter("-1"));
@@ -212,17 +212,39 @@ public class Launcher extends AbstractCliApp {
         }
     }
 
-    @Override
-    protected void runService() {
+    protected void runService(Integer cycle_time) {
         java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Service Mode");
+
+        Thread service = new Thread(() -> runServiceHelp());
+        Runtime.getRuntime().addShutdownHook(
+                new JEDataCollectorShutdownHookThread(service)
+        );
+
+        if (cycle_time != null) cycleTime = cycle_time;
+
+        try {
+
+            service.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            System.out.println("Press CTRL^C to exit..");
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void runServiceHelp() {
         List<JEVisObject> dataSources = new ArrayList<>();
         dataSources = getEnabledDataSources(ds);
         excecuteDataSources(dataSources);
         try {
             Thread.sleep(cycleTime);
-            runService();
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            runServiceHelp();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

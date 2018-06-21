@@ -79,7 +79,7 @@ public abstract class AbstractCliApp {
             if (settings.servicemode.equals(BasicSettings.SINGLE)) {
                 runSingle();
             } else if (settings.servicemode.equals(BasicSettings.SERVICE)) {
-                runService();
+                runService(settings.cycle_time);
             } else if (settings.servicemode.equals(BasicSettings.COMPLETE)) {
                 runComplete();
             }
@@ -187,7 +187,7 @@ public abstract class AbstractCliApp {
     /**
      * run for service mode business logic in this method
      */
-    protected abstract void runService();
+    protected abstract void runService(Integer cycle_time);
 
     /**
      * run for complete mode business logic in this method
