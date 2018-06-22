@@ -162,15 +162,22 @@ public class GapFillingEditor implements AttributeEditor {
     }
 
     private Response show() throws JEVisException {
-        String gapFillingConfig = _attribute.getLatestSample().getValueAsString();
-        if (gapFillingConfig.endsWith("]")) {
-            _listConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
-            }.getType());
-        } else {
+        String gapFillingConfig;
+        if (!_attribute.hasSample()) {
+            JsonGapFillingConfig newConfig = new JsonGapFillingConfig();
+            newConfig.setName(I18n.getInstance().getString("newobject.new.title"));
             _listConfig = new ArrayList<>();
-            _listConfig.add(new Gson().fromJson(gapFillingConfig, JsonGapFillingConfig.class));
+            _listConfig.add(newConfig);
+        } else {
+            gapFillingConfig = _attribute.getLatestSample().getValueAsString();
+            if (gapFillingConfig.endsWith("]")) {
+                _listConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
+                }.getType());
+            } else {
+                _listConfig = new ArrayList<>();
+                _listConfig.add(new Gson().fromJson(gapFillingConfig, JsonGapFillingConfig.class));
+            }
         }
-
 
         _tp.getTabs().clear();
         Dialog<ButtonType> _dialog = new Dialog<>();
@@ -468,21 +475,23 @@ public class GapFillingEditor implements AttributeEditor {
         _gp.add(boundary, 0, 2);
         _gp.add(_field_Boundary, 1, 2);
 
-        if (_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
-                && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
-            _gp.add(default_value, 0, 3);
-            _gp.add(_field_Default_Value, 1, 3);
-        }
+        if (Objects.nonNull(_listConfig.get(finalI).getType())) {
+            if (_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
+                    && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
+                _gp.add(default_value, 0, 3);
+                _gp.add(_field_Default_Value, 1, 3);
+            }
 
-        if (!_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
-                && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
-            _gp.add(reference_period_count, 0, 4);
-            _gp.add(_field_Reference_Period_Count, 1, 4);
-            _gp.add(_field_Reference_Period, 2, 4);
-            _gp.add(reference_period, 3, 4);
+            if (!_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
+                    && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
+                _gp.add(reference_period_count, 0, 4);
+                _gp.add(_field_Reference_Period_Count, 1, 4);
+                _gp.add(_field_Reference_Period, 2, 4);
+                _gp.add(reference_period, 3, 4);
 
-            _gp.add(boundtospecific, 0, 6);
-            _gp.add(_field_Bound_Specific, 1, 6);
+                _gp.add(boundtospecific, 0, 6);
+                _gp.add(_field_Bound_Specific, 1, 6);
+            }
         }
 
         _gp.add(deleteConfig, 3, 8);
