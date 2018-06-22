@@ -6,7 +6,7 @@
     "en": "JEDataCollector"
   },
   "descriptions": {
-    "de": "JEDataCollector represents an automated data collecting service. JEDataCollector enables the JEVis system to read-out data from different types of data servers, for instance FTP and HTTP servers.",
+    "de": "JEDataCollector ist ein automatisierter Datenerfassungsdienst. JEDataCollector ermöglicht dem JEVis-System das Auslesen von Daten von verschiedenen Arten von Datenservern, z.B. FTP- und HTTP-Servern.",
     "ru": "JEDataCollector represents an automated data collecting service. JEDataCollector enables the JEVis system to read-out data from different types of data servers, for instance FTP and HTTP servers.",
     "en": "JEDataCollector represents an automated data collecting service. JEDataCollector enables the JEVis system to read-out data from different types of data servers, for instance FTP and HTTP servers."
   },
@@ -14,12 +14,12 @@
     {
       "type": "Data Source Timeout",
       "descriptions": {
-        "de": "Data Source Timeout desctiption",
-        "ru": "Data Source Timeout desctiption",
-        "en": "Data Source Timeout desctiption"
+        "de": "Data Source Timeout description",
+        "ru": "Data Source Timeout description",
+        "en": "Data Source Timeout description"
       },
       "names": {
-        "de": "Data Source Timeout",
+        "de": "Datenquellen-Timeout",
         "ru": "Data Source Timeout",
         "en": "Data Source Timeout"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Enable",
       "descriptions": {
-        "de": "Enable desctiption",
-        "ru": "Enable desctiption",
-        "en": "Enable desctiption"
+        "de": "Enable description",
+        "ru": "Enable description",
+        "en": "Enable description"
       },
       "names": {
-        "de": "Enable",
+        "de": "Aktiviert",
         "ru": "Enable",
         "en": "Enable"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Max Number Threads",
       "descriptions": {
-        "de": "Max Number Threads desctiption",
-        "ru": "Max Number Threads desctiption",
-        "en": "Max Number Threads desctiption"
+        "de": "Max Number Threads description",
+        "ru": "Max Number Threads description",
+        "en": "Max Number Threads description"
       },
       "names": {
-        "de": "Max Number Threads",
+        "de": "Maximale Anzahl Threads",
         "ru": "Max Number Threads",
         "en": "Max Number Threads"
       }

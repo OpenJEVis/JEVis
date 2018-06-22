@@ -6,20 +6,20 @@
     "en": "Channel"
   },
   "descriptions": {
-    "de": "The class Channel represents a none-specific directory for the structuring of the system. The class Channel is only used for the inheritance of specific channel types.",
+    "de": "Der Channel gibt den Datenkanal bzw. Datenpfad einer Datenauslesung an.",
     "ru": "The class Channel represents a none-specific directory for the structuring of the system. The class Channel is only used for the inheritance of specific channel types.",
-    "en": "The class Channel represents a none-specific directory for the structuring of the system. The class Channel is only used for the inheritance of specific channel types."
+    "en": "The Channel defines the data channel or data path of a data read-out."
   },
   "types": [
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout desctiption",
-        "ru": "Last Readout desctiption",
-        "en": "Last Readout desctiption"
+        "de": "Gibt das Datum der letzten Auslesung an.",
+        "ru": "Last Readout description",
+        "en": "Stores the date of the last read-out."
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }

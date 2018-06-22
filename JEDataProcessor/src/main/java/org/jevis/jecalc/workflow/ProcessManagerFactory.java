@@ -5,14 +5,6 @@
  */
 package org.jevis.jecalc.workflow;
 
-import org.jevis.jecalc.data.CleanDataAttributeJEVis;
-import org.jevis.jecalc.data.CleanDataAttribute;
-import org.jevis.jecalc.data.CleanDataAttributeOffline;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -22,19 +14,24 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jecalc.CommandLineParser;
 import org.jevis.jecalc.alignment.PeriodAlignmentStep;
+import org.jevis.jecalc.data.CleanDataAttribute;
+import org.jevis.jecalc.data.CleanDataAttributeJEVis;
+import org.jevis.jecalc.data.CleanDataAttributeOffline;
 import org.jevis.jecalc.differential.DifferentialStep;
 import org.jevis.jecalc.functional.avg.AverageStep;
 import org.jevis.jecalc.functional.sum.SummationStep;
 import org.jevis.jecalc.gap.FillGapStep;
 import org.jevis.jecalc.save.ImportStep;
 import org.jevis.jecalc.scaling.ScalingStep;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+
 /**
- *
  * @author broder
  */
 public class ProcessManagerFactory {
@@ -280,6 +277,6 @@ public class ProcessManagerFactory {
 
     public enum ProcessType {
 
-        clean, functional;
+        clean, functional
     }
 }

@@ -19,9 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -39,13 +36,17 @@ import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.relationship.RelationshipTable;
 import org.jevis.jeconfig.tool.I18n;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class LinkExtension implements ObjectEditorExtension {
 
-    private static final String TITEL = I18n.getInstance().getString("plugin.object.links");
+    private static final String TITLE = I18n.getInstance().getString("plugin.object.links");
     private final BorderPane _view = new BorderPane();
     private JEVisObject _obj;
     private boolean _needSave = false;
@@ -132,9 +133,9 @@ public class LinkExtension implements ObjectEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
 
-        return TITEL;
+        return TITLE;
     }
 
     @Override

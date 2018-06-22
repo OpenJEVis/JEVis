@@ -119,8 +119,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             //TODO: throw excption?! so the other function can handel it?
         } catch (IOException ex) {
             Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JEVisException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
         }
         return new ArrayList<>();
     }
@@ -163,7 +161,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.RELATIONSHIPS.PATH;
 
-            logger.debug("playload: {}", gson.toJson(newJsonRel));
+            logger.debug("payload: {}", gson.toJson(newJsonRel));
             StringBuffer response = getHTTPConnection().postRequest(resource, gson.toJson(newJsonRel));
 
 
@@ -266,7 +264,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return objectRelCache;
     }
 
-    public List<JEVisRelationship> getRelationshipsWS() throws JEVisException {
+    public List<JEVisRelationship> getRelationshipsWS() {
         logger.error("Get ALL RelationshipsWS");
         try {
             Benchmark bm = new Benchmark();

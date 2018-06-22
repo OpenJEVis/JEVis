@@ -1,12 +1,12 @@
 {
   "jevisclass": "8.2 Design",
   "names": {
-    "de": "8.2 Design",
+    "de": "8.2 Auslegung",
     "ru": "8.2 Design",
     "en": "8.2 Design"
   },
   "descriptions": {
-    "de": "The organization shall consider energy performance improvement opportunities and operational control in the design of new, modified and renovated facilities, equipment, systems and energy-using processes that can have a significant impact on its energy performance over the planned or expected operating lifetime.   \nWhere appropriate, the results of the energy performance evaluation shall be incorporated into the specification, design and procurement activities.  \nThe results of the design activities shall be retained as documented information (see 7.5).   ",
+    "de": "Bei der Auslegung neuer, veränderter oder renovierter Anlagen/Standorte, Einrichtungen, Systeme und Energie nutzender Prozesse, die einen wesentlichen Einfluss auf ihre energiebezogene Leistung über die geplante oder erwartete Betriebslebensdauer haben können, muss die Organisation Möglichkeiten zur Verbesserung der energiebezogenen Leistung und die Ablauflenkung berücksichtigen.\nDie Ergebnisse der Bewertung der energiebezogenen Leistung müssen, wenn angebracht, in die Spezifikation, Auslegung und Beschaffungsaktivitäten mit einbezogen werden.\nDie Ergebnisse der Auslegungsaktivitäten müssen als dokumentierte Information (siehe 7.5) aufbewahrt werden.",
     "ru": "The organization shall consider energy performance improvement opportunities and operational control in the design of new, modified and renovated facilities, equipment, systems and energy-using processes that can have a significant impact on its energy performance over the planned or expected operating lifetime.   \nWhere appropriate, the results of the energy performance evaluation shall be incorporated into the specification, design and procurement activities.  \nThe results of the design activities shall be retained as documented information (see 7.5).   ",
     "en": "The organization shall consider energy performance improvement opportunities and operational control in the design of new, modified and renovated facilities, equipment, systems and energy-using processes that can have a significant impact on its energy performance over the planned or expected operating lifetime.   \nWhere appropriate, the results of the energy performance evaluation shall be incorporated into the specification, design and procurement activities.  \nThe results of the design activities shall be retained as documented information (see 7.5).   "
   },
@@ -14,12 +14,12 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content desctiption",
-        "ru": "Content desctiption",
-        "en": "Content desctiption"
+        "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
+        "ru": "Content description",
+        "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by desctiption",
-        "ru": "Created by desctiption",
-        "en": "Created by desctiption"
+        "de": "Der Autor des Dokuments",
+        "ru": "Created by description",
+        "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation desctiption",
-        "ru": "Date of Creation desctiption",
-        "en": "Date of Creation desctiption"
+        "de": "Datum an dem das Dokument erstellt wurde",
+        "ru": "Date of Creation description",
+        "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number desctiption",
-        "ru": "Document Number desctiption",
-        "en": "Document Number desctiption"
+        "de": "Die eindeutige Dokumentennummer",
+        "ru": "Document Number description",
+        "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date desctiption",
-        "ru": "Release Date desctiption",
-        "en": "Release Date desctiption"
+        "de": "Das Datum der Veröffentlichung des Dokuments",
+        "ru": "Release Date description",
+        "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by desctiption",
-        "ru": "Released by desctiption",
-        "en": "Released by desctiption"
+        "de": "Verantwortliche Person für die Veröffentlichung",
+        "ru": "Released by description",
+        "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title desctiption",
-        "ru": "Title desctiption",
-        "en": "Title desctiption"
+        "de": "Titel des Dokuments",
+        "ru": "Title description",
+        "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -105,9 +105,9 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version desctiption",
-        "ru": "Version desctiption",
-        "en": "Version desctiption"
+        "de": "Die Versionsnummer des Dokuments",
+        "ru": "Version description",
+        "en": "Version description"
       },
       "names": {
         "de": "Version",

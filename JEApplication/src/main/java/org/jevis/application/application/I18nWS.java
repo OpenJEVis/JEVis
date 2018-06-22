@@ -26,16 +26,15 @@ public class I18nWS {
     private List<JsonI18nClass> i18nfiles;
 
 
+    public I18nWS() {
+
+    }
+
     public static synchronized I18nWS getInstance() {
         if (i18n == null)
             i18n = new I18nWS();
         return i18n;
     }
-
-    public I18nWS() {
-
-    }
-
 
     /**
      * Add an webservice as an additional translation source.

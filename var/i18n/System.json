@@ -6,7 +6,7 @@
     "en": "System"
   },
   "descriptions": {
-    "de": "JEVis Root Node whit system informations",
+    "de": "JEVis Root Node mit Systeminformationen",
     "ru": "JEVis Root Node whit system informations",
     "en": "JEVis Root Node whit system informations"
   },
@@ -14,9 +14,9 @@
     {
       "type": "Domain Name",
       "descriptions": {
-        "de": "Domain Name desctiption",
-        "ru": "Domain Name desctiption",
-        "en": "Domain Name desctiption"
+        "de": "Domain Name description",
+        "ru": "Domain Name description",
+        "en": "Domain Name description"
       },
       "names": {
         "de": "Domain Name",
@@ -27,9 +27,9 @@
     {
       "type": "Hostname",
       "descriptions": {
-        "de": "Hostname desctiption",
-        "ru": "Hostname desctiption",
-        "en": "Hostname desctiption"
+        "de": "Hostname description",
+        "ru": "Hostname description",
+        "en": "Hostname description"
       },
       "names": {
         "de": "Hostname",
@@ -40,9 +40,9 @@
     {
       "type": "Language",
       "descriptions": {
-        "de": "Language desctiption",
-        "ru": "Language desctiption",
-        "en": "Language desctiption"
+        "de": "Language description",
+        "ru": "Language description",
+        "en": "Language description"
       },
       "names": {
         "de": "Sprache",
@@ -53,12 +53,12 @@
     {
       "type": "Local IP",
       "descriptions": {
-        "de": "Local IP desctiption",
-        "ru": "Local IP desctiption",
-        "en": "Local IP desctiption"
+        "de": "Local IP description",
+        "ru": "Local IP description",
+        "en": "Local IP description"
       },
       "names": {
-        "de": "Local IP",
+        "de": "Lokale IP",
         "ru": "Local IP",
         "en": "Local IP"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Public IP",
       "descriptions": {
-        "de": "Public IP desctiption",
-        "ru": "Public IP desctiption",
-        "en": "Public IP desctiption"
+        "de": "Public IP description",
+        "ru": "Public IP description",
+        "en": "Public IP description"
       },
       "names": {
-        "de": "Public IP",
+        "de": "Öffentliche IP",
         "ru": "Public IP",
         "en": "Public IP"
       }
@@ -79,9 +79,9 @@
     {
       "type": "TimeZone",
       "descriptions": {
-        "de": "TimeZone desctiption",
-        "ru": "TimeZone desctiption",
-        "en": "TimeZone desctiption"
+        "de": "TimeZone description",
+        "ru": "TimeZone description",
+        "en": "TimeZone description"
       },
       "names": {
         "de": "Zeitzone",

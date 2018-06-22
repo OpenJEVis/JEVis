@@ -56,7 +56,7 @@ public interface ObjectEditorExtension {
      *
      * @return
      */
-    public String getTitel();
+    public String getTitle();
 
     /**
      * return true if the user changed someting and it needs to be saved

@@ -81,12 +81,20 @@ public class JEVisUnitImp implements JEVisUnit {
 
     }
 
-    @Override
-    public String toJSON() {
-        Gson gson = new GsonBuilder().create();
-        JsonUnit junit = JsonFactory.buildUnit(this);
-
-        return gson.toJson(junit, JsonUnit.class);
+    /**
+     * Create an new JEVisUnit from an JEVisUnit string
+     *
+     * @param prefix
+     * @param unit
+     * @param label
+     * @TODO example of an string
+     */
+    public JEVisUnitImp(String unit, String label, Prefix prefix) {
+//        System.out.println("new JEVisUnitImp2: " + unit + " - " + label + " - " + prefix);
+        UnitFormula up = new UnitFormula(unit, label);
+        _unit = up.getUnit();
+        _label = label;
+        _prefix = prefix;
     }
 
     public Unit toUnit() {
@@ -111,20 +119,12 @@ public class JEVisUnitImp implements JEVisUnit {
         _prefix = prefix;
     }
 
-    /**
-     * Create an new JEVisUnit from an JEVisUnit string
-     *
-     * @param prefix
-     * @param unit
-     * @param label
-     * @TODO example of an string
-     */
-    public JEVisUnitImp(String unit, String label, Prefix prefix) {
-//        System.out.println("new JEVisUnitImp2: " + unit + " - " + label + " - " + prefix);
-        UnitFormula up = new UnitFormula(unit, label);
-        _unit = up.getUnit();
-        _label = label;
-        _prefix = prefix;
+    @Override
+    public String toJSON() {
+        Gson gson = new GsonBuilder().create();
+        JsonUnit junit = JsonFactory.buildUnit(this);
+
+        return gson.toJson(junit, JsonUnit.class);
     }
 
     @Override
@@ -296,15 +296,12 @@ public class JEVisUnitImp implements JEVisUnit {
         if (!Objects.equals(this.getFormula(), other.getFormula())) {
             return false;
         }
-        if (!Objects.equals(this.getPrefix(), other.getPrefix())) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.getPrefix(), other.getPrefix());
     }
 
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    protected Object clone() {
         JEVisUnit clone = new JEVisUnitImp(_unit);
 
         return clone;

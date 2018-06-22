@@ -1,12 +1,12 @@
 {
   "jevisclass": "File Directory",
   "names": {
-    "de": "File Directory",
+    "de": "Dateiverzeichnis",
     "ru": "File Directory",
     "en": "File Directory"
   },
   "descriptions": {
-    "de": "The class File Directory represents a specific directory for the management of files.",
+    "de": "Die Klasse Dateiverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Dateien dar.",
     "ru": "The class File Directory represents a specific directory for the management of files.",
     "en": "The class File Directory represents a specific directory for the management of files."
   },

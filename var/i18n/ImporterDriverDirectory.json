@@ -1,12 +1,12 @@
 {
   "jevisclass": "Importer Driver Directory",
   "names": {
-    "de": "Importer Driver Directory",
+    "de": "Importeur Treiberverzeichnis",
     "ru": "Importer Driver Directory",
     "en": "Importer Driver Directory"
   },
   "descriptions": {
-    "de": "The class Importer Driver Directory represents a specific directory for the management of importer driver data.",
+    "de": "Die Klasse Importeur Treiberverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Importtreiberdaten dar.",
     "ru": "The class Importer Driver Directory represents a specific directory for the management of importer driver data.",
     "en": "The class Importer Driver Directory represents a specific directory for the management of importer driver data."
   },

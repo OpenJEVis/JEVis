@@ -1,21 +1,23 @@
 {
   "jevisclass": "5.2 Energy Policy",
   "names": {
-    "de": "5.2 Energy Policy",
+    "de": "5.2 Energiepolitik",
     "ru": "5.2 Energy Policy",
     "en": "5.2 Energy Policy"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Die oberste Leitung muss eine Energiepolitik festlegen, die\na) für den Zweck und Kontext der Organisation angemessen ist (siehe 4.1).\nb) einen Rahmen zum Festlegen und Überprüfen von Zielen und Energiezielen bietet (siehe 6.6);\nc) eine Verpflichtung enthält, die Verfügbarkeit von Informationen und erforderlichen Ressourcen zum Erreichen von Zielen und Energiezielen sicher stellt;\nd) eine Verpflichtung zur Erfüllung zutreffender gesetzlicher und anderer Anforderungen (siehe 4.2) bezüglich Energieeinsatz, Energieverbrauch und Energieeffizienz enthält;\ne) eine Verpflichtung zur fortlaufenden Verbesserung (siehe 10.2) der energiebezogene Leistung und des EnMS enthält;\nf) die Beschaffung (siehe 8.3) von energieeffizienten Produkten und Dienstleistungen unterstützt, die Auswirkung auf die energiebezogene Leistung haben; und\ng) auslegungsbezogene Tätigkeiten (siehe 8.2) unterstützt, die die Verbesserung der energiebezogenen Leistung berücksichtigen.\n\nDie Energiepolitik muss:\n— als dokumentierte Information verfügbar sein;\n— innerhalb der Organisation bekanntgemacht werden;\n— für interessierte Parteien verfügbar sein, soweit angemessen;\n— regelmäßig überprüft und bei Bedarf aktualisiert werden."
+  },
   "types": [
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content desctiption",
-        "ru": "Content desctiption",
-        "en": "Content desctiption"
+        "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
+        "ru": "Content description",
+        "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -23,12 +25,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by desctiption",
-        "ru": "Created by desctiption",
-        "en": "Created by desctiption"
+        "de": "Der Autor des Dokuments",
+        "ru": "Created by description",
+        "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -36,12 +38,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation desctiption",
-        "ru": "Date of Creation desctiption",
-        "en": "Date of Creation desctiption"
+        "de": "Datum an dem das Dokument erstellt wurde",
+        "ru": "Date of Creation description",
+        "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -49,12 +51,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number desctiption",
-        "ru": "Document Number desctiption",
-        "en": "Document Number desctiption"
+        "de": "Die eindeutige Dokumentennummer",
+        "ru": "Document Number description",
+        "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -62,12 +64,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date desctiption",
-        "ru": "Release Date desctiption",
-        "en": "Release Date desctiption"
+        "de": "Das Datum der Veröffentlichung des Dokuments",
+        "ru": "Release Date description",
+        "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -75,12 +77,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by desctiption",
-        "ru": "Released by desctiption",
-        "en": "Released by desctiption"
+        "de": "Verantwortliche Person für die Veröffentlichung",
+        "ru": "Released by description",
+        "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -88,12 +90,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title desctiption",
-        "ru": "Title desctiption",
-        "en": "Title desctiption"
+        "de": "Titel des Dokuments",
+        "ru": "Title description",
+        "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -101,9 +103,9 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version desctiption",
-        "ru": "Version desctiption",
-        "en": "Version desctiption"
+        "de": "Die Versionsnummer des Dokuments",
+        "ru": "Version description",
+        "en": "Version description"
       },
       "names": {
         "de": "Version",

@@ -1,12 +1,12 @@
 {
   "jevisclass": "Static Limit Alarm",
   "names": {
-    "de": "Static Limit Alarm",
+    "de": "Statischer Grenzwertalarm",
     "ru": "Static Limit Alarm",
     "en": "Static Limit Alarm"
   },
   "descriptions": {
-    "de": "The class Static Limit Alarm contains data of elements of an alarm with a static limit.",
+    "de": "Die Klasse Statischer Grenzwertalarm enthält Daten von Elementen eines Alarms mit einem statischen Grenzwert.",
     "ru": "The class Static Limit Alarm contains data of elements of an alarm with a static limit.",
     "en": "The class Static Limit Alarm contains data of elements of an alarm with a static limit."
   },
@@ -14,12 +14,12 @@
     {
       "type": "Alarm Log",
       "descriptions": {
-        "de": "Alarm Log desctiption",
-        "ru": "Alarm Log desctiption",
-        "en": "Alarm Log desctiption"
+        "de": "Alarm Log description",
+        "ru": "Alarm Log description",
+        "en": "Alarm Log description"
       },
       "names": {
-        "de": "Alarm Log",
+        "de": "Alarmprotokoll",
         "ru": "Alarm Log",
         "en": "Alarm Log"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Enable",
       "descriptions": {
-        "de": "Enable desctiption",
-        "ru": "Enable desctiption",
-        "en": "Enable desctiption"
+        "de": "Enable description",
+        "ru": "Enable description",
+        "en": "Enable description"
       },
       "names": {
-        "de": "Enable",
+        "de": "Aktiviert",
         "ru": "Enable",
         "en": "Enable"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Limit",
       "descriptions": {
-        "de": "Limit desctiption",
-        "ru": "Limit desctiption",
-        "en": "Limit desctiption"
+        "de": "Limit description",
+        "ru": "Limit description",
+        "en": "Limit description"
       },
       "names": {
-        "de": "Limit",
+        "de": "Grenze",
         "ru": "Limit",
         "en": "Limit"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Operator",
       "descriptions": {
-        "de": "Operator desctiption",
-        "ru": "Operator desctiption",
-        "en": "Operator desctiption"
+        "de": "Operator description",
+        "ru": "Operator description",
+        "en": "Operator description"
       },
       "names": {
-        "de": "Operator",
+        "de": "Betreiber",
         "ru": "Operator",
         "en": "Operator"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Status",
       "descriptions": {
-        "de": "Status desctiption",
-        "ru": "Status desctiption",
-        "en": "Status desctiption"
+        "de": "Status description",
+        "ru": "Status description",
+        "en": "Status description"
       },
       "names": {
-        "de": "Status",
+        "de": "Zustand",
         "ru": "Status",
         "en": "Status"
       }

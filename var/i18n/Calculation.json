@@ -1,7 +1,7 @@
 {
   "jevisclass": "Calculation",
   "names": {
-    "de": "Calculation",
+    "de": "Kalkulation",
     "ru": "Calculation",
     "en": "Calculation"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
+        "de": "Aktiviert oder deaktiviert die Kalkulation",
         "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "en": "Enable or disable the calculation"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -23,14 +23,14 @@
     {
       "type": "Expression",
       "descriptions": {
-        "de": "Expression desctiption",
+        "de": "Formel der Kalkulation",
         "ru": "Expression desctiption",
-        "en": "Expression desctiption"
+        "en": "Formula of the calculation"
       },
       "names": {
-        "de": "Expression",
+        "de": "Mathematischer Ausdruck",
         "ru": "Expression",
-        "en": "Expression"
+        "en": "Mathematic expression"
       }
     }
   ]

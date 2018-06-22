@@ -1,12 +1,12 @@
 {
   "jevisclass": "Organization",
   "names": {
-    "de": "Organization",
+    "de": "Organisation",
     "ru": "Organization",
     "en": "Organization"
   },
   "descriptions": {
-    "de": "Organization unit.",
+    "de": "Organisationseiheit.",
     "ru": "Organization unit.",
     "en": "Organization unit."
   },
@@ -14,12 +14,12 @@
     {
       "type": "Address",
       "descriptions": {
-        "de": "Address desctiption",
-        "ru": "Address desctiption",
-        "en": "Address desctiption"
+        "de": "Dieses Feld enthält die Adresse des Unternehmens",
+        "ru": "Address description",
+        "en": "Address description"
       },
       "names": {
-        "de": "Address",
+        "de": "Adresse",
         "ru": "Address",
         "en": "Address"
       }
@@ -27,25 +27,25 @@
     {
       "type": "Branche",
       "descriptions": {
-        "de": "Branche desctiption",
-        "ru": "Branche desctiption",
-        "en": "Branche desctiption"
+        "de": "Branche description",
+        "ru": "Branche description",
+        "en": "Branche description"
       },
       "names": {
         "de": "Branche",
         "ru": "Branche",
-        "en": "Branche"
+        "en": "Branch"
       }
     },
     {
       "type": "Company Logo",
       "descriptions": {
-        "de": "Company Logo desctiption",
-        "ru": "Company Logo desctiption",
-        "en": "Company Logo desctiption"
+        "de": "Dieses Attribut bietet die Möglichkeit ein Firmenlogo hochzuladen",
+        "ru": "Company Logo description",
+        "en": "Company Logo description"
       },
       "names": {
-        "de": "Company Logo",
+        "de": "Firmenlogo",
         "ru": "Company Logo",
         "en": "Company Logo"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Company Name",
       "descriptions": {
-        "de": "Company Name desctiption",
-        "ru": "Company Name desctiption",
-        "en": "Company Name desctiption"
+        "de": "Der Firmenname",
+        "ru": "Company Name description",
+        "en": "Company Name description"
       },
       "names": {
-        "de": "Company Name",
+        "de": "Firmenname",
         "ru": "Company Name",
         "en": "Company Name"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Location",
       "descriptions": {
-        "de": "Location desctiption",
-        "ru": "Location desctiption",
-        "en": "Location desctiption"
+        "de": "Location description",
+        "ru": "Location description",
+        "en": "Location description"
       },
       "names": {
-        "de": "Location",
+        "de": "Organisationsstandort",
         "ru": "Location",
         "en": "Location"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Mail",
       "descriptions": {
-        "de": "Mail desctiption",
-        "ru": "Mail desctiption",
-        "en": "Mail desctiption"
+        "de": "Mail description",
+        "ru": "Mail description",
+        "en": "Mail description"
       },
       "names": {
-        "de": "Mail",
+        "de": "E-Mail-Adresse",
         "ru": "Mail",
         "en": "Mail"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Members",
       "descriptions": {
-        "de": "Members desctiption",
-        "ru": "Members desctiption",
-        "en": "Members desctiption"
+        "de": "Members description",
+        "ru": "Members description",
+        "en": "Members description"
       },
       "names": {
-        "de": "Members",
+        "de": "Mitglieder",
         "ru": "Members",
         "en": "Members"
       }
@@ -105,12 +105,12 @@
     {
       "type": "Phone",
       "descriptions": {
-        "de": "Phone desctiption",
-        "ru": "Phone desctiption",
-        "en": "Phone desctiption"
+        "de": "Phone description",
+        "ru": "Phone description",
+        "en": "Phone description"
       },
       "names": {
-        "de": "Phone",
+        "de": "Telefonnummer",
         "ru": "Phone",
         "en": "Phone"
       }
@@ -118,12 +118,12 @@
     {
       "type": "Working or Opening Time",
       "descriptions": {
-        "de": "Working or Opening Time desctiption",
-        "ru": "Working or Opening Time desctiption",
-        "en": "Working or Opening Time desctiption"
+        "de": "Working or Opening Time description",
+        "ru": "Working or Opening Time description",
+        "en": "Working or Opening Time description"
       },
       "names": {
-        "de": "Working or Opening Time",
+        "de": "Arbeits- oder Öffnungszeiten",
         "ru": "Working or Opening Time",
         "en": "Working or Opening Time"
       }

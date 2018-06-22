@@ -1,12 +1,12 @@
 {
   "jevisclass": "Link",
   "names": {
-    "de": "Link",
+    "de": "Verknüpfung",
     "ru": "Link",
     "en": "Link"
   },
   "descriptions": {
-    "de": "An link to an other object. The linked object will show all attributes and samples of original object",
+    "de": "Ein Verweis auf ein anderes Objekt. Das verknüpfte Objekt zeigt alle Attribute und Beispiele des Originalobjekts.",
     "ru": "An link to an other object. The linked object will show all attributes and samples of original object",
     "en": "An link to an other object. The linked object will show all attributes and samples of original object"
   },

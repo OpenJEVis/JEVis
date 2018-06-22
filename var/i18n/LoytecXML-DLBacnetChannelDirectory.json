@@ -1,12 +1,12 @@
 {
   "jevisclass": "Loytec XML-DL Bacnet Channel Directory",
   "names": {
-    "de": "Loytec XML-DL Bacnet Channel Directory",
+    "de": "Loytec XML-DL Bacnet Kanalverzeichnis",
     "ru": "Loytec XML-DL Bacnet Channel Directory",
     "en": "Loytec XML-DL Bacnet Channel Directory"
   },
   "descriptions": {
-    "de": "The Loytec XML-DL Bacnet Channel Directory contains Loytec XML-DL Channels that use Bacnet technology.",
+    "de": "Das Loytec XML-DL Bacnet Kanalverzeichnis enthält Loytec XML-DL Channels, die die Bacnet-Technologie verwenden.",
     "ru": "The Loytec XML-DL Bacnet Channel Directory contains Loytec XML-DL Channels that use Bacnet technology.",
     "en": "The Loytec XML-DL Bacnet Channel Directory contains Loytec XML-DL Channels that use Bacnet technology."
   },

@@ -1,7 +1,7 @@
 {
   "jevisclass": "External Audit",
   "names": {
-    "de": "External Audit",
+    "de": "Externes Audit",
     "ru": "External Audit",
     "en": "External Audit"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Audit Date",
       "descriptions": {
-        "de": "Audit Date desctiption",
-        "ru": "Audit Date desctiption",
-        "en": "Audit Date desctiption"
+        "de": "Audit Date description",
+        "ru": "Audit Date description",
+        "en": "Audit Date description"
       },
       "names": {
         "de": "Audit Date",
@@ -23,9 +23,9 @@
     {
       "type": "Auditor",
       "descriptions": {
-        "de": "Auditor desctiption",
-        "ru": "Auditor desctiption",
-        "en": "Auditor desctiption"
+        "de": "Auditor description",
+        "ru": "Auditor description",
+        "en": "Auditor description"
       },
       "names": {
         "de": "Auditor",
@@ -36,9 +36,9 @@
     {
       "type": "Certifier",
       "descriptions": {
-        "de": "Certifier desctiption",
-        "ru": "Certifier desctiption",
-        "en": "Certifier desctiption"
+        "de": "Certifier description",
+        "ru": "Certifier description",
+        "en": "Certifier description"
       },
       "names": {
         "de": "Certifier",
@@ -49,9 +49,9 @@
     {
       "type": "Report File",
       "descriptions": {
-        "de": "Report File desctiption",
-        "ru": "Report File desctiption",
-        "en": "Report File desctiption"
+        "de": "Report File description",
+        "ru": "Report File description",
+        "en": "Report File description"
       },
       "names": {
         "de": "Report File",

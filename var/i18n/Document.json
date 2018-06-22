@@ -1,7 +1,7 @@
 {
   "jevisclass": "Document",
   "names": {
-    "de": "Document",
+    "de": "Dokument",
     "ru": "Document",
     "en": "Document"
   },
@@ -10,9 +10,9 @@
     {
       "type": "File",
       "descriptions": {
-        "de": "File desctiption",
-        "ru": "File desctiption",
-        "en": "File desctiption"
+        "de": "File description",
+        "ru": "File description",
+        "en": "File description"
       },
       "names": {
         "de": "File",

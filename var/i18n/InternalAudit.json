@@ -1,7 +1,7 @@
 {
   "jevisclass": "Internal Audit",
   "names": {
-    "de": "Internal Audit",
+    "de": "Internes Audit",
     "ru": "Internal Audit",
     "en": "Internal Audit"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Audit Date",
       "descriptions": {
-        "de": "Audit Date desctiption",
-        "ru": "Audit Date desctiption",
-        "en": "Audit Date desctiption"
+        "de": "Audit Date description",
+        "ru": "Audit Date description",
+        "en": "Audit Date description"
       },
       "names": {
         "de": "Audit Date",
@@ -23,9 +23,9 @@
     {
       "type": "Auditor",
       "descriptions": {
-        "de": "Auditor desctiption",
-        "ru": "Auditor desctiption",
-        "en": "Auditor desctiption"
+        "de": "Auditor description",
+        "ru": "Auditor description",
+        "en": "Auditor description"
       },
       "names": {
         "de": "Auditor",

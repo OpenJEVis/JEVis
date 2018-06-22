@@ -1,11 +1,8 @@
 package org.jevis.jeconfig.tool;
 
 import org.apache.commons.beanutils.locale.LocaleBeanUtils;
-import org.jevis.commons.ws.json.JsonI18n;
-import org.jevis.jeapi.ws.JEVisDataSourceWS;
 
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -18,7 +15,6 @@ public class I18n {
     private static I18n i18n;
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
     private ResourceBundle bundle;
-
 
 
     public static synchronized I18n getInstance() {
@@ -37,7 +33,6 @@ public class I18n {
     }
 
 
-
     /**
      * Format the string using MessagePattern
      *
@@ -49,7 +44,7 @@ public class I18n {
     public String getString(String key, Object... arguments){
         try{
             return MessageFormat.format(bundle.getString(key),arguments);
-        }catch (NullPointerException| java.util.MissingResourceException np){
+        } catch (NullPointerException | java.util.MissingResourceException np) {
             System.out.println("Missing translation ["+locale.getISO3Country()+"] Key: "+key);
             return "*"+key+"*";
         }
@@ -58,7 +53,7 @@ public class I18n {
     public String getString(String key){
         try{
             return bundle.getString(key);
-        }catch (NullPointerException| java.util.MissingResourceException np){
+        } catch (NullPointerException | java.util.MissingResourceException np) {
             System.out.println("Missing translation ["+locale.getISO3Country()+"] Key: "+key);
             return "*"+key+"*";
         }

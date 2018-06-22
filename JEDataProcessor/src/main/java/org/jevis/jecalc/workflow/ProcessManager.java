@@ -16,14 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author broder
  */
 public class ProcessManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessManager.class);
-    private List<ProcessStep> processSteps = new ArrayList<>();
     private final ResourceManager resourceManager;
+    private List<ProcessStep> processSteps = new ArrayList<>();
 
     public ProcessManager(CleanDataAttribute calcAttribute) {
         resourceManager = new ResourceManager();

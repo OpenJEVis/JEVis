@@ -1,7 +1,7 @@
 {
   "jevisclass": "FTP Channel",
   "names": {
-    "de": "FTP Channel",
+    "de": "FTP Kanal",
     "ru": "FTP Channel",
     "en": "FTP Channel"
   },
@@ -14,12 +14,12 @@
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout desctiption",
-        "ru": "Last Readout desctiption",
-        "en": "Last Readout desctiption"
+        "de": "Last Readout description",
+        "ru": "Last Readout description",
+        "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Path",
       "descriptions": {
-        "de": "Path desctiption",
-        "ru": "Path desctiption",
-        "en": "Path desctiption"
+        "de": "Path description",
+        "ru": "Path description",
+        "en": "Path description"
       },
       "names": {
-        "de": "Path",
+        "de": "Pfad",
         "ru": "Path",
         "en": "Path"
       }

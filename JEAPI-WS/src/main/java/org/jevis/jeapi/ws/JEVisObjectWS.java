@@ -46,8 +46,8 @@ public class JEVisObjectWS implements JEVisObject {
     private List<JEVisObject> children = null;
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisObjectWS.class);
     private JsonObject json;
-    private Cache<String, List> attributeCache;
     private final EventListenerList listeners = new EventListenerList();
+    private Cache<String, List> attributeCache;
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
         this.ds = ds;

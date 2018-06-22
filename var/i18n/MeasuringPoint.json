@@ -1,7 +1,7 @@
 {
   "jevisclass": "Measuring Point",
   "names": {
-    "de": "Measuring Point",
+    "de": "Messstelle",
     "ru": "Measuring Point",
     "en": "Measuring Point"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Comment",
       "descriptions": {
-        "de": "Comment desctiption",
-        "ru": "Comment desctiption",
-        "en": "Comment desctiption"
+        "de": "Comment description",
+        "ru": "Comment description",
+        "en": "Comment description"
       },
       "names": {
         "de": "Comment",
@@ -23,9 +23,9 @@
     {
       "type": "Data Point Assignment",
       "descriptions": {
-        "de": "Data Point Assignment desctiption",
-        "ru": "Data Point Assignment desctiption",
-        "en": "Data Point Assignment desctiption"
+        "de": "Data Point Assignment description",
+        "ru": "Data Point Assignment description",
+        "en": "Data Point Assignment description"
       },
       "names": {
         "de": "Data Point Assignment",
@@ -36,9 +36,9 @@
     {
       "type": "Installation Location",
       "descriptions": {
-        "de": "Installation Location desctiption",
-        "ru": "Installation Location desctiption",
-        "en": "Installation Location desctiption"
+        "de": "Installation Location description",
+        "ru": "Installation Location description",
+        "en": "Installation Location description"
       },
       "names": {
         "de": "Installation Location",
@@ -49,9 +49,9 @@
     {
       "type": "Meter",
       "descriptions": {
-        "de": "Meter desctiption",
-        "ru": "Meter desctiption",
-        "en": "Meter desctiption"
+        "de": "Meter description",
+        "ru": "Meter description",
+        "en": "Meter description"
       },
       "names": {
         "de": "Meter",
@@ -62,9 +62,9 @@
     {
       "type": "Monitoring ID",
       "descriptions": {
-        "de": "Monitoring ID desctiption",
-        "ru": "Monitoring ID desctiption",
-        "en": "Monitoring ID desctiption"
+        "de": "Monitoring ID description",
+        "ru": "Monitoring ID description",
+        "en": "Monitoring ID description"
       },
       "names": {
         "de": "Monitoring ID",
@@ -75,9 +75,9 @@
     {
       "type": "Name",
       "descriptions": {
-        "de": "Name desctiption",
-        "ru": "Name desctiption",
-        "en": "Name desctiption"
+        "de": "Name description",
+        "ru": "Name description",
+        "en": "Name description"
       },
       "names": {
         "de": "Name",
@@ -88,9 +88,9 @@
     {
       "type": "Photo",
       "descriptions": {
-        "de": "Photo desctiption",
-        "ru": "Photo desctiption",
-        "en": "Photo desctiption"
+        "de": "Photo description",
+        "ru": "Photo description",
+        "en": "Photo description"
       },
       "names": {
         "de": "Photo",
@@ -101,9 +101,9 @@
     {
       "type": "Physical Property",
       "descriptions": {
-        "de": "Physical Property desctiption",
-        "ru": "Physical Property desctiption",
-        "en": "Physical Property desctiption"
+        "de": "Physical Property description",
+        "ru": "Physical Property description",
+        "en": "Physical Property description"
       },
       "names": {
         "de": "Physical Property",
@@ -114,9 +114,9 @@
     {
       "type": "Station",
       "descriptions": {
-        "de": "Station desctiption",
-        "ru": "Station desctiption",
-        "en": "Station desctiption"
+        "de": "Station description",
+        "ru": "Station description",
+        "en": "Station description"
       },
       "names": {
         "de": "Station",
@@ -127,9 +127,9 @@
     {
       "type": "Unit",
       "descriptions": {
-        "de": "Unit desctiption",
-        "ru": "Unit desctiption",
-        "en": "Unit desctiption"
+        "de": "Unit description",
+        "ru": "Unit description",
+        "en": "Unit description"
       },
       "names": {
         "de": "Unit",

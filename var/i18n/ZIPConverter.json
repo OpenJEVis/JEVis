@@ -1,12 +1,12 @@
 {
   "jevisclass": "ZIP Converter",
   "names": {
-    "de": "ZIP Converter",
+    "de": "ZIP Konverter",
     "ru": "ZIP Converter",
     "en": "ZIP Converter"
   },
   "descriptions": {
-    "de": "The Class ZIP Converter ",
+    "de": "Die Klasse ZIP Konverter ",
     "ru": "The Class ZIP Converter ",
     "en": "The Class ZIP Converter "
   },
@@ -14,12 +14,12 @@
     {
       "type": "Path",
       "descriptions": {
-        "de": "Path desctiption",
-        "ru": "Path desctiption",
-        "en": "Path desctiption"
+        "de": "Path description",
+        "ru": "Path description",
+        "en": "Path description"
       },
       "names": {
-        "de": "Path",
+        "de": "Pfad",
         "ru": "Path",
         "en": "Path"
       }

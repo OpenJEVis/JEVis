@@ -1,15 +1,15 @@
 {
-  "name": "4 Energy Management System",
+  "name": "4.4 Energy Management System",
   "description": "The organization shall establish, implement, maintain and continually improve an the EnMS and its  energy performance an energy management system, including the processes needed and their  interactions, in accordance with the requirements of this document.    \nNOTE:  The processes required can differ from one organization to another due to:  ",
   "unique": true,
   "relationships": [
     {
-      "start": "4 Energy Management System",
+      "start": "4.4 Energy Management System",
       "end": "04 Context of the Organization",
       "type": 0
     },
     {
-      "start": "4 Energy Management System",
+      "start": "4.4 Energy Management System",
       "end": "04 Context of the Organization",
       "type": 3
     }

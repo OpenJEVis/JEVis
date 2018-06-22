@@ -1,12 +1,12 @@
 {
   "jevisclass": "Group Directory",
   "names": {
-    "de": "Group Directory",
+    "de": "Gruppenverzeichnis",
     "ru": "Group Directory",
     "en": "Group Directory"
   },
   "descriptions": {
-    "de": "The class Group Directory represents a specific directory for the management of user groups.",
+    "de": "Die Klasse Gruppenverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Benutzergruppen dar.",
     "ru": "The class Group Directory represents a specific directory for the management of user groups.",
     "en": "The class Group Directory represents a specific directory for the management of user groups."
   },

@@ -101,7 +101,6 @@ public class ResourceAttribute {
      * @param id
      * @param attribute
      * @return
-     * @throws JEVisException
      */
     @GET
     @Logged
@@ -112,7 +111,7 @@ public class ResourceAttribute {
             @Context Request request,
             @Context UriInfo url,
             @PathParam("id") long id,
-            @PathParam("attribute") String attribute) throws JEVisException {
+            @PathParam("attribute") String attribute) {
 
         SQLDataSource ds = null;
         try {
@@ -155,7 +154,7 @@ public class ResourceAttribute {
             @Context UriInfo url,
             @PathParam("id") long id,
             @PathParam("attribute") String attribute,
-            String payload) throws JEVisException {
+            String payload) {
 
         SQLDataSource ds = null;
         try {

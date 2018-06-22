@@ -1,7 +1,7 @@
 {
   "jevisclass": "Driver",
   "names": {
-    "de": "Driver",
+    "de": "Treiber",
     "ru": "Driver",
     "en": "Driver"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -23,12 +23,12 @@
     {
       "type": "JEVis Class",
       "descriptions": {
-        "de": "JEVis Class desctiption",
-        "ru": "JEVis Class desctiption",
-        "en": "JEVis Class desctiption"
+        "de": "JEVis Class description",
+        "ru": "JEVis Class description",
+        "en": "JEVis Class description"
       },
       "names": {
-        "de": "JEVis Class",
+        "de": "JEVis-Klasse",
         "ru": "JEVis Class",
         "en": "JEVis Class"
       }
@@ -36,12 +36,12 @@
     {
       "type": "Main Class",
       "descriptions": {
-        "de": "Main Class desctiption",
-        "ru": "Main Class desctiption",
-        "en": "Main Class desctiption"
+        "de": "Main Class description",
+        "ru": "Main Class description",
+        "en": "Main Class description"
       },
       "names": {
-        "de": "Main Class",
+        "de": "Hauptklasse",
         "ru": "Main Class",
         "en": "Main Class"
       }
@@ -49,12 +49,12 @@
     {
       "type": "Source File",
       "descriptions": {
-        "de": "Source File desctiption",
-        "ru": "Source File desctiption",
-        "en": "Source File desctiption"
+        "de": "Source File description",
+        "ru": "Source File description",
+        "en": "Source File description"
       },
       "names": {
-        "de": "Source File",
+        "de": "Quelldatei",
         "ru": "Source File",
         "en": "Source File"
       }

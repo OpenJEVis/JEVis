@@ -1,7 +1,7 @@
 {
   "jevisclass": "Air Conditioning",
   "names": {
-    "de": "Air Conditioning",
+    "de": "Klimaanlage",
     "ru": "Air Conditioning",
     "en": "Air Conditioning"
   },
@@ -14,9 +14,9 @@
     {
       "type": "Daily Operating Hours",
       "descriptions": {
-        "de": "Daily Operating Hours desctiption",
-        "ru": "Daily Operating Hours desctiption",
-        "en": "Daily Operating Hours desctiption"
+        "de": "Daily Operating Hours description",
+        "ru": "Daily Operating Hours description",
+        "en": "Daily Operating Hours description"
       },
       "names": {
         "de": "Daily Operating Hours",
@@ -27,9 +27,9 @@
     {
       "type": "Energy Source",
       "descriptions": {
-        "de": "Energy Source desctiption",
-        "ru": "Energy Source desctiption",
-        "en": "Energy Source desctiption"
+        "de": "Energy Source description",
+        "ru": "Energy Source description",
+        "en": "Energy Source description"
       },
       "names": {
         "de": "Energy Source",
@@ -40,9 +40,9 @@
     {
       "type": "Manufacturer",
       "descriptions": {
-        "de": "Manufacturer desctiption",
-        "ru": "Manufacturer desctiption",
-        "en": "Manufacturer desctiption"
+        "de": "Manufacturer description",
+        "ru": "Manufacturer description",
+        "en": "Manufacturer description"
       },
       "names": {
         "de": "Manufacturer",
@@ -53,9 +53,9 @@
     {
       "type": "Measuring Point",
       "descriptions": {
-        "de": "Measuring Point desctiption",
-        "ru": "Measuring Point desctiption",
-        "en": "Measuring Point desctiption"
+        "de": "Measuring Point description",
+        "ru": "Measuring Point description",
+        "en": "Measuring Point description"
       },
       "names": {
         "de": "Measuring Point",
@@ -66,9 +66,9 @@
     {
       "type": "Nominal Power",
       "descriptions": {
-        "de": "Nominal Power desctiption",
-        "ru": "Nominal Power desctiption",
-        "en": "Nominal Power desctiption"
+        "de": "Nominal Power description",
+        "ru": "Nominal Power description",
+        "en": "Nominal Power description"
       },
       "names": {
         "de": "Nominal Power",
@@ -79,9 +79,9 @@
     {
       "type": "Weighting Factor",
       "descriptions": {
-        "de": "Weighting Factor desctiption",
-        "ru": "Weighting Factor desctiption",
-        "en": "Weighting Factor desctiption"
+        "de": "Weighting Factor description",
+        "ru": "Weighting Factor description",
+        "en": "Weighting Factor description"
       },
       "names": {
         "de": "Weighting Factor",
@@ -92,9 +92,9 @@
     {
       "type": "Work Weeks",
       "descriptions": {
-        "de": "Work Weeks desctiption",
-        "ru": "Work Weeks desctiption",
-        "en": "Work Weeks desctiption"
+        "de": "Work Weeks description",
+        "ru": "Work Weeks description",
+        "en": "Work Weeks description"
       },
       "names": {
         "de": "Work Weeks",
@@ -105,9 +105,9 @@
     {
       "type": "Working Days",
       "descriptions": {
-        "de": "Working Days desctiption",
-        "ru": "Working Days desctiption",
-        "en": "Working Days desctiption"
+        "de": "Working Days description",
+        "ru": "Working Days description",
+        "en": "Working Days description"
       },
       "names": {
         "de": "Working Days",

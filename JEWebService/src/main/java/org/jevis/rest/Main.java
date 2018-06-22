@@ -28,9 +28,8 @@ public class Main {
      * Main method.
      *
      * @param args
-     * @throws IOException
      */
-    public static void main(String[] args) throws IOException, SQLException {
+    public static void main(String[] args) throws SQLException {
         LOGGER.info("Start - {}", VERSION);
         //read Config
         File configfile;
@@ -70,7 +69,7 @@ public class Main {
             }
         }
 
-        final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest");
+        final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest");
         rc.setApplicationName("JEWebservice");
         rc.register(MultiPartFeature.class);
 
@@ -93,24 +92,22 @@ public class Main {
         }
 
         // register shutdown hook
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("Stopping server..");
-                server.stop();
-            }
-        }, "shutdownHook"));
-
+        Runtime.getRuntime().addShutdownHook(
+                new GrizzlyServerShutdownHookThread(server)
+        );
 
         // run
         try {
             server.start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
             System.out.println("Press CTRL^C to exit..");
             Thread.currentThread().join();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-
     }
 }
 

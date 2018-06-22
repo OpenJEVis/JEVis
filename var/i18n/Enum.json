@@ -10,12 +10,12 @@
     {
       "type": "JEVisClass",
       "descriptions": {
-        "de": "JEVisClass desctiption",
-        "ru": "JEVisClass desctiption",
-        "en": "JEVisClass desctiption"
+        "de": "JEVisClass description",
+        "ru": "JEVisClass description",
+        "en": "JEVisClass description"
       },
       "names": {
-        "de": "JEVisClass",
+        "de": "JEVis-Klasse",
         "ru": "JEVisClass",
         "en": "JEVisClass"
       }

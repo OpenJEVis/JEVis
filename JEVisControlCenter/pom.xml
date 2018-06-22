@@ -94,7 +94,8 @@
                 <version>3.1.1</version>
                 <configuration>
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
                         </transformer>
                     </transformers>

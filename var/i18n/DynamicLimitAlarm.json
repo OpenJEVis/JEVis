@@ -1,12 +1,12 @@
 {
   "jevisclass": "Dynamic Limit Alarm",
   "names": {
-    "de": "Dynamic Limit Alarm",
+    "de": "Dynamischer Grenzwertalarm",
     "ru": "Dynamic Limit Alarm",
     "en": "Dynamic Limit Alarm"
   },
   "descriptions": {
-    "de": "The class Dynamic Limit Alarm contains data of elements of an alarm with a dynamic limit.",
+    "de": "Die Klasse Dynamischer Grenzwertalarm enthält Daten von Elementen eines Alarms mit einem dynamischen Grenzwert.",
     "ru": "The class Dynamic Limit Alarm contains data of elements of an alarm with a dynamic limit.",
     "en": "The class Dynamic Limit Alarm contains data of elements of an alarm with a dynamic limit."
   },
@@ -14,12 +14,12 @@
     {
       "type": "Alarm Log",
       "descriptions": {
-        "de": "Alarm Log desctiption",
-        "ru": "Alarm Log desctiption",
-        "en": "Alarm Log desctiption"
+        "de": "Alarm Log description",
+        "ru": "Alarm Log description",
+        "en": "Alarm Log description"
       },
       "names": {
-        "de": "Alarm Log",
+        "de": "Alarmprotokoll",
         "ru": "Alarm Log",
         "en": "Alarm Log"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Enable",
       "descriptions": {
-        "de": "Enable desctiption",
-        "ru": "Enable desctiption",
-        "en": "Enable desctiption"
+        "de": "Enable description",
+        "ru": "Enable description",
+        "en": "Enable description"
       },
       "names": {
-        "de": "Enable",
+        "de": "Aktiviert",
         "ru": "Enable",
         "en": "Enable"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Limit Data",
       "descriptions": {
-        "de": "Limit Data desctiption",
-        "ru": "Limit Data desctiption",
-        "en": "Limit Data desctiption"
+        "de": "Limit Data description",
+        "ru": "Limit Data description",
+        "en": "Limit Data description"
       },
       "names": {
-        "de": "Limit Data",
+        "de": "Grenzwert Daten",
         "ru": "Limit Data",
         "en": "Limit Data"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Operator",
       "descriptions": {
-        "de": "Operator desctiption",
-        "ru": "Operator desctiption",
-        "en": "Operator desctiption"
+        "de": "Operator description",
+        "ru": "Operator description",
+        "en": "Operator description"
       },
       "names": {
-        "de": "Operator",
+        "de": "Betreiber",
         "ru": "Operator",
         "en": "Operator"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Status",
       "descriptions": {
-        "de": "Status desctiption",
-        "ru": "Status desctiption",
-        "en": "Status desctiption"
+        "de": "Status description",
+        "ru": "Status description",
+        "en": "Status description"
       },
       "names": {
-        "de": "Status",
+        "de": "Zustand",
         "ru": "Status",
         "en": "Status"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Tolerance",
       "descriptions": {
-        "de": "Tolerance desctiption",
-        "ru": "Tolerance desctiption",
-        "en": "Tolerance desctiption"
+        "de": "Tolerance description",
+        "ru": "Tolerance description",
+        "en": "Tolerance description"
       },
       "names": {
-        "de": "Tolerance",
+        "de": "Toleranz",
         "ru": "Tolerance",
         "en": "Tolerance"
       }

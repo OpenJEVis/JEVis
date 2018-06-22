@@ -4,11 +4,6 @@
   "unique": false,
   "relationships": [
     {
-      "start": "Loytec XML-DL Channel",
-      "end": "Loytec XML-DL Generic Channel Directory",
-      "type": 3
-    },
-    {
       "start": "Loytec XML-DL Generic Channel Directory",
       "end": "Loytec XML-DL Channel Directory",
       "type": 0

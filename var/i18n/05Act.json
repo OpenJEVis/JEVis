@@ -1,7 +1,7 @@
 {
   "jevisclass": "05 Act",
   "names": {
-    "de": "05 Act",
+    "de": "05 Verbesserung",
     "ru": "05 Act",
     "en": "05 Act"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Audit Date",
       "descriptions": {
-        "de": "Audit Date desctiption",
-        "ru": "Audit Date desctiption",
-        "en": "Audit Date desctiption"
+        "de": "Auditdatum Beschreibung",
+        "ru": "Audit Date description",
+        "en": "Audit Date description"
       },
       "names": {
-        "de": "Audit Date",
+        "de": "Auditdatum",
         "ru": "Audit Date",
         "en": "Audit Date"
       }
@@ -23,9 +23,9 @@
     {
       "type": "Auditor",
       "descriptions": {
-        "de": "Auditor desctiption",
-        "ru": "Auditor desctiption",
-        "en": "Auditor desctiption"
+        "de": "Auditor Beschreibung",
+        "ru": "Auditor description",
+        "en": "Auditor description"
       },
       "names": {
         "de": "Auditor",

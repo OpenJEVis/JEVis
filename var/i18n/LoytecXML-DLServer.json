@@ -6,7 +6,7 @@
     "en": "Loytec XML-DL Server"
   },
   "descriptions": {
-    "de": "The Loytec XML-DL Driver supports LINX Automation Server and LIOB Controller devices.",
+    "de": "Der Loytec XML-DL Driver unterstützt LINX Automation Server und LIOB Controller Geräte.",
     "ru": "The Loytec XML-DL Driver supports LINX Automation Server and LIOB Controller devices.",
     "en": "The Loytec XML-DL Driver supports LINX Automation Server and LIOB Controller devices."
   },
@@ -14,12 +14,12 @@
     {
       "type": "Connection Timeout",
       "descriptions": {
-        "de": "Connection Timeout desctiption",
-        "ru": "Connection Timeout desctiption",
-        "en": "Connection Timeout desctiption"
+        "de": "Verbindungs Timeout in Sekunden [90]",
+        "ru": "Connection Timeout description",
+        "en": "Connection Timeout in seconds"
       },
       "names": {
-        "de": "Connection Timeout",
+        "de": "Verbindungs-Timeout",
         "ru": "Connection Timeout",
         "en": "Connection Timeout"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Aktiviert das Auslesen des Gerätes",
+        "ru": "Enabled description",
+        "en": "Enables read out of the device"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Host",
       "descriptions": {
-        "de": "Host desctiption",
-        "ru": "Host desctiption",
-        "en": "Host desctiption"
+        "de": "Hostname oder IP-Adresse des Gerätes",
+        "ru": "Host description",
+        "en": "Host name or ip address"
       },
       "names": {
-        "de": "Host",
+        "de": "Hostname / IP-Adresse",
         "ru": "Host",
         "en": "Host"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Password",
       "descriptions": {
-        "de": "Password desctiption",
-        "ru": "Password desctiption",
-        "en": "Password desctiption"
+        "de": "Gerätepasswort, das auch auf der Web-UI des Gerätes benutzt wird. [loytec4u]",
+        "ru": "Password description",
+        "en": "Password description"
       },
       "names": {
-        "de": "Password",
+        "de": "Passwort",
         "ru": "Password",
         "en": "Password"
       }
@@ -66,9 +66,9 @@
     {
       "type": "Port",
       "descriptions": {
-        "de": "Port desctiption",
-        "ru": "Port desctiption",
-        "en": "Port desctiption"
+        "de": "Port der Verbindung. Der XML-DL nutzt das HTTP(S) Protokoll [80]",
+        "ru": "Port",
+        "en": "Port"
       },
       "names": {
         "de": "Port",
@@ -79,12 +79,12 @@
     {
       "type": "Read Timeout",
       "descriptions": {
-        "de": "Read Timeout desctiption",
-        "ru": "Read Timeout desctiption",
-        "en": "Read Timeout desctiption"
+        "de": "Lese-Time-out [60]",
+        "ru": "Read Timeout description",
+        "en": "Read Timeout description"
       },
       "names": {
-        "de": "Read Timeout",
+        "de": "Lese-Time-out",
         "ru": "Read Timeout",
         "en": "Read Timeout"
       }
@@ -92,12 +92,12 @@
     {
       "type": "SSL",
       "descriptions": {
-        "de": "SSL desctiption",
-        "ru": "SSL desctiption",
-        "en": "SSL desctiption"
+        "de": "SSL Verbindung. Das Gerät ist über HTTPS erreichbar. [aus]",
+        "ru": "SSL description",
+        "en": "SSL encryped connection. [off]"
       },
       "names": {
-        "de": "SSL",
+        "de": "SSL Verbindung",
         "ru": "SSL",
         "en": "SSL"
       }
@@ -105,12 +105,12 @@
     {
       "type": "Timezone",
       "descriptions": {
-        "de": "Timezone desctiption",
-        "ru": "Timezone desctiption",
-        "en": "Timezone desctiption"
+        "de": "Eingestellte Zeitzone am Gerät. [UTC]",
+        "ru": "Timezone description",
+        "en": "Timezone description"
       },
       "names": {
-        "de": "Timezone",
+        "de": "Zeitzone",
         "ru": "Timezone",
         "en": "Timezone"
       }
@@ -118,14 +118,27 @@
     {
       "type": "User",
       "descriptions": {
-        "de": "User desctiption",
-        "ru": "User desctiption",
-        "en": "User desctiption"
+        "de": "Benutzername [operator]",
+        "ru": "User description",
+        "en": "User description"
       },
       "names": {
-        "de": "User",
+        "de": "Benutzer",
         "ru": "User",
         "en": "User"
+      }
+    },
+    {
+      "type": "LogHandle Base Path",
+      "descriptions": {
+        "de": "Basispfad für die Anfrage [00/var/lib/]",
+        "ru": "Base path for data request [00/var/lib/]",
+        "en": "Base path for data request [00/var/lib/]"
+      },
+      "names": {
+        "de": "LogHandle Pfad",
+        "ru": "LogHandle Base Path",
+        "en": "LogHandle Base Path"
       }
     }
   ]

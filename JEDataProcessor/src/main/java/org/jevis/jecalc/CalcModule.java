@@ -9,7 +9,6 @@ import com.google.inject.AbstractModule;
 import org.jevis.api.JEVisDataSource;
 
 /**
- *
  * @author broder
  */
 public class CalcModule extends AbstractModule {

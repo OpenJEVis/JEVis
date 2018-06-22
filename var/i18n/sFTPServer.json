@@ -10,12 +10,12 @@
     {
       "type": "Connection Timeout",
       "descriptions": {
-        "de": "Connection Timeout desctiption",
-        "ru": "Connection Timeout desctiption",
-        "en": "Connection Timeout desctiption"
+        "de": "Connection Timeout description",
+        "ru": "Connection Timeout description",
+        "en": "Connection Timeout description"
       },
       "names": {
-        "de": "Connection Timeout",
+        "de": "Verbindungs-Timeout",
         "ru": "Connection Timeout",
         "en": "Connection Timeout"
       }
@@ -23,12 +23,12 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -36,9 +36,9 @@
     {
       "type": "Host",
       "descriptions": {
-        "de": "Host desctiption",
-        "ru": "Host desctiption",
-        "en": "Host desctiption"
+        "de": "Host description",
+        "ru": "Host description",
+        "en": "Host description"
       },
       "names": {
         "de": "Host",
@@ -49,12 +49,12 @@
     {
       "type": "Password",
       "descriptions": {
-        "de": "Password desctiption",
-        "ru": "Password desctiption",
-        "en": "Password desctiption"
+        "de": "Password description",
+        "ru": "Password description",
+        "en": "Password description"
       },
       "names": {
-        "de": "Password",
+        "de": "Passwort",
         "ru": "Password",
         "en": "Password"
       }
@@ -62,9 +62,9 @@
     {
       "type": "Port",
       "descriptions": {
-        "de": "Port desctiption",
-        "ru": "Port desctiption",
-        "en": "Port desctiption"
+        "de": "Port description",
+        "ru": "Port description",
+        "en": "Port description"
       },
       "names": {
         "de": "Port",
@@ -75,12 +75,12 @@
     {
       "type": "Read Timeout",
       "descriptions": {
-        "de": "Read Timeout desctiption",
-        "ru": "Read Timeout desctiption",
-        "en": "Read Timeout desctiption"
+        "de": "Read Timeout description",
+        "ru": "Read Timeout description",
+        "en": "Read Timeout description"
       },
       "names": {
-        "de": "Read Timeout",
+        "de": "Lese-Timeout",
         "ru": "Read Timeout",
         "en": "Read Timeout"
       }
@@ -88,12 +88,12 @@
     {
       "type": "Timezone",
       "descriptions": {
-        "de": "Timezone desctiption",
-        "ru": "Timezone desctiption",
-        "en": "Timezone desctiption"
+        "de": "Timezone description",
+        "ru": "Timezone description",
+        "en": "Timezone description"
       },
       "names": {
-        "de": "Timezone",
+        "de": "Zeitzone",
         "ru": "Timezone",
         "en": "Timezone"
       }
@@ -101,12 +101,12 @@
     {
       "type": "User",
       "descriptions": {
-        "de": "User desctiption",
-        "ru": "User desctiption",
-        "en": "User desctiption"
+        "de": "User description",
+        "ru": "User description",
+        "en": "User description"
       },
       "names": {
-        "de": "User",
+        "de": "Benutzer",
         "ru": "User",
         "en": "User"
       }

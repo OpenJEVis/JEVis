@@ -1,7 +1,7 @@
 {
   "jevisclass": "Action Plan",
   "names": {
-    "de": "Action Plan",
+    "de": "Aktionsplan",
     "ru": "Action Plan",
     "en": "Action Plan"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Action Plan File",
       "descriptions": {
-        "de": "Action Plan File desctiption",
-        "ru": "Action Plan File desctiption",
-        "en": "Action Plan File desctiption"
+        "de": "Action Plan File description",
+        "ru": "Action Plan File description",
+        "en": "Action Plan File description"
       },
       "names": {
-        "de": "Action Plan File",
+        "de": "Datei des Aktionsplans",
         "ru": "Action Plan File",
         "en": "Action Plan File"
       }
@@ -23,12 +23,12 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content desctiption",
-        "ru": "Content desctiption",
-        "en": "Content desctiption"
+        "de": "Content description",
+        "ru": "Content description",
+        "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -36,12 +36,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by desctiption",
-        "ru": "Created by desctiption",
-        "en": "Created by desctiption"
+        "de": "Created by description",
+        "ru": "Created by description",
+        "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -49,12 +49,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation desctiption",
-        "ru": "Date of Creation desctiption",
-        "en": "Date of Creation desctiption"
+        "de": "Date of Creation description",
+        "ru": "Date of Creation description",
+        "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -62,12 +62,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number desctiption",
-        "ru": "Document Number desctiption",
-        "en": "Document Number desctiption"
+        "de": "Document Number description",
+        "ru": "Document Number description",
+        "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -75,12 +75,12 @@
     {
       "type": "Participants",
       "descriptions": {
-        "de": "Participants desctiption",
-        "ru": "Participants desctiption",
-        "en": "Participants desctiption"
+        "de": "Participants description",
+        "ru": "Participants description",
+        "en": "Participants description"
       },
       "names": {
-        "de": "Participants",
+        "de": "Teilnehmer",
         "ru": "Participants",
         "en": "Participants"
       }
@@ -88,12 +88,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date desctiption",
-        "ru": "Release Date desctiption",
-        "en": "Release Date desctiption"
+        "de": "Release Date description",
+        "ru": "Release Date description",
+        "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Datum der Veröffentlichung",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -101,12 +101,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by desctiption",
-        "ru": "Released by desctiption",
-        "en": "Released by desctiption"
+        "de": "Released by description",
+        "ru": "Released by description",
+        "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -114,12 +114,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title desctiption",
-        "ru": "Title desctiption",
-        "en": "Title desctiption"
+        "de": "Title description",
+        "ru": "Title description",
+        "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -127,9 +127,9 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version desctiption",
-        "ru": "Version desctiption",
-        "en": "Version desctiption"
+        "de": "Version description",
+        "ru": "Version description",
+        "en": "Version description"
       },
       "names": {
         "de": "Version",

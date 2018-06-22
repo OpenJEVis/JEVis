@@ -1,7 +1,7 @@
 {
   "jevisclass": "E-Mail Notification",
   "names": {
-    "de": "E-Mail Notification",
+    "de": "E-Mail Benachrichtigung",
     "ru": "E-Mail Notification",
     "en": "E-Mail Notification"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Attachments",
       "descriptions": {
-        "de": "Attachments desctiption",
-        "ru": "Attachments desctiption",
-        "en": "Attachments desctiption"
+        "de": "Attachments description",
+        "ru": "Attachments description",
+        "en": "Attachments description"
       },
       "names": {
-        "de": "Attachments",
+        "de": "Anhänge",
         "ru": "Attachments",
         "en": "Attachments"
       }
@@ -23,9 +23,9 @@
     {
       "type": "Blind Carbon Copys",
       "descriptions": {
-        "de": "Blind Carbon Copys desctiption",
-        "ru": "Blind Carbon Copys desctiption",
-        "en": "Blind Carbon Copys desctiption"
+        "de": "Blind Carbon Copys description",
+        "ru": "Blind Carbon Copys description",
+        "en": "Blind Carbon Copys description"
       },
       "names": {
         "de": "Blind Carbon Copys",
@@ -36,22 +36,22 @@
     {
       "type": "Carbon Copys",
       "descriptions": {
-        "de": "Carbon Copys desctiption",
-        "ru": "Carbon Copys desctiption",
-        "en": "Carbon Copys desctiption"
+        "de": "Carbon Copys description",
+        "ru": "Carbon Copys description",
+        "en": "Carbon Copys description"
       },
       "names": {
-        "de": "Carbon Copys",
-        "ru": "Carbon Copys",
-        "en": "Carbon Copys"
+        "de": "CC",
+        "ru": "CC",
+        "en": "CC"
       }
     },
     {
       "type": "HTML E-Mail",
       "descriptions": {
-        "de": "HTML E-Mail desctiption",
-        "ru": "HTML E-Mail desctiption",
-        "en": "HTML E-Mail desctiption"
+        "de": "HTML E-Mail description",
+        "ru": "HTML E-Mail description",
+        "en": "HTML E-Mail description"
       },
       "names": {
         "de": "HTML E-Mail",
@@ -62,12 +62,12 @@
     {
       "type": "Message",
       "descriptions": {
-        "de": "Message desctiption",
-        "ru": "Message desctiption",
-        "en": "Message desctiption"
+        "de": "Message description",
+        "ru": "Message description",
+        "en": "Message description"
       },
       "names": {
-        "de": "Message",
+        "de": "Nachricht",
         "ru": "Message",
         "en": "Message"
       }
@@ -75,12 +75,12 @@
     {
       "type": "Recipients",
       "descriptions": {
-        "de": "Recipients desctiption",
-        "ru": "Recipients desctiption",
-        "en": "Recipients desctiption"
+        "de": "Recipients description",
+        "ru": "Recipients description",
+        "en": "Recipients description"
       },
       "names": {
-        "de": "Recipients",
+        "de": "Empfänger",
         "ru": "Recipients",
         "en": "Recipients"
       }
@@ -88,12 +88,12 @@
     {
       "type": "Sent Time",
       "descriptions": {
-        "de": "Sent Time desctiption",
-        "ru": "Sent Time desctiption",
-        "en": "Sent Time desctiption"
+        "de": "Sent Time description",
+        "ru": "Sent Time description",
+        "en": "Sent Time description"
       },
       "names": {
-        "de": "Sent Time",
+        "de": "Versandzeitpunkt",
         "ru": "Sent Time",
         "en": "Sent Time"
       }
@@ -101,12 +101,12 @@
     {
       "type": "Subject",
       "descriptions": {
-        "de": "Subject desctiption",
-        "ru": "Subject desctiption",
-        "en": "Subject desctiption"
+        "de": "Subject description",
+        "ru": "Subject description",
+        "en": "Subject description"
       },
       "names": {
-        "de": "Subject",
+        "de": "Betreff",
         "ru": "Subject",
         "en": "Subject"
       }

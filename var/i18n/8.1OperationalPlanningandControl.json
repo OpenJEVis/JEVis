@@ -1,21 +1,23 @@
 {
   "jevisclass": "8.1 Operational Planning and Control",
   "names": {
-    "de": "8.1 Operational Planning and Control",
+    "de": "8.1 Betriebliche Planung und Steuerung",
     "ru": "8.1 Operational Planning and Control",
     "en": "8.1 Operational Planning and Control"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Die Organisation muss die Prozesse, einschließlich derer bezüglich ihrer SEUs (siehe 6.3), zur Erfüllung der Anforderungen und zur Durchführung der unter 6.2 bestimmten Maßnahmen planen, verwirklichen und steuern, indem sie:\na) Kriterien für die Prozesse festlegt, einschließlich: des wirksamen Betriebs und der Instandhaltung ihrer Anlagen/Standorte, Einrichtungen, Systeme und Energie nutzenden Prozesse, wo das Fehlen solcher Kriterien zu einer signifikanten Abweichung von der vorgesehenen energiebezogenen Leistung führen kann.\n\nANMERKUNG Signifikante Abweichungskriterien werden durch die Organisation bestimmt.\n\nb) allen in der Organisation oder in deren Namen arbeitenden relevanten Personen die Kriterien mitteilt (siehe 7.4);\nc) die Steuerung der Prozesse in Übereinstimmung mit den Kriterien durchführt; einschließlich Betrieb und Instandhaltung von Anlagen/Standorten, Einrichtungen, Systemen und Energienutzenden Prozessen in Übereinstimmung mit den festgelegten Kriterien;\nd) dokumentierte Information (siehe 7.5) im notwendigen Umfang bereithält, so dass darauf vertraut werden kann, dass die Prozesse wie geplant durchgeführt wurden.\nDie Organisation muss geplante Änderungen überwachen sowie die Folgen unbeabsichtigter Änderungen beurteilen und, falls notwendig, Maßnahmen ergreifen, um jegliche negativen Auswirkungen zu vermindern.\nDie Organisation muss sicherstellen, dass ausgegliederte SEUs oder auf ihre SEUs bezogene Prozesse (siehe 6.3) gesteuert werden (siehe 8.3), wenn das Fehlen der Steuerung die energiebezogene Leistung beeinträchtigen kann."
+  },
   "types": [
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content desctiption",
-        "ru": "Content desctiption",
-        "en": "Content desctiption"
+        "de": "Beschreibt die Prozesse zu Erfüllung und zur Durchführung der Maßnahmen",
+        "ru": "Content description",
+        "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -23,12 +25,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by desctiption",
-        "ru": "Created by desctiption",
-        "en": "Created by desctiption"
+        "de": "Der Autor des Dokuments",
+        "ru": "Created by description",
+        "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -36,12 +38,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation desctiption",
-        "ru": "Date of Creation desctiption",
-        "en": "Date of Creation desctiption"
+        "de": "Datum an dem das Dokument erstellt wurde",
+        "ru": "Date of Creation description",
+        "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -49,12 +51,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number desctiption",
-        "ru": "Document Number desctiption",
-        "en": "Document Number desctiption"
+        "de": "Die eindeutige Dokumentennummer",
+        "ru": "Document Number description",
+        "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -62,12 +64,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date desctiption",
-        "ru": "Release Date desctiption",
-        "en": "Release Date desctiption"
+        "de": "Das Datum der Veröffentlichung des Dokuments",
+        "ru": "Release Date description",
+        "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -75,12 +77,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by desctiption",
-        "ru": "Released by desctiption",
-        "en": "Released by desctiption"
+        "de": "Verantwortliche Person für die Veröffentlichung",
+        "ru": "Released by description",
+        "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -88,12 +90,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title desctiption",
-        "ru": "Title desctiption",
-        "en": "Title desctiption"
+        "de": "Titel des Dokuments",
+        "ru": "Title description",
+        "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -101,9 +103,9 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version desctiption",
-        "ru": "Version desctiption",
-        "en": "Version desctiption"
+        "de": "Die Versionsnummer des Dokuments",
+        "ru": "Version description",
+        "en": "Version description"
       },
       "names": {
         "de": "Version",

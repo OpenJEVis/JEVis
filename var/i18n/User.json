@@ -1,12 +1,12 @@
 {
   "jevisclass": "User",
   "names": {
-    "de": "User",
+    "de": "Benutzer",
     "ru": "User",
     "en": "User"
   },
   "descriptions": {
-    "de": "User to access the JEVis",
+    "de": "Benutzer für den Zugang zum JEVis",
     "ru": "User to access the JEVis",
     "en": "User to access the JEVis"
   },
@@ -14,12 +14,12 @@
     {
       "type": "Activities",
       "descriptions": {
-        "de": "Activities desctiption",
-        "ru": "Activities desctiption",
-        "en": "Activities desctiption"
+        "de": "Activities description",
+        "ru": "Activities description",
+        "en": "Activities description"
       },
       "names": {
-        "de": "Activities",
+        "de": "Tätigkeiten",
         "ru": "Activities",
         "en": "Activities"
       }
@@ -27,9 +27,9 @@
     {
       "type": "E-Mail",
       "descriptions": {
-        "de": "E-Mail desctiption",
-        "ru": "E-Mail desctiption",
-        "en": "E-Mail desctiption"
+        "de": "E-Mail description",
+        "ru": "E-Mail description",
+        "en": "E-Mail description"
       },
       "names": {
         "de": "E-Mail",
@@ -40,12 +40,12 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled desctiption",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description"
       },
       "names": {
-        "de": "Enabled",
+        "de": "Aktiviert",
         "ru": "Enabled",
         "en": "Enabled"
       }
@@ -53,12 +53,12 @@
     {
       "type": "First Name",
       "descriptions": {
-        "de": "First Name desctiption",
-        "ru": "First Name desctiption",
-        "en": "First Name desctiption"
+        "de": "First Name description",
+        "ru": "First Name description",
+        "en": "First Name description"
       },
       "names": {
-        "de": "First Name",
+        "de": "Vorname",
         "ru": "First Name",
         "en": "First Name"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Language",
       "descriptions": {
-        "de": "Language desctiption",
-        "ru": "Language desctiption",
-        "en": "Language desctiption"
+        "de": "Language description",
+        "ru": "Language description",
+        "en": "Language description"
       },
       "names": {
-        "de": "Language",
+        "de": "Sprache",
         "ru": "Language",
         "en": "Language"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Last Login",
       "descriptions": {
-        "de": "Last Login desctiption",
-        "ru": "Last Login desctiption",
-        "en": "Last Login desctiption"
+        "de": "Last Login description",
+        "ru": "Last Login description",
+        "en": "Last Login description"
       },
       "names": {
-        "de": "Last Login",
+        "de": "Letzter Login",
         "ru": "Last Login",
         "en": "Last Login"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Last Name",
       "descriptions": {
-        "de": "Last Name desctiption",
-        "ru": "Last Name desctiption",
-        "en": "Last Name desctiption"
+        "de": "Last Name description",
+        "ru": "Last Name description",
+        "en": "Last Name description"
       },
       "names": {
-        "de": "Last Name",
+        "de": "Nachname",
         "ru": "Last Name",
         "en": "Last Name"
       }
@@ -105,12 +105,12 @@
     {
       "type": "Password",
       "descriptions": {
-        "de": "Password desctiption",
-        "ru": "Password desctiption",
-        "en": "Password desctiption"
+        "de": "Password description",
+        "ru": "Password description",
+        "en": "Password description"
       },
       "names": {
-        "de": "Password",
+        "de": "Passwort",
         "ru": "Password",
         "en": "Password"
       }
@@ -118,12 +118,12 @@
     {
       "type": "Phone",
       "descriptions": {
-        "de": "Phone desctiption",
-        "ru": "Phone desctiption",
-        "en": "Phone desctiption"
+        "de": "Phone description",
+        "ru": "Phone description",
+        "en": "Phone description"
       },
       "names": {
-        "de": "Phone",
+        "de": "Telefon",
         "ru": "Phone",
         "en": "Phone"
       }
@@ -131,9 +131,9 @@
     {
       "type": "Position",
       "descriptions": {
-        "de": "Position desctiption",
-        "ru": "Position desctiption",
-        "en": "Position desctiption"
+        "de": "Position description",
+        "ru": "Position description",
+        "en": "Position description"
       },
       "names": {
         "de": "Position",
@@ -144,9 +144,9 @@
     {
       "type": "Sys Admin",
       "descriptions": {
-        "de": "Sys Admin desctiption",
-        "ru": "Sys Admin desctiption",
-        "en": "Sys Admin desctiption"
+        "de": "Sys Admin description",
+        "ru": "Sys Admin description",
+        "en": "Sys Admin description"
       },
       "names": {
         "de": "Sys Admin",
@@ -157,12 +157,12 @@
     {
       "type": "TimeZone",
       "descriptions": {
-        "de": "TimeZone desctiption",
-        "ru": "TimeZone desctiption",
-        "en": "TimeZone desctiption"
+        "de": "TimeZone description",
+        "ru": "TimeZone description",
+        "en": "TimeZone description"
       },
       "names": {
-        "de": "TimeZone",
+        "de": "Zeitzone",
         "ru": "TimeZone",
         "en": "TimeZone"
       }
@@ -170,12 +170,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title desctiption",
-        "ru": "Title desctiption",
-        "en": "Title desctiption"
+        "de": "Title description",
+        "ru": "Title description",
+        "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }

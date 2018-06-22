@@ -10,7 +10,6 @@ import org.jevis.commons.database.ClassHandler;
 import org.jevis.jecalc.data.CleanDataAttributeJEVis;
 
 /**
- *
  * @author broder
  */
 public class ProcessPatchBuildAllClasses {

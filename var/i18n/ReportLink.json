@@ -1,12 +1,12 @@
 {
   "jevisclass": "Report Link",
   "names": {
-    "de": "Report Link",
+    "de": "Berichtsverknüpfung",
     "ru": "Report Link",
     "en": "Report Link"
   },
   "descriptions": {
-    "de": "The Report Link is needed for the data filling process. It links a JEVisObject in the tree of the JEConfig to a variable in the template file.\n",
+    "de": "Die Berichtsverknüpfung wird für die Datenbefüllung benötigt. Sie verknüpft ein JEVis-Objekt im Baum des JEVisControlCenters mit einer Variablen in der Vorlagen-Datei.",
     "ru": "The Report Link is needed for the data filling process. It links a JEVisObject in the tree of the JEConfig to a variable in the template file.\n",
     "en": "The Report Link is needed for the data filling process. It links a JEVisObject in the tree of the JEConfig to a variable in the template file.\n"
   },
@@ -14,9 +14,9 @@
     {
       "type": "JEVis ID",
       "descriptions": {
-        "de": "JEVis ID desctiption",
-        "ru": "JEVis ID desctiption",
-        "en": "JEVis ID desctiption"
+        "de": "JEVis ID description",
+        "ru": "JEVis ID description",
+        "en": "JEVis ID description"
       },
       "names": {
         "de": "JEVis ID",
@@ -27,9 +27,9 @@
     {
       "type": "Optional",
       "descriptions": {
-        "de": "Optional desctiption",
-        "ru": "Optional desctiption",
-        "en": "Optional desctiption"
+        "de": "Optional description",
+        "ru": "Optional description",
+        "en": "Optional description"
       },
       "names": {
         "de": "Optional",
@@ -40,12 +40,12 @@
     {
       "type": "Template Variable Name",
       "descriptions": {
-        "de": "Template Variable Name desctiption",
-        "ru": "Template Variable Name desctiption",
-        "en": "Template Variable Name desctiption"
+        "de": "Template Variable Name description",
+        "ru": "Template Variable Name description",
+        "en": "Template Variable Name description"
       },
       "names": {
-        "de": "Template Variable Name",
+        "de": "Vorlagenvariablenname",
         "ru": "Template Variable Name",
         "en": "Template Variable Name"
       }

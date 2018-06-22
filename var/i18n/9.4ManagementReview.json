@@ -1,21 +1,23 @@
 {
   "jevisclass": "9.4 Management Review",
   "names": {
-    "de": "9.4 Management Review",
+    "de": "9.4 Managementbewertung",
     "ru": "9.4 Management Review",
     "en": "9.4 Management Review"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "9.4.1\nDie oberste Leitung muss das EnMS der Organisation in geplanten Abständen bewerten, um dessen fortdauernde Eignung, Angemessenheit, Wirksamkeit und Übereinstimmung mit der strategischen Ausrichtung der Organisation sicherzustellen.\n\n9.4.2\nDie Managementbewertung muss folgende Aspekte behandeln:\na) den Status von Maßnahmen vorheriger Managementbewertungen;\nb) Veränderungen bei externen und internen Themen sowie bei zugehörigen Risiken und Chancen, die das EnMS betreffen;\nc) Informationen über die EnMS-Leistung, einschließlich Entwicklungen bei:\n	1) Nichtkonformitäten und Korrekturmaßnahmen;\n	2) Ergebnissen von Überwachungen und Messungen;\n	3) Auditergebnissen;\n	4) Ergebnissen der Bewertung rechtlicher Vorschriften und anderer Anforderungen;\nd) Möglichkeiten zur fortlaufenden Verbesserung, einschließlich hinsichtlich Kompetenz;\ne) die Energiepolitik.\n\n9.4.3\nDie Eingaben in die Managementbewertung, die die energiebezogene Leistung betreffen, müssen einschließen:\n	— das Ausmaß, in dem Energieziele erreicht wurden;\n	— die energiebezogene Leistung und die Verbesserung der energiebezogenen Leistung auf Grundlage von Ergebnissen von Überwachungen und Messungen;\n	— EnPIs und EnBs;\n	— Status von Aktionsplänen.\n\n9.4.4\nDie Ergebnisse der Managementbewertung müssen Entscheidungen zu Möglichkeiten der fortlaufenden Verbesserung sowie zu jeglichem Änderungsbedarf am EnMS enthalten, einschließlich:\na) der Möglichkeiten zur Verbesserung der energiebezogenen Leistung;\nb) der Energiepolitik;\nc) der EnPIs oder EnBs;\nd) der Ziele, Energieziele, Aktionspläne oder anderer Elemente des EnMS und der bei Nichterreichen von Zielen zu ergreifenden Maßnahmen;\ne) der Möglichkeiten zur Verbesserung der Integration in Geschäftsprozesse;\nf) der Ressourcenbereitstellung;\ng) der Verbesserung von Kompetenz, Bewusstsein und Kommunikation.\nDie Organisation muss dokumentierte Information als Nachweis der Ergebnisse der Managementbewertungen aufbewahren."
+  },
   "types": [
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content desctiption",
-        "ru": "Content desctiption",
-        "en": "Content desctiption"
+        "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
+        "ru": "Content description",
+        "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -23,12 +25,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by desctiption",
-        "ru": "Created by desctiption",
-        "en": "Created by desctiption"
+        "de": "Der Autor des Dokuments",
+        "ru": "Created by description",
+        "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -36,12 +38,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation desctiption",
-        "ru": "Date of Creation desctiption",
-        "en": "Date of Creation desctiption"
+        "de": "Datum an dem das Dokument erstellt wurde",
+        "ru": "Date of Creation description",
+        "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -49,12 +51,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number desctiption",
-        "ru": "Document Number desctiption",
-        "en": "Document Number desctiption"
+        "de": "Die eindeutige Dokumentennummer",
+        "ru": "Document Number description",
+        "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -62,12 +64,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date desctiption",
-        "ru": "Release Date desctiption",
-        "en": "Release Date desctiption"
+        "de": "Das Datum der Veröffentlichung des Dokuments",
+        "ru": "Release Date description",
+        "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -75,12 +77,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by desctiption",
-        "ru": "Released by desctiption",
-        "en": "Released by desctiption"
+        "de": "Verantwortliche Person für die Veröffentlichung",
+        "ru": "Released by description",
+        "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -88,12 +90,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title desctiption",
-        "ru": "Title desctiption",
-        "en": "Title desctiption"
+        "de": "Titel des Dokuments",
+        "ru": "Title description",
+        "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -101,9 +103,9 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version desctiption",
-        "ru": "Version desctiption",
-        "en": "Version desctiption"
+        "de": "Die Versionsnummer des Dokuments",
+        "ru": "Version description",
+        "en": "Version description"
       },
       "names": {
         "de": "Version",

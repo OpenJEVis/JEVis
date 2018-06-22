@@ -1,7 +1,7 @@
 {
   "jevisclass": "Meter",
   "names": {
-    "de": "Meter",
+    "de": "Messzähler",
     "ru": "Meter",
     "en": "Meter"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Conversion Factor",
       "descriptions": {
-        "de": "Conversion Factor desctiption",
-        "ru": "Conversion Factor desctiption",
-        "en": "Conversion Factor desctiption"
+        "de": "Conversion Factor description",
+        "ru": "Conversion Factor description",
+        "en": "Conversion Factor description"
       },
       "names": {
         "de": "Conversion Factor",
@@ -23,9 +23,9 @@
     {
       "type": "Current Transformer",
       "descriptions": {
-        "de": "Current Transformer desctiption",
-        "ru": "Current Transformer desctiption",
-        "en": "Current Transformer desctiption"
+        "de": "Current Transformer description",
+        "ru": "Current Transformer description",
+        "en": "Current Transformer description"
       },
       "names": {
         "de": "Current Transformer",
@@ -36,9 +36,9 @@
     {
       "type": "Installation Date",
       "descriptions": {
-        "de": "Installation Date desctiption",
-        "ru": "Installation Date desctiption",
-        "en": "Installation Date desctiption"
+        "de": "Installation Date description",
+        "ru": "Installation Date description",
+        "en": "Installation Date description"
       },
       "names": {
         "de": "Installation Date",
@@ -49,9 +49,9 @@
     {
       "type": "Interface",
       "descriptions": {
-        "de": "Interface desctiption",
-        "ru": "Interface desctiption",
-        "en": "Interface desctiption"
+        "de": "Interface description",
+        "ru": "Interface description",
+        "en": "Interface description"
       },
       "names": {
         "de": "Interface",
@@ -62,9 +62,9 @@
     {
       "type": "Type",
       "descriptions": {
-        "de": "Type desctiption",
-        "ru": "Type desctiption",
-        "en": "Type desctiption"
+        "de": "Type description",
+        "ru": "Type description",
+        "en": "Type description"
       },
       "names": {
         "de": "Type",
@@ -75,9 +75,9 @@
     {
       "type": "Voltage Transformer",
       "descriptions": {
-        "de": "Voltage Transformer desctiption",
-        "ru": "Voltage Transformer desctiption",
-        "en": "Voltage Transformer desctiption"
+        "de": "Voltage Transformer description",
+        "ru": "Voltage Transformer description",
+        "en": "Voltage Transformer description"
       },
       "names": {
         "de": "Voltage Transformer",

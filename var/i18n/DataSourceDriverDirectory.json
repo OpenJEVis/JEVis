@@ -1,12 +1,12 @@
 {
   "jevisclass": "Data Source Driver Directory",
   "names": {
-    "de": "Data Source Driver Directory",
+    "de": "Datenquellentreiberverzeichnis",
     "ru": "Data Source Driver Directory",
     "en": "Data Source Driver Directory"
   },
   "descriptions": {
-    "de": "The class Data Source Driver Directory represents a specific directory for the management of source driver data.",
+    "de": "Die Klasse Datenquellentreiberverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Quelltreiberdaten dar.",
     "ru": "The class Data Source Driver Directory represents a specific directory for the management of source driver data.",
     "en": "The class Data Source Driver Directory represents a specific directory for the management of source driver data."
   },

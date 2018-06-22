@@ -1,7 +1,7 @@
 {
   "jevisclass": "Meeting",
   "names": {
-    "de": "Meeting",
+    "de": "Termin",
     "ru": "Meeting",
     "en": "Meeting"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Content of Meeting and Results",
       "descriptions": {
-        "de": "Content of Meeting and Results desctiption",
-        "ru": "Content of Meeting and Results desctiption",
-        "en": "Content of Meeting and Results desctiption"
+        "de": "Content of Meeting and Results description",
+        "ru": "Content of Meeting and Results description",
+        "en": "Content of Meeting and Results description"
       },
       "names": {
         "de": "Content of Meeting and Results",
@@ -23,9 +23,9 @@
     {
       "type": "Meeting Date",
       "descriptions": {
-        "de": "Meeting Date desctiption",
-        "ru": "Meeting Date desctiption",
-        "en": "Meeting Date desctiption"
+        "de": "Meeting Date description",
+        "ru": "Meeting Date description",
+        "en": "Meeting Date description"
       },
       "names": {
         "de": "Meeting Date",
@@ -36,9 +36,9 @@
     {
       "type": "Meeting Participants",
       "descriptions": {
-        "de": "Meeting Participants desctiption",
-        "ru": "Meeting Participants desctiption",
-        "en": "Meeting Participants desctiption"
+        "de": "Meeting Participants description",
+        "ru": "Meeting Participants description",
+        "en": "Meeting Participants description"
       },
       "names": {
         "de": "Meeting Participants",
@@ -49,9 +49,9 @@
     {
       "type": "Meeting Time",
       "descriptions": {
-        "de": "Meeting Time desctiption",
-        "ru": "Meeting Time desctiption",
-        "en": "Meeting Time desctiption"
+        "de": "Meeting Time description",
+        "ru": "Meeting Time description",
+        "en": "Meeting Time description"
       },
       "names": {
         "de": "Meeting Time",
@@ -62,9 +62,9 @@
     {
       "type": "Minutes of Meeting",
       "descriptions": {
-        "de": "Minutes of Meeting desctiption",
-        "ru": "Minutes of Meeting desctiption",
-        "en": "Minutes of Meeting desctiption"
+        "de": "Minutes of Meeting description",
+        "ru": "Minutes of Meeting description",
+        "en": "Minutes of Meeting description"
       },
       "names": {
         "de": "Minutes of Meeting",

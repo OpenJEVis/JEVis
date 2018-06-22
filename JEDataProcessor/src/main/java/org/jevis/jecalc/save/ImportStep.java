@@ -5,36 +5,25 @@
  */
 package org.jevis.jecalc.save;
 
-import org.jevis.jecalc.workflow.ProcessStep;
-import org.jevis.jecalc.data.ResourceManager;
-import org.jevis.jecalc.data.CleanDataAttribute;
-import org.jevis.jecalc.data.CleanInterval;
-import org.jevis.jecalc.data.CleanDataAttributeJEVis;
-import org.jevis.jecalc.data.CleanDataAttributeOffline;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.jecalc.data.*;
+import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
  * @author broder
  */
 public class ImportStep implements ProcessStep {

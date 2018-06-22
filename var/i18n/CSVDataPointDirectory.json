@@ -1,12 +1,12 @@
 {
   "jevisclass": "CSV Data Point Directory",
   "names": {
-    "de": "CSV Data Point Directory",
+    "de": "CSV Datenpunkt Verzeichnis",
     "ru": "CSV Data Point Directory",
     "en": "CSV Data Point Directory"
   },
   "descriptions": {
-    "de": "The class CSV Data Point Directory represents a specific directory for the management of CSV data points.\n",
+    "de": "Ein CSV Datenpunkt Verzeichnis wird für die verwaltung von Datenpunkten aus CSV-Dateien verwendet.\n",
     "ru": "The class CSV Data Point Directory represents a specific directory for the management of CSV data points.\n",
     "en": "The class CSV Data Point Directory represents a specific directory for the management of CSV data points.\n"
   },

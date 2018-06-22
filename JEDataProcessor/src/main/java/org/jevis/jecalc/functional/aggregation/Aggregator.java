@@ -5,10 +5,6 @@
  */
 package org.jevis.jecalc.functional.aggregation;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -19,17 +15,39 @@ import org.jevis.commons.dataprocessing.ProcessOptions;
 import org.jevis.commons.dataprocessing.function.AggregationFunktion;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
-import org.jevis.jecalc.functional.avg.AverageStep;
 import org.joda.time.Period;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author broder
  */
 public class Aggregator {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Aggregator.class);
+
+    public static void main(String[] args) {
+        Aggregator agg = new Aggregator();
+        JEVisDataSource ds = null;
+        try {
+            ds = new JEVisDataSourceWS("http://openjevis.org:18090");
+            ds.connect("Sys Admin", "MyJEV34Env");
+        } catch (JEVisException ex) {
+            System.exit(1);
+        }
+        try {
+            JEVisObject object = ds.getObject(5343l);
+            List<JEVisSample> allSamples = object.getAttribute("Value").getAllSamples();
+            List<JEVisSample> aggregatedData = agg.getAggregatedData(ds, allSamples, Period.months(1), AggregationModus.average);
+            System.out.println(aggregatedData.size());
+        } catch (JEVisException ex) {
+            Logger.getLogger(Aggregator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public List<JEVisSample> getAggregatedData(JEVisDataSource datasource, List<JEVisSample> cleanSamples, Period period, AggregationModus aggregationModus) {
         BasicProcess aggrigate = new BasicProcess();
@@ -61,25 +79,6 @@ public class Aggregator {
 
     public enum AggregationModus {
 
-        total, average;
-    }
-
-    public static void main(String[] args) {
-        Aggregator agg = new Aggregator();
-        JEVisDataSource ds = null;
-        try {
-            ds = new JEVisDataSourceWS("http://openjevis.org:18090");
-            ds.connect("Sys Admin", "MyJEV34Env");
-        } catch (JEVisException ex) {
-            System.exit(1);
-        }
-        try {
-            JEVisObject object = ds.getObject(5343l);
-            List<JEVisSample> allSamples = object.getAttribute("Value").getAllSamples();
-            List<JEVisSample> aggregatedData = agg.getAggregatedData(ds, allSamples, Period.months(1), AggregationModus.average);
-            System.out.println(aggregatedData.size());
-        } catch (JEVisException ex) {
-            Logger.getLogger(Aggregator.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        total, average
     }
 }

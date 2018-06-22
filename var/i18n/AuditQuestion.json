@@ -1,7 +1,7 @@
 {
   "jevisclass": "Audit Question",
   "names": {
-    "de": "Audit Question",
+    "de": "Auditfrage",
     "ru": "Audit Question",
     "en": "Audit Question"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Audit Observation",
       "descriptions": {
-        "de": "Audit Observation desctiption",
-        "ru": "Audit Observation desctiption",
-        "en": "Audit Observation desctiption"
+        "de": "Audit Observation description",
+        "ru": "Audit Observation description",
+        "en": "Audit Observation description"
       },
       "names": {
-        "de": "Audit Observation",
+        "de": "Audit Beobachtung",
         "ru": "Audit Observation",
         "en": "Audit Observation"
       }
@@ -23,12 +23,12 @@
     {
       "type": "Evaluation 000 points",
       "descriptions": {
-        "de": "Evaluation 000 points desctiption",
-        "ru": "Evaluation 000 points desctiption",
-        "en": "Evaluation 000 points desctiption"
+        "de": "Evaluation 000 points description",
+        "ru": "Evaluation 000 points description",
+        "en": "Evaluation 000 points description"
       },
       "names": {
-        "de": "Evaluation 000 points",
+        "de": "Bewertung 0 Punkte",
         "ru": "Evaluation 000 points",
         "en": "Evaluation 000 points"
       }
@@ -36,12 +36,12 @@
     {
       "type": "Evaluation 025 points",
       "descriptions": {
-        "de": "Evaluation 025 points desctiption",
-        "ru": "Evaluation 025 points desctiption",
-        "en": "Evaluation 025 points desctiption"
+        "de": "Evaluation 025 points description",
+        "ru": "Evaluation 025 points description",
+        "en": "Evaluation 025 points description"
       },
       "names": {
-        "de": "Evaluation 025 points",
+        "de": "Bewertung 25 Punkte",
         "ru": "Evaluation 025 points",
         "en": "Evaluation 025 points"
       }
@@ -49,12 +49,12 @@
     {
       "type": "Evaluation 050 points",
       "descriptions": {
-        "de": "Evaluation 050 points desctiption",
-        "ru": "Evaluation 050 points desctiption",
-        "en": "Evaluation 050 points desctiption"
+        "de": "Evaluation 050 points description",
+        "ru": "Evaluation 050 points description",
+        "en": "Evaluation 050 points description"
       },
       "names": {
-        "de": "Evaluation 050 points",
+        "de": "Bewertung 50 Punkte",
         "ru": "Evaluation 050 points",
         "en": "Evaluation 050 points"
       }
@@ -62,12 +62,12 @@
     {
       "type": "Evaluation 075 points",
       "descriptions": {
-        "de": "Evaluation 075 points desctiption",
-        "ru": "Evaluation 075 points desctiption",
-        "en": "Evaluation 075 points desctiption"
+        "de": "Evaluation 075 points description",
+        "ru": "Evaluation 075 points description",
+        "en": "Evaluation 075 points description"
       },
       "names": {
-        "de": "Evaluation 075 points",
+        "de": "Bewertung 75 Punkte",
         "ru": "Evaluation 075 points",
         "en": "Evaluation 075 points"
       }
@@ -75,12 +75,12 @@
     {
       "type": "Evaluation 100 points",
       "descriptions": {
-        "de": "Evaluation 100 points desctiption",
-        "ru": "Evaluation 100 points desctiption",
-        "en": "Evaluation 100 points desctiption"
+        "de": "Evaluation 100 points description",
+        "ru": "Evaluation 100 points description",
+        "en": "Evaluation 100 points description"
       },
       "names": {
-        "de": "Evaluation 100 points",
+        "de": "Bewertung 100 Punkte",
         "ru": "Evaluation 100 points",
         "en": "Evaluation 100 points"
       }
@@ -88,12 +88,12 @@
     {
       "type": "Norm Chapter",
       "descriptions": {
-        "de": "Norm Chapter desctiption",
-        "ru": "Norm Chapter desctiption",
-        "en": "Norm Chapter desctiption"
+        "de": "Norm Chapter description",
+        "ru": "Norm Chapter description",
+        "en": "Norm Chapter description"
       },
       "names": {
-        "de": "Norm Chapter",
+        "de": "Norm Kapitel",
         "ru": "Norm Chapter",
         "en": "Norm Chapter"
       }
@@ -101,12 +101,12 @@
     {
       "type": "Proposed Measures",
       "descriptions": {
-        "de": "Proposed Measures desctiption",
-        "ru": "Proposed Measures desctiption",
-        "en": "Proposed Measures desctiption"
+        "de": "Proposed Measures description",
+        "ru": "Proposed Measures description",
+        "en": "Proposed Measures description"
       },
       "names": {
-        "de": "Proposed Measures",
+        "de": "Vorgeschlagene Maßnahme",
         "ru": "Proposed Measures",
         "en": "Proposed Measures"
       }
@@ -114,12 +114,12 @@
     {
       "type": "Question",
       "descriptions": {
-        "de": "Question desctiption",
-        "ru": "Question desctiption",
-        "en": "Question desctiption"
+        "de": "Question description",
+        "ru": "Question description",
+        "en": "Question description"
       },
       "names": {
-        "de": "Question",
+        "de": "Frage",
         "ru": "Question",
         "en": "Question"
       }

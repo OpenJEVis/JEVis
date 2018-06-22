@@ -1,26 +1,23 @@
-
-import org.jevis.jecalc.workflow.ProcessManager;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
 import org.jevis.jecalc.data.CleanDataAttribute;
 import org.jevis.jecalc.data.CleanDataAttributeOffline;
 import org.jevis.jecalc.util.DataRowReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import org.jevis.jecalc.workflow.ProcessManager;
+import org.joda.time.DateTime;
+import org.junit.Assert;
+
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.joda.time.DateTime;
-import org.junit.Assert;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 /**
- *
  * @author broder
  */
 public class DataRowChecker {

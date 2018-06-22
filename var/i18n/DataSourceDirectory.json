@@ -1,12 +1,12 @@
 {
   "jevisclass": "Data Source Directory",
   "names": {
-    "de": "Data Source Directory",
+    "de": "Datenquellenverzeichnis",
     "ru": "Data Source Directory",
     "en": "Data Source Directory"
   },
   "descriptions": {
-    "de": "The class Data Source Directory represents a specific directory for the management of source data.\n",
+    "de": "Die Klasse Datenquellenverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Quelldaten dar.",
     "ru": "The class Data Source Directory represents a specific directory for the management of source data.\n",
     "en": "The class Data Source Directory represents a specific directory for the management of source data.\n"
   },

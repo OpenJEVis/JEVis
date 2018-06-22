@@ -5,9 +5,6 @@
  */
 package org.jevis.jecalc.functional.avg;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -21,15 +18,17 @@ import org.jevis.jecalc.functional.sum.SummationStep;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author broder
  */
 public class AverageStep implements ProcessStep {
 
-    private final JEVisObject functionalObject;
-
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SummationStep.class);
+    private final JEVisObject functionalObject;
 
     public AverageStep(JEVisObject functionalObject) {
         this.functionalObject = functionalObject;

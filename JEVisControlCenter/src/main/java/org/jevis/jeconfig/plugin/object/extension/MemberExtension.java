@@ -19,14 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -37,26 +29,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisConstants;
-import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
+import org.jevis.api.*;
 import org.jevis.commons.relationship.RelationsManagment;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
@@ -64,6 +43,12 @@ import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
 
 /**
  * This extension handels the mombership of users to groups.
@@ -556,7 +541,7 @@ public class MemberExtension implements ObjectEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITEL;
     }
 

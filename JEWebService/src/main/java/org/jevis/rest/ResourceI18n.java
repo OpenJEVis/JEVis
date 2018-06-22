@@ -96,7 +96,6 @@ public class ResourceI18n {
 
     }
 
-
     private JsonI18nClass loadFile(File file) throws FileNotFoundException {
         Gson gson = new Gson();
         JsonReader reader = new JsonReader(new FileReader(file));

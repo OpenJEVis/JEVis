@@ -5,9 +5,6 @@
  */
 package org.jevis.jecalc.functional.sum;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -21,12 +18,15 @@ import org.jevis.jecalc.functional.avg.AverageStep;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *
  * @author broder
  */
 public class SummationStep implements ProcessStep {
-  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AverageStep.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AverageStep.class);
     private final JEVisObject functionalObject;
 
     public SummationStep(JEVisObject functionalObject) {
@@ -35,7 +35,7 @@ public class SummationStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) {
-       logger.debug("Start Functional Step with id {}",functionalObject.getID());
+        logger.debug("Start Functional Step with id {}", functionalObject.getID());
         CleanDataAttributeJEVis jevisAttribute = (CleanDataAttributeJEVis) resourceManager.getCalcAttribute();
         JEVisObject cleanData = jevisAttribute.getObject();
         Aggregator aggr = new Aggregator();

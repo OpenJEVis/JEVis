@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -43,7 +42,8 @@ public class GapFillingEditor implements AttributeEditor {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
     HBox box = new HBox();
-    JFXTabPane _tp = new JFXTabPane();
+    TabPane _tp = new TabPane();
+    Dialog<ButtonType> _dialog = new Dialog<>();
 
     private String logPrefix = "";
     private boolean _readOnly = true;
@@ -54,8 +54,22 @@ public class GapFillingEditor implements AttributeEditor {
     private List<JsonGapFillingConfig> _listConfig;
     private Response response = GapFillingEditor.Response.CANCEL;
 
+    public GapFillingEditor(JEVisAttribute att) {
+        logger.debug("==init== for: {}", att.getName());
+        _attribute = att;
+        _changed.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                logger.debug("------------------> StringValueChanged: {}", newValue);
+            }
+        });
+    }
+
     private void init() {
         Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
+        _dialog.setResizable(true);
+        _dialog.setHeight(300);
+        _dialog.setWidth(350);
 
         openConfig.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -107,17 +121,6 @@ public class GapFillingEditor implements AttributeEditor {
 //        box.getChildren().add(_field);
     }
 
-    public GapFillingEditor(JEVisAttribute att) {
-        logger.debug("==init== for: {}", att.getName());
-        _attribute = att;
-        _changed.addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                logger.debug("------------------> StringValueChanged: {}", newValue);
-            }
-        });
-    }
-
     @Override
     public boolean hasChanged() {
         return _changed.getValue();
@@ -162,18 +165,27 @@ public class GapFillingEditor implements AttributeEditor {
     }
 
     private Response show() throws JEVisException {
-        String gapFillingConfig = _attribute.getLatestSample().getValueAsString();
-        if (gapFillingConfig.endsWith("]")) {
-            _listConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
-            }.getType());
-        } else {
+        String gapFillingConfig;
+        if (!_attribute.hasSample()) {
+            JsonGapFillingConfig newConfig = new JsonGapFillingConfig();
+            newConfig.setName(I18n.getInstance().getString("newobject.new.title"));
             _listConfig = new ArrayList<>();
-            _listConfig.add(new Gson().fromJson(gapFillingConfig, JsonGapFillingConfig.class));
+            _listConfig.add(newConfig);
+        } else {
+            gapFillingConfig = _attribute.getLatestSample().getValueAsString();
+            if (gapFillingConfig.endsWith("]")) {
+                _listConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
+                }.getType());
+            } else {
+                _listConfig = new ArrayList<>();
+                _listConfig.add(new Gson().fromJson(gapFillingConfig, JsonGapFillingConfig.class));
+            }
         }
 
-
         _tp.getTabs().clear();
-        Dialog<ButtonType> _dialog = new Dialog<>();
+        _tp.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+
+
         _dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.title"));
         _dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.header"));
         _dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));
@@ -239,19 +251,12 @@ public class GapFillingEditor implements AttributeEditor {
                     }
                 });
 
-
         logger.trace("Done");
 
         return response;
     }
 
-    public enum Response {
-
-        NO, YES, CANCEL
-    }
-
     private Tab generateTab(int i) {
-        VBox root = new VBox();
         JFXTextField _field_Name;
         JFXComboBox _field_Type;
         JFXTextField _field_Boundary;
@@ -260,16 +265,19 @@ public class GapFillingEditor implements AttributeEditor {
         JFXComboBox _field_Bound_Specific;
         JFXTextField _field_Reference_Period_Count;
         GridPane _gp;
-
         _gp = new GridPane();
+
+        VBox.setVgrow(_gp, Priority.ALWAYS);
+        HBox.setHgrow(_gp, Priority.ALWAYS);
+
         _gp.setPadding(new Insets(10));
         _gp.setHgap(10);
         _gp.setVgap(5);
 
 
-        int width = 300;
+        int width = 150;
         _field_Name = new JFXTextField();
-        _field_Name.setPrefWidth(width);//TODO: remove this workaround
+        //_field_Name.setPrefWidth(width);//TODO: remove this workaround
         _field_Name.setEditable(!_readOnly);
         ObservableList<String> optionsBoundSpecific = FXCollections.observableArrayList(GapFillingBoundToSpecific.NONE, GapFillingBoundToSpecific.WEEKDAY,
                 GapFillingBoundToSpecific.WEEKOFYEAR, GapFillingBoundToSpecific.MONTHOFYEAR);
@@ -277,10 +285,10 @@ public class GapFillingEditor implements AttributeEditor {
         //_field_Bound_Specific.setPrefWidth(width);//TODO: remove this workaround
         _field_Bound_Specific.setEditable(_readOnly);
         _field_Boundary = new JFXTextField();
-        _field_Boundary.setPrefWidth(width);//TODO: remove this workaround
+        //_field_Boundary.setPrefWidth(width);//TODO: remove this workaround
         _field_Boundary.setEditable(!_readOnly);
         _field_Default_Value = new JFXTextField();
-        _field_Default_Value.setPrefWidth(width);//TODO: remove this workaround
+        //_field_Default_Value.setPrefWidth(width);//TODO: remove this workaround
         _field_Default_Value.setEditable(!_readOnly);
         ObservableList<String> optionsReferencePeriod = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
                 GapFillingReferencePeriod.WEEK, GapFillingReferencePeriod.MONTH, GapFillingReferencePeriod.YEAR);
@@ -413,7 +421,7 @@ public class GapFillingEditor implements AttributeEditor {
 
         _field_Type.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                if (_listConfig.get(finalI) == null || !_listConfig.get(finalI).getType().equals(newValue)) {
+                if (_listConfig.get(finalI).getType() == null || !_listConfig.get(finalI).getType().equals(newValue)) {
                     logger.info("Value Changed: {}", newValue);
                     String v = String.valueOf(newValue);
                     _listConfig.get(finalI).setType(v);
@@ -446,6 +454,7 @@ public class GapFillingEditor implements AttributeEditor {
                         _gp.getChildren().removeAll(reference_period, reference_period_count, _field_Reference_Period, _field_Reference_Period_Count,
                                 boundtospecific, _field_Bound_Specific, default_value, _field_Default_Value);
                     }
+
                 }
             } catch (JEVisException ex) {
                 logger.catching(ex);
@@ -473,35 +482,37 @@ public class GapFillingEditor implements AttributeEditor {
         _gp.add(boundary, 0, 2);
         _gp.add(_field_Boundary, 1, 2);
 
-        if (_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
-                && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
-            _gp.add(default_value, 0, 3);
-            _gp.add(_field_Default_Value, 1, 3);
-        }
+        Tab tab = new Tab();
 
-        if (!_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
-                && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
-            _gp.add(reference_period_count, 0, 4);
-            _gp.add(_field_Reference_Period_Count, 1, 4);
-            _gp.add(_field_Reference_Period, 2, 4);
-            _gp.add(reference_period, 3, 4);
+        if (Objects.nonNull(_listConfig.get(finalI).getType())) {
+            if (_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
+                    && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
+                _gp.add(default_value, 0, 3);
+                _gp.add(_field_Default_Value, 1, 3);
+            }
 
-            _gp.add(boundtospecific, 0, 6);
-            _gp.add(_field_Bound_Specific, 1, 6);
+            if (!_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
+                    && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
+                _gp.add(reference_period_count, 0, 4);
+                _gp.add(_field_Reference_Period_Count, 1, 4);
+                _gp.add(_field_Reference_Period, 2, 4);
+                _gp.add(reference_period, 3, 4);
+
+                _gp.add(boundtospecific, 0, 6);
+                _gp.add(_field_Bound_Specific, 1, 6);
+            }
         }
 
         _gp.add(deleteConfig, 3, 8);
 
-        root.getChildren().add(_gp);
-        HBox.setHgrow(_gp, Priority.ALWAYS);
-
-
-        HBox hbox = new HBox();
-        hbox.getChildren().add(root);
-        Tab tab = new Tab();
-        tab.setContent(hbox);
+        tab.setContent(_gp);
         tab.setText(_listConfig.get(i).getName());
 
         return tab;
+    }
+
+    public enum Response {
+
+        NO, YES, CANCEL
     }
 }

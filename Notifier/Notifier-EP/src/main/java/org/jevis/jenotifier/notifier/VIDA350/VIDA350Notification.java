@@ -4,16 +4,14 @@
  */
 package org.jevis.jenotifier.notifier.VIDA350;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.jenotifier.notifier.Notification;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -244,6 +242,11 @@ public class VIDA350Notification implements Notification {
         }
     }
 
+    @Override
+    public void setNotificationObject(JEVisObject notiObj, JEVisFile file) {
+
+    }
+
     /**
      * If the Email is successfully sent, sets _sendSucessful with true and
      * _sendTime with the send time.
@@ -266,11 +269,7 @@ public class VIDA350Notification implements Notification {
      * @return
      */
     public boolean isNotiConfigured() {
-        if (null != getSetTime() && !getSetTime().isEmpty() && null != getInstruction() && !getInstruction().isEmpty() && null != getIP() && !getIP().isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
+        return null != getSetTime() && !getSetTime().isEmpty() && null != getInstruction() && !getInstruction().isEmpty() && null != getIP() && !getIP().isEmpty();
     }
 
     /**

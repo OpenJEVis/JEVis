@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.121"
+            fx:controller="org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController">
+    <children>
+        <VBox layoutX="115.0" layoutY="78.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <HBox>
+                    <children>
+                        <VBox HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Basic"/>
+                                <GridPane alignment="CENTER" maxWidth="500.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                    <children>
+                                        <Button fx:id="buttonSeven" alignment="CENTER" minWidth="50.0"
+                                                mnemonicParsing="false" onAction="#onSeven" text="7"
+                                                GridPane.rowIndex="1"/>
+                                        <Button fx:id="buttonEight" alignment="CENTER" contentDisplay="CENTER"
+                                                layoutX="29.0" layoutY="10.0" minWidth="50.0" mnemonicParsing="false"
+                                                onAction="#onEight" text="8" GridPane.columnIndex="1"
+                                                GridPane.rowIndex="1"/>
+                                        <Button fx:id="buttonNine" alignment="CENTER" contentDisplay="CENTER"
+                                                layoutX="147.0" layoutY="35.0" minWidth="50.0" mnemonicParsing="false"
+                                                onAction="#onNine" text="9" GridPane.columnIndex="2"
+                                                GridPane.rowIndex="1"/>
+                                        <Button fx:id="buttonFour" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onFour" text="4"
+                                                GridPane.rowIndex="2"/>
+                                        <Button fx:id="buttonSix" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onSix"
+                                                onMouseClicked="#onSix" text="6" GridPane.columnIndex="2"
+                                                GridPane.rowIndex="2"/>
+                                        <Button fx:id="buttonFive" alignment="CENTER" minWidth="50.0"
+                                                mnemonicParsing="false" onAction="#onFive" text="5"
+                                                GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                        <Button fx:id="buttonThree" alignment="CENTER" minWidth="50.0"
+                                                mnemonicParsing="false" onAction="#onThree" onKeyTyped="#onThree"
+                                                onMouseClicked="#onThree" text="3" GridPane.columnIndex="2"
+                                                GridPane.rowIndex="3"/>
+                                        <Button fx:id="buttonTwo" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onTwo"
+                                                onMouseClicked="#onTwo" text="2" GridPane.columnIndex="1"
+                                                GridPane.rowIndex="3"/>
+                                        <Button fx:id="buttonOne" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onOne"
+                                                onMouseClicked="#onOne" text="1" GridPane.rowIndex="3"/>
+                                        <Button fx:id="buttonZero" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onZero"
+                                                onMouseClicked="#onZero" text="0" GridPane.rowIndex="4"/>
+                                        <Button fx:id="buttonMod" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onMod"
+                                                onMouseClicked="#onModulo" text="mod" GridPane.columnIndex="5"
+                                                GridPane.rowIndex="2"/>
+                                        <Button fx:id="buttonDivide" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onDivide"
+                                                onMouseClicked="#onDivide" text="/" GridPane.columnIndex="3"
+                                                GridPane.rowIndex="1"/>
+                                        <Button fx:id="buttonMultiply" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onMultiply"
+                                                onMouseClicked="#onMultiply" text="x" GridPane.columnIndex="3"
+                                                GridPane.rowIndex="2"/>
+                                        <Button fx:id="buttonMinus" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onMinus"
+                                                onMouseClicked="#onMinus" text="-" GridPane.columnIndex="3"
+                                                GridPane.rowIndex="3"/>
+                                        <Button fx:id="buttonDot" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onDot"
+                                                onMouseClicked="#onDot" text="," GridPane.columnIndex="1"
+                                                GridPane.rowIndex="4"/>
+                                        <Button fx:id="buttonBracketOpen" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onBracketOpen"
+                                                onMouseClicked="#onBracketOpen" text="(" GridPane.columnIndex="4"
+                                                GridPane.rowIndex="1"/>
+                                        <Button fx:id="buttonPi" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onPi"
+                                                onMouseClicked="#onPi" text="pi" GridPane.columnIndex="4"
+                                                GridPane.rowIndex="4"/>
+                                        <Button fx:id="buttonBracketClose" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onBracketClose"
+                                                onMouseClicked="#onBracketClose" text=")" GridPane.columnIndex="5"
+                                                GridPane.rowIndex="1"/>
+                                        <Button fx:id="buttonE" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onE"
+                                                onMouseClicked="#onE" text="e" GridPane.columnIndex="5"
+                                                GridPane.rowIndex="4"/>
+                                        <Button fx:id="buttonDeg" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onDeg" text="deg"
+                                                GridPane.columnIndex="1"/>
+                                        <Button fx:id="buttonClear" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onClear" text="CLEAR"
+                                                GridPane.columnIndex="2"/>
+                                        <Button fx:id="buttonBack" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onBack" text="BACK"
+                                                GridPane.columnIndex="3"/>
+                                        <Button fx:id="buttonRad" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onRad" text="rad"/>
+                                        <Button fx:id="buttonPow" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onPow"
+                                                onMouseClicked="#onPow" text="pow" GridPane.columnIndex="4"
+                                                GridPane.rowIndex="3"/>
+                                        <Button fx:id="buttonSqrt" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onSqrt"
+                                                onMouseClicked="#onSqrt" text="sqrt" GridPane.columnIndex="4"
+                                                GridPane.rowIndex="2"/>
+                                        <Button fx:id="buttonLog" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onLog"
+                                                onMouseClicked="#onLog" text="log" GridPane.columnIndex="5"
+                                                GridPane.rowIndex="3"/>
+                                        <Button fx:id="buttonMin" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onMin"
+                                                onMouseClicked="#onMin" text="min" GridPane.columnIndex="1"
+                                                GridPane.rowIndex="5"/>
+                                        <Button fx:id="buttonCeil" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onCeil"
+                                                onMouseClicked="#onCeil" text="ceil" GridPane.columnIndex="1"
+                                                GridPane.rowIndex="6"/>
+                                        <Button fx:id="buttonAbs" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onAbs"
+                                                onMouseClicked="#onAbs" text="abs" GridPane.rowIndex="5"/>
+                                        <Button fx:id="buttonMax" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onMax"
+                                                onMouseClicked="#onMax" text="max" GridPane.columnIndex="2"
+                                                GridPane.rowIndex="5"/>
+                                        <Button fx:id="buttonRound" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onRound"
+                                                onMouseClicked="#onRound" text="round" GridPane.rowIndex="6"/>
+                                        <Button fx:id="buttonExp" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onExp"
+                                                onMouseClicked="#onExp" text="exp" GridPane.columnIndex="2"
+                                                GridPane.rowIndex="4"/>
+                                        <Button fx:id="buttonFloor" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onFloor"
+                                                onMouseClicked="#onFloor" text="floor" GridPane.columnIndex="2"
+                                                GridPane.rowIndex="6"/>
+                                        <Button fx:id="buttonSin" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onSin"
+                                                onMouseClicked="#onSin" text="sin" GridPane.columnIndex="3"
+                                                GridPane.rowIndex="5"/>
+                                        <Button fx:id="buttonCos" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onCos"
+                                                onMouseClicked="#onCos" text="cos" GridPane.columnIndex="4"
+                                                GridPane.rowIndex="5"/>
+                                        <Button fx:id="buttonTan" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onTan"
+                                                onMouseClicked="#onTan" text="tan" GridPane.columnIndex="5"
+                                                GridPane.rowIndex="5"/>
+                                        <Button fx:id="buttonAsin" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onAsin"
+                                                onMouseClicked="#onAsin" text="asin" GridPane.columnIndex="3"
+                                                GridPane.rowIndex="6"/>
+                                        <Button fx:id="buttonAcos" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onAcos"
+                                                onMouseClicked="#onAcos" text="acos" GridPane.columnIndex="4"
+                                                GridPane.rowIndex="6"/>
+                                        <Button fx:id="buttonAtan2" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onAtan2"
+                                                onMouseClicked="#onAtan2" text="atan2" GridPane.columnIndex="6"
+                                                GridPane.rowIndex="6"/>
+                                        <Button fx:id="buttonAtan" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onAtan"
+                                                onMouseClicked="#onAtan" text="atan" GridPane.columnIndex="5"
+                                                GridPane.rowIndex="6"/>
+                                        <Button fx:id="buttonNegate" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onNegate"
+                                                onMouseClicked="#onNegate" text="-1" GridPane.columnIndex="3"
+                                                GridPane.rowIndex="4"/>
+                                    </children>
+                                </GridPane>
+                                <Label layoutX="10.0" layoutY="10.0" text="Boolean">
+                                    <VBox.margin>
+                                        <Insets top="15.0"/>
+                                    </VBox.margin>
+                                </Label>
+                                <GridPane alignment="CENTER" maxWidth="500.0">
+                                    <children>
+                                        <Button fx:id="buttonSmaller" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onSmaller"
+                                                onMouseClicked="#onSmaller" text="&lt;"/>
+                                        <Button fx:id="buttonSmallerEquals" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onSmallerEquals"
+                                                onMouseClicked="#onSmallerEquals" text="&lt;="
+                                                GridPane.columnIndex="1"/>
+                                        <Button fx:id="buttonGreaterEquals" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onGreaterEquals"
+                                                onMouseClicked="#onGreaterEquals" text="&gt;="
+                                                GridPane.columnIndex="2"/>
+                                        <Button fx:id="buttonGreater" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onGreater"
+                                                onMouseClicked="#onGreater" text="&gt;" GridPane.columnIndex="3"/>
+                                        <Button fx:id="buttonEquals" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onEquals"
+                                                onContextMenuRequested="#onEquals" text="==" GridPane.columnIndex="4"/>
+                                        <Button fx:id="buttonNotEquals" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onNotEquals"
+                                                onMouseClicked="#onNotEquals" text="!=" GridPane.columnIndex="5"/>
+                                        <Button fx:id="buttonOr" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onOr"
+                                                onMouseClicked="#onOr" text="||" GridPane.rowIndex="1"/>
+                                        <Button fx:id="buttonAnd" alignment="CENTER" contentDisplay="CENTER"
+                                                minWidth="50.0" mnemonicParsing="false" onAction="#onAnd"
+                                                onMouseClicked="#onAnd" text="&amp;&amp;" GridPane.columnIndex="1"
+                                                GridPane.rowIndex="1"/>
+                                    </children>
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0"
+                                                           prefWidth="100.0"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                </GridPane>
+                            </children>
+                        </VBox>
+                        <ListView id="calculator.varlist" fx:id="listInputs"/>
+                    </children>
+                </HBox>
+                <Separator prefWidth="200.0"/>
+                <Label text="Expression"/>
+                <HBox VBox.vgrow="ALWAYS">
+                    <children>
+                        <TextField fx:id="expressionField" onAction="#onExpressionField" promptText="tada"
+                                   HBox.hgrow="ALWAYS"/>
+                        <Button alignment="CENTER" contentDisplay="CENTER" minWidth="50.0" mnemonicParsing="false"
+                                onAction="#onValidate" text="Validate"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

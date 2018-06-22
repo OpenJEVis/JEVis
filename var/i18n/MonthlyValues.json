@@ -1,7 +1,7 @@
 {
   "jevisclass": "Monthly Values",
   "names": {
-    "de": "Monthly Values",
+    "de": "Monatswerte",
     "ru": "Monthly Values",
     "en": "Monthly Values"
   },
@@ -10,9 +10,9 @@
     {
       "type": "01 January",
       "descriptions": {
-        "de": "01 January desctiption",
-        "ru": "01 January desctiption",
-        "en": "01 January desctiption"
+        "de": "01 January description",
+        "ru": "01 January description",
+        "en": "01 January description"
       },
       "names": {
         "de": "01 January",
@@ -23,9 +23,9 @@
     {
       "type": "02 February",
       "descriptions": {
-        "de": "02 February desctiption",
-        "ru": "02 February desctiption",
-        "en": "02 February desctiption"
+        "de": "02 February description",
+        "ru": "02 February description",
+        "en": "02 February description"
       },
       "names": {
         "de": "02 February",
@@ -36,9 +36,9 @@
     {
       "type": "03 March",
       "descriptions": {
-        "de": "03 March desctiption",
-        "ru": "03 March desctiption",
-        "en": "03 March desctiption"
+        "de": "03 March description",
+        "ru": "03 March description",
+        "en": "03 March description"
       },
       "names": {
         "de": "03 March",
@@ -49,9 +49,9 @@
     {
       "type": "04 April",
       "descriptions": {
-        "de": "04 April desctiption",
-        "ru": "04 April desctiption",
-        "en": "04 April desctiption"
+        "de": "04 April description",
+        "ru": "04 April description",
+        "en": "04 April description"
       },
       "names": {
         "de": "04 April",
@@ -62,9 +62,9 @@
     {
       "type": "05 May",
       "descriptions": {
-        "de": "05 May desctiption",
-        "ru": "05 May desctiption",
-        "en": "05 May desctiption"
+        "de": "05 May description",
+        "ru": "05 May description",
+        "en": "05 May description"
       },
       "names": {
         "de": "05 May",
@@ -75,9 +75,9 @@
     {
       "type": "06 June",
       "descriptions": {
-        "de": "06 June desctiption",
-        "ru": "06 June desctiption",
-        "en": "06 June desctiption"
+        "de": "06 June description",
+        "ru": "06 June description",
+        "en": "06 June description"
       },
       "names": {
         "de": "06 June",
@@ -88,9 +88,9 @@
     {
       "type": "07 July",
       "descriptions": {
-        "de": "07 July desctiption",
-        "ru": "07 July desctiption",
-        "en": "07 July desctiption"
+        "de": "07 July description",
+        "ru": "07 July description",
+        "en": "07 July description"
       },
       "names": {
         "de": "07 July",
@@ -101,9 +101,9 @@
     {
       "type": "08 August",
       "descriptions": {
-        "de": "08 August desctiption",
-        "ru": "08 August desctiption",
-        "en": "08 August desctiption"
+        "de": "08 August description",
+        "ru": "08 August description",
+        "en": "08 August description"
       },
       "names": {
         "de": "08 August",
@@ -114,9 +114,9 @@
     {
       "type": "09 September",
       "descriptions": {
-        "de": "09 September desctiption",
-        "ru": "09 September desctiption",
-        "en": "09 September desctiption"
+        "de": "09 September description",
+        "ru": "09 September description",
+        "en": "09 September description"
       },
       "names": {
         "de": "09 September",
@@ -127,9 +127,9 @@
     {
       "type": "10 October",
       "descriptions": {
-        "de": "10 October desctiption",
-        "ru": "10 October desctiption",
-        "en": "10 October desctiption"
+        "de": "10 October description",
+        "ru": "10 October description",
+        "en": "10 October description"
       },
       "names": {
         "de": "10 October",
@@ -140,9 +140,9 @@
     {
       "type": "11 November",
       "descriptions": {
-        "de": "11 November desctiption",
-        "ru": "11 November desctiption",
-        "en": "11 November desctiption"
+        "de": "11 November description",
+        "ru": "11 November description",
+        "en": "11 November description"
       },
       "names": {
         "de": "11 November",
@@ -153,9 +153,9 @@
     {
       "type": "12 December",
       "descriptions": {
-        "de": "12 December desctiption",
-        "ru": "12 December desctiption",
-        "en": "12 December desctiption"
+        "de": "12 December description",
+        "ru": "12 December description",
+        "en": "12 December description"
       },
       "names": {
         "de": "12 December",
@@ -166,9 +166,9 @@
     {
       "type": "Energy Supplier",
       "descriptions": {
-        "de": "Energy Supplier desctiption",
-        "ru": "Energy Supplier desctiption",
-        "en": "Energy Supplier desctiption"
+        "de": "Energy Supplier description",
+        "ru": "Energy Supplier description",
+        "en": "Energy Supplier description"
       },
       "names": {
         "de": "Energy Supplier",
@@ -179,9 +179,9 @@
     {
       "type": "Year",
       "descriptions": {
-        "de": "Year desctiption",
-        "ru": "Year desctiption",
-        "en": "Year desctiption"
+        "de": "Year description",
+        "ru": "Year description",
+        "en": "Year description"
       },
       "names": {
         "de": "Year",

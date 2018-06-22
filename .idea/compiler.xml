@@ -43,7 +43,7 @@
       <module name="JEReport" target="1.8" />
       <module name="JEVisContolCenter" target="1.8" />
       <module name="JEVisCore" target="1.5" />
-      <module name="JEWebservice" target="1.7" />
+      <module name="JEWebservice" target="1.8" />
       <module name="Notifier (1) (org.jevis.jenotifier.notifier)" target="1.8" />
       <module name="Notifier (2) (org.jevis)" target="1.5" />
       <module name="Notifier-EP" target="1.8" />

@@ -1,12 +1,12 @@
 {
   "jevisclass": "SOAP Channel Directory",
   "names": {
-    "de": "SOAP Channel Directory",
+    "de": "SOAP Kanalverzeichnis",
     "ru": "SOAP Channel Directory",
     "en": "SOAP Channel Directory"
   },
   "descriptions": {
-    "de": "The class SOAP Channel Directory represents a specific directory for the management of data.\n",
+    "de": "Die Klasse SOAP Kanalverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Daten dar.",
     "ru": "The class SOAP Channel Directory represents a specific directory for the management of data.\n",
     "en": "The class SOAP Channel Directory represents a specific directory for the management of data.\n"
   },

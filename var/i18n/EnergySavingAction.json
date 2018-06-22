@@ -1,7 +1,7 @@
 {
   "jevisclass": "Energy Saving Action",
   "names": {
-    "de": "Energy Saving Action",
+    "de": "Energieeinsparmaßnahme",
     "ru": "Energy Saving Action",
     "en": "Energy Saving Action"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Investment Costs",
       "descriptions": {
-        "de": "Investment Costs desctiption",
-        "ru": "Investment Costs desctiption",
-        "en": "Investment Costs desctiption"
+        "de": "Investment Costs description",
+        "ru": "Investment Costs description",
+        "en": "Investment Costs description"
       },
       "names": {
         "de": "Investment Costs",
@@ -23,9 +23,9 @@
     {
       "type": "Measure",
       "descriptions": {
-        "de": "Measure desctiption",
-        "ru": "Measure desctiption",
-        "en": "Measure desctiption"
+        "de": "Measure description",
+        "ru": "Measure description",
+        "en": "Measure description"
       },
       "names": {
         "de": "Measure",
@@ -36,9 +36,9 @@
     {
       "type": "Payback Time",
       "descriptions": {
-        "de": "Payback Time desctiption",
-        "ru": "Payback Time desctiption",
-        "en": "Payback Time desctiption"
+        "de": "Payback Time description",
+        "ru": "Payback Time description",
+        "en": "Payback Time description"
       },
       "names": {
         "de": "Payback Time",
@@ -49,9 +49,9 @@
     {
       "type": "Reponsible Person",
       "descriptions": {
-        "de": "Reponsible Person desctiption",
-        "ru": "Reponsible Person desctiption",
-        "en": "Reponsible Person desctiption"
+        "de": "Reponsible Person description",
+        "ru": "Reponsible Person description",
+        "en": "Reponsible Person description"
       },
       "names": {
         "de": "Reponsible Person",
@@ -62,9 +62,9 @@
     {
       "type": "Savings Potential Capital",
       "descriptions": {
-        "de": "Savings Potential Capital desctiption",
-        "ru": "Savings Potential Capital desctiption",
-        "en": "Savings Potential Capital desctiption"
+        "de": "Savings Potential Capital description",
+        "ru": "Savings Potential Capital description",
+        "en": "Savings Potential Capital description"
       },
       "names": {
         "de": "Savings Potential Capital",
@@ -75,9 +75,9 @@
     {
       "type": "Savings Potential CO2",
       "descriptions": {
-        "de": "Savings Potential CO2 desctiption",
-        "ru": "Savings Potential CO2 desctiption",
-        "en": "Savings Potential CO2 desctiption"
+        "de": "Savings Potential CO2 description",
+        "ru": "Savings Potential CO2 description",
+        "en": "Savings Potential CO2 description"
       },
       "names": {
         "de": "Savings Potential CO2",
@@ -88,9 +88,9 @@
     {
       "type": "Savings Potential Energy",
       "descriptions": {
-        "de": "Savings Potential Energy desctiption",
-        "ru": "Savings Potential Energy desctiption",
-        "en": "Savings Potential Energy desctiption"
+        "de": "Savings Potential Energy description",
+        "ru": "Savings Potential Energy description",
+        "en": "Savings Potential Energy description"
       },
       "names": {
         "de": "Savings Potential Energy",

@@ -1,12 +1,11 @@
 package org.jevis.rest;
 
-import javax.ws.rs.client.WebTarget;
-
 import org.glassfish.grizzly.http.server.HttpServer;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.ws.rs.client.WebTarget;
 
 public class MyResourceTest {
 
@@ -14,7 +13,7 @@ public class MyResourceTest {
     private WebTarget target;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         // start the server
 //        server = Main.startServer();
         // create the client
@@ -29,7 +28,7 @@ public class MyResourceTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
 //        server.stop();
     }
 

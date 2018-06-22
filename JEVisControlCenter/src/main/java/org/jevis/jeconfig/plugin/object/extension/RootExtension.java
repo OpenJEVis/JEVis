@@ -19,10 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -40,11 +36,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
+import org.jevis.api.*;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
@@ -53,6 +45,11 @@ import org.jevis.jeconfig.plugin.object.selectiontree.SelectObjectDialog;
 import org.jevis.jeconfig.plugin.object.selectiontree.UserSelection;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -107,7 +104,7 @@ public class RootExtension implements ObjectEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITEL;
     }
 

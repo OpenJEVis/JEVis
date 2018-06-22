@@ -1,12 +1,12 @@
 {
   "jevisclass": "Data",
   "names": {
-    "de": "Data",
+    "de": "Daten",
     "ru": "Data",
     "en": "Data"
   },
   "descriptions": {
-    "de": "The class Data represents a container for a series of numeric values.",
+    "de": "Die Klasse Daten stellt einen Container für eine Reihe von numerischen Werten dar.",
     "ru": "The class Data represents a container for a series of numeric values.",
     "en": "The class Data represents a container for a series of numeric values."
   },
@@ -14,12 +14,12 @@
     {
       "type": "Value",
       "descriptions": {
-        "de": "Value desctiption",
-        "ru": "Value desctiption",
-        "en": "Value desctiption"
+        "de": "Value description",
+        "ru": "Value description",
+        "en": "Value description"
       },
       "names": {
-        "de": "Value",
+        "de": "Werte",
         "ru": "Value",
         "en": "Value"
       }

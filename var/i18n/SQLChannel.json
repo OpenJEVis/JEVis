@@ -1,7 +1,7 @@
 {
   "jevisclass": "SQL Channel",
   "names": {
-    "de": "SQL Channel",
+    "de": "SQL Kanal",
     "ru": "SQL Channel",
     "en": "SQL Channel"
   },
@@ -10,12 +10,12 @@
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout desctiption",
-        "ru": "Last Readout desctiption",
-        "en": "Last Readout desctiption"
+        "de": "Last Readout description",
+        "ru": "Last Readout description",
+        "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -23,12 +23,12 @@
     {
       "type": "Query",
       "descriptions": {
-        "de": "Query desctiption",
-        "ru": "Query desctiption",
-        "en": "Query desctiption"
+        "de": "Query description",
+        "ru": "Query description",
+        "en": "Query description"
       },
       "names": {
-        "de": "Query",
+        "de": "Anfrage",
         "ru": "Query",
         "en": "Query"
       }

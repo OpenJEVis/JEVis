@@ -1,7 +1,7 @@
 {
   "jevisclass": "Report Period Configuration",
   "names": {
-    "de": "Report Period Configuration",
+    "de": "Berichtsperiodenkonfiguration",
     "ru": "Report Period Configuration",
     "en": "Report Period Configuration"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Aggregation",
       "descriptions": {
-        "de": "Aggregation desctiption",
-        "ru": "Aggregation desctiption",
-        "en": "Aggregation desctiption"
+        "de": "Aggregation description",
+        "ru": "Aggregation description",
+        "en": "Aggregation description"
       },
       "names": {
         "de": "Aggregation",
@@ -23,12 +23,12 @@
     {
       "type": "Period",
       "descriptions": {
-        "de": "Period desctiption",
-        "ru": "Period desctiption",
-        "en": "Period desctiption"
+        "de": "Period description",
+        "ru": "Period description",
+        "en": "Period description"
       },
       "names": {
-        "de": "Period",
+        "de": "Periode",
         "ru": "Period",
         "en": "Period"
       }

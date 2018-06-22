@@ -1,12 +1,12 @@
 {
   "jevisclass": "4.1 Understanding the Organization and its Context",
   "names": {
-    "de": "4.1 Understanding the Organization and its Context",
+    "de": "4.1 Verstehen der Organisation und ihres Kontextes",
     "ru": "4.1 Understanding the Organization and its Context",
     "en": "4.1 Understanding the Organization and its Context"
   },
   "descriptions": {
-    "de": "The organization shall determine external and internal issues that are relevant to its purpose and that  affect its ability to achieve the intended outcome(s) of its EnMS and to improve its energy performance.   \nWhen determining organizational context, the organization shall consider the information obtained  from the energy review (see 6.3). ",
+    "de": "Die Organisation muss externe und interne Themen bestimmen, die für ihren Zweck relevant sind und sich auf ihre Fähigkeit auswirken, die beabsichtigten Ergebnisse ihres EnMS zu erreichen und ihre energiebezogene Leistung zu verbessern.\n\nBei der Bestimmung des Kontexts der Organisation muss die Organisation die Informationen berücksichtigen, die aus der energetischen Bewertung stammen (siehe 6.3).",
     "ru": "The organization shall determine external and internal issues that are relevant to its purpose and that  affect its ability to achieve the intended outcome(s) of its EnMS and to improve its energy performance.   \nWhen determining organizational context, the organization shall consider the information obtained  from the energy review (see 6.3). ",
     "en": "The organization shall determine external and internal issues that are relevant to its purpose and that  affect its ability to achieve the intended outcome(s) of its EnMS and to improve its energy performance.   \nWhen determining organizational context, the organization shall consider the information obtained  from the energy review (see 6.3). "
   },
@@ -14,12 +14,12 @@
     {
       "type": "Content",
       "descriptions": {
-        "de": "Content desctiption",
-        "ru": "Content desctiption",
-        "en": "Content desctiption"
+        "de": "Beschreibung der Organisation und ihres Kontexts.",
+        "ru": "Content description",
+        "en": "Content description"
       },
       "names": {
-        "de": "Content",
+        "de": "Inhalt",
         "ru": "Content",
         "en": "Content"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Created by",
       "descriptions": {
-        "de": "Created by desctiption",
-        "ru": "Created by desctiption",
-        "en": "Created by desctiption"
+        "de": "Der Autor des Dokuments",
+        "ru": "Created by description",
+        "en": "Created by description"
       },
       "names": {
-        "de": "Created by",
+        "de": "Erstellt von",
         "ru": "Created by",
         "en": "Created by"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Date of Creation",
       "descriptions": {
-        "de": "Date of Creation desctiption",
-        "ru": "Date of Creation desctiption",
-        "en": "Date of Creation desctiption"
+        "de": "Datum an dem das Dokument erstellt wurde",
+        "ru": "Date of Creation description",
+        "en": "Date of Creation description"
       },
       "names": {
-        "de": "Date of Creation",
+        "de": "Erstellungsdatum",
         "ru": "Date of Creation",
         "en": "Date of Creation"
       }
@@ -53,12 +53,12 @@
     {
       "type": "Document Number",
       "descriptions": {
-        "de": "Document Number desctiption",
-        "ru": "Document Number desctiption",
-        "en": "Document Number desctiption"
+        "de": "Die eindeutige Dokumentennummer",
+        "ru": "Document Number description",
+        "en": "Document Number description"
       },
       "names": {
-        "de": "Document Number",
+        "de": "Dokumentennummer",
         "ru": "Document Number",
         "en": "Document Number"
       }
@@ -66,12 +66,12 @@
     {
       "type": "Release Date",
       "descriptions": {
-        "de": "Release Date desctiption",
-        "ru": "Release Date desctiption",
-        "en": "Release Date desctiption"
+        "de": "Das Datum der Veröffentlichung des Dokuments",
+        "ru": "Release Date description",
+        "en": "Release Date description"
       },
       "names": {
-        "de": "Release Date",
+        "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
         "en": "Release Date"
       }
@@ -79,12 +79,12 @@
     {
       "type": "Released by",
       "descriptions": {
-        "de": "Released by desctiption",
-        "ru": "Released by desctiption",
-        "en": "Released by desctiption"
+        "de": "Verantwortliche Person für die Veröffentlichung",
+        "ru": "Released by description",
+        "en": "Released by description"
       },
       "names": {
-        "de": "Released by",
+        "de": "Veröffentlicht von",
         "ru": "Released by",
         "en": "Released by"
       }
@@ -92,12 +92,12 @@
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title desctiption",
-        "ru": "Title desctiption",
-        "en": "Title desctiption"
+        "de": "Titel des Dokuments",
+        "ru": "Title description",
+        "en": "Title description"
       },
       "names": {
-        "de": "Title",
+        "de": "Titel",
         "ru": "Title",
         "en": "Title"
       }
@@ -105,9 +105,9 @@
     {
       "type": "Version",
       "descriptions": {
-        "de": "Version desctiption",
-        "ru": "Version desctiption",
-        "en": "Version desctiption"
+        "de": "Die Versionsnummer des Dokuments",
+        "ru": "Version description",
+        "en": "Version description"
       },
       "names": {
         "de": "Version",

@@ -1,7 +1,7 @@
 {
   "jevisclass": "VIDA350 Channel",
   "names": {
-    "de": "VIDA350 Channel",
+    "de": "VIDA350 Kanal",
     "ru": "VIDA350 Channel",
     "en": "VIDA350 Channel"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Index",
       "descriptions": {
-        "de": "Index desctiption",
-        "ru": "Index desctiption",
-        "en": "Index desctiption"
+        "de": "Index description",
+        "ru": "Index description",
+        "en": "Index description"
       },
       "names": {
         "de": "Index",
@@ -23,12 +23,12 @@
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout desctiption",
-        "ru": "Last Readout desctiption",
-        "en": "Last Readout desctiption"
+        "de": "Last Readout description",
+        "ru": "Last Readout description",
+        "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -36,12 +36,12 @@
     {
       "type": "Target",
       "descriptions": {
-        "de": "Target desctiption",
-        "ru": "Target desctiption",
-        "en": "Target desctiption"
+        "de": "Target description",
+        "ru": "Target description",
+        "en": "Target description"
       },
       "names": {
-        "de": "Target",
+        "de": "Ziel",
         "ru": "Target",
         "en": "Target"
       }

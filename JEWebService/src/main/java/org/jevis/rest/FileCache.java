@@ -5,9 +5,10 @@
  */
 package org.jevis.rest;
 
-import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.File;
 
 /**
  *
@@ -23,8 +24,7 @@ public class FileCache {
 
     public static File getClassFile() {
         cratePath();
-        File tmpZipFile = new File(CLASS_JSON);
-        return tmpZipFile;
+        return new File(CLASS_JSON);
     }
 
     public static File getClassIconFile() {

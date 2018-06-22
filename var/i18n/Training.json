@@ -1,7 +1,7 @@
 {
   "jevisclass": "Training",
   "names": {
-    "de": "Training",
+    "de": "Schulung",
     "ru": "Training",
     "en": "Training"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Participants",
       "descriptions": {
-        "de": "Participants desctiption",
-        "ru": "Participants desctiption",
-        "en": "Participants desctiption"
+        "de": "Participants description",
+        "ru": "Participants description",
+        "en": "Participants description"
       },
       "names": {
         "de": "Participants",
@@ -23,9 +23,9 @@
     {
       "type": "Trainer",
       "descriptions": {
-        "de": "Trainer desctiption",
-        "ru": "Trainer desctiption",
-        "en": "Trainer desctiption"
+        "de": "Trainer description",
+        "ru": "Trainer description",
+        "en": "Trainer description"
       },
       "names": {
         "de": "Trainer",
@@ -36,9 +36,9 @@
     {
       "type": "Training Course",
       "descriptions": {
-        "de": "Training Course desctiption",
-        "ru": "Training Course desctiption",
-        "en": "Training Course desctiption"
+        "de": "Training Course description",
+        "ru": "Training Course description",
+        "en": "Training Course description"
       },
       "names": {
         "de": "Training Course",
@@ -49,9 +49,9 @@
     {
       "type": "Training Date",
       "descriptions": {
-        "de": "Training Date desctiption",
-        "ru": "Training Date desctiption",
-        "en": "Training Date desctiption"
+        "de": "Training Date description",
+        "ru": "Training Date description",
+        "en": "Training Date description"
       },
       "names": {
         "de": "Training Date",
@@ -62,9 +62,9 @@
     {
       "type": "Training Time",
       "descriptions": {
-        "de": "Training Time desctiption",
-        "ru": "Training Time desctiption",
-        "en": "Training Time desctiption"
+        "de": "Training Time description",
+        "ru": "Training Time description",
+        "en": "Training Time description"
       },
       "names": {
         "de": "Training Time",

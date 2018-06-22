@@ -5,12 +5,12 @@
  */
 package org.jevis.jecalc.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.jevis.api.JEVisSample;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author broder
  */
 public class ResourceManager {
@@ -27,20 +27,20 @@ public class ResourceManager {
         this.intervals = intervals;
     }
 
-    public void setCalcAttribute(CleanDataAttribute calcAttribute) {
-        this.calcAttribute = calcAttribute;
-    }
-
     public CleanDataAttribute getCalcAttribute() {
         return calcAttribute;
     }
 
-    public void setRawSamples(List<JEVisSample> rawSamples) {
-        this.rawSamples = rawSamples;
+    public void setCalcAttribute(CleanDataAttribute calcAttribute) {
+        this.calcAttribute = calcAttribute;
     }
 
     public List<JEVisSample> getRawSamples() {
         return rawSamples;
+    }
+
+    public void setRawSamples(List<JEVisSample> rawSamples) {
+        this.rawSamples = rawSamples;
     }
 
 }

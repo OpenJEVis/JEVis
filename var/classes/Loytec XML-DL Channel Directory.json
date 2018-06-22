@@ -4,28 +4,8 @@
   "unique": false,
   "relationships": [
     {
-      "start": "Loytec XML-DL Bacnet Channel Directory",
-      "end": "Loytec XML-DL Channel Directory",
-      "type": 0
-    },
-    {
-      "start": "Loytec XML-DL CEA709 Channel Directory",
-      "end": "Loytec XML-DL Channel Directory",
-      "type": 0
-    },
-    {
-      "start": "Loytec XML-DL Channel",
-      "end": "Loytec XML-DL Channel Directory",
-      "type": 3
-    },
-    {
       "start": "Loytec XML-DL Channel Directory",
       "end": "Channel Directory",
-      "type": 0
-    },
-    {
-      "start": "Loytec XML-DL Generic Channel Directory",
-      "end": "Loytec XML-DL Channel Directory",
       "type": 0
     }
   ]

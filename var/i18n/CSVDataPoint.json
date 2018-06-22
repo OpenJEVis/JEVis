@@ -1,34 +1,38 @@
 {
   "jevisclass": "CSV Data Point",
   "names": {
-    "de": "CSV Data Point",
+    "de": "CSV Datenpunkt",
     "ru": "CSV Data Point",
     "en": "CSV Data Point"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Ein CSV Datenpunkt ist ein Wert aus einer Spalte oder Zeiler einer CSV-Datei.",
+    "ru": "CSV Data Point",
+    "en": "CSV Data Point is a value out of a column or row of a CSV file."
+  },
   "types": [
     {
       "type": "Mapping Identifier",
       "descriptions": {
-        "de": "Mapping Identifier desctiption",
-        "ru": "Mapping Identifier desctiption",
-        "en": "Mapping Identifier desctiption"
+        "de": "Die Erkennungs-ID dient der Zuordnung des CSV-Datenpunkts zu der korrekten Spalte bzw. Zeile der CSV-Datei. Alternativ kann die Zuordnung über den Werte Index definiert werden.",
+        "ru": "Mapping Identifier description",
+        "en": "The Mapping ID allows the mapping of a CSV Data Point to the correct column or row of a CSV file. Alternatively, the mapping can be made via the Value Index."
       },
       "names": {
-        "de": "Mapping Identifier",
+        "de": "Mapping ID",
         "ru": "Mapping Identifier",
-        "en": "Mapping Identifier"
+        "en": "Erkennungs-ID"
       }
     },
     {
       "type": "Target",
       "descriptions": {
-        "de": "Target desctiption",
-        "ru": "Target desctiption",
-        "en": "Target desctiption"
+        "de": "Das Ziel gibt die Datenreihe an, in die der CSV-Datenpunkt eingelesen wird.",
+        "ru": "Target description",
+        "en": "The Target defines the data row, where the CSV Data Point is stored."
       },
       "names": {
-        "de": "Target",
+        "de": "Ziel",
         "ru": "Target",
         "en": "Target"
       }
@@ -36,12 +40,12 @@
     {
       "type": "Value Index",
       "descriptions": {
-        "de": "Value Index desctiption",
-        "ru": "Value Index desctiption",
-        "en": "Value Index desctiption"
+        "de": "Der Werte Index gibt die Spalte bzw. Zeile an, welche den Wert des CSV-Datenpunkts enthält. Alternativ kann die Zuordnung über die Erkennungs-ID definiert werden.",
+        "ru": "Value Index description",
+        "en": "The Value Index defines the column or row, where the CSV Data Point is stored. Alternatively, the mapping can be made via the Mapping ID."
       },
       "names": {
-        "de": "Value Index",
+        "de": "Werte Index",
         "ru": "Value Index",
         "en": "Value Index"
       }

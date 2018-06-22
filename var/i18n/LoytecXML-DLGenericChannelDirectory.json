@@ -1,12 +1,12 @@
 {
   "jevisclass": "Loytec XML-DL Generic Channel Directory",
   "names": {
-    "de": "Loytec XML-DL Generic Channel Directory",
+    "de": "Generisches Loytec XML-DL Kanalverzeichnis",
     "ru": "Loytec XML-DL Generic Channel Directory",
     "en": "Loytec XML-DL Generic Channel Directory"
   },
   "descriptions": {
-    "de": "The Loytec XML-DL Generic Channel Directory contains Loytec XML-DL Channels of the specified technology type.\n\n- Technology: dpal, bacnet (default: dpal)",
+    "de": "Das generische Loytec XML-DL Kanalverzeichnis enthält Loytec XML-DL Kanäle des angegebenen Technologietyps.\n\n- Technologie: dpal, bacnet (Standard: dpal)",
     "ru": "The Loytec XML-DL Generic Channel Directory contains Loytec XML-DL Channels of the specified technology type.\n\n- Technology: dpal, bacnet (default: dpal)",
     "en": "The Loytec XML-DL Generic Channel Directory contains Loytec XML-DL Channels of the specified technology type.\n\n- Technology: dpal, bacnet (default: dpal)"
   },

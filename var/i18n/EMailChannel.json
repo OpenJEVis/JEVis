@@ -1,12 +1,12 @@
 {
   "jevisclass": "EMail Channel",
   "names": {
-    "de": "EMail Channel",
+    "de": "EMail Kanal",
     "ru": "EMail Channel",
     "en": "EMail Channel"
   },
   "descriptions": {
-    "de": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox.",
+    "de": "Die Klasse EMail Kanal repräsentiert die Nachricht und enthält die notwendigen Parameter, um sie aus der Mailbox auszuwählen.",
     "ru": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox.",
     "en": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox."
   },
@@ -14,12 +14,12 @@
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout desctiption",
-        "ru": "Last Readout desctiption",
-        "en": "Last Readout desctiption"
+        "de": "Last Readout description",
+        "ru": "Last Readout description",
+        "en": "Last Readout description"
       },
       "names": {
-        "de": "Last Readout",
+        "de": "Letzte Auslesung",
         "ru": "Last Readout",
         "en": "Last Readout"
       }
@@ -27,12 +27,12 @@
     {
       "type": "Sender",
       "descriptions": {
-        "de": "Sender desctiption",
-        "ru": "Sender desctiption",
-        "en": "Sender desctiption"
+        "de": "Sender description",
+        "ru": "Sender description",
+        "en": "Sender description"
       },
       "names": {
-        "de": "Sender",
+        "de": "Versender",
         "ru": "Sender",
         "en": "Sender"
       }
@@ -40,12 +40,12 @@
     {
       "type": "Subject",
       "descriptions": {
-        "de": "Subject desctiption",
-        "ru": "Subject desctiption",
-        "en": "Subject desctiption"
+        "de": "Subject description",
+        "ru": "Subject description",
+        "en": "Subject description"
       },
       "names": {
-        "de": "Subject",
+        "de": "Betreff",
         "ru": "Subject",
         "en": "Subject"
       }

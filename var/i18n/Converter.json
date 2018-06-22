@@ -1,12 +1,12 @@
 {
   "jevisclass": "Converter",
   "names": {
-    "de": "Converter",
+    "de": "Konverter",
     "ru": "Converter",
     "en": "Converter"
   },
   "descriptions": {
-    "de": "The class Converter represents a none-specific directory for the structuring of the system. The class Converter is only used for the inheritance of specific converter types.",
+    "de": "Die Klasse Konverter stellt ein unspezifisches Verzeichnis für die Strukturierung des Systems dar. Die Klasse Konverter wird nur für die Vererbung bestimmter Konvertertypen verwendet.",
     "ru": "The class Converter represents a none-specific directory for the structuring of the system. The class Converter is only used for the inheritance of specific converter types.",
     "en": "The class Converter represents a none-specific directory for the structuring of the system. The class Converter is only used for the inheritance of specific converter types."
   },

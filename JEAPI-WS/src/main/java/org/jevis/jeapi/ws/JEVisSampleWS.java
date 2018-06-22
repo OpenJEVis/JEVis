@@ -65,23 +65,23 @@ public class JEVisSampleWS implements JEVisSample {
     }
 
     @Override
-    public DateTime getTimestamp() throws JEVisException {
+    public DateTime getTimestamp() {
         return sampleDTF.parseDateTime(json.getTs());
     }
 
     @Override
-    public Object getValue() throws JEVisException {
+    public Object getValue() {
 
         return json.getValue();//TODO cast to type?!
     }
 
     @Override
-    public String getValueAsString() throws JEVisException {
-        return json.getValue();
+    public void setValue(Object value) throws ClassCastException {
+        json.setValue(value.toString());
     }
 
     @Override
-    public Long getValueAsLong() throws JEVisException {
+    public Long getValueAsLong() {
         return Long.parseLong(getValueAsString());
     }
 
@@ -95,7 +95,7 @@ public class JEVisSampleWS implements JEVisSample {
     }
 
     @Override
-    public Double getValueAsDouble() throws JEVisException {
+    public Double getValueAsDouble() {
         return Double.parseDouble(getValueAsString());
     }
 
@@ -107,12 +107,17 @@ public class JEVisSampleWS implements JEVisSample {
     }
 
     @Override
-    public Boolean getValueAsBoolean() throws JEVisException {
+    public Boolean getValueAsBoolean() {
         return Boolean.parseBoolean(getValueAsString());
     }
 
     @Override
-    public JEVisFile getValueAsFile() throws JEVisException {
+    public String getValueAsString() {
+        return json.getValue();
+    }
+
+    @Override
+    public JEVisFile getValueAsFile() {
 
         if (file != null) {
             return file;
@@ -141,18 +146,13 @@ public class JEVisSampleWS implements JEVisSample {
     }
 
     @Override
-    public JEVisSelection getValueAsSelection() throws JEVisException {
+    public JEVisSelection getValueAsSelection() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public JEVisMultiSelection getValueAsMultiSelection() throws JEVisException {
+    public JEVisMultiSelection getValueAsMultiSelection() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setValue(Object value) throws JEVisException, ClassCastException {
-        json.setValue(value.toString());
     }
 
     @Override
@@ -168,17 +168,17 @@ public class JEVisSampleWS implements JEVisSample {
     }
 
     @Override
-    public JEVisAttribute getAttribute() throws JEVisException {
+    public JEVisAttribute getAttribute() {
         return attribute;
     }
 
     @Override
-    public String getNote() throws JEVisException {
+    public String getNote() {
         return json.getNote();
     }
 
     @Override
-    public void setNote(String note) throws JEVisException {
+    public void setNote(String note) {
         json.setNote(note);
     }
 
@@ -188,7 +188,7 @@ public class JEVisSampleWS implements JEVisSample {
     }
 
     @Override
-    public JEVisDataSource getDataSource() throws JEVisException {
+    public JEVisDataSource getDataSource() {
         return ds;
     }
 
@@ -201,7 +201,7 @@ public class JEVisSampleWS implements JEVisSample {
     }
 
     @Override
-    public void rollBack() throws JEVisException {
+    public void rollBack() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
