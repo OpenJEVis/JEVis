@@ -237,7 +237,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public List<JEVisRelationship> getRelationships() throws JEVisException {
+    public List<JEVisRelationship> getRelationships() {
         if (!orLoaded) {
 
             objectRelCache = getRelationshipsWS();
@@ -573,7 +573,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return newClass;
     }
 
-    public void reloadClasses() throws JEVisException {
+    public void reloadClasses() {
         classLoaded = false;
         getJEVisClasses();
     }
@@ -772,7 +772,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public JEVisClass getJEVisClass(String name) throws JEVisException {
+    public JEVisClass getJEVisClass(String name) {
         //for now we assume classes are allways cached
         if (classCache.isEmpty()) {
             getJEVisClasses();
@@ -930,7 +930,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public List<JEVisRelationship> getRelationships(long objectID) throws JEVisException {
+    public List<JEVisRelationship> getRelationships(long objectID) {
         if (!orLoaded) {
             getRelationships();
         }
@@ -940,7 +940,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
-    public void preload() throws JEVisException {
+    public void preload() {
         getJEVisClasses();
         getClassIcon();
     }

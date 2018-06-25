@@ -40,6 +40,7 @@ public class GUIConstants {
     public static DisplayType SCHEDULE = new DisplayType("Schedule", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType TIME_ZONE = new DisplayType("Time Zone", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType GAP_FILLING_CONFIG = new DisplayType("Gap Filling Config", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType LIMITS_CONFIG = new DisplayType("Limits Config", JEVisConstants.PrimitiveType.STRING);
     
     public static Logger LOGGER = LogManager.getLogger(GUIConstants.class);
 
@@ -65,6 +66,7 @@ public class GUIConstants {
             add(BASIC_ENUM);
             add(LOCALE);
             add(GAP_FILLING_CONFIG);
+            add(LIMITS_CONFIG);
         }
     };
 

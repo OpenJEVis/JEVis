@@ -30,17 +30,19 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
 @XmlRootElement(name = "GapFillingConfig")
-public class JsonGapFillingConfig {
+public class JsonLimitsConfig {
 
     private String name;
-    private String type;
-    private String boundary;
-    private String defaultvalue;
-    private String referenceperiod;
-    private String bindtospecific;
-    private String referenceperiodcount;
+    private String min;
+    private String max;
+    private String durationOverUnderRun;
+    private String typeOfSubstituteValue;
+    private String defaultValue;
+    private String referencePeriod;
+    private String bindToSpecific;
+    private String referencePeriodCount;
 
-    public JsonGapFillingConfig() {
+    public JsonLimitsConfig() {
     }
 
     @XmlElement(name = "name")
@@ -52,58 +54,76 @@ public class JsonGapFillingConfig {
         this.name = name;
     }
 
-    @XmlElement(name = "type")
-    public String getType() {
-        return type;
+    @XmlElement(name = "min")
+    public String getMin() {
+        return min;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setMin(String min) {
+        this.min = min;
     }
 
-    @XmlElement(name = "boundary")
-    public String getBoundary() {
-        return boundary;
+    @XmlElement(name = "max")
+    public String getMax() {
+        return max;
     }
 
-    public void setBoundary(String boundary) {
-        this.boundary = boundary;
+    public void setMax(String max) {
+        this.max = max;
+    }
+
+    @XmlElement(name = "durationoverunderrun")
+    public String getDurationOverUnderRun() {
+        return durationOverUnderRun;
+    }
+
+    public void setDurationOverUnderRun(String durationOverUnderRun) {
+        this.durationOverUnderRun = durationOverUnderRun;
+    }
+
+    @XmlElement(name = "typeofsubstitutevalue")
+    public String getTypeOfSubstituteValue() {
+        return typeOfSubstituteValue;
+    }
+
+    public void setTypeOfSubstituteValue(String typeOfSubstituteValue) {
+        this.typeOfSubstituteValue = typeOfSubstituteValue;
     }
 
     @XmlElement(name = "defaultvalue")
     public String getDefaultvalue() {
-        return defaultvalue;
+        return defaultValue;
     }
 
-    public void setDefaultvalue(String defaultvalue) {
-        this.defaultvalue = defaultvalue;
+    public void setDefaultvalue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     @XmlElement(name = "referenceperiod")
     public String getReferenceperiod() {
-        return referenceperiod;
+        return referencePeriod;
     }
 
-    public void setReferenceperiod(String referenceperiod) {
-        this.referenceperiod = referenceperiod;
+    public void setReferenceperiod(String referencePeriod) {
+        this.referencePeriod = referencePeriod;
     }
 
     @XmlElement(name = "bindtospecific")
     public String getBindtospecific() {
-        return bindtospecific;
+        return bindToSpecific;
     }
 
-    public void setBindtospecific(String bindtospecific) {
-        this.bindtospecific = bindtospecific;
+    public void setBindtospecific(String bindToSpecific) {
+        this.bindToSpecific = bindToSpecific;
     }
 
     @XmlElement(name = "referenceperiodcount")
     public String getReferenceperiodcount() {
-        return referenceperiodcount;
+        return referencePeriodCount;
     }
 
-    public void setReferenceperiodcount(String referenceperiodcount) {
-        this.referenceperiodcount = referenceperiodcount;
+    public void setReferenceperiodcount(String referencePeriodCount) {
+        this.referencePeriodCount = referencePeriodCount;
     }
 
     @Override

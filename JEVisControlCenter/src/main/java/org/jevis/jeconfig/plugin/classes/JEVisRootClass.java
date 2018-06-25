@@ -99,12 +99,12 @@ public class JEVisRootClass implements JEVisClass {
     }
 
     @Override
-    public void setIcon(BufferedImage icon) {
+    public void setIcon(File icon) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setIcon(File icon) {
+    public void setIcon(BufferedImage icon) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

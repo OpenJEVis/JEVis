@@ -172,13 +172,6 @@ public class JEVisClassWS implements JEVisClass {
     }
 
     @Override
-    public void setIcon(BufferedImage icon) {
-        this.image = icon;
-        iconChanged = true;
-
-    }
-
-    @Override
     public void setIcon(File icon) {
         try {
             this.image = ImageIO.read(icon);
@@ -187,6 +180,13 @@ public class JEVisClassWS implements JEVisClass {
         } catch (IOException ex) {
             logger.catching(ex);
         }
+    }
+
+    @Override
+    public void setIcon(BufferedImage icon) {
+        this.image = icon;
+        iconChanged = true;
+
     }
 
     @Override
@@ -229,7 +229,7 @@ public class JEVisClassWS implements JEVisClass {
     }
 
     @Override
-    public JEVisType buildType(String name) throws JEVisException {
+    public JEVisType buildType(String name) {
         JEVisType newType = new JEVisTypeWS(ds, name, getName());
         getTypes().add(newType);//not save, waht will happen if the user does not commit() the type
         return newType;

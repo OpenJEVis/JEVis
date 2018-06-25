@@ -9,6 +9,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.jevis.jecalc.util.DataRowReader;
 import org.joda.time.DateTime;
@@ -40,7 +41,10 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
 
     private List<JEVisSample> rawSample = new ArrayList<>();
     private boolean periodAligned;
-    private List<JsonGapFillingConfig> jsonConfig;
+    private List<JsonGapFillingConfig> jsonGapFillingConfig;
+    private List<JsonLimitsConfig> jsonLimitsConfig;
+    private Boolean limitsEnabled;
+
     private JEVisObject object;
 
     public CleanDataAttributeOffline(String pathToInputFile, String pathToCleanConfigFile, String pathToOutput) {
@@ -127,6 +131,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
             String periodAlignedString = prop.getProperty("Period_Aligned");
             periodAligned = periodAlignedString.equals("true");
 
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -183,7 +188,17 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
 
     @Override
     public List<JsonGapFillingConfig> getGapFillingConfig() {
-        return jsonConfig;
+        return jsonGapFillingConfig;
+    }
+
+    @Override
+    public List<JsonLimitsConfig> getLimitsConfig() {
+        return jsonLimitsConfig;
+    }
+
+    @Override
+    public Boolean getLimitsEnabled() {
+        return limitsEnabled;
     }
 
     @Override

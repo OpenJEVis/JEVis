@@ -382,7 +382,7 @@ public class ObjectTable {
         return objects;
     }
 
-    public void getAllChildren(List<JsonObject> objs, JsonObject parentObj) throws JEVisException {
+    public void getAllChildren(List<JsonObject> objs, JsonObject parentObj) {
 
         List<JsonRelationship> allObjects = _connection.getRelationships(JEVisConstants.ObjectRelationship.PARENT);
 

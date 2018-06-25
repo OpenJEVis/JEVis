@@ -14,6 +14,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jecalc.gap.Gap.GapMode;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
@@ -52,8 +53,13 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     private DateTime lastDate;
     private List<JEVisSample> rawSamples;
     private SampleHandler sampleHandler;
-    private List<JsonGapFillingConfig> jsonConfig;
+
+    private List<JsonGapFillingConfig> jsonGapFillingConfig;
     private String gapFillingConfig;
+
+    private Boolean limitsEnabled;
+    private String limitsConfiguration;
+    private List<JsonLimitsConfig> jsonLimitsConfig;
 
     public CleanDataAttributeJEVis(JEVisObject calcObject) {
         object = calcObject;
@@ -75,14 +81,15 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         periodOffset = (int) (long) periodOffsetLong;
         valueIsQuantity = sampleHandler.getLastSample(calcObject, VALUE_QUANTITY.getAttributeName(), false);
         multiplier = sampleHandler.getLastSample(calcObject, MULTIPLIER.getAttributeName(), 1.0);
-
+        limitsEnabled = sampleHandler.getLastSample(calcObject, LIMITS_ENABLED.getAttributeName(), false);
 
         gapFillingConfig = sampleHandler.getLastSample(calcObject, GAP_FILLING_CONFIG.getAttributeName(), "");
-        jsonConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
+        jsonGapFillingConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
         }.getType());
-        for (JsonGapFillingConfig jgfc : jsonConfig) {
-            System.out.println("ConfigString" + jgfc.toString());
-        }
+
+        limitsConfiguration = sampleHandler.getLastSample(calcObject, LIMITS_CONFIGURATION.getAttributeName(), "");
+        jsonLimitsConfig = new Gson().fromJson(limitsConfiguration, new TypeToken<List<JsonLimitsConfig>>() {
+        }.getType());
 
         //first date is the lastdate of clean datarow + period or the year of the first sample of the raw data
         DateTime timestampFromLastCleanSample = sampleHandler.getTimeStampFromLastSample(calcObject, VALUE_ATTRIBUTE_NAME);
@@ -133,6 +140,11 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         return valueIsQuantity;
     }
 
+    @Override
+    public Boolean getLimitsEnabled() {
+        return limitsEnabled;
+    }
+
     public JEVisObject getObject() {
         return object;
     }
@@ -149,7 +161,12 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
 
     @Override
     public List<JsonGapFillingConfig> getGapFillingConfig() {
-        return jsonConfig;
+        return jsonGapFillingConfig;
+    }
+
+    @Override
+    public List<JsonLimitsConfig> getLimitsConfig() {
+        return jsonLimitsConfig;
     }
 
     @Override
@@ -234,7 +251,9 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         VALUE("Value"),
         GAP_FILLING("Gap Filling"),
         ENABLED("Enabled"),
-        GAP_FILLING_CONFIG("Gap Filling Config");
+        GAP_FILLING_CONFIG("Gap Filling Config"),
+        LIMITS_ENABLED("Limiting DataRow"),
+        LIMITS_CONFIGURATION("Limits Configuration");
 
         private final String attributeName;
 

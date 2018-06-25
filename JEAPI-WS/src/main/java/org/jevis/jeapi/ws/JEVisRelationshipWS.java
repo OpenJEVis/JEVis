@@ -20,7 +20,6 @@
 package org.jevis.jeapi.ws;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.ws.json.JsonRelationship;
@@ -48,22 +47,22 @@ public class JEVisRelationshipWS implements JEVisRelationship {
     }
 
     @Override
-    public JEVisObject getStartObject() throws JEVisException {
+    public JEVisObject getStartObject() {
         return ds.getObject(json.getFrom());
     }
 
     @Override
-    public JEVisObject getEndObject() throws JEVisException {
+    public JEVisObject getEndObject() {
         return ds.getObject(json.getTo());
     }
 
     @Override
-    public JEVisObject[] getObjects() throws JEVisException {
+    public JEVisObject[] getObjects() {
         return new JEVisObject[]{getStartObject(), getEndObject()};
     }
 
     @Override
-    public JEVisObject getOtherObject(JEVisObject object) throws JEVisException {
+    public JEVisObject getOtherObject(JEVisObject object) {
         if (object.getID().equals(getStartID())) {
             return getEndObject();
         } else {

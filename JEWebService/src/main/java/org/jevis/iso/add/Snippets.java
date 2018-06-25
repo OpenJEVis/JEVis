@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Snippets {
 
-    public static void getParent(SQLDataSource ds, JsonObject obj) throws JEVisException {
+    public static void getParent(SQLDataSource ds, JsonObject obj) {
         if (obj != null) {
             for (JsonRelationship rel : ds.getRelationships()) {
                 if (rel.getFrom() == obj.getId()) {
@@ -96,7 +96,7 @@ public class Snippets {
         return list;
     }
 
-    public static List<JsonJEVisClass> getRootClasses(SQLDataSource ds) throws JEVisException {
+    public static List<JsonJEVisClass> getRootClasses(SQLDataSource ds) {
         List<JsonJEVisClass> list = new ArrayList<>();
         for (JsonClassRelationship crel : ds.getClassRelationships()) {
             if (crel.getType() != JEVisConstants.ClassRelationship.INHERIT
@@ -105,7 +105,7 @@ public class Snippets {
         return list;
     }
 
-    public static List<JsonJEVisClass> getAllChildren(SQLDataSource ds, JsonJEVisClass parent) throws JEVisException {
+    public static List<JsonJEVisClass> getAllChildren(SQLDataSource ds, JsonJEVisClass parent) {
         List<JsonClassRelationship> listClassRelationships = ds.getClassRelationships();
         List<JsonJEVisClass> list = new ArrayList<>();
         if (parent != null) {
