@@ -484,7 +484,7 @@ public class BarchartPlugin implements TreePlugin {
         proNames.add(rb.getString("graph.processing.raw"));
 
         try {
-            JEVisClass dpClass = data.getObject().getDataSource().getJEVisClass("Data Processor");
+            JEVisClass dpClass = data.getObject().getDataSource().getJEVisClass("Clean Data");
             _dataProcessors.addAll(data.getObject().getChildren(dpClass, true));
             for (JEVisObject configObject : _dataProcessors) {
                 proNames.add(configObject.getName());
