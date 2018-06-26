@@ -23,6 +23,8 @@ public class CommandLineParser {
     private static final String INPUT = "input";
     private static final String OUTPUT = "output";
     private static final String HELP = "help";
+    private static final String SERVICE_MODE = "service-mode";
+    private static final String CYCLE_TIME = "cycle-time";
     private static CommandLineParser _instance = null;
     private Options _options;
     private org.apache.commons.cli.CommandLineParser _parser;
@@ -50,6 +52,8 @@ public class CommandLineParser {
         _options.addOption("cc", CLEANING_CONFIG, true, "Path to cleaning config file");
         _options.addOption("in", INPUT, true, "path to input data row file");
         _options.addOption("out", OUTPUT, true, "path to output data row file");
+        _options.addOption("sm", SERVICE_MODE, false, "Enable Service-Mode");
+        _options.addOption("ct", CYCLE_TIME, true, "Set the cycle time for the Service");
     }
 
     public void addOption(Option option) {
@@ -95,6 +99,16 @@ public class CommandLineParser {
         } else {
             return null;
         }
+    }
+
+    public Integer getCycleTime() {
+        if (_cmd.hasOption(CYCLE_TIME)) {
+            return Integer.parseInt(_cmd.getOptionValue(CYCLE_TIME));
+        } else return null;
+    }
+
+    public Boolean isServiceMode() {
+        return _cmd.hasOption(SERVICE_MODE);
     }
 
     public Boolean isAllJEvisMode() {
