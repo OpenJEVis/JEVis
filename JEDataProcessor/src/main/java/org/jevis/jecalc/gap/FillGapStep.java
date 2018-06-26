@@ -61,47 +61,51 @@ public class FillGapStep implements ProcessStep {
 
         List<JsonGapFillingConfig> conf = calcAttribute.getGapFillingConfig();
 
-        for (JsonGapFillingConfig c : conf) {
-            logger.info("start filling with new Mode for " + c.getType());
-            List<Gap> newGaps = new ArrayList<>();
-            for (Gap g : gaps) {
-                DateTime firstDate = g.getIntervals().get(0).getDate();
-                DateTime lastDate = g.getIntervals().get(g.getIntervals().size() - 1).getDate();
-                System.out.println("Diff: " + (lastDate.getMillis() - firstDate.getMillis()));
-                if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
-                    System.out.println("Gap: " + g.toString() + " FirstDate: " + firstDate + " LastDate: " + lastDate);
-                    newGaps.add(g);
-                }
+        if (!conf.isEmpty()) {
+            for (JsonGapFillingConfig c : conf) {
+                logger.info("start filling with new Mode for " + c.getType());
+                List<Gap> newGaps = new ArrayList<>();
+                for (Gap g : gaps) {
+                    DateTime firstDate = g.getIntervals().get(0).getDate();
+                    DateTime lastDate = g.getIntervals().get(g.getIntervals().size() - 1).getDate();
+                    System.out.println("Diff: " + (lastDate.getMillis() - firstDate.getMillis()));
+                    if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
+                        System.out.println("Gap: " + g.toString() + " FirstDate: " + firstDate + " LastDate: " + lastDate);
+                        newGaps.add(g);
+                    }
 
-                switch (c.getType()) {
-                    case GapFillingType.NONE:
-                        break;
-                    case GapFillingType.STATIC:
-                        fillStatic(newGaps);
-                        break;
-                    case GapFillingType.INTERPOLATION:
-                        fillInterpolation(newGaps);
-                        break;
-                    case GapFillingType.DEFAULT_VALUE:
-                        Double defaultValue = Double.valueOf(c.getDefaultvalue());
-                        fillDefault(newGaps, defaultValue);
-                        break;
-                    case GapFillingType.MINIMUM:
-                        fillMinimum(newGaps, c);
-                        break;
-                    case GapFillingType.MAXIMUM:
-                        fillMaximum(newGaps, c);
-                        break;
-                    case GapFillingType.MEDIAN:
-                        fillMedian(newGaps, c);
-                        break;
-                    case GapFillingType.AVERAGE:
-                        fillAverage(newGaps, c);
-                        break;
-                    default:
-                        break;
+                    switch (c.getType()) {
+                        case GapFillingType.NONE:
+                            break;
+                        case GapFillingType.STATIC:
+                            fillStatic(newGaps);
+                            break;
+                        case GapFillingType.INTERPOLATION:
+                            fillInterpolation(newGaps);
+                            break;
+                        case GapFillingType.DEFAULT_VALUE:
+                            Double defaultValue = Double.valueOf(c.getDefaultvalue());
+                            fillDefault(newGaps, defaultValue);
+                            break;
+                        case GapFillingType.MINIMUM:
+                            fillMinimum(newGaps, c);
+                            break;
+                        case GapFillingType.MAXIMUM:
+                            fillMaximum(newGaps, c);
+                            break;
+                        case GapFillingType.MEDIAN:
+                            fillMedian(newGaps, c);
+                            break;
+                        case GapFillingType.AVERAGE:
+                            fillAverage(newGaps, c);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
+        } else {
+            logger.error("Found gap but missing GapFillingConfig in Object: " + calcAttribute.getObject().getName() + " Id: " + calcAttribute.getObject().getID());
         }
 
         stopWatch.stop();
