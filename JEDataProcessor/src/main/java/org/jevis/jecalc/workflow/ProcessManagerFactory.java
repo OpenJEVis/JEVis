@@ -52,7 +52,7 @@ public class ProcessManagerFactory {
 //        }
         List<ProcessManager> processManagers = new ArrayList<>();
         //case jevis single
-        if (cmd.isAllJEvisMode()) {
+        if (cmd.isAllJEvisMode() || cmd.isServiceMode()) {
             establishConnection();
             processManagers = initProcessManagersFromJEVisAll();
         } else if (cmd.isSingleJEvisMode()) {
