@@ -185,7 +185,7 @@ public class GapFillingEditor implements AttributeEditor {
         _tp.getTabs().clear();
         _tp.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
-
+        _dialog = new Dialog<>();
         _dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.title"));
         _dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.header"));
         _dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));
@@ -277,31 +277,30 @@ public class GapFillingEditor implements AttributeEditor {
 
         int width = 150;
         _field_Name = new JFXTextField();
-        //_field_Name.setPrefWidth(width);//TODO: remove this workaround
         _field_Name.setEditable(!_readOnly);
+
         ObservableList<String> optionsBoundSpecific = FXCollections.observableArrayList(GapFillingBoundToSpecific.NONE, GapFillingBoundToSpecific.WEEKDAY,
                 GapFillingBoundToSpecific.WEEKOFYEAR, GapFillingBoundToSpecific.MONTHOFYEAR);
         _field_Bound_Specific = new JFXComboBox(optionsBoundSpecific);
-        //_field_Bound_Specific.setPrefWidth(width);//TODO: remove this workaround
         _field_Bound_Specific.setEditable(_readOnly);
+
         _field_Boundary = new JFXTextField();
-        //_field_Boundary.setPrefWidth(width);//TODO: remove this workaround
         _field_Boundary.setEditable(!_readOnly);
+
         _field_Default_Value = new JFXTextField();
-        //_field_Default_Value.setPrefWidth(width);//TODO: remove this workaround
         _field_Default_Value.setEditable(!_readOnly);
+
         ObservableList<String> optionsReferencePeriod = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
                 GapFillingReferencePeriod.WEEK, GapFillingReferencePeriod.MONTH, GapFillingReferencePeriod.YEAR);
         _field_Reference_Period = new JFXComboBox(optionsReferencePeriod);
-        //_field_Reference_Period.setPrefWidth(width);//TODO: remove this workaround
         _field_Reference_Period.setEditable(_readOnly);
+
         _field_Reference_Period_Count = new JFXTextField();
-        _field_Reference_Period_Count.setPrefWidth(width);//TODO: remove this workaround
         _field_Reference_Period_Count.setEditable(!_readOnly);
+
         ObservableList<String> optionsType = FXCollections.observableArrayList(GapFillingType.NONE, GapFillingType.INTERPOLATION, GapFillingType.AVERAGE,
                 GapFillingType.DEFAULT_VALUE, GapFillingType.STATIC, GapFillingType.MINIMUM, GapFillingType.MAXIMUM, GapFillingType.MEDIAN);
         _field_Type = new JFXComboBox(optionsType);
-        //_field_Type.setPrefWidth(width);//TODO: remove this workaround
         _field_Type.setEditable(_readOnly);
 
         Label name = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.name"));
@@ -326,184 +325,157 @@ public class GapFillingEditor implements AttributeEditor {
 
         int finalI = i;
         _field_Name.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            try {
-                if (_listConfig.get(finalI) == null || !_listConfig.get(finalI).getName().equals(newValue)) {
-                    logger.info("Value Changed: {}", newValue);
-                    _listConfig.get(finalI).setName(newValue);
+            if (_listConfig.get(finalI).getName() == null || !_listConfig.get(finalI).getName().equals(newValue)) {
+                logger.info("Value Changed: {}", newValue);
+                _listConfig.get(finalI).setName(newValue);
 
-                    _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                    _changed.setValue(true);
-                }
-            } catch (JEVisException ex) {
-                logger.catching(ex);
+                _changed.setValue(true);
             }
         });
 
         _field_Bound_Specific.valueProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                if (_listConfig.get(finalI) == null || !_listConfig.get(finalI).getBindtospecific().equals(newValue)) {
+            if (_listConfig.get(finalI).getBindtospecific() == null || !_listConfig.get(finalI).getBindtospecific().equals(newValue)) {
 
-                    String v = String.valueOf(newValue);
-                    _listConfig.get(finalI).setBindtospecific(v);
+                String v = String.valueOf(newValue);
+                _listConfig.get(finalI).setBindtospecific(v);
 
-                    _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                    _changed.setValue(true);
-                }
-            } catch (JEVisException ex) {
-                logger.catching(ex);
+                _changed.setValue(true);
             }
         });
 
         _field_Boundary.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            try {
-                if (!newValue.matches("\\d*")) {
-                    _field_Boundary.setText(newValue.replaceAll("[^\\d]", ""));
+            if (_listConfig.get(finalI).getBoundary() == null || !_listConfig.get(finalI).getBoundary().equals(newValue)) {
+                logger.info("Value Changed: {}", newValue);
+                _listConfig.get(finalI).setBoundary(newValue);
 
-                    if (_listConfig.get(finalI) == null || !_listConfig.get(finalI).getBoundary().equals(newValue)) {
-                        logger.info("Value Changed: {}", newValue);
-                        _listConfig.get(finalI).setBoundary(newValue);
-
-                        _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                        _changed.setValue(true);
-                    }
-                }
-            } catch (JEVisException ex) {
-                logger.catching(ex);
+                _changed.setValue(true);
             }
         });
 
         _field_Default_Value.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            try {
-                if (_listConfig.get(finalI) == null || !_listConfig.get(finalI).getDefaultvalue().equals(newValue)) {
-                    logger.info("Value Changed: {}", newValue);
-                    _listConfig.get(finalI).setDefaultvalue(newValue);
+            if (_listConfig.get(finalI).getDefaultvalue() == null || !_listConfig.get(finalI).getDefaultvalue().equals(newValue)) {
+                logger.info("Value Changed: {}", newValue);
+                _listConfig.get(finalI).setDefaultvalue(newValue);
 
-                    _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                    _changed.setValue(true);
-                }
-            } catch (JEVisException ex) {
-                logger.catching(ex);
+                _changed.setValue(true);
             }
         });
 
         _field_Reference_Period.valueProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                if (_listConfig.get(finalI) == null || !_listConfig.get(finalI).getReferenceperiod().equals(newValue)) {
-                    logger.info("Value Changed: {}", newValue);
-                    String v = String.valueOf(newValue);
-                    _listConfig.get(finalI).setReferenceperiod(v);
+            if (_listConfig.get(finalI).getReferenceperiod() == null || !_listConfig.get(finalI).getReferenceperiod().equals(newValue)) {
+                logger.info("Value Changed: {}", newValue);
+                String v = String.valueOf(newValue);
+                _listConfig.get(finalI).setReferenceperiod(v);
 
-                    _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                    _changed.setValue(true);
-                }
-            } catch (JEVisException ex) {
-                logger.catching(ex);
+                _changed.setValue(true);
             }
         });
 
         _field_Reference_Period_Count.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            try {
-                if (!newValue.matches("\\d*")) {
-                    _field_Reference_Period_Count.setText(newValue.replaceAll("[^\\d]", ""));
+            if (_listConfig.get(finalI).getReferenceperiodcount() == null || !_listConfig.get(finalI).getReferenceperiodcount().equals(newValue)) {
+                logger.info("Value Changed: {}", newValue);
+                _listConfig.get(finalI).setReferenceperiodcount(newValue);
 
-                    if (_listConfig.get(finalI) == null || !_listConfig.get(finalI).getReferenceperiodcount().equals(newValue)) {
-                        logger.info("Value Changed: {}", newValue);
-                        _listConfig.get(finalI).setReferenceperiodcount(newValue);
-
-                        _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                        _changed.setValue(true);
-                    }
-                }
-            } catch (JEVisException ex) {
-                logger.catching(ex);
+                _changed.setValue(true);
             }
         });
 
         _field_Type.valueProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                if (_listConfig.get(finalI).getType() == null || !_listConfig.get(finalI).getType().equals(newValue)) {
-                    logger.info("Value Changed: {}", newValue);
-                    String v = String.valueOf(newValue);
-                    _listConfig.get(finalI).setType(v);
+            if (_listConfig.get(finalI).getType() == null || !_listConfig.get(finalI).getType().equals(newValue)) {
+                logger.info("Value Changed: {}", newValue);
+                String v = String.valueOf(newValue);
+                _listConfig.get(finalI).setType(v);
 
-                    _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                    _changed.setValue(true);
+                _changed.setValue(true);
 
-                    if (newValue.equals(GapFillingType.DEFAULT_VALUE) && !_gp.getChildren().contains(default_value)) {
-                        _gp.add(default_value, 0, 3);
-                        _gp.add(_field_Default_Value, 1, 3);
+                int row = 0;
+                if (newValue.equals(GapFillingType.DEFAULT_VALUE) && !_gp.getChildren().contains(default_value)) {
+                    _gp.getChildren().removeAll(reference_period, reference_period_count, _field_Reference_Period, _field_Reference_Period_Count,
+                            boundtospecific, _field_Bound_Specific, deleteConfig);
+                    row = _gp.impl_getRowCount();
 
-                        _gp.getChildren().removeAll(reference_period, reference_period_count, _field_Reference_Period, _field_Reference_Period_Count,
-                                boundtospecific, _field_Bound_Specific);
-                    }
+                    row++;
+                    _gp.add(default_value, 0, row);
+                    _gp.add(_field_Default_Value, 1, row);
 
-                    if (!_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_gp.getChildren().contains(reference_period)) {
-                        _gp.add(reference_period_count, 0, 4);
-                        _gp.add(_field_Reference_Period_Count, 1, 4);
-                        _gp.add(_field_Reference_Period, 2, 4);
-                        _gp.add(reference_period, 3, 4);
-
-                        _gp.add(boundtospecific, 0, 6);
-                        _gp.add(_field_Bound_Specific, 1, 6);
-
-                        _gp.getChildren().removeAll(default_value, _field_Default_Value);
-                    }
-
-                    if ((newValue.equals(GapFillingType.NONE) || newValue.equals(GapFillingType.STATIC))
-                            && (!_gp.getChildren().contains(default_value) || !_gp.getChildren().contains(reference_period))) {
-                        _gp.getChildren().removeAll(reference_period, reference_period_count, _field_Reference_Period, _field_Reference_Period_Count,
-                                boundtospecific, _field_Bound_Specific, default_value, _field_Default_Value);
-                    }
-
+                    row++;
+                    _gp.add(deleteConfig, 3, row);
                 }
-            } catch (JEVisException ex) {
-                logger.catching(ex);
+
+                if (!_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_gp.getChildren().contains(reference_period)) {
+                    _gp.getChildren().removeAll(default_value, _field_Default_Value, deleteConfig);
+                    row = _gp.impl_getRowCount();
+
+                    row++;
+                    _gp.add(reference_period_count, 0, row);
+                    _gp.add(_field_Reference_Period_Count, 1, row);
+                    _gp.add(_field_Reference_Period, 2, row);
+                    _gp.add(reference_period, 3, row);
+
+                    row++;
+                    _gp.add(boundtospecific, 0, row);
+                    _gp.add(_field_Bound_Specific, 1, row);
+
+                    row++;
+                    _gp.add(deleteConfig, 3, row);
+                }
+
+                if ((newValue.equals(GapFillingType.NONE) || newValue.equals(GapFillingType.STATIC))
+                        && (!_gp.getChildren().contains(default_value) || !_gp.getChildren().contains(reference_period))) {
+                    _gp.getChildren().removeAll(reference_period, reference_period_count, _field_Reference_Period, _field_Reference_Period_Count,
+                            boundtospecific, _field_Bound_Specific, default_value, _field_Default_Value);
+                }
+
             }
         });
 
         deleteConfig.setOnAction(event -> {
-            try {
-                logger.info("Detele Config: {}");
-                _listConfig.remove(finalI);
-                _tp.getTabs().remove(finalI);
+            logger.info("Detele Config: {}");
+            _listConfig.remove(finalI);
+            _tp.getTabs().remove(finalI);
 
-                _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                _changed.setValue(true);
+            _changed.setValue(true);
 
-            } catch (JEVisException ex) {
-                logger.catching(ex);
-            }
         });
 
-        _gp.add(name, 0, 0);
-        _gp.add(_field_Name, 1, 0);
-        _gp.add(type, 0, 1);
-        _gp.add(_field_Type, 1, 1);
-        _gp.add(boundary, 0, 2);
-        _gp.add(_field_Boundary, 1, 2);
+        int row = 0;
+        _gp.add(name, 0, row);
+        _gp.add(_field_Name, 1, row);
+
+        row++;
+        _gp.add(type, 0, row);
+        _gp.add(_field_Type, 1, row);
+
+        row++;
+        _gp.add(boundary, 0, row);
+        _gp.add(_field_Boundary, 1, row);
 
         Tab tab = new Tab();
 
         if (Objects.nonNull(_listConfig.get(finalI).getType())) {
             if (_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
                     && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
-                _gp.add(default_value, 0, 3);
-                _gp.add(_field_Default_Value, 1, 3);
+                row++;
+                _gp.add(default_value, 0, row);
+                _gp.add(_field_Default_Value, 1, row);
             }
 
             if (!_listConfig.get(finalI).getType().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getType().equals(GapFillingType.STATIC)
                     && !_listConfig.get(finalI).getType().equals(GapFillingType.NONE)) {
-                _gp.add(reference_period_count, 0, 4);
-                _gp.add(_field_Reference_Period_Count, 1, 4);
-                _gp.add(_field_Reference_Period, 2, 4);
-                _gp.add(reference_period, 3, 4);
+                row++;
+                _gp.add(reference_period_count, 0, row);
+                _gp.add(_field_Reference_Period_Count, 1, row);
+                _gp.add(_field_Reference_Period, 2, row);
+                _gp.add(reference_period, 3, row);
 
-                _gp.add(boundtospecific, 0, 6);
-                _gp.add(_field_Bound_Specific, 1, 6);
+                row++;
+                _gp.add(boundtospecific, 0, row);
+                _gp.add(_field_Bound_Specific, 1, row);
             }
         }
 
-        _gp.add(deleteConfig, 3, 8);
+        row++;
+        _gp.add(deleteConfig, 3, row);
 
         tab.setContent(_gp);
         tab.setText(_listConfig.get(i).getName());

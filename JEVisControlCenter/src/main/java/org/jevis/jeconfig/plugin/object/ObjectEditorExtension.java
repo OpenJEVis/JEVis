@@ -36,39 +36,39 @@ public interface ObjectEditorExtension {
      * @param obj
      * @return
      */
-    public boolean isForObject(JEVisObject obj);
+    boolean isForObject(JEVisObject obj);
 
     /**
      * Returns the Node where this extension drows its content
      *
      * @return
      */
-    public Node getView();
+    Node getView();
 
     /**
      * Will be called if this Extension is Visible to the user. Put the loading
      * logic into this function to keep the programm flow fast
      */
-    public void setVisible();
+    void setVisible();
 
     /**
      * Returns the Displayname of this extension
      *
      * @return
      */
-    public String getTitle();
+    String getTitle();
 
     /**
      * return true if the user changed someting and it needs to be saved
      *
      * @return
      */
-    public boolean needSave();
+    boolean needSave();
 
     /**
      * Dismiss all made changes
      */
-    public void dismissChanges();
+    void dismissChanges();
 
     /**
      * Save the lastest changes. returns true if the save was successful or
@@ -76,7 +76,7 @@ public interface ObjectEditorExtension {
      *
      * @return
      */
-    public boolean save();
+    boolean save();
 
     /**
      * Returns the boolean property the changed status. this will return true if
@@ -84,6 +84,6 @@ public interface ObjectEditorExtension {
      *
      * @return
      */
-    public BooleanProperty getValueChangedProperty();
+    BooleanProperty getValueChangedProperty();
 
 }

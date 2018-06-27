@@ -21,6 +21,7 @@ import org.jevis.jecalc.differential.DifferentialStep;
 import org.jevis.jecalc.functional.avg.AverageStep;
 import org.jevis.jecalc.functional.sum.SummationStep;
 import org.jevis.jecalc.gap.FillGapStep;
+import org.jevis.jecalc.limits.LimitsStep;
 import org.jevis.jecalc.save.ImportStep;
 import org.jevis.jecalc.scaling.ScalingStep;
 import org.slf4j.Logger;
@@ -168,6 +169,9 @@ public class ProcessManagerFactory {
 
         ProcessStep gapStep = new FillGapStep();
         processSteps.add(gapStep);
+
+        ProcessStep limitsStep = new LimitsStep();
+        processSteps.add(limitsStep);
 
         ProcessStep importStep = new ImportStep();
         processSteps.add(importStep);

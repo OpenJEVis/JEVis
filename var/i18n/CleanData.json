@@ -38,6 +38,32 @@
       }
     },
     {
+      "type": "Limiting DataRow",
+      "descriptions": {
+        "de": "Aktiviert die Begrenzung der Datenreihe auf Min/Max-Werte, definiert in der Konfiguration",
+        "ru": "Enabled the data cleaning",
+        "en": "Activates the limitation of the data series to min/max values, defined in the configuration"
+      },
+      "names": {
+        "de": "Grenzen Aktiviert",
+        "ru": "Limits Enabled",
+        "en": "Limits Enabled"
+      }
+    },
+    {
+      "type": "Limits Configuration",
+      "descriptions": {
+        "de": "Einstellmöglichkeiten für Methode zur Ersatzwertbildung bei über-/unterschreitung der Grenzen",
+        "ru": "Gap Filling description",
+        "en": "Define the method for the gap filling"
+      },
+      "names": {
+        "de": "Konfiguration der Grenzen",
+        "ru": "Limits Configuration",
+        "en": "Limits Configuration"
+      }
+    },
+    {
       "type": "Gap Filling",
       "descriptions": {
         "de": "Definiert die Methode zur Ersatzwertbildung",
@@ -45,7 +71,20 @@
         "en": "Define the method for the gap filling"
       },
       "names": {
-        "de": "Ersatzwertbildung",
+        "de": "Ersatzwertbildung der Lücken",
+        "ru": "Gap Filling",
+        "en": "Gap Filling"
+      }
+    },
+    {
+      "type": "Gap Filling Config",
+      "descriptions": {
+        "de": "Definiert die Methode zur Ersatzwertbildung",
+        "ru": "Gap Filling description",
+        "en": "Define the method for the gap filling"
+      },
+      "names": {
+        "de": "Ersatzwertbildung der Lücken",
         "ru": "Gap Filling",
         "en": "Gap Filling"
       }

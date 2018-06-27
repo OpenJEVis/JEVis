@@ -23,8 +23,10 @@ import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
 import org.jevis.application.jevistree.TreePlugin;
-import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.dataprocessing.BasicProcess;
+import org.jevis.commons.dataprocessing.BasicProcessOption;
 import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.dataprocessing.ProcessOptions;
 import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.joda.time.DateTime;
@@ -484,7 +486,7 @@ public class BarchartPlugin implements TreePlugin {
         proNames.add(rb.getString("graph.processing.raw"));
 
         try {
-            JEVisClass dpClass = data.getObject().getDataSource().getJEVisClass("Data Processor");
+            JEVisClass dpClass = data.getObject().getDataSource().getJEVisClass("Clean Data");
             _dataProcessors.addAll(data.getObject().getChildren(dpClass, true));
             for (JEVisObject configObject : _dataProcessors) {
                 proNames.add(configObject.getName());
@@ -852,11 +854,13 @@ public class BarchartPlugin implements TreePlugin {
                         aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
                     }
 
-                    Process dataPorceessor = null;
+//                    Process dataPorceessor = null;
                     if (getDataProcessor() != null) {
-                        dataPorceessor = ProcessChains.getProcessChain(getDataProcessor());
+//                        dataPorceessor = ProcessChains.getProcessChain(getDataProcessor());
+                        _object = getDataProcessor();
+                        _attribute = _object.getAttribute("Value");
                     }
-                    if (dataPorceessor == null) {
+//                    if (dataPorceessor == null) {
                         if (aggrigate != null) {
                             Process input = new BasicProcess();
                             input.setJEVisDataSource(ds);
@@ -874,12 +878,12 @@ public class BarchartPlugin implements TreePlugin {
 //                            samples.addAll(getAttribute().getAllSamples());
                         }
 
-                    } else if (aggrigate != null) {
-                        aggrigate.setSubProcesses(Arrays.asList(dataPorceessor));
-                        samples.addAll(aggrigate.getResult());
-                    } else {
-                        samples.addAll(dataPorceessor.getResult());
-                    }
+//                    } else if (aggrigate != null) {
+//                        aggrigate.setSubProcesses(Arrays.asList(dataPorceessor));
+//                        samples.addAll(aggrigate.getResult());
+//                    } else {
+//                        samples.addAll(dataPorceessor.getResult());
+//                    }
 
                 } catch (Exception ex) {
                     //TODO: exeption handling
@@ -1008,7 +1012,7 @@ public class BarchartPlugin implements TreePlugin {
             if (_attribute == null) {
 //                System.out.println("att is null");
                 try {
-                    if (getObject().getJEVisClassName().equals("Data")) {
+                    if (getObject().getJEVisClassName().equals("Data") || getObject().getJEVisClassName().equals("Clean Data")) {
                         JEVisAttribute values = getObject().getAttribute("Value");
                         _attribute = values;
                     }

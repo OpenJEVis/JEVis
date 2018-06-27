@@ -19,18 +19,14 @@
  */
 package org.jevis.commons.database;
 
-import java.io.File;
+import org.jevis.api.*;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 /**
  *
@@ -144,7 +140,8 @@ public class SampleHandler {
         try {
             JEVisAttribute attribute = object.getAttribute(attributeName);
             if (attribute != null) {
-                lastDate = attribute.getTimestampFromLastSample();
+                JEVisSample smp = attribute.getLatestSample();
+                if (smp != null) lastDate = smp.getTimestamp();
             }
         } catch (JEVisException ex) {
             Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -158,6 +155,7 @@ public class SampleHandler {
             JEVisAttribute attribute = object.getAttribute(attributeName);
             if (attribute != null) {
                 lastDate = attribute.getTimestampFromFirstSample();
+
             }
         } catch (JEVisException ex) {
             Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);

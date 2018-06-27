@@ -92,7 +92,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public JEVisClass getJEVisClass() throws JEVisException {
+    public JEVisClass getJEVisClass() {
         return ds.getJEVisClass(json.getJevisClass());
     }
 
@@ -171,7 +171,7 @@ public class JEVisObjectWS implements JEVisObject {
         try {
             List<JEVisAttribute> list = attributeCache.get("egal", new Callable<List>() {
                         @Override
-                        public List call() throws Exception {
+                        public List call() {
                             return getAttributesWS();
                         }
                     }

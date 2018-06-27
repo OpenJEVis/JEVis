@@ -34,6 +34,24 @@
       "jevisClass": "Clean Data"
     },
     {
+      "name": "Limiting DataRow",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Limits Configuration",
+      "primitiveType": 0,
+      "guiType": "Limits Config",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
       "name": "Gap Filling Config",
       "primitiveType": 0,
       "guiType": "Gap Filling Config",

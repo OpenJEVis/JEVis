@@ -25,7 +25,7 @@ public class JEVisClassTree {
     private List<JsonJEVisClass> list = new ArrayList<>();
 
 
-    public JEVisClassTree(SQLDataSource ds, String bauth) throws JEVisException {
+    public JEVisClassTree(SQLDataSource ds, String bauth) {
         ds.preload(SQLDataSource.PRELOAD.ALL_CLASSES);
 
 
@@ -86,7 +86,7 @@ public class JEVisClassTree {
         return output;
     }
 
-    private void createTree(SQLDataSource ds, JsonJEVisClass parent) throws JEVisException {
+    private void createTree(SQLDataSource ds, JsonJEVisClass parent) {
         list = Snippets.getAllChildren(ds, parent);
         output += newList;
 

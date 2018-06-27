@@ -35,7 +35,7 @@ public class Aggregator {
         JEVisDataSource ds = null;
         try {
             ds = new JEVisDataSourceWS("http://openjevis.org:18090");
-            ds.connect("Sys Admin", "MyJEV34Env");
+            ds.connect("Sys Admin", "XXXXXX");
         } catch (JEVisException ex) {
             System.exit(1);
         }

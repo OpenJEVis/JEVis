@@ -18,6 +18,7 @@ import java.util.List;
 public class Launcher {
 
     private static final Logger logger = LoggerFactory.getLogger(Launcher.class);
+    private int cycleTime = 1800000;
 
     public static void main(String[] args) {
         //parse Commandline
@@ -25,7 +26,18 @@ public class Launcher {
         cmd.parse(args);
 
         Launcher launcher = new Launcher();
-        launcher.run();
+
+        if (!cmd.isServiceMode()) {
+            launcher.run();
+        } else {
+            if (cmd.getCycleTime() != null) {
+                ServiceMode sm = new ServiceMode(cmd.getCycleTime());
+                sm.run();
+            } else {
+                ServiceMode sm = new ServiceMode();
+                sm.run();
+            }
+        }
     }
 
     private void run() {
@@ -41,4 +53,6 @@ public class Launcher {
             }
         });
     }
+
+
 }

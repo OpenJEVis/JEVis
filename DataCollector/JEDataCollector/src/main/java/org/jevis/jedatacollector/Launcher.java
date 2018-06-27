@@ -116,7 +116,7 @@ public class Launcher extends AbstractCliApp {
 //                        System.out.println("thread sleeps");
                     }
                 } catch (InterruptedException ie) {
-                    System.out.println(ie);
+                    Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
                 }
             }
         }
@@ -174,7 +174,7 @@ public class Launcher extends AbstractCliApp {
 //                    System.out.println("thread sleeps");
                 }
             } catch (InterruptedException ie) {
-                System.out.println(ie);
+                Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
             }
         }
         try {
@@ -182,7 +182,7 @@ public class Launcher extends AbstractCliApp {
         } catch (JEVisException ex) {
             java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        System.out.println("---------------------finish------------------------");
+        Logger.getLogger(Launcher.class.getName()).log(Level.INFO, "---------------------finish------------------------");
 
     }
 
@@ -198,7 +198,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runSingle() {
-        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Singel Mode");
+        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Single Mode");
         try {
             List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
 

@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * @author Florian Simon <gerrit.schutz@envidatec.com>
+ * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
 @XmlRootElement(name = "GapFillingConfig")
 public class JsonGapFillingConfig {

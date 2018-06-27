@@ -8,6 +8,7 @@ package org.jevis.jecalc.data;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -31,6 +32,8 @@ public interface CleanDataAttribute {
 
     Boolean getValueIsQuantity();
 
+    Boolean getLimitsEnabled();
+
     Integer getPeriodOffset();
 
     Double getLastDiffValue();
@@ -50,6 +53,8 @@ public interface CleanDataAttribute {
     String getName();
 
     List<JsonGapFillingConfig> getGapFillingConfig();
+
+    List<JsonLimitsConfig> getLimitsConfig();
 
     JEVisObject getObject();
 
