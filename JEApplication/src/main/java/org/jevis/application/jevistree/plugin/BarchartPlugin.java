@@ -855,10 +855,11 @@ public class BarchartPlugin implements TreePlugin {
                     }
 
 //                    Process dataPorceessor = null;
-//                    if (getDataProcessor() != null) {
+                    if (getDataProcessor() != null) {
 //                        dataPorceessor = ProcessChains.getProcessChain(getDataProcessor());
-//
-//                    }
+                        _object = getDataProcessor();
+                        _attribute = _object.getAttribute("Value");
+                    }
 //                    if (dataPorceessor == null) {
                         if (aggrigate != null) {
                             Process input = new BasicProcess();

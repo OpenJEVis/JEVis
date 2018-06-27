@@ -26,4 +26,7 @@ public interface LimitBreak {
 
     void setLastValue(Double rawValue);
 
+    MinOrMax getMinOrMax();
+
+    void setMinOrMax(MinOrMax choice);
 }

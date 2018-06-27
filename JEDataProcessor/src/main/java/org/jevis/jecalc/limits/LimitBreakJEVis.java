@@ -18,6 +18,7 @@ public class LimitBreakJEVis implements LimitBreak {
     private List<CleanInterval> intervals = new ArrayList<>();
     private Double lastValue;
     private Double firstValue;
+    private MinOrMax minOrMax;
 
     @Override
     public void addInterval(CleanInterval currentInterval) {
@@ -47,6 +48,16 @@ public class LimitBreakJEVis implements LimitBreak {
     @Override
     public void setLastValue(Double lastValue) {
         this.lastValue = lastValue;
+    }
+
+    @Override
+    public MinOrMax getMinOrMax() {
+        return minOrMax;
+    }
+
+    @Override
+    public void setMinOrMax(MinOrMax choice) {
+        this.minOrMax = choice;
     }
 
 }

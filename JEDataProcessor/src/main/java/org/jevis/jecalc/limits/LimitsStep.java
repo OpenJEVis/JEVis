@@ -32,7 +32,7 @@ import java.util.Objects;
 import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingType;
 
 /**
- * @author broder
+ * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
  */
 public class LimitsStep implements ProcessStep {
 
@@ -55,7 +55,7 @@ public class LimitsStep implements ProcessStep {
         List<JsonLimitsConfig> conf = calcAttribute.getLimitsConfig();
 
         //identify limitbreaking intervals
-        List<LimitBreak> limitBreaks = identifyLimitBreaks(intervals, calcAttribute, conf);
+        List<LimitBreak> limitBreaks = identifyLimitBreaks(intervals, conf);
         logger.info("{} limit breaks identified", limitBreaks.size());
 
         if (limitBreaks.isEmpty()) { //no limit checks when there is no alignment
@@ -82,8 +82,9 @@ public class LimitsStep implements ProcessStep {
                         fillInterpolation(newLimitBreaks);
                         break;
                     case GapFillingType.DEFAULT_VALUE:
-                        Double defaultValue = Double.valueOf(c.getDefaultvalue());
-                        fillDefault(newLimitBreaks, defaultValue);
+                        Double defaultMinValue = Double.valueOf(c.getDefaultMinValue());
+                        Double defaultMaxValue = Double.valueOf(c.getDefaultMaxValue());
+                        fillDefault(newLimitBreaks, defaultMinValue, defaultMaxValue);
                         break;
                     case GapFillingType.MEDIAN:
                         fillMedian(newLimitBreaks, c);
@@ -108,40 +109,42 @@ public class LimitsStep implements ProcessStep {
         return l;
     }
 
-    private List<LimitBreak> identifyLimitBreaks(List<CleanInterval> intervals, CleanDataAttribute calcAttribute, List<JsonLimitsConfig> conf) throws JEVisException {
+    private List<LimitBreak> identifyLimitBreaks(List<CleanInterval> intervals, List<JsonLimitsConfig> conf) throws JEVisException {
         List<LimitBreak> limitBreaks = new ArrayList<>();
+        LimitBreak currentLimitBreak = null;
         CleanInterval lastInterval = null;
-        LimitBreak lastLimitBreak = null;
         for (CleanInterval currentInterval : intervals) {
-            if (currentInterval.getTmpSamples().size() > 0) {
-                for (JsonLimitsConfig jlc : conf) {
-                    if (currentInterval.getTmpSamples().get(0).getValueAsDouble() < Double.parseDouble(jlc.getMin())
-                            || currentInterval.getTmpSamples().get(0).getValueAsDouble() > Double.parseDouble(jlc.getMax())) {
-
-                        boolean containsLimitBreak = false;
-                        for (LimitBreak lb : limitBreaks)
-                            if (lb.getIntervals().contains(currentInterval)) containsLimitBreak = true;
-                        if (!containsLimitBreak) {
-                            if (lastLimitBreak != null)
-                                lastLimitBreak.setLastValue(currentInterval.getTmpSamples().get(0).getValueAsDouble());
-                            LimitBreak newLimitBreak = new LimitBreakJEVis();
-                            if (lastInterval != null)
-                                newLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(lastInterval.getTmpSamples().size() - 1).getValueAsDouble());
-                            newLimitBreak.addInterval(currentInterval);
-                            String s = null;
-                            if (currentInterval.getTmpSamples().get(0).getValueAsDouble() < Double.parseDouble(jlc.getMin()))
-                                s = jlc.getMin();
-                            if (currentInterval.getTmpSamples().get(0).getValueAsDouble() > Double.parseDouble(jlc.getMax()))
-                                s = jlc.getMax();
-                            logger.info("limit break on: " + currentInterval.getDate() + " Value: " + currentInterval.getTmpSamples().get(0).getValueAsDouble() + " Limit: " + s);
-                            limitBreaks.add(newLimitBreak);
-                            lastLimitBreak = newLimitBreak;
+            for (JsonLimitsConfig lc : conf) {
+                for (JEVisSample sample : currentInterval.getTmpSamples()) {
+                    double min = Double.parseDouble(lc.getMin());
+                    double max = Double.parseDouble(lc.getMax());
+                    if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
+                        if (currentLimitBreak == null) {
+                            currentLimitBreak = new LimitBreakJEVis();
+                            if (lastInterval != null && Objects.nonNull(lastInterval.getTmpSamples().get(0)))
+                                currentLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(0).getValueAsDouble());
+                            currentLimitBreak.addInterval(currentInterval);
+                            MinOrMax limit = null;
+                            if (sample.getValueAsDouble() < min) limit = MinOrMax.MIN;
+                            if (sample.getValueAsDouble() > max) limit = MinOrMax.MAX;
+                            currentLimitBreak.setMinOrMax(limit);
+                        } else {
+                            currentLimitBreak.addInterval(currentInterval);
+                        }
+                    } else {
+                        if (currentLimitBreak != null) {
+                            logger.info("Limit Break on: " + currentLimitBreak.getIntervals().get(0).getDate() + " to: " +
+                                    currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1).getDate());
+                            currentLimitBreak.setLastValue(sample.getValueAsDouble());
+                            limitBreaks.add(currentLimitBreak);
+                            currentLimitBreak = null;
                         }
                     }
                 }
             }
             lastInterval = currentInterval;
         }
+
         return limitBreaks;
     }
 
@@ -151,7 +154,7 @@ public class LimitsStep implements ProcessStep {
             for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
                 try {
                     JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
-                    String note = "limit(static)";
+                    String note = "limit(Static)";
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
@@ -165,7 +168,6 @@ public class LimitsStep implements ProcessStep {
         for (LimitBreak currentLimitBreak : limitBreaks) {
             Double firstValue = currentLimitBreak.getFirstValue();
             Double lastValue = currentLimitBreak.getLastValue();
-            System.out.println("first Value: " + firstValue + " last Value: " + lastValue);
             int size = currentLimitBreak.getIntervals().size() + 1; //if there is a Limit Break of 2, then you have 3 steps
             Double stepSize = (lastValue - firstValue) / (double) size;
             Double currenValue = firstValue + stepSize;
@@ -174,7 +176,7 @@ public class LimitsStep implements ProcessStep {
                     JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
                     sample.setValue(currenValue);
                     currenValue += stepSize;
-                    String note = "limit(interpolation)";
+                    String note = "limit(Interpolation)";
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
@@ -184,12 +186,21 @@ public class LimitsStep implements ProcessStep {
         }
     }
 
-    private void fillDefault(List<LimitBreak> gaps, Double value) {
-        for (LimitBreak currentGap : gaps) {
-            for (CleanInterval currentInterval : currentGap.getIntervals()) {
+    private void fillDefault(List<LimitBreak> limitBreaks, Double minValue, Double maxValue) {
+        for (LimitBreak currentLimitBreak : limitBreaks) {
+            for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
                 try {
-                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                    String note = "limit(default)";
+                    JEVisSample sample = null;
+                    MinOrMax limit = null;
+                    if (currentLimitBreak.getMinOrMax() == MinOrMax.MIN) {
+                        sample = new VirtualSample(currentInterval.getDate(), minValue);
+                        limit = MinOrMax.MIN;
+                    }
+                    if (currentLimitBreak.getMinOrMax() == MinOrMax.MAX) {
+                        sample = new VirtualSample(currentInterval.getDate(), maxValue);
+                        limit = MinOrMax.MAX;
+                    }
+                    String note = "limit(DefaultValue," + limit + ")";
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
@@ -199,7 +210,7 @@ public class LimitsStep implements ProcessStep {
         }
     }
 
-    private double getGapValue(DateTime lastDate, JsonLimitsConfig c) throws JEVisException {
+    private double getLimitBreakValue(DateTime lastDate, JsonLimitsConfig c) throws JEVisException {
 
         return getSpecificValue(lastDate, c);
     }
@@ -282,8 +293,8 @@ public class LimitsStep implements ProcessStep {
 
     private double calcValueWithType(List<JEVisSample> listSamples, JsonLimitsConfig c) throws
             JEVisException {
-        final String gapFillingType = c.getTypeOfSubstituteValue();
-        switch (gapFillingType) {
+        final String typeOfSubstituteValue = c.getTypeOfSubstituteValue();
+        switch (typeOfSubstituteValue) {
             case GapFillingType.MEDIAN:
                 if (Objects.nonNull(listSamples)) {
                     double medianValue = 0;
@@ -317,7 +328,7 @@ public class LimitsStep implements ProcessStep {
         for (LimitBreak currentGap : gaps) {
             for (CleanInterval currentInterval : currentGap.getIntervals()) {
                 try {
-                    double value = getGapValue(currentInterval.getDate(), c);
+                    double value = getLimitBreakValue(currentInterval.getDate(), c);
                     JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                     String note = "limit(Median)";
                     sample.setNote(note);
@@ -329,11 +340,11 @@ public class LimitsStep implements ProcessStep {
         }
     }
 
-    private void fillAverage(List<LimitBreak> gaps, JsonLimitsConfig c) {
-        for (LimitBreak currentGap : gaps) {
-            for (CleanInterval currentInterval : currentGap.getIntervals()) {
+    private void fillAverage(List<LimitBreak> limitBreaks, JsonLimitsConfig c) {
+        for (LimitBreak currentLimitBreak : limitBreaks) {
+            for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
                 try {
-                    double value = getGapValue(currentInterval.getDate(), c);
+                    double value = getLimitBreakValue(currentInterval.getDate(), c);
                     JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                     String note = "limit(Average)";
                     sample.setNote(note);

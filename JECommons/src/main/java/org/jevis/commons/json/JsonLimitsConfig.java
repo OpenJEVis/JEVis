@@ -37,7 +37,8 @@ public class JsonLimitsConfig {
     private String max;
     private String durationOverUnderRun;
     private String typeOfSubstituteValue;
-    private String defaultValue;
+    private String defaultMinValue;
+    private String defaultMaxValue;
     private String referencePeriod;
     private String bindToSpecific;
     private String referencePeriodCount;
@@ -90,13 +91,22 @@ public class JsonLimitsConfig {
         this.typeOfSubstituteValue = typeOfSubstituteValue;
     }
 
-    @XmlElement(name = "defaultvalue")
-    public String getDefaultvalue() {
-        return defaultValue;
+    @XmlElement(name = "defaultminvalue")
+    public String getDefaultMinValue() {
+        return defaultMinValue;
     }
 
-    public void setDefaultvalue(String defaultValue) {
-        this.defaultValue = defaultValue;
+    public void setDefaultMinValue(String defaultMinValue) {
+        this.defaultMinValue = defaultMinValue;
+    }
+
+    @XmlElement(name = "defaultmaxvalue")
+    public String getDefaultMaxValue() {
+        return defaultMaxValue;
+    }
+
+    public void setDefaultMaxValue(String defaultMaxValue) {
+        this.defaultMaxValue = defaultMaxValue;
     }
 
     @XmlElement(name = "referenceperiod")

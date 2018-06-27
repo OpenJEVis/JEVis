@@ -247,7 +247,8 @@ public class LimitsEditor implements AttributeEditor {
         JFXTextField _field_Max;
         JFXComboBox _field_Type_Of_Substitute_Value;
         JFXTextField _field_Duration_Over_Underrun;
-        JFXTextField _field_Default_Value;
+        JFXTextField _field_Default_Min_Value;
+        JFXTextField _field_Default_Max_Value;
         JFXComboBox _field_Reference_Period;
         JFXComboBox _field_Bound_Specific;
         JFXTextField _field_Reference_Period_Count;
@@ -280,11 +281,14 @@ public class LimitsEditor implements AttributeEditor {
         _field_Duration_Over_Underrun = new JFXTextField();
         _field_Duration_Over_Underrun.setEditable(!_readOnly);
 
-        _field_Default_Value = new JFXTextField();
-        _field_Default_Value.setEditable(!_readOnly);
+        _field_Default_Min_Value = new JFXTextField();
+        _field_Default_Min_Value.setEditable(!_readOnly);
+
+        _field_Default_Max_Value = new JFXTextField();
+        _field_Default_Max_Value.setEditable(!_readOnly);
+
         ObservableList<String> optionsReferencePeriod = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
                 GapFillingReferencePeriod.WEEK, GapFillingReferencePeriod.MONTH, GapFillingReferencePeriod.YEAR);
-
         _field_Reference_Period = new JFXComboBox(optionsReferencePeriod);
         _field_Reference_Period.setEditable(_readOnly);
 
@@ -301,7 +305,8 @@ public class LimitsEditor implements AttributeEditor {
         Label max = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.max"));
         Label typeOfSubstituteValue = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.typeOfSubstituteValue"));
         Label durationOverUnderRun = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.durationOverUnderRun"));
-        Label default_value = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.defaultvalue"));
+        Label defaultMinValue = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.defaultminvalue"));
+        Label defaultMaxValue = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.defaultmaxvalue"));
         Label reference_period = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.referenceperiod"));
         Label reference_period_count = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.referenceperiodcount"));
         Label boundtospecific = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.boundto"));
@@ -314,7 +319,8 @@ public class LimitsEditor implements AttributeEditor {
             _field_Max.setText(_listConfig.get(i).getMax());
             _field_Type_Of_Substitute_Value.setValue(_listConfig.get(i).getTypeOfSubstituteValue());
             _field_Duration_Over_Underrun.setText(_listConfig.get(i).getDurationOverUnderRun());
-            _field_Default_Value.setText(_listConfig.get(i).getDefaultvalue());
+            _field_Default_Min_Value.setText(_listConfig.get(i).getDefaultMinValue());
+            _field_Default_Max_Value.setText(_listConfig.get(i).getDefaultMaxValue());
             _field_Reference_Period.setValue(_listConfig.get(i).getReferenceperiod());
             _field_Reference_Period_Count.setText(_listConfig.get(i).getReferenceperiodcount());
             _field_Bound_Specific.setValue(_listConfig.get(i).getBindtospecific());
@@ -367,14 +373,27 @@ public class LimitsEditor implements AttributeEditor {
             }
         });
 
-        _field_Default_Value.textProperty().
+        _field_Default_Min_Value.textProperty().
 
                 addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) ->
 
                 {
-                    if (_listConfig.get(finalI).getDefaultvalue() == null || !_listConfig.get(finalI).getDefaultvalue().equals(newValue)) {
+                    if (_listConfig.get(finalI).getDefaultMinValue() == null || !_listConfig.get(finalI).getDefaultMinValue().equals(newValue)) {
                         logger.info("Value Changed: {}", newValue);
-                        _listConfig.get(finalI).setDefaultvalue(newValue);
+                        _listConfig.get(finalI).setDefaultMinValue(newValue);
+
+                        _changed.setValue(true);
+                    }
+                });
+
+        _field_Default_Max_Value.textProperty().
+
+                addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) ->
+
+                {
+                    if (_listConfig.get(finalI).getDefaultMaxValue() == null || !_listConfig.get(finalI).getDefaultMaxValue().equals(newValue)) {
+                        logger.info("Value Changed: {}", newValue);
+                        _listConfig.get(finalI).setDefaultMaxValue(newValue);
 
                         _changed.setValue(true);
                     }
@@ -418,21 +437,25 @@ public class LimitsEditor implements AttributeEditor {
                         _changed.setValue(true);
 
                         int row = 0;
-                        if (newValue.equals(GapFillingType.DEFAULT_VALUE) && !_gp.getChildren().contains(default_value)) {
+                        if (newValue.equals(GapFillingType.DEFAULT_VALUE) && !_gp.getChildren().contains(defaultMinValue)) {
                             _gp.getChildren().removeAll(reference_period, reference_period_count, _field_Reference_Period, _field_Reference_Period_Count,
                                     boundtospecific, _field_Bound_Specific, deleteConfig);
                             row = _gp.impl_getRowCount();
 
                             row++;
-                            _gp.add(default_value, 0, row);
-                            _gp.add(_field_Default_Value, 1, row);
+                            _gp.add(defaultMinValue, 0, row);
+                            _gp.add(_field_Default_Min_Value, 1, row);
+
+                            row++;
+                            _gp.add(defaultMaxValue, 0, row);
+                            _gp.add(_field_Default_Max_Value, 1, row);
 
                             row++;
                             _gp.add(deleteConfig, 3, row);
                         }
 
                         if (!_listConfig.get(finalI).getTypeOfSubstituteValue().equals(GapFillingType.DEFAULT_VALUE) && !_gp.getChildren().contains(reference_period)) {
-                            _gp.getChildren().removeAll(default_value, _field_Default_Value, deleteConfig);
+                            _gp.getChildren().removeAll(defaultMinValue, defaultMaxValue, _field_Default_Min_Value, _field_Default_Max_Value, deleteConfig);
                             row = _gp.impl_getRowCount();
 
                             row++;
@@ -450,9 +473,9 @@ public class LimitsEditor implements AttributeEditor {
                         }
 
                         if ((newValue.equals(GapFillingType.NONE) || newValue.equals(GapFillingType.STATIC))
-                                && (!_gp.getChildren().contains(default_value) || !_gp.getChildren().contains(reference_period))) {
+                                && (!_gp.getChildren().contains(defaultMinValue) || !_gp.getChildren().contains(reference_period))) {
                             _gp.getChildren().removeAll(reference_period, reference_period_count, _field_Reference_Period, _field_Reference_Period_Count,
-                                    boundtospecific, _field_Bound_Specific, default_value, _field_Default_Value);
+                                    boundtospecific, _field_Bound_Specific, defaultMinValue, defaultMaxValue, _field_Default_Min_Value, _field_Default_Max_Value);
                         }
 
                     }
@@ -499,8 +522,11 @@ public class LimitsEditor implements AttributeEditor {
             if (_listConfig.get(finalI).getTypeOfSubstituteValue().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getTypeOfSubstituteValue().equals(GapFillingType.STATIC)
                     && !_listConfig.get(finalI).getTypeOfSubstituteValue().equals(GapFillingType.NONE)) {
                 row++;
-                _gp.add(default_value, 0, row);
-                _gp.add(_field_Default_Value, 1, row);
+                _gp.add(defaultMinValue, 0, row);
+                _gp.add(_field_Default_Min_Value, 1, row);
+                row++;
+                _gp.add(defaultMaxValue, 0, row);
+                _gp.add(_field_Default_Max_Value, 1, row);
             }
 
             if (!_listConfig.get(finalI).getTypeOfSubstituteValue().equals(GapFillingType.DEFAULT_VALUE) && !_listConfig.get(finalI).getTypeOfSubstituteValue().equals(GapFillingType.STATIC)
