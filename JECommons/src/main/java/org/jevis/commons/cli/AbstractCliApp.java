@@ -77,7 +77,7 @@ public abstract class AbstractCliApp {
         init();
         if (active) {
             if (settings.servicemode.equals(BasicSettings.SINGLE)) {
-                runSingle();
+                runSingle(settings.jevisid);
             } else if (settings.servicemode.equals(BasicSettings.SERVICE)) {
                 runService(settings.cycle_time);
             } else if (settings.servicemode.equals(BasicSettings.COMPLETE)) {
@@ -182,7 +182,7 @@ public abstract class AbstractCliApp {
     /**
      * run for single mode business logic in this method
      */
-    protected abstract void runSingle();
+    protected abstract void runSingle(Long id);
 
     /**
      * run for service mode business logic in this method
