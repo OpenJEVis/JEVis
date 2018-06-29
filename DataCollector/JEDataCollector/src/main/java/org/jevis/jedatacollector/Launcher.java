@@ -197,15 +197,15 @@ public class Launcher extends AbstractCliApp {
     }
 
     @Override
-    protected void runSingle() {
+    protected void runSingle(Long id) {
         java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Single Mode");
         try {
             List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
 
-            for (long id : commands.ids) {
-                dataSources.add(ds.getObject(id));
-                logger.info("Single Mode for ID " + id + " added.");
-            }
+
+            dataSources.add(ds.getObject(id));
+            logger.info("Single Mode for ID " + id + " added.");
+
 
             excecuteDataSources(dataSources);
         } catch (Exception ex) {

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author broder
  */
 public class CalcLauncher extends AbstractCliApp {
@@ -28,7 +27,7 @@ public class CalcLauncher extends AbstractCliApp {
     private final Command commands = new Command();
     private static final String APP_INFO = "JECalculation ver. 2018-02-13 - JEVis - Energy Monitring Software";
     private Benchmark bench;
-    
+
     public CalcLauncher(String[] args) {
         super(args, APP_INFO);
     }
@@ -40,19 +39,19 @@ public class CalcLauncher extends AbstractCliApp {
     }
 
     public static void main(String[] args) {
-        java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE,APP_INFO);
+        java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, APP_INFO);
         CalcLauncher app = new CalcLauncher(args);
         app.execute();
     }
 
     private void run(CalcJobFactory calcJobCreator) {
-        
+
         while (calcJobCreator.hasNextJob()) {
             bench = new Benchmark();
             try {
                 CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds);
                 calcJob.execute();
-                bench.printBechmark("Calculation (ID: "+calcJob.getCalcObjectID()+") finished");
+                bench.printBechmark("Calculation (ID: " + calcJob.getCalcObjectID() + ") finished");
             } catch (Exception ex) {
                 logger.error("error with calculation job, aborted", ex);
             }
@@ -69,14 +68,13 @@ public class CalcLauncher extends AbstractCliApp {
     }
 
     @Override
-    protected void runSingle() {
+    protected void runSingle(Long id) {
         java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Single Mode");
         try {
             List<JEVisObject> calcObjects = new ArrayList<>();
 
-            for (long id : commands.ids) {
-                calcObjects.add(ds.getObject(id));
-            }
+            calcObjects.add(ds.getObject(id));
+
             CalcJobFactory calcJobCreator = new CalcJobFactory(calcObjects);
             run(calcJobCreator);
         } catch (Exception ex) {
@@ -110,7 +108,7 @@ public class CalcLauncher extends AbstractCliApp {
         }
         return jevisObjects;
     }
-    
+
     private List<JEVisObject> getEnabledCalcJobs(List<JEVisObject> jevisCalcObjects) {
         List<JEVisObject> enabledObjects = new ArrayList<>();
         SampleHandler sampleHandler = new SampleHandler();

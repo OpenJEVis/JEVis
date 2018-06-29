@@ -64,6 +64,10 @@ public class BasicSettings {
     @Parameter(names = {"--servicemode", "-sm"}, required = false,  description = DESC_MODE, validateWith = CliServiceModeValidator.class)
     public String servicemode = COMPLETE;
 
+    private static final String DESC_JEVISID = "JEVis Object ID";
+    @Parameter(names = {"--jevisid", "-jid"}, required = false, description = DESC_JEVISID)
+    public Long jevisid;
+
 
     private static final String CYCLE_TIME = "Cycle Time";
     @Parameter(names = {"--cycle-time", "cc"}, required = false, description = CYCLE_TIME)
