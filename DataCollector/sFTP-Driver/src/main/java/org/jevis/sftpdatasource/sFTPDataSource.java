@@ -5,11 +5,16 @@
  */
 package org.jevis.sftpdatasource;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpException;
+import com.jcraft.jsch.*;
+import org.apache.commons.net.ftp.FTPClient;
+import org.jevis.api.*;
+import org.jevis.commons.DatabaseHelper;
+import org.jevis.commons.cli.JEVisCommandLine;
+import org.jevis.commons.driver.*;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,29 +22,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisType;
-import org.jevis.commons.DatabaseHelper;
-import org.jevis.commons.cli.JEVisCommandLine;
-import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.DataSource;
-import org.jevis.commons.driver.DataSourceHelper;
-import org.jevis.commons.driver.Importer;
-import org.jevis.commons.driver.ImporterFactory;
-import org.jevis.commons.driver.JEVisImporterAdapter;
-import org.jevis.commons.driver.Parser;
-import org.jevis.commons.driver.ParserFactory;
-import org.jevis.commons.driver.Result;
-import org.jevis.commons.driver.inputHandler.InputHandler;
-import org.jevis.commons.driver.inputHandler.InputHandlerFactory;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
 
 public class sFTPDataSource implements DataSource {
 
@@ -156,7 +138,7 @@ public class sFTPDataSource implements DataSource {
             JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.PATH);
             String filePath = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
-            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
+            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"));
 
 //        ChannelSftp sftp = (ChannelSftp) _channel;
             org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "SendSampleRequest");
