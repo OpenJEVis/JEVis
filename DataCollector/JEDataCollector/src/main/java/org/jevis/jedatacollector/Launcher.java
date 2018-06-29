@@ -204,6 +204,7 @@ public class Launcher extends AbstractCliApp {
 
             for (long id : commands.ids) {
                 dataSources.add(ds.getObject(id));
+                logger.info("Single Mode for ID " + id + " added.");
             }
 
             excecuteDataSources(dataSources);
