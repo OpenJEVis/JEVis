@@ -50,6 +50,14 @@
   ],
   "types": [
     {
+      "name": "Charset",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
       "name": "Datapoint Index",
       "primitiveType": 2,
       "GUIPosition": 0,
