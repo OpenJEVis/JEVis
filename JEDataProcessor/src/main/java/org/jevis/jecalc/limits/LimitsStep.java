@@ -54,50 +54,51 @@ public class LimitsStep implements ProcessStep {
 
         List<JsonLimitsConfig> conf = calcAttribute.getLimitsConfig();
 
-        //identify limitbreaking intervals
-        List<LimitBreak> limitBreaks = identifyLimitBreaks(intervals, conf);
-        logger.info("{} limit breaks identified", limitBreaks.size());
+        if (Objects.nonNull(conf)) {
+            //identify limitbreaking intervals
+            List<LimitBreak> limitBreaks = identifyLimitBreaks(intervals, conf);
+            logger.info("{} limit breaks identified", limitBreaks.size());
 
-        if (limitBreaks.isEmpty()) { //no limit checks when there is no alignment
-            return;
-        }
+            if (limitBreaks.isEmpty()) { //no limit checks when there is no alignment
+                return;
+            }
 
-        for (JsonLimitsConfig c : conf) {
-            logger.info("start filling with Mode for " + c.getTypeOfSubstituteValue());
-            List<LimitBreak> newLimitBreaks = new ArrayList<>();
-            for (LimitBreak lb : limitBreaks) {
-                DateTime firstDate = lb.getIntervals().get(0).getDate();
-                DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
-                if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getDurationOverUnderRun())) {
-                    newLimitBreaks.add(lb);
-                }
+            for (JsonLimitsConfig c : conf) {
+                logger.info("start filling with Mode for " + c.getTypeOfSubstituteValue());
+                List<LimitBreak> newLimitBreaks = new ArrayList<>();
+                for (LimitBreak lb : limitBreaks) {
+                    DateTime firstDate = lb.getIntervals().get(0).getDate();
+                    DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
+                    if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getDurationOverUnderRun())) {
+                        newLimitBreaks.add(lb);
+                    }
 
-                switch (c.getTypeOfSubstituteValue()) {
-                    case GapFillingType.NONE:
-                        break;
-                    case GapFillingType.STATIC:
-                        fillStatic(newLimitBreaks);
-                        break;
-                    case GapFillingType.INTERPOLATION:
-                        fillInterpolation(newLimitBreaks);
-                        break;
-                    case GapFillingType.DEFAULT_VALUE:
-                        Double defaultMinValue = Double.valueOf(c.getDefaultMinValue());
-                        Double defaultMaxValue = Double.valueOf(c.getDefaultMaxValue());
-                        fillDefault(newLimitBreaks, defaultMinValue, defaultMaxValue);
-                        break;
-                    case GapFillingType.MEDIAN:
-                        fillMedian(newLimitBreaks, c);
-                        break;
-                    case GapFillingType.AVERAGE:
-                        fillAverage(newLimitBreaks, c);
-                        break;
-                    default:
-                        break;
+                    switch (c.getTypeOfSubstituteValue()) {
+                        case GapFillingType.NONE:
+                            break;
+                        case GapFillingType.STATIC:
+                            fillStatic(newLimitBreaks);
+                            break;
+                        case GapFillingType.INTERPOLATION:
+                            fillInterpolation(newLimitBreaks);
+                            break;
+                        case GapFillingType.DEFAULT_VALUE:
+                            Double defaultMinValue = Double.valueOf(c.getDefaultMinValue());
+                            Double defaultMaxValue = Double.valueOf(c.getDefaultMaxValue());
+                            fillDefault(newLimitBreaks, defaultMinValue, defaultMaxValue);
+                            break;
+                        case GapFillingType.MEDIAN:
+                            fillMedian(newLimitBreaks, c);
+                            break;
+                        case GapFillingType.AVERAGE:
+                            fillAverage(newLimitBreaks, c);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
-
         stopWatch.stop();
     }
 
