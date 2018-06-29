@@ -163,8 +163,10 @@ public class JEVisCSVParser implements Parser {
     @Override
     public void initialize(JEVisObject parserObject) {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Initialize JEVisCSVParser build: " + VERSION);
+        System.out.println("Initialize JEVisCSVParser build: " + VERSION);
 
         initializeAttributes(parserObject);
+        System.out.println("initialized Attributes");
 
         Converter converter = ConverterFactory.getConverter(parserObject);
         _csvParser.setConverter(converter);

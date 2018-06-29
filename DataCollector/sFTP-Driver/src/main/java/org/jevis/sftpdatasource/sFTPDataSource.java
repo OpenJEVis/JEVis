@@ -70,6 +70,7 @@ public class sFTPDataSource implements DataSource {
                 System.out.println("Size listInputStreams: " + input.size());
 
                 if (!input.isEmpty()) {
+                    System.out.println("Starting parsing");
                     this.parse(input);
                 }
 
@@ -78,6 +79,7 @@ public class sFTPDataSource implements DataSource {
 //                    this.importResult();
 //
 //                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
+                    System.out.println("Starting importing into JEVis");
                     JEVisImporterAdapter.importResults(_result, _importer, channel);
                 }
             } catch (Exception ex) {
@@ -142,12 +144,10 @@ public class sFTPDataSource implements DataSource {
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"));
 
 //        ChannelSftp sftp = (ChannelSftp) _channel;
-            System.out.println("SendSampleRequest");
             List<String> fileNames = DataSourceHelper.getSFTPMatchedFileNames(_channel, lastReadout, filePath);
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
             for (String fileName : fileNames) {
                 org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "FileInputName: " + fileName);
-                System.out.println("FileInputName" + fileName);
 
 //                ByteArrayOutputStream out = new ByteArrayOutputStream();
 //                String query = Paths.get(fileName);
@@ -171,7 +171,6 @@ public class sFTPDataSource implements DataSource {
                 answerList.add(answer);
 
             }
-            System.out.println("answerlistsize: " + answerList.size());
 
             _channel.disconnect();
             _session.disconnect();
