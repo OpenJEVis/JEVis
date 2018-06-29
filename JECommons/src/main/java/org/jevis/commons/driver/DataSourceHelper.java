@@ -398,7 +398,6 @@ public class DataSourceHelper {
                     String currentFileName = currentFile.getFilename();
                     currentFileName = removeFoler(currentFileName, folder);
                     boolean match = false;
-                    System.out.println(currentFileName);
                     if (DataSourceHelper.containsTokens(fileNameScheme)) {
                         boolean matchDate = matchDateString(currentFileName, fileNameScheme);
                         DateTime folderTime = getFileTime(folder + currentFileName, pathStream);
@@ -425,7 +424,6 @@ public class DataSourceHelper {
         if (folderPathes.isEmpty()) {
             org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Cant find suitable files on the device");
         }
-        System.out.println("filenamesize" + fileNames.size());
         return fileNames;
     }
 

@@ -142,7 +142,7 @@ public class sFTPDataSource implements DataSource {
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"));
 
 //        ChannelSftp sftp = (ChannelSftp) _channel;
-            org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "SendSampleRequest");
+            System.out.println("SendSampleRequest");
             List<String> fileNames = DataSourceHelper.getSFTPMatchedFileNames(_channel, lastReadout, filePath);
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
             for (String fileName : fileNames) {
@@ -171,6 +171,7 @@ public class sFTPDataSource implements DataSource {
                 answerList.add(answer);
 
             }
+            System.out.println("answerlistsize: " + answerList.size());
 
             _channel.disconnect();
             _session.disconnect();
