@@ -67,6 +67,7 @@ public class sFTPDataSource implements DataSource {
                 _parser.initialize(parser);
 
                 List<InputStream> input = this.sendSampleRequest(channel);
+                System.out.println("Size listInputStreams: " + input.size());
 
                 if (!input.isEmpty()) {
                     this.parse(input);
@@ -146,6 +147,7 @@ public class sFTPDataSource implements DataSource {
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
             for (String fileName : fileNames) {
                 org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "FileInputName: " + fileName);
+                System.out.println("FileInputName" + fileName);
 
 //                ByteArrayOutputStream out = new ByteArrayOutputStream();
 //                String query = Paths.get(fileName);

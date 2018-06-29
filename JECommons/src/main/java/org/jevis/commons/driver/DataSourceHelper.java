@@ -22,22 +22,6 @@ package org.jevis.commons.driver;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.SftpException;
-import java.io.IOException;
-import java.security.SecureRandom;
-import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -46,6 +30,17 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
+
+import javax.net.ssl.*;
+import java.io.IOException;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -65,11 +60,11 @@ public class DataSourceHelper {
                     return null;
                 }
 
-                public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
                     return;
                 }
 
-                public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
                     return;
                 }
             }
@@ -265,11 +260,7 @@ public class DataSourceHelper {
     }
 
     private static boolean containsDateToken(String string) {
-        if (string.contains("${D:")) {
-            return true;
-        } else {
-            return false;
-        }
+        return string.contains("${D:");
     }
 
     public static String[] getPathTokens(String filePath) {
@@ -366,11 +357,7 @@ public class DataSourceHelper {
     }
 
     public static Boolean containsTokens(String path) {
-        if (path.contains("${")) {
-            return true;
-        } else {
-            return false;
-        }
+        return path.contains("${");
     }
 
     public static List<String> getSFTPMatchedFileNames(ChannelSftp _channel, DateTime lastReadout, String filePath) {
@@ -438,7 +425,7 @@ public class DataSourceHelper {
         if (folderPathes.isEmpty()) {
             org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Cant find suitable files on the device");
         }
-//        System.out.println("filenamesize"+fileNames.size());
+        System.out.println("filenamesize" + fileNames.size());
         return fileNames;
     }
 
