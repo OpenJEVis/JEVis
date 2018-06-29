@@ -259,9 +259,6 @@ public class Launcher extends AbstractCliApp {
 
     protected class Command {
 
-        @Parameter(names = {"--jevisid", "-jid"}, description = "if servicemode is 'single', then you can put the JEVis id of the alarm objects you want to run", required = false)
-        private List<Long> ids = new ArrayList<>();
-
         @Parameter(names = {"--driver-folder", "-df"}, description = "Sets the root folder for the driver structure")
         private String driverFolder;
     }
