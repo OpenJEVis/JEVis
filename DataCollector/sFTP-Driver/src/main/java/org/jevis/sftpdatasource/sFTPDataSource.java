@@ -49,8 +49,10 @@ public class sFTPDataSource implements DataSource {
 
     @Override
     public void parse(List<InputStream> input) {
+        System.out.println("parser size: " + input.size());
         _parser.parse(input, _timezone);
         _result = _parser.getResult();
+        System.out.println("Result: " + _result.size());
     }
 
     @Override
