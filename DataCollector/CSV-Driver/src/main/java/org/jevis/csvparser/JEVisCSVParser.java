@@ -20,13 +20,6 @@
  */
 package org.jevis.csvparser;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -34,14 +27,18 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.commons.DatabaseHelper;
-import org.jevis.commons.driver.Converter;
-import org.jevis.commons.driver.ConverterFactory;
-import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.Parser;
-import org.jevis.commons.driver.Result;
+import org.jevis.commons.driver.*;
 import org.jevis.commons.driver.inputHandler.GenericConverter;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -113,67 +110,6 @@ public class JEVisCSVParser implements Parser {
         System.out.println("results are equals: "+otherResult.containsAll(result));
     }
 
-    interface CSVParserTypes extends DataCollectorTypes.Parser {
-
-        public final static String NAME = "CSV Parser";
-        public final static String DATAPOINT_INDEX = "Datapoint Index";
-        public final static String DATAPOINT_TYPE = "Datapoint Alignment";
-        public final static String DATE_INDEX = "Date Index";
-        public final static String DELIMITER = "Delimiter";
-        public final static String NUMBER_HEADLINES = "Number Of Headlines";
-        public final static String QUOTE = "Quote";
-        public final static String TIME_INDEX = "Time Index";
-        public final static String DATE_FORMAT = "Date Format";
-        public final static String DECIMAL_SEPERATOR = "Decimal Separator";
-        public final static String TIME_FORMAT = "Time Format";
-        public final static String THOUSAND_SEPERATOR = "Thousand Separator";
-    }
-
-    interface CSVDataPointDirectoryTypes extends DataCollectorTypes.DataPointDirectory {
-
-        public final static String NAME = "CSV Data Point Directory";
-    }
-
-    interface CSVDataPointTypes extends DataCollectorTypes.DataPoint {
-
-        public final static String NAME = "CSV Data Point";
-        public final static String MAPPING_IDENTIFIER = "Mapping Identifier";
-        public final static String VALUE_INDEX = "Value Index";
-        public final static String TARGET = "Target";
-
-    }
-
-    private CSVParser _csvParser;
-
-    /**
-     *
-     * @param inputList
-     * @param timeZone
-     */
-    @Override
-    public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
-        _csvParser.parse(inputList, timeZone);
-    }
-
-    @Override
-    public List<Result> getResult() {
-        return _csvParser.getResult();
-    }
-
-    @Override
-    public void initialize(JEVisObject parserObject) {
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Initialize JEVisCSVParser build: " + VERSION);
-        System.out.println("Initialize JEVisCSVParser build: " + VERSION);
-
-        initializeAttributes(parserObject);
-        System.out.println("initialized Attributes");
-
-        Converter converter = ConverterFactory.getConverter(parserObject);
-        _csvParser.setConverter(converter);
-
-        initializeCSVDataPointParser(parserObject);
-    }
-
     private void initializeAttributes(JEVisObject parserObject) {
         try {
 
@@ -215,7 +151,7 @@ public class JEVisCSVParser implements Parser {
             if (timeIndex != null) {
                 timeIndex--;
             }
-            
+
             String charset = DatabaseHelper.getObjectAsString(parserObject, charsetType);
             Charset cset;
             if(charset==null || charset.equals("")){
@@ -223,7 +159,7 @@ public class JEVisCSVParser implements Parser {
             } else {
                cset = Charset.forName(charset);
             }
-            
+
             String dateFormat = DatabaseHelper.getObjectAsString(parserObject, dateFormatType);
 
             String timeFormat = DatabaseHelper.getObjectAsString(parserObject, timeFormatType);
@@ -234,17 +170,29 @@ public class JEVisCSVParser implements Parser {
 
             _csvParser = new CSVParser();
             _csvParser.setDateFormat(dateFormat);
+            System.out.println("Date Format: " + dateFormat);
             _csvParser.setDateIndex(dateIndex);
+            System.out.println("DateIndex: " + dateIndex);
             _csvParser.setDecimalSeperator(decimalSeperator);
+            System.out.println("DecimalSeparator" + decimalSeperator);
             _csvParser.setDelim(delim);
+            System.out.println("delim: " + delim);
             _csvParser.setDpIndex(dpIndex);
+            System.out.println("dpIndex: " + dpIndex);
             _csvParser.setDpType(dpType);
+            System.out.println("dpType: " + dpType);
             _csvParser.setHeaderLines(headerLines);
+            System.out.println("headerlines: " + headerLines);
             _csvParser.setQuote(quote);
+            System.out.println("quote: " + quote);
             _csvParser.setThousandSeperator(thousandSeperator);
+            System.out.println("thousandsSeparator: " + thousandSeperator);
             _csvParser.setTimeFormat(timeFormat);
+            System.out.println("timeFormat: " + timeFormat);
             _csvParser.setTimeIndex(timeIndex);
+            System.out.println("timeIndex: " + timeIndex);
             _csvParser.setCharset(cset);
+            System.out.println("charset: " + cset);
 
         } catch (JEVisException ex) {
             Logger.getLogger(org.jevis.csvparser.JEVisCSVParser.class
@@ -254,12 +202,14 @@ public class JEVisCSVParser implements Parser {
 
     private void initializeCSVDataPointParser(JEVisObject parserObject) {
         try {
+            System.out.println("initialize csvDataPointParser");
             JEVisClass dirClass = parserObject.getDataSource().getJEVisClass(CSVDataPointDirectoryTypes.NAME);
             JEVisObject dir = parserObject.getChildren(dirClass, true).get(0);
             JEVisClass dpClass = parserObject.getDataSource().getJEVisClass(CSVDataPointTypes.NAME);
             List<JEVisObject> dataPoints = dir.getChildren(dpClass, true);
             List<DataPoint> csvdatapoints = new ArrayList<DataPoint>();
             for (JEVisObject dp : dataPoints) {
+                System.out.println("DataPoint: " + dp.getName() + " ID: " + dp.getID());
                 JEVisType mappingIdentifierType = dpClass.getType(CSVDataPointTypes.MAPPING_IDENTIFIER);
                 JEVisType targetType = dpClass.getType(CSVDataPointTypes.TARGET);
                 JEVisType valueIdentifierType = dpClass.getType(CSVDataPointTypes.VALUE_INDEX);
@@ -294,5 +244,65 @@ public class JEVisCSVParser implements Parser {
         } catch (JEVisException ex) {
             java.util.logging.Logger.getLogger(JEVisCSVParser.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+    }
+
+    interface CSVParserTypes extends DataCollectorTypes.Parser {
+
+        String NAME = "CSV Parser";
+        String DATAPOINT_INDEX = "Datapoint Index";
+        String DATAPOINT_TYPE = "Datapoint Alignment";
+        String DATE_INDEX = "Date Index";
+        String DELIMITER = "Delimiter";
+        String NUMBER_HEADLINES = "Number Of Headlines";
+        String QUOTE = "Quote";
+        String TIME_INDEX = "Time Index";
+        String DATE_FORMAT = "Date Format";
+        String DECIMAL_SEPERATOR = "Decimal Separator";
+        String TIME_FORMAT = "Time Format";
+        String THOUSAND_SEPERATOR = "Thousand Separator";
+    }
+
+    private CSVParser _csvParser;
+
+    /**
+     * @param inputList
+     * @param timeZone
+     */
+    @Override
+    public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
+        _csvParser.parse(inputList, timeZone);
+    }
+
+    @Override
+    public List<Result> getResult() {
+        return _csvParser.getResult();
+    }
+
+    @Override
+    public void initialize(JEVisObject parserObject) {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Initialize JEVisCSVParser build: " + VERSION);
+        System.out.println("Initialize JEVisCSVParser build: " + VERSION);
+
+        initializeAttributes(parserObject);
+        System.out.println("initialized Attributes");
+
+        Converter converter = ConverterFactory.getConverter(parserObject);
+        _csvParser.setConverter(converter);
+
+        initializeCSVDataPointParser(parserObject);
+    }
+
+    interface CSVDataPointDirectoryTypes extends DataCollectorTypes.DataPointDirectory {
+
+        String NAME = "CSV Data Point Directory";
+    }
+
+    interface CSVDataPointTypes extends DataCollectorTypes.DataPoint {
+
+        String NAME = "CSV Data Point";
+        String MAPPING_IDENTIFIER = "Mapping Identifier";
+        String VALUE_INDEX = "Value Index";
+        String TARGET = "Target";
+
     }
 }
