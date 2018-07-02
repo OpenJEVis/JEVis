@@ -275,6 +275,7 @@ public class JEVisCSVParser implements Parser {
 
     @Override
     public List<Result> getResult() {
+        System.out.println("getResult form JEVisCSVParser: " + _csvParser.getResult().size());
         return _csvParser.getResult();
     }
 

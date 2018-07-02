@@ -195,6 +195,7 @@ public class CSVParser {
 //                ex.printStackTrace();
             }
         }
+        System.out.println("Results: " + _results.size());
     }
 
     // interfaces
@@ -227,6 +228,7 @@ public class CSVParser {
             _converter.convertInput(inputStream, charset);
             String[] stringArrayInput = (String[]) _converter.getConvertedInput(String[].class);
             Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Total count of lines " + stringArrayInput.length);
+            System.out.println("Total count of lines: " + stringArrayInput.length);
             if (dpType != null && dpType.equals("ROW")) {
                 calculateColumns(stringArrayInput[_dpIndex]);
             }
@@ -317,6 +319,7 @@ public class CSVParser {
     }
 
     public List<Result> getResult() {
+        System.out.println("getResult: " + _results.size());
         return _results;
     }
 
