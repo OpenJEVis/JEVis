@@ -188,7 +188,9 @@ public class CSVParser {
 //                if (mappingError) {
 //                    continue;
 //                }
-                _results.add(new Result(target, value, dateTime));
+                Result tempResult = new Result(target, value, dateTime);
+                System.out.println("tempResult: " + target + " Value: " + value + " dateTime: " + dateTime);
+                _results.add(tempResult);
                 _report.addSuccess(_currLineIndex, valueIndex);
             } catch (Exception ex) {
                 _report.addError(new LineError(_currLineIndex, -2, ex, "Unexpected Exception"));
