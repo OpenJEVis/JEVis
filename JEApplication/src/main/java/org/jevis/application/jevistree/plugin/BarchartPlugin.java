@@ -373,7 +373,7 @@ public class BarchartPlugin implements TreePlugin {
         ChoiceBox aggrigate = new ChoiceBox();
         aggrigate.setItems(FXCollections.observableArrayList(aggList));
         aggrigate.getSelectionModel().selectFirst();
-        switch (data.getAggrigation()) {
+        switch (data.getAggregation()) {
             case None:
                 aggrigate.valueProperty().setValue(keyPreset);
                 break;
@@ -398,15 +398,15 @@ public class BarchartPlugin implements TreePlugin {
                 //TODO:replace this quick and dirty workaround
 
                 if (newValue.equals(keyPreset)) {
-                    data.setAggrigation(AGGREGATION.None);
+                    data.setAggregation(AGGREGATION.None);
                 } else if (newValue.equals(keyDaily)) {
-                    data.setAggrigation(AGGREGATION.Daily);
+                    data.setAggregation(AGGREGATION.Daily);
                 } else if (newValue.equals(keyWeekly)) {
-                    data.setAggrigation(AGGREGATION.Weekly);
+                    data.setAggregation(AGGREGATION.Weekly);
                 } else if (newValue.equals(keyMonthly)) {
-                    data.setAggrigation(AGGREGATION.Monthly);
+                    data.setAggregation(AGGREGATION.Monthly);
                 } else if (newValue.equals(keyYearly)) {
-                    data.setAggrigation(AGGREGATION.Yearly);
+                    data.setAggregation(AGGREGATION.Yearly);
                 }
 
 
@@ -426,7 +426,7 @@ public class BarchartPlugin implements TreePlugin {
 
                 DataModel data = getData(param.getValue().getValue());
 
-                return new ReadOnlyObjectWrapper<>(data.getAggrigation());
+                return new ReadOnlyObjectWrapper<>(data.getAggregation());
 //                return param.getValue().getValue().getJEVisObject();
             }
         });
@@ -783,7 +783,7 @@ public class BarchartPlugin implements TreePlugin {
         private Color _color = Color.LIGHTBLUE;
         private boolean _selected = false;
         private Process _task = null;
-        private AGGREGATION aggrigation = AGGREGATION.None;
+        private AGGREGATION aggregation = AGGREGATION.None;
         private JEVisObject _dataProcessorObject = null;
         private List<JEVisSample> samples = new ArrayList<>();
         private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<>();
@@ -821,30 +821,30 @@ public class BarchartPlugin implements TreePlugin {
                 try {
                     JEVisDataSource ds = _object.getDataSource();
                     Process aggrigate = null;
-                    if (aggrigation == AGGREGATION.None) {
+                    if (aggregation == AGGREGATION.None) {
 
-                    } else if (aggrigation == AGGREGATION.Daily) {
+                    } else if (aggregation == AGGREGATION.Daily) {
                         aggrigate = new BasicProcess();
                         aggrigate.setJEVisDataSource(ds);
                         aggrigate.setID("Dynamic");
                         aggrigate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.days(1).toString());
                         aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
-                    } else if (aggrigation == AGGREGATION.Monthly) {
+                    } else if (aggregation == AGGREGATION.Monthly) {
                         aggrigate = new BasicProcess();
                         aggrigate.setJEVisDataSource(ds);
                         aggrigate.setID("Dynamic");
                         aggrigate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.months(1).toString());
                         aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
-                    } else if (aggrigation == AGGREGATION.Weekly) {
+                    } else if (aggregation == AGGREGATION.Weekly) {
                         aggrigate = new BasicProcess();
                         aggrigate.setJEVisDataSource(ds);
                         aggrigate.setID("Dynamic");
                         aggrigate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.weeks(1).toString());
                         aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
-                    } else if (aggrigation == AGGREGATION.Yearly) {
+                    } else if (aggregation == AGGREGATION.Yearly) {
 //                        System.out.println("year.....  " + Period.years(1).toString());
                         aggrigate = new BasicProcess();
                         aggrigate.setJEVisDataSource(ds);
@@ -919,13 +919,13 @@ public class BarchartPlugin implements TreePlugin {
             this._dataProcessorObject = _dataProcessor;
         }
 
-        public AGGREGATION getAggrigation() {
-            return aggrigation;
+        public AGGREGATION getAggregation() {
+            return aggregation;
         }
 
-        public void setAggrigation(AGGREGATION aggrigation) {
+        public void setAggregation(AGGREGATION aggregation) {
             _somethineChanged = true;
-            this.aggrigation = aggrigation;
+            this.aggregation = aggregation;
         }
 
         public boolean getSelected() {

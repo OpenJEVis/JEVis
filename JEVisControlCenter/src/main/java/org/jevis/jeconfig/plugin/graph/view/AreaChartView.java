@@ -5,21 +5,10 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.chart.AreaChart;
@@ -29,16 +18,9 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
@@ -53,8 +35,14 @@ import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
+
 /**
- *
  * @author broder
  */
 public class AreaChartView implements Observer {
@@ -87,12 +75,24 @@ public class AreaChartView implements Observer {
         TableColumn dateCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.date"));
         dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, Color>("date"));
 
+        TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
+        minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
+
+        TableColumn maxCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.max"));
+        maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
+
+        TableColumn avgCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.avg"));
+        avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
+
+        TableColumn sumCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.sum"));
+        sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
+
         final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
         TableEntry tableEntry = new TableEntry("testeintrag");
         tableData.add(tableEntry);
         table.setItems(tableData);
 
-        table.getColumns().addAll(name, colorCol, value, dateCol);
+        table.getColumns().addAll(name, colorCol, value, dateCol, minCol, maxCol, avgCol, sumCol);
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn(String columnName) {
@@ -101,19 +101,16 @@ public class AreaChartView implements Observer {
         column.setMaxWidth(100);
         column.setMinWidth(100);
 
-        column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<TableEntry, Color>, ObservableValue<Color>>() {
-            @Override
-            public ObservableValue<Color> call(TableColumn.CellDataFeatures<TableEntry, Color> param) {
-                System.out.println("CellFactory: " + param);
+        column.setCellValueFactory(param -> {
+            System.out.println("CellFactory: " + param);
 //                return new Simpleob<Color>
 
 //                Color newColor = Color.valueOf(param.getValue().colorProperty().getName());
 //                ObservableValue<Color> obColor = new SimpleObjectProperty<Color>(newColor);
-                return new SimpleObjectProperty<Color>(param.getValue().getColor());
+            return new SimpleObjectProperty<>(param.getValue().getColor());
 
 //                return obColor;
 //                return param.getValue().colorProperty();
-            }
         });
         column.setCellFactory(new Callback<TableColumn<TableEntry, Color>, TableCell<TableEntry, Color>>() {
             @Override
@@ -198,6 +195,7 @@ public class AreaChartView implements Observer {
 
     private void drawAreaChart() throws JEVisException {
         tableData.clear();
+        String unit = "";
         Set<BarchartPlugin.DataModel> selectedData = dataModel.getSelectedData();
 
         ObservableList<XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
@@ -220,11 +218,28 @@ public class AreaChartView implements Observer {
 
             singleRow.setTableEntry(tableEntry);
             tableData.add(tableEntry);
+            Boolean isQuantitiy = false;
+            Double min = 0.0;
+            Double max = 0.0;
+            Double avg;
+            Double sum = 0.0;
 
             for (JEVisSample sample : samples) {
+                if (Objects.nonNull(sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample())) {
+                    if (sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
+
+                        isQuantitiy = true;
+                    }
+                }
+                unit = sample.getUnit().getLabel();
                 sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
                 DateTime dateTime = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
+                if (isQuantitiy) {
+                    min = Math.min(value, min);
+                    max = Math.max(value, max);
+                    sum += value;
+                }
 //                Date date = dateTime.toGregorianCalendar().getTime();
                 Long timestamp = dateTime.getMillis();
                 XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
@@ -235,6 +250,18 @@ public class AreaChartView implements Observer {
                 data.setNode(rect);
                 series1Data.add(data);
             }
+            if (isQuantitiy) {
+                avg = sum / samples.size();
+                NumberFormat nf_out = NumberFormat.getNumberInstance();
+                nf_out.setMaximumFractionDigits(2);
+                nf_out.setMinimumFractionDigits(2);
+
+                tableEntry.setMin(nf_out.format(min) + " " + unit);
+                tableEntry.setMax(nf_out.format(max) + " " + unit);
+                tableEntry.setAvg(nf_out.format(avg) + " " + unit);
+                tableEntry.setSum(nf_out.format(sum) + " " + unit);
+            }
+
             XYChart.Series<Number, Number> currentSerie = new XYChart.Series<>(singleRow.getObject().getName(), series1Data);
             currentSerie.setName("test");
             singleRow.setSampleMap(sampleMap);
@@ -282,63 +309,55 @@ public class AreaChartView implements Observer {
         areaChart.getXAxis().setAutoRanging(true);
         areaChart.getYAxis().setAutoRanging(true);
 
-        areaChart.setOnMouseMoved(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                Double valueForDisplay = (Double) areaChart.getXAxis().getValueForDisplay(mouseEvent.getX());
+        String finalUnit = unit;
+        areaChart.setOnMouseMoved(mouseEvent -> {
+            Double valueForDisplay = (Double) areaChart.getXAxis().getValueForDisplay(mouseEvent.getX());
 //                List<Double> values = new ArrayList<>();
-                for (BarchartPlugin.DataModel singleRow : selectedData) {
-                    try {
-                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay);
-                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay);
-                        Double nearest = higherKey;
-                        if (lowerKey - valueForDisplay < higherKey - valueForDisplay) {
-                            nearest = lowerKey;
-                        }
+            for (BarchartPlugin.DataModel singleRow : selectedData) {
+                try {
+                    Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay);
+                    Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay);
+                    Double nearest = higherKey;
+                    if (lowerKey - valueForDisplay < higherKey - valueForDisplay) {
+                        nearest = lowerKey;
+                    }
 
 //                    try {
 //                        System.out.println("here");
-                        Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
-                        TableEntry tableEntry = singleRow.getTableEntry();
-                        DateTime dateTime = new DateTime(Math.round(nearest));
-                        tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                        tableEntry.setValue(valueAsDouble.toString());
-                        table.layout();
-                    } catch (Exception ex) {
+                    Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
+                    TableEntry tableEntry = singleRow.getTableEntry();
+                    DateTime dateTime = new DateTime(Math.round(nearest));
+                    tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                    tableEntry.setValue(valueAsDouble.toString() + finalUnit);
+                    table.layout();
+                } catch (Exception ex) {
 //                        Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);
-                    }
                 }
+            }
 //                System.out.println(valueForDisplay);
 //                for (Double d : values) {
 //                    System.out.println(d);
 //                }
 
-            }
         });
 
         ChartPanManager panner = new ChartPanManager(areaChart);
-        panner.setMouseFilter(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                System.out.println("mouse event");
-                if (mouseEvent.getButton() == MouseButton.SECONDARY
-                        || (mouseEvent.getButton() == MouseButton.PRIMARY
-                        && mouseEvent.isShortcutDown())) {
-                    //let it through
-                } else {
-                    mouseEvent.consume();
-                }
+        panner.setMouseFilter(mouseEvent -> {
+            System.out.println("mouse event");
+            if (mouseEvent.getButton() == MouseButton.SECONDARY
+                    || (mouseEvent.getButton() == MouseButton.PRIMARY
+                    && mouseEvent.isShortcutDown())) {
+                //let it through
+            } else {
+                mouseEvent.consume();
             }
         });
         panner.start();
-        areaChartRegion = JFXChartUtil.setupZooming(areaChart, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                System.out.println("zooming");
-                if (mouseEvent.getButton() != MouseButton.PRIMARY
-                        || mouseEvent.isShortcutDown()) {
-                    mouseEvent.consume();
-                }
+        areaChartRegion = JFXChartUtil.setupZooming(areaChart, mouseEvent -> {
+            System.out.println("zooming");
+            if (mouseEvent.getButton() != MouseButton.PRIMARY
+                    || mouseEvent.isShortcutDown()) {
+                mouseEvent.consume();
             }
         });
 

@@ -20,8 +20,6 @@
  */
 package org.jevis.application.dialog;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -115,24 +113,21 @@ public class GraphSelectionDialog {
         VBox.setVgrow(buttonBox, Priority.NEVER);
 
 //        stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
-        ok.setOnAction(new EventHandler<ActionEvent>() {
+        ok.setOnAction(event -> {
+            tree.setUserSelectionEnded();
+            _response = Response.OK;
 
-            @Override
-            public void handle(ActionEvent event) {
-                tree.setUserSelectionEnded();
-                _response = Response.OK;
+            System.out.println("Results");
+            for (TreePlugin plugin : tree.getPlugins()) {
+                if (plugin instanceof BarchartPlugin) {
+                    System.out.println("Found Barchart plugin");
+                    BarchartPlugin bp = (BarchartPlugin) plugin;
 
-                System.out.println("Results");
-                for (TreePlugin plugin : tree.getPlugins()) {
-                    if (plugin instanceof BarchartPlugin) {
-                        System.out.println("Found Barchart plugin");
-                        BarchartPlugin bp = (BarchartPlugin) plugin;
+                    data = bp.getSelectedData();
 
-                        data = bp.getSelectedData();
-                    }
                 }
-                stage.hide();
             }
+            stage.hide();
         });
 
         Scene scene = new Scene(root);

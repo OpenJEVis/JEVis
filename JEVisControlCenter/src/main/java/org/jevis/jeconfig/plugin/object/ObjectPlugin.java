@@ -26,8 +26,6 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -325,27 +323,16 @@ public class ObjectPlugin implements Plugin {
                 return null;
             }
         };
-        upload.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                pForm.getDialogStage().close();
-            }
+        upload.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+        upload.setOnCancelled(event -> {
+            LOGGER.error("Save Cancel");
+            pForm.getDialogStage().hide();
         });
 
-        upload.setOnCancelled(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                LOGGER.error("Save Cancel");
-                pForm.getDialogStage().hide();
-            }
-        });
-
-        upload.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                LOGGER.error("Save failed");
-                pForm.getDialogStage().hide();
-            }
+        upload.setOnFailed(event -> {
+            LOGGER.error("Save failed");
+            pForm.getDialogStage().hide();
         });
 
         pForm.activateProgressBar(upload);
