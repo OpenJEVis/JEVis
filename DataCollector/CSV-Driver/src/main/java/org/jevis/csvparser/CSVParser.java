@@ -20,24 +20,19 @@
  */
 package org.jevis.csvparser;
 
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.commons.driver.Converter;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.Result;
 import org.jevis.commons.driver.TimeConverter;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  *
@@ -122,79 +117,10 @@ public class CSVParser {
         return result;
     }
 
-    // interfaces
-    interface CSV extends DataCollectorTypes.Parser {
-
-        public final static String NAME = "CSV Parser";
-        public final static String DATAPOINT_INDEX = "Datapoint Index";
-//        public final static String DATAPOINT_TYPE = "Datapoint Type";
-        public final static String DATE_INDEX = "Date Index";
-        public final static String DELIMITER = "Delimiter";
-        public final static String NUMBER_HEADLINES = "Number Of Headlines";
-        public final static String QUOTE = "Quote";
-        public final static String TIME_INDEX = "Time Index";
-        public final static String DATE_FORMAT = "Date Format";
-        public final static String DECIMAL_SEPERATOR = "Decimal Separator";
-        public final static String TIME_FORMAT = "Time Format";
-        public final static String THOUSAND_SEPERATOR = "Thousand Separator";
-    }
-
-    interface CSVDataPointDirectory extends DataCollectorTypes.DataPointDirectory {
-
-        public final static String NAME = "CSV Data Point Directory";
-    }
-
-    interface CSVDataPoint extends DataCollectorTypes.DataPoint {
-
-        public final static String NAME = "CSV Data Point";
-        public final static String MAPPING_IDENTIFIER = "Mapping Identifier";
-        public final static String VALUE_INDEX = "Value Index";
-        public final static String TARGET = "Target";
-
-    }
-
-    public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
-        Logger.getLogger(this.getClass().getName()).log(Level.ALL, "Start CSV parsing");
-        this.timeZone = timeZone;
-        for (InputStream inputStream : inputList) {
-
-            _converter.convertInput(inputStream, charset);
-            String[] stringArrayInput = (String[]) _converter.getConvertedInput(String[].class);
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Total count of lines " + stringArrayInput.length);
-            if (dpType != null && dpType.equals("ROW")) {
-                calculateColumns(stringArrayInput[_dpIndex]);
-            }
-            
-            for (int i = _headerLines; i < stringArrayInput.length; i++) {
-                _currLineIndex = i;
-                try {
-                    //TODO 1,"1,1",1 is not working yet
-                    String[] line = stringArrayInput[i].split(String.valueOf(_delim), -1);
-                    if (_quote != null) {
-                        line = removeQuotes(line);
-                    }
-
-                    parseLine(line);
-                } catch (Exception e) {
-                    _report.addError(new LineError(_currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
-//                    Logger.getLogger(this.getClass().getName()).log(Level.WARN, "Detect a Problem in the Parsing Process");
-                }
-            }
-//        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Number of Results: " + _results.size());
-            if (!_results.isEmpty()) {
-                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "LastResult (Date,Target,Value): " + _results.get(_results.size() - 1).getDate() + "," + _results.get(_results.size() - 1).getOnlineID() + "," + _results.get(_results.size() - 1).getValue());
-            } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.ERROR, "Cant parse or cant find any parsable data");
-            }
-        }
-
-        //print error report based on Logger level
-        _report.print();
-
-    }
-
-    private void parseLine(String[] line) throws JEVisException {
+    private void parseLine(String[] line) {
+        System.out.println("Parse Line");
         DateTime dateTime = getDateTime(line);
+        System.out.println("DateTime: " + dateTime);
 
         if (dateTime == null) {
             _report.addError(new LineError(-3, -2, null, "Date Error"));
@@ -232,6 +158,7 @@ public class CSVParser {
                 Double value = null;
                 try {
                     sVal = line[valueIndex];
+                    System.out.println("lineValue: " + sVal);
                     if (_thousandSeperator != null && !_thousandSeperator.equals("")) {
                         sVal = sVal.replaceAll("\\" + _thousandSeperator, "");
                     }
@@ -268,6 +195,77 @@ public class CSVParser {
 //                ex.printStackTrace();
             }
         }
+    }
+
+    // interfaces
+    interface CSV extends DataCollectorTypes.Parser {
+
+        String NAME = "CSV Parser";
+        String DATAPOINT_INDEX = "Datapoint Index";
+        //        public final static String DATAPOINT_TYPE = "Datapoint Type";
+        String DATE_INDEX = "Date Index";
+        String DELIMITER = "Delimiter";
+        String NUMBER_HEADLINES = "Number Of Headlines";
+        String QUOTE = "Quote";
+        String TIME_INDEX = "Time Index";
+        String DATE_FORMAT = "Date Format";
+        String DECIMAL_SEPERATOR = "Decimal Separator";
+        String TIME_FORMAT = "Time Format";
+        String THOUSAND_SEPERATOR = "Thousand Separator";
+    }
+
+    interface CSVDataPointDirectory extends DataCollectorTypes.DataPointDirectory {
+
+        String NAME = "CSV Data Point Directory";
+    }
+
+    public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
+        Logger.getLogger(this.getClass().getName()).log(Level.ALL, "Start CSV parsing");
+        this.timeZone = timeZone;
+        for (InputStream inputStream : inputList) {
+
+            _converter.convertInput(inputStream, charset);
+            String[] stringArrayInput = (String[]) _converter.getConvertedInput(String[].class);
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Total count of lines " + stringArrayInput.length);
+            if (dpType != null && dpType.equals("ROW")) {
+                calculateColumns(stringArrayInput[_dpIndex]);
+            }
+
+            for (int i = _headerLines; i < stringArrayInput.length; i++) {
+                _currLineIndex = i;
+                try {
+                    //TODO 1,"1,1",1 is not working yet
+                    String[] line = stringArrayInput[i].split(String.valueOf(_delim), -1);
+                    if (_quote != null) {
+                        line = removeQuotes(line);
+                    }
+
+                    parseLine(line);
+                } catch (Exception e) {
+                    _report.addError(new LineError(_currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
+//                    Logger.getLogger(this.getClass().getName()).log(Level.WARN, "Detect a Problem in the Parsing Process");
+                }
+            }
+//        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Number of Results: " + _results.size());
+            if (!_results.isEmpty()) {
+                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "LastResult (Date,Target,Value): " + _results.get(_results.size() - 1).getDate() + "," + _results.get(_results.size() - 1).getOnlineID() + "," + _results.get(_results.size() - 1).getValue());
+            } else {
+                Logger.getLogger(this.getClass().getName()).log(Level.ERROR, "Cant parse or cant find any parsable data");
+            }
+        }
+
+        //print error report based on Logger level
+        _report.print();
+
+    }
+
+    interface CSVDataPoint extends DataCollectorTypes.DataPoint {
+
+        String NAME = "CSV Data Point";
+        String MAPPING_IDENTIFIER = "Mapping Identifier";
+        String VALUE_INDEX = "Value Index";
+        String TARGET = "Target";
+
     }
 
     private String[] removeQuotes(String[] line) {
