@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2015 - 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEVis CSV-Driver.
- *
+ * <p>
  * JEVis CSV-Driver is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEVis CSV-Driver is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEVis CSV-Driver. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEVis CSV-Driver is part of the OpenJEVis project, further project
  * information are published at <http://www.OpenJEVis.org/>.
  */
@@ -35,7 +35,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- *
  * @author broder
  */
 public class CSVParser {
@@ -72,7 +71,7 @@ public class CSVParser {
                 columnMap.put(curString, i);
             }
         }
-        
+
         StringBuilder sb = new StringBuilder();
         Iterator<Entry<String, Integer>> iter = columnMap.entrySet().iterator();
         while (iter.hasNext()) {
@@ -85,10 +84,9 @@ public class CSVParser {
                 sb.append(',').append(' ');
             }
         }
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "MAP: "+sb.toString());
-        
-        
-        
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "MAP: " + sb.toString());
+
+
         for (DataPoint dp : _dataPoints) {
             String mappingIdentifier = dp.getMappingIdentifier();
             //VERY VERY VERY DIRTY CODE, PLEASE DONT USE IT
@@ -96,12 +94,12 @@ public class CSVParser {
             dp.setValueIndex(column);
         }
     }
-    
+
     //KRUCKE
-    private Integer getColumnByIdentifier(String mapIdent, Map<String, Integer> columnMap){
+    private Integer getColumnByIdentifier(String mapIdent, Map<String, Integer> columnMap) {
         Integer result;
         result = columnMap.get(mapIdent);
-        if(result==null){
+        if (result == null) {
             Logger.getLogger(this.getClass().getName()).log(Level.INFO, "FIND MAP failed: " + mapIdent);
             mapIdent = mapIdent.replace("ä", "?");
             mapIdent = mapIdent.replace("Ä", "?");
@@ -157,15 +155,16 @@ public class CSVParser {
                 String sVal = null;
                 Double value = null;
                 //               try {
-                    sVal = line[valueIndex];
-                    System.out.println("lineValue: " + sVal);
-                    if (_thousandSeperator != null && !_thousandSeperator.equals("")) {
-                        sVal = sVal.replaceAll("\\" + _thousandSeperator, "");
-                    }
-                    if (_decimalSeperator != null && !_decimalSeperator.equals("")) {
-                        sVal = sVal.replaceAll("\\" + _decimalSeperator, ".");
-                    }
-                    value = Double.parseDouble(sVal);
+                sVal = line[valueIndex];
+                System.out.println("lineValue: " + sVal);
+//                if (_thousandSeperator != null && !_thousandSeperator.equals("")) {
+//                    sVal = sVal.replaceAll("\\" + _thousandSeperator, "");
+//                }
+//                if (_decimalSeperator != null && !_decimalSeperator.equals("")) {
+//                    sVal = sVal.replaceAll("\\" + _decimalSeperator, ".");
+//                }
+                value = Double.parseDouble(sVal);
+                System.out.println("Value: " + value);
 //                    valueValid = true;
 //                } catch (Exception nfe) {
 //                    _report.addError(new LineError(_currLineIndex, valueIndex, nfe, " Parser Exeption"));
@@ -281,7 +280,7 @@ public class CSVParser {
     }
 
     private DateTime getDateTime(String[] line) {
-            
+
         if (_dateFormat == null) {
             Logger.getLogger(this.getClass().getName()).log(Level.ALL, "No Datetime found");
             return new DateTime();
@@ -372,8 +371,8 @@ public class CSVParser {
     public void setHeaderLines(Integer _headerLines) {
         this._headerLines = _headerLines;
     }
-    
-    public void setCharset(Charset charset){
+
+    public void setCharset(Charset charset) {
         this.charset = charset;
     }
 }
