@@ -1,0 +1,23 @@
+{
+  "name": "Analysis",
+  "description": "",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Analysis",
+      "end": "Analyses Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Data Model",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Analysis"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Analyses Directory",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Analyses Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Analysis",
+      "end": "Analyses Directory",
+      "type": 3
+    },
+    {
+      "start": "Analyses Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Analyses Directory",
+      "end": "System",
+      "type": 3
+    }
+  ],
+  "types": []
+}
