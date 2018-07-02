@@ -117,9 +117,7 @@ public class CSVParser {
     }
 
     private void parseLine(String[] line) {
-        System.out.println("Parse Line");
         DateTime dateTime = getDateTime(line);
-        System.out.println("DateTime: " + dateTime);
 
         if (dateTime == null) {
             _report.addError(new LineError(-3, -2, null, "Date Error"));
@@ -157,7 +155,6 @@ public class CSVParser {
                 Double value = null;
                 //               try {
                 sVal = line[valueIndex];
-                System.out.println("lineValue: " + sVal);
 //                if (_thousandSeperator != null && !_thousandSeperator.equals("")) {
 //                    sVal = sVal.replaceAll("\\" + _thousandSeperator, "");
 //                }
@@ -166,14 +163,14 @@ public class CSVParser {
 //                }
 
                 //todo bind locale to language or location?? ad thousands separator without regex
-                if (_decimalSeperator.equals(null) || _decimalSeperator.equals(",")) {
-                    NumberFormat nf_in = NumberFormat.getCurrencyInstance(Locale.GERMANY);
+                if (_decimalSeperator == null || _decimalSeperator.equals(",")) {
+                    NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
                     value = nf_in.parse(sVal).doubleValue();
                 } else if (_decimalSeperator.equals(".")) {
                     NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
                     value = nf_out.parse(sVal).doubleValue();
                 }
-                System.out.println("Value: " + value);
+
 //                    valueValid = true;
 //                } catch (Exception nfe) {
 //                    _report.addError(new LineError(_currLineIndex, valueIndex, nfe, " Parser Exeption"));
@@ -197,7 +194,6 @@ public class CSVParser {
 //                    continue;
 //                }
                 Result tempResult = new Result(target, value, dateTime);
-                System.out.println("tempResult: " + target + " Value: " + value + " dateTime: " + dateTime);
                 _results.add(tempResult);
                 _report.addSuccess(_currLineIndex, valueIndex);
             } catch (Exception ex) {
@@ -205,29 +201,6 @@ public class CSVParser {
 //                ex.printStackTrace();
             }
         }
-        System.out.println("Results: " + _results.size());
-    }
-
-    // interfaces
-    interface CSV extends DataCollectorTypes.Parser {
-
-        String NAME = "CSV Parser";
-        String DATAPOINT_INDEX = "Datapoint Index";
-        //        public final static String DATAPOINT_TYPE = "Datapoint Type";
-        String DATE_INDEX = "Date Index";
-        String DELIMITER = "Delimiter";
-        String NUMBER_HEADLINES = "Number Of Headlines";
-        String QUOTE = "Quote";
-        String TIME_INDEX = "Time Index";
-        String DATE_FORMAT = "Date Format";
-        String DECIMAL_SEPERATOR = "Decimal Separator";
-        String TIME_FORMAT = "Time Format";
-        String THOUSAND_SEPERATOR = "Thousand Separator";
-    }
-
-    interface CSVDataPointDirectory extends DataCollectorTypes.DataPointDirectory {
-
-        String NAME = "CSV Data Point Directory";
     }
 
     public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
@@ -238,7 +211,6 @@ public class CSVParser {
             _converter.convertInput(inputStream, charset);
             String[] stringArrayInput = (String[]) _converter.getConvertedInput(String[].class);
             Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Total count of lines " + stringArrayInput.length);
-            System.out.println("Total count of lines: " + stringArrayInput.length);
             if (dpType != null && dpType.equals("ROW")) {
                 calculateColumns(stringArrayInput[_dpIndex]);
             }
@@ -268,15 +240,6 @@ public class CSVParser {
 
         //print error report based on Logger level
         _report.print();
-
-    }
-
-    interface CSVDataPoint extends DataCollectorTypes.DataPoint {
-
-        String NAME = "CSV Data Point";
-        String MAPPING_IDENTIFIER = "Mapping Identifier";
-        String VALUE_INDEX = "Value Index";
-        String TARGET = "Target";
 
     }
 
@@ -329,7 +292,6 @@ public class CSVParser {
     }
 
     public List<Result> getResult() {
-        System.out.println("getResult: " + _results.size());
         return _results;
     }
 
@@ -383,5 +345,36 @@ public class CSVParser {
 
     public void setCharset(Charset charset) {
         this.charset = charset;
+    }
+
+    // interfaces
+    interface CSV extends DataCollectorTypes.Parser {
+
+        String NAME = "CSV Parser";
+        String DATAPOINT_INDEX = "Datapoint Index";
+        //        public final static String DATAPOINT_TYPE = "Datapoint Type";
+        String DATE_INDEX = "Date Index";
+        String DELIMITER = "Delimiter";
+        String NUMBER_HEADLINES = "Number Of Headlines";
+        String QUOTE = "Quote";
+        String TIME_INDEX = "Time Index";
+        String DATE_FORMAT = "Date Format";
+        String DECIMAL_SEPERATOR = "Decimal Separator";
+        String TIME_FORMAT = "Time Format";
+        String THOUSAND_SEPERATOR = "Thousand Separator";
+    }
+
+    interface CSVDataPointDirectory extends DataCollectorTypes.DataPointDirectory {
+
+        String NAME = "CSV Data Point Directory";
+    }
+
+    interface CSVDataPoint extends DataCollectorTypes.DataPoint {
+
+        String NAME = "CSV Data Point";
+        String MAPPING_IDENTIFIER = "Mapping Identifier";
+        String VALUE_INDEX = "Value Index";
+        String TARGET = "Target";
+
     }
 }

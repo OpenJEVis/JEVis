@@ -49,10 +49,8 @@ public class sFTPDataSource implements DataSource {
 
     @Override
     public void parse(List<InputStream> input) {
-        System.out.println("parser size: " + input.size());
         _parser.parse(input, _timezone);
         _result = _parser.getResult();
-        System.out.println("Result: " + _result.size());
     }
 
     @Override
@@ -69,10 +67,8 @@ public class sFTPDataSource implements DataSource {
                 _parser.initialize(parser);
 
                 List<InputStream> input = this.sendSampleRequest(channel);
-                System.out.println("Size listInputStreams: " + input.size());
 
                 if (!input.isEmpty()) {
-                    System.out.println("Starting parsing");
                     this.parse(input);
                 }
 
@@ -81,7 +77,6 @@ public class sFTPDataSource implements DataSource {
 //                    this.importResult();
 //
 //                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
-                    System.out.println("Starting importing into JEVis");
                     JEVisImporterAdapter.importResults(_result, _importer, channel);
                 }
             } catch (Exception ex) {

@@ -73,10 +73,8 @@ public class JEVisCSVParser implements Parser {
             Object value = r.getValue();
             String toString = r.getDate().toString(DateTimeFormat.fullDateTime());
             if (onlineID != null && onlineID == 10) {
-                System.out.println(onlineID + ";" + value + ";" + toString);
             }
         }
-        System.out.println("---"+result.size());
         
         InputStream is2 = new FileInputStream("/home/bi/Downloads/CineStar_Kundenexport_senkrecht_5Tage_2017.08.24_093055.CSV");
         CSVParser np = new CSVParser();
@@ -101,13 +99,9 @@ public class JEVisCSVParser implements Parser {
             Object value = r.getValue();
             String toString = r.getDate().toString(DateTimeFormat.fullDateTime());
             if (onlineID != null && onlineID == 10) {
-                System.out.println(onlineID + ";" + value + ";" + toString);
             }
         }
-        
-        System.out.println("+++"+otherResult.size());
-        
-        System.out.println("results are equals: "+otherResult.containsAll(result));
+
     }
 
     private void initializeAttributes(JEVisObject parserObject) {
@@ -170,29 +164,17 @@ public class JEVisCSVParser implements Parser {
 
             _csvParser = new CSVParser();
             _csvParser.setDateFormat(dateFormat);
-            System.out.println("Date Format: " + dateFormat);
             _csvParser.setDateIndex(dateIndex);
-            System.out.println("DateIndex: " + dateIndex);
             _csvParser.setDecimalSeperator(decimalSeperator);
-            System.out.println("DecimalSeparator" + decimalSeperator);
             _csvParser.setDelim(delim);
-            System.out.println("delim: " + delim);
             _csvParser.setDpIndex(dpIndex);
-            System.out.println("dpIndex: " + dpIndex);
             _csvParser.setDpType(dpType);
-            System.out.println("dpType: " + dpType);
             _csvParser.setHeaderLines(headerLines);
-            System.out.println("headerlines: " + headerLines);
             _csvParser.setQuote(quote);
-            System.out.println("quote: " + quote);
             _csvParser.setThousandSeperator(thousandSeperator);
-            System.out.println("thousandsSeparator: " + thousandSeperator);
             _csvParser.setTimeFormat(timeFormat);
-            System.out.println("timeFormat: " + timeFormat);
             _csvParser.setTimeIndex(timeIndex);
-            System.out.println("timeIndex: " + timeIndex);
             _csvParser.setCharset(cset);
-            System.out.println("charset: " + cset);
 
         } catch (JEVisException ex) {
             Logger.getLogger(org.jevis.csvparser.JEVisCSVParser.class
@@ -202,14 +184,12 @@ public class JEVisCSVParser implements Parser {
 
     private void initializeCSVDataPointParser(JEVisObject parserObject) {
         try {
-            System.out.println("initialize csvDataPointParser");
             JEVisClass dirClass = parserObject.getDataSource().getJEVisClass(CSVDataPointDirectoryTypes.NAME);
             JEVisObject dir = parserObject.getChildren(dirClass, true).get(0);
             JEVisClass dpClass = parserObject.getDataSource().getJEVisClass(CSVDataPointTypes.NAME);
             List<JEVisObject> dataPoints = dir.getChildren(dpClass, true);
             List<DataPoint> csvdatapoints = new ArrayList<DataPoint>();
             for (JEVisObject dp : dataPoints) {
-                System.out.println("DataPoint: " + dp.getName() + " ID: " + dp.getID());
                 JEVisType mappingIdentifierType = dpClass.getType(CSVDataPointTypes.MAPPING_IDENTIFIER);
                 JEVisType targetType = dpClass.getType(CSVDataPointTypes.TARGET);
                 JEVisType valueIdentifierType = dpClass.getType(CSVDataPointTypes.VALUE_INDEX);
@@ -236,7 +216,6 @@ public class JEVisCSVParser implements Parser {
                 DataPoint csvdp = new DataPoint();
                 csvdp.setMappingIdentifier(mappingIdentifier);
                 csvdp.setTarget(target);
-                System.out.println("target: " + csvdp.getTarget());
                 csvdp.setValueIndex(valueIndex);
                 csvdatapoints.add(csvdp);
             }
@@ -275,17 +254,14 @@ public class JEVisCSVParser implements Parser {
 
     @Override
     public List<Result> getResult() {
-        System.out.println("getResult form JEVisCSVParser: " + _csvParser.getResult().size());
         return _csvParser.getResult();
     }
 
     @Override
     public void initialize(JEVisObject parserObject) {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Initialize JEVisCSVParser build: " + VERSION);
-        System.out.println("Initialize JEVisCSVParser build: " + VERSION);
 
         initializeAttributes(parserObject);
-        System.out.println("initialized Attributes");
 
         Converter converter = ConverterFactory.getConverter(parserObject);
         _csvParser.setConverter(converter);
