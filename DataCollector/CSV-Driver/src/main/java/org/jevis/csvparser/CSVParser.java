@@ -31,6 +31,7 @@ import org.joda.time.DateTimeZone;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -163,7 +164,15 @@ public class CSVParser {
 //                if (_decimalSeperator != null && !_decimalSeperator.equals("")) {
 //                    sVal = sVal.replaceAll("\\" + _decimalSeperator, ".");
 //                }
-                value = Double.parseDouble(sVal);
+
+                //todo bind locale to language or location??
+                if (_decimalSeperator.equals(",") || _decimalSeperator == null) {
+                    NumberFormat nf_in = NumberFormat.getCurrencyInstance(Locale.GERMANY);
+                    value = nf_in.parse(sVal).doubleValue();
+                } else if (_decimalSeperator.equals(".")) {
+                    NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
+                    value = nf_out.parse(sVal).doubleValue();
+                }
                 System.out.println("Value: " + value);
 //                    valueValid = true;
 //                } catch (Exception nfe) {
