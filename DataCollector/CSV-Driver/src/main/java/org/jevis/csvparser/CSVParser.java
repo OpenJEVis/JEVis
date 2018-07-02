@@ -166,7 +166,7 @@ public class CSVParser {
 //                }
 
                 //todo bind locale to language or location?? ad thousands separator without regex
-                if (_decimalSeperator == null || _decimalSeperator.equals(",")) {
+                if (_decimalSeperator.equals(null) || _decimalSeperator.equals(",")) {
                     NumberFormat nf_in = NumberFormat.getCurrencyInstance(Locale.GERMANY);
                     value = nf_in.parse(sVal).doubleValue();
                 } else if (_decimalSeperator.equals(".")) {
