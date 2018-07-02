@@ -286,6 +286,7 @@ public class JEVisCSVParser implements Parser {
                 DataPoint csvdp = new DataPoint();
                 csvdp.setMappingIdentifier(mappingIdentifier);
                 csvdp.setTarget(target);
+                System.out.println("target: " + csvdp.getTarget());
                 csvdp.setValueIndex(valueIndex);
                 csvdatapoints.add(csvdp);
             }

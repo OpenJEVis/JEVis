@@ -70,6 +70,7 @@ public class JEVisImporter implements Importer {
                     }
 
 //                    Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Target Sample.getID: " + s.getOnlineID());
+                    System.out.println("Target Sample.getID: " + s.getOnlineID());
                     if (targets.containsKey(s.getOnlineID())) {
                         continue;
                     }
