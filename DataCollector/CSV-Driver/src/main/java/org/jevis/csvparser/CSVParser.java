@@ -156,7 +156,7 @@ public class CSVParser {
                 Boolean valueValid = false;
                 String sVal = null;
                 Double value = null;
-                try {
+                //               try {
                     sVal = line[valueIndex];
                     System.out.println("lineValue: " + sVal);
                     if (_thousandSeperator != null && !_thousandSeperator.equals("")) {
@@ -167,11 +167,11 @@ public class CSVParser {
                     }
                     value = Double.parseDouble(sVal);
 //                    valueValid = true;
-                } catch (Exception nfe) {
-                    _report.addError(new LineError(_currLineIndex, valueIndex, nfe, " Parser Exeption"));
+//                } catch (Exception nfe) {
+//                    _report.addError(new LineError(_currLineIndex, valueIndex, nfe, " Parser Exeption"));
 //                    valueValid = false;
-                    continue;
-                }
+                //                   continue;
+//                }
 
 //                if (!valueValid) {
 //                    StringBuilder failureLine = new StringBuilder();
