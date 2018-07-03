@@ -5,12 +5,12 @@
  */
 package org.jevis.jeconfig.plugin.graph.data;
 
+import org.jevis.application.jevistree.plugin.BarChartDataModel;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Set;
-import javax.xml.bind.DatatypeConverter;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
 
 /**
  *
@@ -19,16 +19,16 @@ import org.jevis.application.jevistree.plugin.BarchartPlugin;
 public class GraphDataModel extends Observable {
 
     List<GraphDataRow> dataRows = new ArrayList<>();
-    Set<BarchartPlugin.DataModel> selectedRawData;
+    Set<BarChartDataModel> selectedRawData;
 
-    public void setSelectedData(Set<BarchartPlugin.DataModel> selectedData) {
+    public Set<BarChartDataModel> getSelectedData() {
+        return selectedRawData;
+    }
+
+    public void setSelectedData(Set<BarChartDataModel> selectedData) {
         this.selectedRawData = selectedData;
         setChanged();
         notifyObservers();
-    }
-
-    public Set<BarchartPlugin.DataModel> getSelectedData() {
-        return selectedRawData;
     }
 
 }

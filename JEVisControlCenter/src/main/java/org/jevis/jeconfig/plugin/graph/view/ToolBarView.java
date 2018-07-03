@@ -5,36 +5,46 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 import org.jevis.api.*;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
+import org.jevis.application.jevistree.plugin.BarChartDataModel;
+import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.ToolBarController;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author broder
  */
 public class ToolBarView {
 
+    private final JEVisDataSource ds;
     private GraphDataModel model;
     private ToolBarController controller;
     private String nameCurrentAnalysis;
     private JEVisObject currentAnalysis;
     private List<JEVisObject> listAnalyses = new ArrayList<>();
     private JEVisObject analysesDir;
+    private ObservableList<String> observableListAnalyses = FXCollections.observableArrayList();
+    private ComboBox listAnalysesComboBox;
+    private List<JsonAnalysisModel> listAnalysisModel;
+    private BorderPane border;
+    private AreaChartView view;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds) {
         this.model = model;
         this.controller = new ToolBarController(this, model, ds);
+        this.ds = ds;
     }
 
     public ToolBar getToolbar(JEVisDataSource ds) {
@@ -45,23 +55,14 @@ public class ToolBarView {
         double iconSize = 20;
         Label labelComboBox = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));
 
-        ObservableList<String> observableListAnalyses = FXCollections.observableArrayList();
-        try {
-            listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
-
-        for (JEVisObject obj : listAnalyses) {
-            observableListAnalyses.add(obj.getName());
-        }
-
-        ComboBox listAnalysesComboBox = new ComboBox(observableListAnalyses);
+        listAnalysesComboBox = new ComboBox();
+        updateListAnalyses();
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 this.nameCurrentAnalysis = newValue.toString();
                 setJEVisObjectForCurrentAnalysis(newValue.toString());
-
+                getListAnalysis();
+                newChart();
             }
         });
 
@@ -89,20 +90,19 @@ public class ToolBarView {
                             try {
                                 for (JEVisObject obj : ds.getObjects(ds.getJEVisClass("Analyses Directory"), false)) {
                                     analysesDir = obj;
+                                    System.out.println("Analyseverz: " + analysesDir.getName());
+                                    System.out.println("nameCurrAnalysis: " + nameCurrentAnalysis);
                                     JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
-                                    obj.buildObject(nameCurrentAnalysis, classAnalysis);
-                                    for (JEVisObject obj2 : ds.getObjects(classAnalysis, false)) {
-                                        if (obj2.getName().equals(nameCurrentAnalysis)) {
-                                            currentAnalysis = obj2;
-                                        }
-                                    }
+                                    currentAnalysis = obj.buildObject(nameCurrentAnalysis, classAnalysis);
+                                    currentAnalysis.commit();
                                 }
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
                         }
+                        saveDataModel(model.getSelectedData());
+                        updateListAnalyses();
                     });
-            saveDataModel(model.getSelectedData());
         });
 
         Button delete = new Button("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
@@ -130,11 +130,25 @@ public class ToolBarView {
         return toolBar;
     }
 
-    private void saveDataModel(Set<BarchartPlugin.DataModel> selectedData) {
+    private void saveDataModel(Set<BarChartDataModel> selectedData) {
         try {
             JEVisAttribute dataModel = currentAnalysis.getAttribute("Data Model");
+
+            List<JsonAnalysisModel> jsonDataModels = new ArrayList<>();
+            for (BarChartDataModel mdl : selectedData) {
+                JsonAnalysisModel json = new JsonAnalysisModel();
+                json.setName(mdl.getTitle());
+                json.setColor(mdl.getColor().toString());
+                json.setObject(mdl.getObject().getID().toString());
+                json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
+                json.setSelectedStart(mdl.getSelectedStart().toString());
+                json.setSelectedEnd(mdl.getSelectedEnd().toString());
+                jsonDataModels.add(json);
+            }
             DateTime now = DateTime.now();
-            dataModel.buildSample(now.toDateTimeISO(), selectedData);
+            JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonDataModels.toString());
+            smp.commit();
+
         } catch (JEVisException e) {
             e.printStackTrace();
         }
@@ -153,4 +167,87 @@ public class ToolBarView {
     public String getNameCurrentAnalysis() {
         return nameCurrentAnalysis;
     }
+
+    public void updateListAnalyses() {
+        try {
+            listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+        observableListAnalyses.clear();
+        for (JEVisObject obj : listAnalyses) {
+            observableListAnalyses.add(obj.getName());
+        }
+        listAnalysesComboBox.setItems(observableListAnalyses);
+    }
+
+    public void getListAnalysis() {
+        try {
+            if (currentAnalysis == null) {
+                updateListAnalyses();
+                setJEVisObjectForCurrentAnalysis(observableListAnalyses.get(0));
+            }
+            if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
+                if (currentAnalysis.getAttribute("Data Model").hasSample()) {
+                    String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
+                    if (str.endsWith("]")) {
+                        listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
+                        }.getType());
+
+                    } else {
+                        listAnalysisModel = new ArrayList<>();
+                        listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                    }
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void newChart() {
+        Map<String, BarChartDataModel> data = new HashMap<>();
+
+        for (JsonAnalysisModel mdl : listAnalysisModel) {
+            BarChartDataModel newData = new BarChartDataModel();
+            try {
+                Long id = Long.parseLong(mdl.getObject());
+                Long id_dp = Long.parseLong(mdl.getDataProcessorObject());
+                JEVisObject obj = ds.getObject(id);
+                JEVisObject obj_dp = ds.getObject(id_dp);
+                newData.setObject(obj);
+                newData.setColor(Color.valueOf(mdl.getColor()));
+                newData.setTitle(mdl.getName());
+                newData.setDataProcessor(obj_dp);
+                newData.getAttribute();
+                newData.setSelected(true);
+                newData.set_somethingChanged(true);
+                newData.getSamples();
+                data.put(id.toString(), newData);
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+
+        }
+        Set<BarChartDataModel> selectedData = new HashSet<>();
+        for (Map.Entry<String, BarChartDataModel> entrySet : data.entrySet()) {
+            BarChartDataModel value = entrySet.getValue();
+            if (value.getSelected()) {
+                selectedData.add(value);
+            }
+        }
+        model.setSelectedData(selectedData);
+
+        view = new AreaChartView(model);
+        try {
+            view.drawAreaChart();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void selectFirst() {
+        listAnalysesComboBox.getSelectionModel().selectFirst();
+    }
+
 }

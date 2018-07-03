@@ -5,17 +5,18 @@
  */
 package org.jevis.jeconfig.plugin.graph;
 
-import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.dialog.GraphSelectionDialog;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
+import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
+import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -42,9 +43,9 @@ public class ToolBarController implements EventHandler {
 
         if (selectionDialog.show(new Stage()) == GraphSelectionDialog.Response.OK) {
 
-            Set<BarchartPlugin.DataModel> selectedData = new HashSet<>();
-            for (Map.Entry<String, BarchartPlugin.DataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
-                BarchartPlugin.DataModel value = entrySet.getValue();
+            Set<BarChartDataModel> selectedData = new HashSet<>();
+            for (Map.Entry<String, BarChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
+                BarChartDataModel value = entrySet.getValue();
                 if (value.getSelected()) {
                     selectedData.add(value);
                 }

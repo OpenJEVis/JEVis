@@ -28,7 +28,7 @@ import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
+import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.application.jevistree.plugin.TableEntry;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
@@ -193,16 +193,16 @@ public class AreaChartView implements Observer {
         }
     }
 
-    private void drawAreaChart() throws JEVisException {
+    public void drawAreaChart() throws JEVisException {
         tableData.clear();
         String unit = "";
-        Set<BarchartPlugin.DataModel> selectedData = dataModel.getSelectedData();
+        Set<BarChartDataModel> selectedData = dataModel.getSelectedData();
 
         ObservableList<XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
         List<Color> hexColors = new ArrayList<>();
 
         String title = I18n.getInstance().getString("plugin.graph.chart.title1");
-        for (BarchartPlugin.DataModel singleRow : selectedData) {
+        for (BarChartDataModel singleRow : selectedData) {
             hexColors.add(singleRow.getColor());
             System.out.println("curTitle:" + singleRow.getTitle());
             title = singleRow.getTitle();
@@ -225,10 +225,12 @@ public class AreaChartView implements Observer {
             Double sum = 0.0;
 
             for (JEVisSample sample : samples) {
-                if (Objects.nonNull(sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample())) {
-                    if (sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
+                if (Objects.nonNull(sample.getAttribute().getObject().getAttribute("Value is a Quantity"))) {
+                    if (Objects.nonNull(sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample())) {
+                        if (sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
 
-                        isQuantitiy = true;
+                            isQuantitiy = true;
+                        }
                     }
                 }
                 unit = sample.getUnit().getLabel();
@@ -313,13 +315,16 @@ public class AreaChartView implements Observer {
         areaChart.setOnMouseMoved(mouseEvent -> {
             Double valueForDisplay = (Double) areaChart.getXAxis().getValueForDisplay(mouseEvent.getX());
 //                List<Double> values = new ArrayList<>();
-            for (BarchartPlugin.DataModel singleRow : selectedData) {
+            for (BarChartDataModel singleRow : selectedData) {
                 try {
                     Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay);
                     Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay);
                     Double nearest = higherKey;
-                    if (lowerKey - valueForDisplay < higherKey - valueForDisplay) {
-                        nearest = lowerKey;
+
+                    if (Objects.nonNull(higherKey) && Objects.nonNull(lowerKey)) {
+                        if (lowerKey - valueForDisplay < higherKey - valueForDisplay) {
+                            nearest = lowerKey;
+                        }
                     }
 
 //                    try {
@@ -329,6 +334,7 @@ public class AreaChartView implements Observer {
                     DateTime dateTime = new DateTime(Math.round(nearest));
                     tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                     tableEntry.setValue(valueAsDouble.toString() + finalUnit);
+
                     table.layout();
                 } catch (Exception ex) {
 //                        Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);

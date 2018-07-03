@@ -1,44 +1,44 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.dialog.GraphSelectionDialog;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
+import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.graph.GraphController;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
+import org.jevis.jeconfig.tool.I18n;
+
+import java.util.*;
 
 /**
  *
@@ -74,22 +74,37 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public void setHasFocus() {
-        
+
         if (firstStart) {
             firstStart = false;
-            GraphSelectionDialog selectionDialog = new GraphSelectionDialog(ds);
+            Dialog<ButtonType> dialog = new Dialog<>();
+            final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.FINISH);
+            final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
 
-            if (selectionDialog.show(JEConfig.getStage()) == GraphSelectionDialog.Response.OK) {
+            dialog.getDialogPane().getButtonTypes().addAll(newGraph, loadGraph);
+            dialog.showAndWait()
+                    .ifPresent(response -> {
+                        if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                            GraphSelectionDialog selectionDialog = new GraphSelectionDialog(ds);
 
-                Set<BarchartPlugin.DataModel> selectedData = new HashSet<>();
-                for (Map.Entry<String, BarchartPlugin.DataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
-                    BarchartPlugin.DataModel value = entrySet.getValue();
-                    if (value.getSelected()) {
-                        selectedData.add(value);
-                    }
-                }
-                dataModel.setSelectedData(selectedData);
-            }
+                            if (selectionDialog.show(JEConfig.getStage()) == GraphSelectionDialog.Response.OK) {
+
+                                Set<BarChartDataModel> selectedData = new HashSet<>();
+                                for (Map.Entry<String, BarChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
+                                    BarChartDataModel value = entrySet.getValue();
+                                    if (value.getSelected()) {
+                                        selectedData.add(value);
+                                    }
+                                }
+                                dataModel.setSelectedData(selectedData);
+                            }
+                        } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
+                            toolBarView.updateListAnalyses();
+                            toolBarView.selectFirst();
+                        }
+                    });
+
+
         }
 
     }

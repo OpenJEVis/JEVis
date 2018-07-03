@@ -36,6 +36,7 @@ import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.TreePlugin;
+import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.application.jevistree.plugin.BarchartPlugin;
 
 import java.util.HashMap;
@@ -52,7 +53,7 @@ public class GraphSelectionDialog {
 
     private final JEVisDataSource _ds;
     private final String ICON = "1404313956_evolution-tasks.png";
-    private Map<String, BarchartPlugin.DataModel> data = new HashMap<>();
+    private Map<String, BarChartDataModel> data = new HashMap<>();
     private Stage stage;
     private boolean init = true;
     private JEVisTree _tree;
@@ -153,7 +154,7 @@ public class GraphSelectionDialog {
         OK, CANCEL
     }
 
-    public Map<String, BarchartPlugin.DataModel> getSelectedData() {
+    public Map<String, BarChartDataModel> getSelectedData() {
         return data;
     }
 
