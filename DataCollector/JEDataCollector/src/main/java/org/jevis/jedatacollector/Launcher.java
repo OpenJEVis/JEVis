@@ -25,7 +25,7 @@ public class Launcher extends AbstractCliApp {
     public static final String APP_INFO = "JEDataCollector 2018-02-21";
     public static String KEY = "process-id";
     private static Logger logger = Logger.getRootLogger();
-    private int cycleTime = 1800000;
+    private int cycleTime = 900000;
     private final Command commands = new Command();
 
     /**

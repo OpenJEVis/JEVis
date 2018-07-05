@@ -314,7 +314,7 @@ public class AreaChartView implements Observer {
         String finalUnit = unit;
         areaChart.setOnMouseMoved(mouseEvent -> {
             Double valueForDisplay = (Double) areaChart.getXAxis().getValueForDisplay(mouseEvent.getX());
-//                List<Double> values = new ArrayList<>();
+            tableData.clear();
             for (BarChartDataModel singleRow : selectedData) {
                 try {
                     Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay);
@@ -325,26 +325,21 @@ public class AreaChartView implements Observer {
                         if (lowerKey - valueForDisplay < higherKey - valueForDisplay) {
                             nearest = lowerKey;
                         }
-                    }
+                    } else if (Objects.isNull(higherKey)) nearest = lowerKey;
+                    else if (Objects.isNull(lowerKey)) nearest = higherKey;
 
-//                    try {
-//                        System.out.println("here");
                     Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
                     TableEntry tableEntry = singleRow.getTableEntry();
                     DateTime dateTime = new DateTime(Math.round(nearest));
                     tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                     tableEntry.setValue(valueAsDouble.toString() + finalUnit);
+                    tableData.add(tableEntry);
 
                     table.layout();
-                } catch (Exception ex) {
+                } catch (JEVisException ex) {
 //                        Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-//                System.out.println(valueForDisplay);
-//                for (Double d : values) {
-//                    System.out.println(d);
-//                }
-
         });
 
         ChartPanManager panner = new ChartPanManager(areaChart);

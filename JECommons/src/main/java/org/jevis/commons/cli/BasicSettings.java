@@ -70,7 +70,7 @@ public class BasicSettings {
 
 
     private static final String CYCLE_TIME = "Cycle Time";
-    @Parameter(names = {"--cycle-time", "cc"}, required = false, description = CYCLE_TIME)
+    @Parameter(names = {"--cycle-time", "-ct"}, required = false, description = CYCLE_TIME)
     public Integer cycle_time;
 }
 

@@ -500,8 +500,8 @@ public class PermissionExtension implements ObjectEditorExtension {
                         //TODo: here
                         AddSharePermissonsDialog dia = new AddSharePermissonsDialog();
                         AddSharePermissonsDialog.Response re = dia.show(JEConfig.getStage(),
-                                I18n.getInstance().getString("plugin"),
-                                I18n.getInstance().getString("plugin"),
+                                I18n.getInstance().getString("plugin.object.permissions.new.title"),
+                                I18n.getInstance().getString("plugin.object.permissions.new.title_long"),
                                 I18n.getInstance().getString("plugin.object.permissions.new.message", groupObj.getName()));
                         if (re == AddSharePermissonsDialog.Response.YES || re == AddSharePermissonsDialog.Response.YES_ALL) {
                             JEVisRelationship newRel = obj.buildRelationship(groupObj, JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD);

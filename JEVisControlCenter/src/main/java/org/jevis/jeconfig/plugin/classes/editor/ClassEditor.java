@@ -589,7 +589,7 @@ public class ClassEditor {
                 Alert alert = new Alert(AlertType.ERROR);
                 alert.setTitle(I18n.getInstance().getString("plugin.classes.editor.type.alert.exist.title"));
                 alert.setHeaderText(I18n.getInstance().getString("plugin.classes.editor.type.alert.exist.header"));
-                alert.setContentText(I18n.getInstance().getString("plugin.classes.editor.type.alert.exist.messageType"));
+                alert.setContentText(I18n.getInstance().getString("plugin.classes.editor.type.error.exist.messagetype"));
                 alert.showAndWait();
                 return;
             }

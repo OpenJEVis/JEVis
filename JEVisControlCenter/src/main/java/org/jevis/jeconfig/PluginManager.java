@@ -24,8 +24,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
@@ -124,12 +122,9 @@ public class PluginManager {
                 pluginTab.setContent(plugin.getConntentNode());
                 tabPane.getTabs().add(pluginTab);
 
-                pluginTab.setOnClosed(new EventHandler<Event>() {
-                    @Override
-                    public void handle(Event t) {
-                        Plugin plugin = _plugins.get(_tabPosOld.intValue());
-                        _plugins.remove(plugin);
-                    }
+                pluginTab.setOnClosed(t -> {
+                    Plugin plugin1 = _plugins.get(_tabPosOld.intValue());
+                    _plugins.remove(plugin1);
                 });
 
                 pluginTab.setGraphic(plugin.getIcon());
@@ -143,35 +138,26 @@ public class PluginManager {
 
             @Override
             public void changed(ObservableValue<? extends Plugin> observable, Plugin oldValue, Plugin newValue) {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
+                Platform.runLater(() -> {
 //                        toolbar.getChildren().removeAll();
-                        if (newValue != null) {
-                            Node pluginToolbar = newValue.getToolbar();
+                    if (newValue != null) {
+                        Node pluginToolbar = newValue.getToolbar();
 
-                            toolbar.getChildren().setAll(pluginToolbar);
-                            AnchorPane.setTopAnchor(pluginToolbar, 0.0);
-                            AnchorPane.setLeftAnchor(pluginToolbar, 0.0);
-                            AnchorPane.setRightAnchor(pluginToolbar, 0.0);
-                            AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
-                            menu.setPlugin(newValue);
-                            newValue.setHasFocus();
-                        }
-
+                        toolbar.getChildren().setAll(pluginToolbar);
+                        AnchorPane.setTopAnchor(pluginToolbar, 0.0);
+                        AnchorPane.setLeftAnchor(pluginToolbar, 0.0);
+                        AnchorPane.setRightAnchor(pluginToolbar, 0.0);
+                        AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
+                        menu.setPlugin(newValue);
+                        newValue.setHasFocus();
                     }
+
                 });
             }
         });
         selectedPluginProperty.setValue(_plugins.get(0));
 
-        tabPane.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number oldValue, Number newValue) {
-                selectedPluginProperty.setValue(_plugins.get(newValue.intValue()));
-
-            }
-        });
+        tabPane.getSelectionModel().selectedIndexProperty().addListener((ov, oldValue, newValue) -> selectedPluginProperty.setValue(_plugins.get(newValue.intValue())));
 
         //Watermark is disabled
         //Todo: configure via start parameter
