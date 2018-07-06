@@ -33,6 +33,7 @@ public class VirtualSample implements JEVisSample {
     private DateTime _timeSatmp;
     private JEVisAttribute _att;
     private String _note;
+    private JEVisUnit _unit;
     JEVisDataSource _ds;
 
     public VirtualSample(DateTime ts, double value) {
@@ -42,6 +43,14 @@ public class VirtualSample implements JEVisSample {
 
     public VirtualSample(DateTime ts, double value, JEVisDataSource ds, JEVisAttribute att) {
         _value = value;
+        _timeSatmp = ts;
+        _att = att;
+        _ds = ds;
+    }
+
+    public VirtualSample(DateTime ts, double value, JEVisUnit unit, JEVisDataSource ds, JEVisAttribute att) {
+        _value = value;
+        _unit = unit;
         _timeSatmp = ts;
         _att = att;
         _ds = ds;
@@ -130,7 +139,7 @@ public class VirtualSample implements JEVisSample {
 
     @Override
     public JEVisUnit getUnit() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return _unit;
     }
 
     @Override

@@ -26,7 +26,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -226,8 +225,6 @@ public class AreaChartView implements Observer {
             Double sum = 0.0;
 
             for (JEVisSample sample : samples) {
-                JEVisAttribute att = singleRow.getAttribute();
-                JEVisObject obj = singleRow.getObject();
                 JEVisObject dp = singleRow.getDataProcessor();
                 if (Objects.nonNull(dp)) {
                     if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
@@ -313,7 +310,9 @@ public class AreaChartView implements Observer {
         areaChart.layout();
 
         areaChart.getXAxis().setAutoRanging(true);
+        areaChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
         areaChart.getYAxis().setAutoRanging(true);
+        areaChart.getYAxis().setLabel(unit);
 
         String finalUnit = unit;
         areaChart.setOnMouseMoved(mouseEvent -> {

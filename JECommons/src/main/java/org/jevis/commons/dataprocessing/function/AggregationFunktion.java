@@ -21,6 +21,7 @@ package org.jevis.commons.dataprocessing.function;
 
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.joda.time.DateTime;
@@ -85,10 +86,12 @@ public class AggregationFunktion implements ProcessFunction {
                 }
                 boolean hasSamples = false;
                 double sum = 0;
+                JEVisUnit unit = null;
                 for (JEVisSample sample : samplesInPeriod) {
                     try {
                         sum += sample.getValueAsDouble();
                         hasSamples = true;
+                        if (unit == null) unit = sample.getUnit();
                     } catch (JEVisException ex) {
                         Logger.getLogger(AggregationFunktion.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -99,7 +102,7 @@ public class AggregationFunktion implements ProcessFunction {
                 }
 
                 if (hasSamples) {
-                    JEVisSample resultSum = new VirtualSample(interval.getEnd(), sum, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
+                    JEVisSample resultSum = new VirtualSample(interval.getEnd(), sum, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
                     result.add(resultSum);
                     try {
                         System.out.println("resultSum: " + resultSum.getTimestamp() + "  " + resultSum.getValueAsDouble());

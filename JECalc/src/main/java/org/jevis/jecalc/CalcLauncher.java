@@ -5,7 +5,6 @@
  */
 package org.jevis.jecalc;
 
-import com.beust.jcommander.Parameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -27,15 +26,24 @@ public class CalcLauncher extends AbstractCliApp {
     private final Command commands = new Command();
     private static final String APP_INFO = "JECalculation ver. 2018-02-13 - JEVis - Energy Monitring Software";
     private Benchmark bench;
+    private int cycleTime = 900000;
 
     public CalcLauncher(String[] args) {
         super(args, APP_INFO);
     }
 
-    protected class Command {
+    @Override
+    protected void runService(Integer cycle_time) {
+        java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, "JECalc: service mode not supported");
 
-        @Parameter(names = {"--jevisid", "-jid"}, description = "if servicemode is 'single', then you can put the JEVis id of the alarm objects you want to run", required = false)
-        private List<Long> ids = new ArrayList<>();
+        if (cycle_time != null) {
+            ServiceMode sm = new ServiceMode(ds, cycle_time);
+            sm.run();
+        } else {
+            ServiceMode sm = new ServiceMode(ds);
+            sm.run();
+        }
+
     }
 
     public static void main(String[] args) {
@@ -82,9 +90,9 @@ public class CalcLauncher extends AbstractCliApp {
         }
     }
 
-    @Override
-    protected void runService(Integer cycle_time) {
-        java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, "JECalc: service mode not supported");
+    protected class Command {
+
+
     }
 
     @Override

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ServiceMode {
     private static final Logger logger = LoggerFactory.getLogger(ServiceMode.class);
-    private Integer cycleTime = 1800000;
+    private Integer cycleTime = 900000;
 
     public ServiceMode(Integer cycleTime) {
         this.cycleTime = cycleTime;
