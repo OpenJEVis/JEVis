@@ -138,7 +138,7 @@ public class sFTPDataSource implements DataSource {
             JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.PATH);
             String filePath = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
-            DateTime lastReadout = DateTime.now().minusHours(1);
+            DateTime lastReadout = new DateTime(2001, 01, 01, 0, 0, 0, 0);
             try {
                 lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"));
             } catch (Exception e) {
