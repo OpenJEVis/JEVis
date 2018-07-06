@@ -710,7 +710,7 @@ public class BarchartPlugin implements TreePlugin {
         return _data;
     }
 
-    enum AGGREGATION {
+    public enum AGGREGATION {
 
         None, Daily, Weekly, Monthly,
         Yearly

@@ -76,16 +76,17 @@ public class GraphPluginView implements Plugin, Observer {
     private ListView<String> lv = new ListView<>();
     private List<JEVisObject> listAnalyses;
     private ObservableList<String> observableListAnalyses = FXCollections.observableArrayList();
-    private List<JsonAnalysisModel> listAnalysisModel;
+    private List<JsonAnalysisModel> listAnalysisModel = new ArrayList<>();
     private JEVisObject currentAnalysis;
     private String nameCurrentAnalysis;
     private Dialog<ButtonType> dialog = new Dialog<>();
     private BarChartDataModel data = new BarChartDataModel();
     private JFXDatePicker pickerDateStart = new JFXDatePicker();
     private JFXTimePicker pickerTimeStart = new JFXTimePicker();
-//    private ObjectTree tf;
-private JFXDatePicker pickerDateEnd = new JFXDatePicker();
+    //    private ObjectTree tf;
+    private JFXDatePicker pickerDateEnd = new JFXDatePicker();
     private JFXTimePicker pickerTimeEnd = new JFXTimePicker();
+
     public GraphPluginView(JEVisDataSource ds, String newname) {
         dataModel = new GraphDataModel();
         dataModel.addObserver(this);
@@ -444,18 +445,20 @@ private JFXDatePicker pickerDateEnd = new JFXDatePicker();
         try {
             if (currentAnalysis == null) {
                 updateListAnalyses();
-                setJEVisObjectForCurrentAnalysis(observableListAnalyses.get(0));
+                if (!observableListAnalyses.isEmpty()) setJEVisObjectForCurrentAnalysis(observableListAnalyses.get(0));
             }
-            if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
-                if (currentAnalysis.getAttribute("Data Model").hasSample()) {
-                    String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
-                    if (str.endsWith("]")) {
-                        listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
-                        }.getType());
+            if (currentAnalysis != null) {
+                if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
+                    if (currentAnalysis.getAttribute("Data Model").hasSample()) {
+                        String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
+                        if (str.endsWith("]")) {
+                            listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
+                            }.getType());
 
-                    } else {
-                        listAnalysisModel = new ArrayList<>();
-                        listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                        } else {
+                            listAnalysisModel = new ArrayList<>();
+                            listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                        }
                     }
                 }
             }

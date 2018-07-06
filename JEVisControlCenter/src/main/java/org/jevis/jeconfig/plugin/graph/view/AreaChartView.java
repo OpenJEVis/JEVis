@@ -26,7 +26,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.application.jevistree.plugin.TableEntry;
@@ -102,7 +104,6 @@ public class AreaChartView implements Observer {
         column.setMinWidth(100);
 
         column.setCellValueFactory(param -> {
-            System.out.println("CellFactory: " + param);
 //                return new Simpleob<Color>
 
 //                Color newColor = Color.valueOf(param.getValue().colorProperty().getName());
@@ -124,7 +125,6 @@ public class AreaChartView implements Observer {
                     @Override
                     protected void updateItem(Color item, boolean empty) {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
-                        System.out.println("Update: " + item + "  " + empty);
                         if (!empty && item != null) {
                             StackPane hbox = new StackPane();
                             hbox.setBackground(new Background(new BackgroundFill(item.deriveColor(1, 1, 50, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
@@ -186,7 +186,6 @@ public class AreaChartView implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
-            System.out.println("update chart view");
             this.drawAreaChart();
         } catch (JEVisException ex) {
             Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);
@@ -202,9 +201,9 @@ public class AreaChartView implements Observer {
         List<Color> hexColors = new ArrayList<>();
 
         String title = I18n.getInstance().getString("plugin.graph.chart.title1");
+
         for (BarChartDataModel singleRow : selectedData) {
             hexColors.add(singleRow.getColor());
-            System.out.println("curTitle:" + singleRow.getTitle());
             title = singleRow.getTitle();
 
             //-----------------------------------------
@@ -212,7 +211,9 @@ public class AreaChartView implements Observer {
             ObservableList<XYChart.Data<Number, Number>> series1Data = FXCollections.observableArrayList();
             TreeMap<Double, JEVisSample> sampleMap = new TreeMap();
 
-            TableEntry tableEntry = new TableEntry(singleRow.getObject().getName());
+            String dp_name = "";
+            if (singleRow.getDataProcessor() != null) dp_name = singleRow.getDataProcessor().getName();
+            TableEntry tableEntry = new TableEntry(singleRow.getObject().getName() + " (" + dp_name + ")");
 //            tableEntry.setColor(toRGBCode(singleRow.getColor()));
             tableEntry.setColor(singleRow.getColor());
 
@@ -225,6 +226,8 @@ public class AreaChartView implements Observer {
             Double sum = 0.0;
 
             for (JEVisSample sample : samples) {
+                JEVisAttribute att = sample.getAttribute();
+                JEVisObject obj = att.getObject();
                 if (Objects.nonNull(sample.getAttribute().getObject().getAttribute("Value is a Quantity"))) {
                     if (Objects.nonNull(sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample())) {
                         if (sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
@@ -280,7 +283,6 @@ public class AreaChartView implements Observer {
         areaChart.applyCss();
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
-            System.out.println("cirght" + currentColor.getBrightness());
             Color brighter = currentColor.deriveColor(1, 1, 50, 0.3);
             String hexColor = toRGBCode(currentColor) + "55";
             String hexBrighter = toRGBCode(brighter) + "55";
@@ -302,7 +304,6 @@ public class AreaChartView implements Observer {
 //                break;
 //            }
 //        }
-        System.out.println("Title:" + title);
         areaChart.setTitle(title);
         areaChart.setLegendVisible(false);
         areaChart.setCreateSymbols(false);
@@ -317,6 +318,7 @@ public class AreaChartView implements Observer {
             tableData.clear();
             for (BarChartDataModel singleRow : selectedData) {
                 try {
+                    //TODO change so that only visible data defines table?
                     Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay);
                     Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay);
                     Double nearest = higherKey;
@@ -344,7 +346,6 @@ public class AreaChartView implements Observer {
 
         ChartPanManager panner = new ChartPanManager(areaChart);
         panner.setMouseFilter(mouseEvent -> {
-            System.out.println("mouse event");
             if (mouseEvent.getButton() == MouseButton.SECONDARY
                     || (mouseEvent.getButton() == MouseButton.PRIMARY
                     && mouseEvent.isShortcutDown())) {
@@ -355,7 +356,6 @@ public class AreaChartView implements Observer {
         });
         panner.start();
         areaChartRegion = JFXChartUtil.setupZooming(areaChart, mouseEvent -> {
-            System.out.println("zooming");
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
                 mouseEvent.consume();

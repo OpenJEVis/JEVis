@@ -21,6 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.jevis.api.*;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
+import org.jevis.application.jevistree.plugin.BarchartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.ToolBarController;
@@ -341,6 +342,7 @@ public class ToolBarView {
                 json.setColor(mdl.getColor().toString());
                 json.setObject(mdl.getObject().getID().toString());
                 json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
+                json.setAggrigation(mdl.getAggregation().toString());
                 json.setSelectedStart(mdl.getSelectedStart().toString());
                 json.setSelectedEnd(mdl.getSelectedEnd().toString());
                 jsonDataModels.add(json);
@@ -445,6 +447,7 @@ public class ToolBarView {
                 newData.setTitle(mdl.getName());
                 newData.setDataProcessor(obj_dp);
                 newData.getAttribute();
+                newData.setAggregation(parseAggrigation(mdl.getAggrigation()));
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
                 newData.getSamples();
@@ -462,6 +465,23 @@ public class ToolBarView {
             }
         }
         return selectedData;
+    }
+
+    private BarchartPlugin.AGGREGATION parseAggrigation(String aggrigation) {
+        switch (aggrigation) {
+            case ("None"):
+                return BarchartPlugin.AGGREGATION.None;
+            case ("Daily"):
+                return BarchartPlugin.AGGREGATION.Daily;
+            case ("Weekly"):
+                return BarchartPlugin.AGGREGATION.Weekly;
+            case ("Monthly"):
+                return BarchartPlugin.AGGREGATION.Monthly;
+            case ("Yearly"):
+                return BarchartPlugin.AGGREGATION.Yearly;
+            default:
+                return BarchartPlugin.AGGREGATION.None;
+        }
     }
 
     public void selectFirst() {
