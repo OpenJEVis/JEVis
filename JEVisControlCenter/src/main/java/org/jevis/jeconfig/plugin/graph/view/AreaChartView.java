@@ -226,13 +226,16 @@ public class AreaChartView implements Observer {
             Double sum = 0.0;
 
             for (JEVisSample sample : samples) {
-                JEVisAttribute att = sample.getAttribute();
-                JEVisObject obj = att.getObject();
-                if (Objects.nonNull(sample.getAttribute().getObject().getAttribute("Value is a Quantity"))) {
-                    if (Objects.nonNull(sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample())) {
-                        if (sample.getAttribute().getObject().getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
+                JEVisAttribute att = singleRow.getAttribute();
+                JEVisObject obj = singleRow.getObject();
+                JEVisObject dp = singleRow.getDataProcessor();
+                if (Objects.nonNull(dp)) {
+                    if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
+                        if (Objects.nonNull(dp.getAttribute("Value is a Quantity").getLatestSample())) {
+                            if (dp.getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
 
-                            isQuantitiy = true;
+                                isQuantitiy = true;
+                            }
                         }
                     }
                 }
