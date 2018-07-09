@@ -10,12 +10,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import jfxtras.scene.control.ListView;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
@@ -63,13 +61,57 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         hbox_list.getChildren().add(lv);
         HBox.setHgrow(lv, Priority.ALWAYS);
 
+        final Callback<DatePicker, DateCell> dayCellFactory
+                = new Callback<DatePicker, DateCell>() {
+            @Override
+            public DateCell call(final DatePicker datePicker) {
+                return new DateCell() {
+                    @Override
+                    public void updateItem(LocalDate item, boolean empty) {
+                        super.updateItem(item, empty);
+                        LocalDate min = null;
+                        LocalDate max = null;
+                        for (BarChartDataModel mdl : data.getSelectedData()) {
+                            JEVisAttribute att = mdl.getAttribute();
+
+                            LocalDate min_check = LocalDate.of(
+                                    att.getTimestampFromFirstSample().getYear(),
+                                    att.getTimestampFromFirstSample().getMonthOfYear(),
+                                    att.getTimestampFromFirstSample().getDayOfMonth());
+
+                            LocalDate max_check = LocalDate.of(
+                                    att.getTimestampFromLastSample().getYear(),
+                                    att.getTimestampFromLastSample().getMonthOfYear(),
+                                    att.getTimestampFromLastSample().getDayOfMonth());
+
+                            if (min == null || min_check.isBefore(min)) min = min_check;
+                            if (max == null || max_check.isAfter(max)) max = max_check;
+
+                        }
+
+                        if (min != null && item.isBefore(min)) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;");
+                        }
+
+                        if (max != null && item.isAfter(max)) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;");
+                        }
+                    }
+                };
+            }
+        };
+
         Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate"));
         pickerDateStart.setPrefWidth(120d);
+        pickerDateStart.setDayCellFactory(dayCellFactory);
         pickerTimeStart.setIs24HourView(true);
         pickerTimeStart.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
         Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         pickerDateEnd.setPrefWidth(120d);
+        pickerDateEnd.setDayCellFactory(dayCellFactory);
         pickerTimeEnd.setIs24HourView(true);
         pickerTimeEnd.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
@@ -216,6 +258,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (!newValue.equals(oldValue)) {
                 this.nameCurrentAnalysis = newValue;
                 setJEVisObjectForCurrentAnalysis(newValue);
+                toolBarView.select(nameCurrentAnalysis);
+                toolBarView.select(nameCurrentAnalysis);
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -229,6 +273,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         this.getDialogPane().getButtonTypes().add(newGraph);
 
         this.getDialogPane().setContent(vbox);
+
     }
 
     public void updateToolBarView() {
@@ -366,6 +411,10 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         }
         return selectedData;
+    }
+
+    public GraphDataModel getData() {
+        return data;
     }
 
     private enum DATE_TYPE {

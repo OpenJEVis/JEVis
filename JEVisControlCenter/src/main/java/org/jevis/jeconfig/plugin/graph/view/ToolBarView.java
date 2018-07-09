@@ -11,6 +11,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -18,6 +19,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.jevis.api.*;
 import org.jevis.application.dialog.GraphSelectionDialog;
@@ -78,7 +80,7 @@ public class ToolBarView {
         Label labelComboBox = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));
 
         listAnalysesComboBox = new ComboBox();
-        listAnalysesComboBox.setMaxWidth(300);
+        listAnalysesComboBox.setPrefWidth(300);
         updateListAnalyses();
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || !newValue.equals(oldValue)) {
@@ -120,7 +122,7 @@ public class ToolBarView {
                     }
                 } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
-                    dialog.updateToolBarView();
+                    //dialog.updateToolBarView();
                     select(dialog.getLv().getSelectionModel().getSelectedItem());
                 }
             });
@@ -136,19 +138,53 @@ public class ToolBarView {
 
         Button select = new Button("", JEConfig.getImage("Data.png", iconSize, iconSize));
 
+        Button date = new Button("", JEConfig.getImage("date.png", iconSize, iconSize));
+
         newB.setOnAction(event -> {
             controller = new ToolBarController(this, model, ds);
             controller.handle(event);
         });
 
-        select.setOnAction(event -> dialogDate());
+        date.setOnAction(event -> dialogDate());
+
+        select.setOnAction(event -> changeSettings(event));
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
 
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select);
+        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, date, select);
         _initialized = true;
         return toolBar;
     }
+
+    private void changeSettings(ActionEvent event) {
+        GraphSelectionDialog dia = new GraphSelectionDialog(ds);
+        Map<String, BarChartDataModel> map = new HashMap<>();
+
+        for (BarChartDataModel mdl : getBarChartDataModels()) {
+            map.put(mdl.getObject().getName(), mdl);
+        }
+
+        dia.setData(map);
+        if (dia.show(JEConfig.getStage()) == GraphSelectionDialog.Response.OK) {
+
+            Set<BarChartDataModel> selectedData = new HashSet<>();
+            for (Map.Entry<String, BarChartDataModel> entrySet : dia.getSelectedData().entrySet()) {
+                BarChartDataModel value = entrySet.getValue();
+                if (value.getSelected()) {
+                    selectedData.add(value);
+                }
+            }
+            model.setSelectedData(selectedData);
+            if (view == null) view = new AreaChartView(model);
+            try {
+                view.drawAreaChart();
+
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private void saveCurrentAnalysis() {
 
@@ -188,9 +224,24 @@ public class ToolBarView {
                             updateListAnalyses();
                             listAnalysesComboBox.getSelectionModel().select(nameCurrentAnalysis);
                         } else {
-                            Alert a = new Alert(Alert.AlertType.ERROR);
-                            a.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.error"));
-                            a.showAndWait();
+                            Dialog<ButtonType> dialogOverwrite = new Dialog<>();
+                            dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
+                            dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
+                            final ButtonType overwrite_ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
+                            final ButtonType overwrite_cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                            dialogOverwrite.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
+
+                            dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
+                                if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                                    saveDataModel(model.getSelectedData());
+                                    updateListAnalyses();
+                                    listAnalysesComboBox.getSelectionModel().select(nameCurrentAnalysis);
+                                } else {
+
+                                }
+                            });
+
                         }
 
                     }
@@ -231,31 +282,94 @@ public class ToolBarView {
         pickerTimeStart.setIs24HourView(true);
         pickerTimeStart.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
+        final Callback<DatePicker, DateCell> dayCellFactory
+                = new Callback<DatePicker, DateCell>() {
+            @Override
+            public DateCell call(final DatePicker datePicker) {
+                return new DateCell() {
+                    @Override
+                    public void updateItem(LocalDate item, boolean empty) {
+                        super.updateItem(item, empty);
+                        LocalDate min = null;
+                        LocalDate max = null;
+                        for (BarChartDataModel mdl : model.getSelectedData()) {
+                            JEVisAttribute att = mdl.getAttribute();
+
+                            LocalDate min_check = LocalDate.of(
+                                    att.getTimestampFromFirstSample().getYear(),
+                                    att.getTimestampFromFirstSample().getMonthOfYear(),
+                                    att.getTimestampFromFirstSample().getDayOfMonth());
+
+                            LocalDate max_check = LocalDate.of(
+                                    att.getTimestampFromLastSample().getYear(),
+                                    att.getTimestampFromLastSample().getMonthOfYear(),
+                                    att.getTimestampFromLastSample().getDayOfMonth());
+
+                            if (min == null || min_check.isBefore(min)) min = min_check;
+                            if (max == null || max_check.isAfter(max)) max = max_check;
+
+                        }
+
+                        if (min != null && item.isBefore(min)) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;");
+                        }
+
+                        if (max != null && item.isAfter(max)) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;");
+                        }
+                    }
+                };
+            }
+        };
+        pickerDateStart.setDayCellFactory(dayCellFactory);
+
         Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         pickerDateEnd.setPrefWidth(120d);
+        pickerDateEnd.setDayCellFactory(dayCellFactory);
         pickerTimeEnd.setIs24HourView(true);
-        pickerTimeEnd.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
+        pickerTimeEnd.setConverter(new
+
+                LocalTimeStringConverter(FormatStyle.MEDIUM));
 
         ObservableList<String> presetDateEntries = FXCollections.observableArrayList();
-        presetDateEntries.add(I18n.getInstance().getString("plugin.graph.changedate.buttonlastday"));
-        presetDateEntries.add(I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days"));
-        presetDateEntries.add(I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek"));
-        presetDateEntries.add(I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth"));
+        presetDateEntries.add(I18n.getInstance().
+
+                getString("plugin.graph.changedate.buttonlastday"));
+        presetDateEntries.add(I18n.getInstance().
+
+                getString("plugin.graph.changedate.buttonlast30days"));
+        presetDateEntries.add(I18n.getInstance().
+
+                getString("plugin.graph.changedate.buttonlastweek"));
+        presetDateEntries.add(I18n.getInstance().
+
+                getString("plugin.graph.changedate.buttonlastmonth"));
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
 //            ToggleButton lastDay = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastday"));
 //            ToggleButton last30Days = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days"));
 //            ToggleButton lastWeek = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek"));
 //            ToggleButton lastMonth = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth"));
 
-        if (!listAnalysisModel.isEmpty()) {
-            DateTime start = DateTime.parse(listAnalysisModel.get(0).getSelectedStart());
+        if (!listAnalysisModel.isEmpty())
+
+        {
+            DateTime start = null;
+            DateTime end = null;
+            for (JsonAnalysisModel mdl : listAnalysisModel) {
+                if (start == null || DateTime.parse(mdl.getSelectedStart()).isBefore(start))
+                    start = DateTime.parse(mdl.getSelectedStart());
+                if (end == null || DateTime.parse(mdl.getSelectedEnd()).isAfter(start))
+                    end = DateTime.parse(mdl.getSelectedEnd());
+            }
+
             LocalDate ld_start = LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth());
             LocalTime lt_start = LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour());
             pickerDateStart.valueProperty().setValue(ld_start);
             pickerTimeStart.valueProperty().setValue(lt_start);
             selectedStart = start;
 
-            DateTime end = DateTime.parse(listAnalysisModel.get(0).getSelectedEnd());
             LocalDate ld_end = LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth());
             LocalTime lt_end = LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour());
             pickerDateEnd.valueProperty().setValue(ld_end);
@@ -263,84 +377,106 @@ public class ToolBarView {
             selectedEnd = end;
         }
 
-        comboBoxPresetDates.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue == null || newValue != oldValue) {
-                switch (newValue.intValue()) {
-                    case 0:
-                        break;
-                    case 1:
-                        LocalDate ld_1 = LocalDate.now();
-                        LocalDate ld_start_1 = LocalDate.of(ld_1.getYear(), ld_1.getMonth(), ld_1.getDayOfMonth());
-                        LocalDate ld_end_1 = LocalDate.of(ld_1.getYear(), ld_1.getMonth(), ld_1.getDayOfMonth());
-                        pickerDateStart.valueProperty().setValue(ld_start_1);
-                        pickerDateEnd.valueProperty().setValue(ld_end_1);
-                        pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
-                        pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
-                        break;
-                    case 2:
-                        LocalDate ld_2 = LocalDate.now();
-                        LocalDate ld_start_2 = LocalDate.of(ld_2.getYear(), ld_2.getMonth(), ld_2.getDayOfMonth());
-                        LocalDate ld_end_2 = LocalDate.of(ld_2.getYear(), ld_2.getMonth(), ld_2.getDayOfMonth());
-                        pickerDateStart.valueProperty().setValue(ld_start_2.minusDays(30));
-                        pickerDateEnd.valueProperty().setValue(ld_end_2);
-                        pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
-                        pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
-                        break;
-                    case 3:
-                        LocalDate ld_3 = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1);
-                        ld_3 = ld_3.minusWeeks(1);
-                        LocalDate ld_start_3 = LocalDate.of(ld_3.getYear(), ld_3.getMonth(), ld_3.getDayOfMonth());
-                        LocalDate ld_end_3 = LocalDate.of(ld_3.getYear(), ld_3.getMonth(), ld_3.getDayOfMonth());
-                        ld_end_3 = ld_end_3.plusDays(6);
-                        pickerDateStart.valueProperty().setValue(ld_start_3);
-                        pickerDateEnd.valueProperty().setValue(ld_end_3);
-                        pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
-                        pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
-                        break;
-                    case 4:
-                        LocalDate ld_4 = LocalDate.now();
-                        ld_4 = ld_4.minusDays(LocalDate.now().getDayOfMonth() - 1);
-                        LocalDate ld_start_4 = LocalDate.of(ld_4.getYear(), ld_4.getMonth(), ld_4.getDayOfMonth()).minusMonths(1);
-                        LocalDate ld_end_4 = LocalDate.of(ld_4.getYear(), ld_4.getMonth(), ld_4.getDayOfMonth()).minusDays(1);
-                        pickerDateStart.valueProperty().setValue(ld_start_4);
-                        pickerDateEnd.valueProperty().setValue(ld_end_4);
-                        pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
-                        pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
+        comboBoxPresetDates.getSelectionModel().
+
+                selectedIndexProperty().
+
+                addListener((observable, oldValue, newValue) ->
+
+                {
+                    if (oldValue == null || newValue != oldValue) {
+                        switch (newValue.intValue()) {
+                            case 0:
+                                break;
+                            case 1:
+                                LocalDate ld_1 = LocalDate.now();
+                                LocalDate ld_start_1 = LocalDate.of(ld_1.getYear(), ld_1.getMonth(), ld_1.getDayOfMonth());
+                                LocalDate ld_end_1 = LocalDate.of(ld_1.getYear(), ld_1.getMonth(), ld_1.getDayOfMonth());
+                                pickerDateStart.valueProperty().setValue(ld_start_1);
+                                pickerDateEnd.valueProperty().setValue(ld_end_1);
+                                pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
+                                pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
+                                break;
+                            case 2:
+                                LocalDate ld_2 = LocalDate.now();
+                                LocalDate ld_start_2 = LocalDate.of(ld_2.getYear(), ld_2.getMonth(), ld_2.getDayOfMonth());
+                                LocalDate ld_end_2 = LocalDate.of(ld_2.getYear(), ld_2.getMonth(), ld_2.getDayOfMonth());
+                                pickerDateStart.valueProperty().setValue(ld_start_2.minusDays(30));
+                                pickerDateEnd.valueProperty().setValue(ld_end_2);
+                                pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
+                                pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
+                                break;
+                            case 3:
+                                LocalDate ld_3 = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1);
+                                ld_3 = ld_3.minusWeeks(1);
+                                LocalDate ld_start_3 = LocalDate.of(ld_3.getYear(), ld_3.getMonth(), ld_3.getDayOfMonth());
+                                LocalDate ld_end_3 = LocalDate.of(ld_3.getYear(), ld_3.getMonth(), ld_3.getDayOfMonth());
+                                ld_end_3 = ld_end_3.plusDays(6);
+                                pickerDateStart.valueProperty().setValue(ld_start_3);
+                                pickerDateEnd.valueProperty().setValue(ld_end_3);
+                                pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
+                                pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
+                                break;
+                            case 4:
+                                LocalDate ld_4 = LocalDate.now();
+                                ld_4 = ld_4.minusDays(LocalDate.now().getDayOfMonth() - 1);
+                                LocalDate ld_start_4 = LocalDate.of(ld_4.getYear(), ld_4.getMonth(), ld_4.getDayOfMonth()).minusMonths(1);
+                                LocalDate ld_end_4 = LocalDate.of(ld_4.getYear(), ld_4.getMonth(), ld_4.getDayOfMonth()).minusDays(1);
+                                pickerDateStart.valueProperty().setValue(ld_start_4);
+                                pickerDateEnd.valueProperty().setValue(ld_end_4);
+                                pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
+                                pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
 
 
-        pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getMillisOfSecond());
-                comboBoxPresetDates.getSelectionModel().select(0);
-            }
-        });
+        pickerDateStart.valueProperty().
 
-        pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getMillisOfSecond());
-                comboBoxPresetDates.getSelectionModel().select(0);
-            }
-        });
+                addListener((observable, oldValue, newValue) ->
 
-        pickerTimeStart.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
-                comboBoxPresetDates.getSelectionModel().select(0);
-            }
-        });
+                {
+                    if (!newValue.equals(oldValue)) {
+                        selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getMillisOfSecond());
+                        comboBoxPresetDates.getSelectionModel().select(0);
+                    }
+                });
 
-        pickerTimeEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
-                comboBoxPresetDates.getSelectionModel().select(0);
-            }
-        });
+        pickerDateEnd.valueProperty().
+
+                addListener((observable, oldValue, newValue) ->
+
+                {
+                    if (!newValue.equals(oldValue)) {
+                        selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getMillisOfSecond());
+                        comboBoxPresetDates.getSelectionModel().select(0);
+                    }
+                });
+
+        pickerTimeStart.valueProperty().
+
+                addListener((observable, oldValue, newValue) ->
+
+                {
+                    if (!newValue.equals(oldValue)) {
+                        selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
+                        comboBoxPresetDates.getSelectionModel().select(0);
+                    }
+                });
+
+        pickerTimeEnd.valueProperty().
+
+                addListener((observable, oldValue, newValue) ->
+
+                {
+                    if (!newValue.equals(oldValue)) {
+                        selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
+                        comboBoxPresetDates.getSelectionModel().select(0);
+                    }
+                });
 
         GridPane gp_date = new GridPane();
         Separator sep1 = new Separator();
@@ -350,40 +486,76 @@ public class ToolBarView {
 
         HBox startBox = new HBox();
         startBox.setSpacing(4);
-        startBox.getChildren().addAll(pickerDateStart, pickerTimeStart);
+        startBox.getChildren().
+
+                addAll(pickerDateStart, pickerTimeStart);
 
         HBox endBox = new HBox();
         endBox.setSpacing(4);
-        endBox.getChildren().addAll(pickerDateEnd, pickerTimeEnd);
+        endBox.getChildren().
+
+                addAll(pickerDateEnd, pickerTimeEnd);
 
         VBox vbox_picker = new VBox();
         vbox_picker.setSpacing(4);
-        vbox_picker.getChildren().addAll(startText, startBox, sep1, endText, endBox);
+        vbox_picker.getChildren().
+
+                addAll(startText, startBox, sep1, endText, endBox);
+
         VBox vbox_buttons = new VBox();
         vbox_buttons.setSpacing(4);
-        vbox_buttons.getChildren().addAll(comboBoxPresetDates);
+        vbox_buttons.getChildren().
+
+                addAll(comboBoxPresetDates);
 
         gp_date.add(vbox_picker, 0, 0);
         gp_date.add(vbox_buttons, 1, 0);
 
-        changeDate.getDialogPane().setContent(gp_date);
+        changeDate.getDialogPane().
+
+                setContent(gp_date);
 
         final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.changedate.confirm"), ButtonBar.ButtonData.FINISH);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.changedate.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-        changeDate.getDialogPane().getButtonTypes().addAll(ok, cancel);
-        changeDate.showAndWait()
-                .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+        changeDate.getDialogPane().
 
-                        for (JsonAnalysisModel mdl : listAnalysisModel) {
-                            mdl.setSelectedStart(selectedStart.toString());
-                            mdl.setSelectedEnd(selectedEnd.toString());
-                        }
-                        updateChart();
-                    }
-                });
+                getButtonTypes().
+
+                addAll(ok, cancel);
+        changeDate.showAndWait()
+                .
+
+                        ifPresent(response ->
+
+                        {
+                            if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+
+                                for (JsonAnalysisModel mdl : listAnalysisModel) {
+                                    mdl.setSelectedStart(selectedStart.toString());
+                                    mdl.setSelectedEnd(selectedEnd.toString());
+                                }
+                                updateChart();
+                            }
+                        });
     }
 
+
+    private void updateJsonDataModel(Set<BarChartDataModel> selectedData) {
+        List<JsonAnalysisModel> jsonDataModels = new ArrayList<>();
+        for (BarChartDataModel mdl : selectedData) {
+            JsonAnalysisModel json = new JsonAnalysisModel();
+            json.setName(mdl.getTitle());
+            json.setSelected(String.valueOf(mdl.getSelected()));
+            json.setColor(mdl.getColor().toString());
+            json.setObject(mdl.getObject().getID().toString());
+            json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
+            json.setAggrigation(mdl.getAggregation().toString());
+            json.setSelectedStart(mdl.getSelectedStart().toString());
+            json.setSelectedEnd(mdl.getSelectedEnd().toString());
+            jsonDataModels.add(json);
+        }
+        this.listAnalysisModel = jsonDataModels;
+    }
 
     private void saveDataModel(Set<BarChartDataModel> selectedData) {
         try {
@@ -506,7 +678,7 @@ public class ToolBarView {
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
                 newData.getSamples();
-                data.put(id.toString(), newData);
+                data.put(obj.getName(), newData);
             } catch (JEVisException e) {
                 e.printStackTrace();
             }

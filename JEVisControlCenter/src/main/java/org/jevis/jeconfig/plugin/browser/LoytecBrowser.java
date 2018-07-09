@@ -13,8 +13,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
@@ -119,7 +117,7 @@ public class LoytecBrowser implements Plugin {
 ////                        form.setTarget(null);
 ////                        form.submit();
                         Object ob = webEngine.executeScript("retryReload()");
-                        System.out.println("");
+                        System.out.println();
                     }
 
                 }
@@ -207,7 +205,7 @@ public class LoytecBrowser implements Plugin {
     }
 
     @Override
-    public Node getConntentNode() {
+    public Node getContentNode() {
 
         return contentPane;
     }

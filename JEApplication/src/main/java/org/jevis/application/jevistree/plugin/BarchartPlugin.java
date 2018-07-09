@@ -31,7 +31,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class BarchartPlugin implements TreePlugin {
@@ -52,7 +51,7 @@ public class BarchartPlugin implements TreePlugin {
             String key = entrySet.getKey();
             BarChartDataModel value = entrySet.getValue();
             if (value.getSelected()) {
-                value.setTitle(getTitel());
+                value.setTitle(getTitle());
                 System.out.println("key: " + key);
             }
 
@@ -68,6 +67,10 @@ public class BarchartPlugin implements TreePlugin {
     @Override
     public void setTree(JEVisTree tree) {
         _tree = tree;
+    }
+
+    public JEVisTree get_tree() {
+        return _tree;
     }
 
     @Override
@@ -115,7 +118,7 @@ public class BarchartPlugin implements TreePlugin {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return textField.getText();
     }
 
@@ -708,6 +711,10 @@ public class BarchartPlugin implements TreePlugin {
 
     public Map<String, BarChartDataModel> getSelectedData() {
         return _data;
+    }
+
+    public void set_data(Map<String, BarChartDataModel> _data) {
+        this._data = _data;
     }
 
     public enum AGGREGATION {

@@ -140,7 +140,7 @@ public class ObjectPlugin implements Plugin {
     }
 
     @Override
-    public Node getConntentNode() {
+    public Node getContentNode() {
         if (border == null) {
 
             tree = JEVisTreeFactory.buildBasicDefault(ds);
