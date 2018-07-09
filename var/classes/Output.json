@@ -12,7 +12,7 @@
     {
       "name": "Output",
       "primitiveType": 0,
-      "guiType": "Object Target",
+      "guiType": "Attribute Target",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,

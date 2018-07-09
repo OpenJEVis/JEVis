@@ -24,12 +24,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Separator;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.SplitPaneBuilder;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.TreeItem;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
@@ -102,7 +97,7 @@ public class UnitPlugin implements Plugin {
     }
 
     @Override
-    public Node getConntentNode() {
+    public Node getContentNode() {
         if (border == null) {
 
             tree = new UnitTree(ds);

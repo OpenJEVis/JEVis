@@ -20,8 +20,9 @@
  */
 package org.jevis.application.jevistree;
 
-import java.util.List;
 import javafx.scene.control.TreeTableColumn;
+
+import java.util.List;
 
 /**
  *
@@ -29,13 +30,13 @@ import javafx.scene.control.TreeTableColumn;
  */
 public interface TreePlugin {
 
-    public void setTree(JEVisTree tree);
+    void setTree(JEVisTree tree);
 
-    public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns();
+    List<TreeTableColumn<JEVisTreeRow, Long>> getColumns();
 
-    public void selectionFinished();
+    void selectionFinished();
 
-    public String getTitel();
+    String getTitle();
 
 //
 //    public int getID();

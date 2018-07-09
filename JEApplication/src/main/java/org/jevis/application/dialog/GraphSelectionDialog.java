@@ -38,8 +38,11 @@ import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.TreePlugin;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.application.jevistree.plugin.BarchartPlugin;
+import org.jevis.application.object.tree.UserSelection;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -114,25 +117,40 @@ public class GraphSelectionDialog {
         VBox.setVgrow(buttonBox, Priority.NEVER);
 
 //        stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
+        BarchartPlugin bp = null;
+        for (TreePlugin plugin : tree.getPlugins()) {
+            if (plugin instanceof BarchartPlugin) {
+                System.out.println("Found Barchart plugin");
+                bp = (BarchartPlugin) plugin;
+            }
+        }
+
+        if (!data.isEmpty()) bp.set_data(data);
+
+        BarchartPlugin finalBp = bp;
         ok.setOnAction(event -> {
             tree.setUserSelectionEnded();
             _response = Response.OK;
 
             System.out.println("Results");
-            for (TreePlugin plugin : tree.getPlugins()) {
-                if (plugin instanceof BarchartPlugin) {
-                    System.out.println("Found Barchart plugin");
-                    BarchartPlugin bp = (BarchartPlugin) plugin;
 
-                    data = bp.getSelectedData();
 
-                }
-            }
+            data = finalBp.getSelectedData();
+
+
             stage.hide();
         });
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
+
+        List<UserSelection> listUS = new ArrayList<>();
+        for (Map.Entry<String, BarChartDataModel> entry : data.entrySet()) {
+            BarChartDataModel mdl = entry.getValue();
+            if (mdl.getSelected()) listUS.add(new UserSelection(UserSelection.SelectionType.Object, mdl.getObject()));
+        }
+
+        if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
 
         stage.showAndWait();
 
@@ -158,4 +176,7 @@ public class GraphSelectionDialog {
         return data;
     }
 
+    public void setData(Map<String, BarChartDataModel> data) {
+        this.data = data;
+    }
 }

@@ -224,7 +224,7 @@ public class ISO5001Browser implements Plugin {
     }
 
     @Override
-    public Node getConntentNode() {
+    public Node getContentNode() {
 
         return contentPane;
     }

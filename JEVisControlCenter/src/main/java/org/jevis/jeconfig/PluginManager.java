@@ -119,7 +119,7 @@ public class PluginManager {
                 pluginTab.setClosable(false);
                 pluginTab.setTooltip(new Tooltip(plugin.getUUID()));
 //            pluginTab.setContent(plugin.getView().getNode());
-                pluginTab.setContent(plugin.getConntentNode());
+                pluginTab.setContent(plugin.getContentNode());
                 tabPane.getTabs().add(pluginTab);
 
                 pluginTab.setOnClosed(t -> {

@@ -72,21 +72,27 @@ public class AreaChartView implements Observer {
 
         TableColumn value = new TableColumn(I18n.getInstance().getString("plugin.graph.table.value"));
         value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
+        value.setStyle("-fx-alignment: CENTER-RIGHT");
 
         TableColumn dateCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.date"));
         dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, Color>("date"));
+        dateCol.setStyle("-fx-alignment: CENTER");
 
         TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
+        minCol.setStyle("-fx-alignment: CENTER-RIGHT");
 
         TableColumn maxCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.max"));
         maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
+        maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
 
         TableColumn avgCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.avg"));
         avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
+        avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
 
         TableColumn sumCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.sum"));
         sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
+        sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
 
         final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
         TableEntry tableEntry = new TableEntry("testeintrag");
@@ -332,11 +338,15 @@ public class AreaChartView implements Observer {
                     } else if (Objects.isNull(higherKey)) nearest = lowerKey;
                     else if (Objects.isNull(lowerKey)) nearest = higherKey;
 
+                    NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
+                    nf.setMinimumFractionDigits(2);
+                    nf.setMaximumFractionDigits(2);
                     Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
+                    String formattedDouble = nf.format(valueAsDouble);
                     TableEntry tableEntry = singleRow.getTableEntry();
                     DateTime dateTime = new DateTime(Math.round(nearest));
                     tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                    tableEntry.setValue(valueAsDouble.toString() + finalUnit);
+                    tableEntry.setValue(formattedDouble + " " + finalUnit);
                     tableData.add(tableEntry);
 
                     table.layout();

@@ -30,17 +30,17 @@ import org.jevis.api.JEVisDataSource;
  */
 public interface Plugin {
 
-    public String getName();
+    String getName();
 
-    public void setName(String name);
+    void setName(String name);
 
-    public StringProperty nameProperty();
+    StringProperty nameProperty();
 
-    public String getUUID();
+    String getUUID();
 
-    public void setUUID(String id);
+    void setUUID(String id);
 
-    public StringProperty uuidProperty();
+    StringProperty uuidProperty();
 
     Node getMenu();
 
@@ -55,7 +55,7 @@ public interface Plugin {
 //    void handelRequest(Command command);
     void handelRequest(int cmdType);
 
-    Node getConntentNode();
+    Node getContentNode();
 
     ImageView getIcon();
 

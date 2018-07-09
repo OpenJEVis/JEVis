@@ -133,7 +133,7 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     @Override
-    public Node getConntentNode() {
+    public Node getContentNode() {
         if (border == null) {
             border = new BorderPane();
             chartView.drawDefaultAreaChart();
