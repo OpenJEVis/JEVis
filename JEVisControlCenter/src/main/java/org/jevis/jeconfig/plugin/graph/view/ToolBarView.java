@@ -26,6 +26,8 @@ import org.jevis.application.dialog.GraphSelectionDialog;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.application.jevistree.plugin.BarchartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
+import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.plugin.graph.ToolBarController;
@@ -160,9 +162,16 @@ public class ToolBarView {
         GraphSelectionDialog dia = new GraphSelectionDialog(ds);
         Map<String, BarChartDataModel> map = new HashMap<>();
 
-        for (BarChartDataModel mdl : getBarChartDataModels()) {
+//        if (listAnalysisModel != null) {
+//            for (BarChartDataModel mdl : getBarChartDataModels()) {
+//                map.put(mdl.getObject().getName(), mdl);
+//            }
+//        } else {
+        for (BarChartDataModel mdl : model.getSelectedData()) {
             map.put(mdl.getObject().getName(), mdl);
         }
+//        }
+
 
         dia.setData(map);
         if (dia.show(JEConfig.getStage()) == GraphSelectionDialog.Response.OK) {
@@ -549,7 +558,7 @@ public class ToolBarView {
             json.setColor(mdl.getColor().toString());
             json.setObject(mdl.getObject().getID().toString());
             json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
-            json.setAggrigation(mdl.getAggregation().toString());
+            json.setAggregation(mdl.getAggregation().toString());
             json.setSelectedStart(mdl.getSelectedStart().toString());
             json.setSelectedEnd(mdl.getSelectedEnd().toString());
             jsonDataModels.add(json);
@@ -569,9 +578,10 @@ public class ToolBarView {
                 json.setColor(mdl.getColor().toString());
                 json.setObject(mdl.getObject().getID().toString());
                 json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
-                json.setAggrigation(mdl.getAggregation().toString());
+                json.setAggregation(mdl.getAggregation().toString());
                 json.setSelectedStart(mdl.getSelectedStart().toString());
                 json.setSelectedEnd(mdl.getSelectedEnd().toString());
+                json.setUnit(mdl.getUnit().toJSON());
                 jsonDataModels.add(json);
             }
             DateTime now = DateTime.now();
@@ -658,6 +668,7 @@ public class ToolBarView {
                 Long id_dp = Long.parseLong(mdl.getDataProcessorObject());
                 JEVisObject obj = ds.getObject(id);
                 JEVisObject obj_dp = ds.getObject(id_dp);
+                JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
                 DateTime start;
                 if (selectedStart != null)
                     start = selectedStart;
@@ -674,15 +685,15 @@ public class ToolBarView {
                 newData.setTitle(mdl.getName());
                 newData.setDataProcessor(obj_dp);
                 newData.getAttribute();
-                newData.setAggregation(parseAggrigation(mdl.getAggrigation()));
+                newData.setAggregation(parseAggrigation(mdl.getAggregation()));
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
                 newData.getSamples();
+                newData.setUnit(unit);
                 data.put(obj.getName(), newData);
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
-
         }
         Set<BarChartDataModel> selectedData = new HashSet<>();
         for (Map.Entry<String, BarChartDataModel> entrySet : data.entrySet()) {

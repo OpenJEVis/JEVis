@@ -16,6 +16,8 @@ import jfxtras.scene.control.ListView;
 import org.jevis.api.*;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.commons.json.JsonAnalysisModel;
+import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
@@ -384,6 +386,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 Long id_dp = Long.parseLong(mdl.getDataProcessorObject());
                 JEVisObject obj = ds.getObject(id);
                 JEVisObject obj_dp = ds.getObject(id_dp);
+                JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
                 DateTime start = DateTime.parse(mdl.getSelectedStart());
                 DateTime end = DateTime.parse(mdl.getSelectedEnd());
                 Boolean selected = Boolean.parseBoolean(mdl.getSelected());
@@ -397,6 +400,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
                 newData.getSamples();
+                newData.setUnit(unit);
                 data.put(id.toString(), newData);
             } catch (JEVisException e) {
                 e.printStackTrace();

@@ -120,7 +120,151 @@ public class BarChartDataModel {
                     aggrigate.setSubProcesses(Arrays.asList(input));
                     samples.addAll(aggrigate.getResult());
                 } else {
-                    samples.addAll(getAttribute().getSamples(getSelectedStart(), getSelectedEnd()));
+
+                    final String unitSetting = _unit.getLabel();
+                    System.out.println("Data unit: " + _unit.getLabel());
+                    JEVisUnit displayUnit = _attribute.getDisplayUnit();
+                    System.out.println("Display unit: " + displayUnit.getLabel());
+                    Double factor = 1.0;
+                    switch (unitSetting) {
+                        default:
+                            break;
+                        case "W":
+                            if (displayUnit.getLabel().equals("kW"))
+                                factor = 1000d / 1d;
+                            else if (displayUnit.getLabel().equals("MW"))
+                                factor = 1000000 / 1d;
+                            else if (displayUnit.getLabel().equals("GW"))
+                                factor = 1000000000 / 1d;
+                            else if (displayUnit.getLabel().equals("Wh"))
+                                factor = 4 / 1d;
+                            else if (displayUnit.getLabel().equals("kWh"))
+                                factor = 4d / 1000d;
+                            else if (displayUnit.getLabel().equals("MWh"))
+                                factor = 4 / 1000000d;
+                            else if (displayUnit.getLabel().equals("GWh"))
+                                factor = 4 / 1000000000d;
+                            break;
+                        case "kW":
+                            if (displayUnit.getLabel().equals("W"))
+                                factor = 1d / 1000;
+                            else if (displayUnit.getLabel().equals("MW"))
+                                factor = 1 / 1000d;
+                            else if (displayUnit.getLabel().equals("GW"))
+                                factor = 1 / 1000000d;
+                            else if (displayUnit.getLabel().equals("Wh"))
+                                factor = 4000 / 1d;
+                            else if (displayUnit.getLabel().equals("kWh"))
+                                factor = 4d / 1d;
+                            else if (displayUnit.getLabel().equals("MWh"))
+                                factor = 4 / 1000d;
+                            else if (displayUnit.getLabel().equals("GWh"))
+                                factor = 4 / 1000000d;
+                            break;
+                        case "MW":
+                            if (displayUnit.getLabel().equals("W"))
+                                factor = 1000000d;
+                            else if (displayUnit.getLabel().equals("kW"))
+                                factor = 1000d;
+                            else if (displayUnit.getLabel().equals("GW"))
+                                factor = 1 / 1000d;
+                            else if (displayUnit.getLabel().equals("Wh"))
+                                factor = 4000000 / 1d;
+                            else if (displayUnit.getLabel().equals("kWh"))
+                                factor = 4000d / 1d;
+                            else if (displayUnit.getLabel().equals("MWh"))
+                                factor = 4 / 1d;
+                            else if (displayUnit.getLabel().equals("GWh"))
+                                factor = 4 / 1000d;
+                            break;
+                        case "GW":
+                            if (displayUnit.getLabel().equals("W"))
+                                factor = 1 / 1000000000d;
+                            else if (displayUnit.getLabel().equals("kW"))
+                                factor = 1 / 1000000d;
+                            else if (displayUnit.getLabel().equals("MW"))
+                                factor = 1 / 1000d;
+                            else if (displayUnit.getLabel().equals("Wh"))
+                                factor = 4000000000d / 1d;
+                            else if (displayUnit.getLabel().equals("kWh"))
+                                factor = 4000000d / 1d;
+                            else if (displayUnit.getLabel().equals("MWh"))
+                                factor = 4000 / 1d;
+                            else if (displayUnit.getLabel().equals("GWh"))
+                                factor = 4 / 1d;
+                            break;
+                        case "Wh":
+                            if (displayUnit.getLabel().equals("kWh"))
+                                factor = 1d / 1000d;
+                            else if (displayUnit.getLabel().equals("MWh"))
+                                factor = 1 / 1000000d;
+                            else if (displayUnit.getLabel().equals("GWh"))
+                                factor = 1 / 1000000000d;
+                            else if (displayUnit.getLabel().equals("W"))
+                                factor = 1 / 4d;
+                            else if (displayUnit.getLabel().equals("kW"))
+                                factor = 1d / 4000d;
+                            else if (displayUnit.getLabel().equals("MW"))
+                                factor = 1 / 4000000d;
+                            else if (displayUnit.getLabel().equals("GW"))
+                                factor = 1 / 4000000000d;
+                            break;
+                        case "kWh":
+                            if (displayUnit.getLabel().equals("Wh"))
+                                factor = 1000d;
+                            else if (displayUnit.getLabel().equals("MWh"))
+                                factor = 1 / 1000d;
+                            else if (displayUnit.getLabel().equals("GWh"))
+                                factor = 1 / 1000000d;
+                            else if (displayUnit.getLabel().equals("W"))
+                                factor = 1000 / 4d;
+                            else if (displayUnit.getLabel().equals("kW"))
+                                factor = 1d / 4d;
+                            else if (displayUnit.getLabel().equals("MW"))
+                                factor = 1 / 4000d;
+                            else if (displayUnit.getLabel().equals("GW"))
+                                factor = 1 / 4000000d;
+                            break;
+                        case "MWh":
+                            if (displayUnit.getLabel().equals("Wh"))
+                                factor = 1000000d;
+                            else if (displayUnit.getLabel().equals("kWh"))
+                                factor = 1000d;
+                            else if (displayUnit.getLabel().equals("GWh"))
+                                factor = 1 / 1000d;
+                            else if (displayUnit.getLabel().equals("W"))
+                                factor = 1000000 / 4d;
+                            else if (displayUnit.getLabel().equals("kW"))
+                                factor = 1000d / 4d;
+                            else if (displayUnit.getLabel().equals("MW"))
+                                factor = 1 / 4d;
+                            else if (displayUnit.getLabel().equals("GW"))
+                                factor = 1 / 4000d;
+                            break;
+                        case "GWh":
+                            if (displayUnit.getLabel().equals("Wh"))
+                                factor = 1 / 1000000000d;
+                            else if (displayUnit.getLabel().equals("kWh"))
+                                factor = 1 / 1000000d;
+                            else if (displayUnit.getLabel().equals("MWh"))
+                                factor = 1 / 1000d;
+                            else if (displayUnit.getLabel().equals("W"))
+                                factor = 1000000000d / 4d;
+                            else if (displayUnit.getLabel().equals("kW"))
+                                factor = 1000000d / 4d;
+                            else if (displayUnit.getLabel().equals("MW"))
+                                factor = 1000 / 4d;
+                            else if (displayUnit.getLabel().equals("GW"))
+                                factor = 1 / 4d;
+                            break;
+                    }
+                    System.out.println("Factor: " + factor);
+                    List<JEVisSample> listNewSamples = getAttribute().getSamples(getSelectedStart(), getSelectedEnd());
+                    for (JEVisSample sample : listNewSamples) {
+                        sample.setValue(sample.getValueAsDouble() * factor);
+                    }
+                    samples.addAll(listNewSamples);
+
 //                            samples.addAll(getAttribute().getAllSamples());
                 }
 

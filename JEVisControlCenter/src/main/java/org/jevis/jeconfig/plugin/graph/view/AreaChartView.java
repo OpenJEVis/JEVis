@@ -200,6 +200,7 @@ public class AreaChartView implements Observer {
     public void drawAreaChart() throws JEVisException {
         tableData.clear();
         String unit = "";
+
         Set<BarChartDataModel> selectedData = dataModel.getSelectedData();
 
         ObservableList<XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
@@ -208,6 +209,7 @@ public class AreaChartView implements Observer {
         String title = I18n.getInstance().getString("plugin.graph.chart.title1");
 
         for (BarChartDataModel singleRow : selectedData) {
+            unit = singleRow.getUnit().getLabel();
             hexColors.add(singleRow.getColor());
             title = singleRow.getTitle();
 
@@ -225,8 +227,8 @@ public class AreaChartView implements Observer {
             singleRow.setTableEntry(tableEntry);
             tableData.add(tableEntry);
             Boolean isQuantitiy = false;
-            Double min = 0.0;
-            Double max = 0.0;
+            Double min = Double.MAX_VALUE;
+            Double max = Double.MIN_VALUE;
             Double avg;
             Double sum = 0.0;
 
@@ -242,7 +244,7 @@ public class AreaChartView implements Observer {
                         }
                     }
                 }
-                unit = sample.getUnit().getLabel();
+
                 sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
                 DateTime dateTime = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
