@@ -59,7 +59,6 @@ public class BarChartDataModel {
     }
 
     public List<JEVisSample> getSamples() {
-        System.out.println("getSamples()");
 
         if (_somethingChanged) {
             _somethingChanged = false;
@@ -104,8 +103,8 @@ public class BarChartDataModel {
 //                    Process dataPorceessor = null;
                 if (getDataProcessor() != null) {
 //                        dataPorceessor = ProcessChains.getProcessChain(getDataProcessor());
-                    _object = getDataProcessor();
-                    _attribute = _object.getAttribute("Value");
+                    _dataProcessorObject = getDataProcessor();
+                    _attribute = _dataProcessorObject.getAttribute("Value");
                 }
 //                    if (dataPorceessor == null) {
                 if (aggrigate != null) {

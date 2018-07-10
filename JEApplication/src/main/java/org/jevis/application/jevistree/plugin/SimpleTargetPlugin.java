@@ -5,8 +5,6 @@
  */
 package org.jevis.application.jevistree.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -27,6 +25,9 @@ import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
 import org.jevis.application.jevistree.TreePlugin;
 import org.jevis.application.object.tree.UserSelection;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -85,7 +86,7 @@ public class SimpleTargetPlugin implements TreePlugin {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return "Selection";
     }
 

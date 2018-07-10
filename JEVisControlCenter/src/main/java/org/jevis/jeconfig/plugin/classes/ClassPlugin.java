@@ -101,7 +101,7 @@ public class ClassPlugin implements Plugin {
     }
 
     @Override
-    public Node getConntentNode() {
+    public Node getContentNode() {
         if (border == null) {
 
 //            VBox editorPane = new VBox();

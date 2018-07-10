@@ -5,10 +5,6 @@
  */
 package org.jevis.jeconfig.map;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -21,20 +17,12 @@ import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Separator;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javax.swing.SwingUtilities;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.dialog.MapSelectionDialog;
 import org.jevis.application.jevistree.plugin.MapPlugin;
@@ -43,6 +31,12 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.tool.I18n;
 import org.jxmapviewer.JXMapViewer;
+
+import javax.swing.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -243,7 +237,7 @@ public class MapViewPlugin implements Plugin {
     }
 
     @Override
-    public Node getConntentNode() {
+    public Node getContentNode() {
 //        BorderPane border = new BorderPane();
 
         //set the map view center
