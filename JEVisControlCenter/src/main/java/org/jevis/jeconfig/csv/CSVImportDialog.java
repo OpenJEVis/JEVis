@@ -398,7 +398,7 @@ public class CSVImportDialog {
                             JEConfig.setLastPath(file);
                             System.out.println("file: " + file);
 
-                            fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
+                            fileNameL.setText(file.getName());// + System.getProperty("file.separator") + file.getName());
 
                             openFile(file);
                             automatic.setDisable(false);
@@ -408,7 +408,7 @@ public class CSVImportDialog {
                             setSeperator(analyse.getSeperator());
                             formats.getSelectionModel().select(Format.Custom.name());
                             updateTree();
-                        } catch (IOException ex) {
+                        } catch (Exception ex) {
                             Logger.getLogger(CSVImportDialog.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     });
