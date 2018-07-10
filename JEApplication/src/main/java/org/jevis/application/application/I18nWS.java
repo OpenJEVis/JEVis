@@ -30,6 +30,10 @@ public class I18nWS {
 
     }
 
+    public static void setLocale(Locale locale){
+        getInstance().locale=locale;
+    }
+
     public static synchronized I18nWS getInstance() {
         if (i18n == null)
             i18n = new I18nWS();
