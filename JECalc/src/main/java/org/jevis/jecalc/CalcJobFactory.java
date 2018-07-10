@@ -67,7 +67,8 @@ class CalcJobFactory {
                 TargetHelper targetHelper = new TargetHelper(output.getDataSource(), targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute();
                 if (valueAttribute == null) {
-                    logger.error("Cant find output for id {}", output.getID());
+                    logger.error("Cant find output for id {}, using fallback 'Value' Attribute ", output.getID());
+                    outputAttributes.add(targetHelper.getObject().getAttribute("Value"));
                 } else {
                     outputAttributes.add(valueAttribute);
                 }

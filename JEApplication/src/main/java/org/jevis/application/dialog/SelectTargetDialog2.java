@@ -20,6 +20,8 @@
 package org.jevis.application.dialog;
 
 import java.util.List;
+
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -29,9 +31,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -100,6 +104,9 @@ public class SelectTargetDialog2 {
         stp.setAllowMultySelection(allowMulty);
     }
 
+
+
+
     private VBox build(JEVisDataSource ds, String title, List<UserSelection> uselection) {
         VBox root = new VBox(0);
 //        root.setPadding(new Insets(10));
@@ -114,18 +121,54 @@ public class SelectTargetDialog2 {
 
         tree.getPlugins().add(stp);
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-//        ViewFilter vf = new ViewFilter();
-//        vf.putRule(new ViewFilterRowRule("Data", "", true));
-//        tree.setFiler(vf);
         content.getChildren().setAll(tree);
+
+
+        CheckBox advanced = new CheckBox("Advanced");
+
 
         tree.openUserSelection(uselection);
         stp.setUserSelection(uselection);
         if (mode == MODE.ATTRIBUTE) {
             stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
+            advanced.setSelected(true);
         } else if (mode == MODE.OBJECT) {
             stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
+            advanced.setSelected(false);
         }
+
+        advanced.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                Platform.runLater(() -> {
+                    tree.setVisible(false);
+                    tree.getFilter().showAttributes(newValue);
+                    tree.reload();
+                    tree.openUserSelection(stp.getUserSelection());
+                    tree.setVisible(true);
+//                    System.out.println("Change mode: "+newValue);
+//                    content.setVisible(false);
+//                    content.getChildren().removeAll();
+//
+//                    tree = new JEVisTree(ds);
+//                    tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+//                    tree.getPlugins().add(stp);
+//                    if(newValue){
+//                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
+//                        tree.getFilter().showAttributes(true);
+//
+//                    }else{
+//                        stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
+//                        tree.getFilter().showAttributes(false);
+//                    }
+//                    tree.openUserSelection(uselection);
+//
+//                    content.getChildren().add(tree);
+//                    content.setVisible(true);
+
+                });
+            }
+        });
 
         tree.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
 
@@ -164,9 +207,17 @@ public class SelectTargetDialog2 {
             }
         });
 
-        buttonPanel.getChildren().setAll(ok, cancel);
+
+
+
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer,Priority.ALWAYS);
+
+        buttonPanel.getChildren().setAll(advanced,spacer,ok, cancel);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(5));
+
 
 //        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), content, buttonPanel);
         root.getChildren().setAll(header, content, buttonPanel);

@@ -308,7 +308,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisAttribute> getAttributes(long objectID) {
-        logger.trace("Get  getAttributes: {}", objectID);
+        logger.error("Get  getAttributes: {}", objectID);
         StringBuffer response = new StringBuffer();
         try {
 //            JEVisObject obj = getObject(objectID);
@@ -335,8 +335,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
 
         } catch (NullPointerException | JsonSyntaxException jex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, jex);
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, response.toString());
+            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.FINE, null, jex);
+            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.FINE, response.toString());
             return new ArrayList<>();
         } catch (ProtocolException ex) {
             Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
