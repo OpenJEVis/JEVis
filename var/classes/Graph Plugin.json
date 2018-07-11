@@ -1,0 +1,19 @@
+{
+  "name": "Graph Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Graph Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Graph Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}
