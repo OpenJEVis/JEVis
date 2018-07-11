@@ -75,11 +75,11 @@ public class SampleExportExtension implements SampleEditorExtension {
         if(needSave){
             try {
             if (doExport()) {
-             
-//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//                alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.success.header"));
-//                alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
-//                alert.showAndWait();
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.success.header"));
+                alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
+                alert.showAndWait();
                 return true;
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);

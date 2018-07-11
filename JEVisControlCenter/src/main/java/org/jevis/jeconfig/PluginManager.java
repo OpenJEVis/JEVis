@@ -81,19 +81,20 @@ public class PluginManager {
 
     /**
      * Fetch all Installed Plugins from Source and from JEVis Server
-     *
+     * <p>
      * NOTE: Dynamic JEVis Server plugins are not supported for now
+     *
      * @return
      */
-    public List<Plugin> getInstalledPlugins(){
+    public List<Plugin> getInstalledPlugins() {
         List<Plugin> plugins = new ArrayList<>();
-        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
+//        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
         plugins.add(new DashboardPlugin(_ds));
         plugins.add(new ISO5001Browser(_ds));
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
         plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
-        plugins.add(new MapViewPlugin(_ds,I18n.getInstance().getString("plugin.map.title")));
+        plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.map.title")));
         plugins.add(new LoytecBrowser(_ds));
 
         return plugins;
@@ -110,9 +111,9 @@ public class PluginManager {
         //debug
 
         /**
-         * Workaround Sys Admin solution to get the system running
+         * Workaround, Config is always enabled.
          */
-
+        enabledPlugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
 
 
         try {
@@ -120,43 +121,48 @@ public class PluginManager {
             JEVisClass jevisccClass = _ds.getJEVisClass("Control Center");
             JEVisClass pluginClass = _ds.getJEVisClass("Control Center Plugin");
 
-            List<JEVisObject> servicesDir = _ds.getObjects(servicesClass,false);
-            if(servicesDir== null ||servicesDir.isEmpty()){
+            List<JEVisObject> servicesDir = _ds.getObjects(servicesClass, false);
+            if (servicesDir == null || servicesDir.isEmpty()) {
                 System.out.println("Waring missing ServicesDirectory");
-               return;
+                return;
             }
 
-            List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass,true);
-            if(controlCenterObj == null||controlCenterObj.isEmpty()){
+            List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
+            if (controlCenterObj == null || controlCenterObj.isEmpty()) {
                 System.out.println("Waring missing ControlCenter");
                 return;
             }
 
-            List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass,true);
-            if(pluginObjs == null ||pluginObjs.isEmpty()){
+            List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
+            if (pluginObjs == null || pluginObjs.isEmpty()) {
                 System.out.println("Waring No Plugins installed");
                 return;
             }
 
-            if(user.isSysAdmin()){
+            if (user.isSysAdmin()) {
                 enabledPlugins.addAll(plugins);
-            }else{
+            } else {
 
-                for(JEVisObject plugObj: pluginObjs){
-                    for(Plugin plugin:plugins){
-                        System.out.println("-- "+plugin.getClassName());
-                        if(plugin.getClassName().equals(plugObj.getJEVisClassName())){
-                            JEVisAttribute enabled= plugObj.getAttribute("Enable");
-                            if(enabled==null){
-                                continue;
-                            }
-                            JEVisSample value= enabled.getLatestSample();
-                            if(value!=null){
-                                if(value.getValueAsBoolean()){
-                                    enabledPlugins.add(plugin);
+                for (JEVisObject plugObj : pluginObjs) {
+                    try {
+                        for (Plugin plugin : plugins) {
+                            System.out.println("-- " + plugin.getClassName());
+                            if (plugin.getClassName().equals(plugObj.getJEVisClassName())) {
+                                JEVisAttribute enabled = plugObj.getAttribute("Enable");
+                                if (enabled == null) {
+                                    continue;
+                                }
+                                JEVisSample value = enabled.getLatestSample();
+                                if (value != null) {
+                                    if (value.getValueAsBoolean()) {
+                                        enabledPlugins.add(plugin);
+                                    }
                                 }
                             }
+
                         }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                 }
 
@@ -193,15 +199,14 @@ public class PluginManager {
 //            }
 
 
-        }catch (NullPointerException | JEVisException ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        _plugins= enabledPlugins;
+        _plugins = enabledPlugins;
 
 
     }
-
 
 
     public void setWatermark(boolean water) {
