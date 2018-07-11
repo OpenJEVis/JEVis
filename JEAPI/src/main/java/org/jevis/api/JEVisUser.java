@@ -5,39 +5,37 @@
  */
 package org.jevis.api;
 
-import java.util.List;
-
 /**
  *
  * @author fs
  */
 public interface JEVisUser {
 
-    public boolean isEnabled();
+    boolean isEnabled();
 
-    public String getFirstName();
+    String getFirstName();
 
-    public String getLastName();
+    String getLastName();
 
-    public boolean isSysAdmin();
+    boolean isSysAdmin();
 
-    public long getUserID();
+    long getUserID();
 
-    public JEVisObject getUserObject();
+    JEVisObject getUserObject();
 
-    public String getAccountName();
+    String getAccountName();
 
-    public boolean canRead(long objectID);
+    boolean canRead(long objectID);
 
-    public boolean canWrite(long objectID);
+    boolean canWrite(long objectID);
 
-    public boolean canCreate(long objectID);
+    boolean canCreate(long objectID);
 
-    public boolean canExecute(long objectID);
+    boolean canExecute(long objectID);
 
-    public boolean canDelete(long objectID);
+    boolean canDelete(long objectID);
 
-    public void reload();
+    void reload();
 
 
 //    public boolean canDeleteClass(String jclass);

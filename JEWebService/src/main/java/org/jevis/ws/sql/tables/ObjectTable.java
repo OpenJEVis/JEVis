@@ -343,7 +343,7 @@ public class ObjectTable {
         String sql = "select *"
                 + " from " + TABLE
                 + " where " + COLUMN_DELETE + " is null"
-                + " and "+COLUMN_PUBLIC +"=1";
+                + " and " + COLUMN_PUBLIC + "=1";
 
         PreparedStatement ps = null;
         List<JsonObject> objects = new ArrayList<>();

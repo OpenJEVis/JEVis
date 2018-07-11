@@ -38,7 +38,6 @@ public class NaturalOrderComparator implements Comparator {
         List orig = Arrays.asList(strings);
 
 
-
         List scrambled = Arrays.asList(strings);
         Collections.shuffle(scrambled);
 

@@ -143,8 +143,8 @@ public class JEVisObjectWS implements JEVisObject {
         for (JEVisObject obj : children) {
             //TODO: also get inherit
 
-            JEVisClass oClass=obj.getJEVisClass();
-            if (oClass!=null && oClass.equals(jclass)) {
+            JEVisClass oClass = obj.getJEVisClass();
+            if (oClass != null && oClass.equals(jclass)) {
                 filterLIst.add(obj);
             } else {
                 Set<JEVisClass> inheritanceClasses = getInheritanceClasses(new HashSet<JEVisClass>(), obj.getJEVisClass());
@@ -277,7 +277,7 @@ public class JEVisObjectWS implements JEVisObject {
     }
 
     @Override
-    public List<JEVisRelationship> getRelationships() throws JEVisException {
+    public List<JEVisRelationship> getRelationships() {
         return ds.getRelationships(getID());
     }
 
