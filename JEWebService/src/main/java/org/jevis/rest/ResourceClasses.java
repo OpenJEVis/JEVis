@@ -64,7 +64,6 @@ public class ResourceClasses {
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url) {
-        System.out.println("get all classes");
         SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
@@ -176,7 +175,6 @@ public class ResourceClasses {
 
         SQLDataSource ds = null;
         try {
-            System.out.println("PostClass: " + input);
             ds = new SQLDataSource(httpHeaders, request, url);
 
             if (ds.getUserManager().isSysAdmin()) {
@@ -355,7 +353,6 @@ public class ResourceClasses {
 
         SQLDataSource ds = null;
         try {
-            System.out.println("Post icon for: " + name + " byte: " + imageBytes.length);
             ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("ResourceClasses", "putClassIcon");
 
@@ -367,7 +364,6 @@ public class ResourceClasses {
 
             try {
                 File newFile = new File(Config.getClassDir().getAbsoluteFile() + "/" + name + ".png");
-                System.out.println("class.icon: " + newFile + "  size: " + newFile.length());
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(imageBytes));
                 //TODO: maybe resize the image to an default size
                 ImageIO.write(img, "png", newFile);

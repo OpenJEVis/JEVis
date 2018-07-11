@@ -92,7 +92,16 @@ public class UserRightManagerForWS {
                 objectIDOFGroupOwenedObj.add(rel.getFrom());
             }
         }
-        System.out.println("User owned: " + objectIDOFGroupOwenedObj.size());
+
+        try {
+            for (JsonObject publicObj : ds.getObjectTable().getAllPublicObjects()) {
+                objectIDOFGroupOwenedObj.add(publicObj.getId());
+            }
+        }catch (JEVisException ex){
+            ex.printStackTrace();
+        }
+
+
 
         for (JsonRelationship rel : rels) {
             if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) || objectIDOFGroupOwenedObj.contains(rel.getTo())) {
@@ -111,6 +120,11 @@ public class UserRightManagerForWS {
 
         //Public object can be read by all
         if (object.getisPublic()) {
+            return true;
+        }
+
+        //User has access to his own object
+        if(user.getUserID()==object.getId()){
             return true;
         }
 
@@ -144,12 +158,10 @@ public class UserRightManagerForWS {
     }
 
     public List<JsonObject> filterList(List<JsonObject> objects) {
-        System.out.println("filterList: " + isSysAdmin() + "   - " + objects.size());
         //Sys Admin can read it all
         if (isSysAdmin()) {
             return objects;
         }
-        System.out.println("isnotAdmin");
 
         List<JsonObject> list = new LinkedList<>();
         List<JsonRelationship> allRel = ds.getRelationships();
@@ -168,12 +180,10 @@ public class UserRightManagerForWS {
     }
 
     public JsonObject filterObject(JsonObject object) {
-        System.out.println("filterObject: " + isSysAdmin());
         //Sys Admin can read it all
         if (isSysAdmin()) {
             return object;
         }
-        System.out.println("isnotAdmin");
 
         List<JsonRelationship> allRel = ds.getRelationships();
 

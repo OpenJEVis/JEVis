@@ -1,0 +1,19 @@
+{
+  "name": "Control Center",
+  "description": "Control Center plugin configuration",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Control Center",
+      "end": "Service Directory",
+      "type": 3
+    },
+    {
+      "start": "Control Center",
+      "end": "Group",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}

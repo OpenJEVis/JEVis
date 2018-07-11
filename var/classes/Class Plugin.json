@@ -1,0 +1,19 @@
+{
+  "name": "Class Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Class Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Class Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

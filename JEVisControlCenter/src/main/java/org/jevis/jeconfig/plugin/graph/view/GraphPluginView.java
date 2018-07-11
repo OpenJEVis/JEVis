@@ -69,6 +69,11 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     @Override
+    public String getClassName() {
+        return "Graph Plugin";
+    }
+
+    @Override
     public void setHasFocus() {
 
         if (firstStart) {

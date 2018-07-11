@@ -1,0 +1,19 @@
+{
+  "name": "Unit Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Unit Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Unit Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

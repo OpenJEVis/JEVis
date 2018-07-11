@@ -1,0 +1,19 @@
+{
+  "name": "ISO5001 Browser Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "ISO5001 Browser Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "ISO5001 Browser Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

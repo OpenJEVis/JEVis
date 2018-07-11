@@ -34,14 +34,11 @@ public class FileCache {
     }
 
     public static void deleteClassFile() {
-        System.out.println("deleteClassFile");
         try {
             File tmpZipFile = new File(CLASS_JSON);
             if (tmpZipFile.exists()) {
-                System.out.println("file exists delete: "+tmpZipFile);
                 tmpZipFile.delete();
             }else{
-                System.out.println("file does not exists");
             }
         } catch (Exception ex) {
             ex.printStackTrace();

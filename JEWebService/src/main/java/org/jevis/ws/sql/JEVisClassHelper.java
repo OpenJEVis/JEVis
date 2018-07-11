@@ -7,6 +7,7 @@ import org.jevis.commons.ws.json.JsonJEVisClass;
 import org.jevis.commons.ws.json.JsonType;
 import org.jevis.rest.Config;
 
+import javax.xml.transform.Source;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +61,6 @@ public class JEVisClassHelper {
      * @param superClass
      */
     public static void addHeirs(Map<String, JsonJEVisClass> classMap, JsonJEVisClass superClass) {
-
         for (JsonClassRelationship rel : superClass.getRelationships()) {
             if (rel.getType() == JEVisConstants.ClassRelationship.INHERIT
                     && rel.getEnd().equals(superClass.getName())) {
@@ -69,7 +69,6 @@ public class JEVisClassHelper {
                 addHeirs(classMap, subClass);
 
                 if (superClass.getTypes() == null) {
-                    System.out.println("Class without Typelist: " + subClass.getName());
                     superClass.setTypes(new ArrayList<JsonType>());
                 }
                 for (JsonType type : superClass.getTypes()) {
@@ -78,6 +77,8 @@ public class JEVisClassHelper {
                             JsonType clone = cloneType(type);
 //                            clone.setInherited(true);
                             subClass.getTypes().add(clone);
+                        }else{
+//                            System.out.println("Waring, redudant type in "+subClass.getName()+ ": "+type.getName());
                         }
                     } catch (Exception ex) {
 //                        logger.warn(ex);
@@ -119,12 +120,6 @@ public class JEVisClassHelper {
                     } catch (Exception ex) {
                         logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
                     }
-
-                    if (rel.getType() == JEVisConstants.ClassRelationship.INHERIT) {
-                        JsonJEVisClass superClass = classMap.get(rel.getEnd());
-                        addHeirs(classMap, superClass);
-
-                    }
                 }
 
             } catch (Exception ex) {
@@ -149,6 +144,19 @@ public class JEVisClassHelper {
             }
         }
 
+        for (Map.Entry<String, JsonJEVisClass> jc : classMap.entrySet()) {
+            for (JsonClassRelationship rel : jc.getValue().getRelationships()) {
+                try {
+                    if (rel.getType() == JEVisConstants.ClassRelationship.INHERIT) {
+                        JsonJEVisClass superClass = classMap.get(rel.getEnd());
+                        addHeirs(classMap, superClass);
+                    }
+                } catch (Exception ex) {
+                    logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
+                }
+            }
+
+        }
 
     }
 

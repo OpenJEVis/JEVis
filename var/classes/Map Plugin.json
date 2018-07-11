@@ -1,0 +1,19 @@
+{
+  "name": "Map Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Map Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Map Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

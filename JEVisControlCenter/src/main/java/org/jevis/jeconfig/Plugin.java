@@ -30,6 +30,8 @@ import org.jevis.api.JEVisDataSource;
  */
 public interface Plugin {
 
+    String getClassName();
+
     String getName();
 
     void setName(String name);

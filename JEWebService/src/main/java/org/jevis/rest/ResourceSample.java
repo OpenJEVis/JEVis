@@ -190,7 +190,6 @@ public class ResourceSample {
 
             //Your local disk path where you want to store the file
             String uploadedFileLocation = createFilePattern(id, attribute, filename, fmt.parseDateTime(timestamp));
-            System.out.println("upload to: " + uploadedFileLocation);
 
             File objFile = new File(uploadedFileLocation);
             if (objFile.exists()) {
@@ -250,7 +249,6 @@ public class ResourceSample {
             out = new FileOutputStream(new File(uploadedFileLocation));
             while ((read = uploadedInputStream.read(bytes)) != -1) {
                 out.write(bytes, 0, read);
-                System.out.print(".");
             }
             out.flush();
             out.close();
@@ -288,7 +286,6 @@ public class ResourceSample {
             }
 
             List<JsonSample> samples = ds.getSamples(id, attribute, ts, ts, 1);
-            System.out.println("sample: " + samples.size());
 
             if (!samples.isEmpty()) {
                 JsonSample sample = samples.get(0);

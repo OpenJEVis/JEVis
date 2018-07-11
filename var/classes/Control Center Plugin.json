@@ -1,0 +1,18 @@
+{
+  "name": "Control Center Plugin",
+  "description": "Control Center plugin configuration",
+  "unique": false,
+  "relationships": [
+  ],
+  "types": [
+    {
+      "name": "Enable",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Control Center Plugin"
+    }
+  ]
+}

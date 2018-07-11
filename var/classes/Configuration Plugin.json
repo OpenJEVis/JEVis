@@ -1,0 +1,19 @@
+{
+  "name": "Configuration Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Configuration Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Configuration Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

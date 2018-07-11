@@ -1,0 +1,19 @@
+{
+  "name": "Loytec Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Loytec Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Loytec Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

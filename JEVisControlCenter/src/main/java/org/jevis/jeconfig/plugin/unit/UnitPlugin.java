@@ -64,8 +64,11 @@ public class UnitPlugin implements Plugin {
        }
     }
 
-    
-    
+    @Override
+    public String getClassName() {
+        return "Unit Plugin";
+    }
+
     @Override
     public String getName() {
         return name.get();

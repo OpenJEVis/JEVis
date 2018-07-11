@@ -159,7 +159,6 @@ public class ResourceAttribute {
         SQLDataSource ds = null;
         try {
 
-            System.out.println("PostAtt: " + payload);
             ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject obj = ds.getObject(id);

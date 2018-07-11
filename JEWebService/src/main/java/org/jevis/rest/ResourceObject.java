@@ -91,7 +91,6 @@ public class ResourceObject {
                 returnList = ds.getRootObjects();
             } else {
                 returnList = ds.getUserManager().filterList(ds.getObjects());
-                System.out.println("All Object after filter: " + returnList.size());
             }
             if (!jclass.isEmpty()) {
                 returnList = ds.filterObjectByClass(returnList, jclass);

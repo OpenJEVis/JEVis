@@ -37,16 +37,14 @@ public class NaturalOrderComparator implements Comparator {
 
         List orig = Arrays.asList(strings);
 
-        System.out.println("Original: " + orig);
+
 
         List scrambled = Arrays.asList(strings);
         Collections.shuffle(scrambled);
 
-        System.out.println("Scrambled: " + scrambled);
 
         scrambled.sort(new NaturalOrderComparator());
 
-        System.out.println("Sorted: " + scrambled);
     }
 
     int compareRight(String a, String b) {
