@@ -67,16 +67,19 @@ public class SampleExportExtension implements SampleEditorExtension {
     private final static String TITEL = "Export";
     private final BorderPane _view = new BorderPane();
     private JEVisAttribute _att;
+    private boolean needSave = false;
 
     @Override
     public boolean sendOKAction() {
-        try {
 
+        if(needSave){
+            try {
             if (doExport()) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.success.header"));
-                alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
-                alert.showAndWait();
+             
+//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.success.header"));
+//                alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
+//                alert.showAndWait();
                 return true;
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -88,14 +91,16 @@ public class SampleExportExtension implements SampleEditorExtension {
             }
 
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
-            ExceptionDialog errDia = new ExceptionDialog();
-            errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAMM_INFO);
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
-            ExceptionDialog errDia = new ExceptionDialog();
-            errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAMM_INFO);
+                        Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
+                        ExceptionDialog errDia = new ExceptionDialog();
+                        errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAMM_INFO);
+                    } catch (UnsupportedEncodingException ex) {
+                        Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
+                        ExceptionDialog errDia = new ExceptionDialog();
+                        errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAMM_INFO);
+                    }
         }
+
         return false;
     }
 
@@ -292,6 +297,7 @@ public class SampleExportExtension implements SampleEditorExtension {
                 if (file != null) {
                     destinationFile = file;
                     fFile.setText(file.toString());
+                    needSave=true;
                 }
             }
         });
