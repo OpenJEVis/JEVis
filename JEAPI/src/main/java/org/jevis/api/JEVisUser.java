@@ -5,6 +5,8 @@
  */
 package org.jevis.api;
 
+import java.util.List;
+
 /**
  *
  * @author fs
@@ -36,6 +38,7 @@ public interface JEVisUser {
     public boolean canDelete(long objectID);
 
     public void reload();
+
 
 //    public boolean canDeleteClass(String jclass);
 }

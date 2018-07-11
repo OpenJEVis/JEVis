@@ -143,7 +143,8 @@ public class JEVisObjectWS implements JEVisObject {
         for (JEVisObject obj : children) {
             //TODO: also get inherit
 
-            if (obj.getJEVisClass().equals(jclass)) {
+            JEVisClass oClass=obj.getJEVisClass();
+            if (oClass!=null && oClass.equals(jclass)) {
                 filterLIst.add(obj);
             } else {
                 Set<JEVisClass> inheritanceClasses = getInheritanceClasses(new HashSet<JEVisClass>(), obj.getJEVisClass());

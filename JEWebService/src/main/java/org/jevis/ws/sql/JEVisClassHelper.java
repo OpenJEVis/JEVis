@@ -108,7 +108,6 @@ public class JEVisClassHelper {
      * @param classMap
      */
     public static void completeClasses(Map<String, JsonJEVisClass> classMap) {
-        System.out.println("completeClasses");
         Map<String, JsonClassRelationship> clRelationships = new HashMap<>();
         //Add cross relationships
         for (Map.Entry<String, JsonJEVisClass> jc : classMap.entrySet()) {
@@ -149,7 +148,6 @@ public class JEVisClassHelper {
             for (JsonClassRelationship rel : jc.getValue().getRelationships()) {
                 try {
                     if (rel.getType() == JEVisConstants.ClassRelationship.INHERIT) {
-                        System.out.println("Inherit Class");
                         JsonJEVisClass superClass = classMap.get(rel.getEnd());
                         addHeirs(classMap, superClass);
                     }

@@ -33,7 +33,6 @@ public class JEVisObjectTree {
             parent = ds.getObject(1L);
         } else {
             List<JsonObject> roots = ds.getUserManager().getRoots();
-            System.out.println(roots);
             parent = roots.get(0);
         }
 

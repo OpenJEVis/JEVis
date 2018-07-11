@@ -24,7 +24,7 @@ public class CalcLauncher extends AbstractCliApp {
 
     private final Logger logger = LogManager.getLogger(CalcLauncher.class);
     private final Command commands = new Command();
-    private static final String APP_INFO = "JECalculation ver. 2018-02-13 - JEVis - Energy Monitring Software";
+    private static final String APP_INFO = "JECalculation ver. 2018-07-11 - JEVis - Energy Monitring Software";
     private Benchmark bench;
     private int cycleTime = 900000;
 
@@ -41,6 +41,7 @@ public class CalcLauncher extends AbstractCliApp {
             sm.run();
         } else {
             ServiceMode sm = new ServiceMode(ds);
+
             sm.run();
         }
 

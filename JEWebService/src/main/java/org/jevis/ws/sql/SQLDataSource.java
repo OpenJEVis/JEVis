@@ -459,18 +459,15 @@ public class SQLDataSource {
     }
 
     public List<JsonAttribute> getAttributes(long objectID) throws JEVisException {
-        System.out.println("getAttributes");
         JsonObject ob = getObject(objectID);
         JsonJEVisClass jc = Config.getClassCache().get(ob.getJevisClass());
         List<JsonAttribute> atts = getAttributeTable().getAttributes(objectID);
         List<JsonAttribute> result = new ArrayList<>();
 
-        System.out.println("Types: " + jc.getTypes().size());
 
         // because jevis will not create default attributes or manage the update of types
         // we check that all and only all types are there
         for (JsonType type : jc.getTypes()) {
-            System.out.println("Type: " + type.getName());
             boolean exists = false;
             for (JsonAttribute att : atts) {
                 if (type.getName().equals(att.getType())) {
@@ -479,7 +476,6 @@ public class SQLDataSource {
                 }
             }
             if (!exists) {
-                System.out.println("Does not exists -> add");
                 //new Default Attribute
                 JsonAttribute newAtt = new JsonAttribute();
                 newAtt.setType(type.getName());
@@ -498,7 +494,6 @@ public class SQLDataSource {
             }
         }
 
-        System.out.println("Result: " + result.size());
         return result;
 
     }

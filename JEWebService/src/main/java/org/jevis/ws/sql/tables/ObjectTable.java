@@ -94,7 +94,6 @@ public class ObjectTable {
      * @param name
      * @param jclass
      * @param parent
-     * @param group
      * @return
      * @throws JEVisException
      */
@@ -338,6 +337,50 @@ public class ObjectTable {
         return objects;
     }
 
+    public List<JsonObject> getAllPublicObjects() throws JEVisException {
+        logger.trace("getPublicObjects");
+
+        String sql = "select *"
+                + " from " + TABLE
+                + " where " + COLUMN_DELETE + " is null"
+                + " and "+COLUMN_PUBLIC +"=1";
+
+        PreparedStatement ps = null;
+        List<JsonObject> objects = new ArrayList<>();
+
+        try {
+            ps = _connection.getConnection().prepareStatement(sql);
+            _connection.addQuery("Object.getAll()", ps.toString());
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                try {
+                    objects.add(SQLtoJsonFactory.buildObject(rs));
+                } catch (Exception ex) {
+                    logger.error("Cound not load Object: " + ex.getMessage());
+                }
+            }
+
+        } catch (SQLException ex) {
+            logger.error("Error while selecting Object: {} ", ex.getMessage());
+            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
+        } catch (Exception ex) {
+            logger.error(ex);
+            logger.error("Error while selecting Object: {} ", ex);
+            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /*ignored*/
+                }
+            }
+        }
+        logger.debug("getObjects.size: {}", objects.size());
+        return objects;
+    }
+
     public List<JsonObject> getAllObjects() throws JEVisException {
         logger.trace("getAllObject v2: ");
 
@@ -360,7 +403,6 @@ public class ObjectTable {
                     logger.error("Cound not load Object: " + ex.getMessage());
                 }
             }
-            System.out.println("Total Objects after sql: " + objects.size());
 
         } catch (SQLException ex) {
             logger.error("Error while selecting Object: {} ", ex.getMessage());
