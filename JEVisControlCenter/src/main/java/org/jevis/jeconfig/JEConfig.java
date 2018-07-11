@@ -265,10 +265,10 @@ public class JEConfig extends Application {
                     exe.submit(() -> {
                         try {
                             JEVisAttribute activities = _mainDS.getCurrentUser().getUserObject().getAttribute("Activities");
-                            if(activities!=null){
+                            if (activities != null) {
                                 JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
                                 log.commit();
-                            }else{
+                            } else {
                                 logger.warn("Missing activities attribute for user");
                             }
 
@@ -289,7 +289,7 @@ public class JEConfig extends Application {
                     GlobalToolBar toolbar = new GlobalToolBar(pMan);
                     try {
                         pMan.addPluginsByUserSetting(_mainDS.getCurrentUser());
-                    }catch (JEVisException jex){
+                    } catch (JEVisException jex) {
                         logger.error(jex);
                     }
 

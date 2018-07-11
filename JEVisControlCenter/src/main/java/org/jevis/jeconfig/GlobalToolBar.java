@@ -87,10 +87,10 @@ public class GlobalToolBar {
             @Override
             public void handle(ActionEvent t) {
                 System.out.println("send command  " + command);
-                pm.getSelectedPlugin().handelRequest(command);
+                pm.getSelectedPlugin().handleRequest(command);
 
 //                if (pm.getSelectedPlugin() instanceof ObjectPlugin) {
-//                    ((ObjectPlugin) pm.getSelectedPlugin()).handelRequest(command);
+//                    ((ObjectPlugin) pm.getSelectedPlugin()).handleRequest(command);
 //                }
             }
         });
@@ -101,7 +101,7 @@ public class GlobalToolBar {
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                plugin.handelRequest(command);
+                plugin.handleRequest(command);
 
             }
         });

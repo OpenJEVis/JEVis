@@ -7,7 +7,6 @@ import org.jevis.commons.ws.json.JsonJEVisClass;
 import org.jevis.commons.ws.json.JsonType;
 import org.jevis.rest.Config;
 
-import javax.xml.transform.Source;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,7 +76,7 @@ public class JEVisClassHelper {
                             JsonType clone = cloneType(type);
 //                            clone.setInherited(true);
                             subClass.getTypes().add(clone);
-                        }else{
+                        } else {
 //                            System.out.println("Waring, redudant type in "+subClass.getName()+ ": "+type.getName());
                         }
                     } catch (Exception ex) {

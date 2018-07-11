@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -95,7 +93,7 @@ public class PluginManager {
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
         plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
         plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.map.title")));
-        plugins.add(new LoytecBrowser(_ds));
+//        plugins.add(new LoytecBrowser(_ds));
 
         return plugins;
     }
@@ -113,8 +111,7 @@ public class PluginManager {
         /**
          * Workaround, Config is always enabled.
          */
-        enabledPlugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-
+        _plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
 
         try {
             JEVisClass servicesClass = _ds.getJEVisClass("Service Directory");
@@ -142,72 +139,40 @@ public class PluginManager {
             if (user.isSysAdmin()) {
                 enabledPlugins.addAll(plugins);
             } else {
-
                 for (JEVisObject plugObj : pluginObjs) {
                     try {
                         for (Plugin plugin : plugins) {
-                            System.out.println("-- " + plugin.getClassName());
-                            if (plugin.getClassName().equals(plugObj.getJEVisClassName())) {
-                                JEVisAttribute enabled = plugObj.getAttribute("Enable");
-                                if (enabled == null) {
-                                    continue;
-                                }
-                                JEVisSample value = enabled.getLatestSample();
-                                if (value != null) {
-                                    if (value.getValueAsBoolean()) {
-                                        enabledPlugins.add(plugin);
+                            try{
+                                System.out.println("-- " + plugin.getClassName());
+                                if (plugin.getClassName().equals(plugObj.getJEVisClassName())) {
+                                    JEVisAttribute enabled = plugObj.getAttribute("Enable");
+                                    if (enabled == null) {
+                                        continue;
+                                    }
+                                    JEVisSample value = enabled.getLatestSample();
+                                    if (value != null) {
+                                        if (value.getValueAsBoolean()) {
+                                            enabledPlugins.add(plugin);
+                                        }
                                     }
                                 }
+                            }catch(Exception ex){
+                                ex.printStackTrace();
                             }
-
                         }
-                    } catch (Exception ex) {
+                    }catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
+                _plugins = enabledPlugins;
 
             }
 
-            /**
-             * User group Setting, over writing system setting except enabled
-             * TODO: group plugin settings
-             */
-//            System.out.println("User: "+user.getUserObject().getName());
-//            for(JEVisRelationship rel:user.getUserObject().getRelationships(JEVisConstants.ObjectRelationship.MEMBER_READ)){
-//                JEVisObject groupObjs =rel.getEndObject();
-//                List<JEVisObject> controlCenterObjs = groupObjs.getChildren(servicesClass,true);
-//                for(JEVisObject ccObj:controlCenterObjs){
-//                    List<JEVisObject> pObj = groupObjs.getChildren(pluginClass,true);
-//                    for(Plugin plugin:plugins){
-//                        System.out.println("-- "+plugin.getClassName());
-//                        if(plugin.getClassName().equals(ccObj.getJEVisClassName())){
-//                            System.out.println("--- match");
-//                            JEVisAttribute enabled= ccObj.getAttribute("Enable");
-//                            if(enabled==null){
-//                                continue;
-//                            }
-//                            JEVisSample value= enabled.getLatestSample();
-//                            if(value!=null){
-//                                if(value.getValueAsBoolean()){
-//                                    System.out.println("---- enabled");
-//                                    enabledPlugins.add(plugin);
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
 
-
-        } catch (Exception ex) {
+        }catch (Exception ex) {
             ex.printStackTrace();
         }
-
-        _plugins = enabledPlugins;
-
-
     }
-
 
     public void setWatermark(boolean water) {
         _watermark = water;

@@ -26,6 +26,8 @@ import org.jevis.application.dialog.GraphSelectionDialog;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.application.jevistree.plugin.BarchartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
+import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.plugin.graph.ToolBarController;
@@ -160,11 +162,13 @@ public class ToolBarView {
         GraphSelectionDialog dia = new GraphSelectionDialog(ds);
         Map<String, BarChartDataModel> map = new HashMap<>();
 
-        for (BarChartDataModel mdl : getBarChartDataModels()) {
-            map.put(mdl.getObject().getName(), mdl);
+        if (model.getSelectedData() != null) {
+            for (BarChartDataModel mdl : model.getSelectedData()) {
+                map.put(mdl.getObject().getID().toString(), mdl);
+            }
+            dia.setData(map);
         }
 
-        dia.setData(map);
         if (dia.show(JEConfig.getStage()) == GraphSelectionDialog.Response.OK) {
 
             Set<BarChartDataModel> selectedData = new HashSet<>();
@@ -347,10 +351,6 @@ public class ToolBarView {
 
                 getString("plugin.graph.changedate.buttonlastmonth"));
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
-//            ToggleButton lastDay = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastday"));
-//            ToggleButton last30Days = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days"));
-//            ToggleButton lastWeek = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek"));
-//            ToggleButton lastMonth = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth"));
 
         if (!listAnalysisModel.isEmpty())
 
@@ -549,7 +549,7 @@ public class ToolBarView {
             json.setColor(mdl.getColor().toString());
             json.setObject(mdl.getObject().getID().toString());
             json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
-            json.setAggrigation(mdl.getAggregation().toString());
+            json.setAggregation(mdl.getAggregation().toString());
             json.setSelectedStart(mdl.getSelectedStart().toString());
             json.setSelectedEnd(mdl.getSelectedEnd().toString());
             jsonDataModels.add(json);
@@ -569,9 +569,10 @@ public class ToolBarView {
                 json.setColor(mdl.getColor().toString());
                 json.setObject(mdl.getObject().getID().toString());
                 json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
-                json.setAggrigation(mdl.getAggregation().toString());
+                json.setAggregation(mdl.getAggregation().toString());
                 json.setSelectedStart(mdl.getSelectedStart().toString());
                 json.setSelectedEnd(mdl.getSelectedEnd().toString());
+                json.setUnit(mdl.getUnit().toJSON());
                 jsonDataModels.add(json);
             }
             DateTime now = DateTime.now();
@@ -658,6 +659,7 @@ public class ToolBarView {
                 Long id_dp = Long.parseLong(mdl.getDataProcessorObject());
                 JEVisObject obj = ds.getObject(id);
                 JEVisObject obj_dp = ds.getObject(id_dp);
+                JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
                 DateTime start;
                 if (selectedStart != null)
                     start = selectedStart;
@@ -674,15 +676,15 @@ public class ToolBarView {
                 newData.setTitle(mdl.getName());
                 newData.setDataProcessor(obj_dp);
                 newData.getAttribute();
-                newData.setAggregation(parseAggrigation(mdl.getAggrigation()));
+                newData.setAggregation(parseAggrigation(mdl.getAggregation()));
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
                 newData.getSamples();
-                data.put(obj.getName(), newData);
+                newData.setUnit(unit);
+                data.put(obj.getID().toString(), newData);
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
-
         }
         Set<BarChartDataModel> selectedData = new HashSet<>();
         for (Map.Entry<String, BarChartDataModel> entrySet : data.entrySet()) {
