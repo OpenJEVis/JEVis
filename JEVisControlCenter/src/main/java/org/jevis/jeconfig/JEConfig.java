@@ -265,9 +265,13 @@ public class JEConfig extends Application {
                     exe.submit(() -> {
                         try {
                             JEVisAttribute activities = _mainDS.getCurrentUser().getUserObject().getAttribute("Activities");
+                            if(activities!=null){
+                                JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
+                                log.commit();
+                            }else{
+                                logger.warn("Missing activities attribute for user");
+                            }
 
-                            JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
-                            log.commit();
 
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -283,7 +287,11 @@ public class JEConfig extends Application {
                     pMan.setMenuBar(menu);
 
                     GlobalToolBar toolbar = new GlobalToolBar(pMan);
-                    pMan.addPluginsByUserSetting(null);
+                    try {
+                        pMan.addPluginsByUserSetting(_mainDS.getCurrentUser());
+                    }catch (JEVisException jex){
+                        logger.error(jex);
+                    }
 
                     BorderPane border = new BorderPane();
                     VBox vbox = new VBox();

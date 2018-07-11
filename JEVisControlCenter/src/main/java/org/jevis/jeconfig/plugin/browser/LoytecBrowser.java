@@ -130,6 +130,11 @@ public class LoytecBrowser implements Plugin {
 
     }
 
+    @Override
+    public String getClassName() {
+        return "Loytec Browser";
+    }
+
     private void showAlert(String message) {
         System.out.println("http error: " +message);
     }

@@ -65,6 +65,11 @@ public class DashboardPlugin implements Plugin {
     private BooleanProperty lockProperty = new SimpleBooleanProperty(true);
     private ObjectProperty<List<UserSelection>> userSelection = new SimpleObjectProperty(new ArrayList<>());
 
+    @Override
+    public String getClassName() {
+        return "Dashboard Plugin";
+    }
+
     public DashboardPlugin(JEVisDataSource ds) {
         root = new Pane();
 //        root.getStylesheets().add("/styles/Dashboard.css");

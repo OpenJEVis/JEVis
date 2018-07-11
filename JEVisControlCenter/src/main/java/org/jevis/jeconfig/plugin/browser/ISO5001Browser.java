@@ -48,6 +48,11 @@ public class ISO5001Browser implements Plugin {
     private ImageView icon = new ImageView();
     private StringProperty urlProperty = new SimpleStringProperty();
 
+    @Override
+    public String getClassName() {
+        return "ISO5001 Browser Plugin";
+    }
+
     public ISO5001Browser(JEVisDataSource ds) {
         this.ds = ds;
         icon = JEConfig.getImage("if_50_2315874.png", 20, 20);

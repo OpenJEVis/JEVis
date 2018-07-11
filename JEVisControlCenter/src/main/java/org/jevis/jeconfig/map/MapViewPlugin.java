@@ -73,6 +73,11 @@ public class MapViewPlugin implements Plugin {
     }
 
     @Override
+    public String getClassName() {
+        return "Map Plugin";
+    }
+
+    @Override
     public String getName() {
         return name.get();
     }

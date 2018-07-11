@@ -88,6 +88,11 @@ public class ObjectPlugin implements Plugin {
     }
 
     @Override
+    public String getClassName() {
+        return "Configuration Plugin";
+    }
+
+    @Override
     public void setHasFocus() {
 //        if (tree.getSelectionModel().getSelectedItem() == null) {
         try {

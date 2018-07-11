@@ -68,8 +68,11 @@ public class ClassPlugin implements Plugin {
         }
     }
 
-    
-    
+    @Override
+    public String getClassName() {
+        return "Class Plugin";
+    }
+
     @Override
     public String getName() {
         return name.get();
