@@ -60,10 +60,12 @@ public class JEVisTree extends TreeTableView {
     private JEVisTreeRow dragItem;
     private SaveResourceBundle rb;
 
-    public JEVisTree(JEVisDataSource ds) {
-        super();
-        this.ds = ds;
-        rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
+
+    public void reload(){
+        init();
+    }
+
+    private void init(){
         try {
             JEVisTreeItem root = new JEVisTreeItem(this, ds);
             root.setExpanded(true);
@@ -178,7 +180,13 @@ public class JEVisTree extends TreeTableView {
             ex.printStackTrace();
             Logger.getLogger(JEVisTree.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
 
+    public JEVisTree(JEVisDataSource ds) {
+        super();
+        this.ds = ds;
+        rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
+        init();
     }
 
     public SaveResourceBundle getRB() {
