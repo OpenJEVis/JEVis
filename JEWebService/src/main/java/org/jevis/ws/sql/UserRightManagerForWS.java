@@ -97,7 +97,7 @@ public class UserRightManagerForWS {
             for (JsonObject publicObj : ds.getObjectTable().getAllPublicObjects()) {
                 objectIDOFGroupOwenedObj.add(publicObj.getId());
             }
-        }catch (JEVisException ex){
+        } catch (JEVisException ex) {
             ex.printStackTrace();
         }
 
@@ -124,7 +124,7 @@ public class UserRightManagerForWS {
         }
 
         //User has access to his own object
-        if(user.getUserID()==object.getId()){
+        if (user.getUserID() == object.getId()) {
             return true;
         }
 

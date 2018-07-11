@@ -8,6 +8,7 @@ import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.ProcessOptions;
 import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
+import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -42,15 +43,15 @@ public class BarChartDataModel {
 
     public JEVisUnit getUnit() {
         try {
-            if (getAttribute() != null) {
-                return getAttribute().getDisplayUnit();
+            if (_unit == null) {
+                if (getAttribute() != null) {
+                    _unit = getAttribute().getDisplayUnit();
+                }
             }
-
-//            return _unit;
         } catch (JEVisException ex) {
             Logger.getLogger(BarchartPlugin.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
+        return _unit;
     }
 
     public void setUnit(JEVisUnit _unit) {
@@ -66,38 +67,38 @@ public class BarChartDataModel {
 
             try {
                 JEVisDataSource ds = _object.getDataSource();
-                Process aggrigate = null;
+                Process aggregate = null;
                 if (aggregation == BarchartPlugin.AGGREGATION.None) {
 
                 } else if (aggregation == BarchartPlugin.AGGREGATION.Daily) {
-                    aggrigate = new BasicProcess();
-                    aggrigate.setJEVisDataSource(ds);
-                    aggrigate.setID("Dynamic");
-                    aggrigate.setFunction(new AggrigatorFunction());
+                    aggregate = new BasicProcess();
+                    aggregate.setJEVisDataSource(ds);
+                    aggregate.setID("Dynamic");
+                    aggregate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.days(1).toString());
-                    aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
+                    aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
                 } else if (aggregation == BarchartPlugin.AGGREGATION.Monthly) {
-                    aggrigate = new BasicProcess();
-                    aggrigate.setJEVisDataSource(ds);
-                    aggrigate.setID("Dynamic");
-                    aggrigate.setFunction(new AggrigatorFunction());
+                    aggregate = new BasicProcess();
+                    aggregate.setJEVisDataSource(ds);
+                    aggregate.setID("Dynamic");
+                    aggregate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.months(1).toString());
-                    aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
+                    aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
                 } else if (aggregation == BarchartPlugin.AGGREGATION.Weekly) {
-                    aggrigate = new BasicProcess();
-                    aggrigate.setJEVisDataSource(ds);
-                    aggrigate.setID("Dynamic");
-                    aggrigate.setFunction(new AggrigatorFunction());
+                    aggregate = new BasicProcess();
+                    aggregate.setJEVisDataSource(ds);
+                    aggregate.setID("Dynamic");
+                    aggregate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.weeks(1).toString());
-                    aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
+                    aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
                 } else if (aggregation == BarchartPlugin.AGGREGATION.Yearly) {
 //                        System.out.println("year.....  " + Period.years(1).toString());
-                    aggrigate = new BasicProcess();
-                    aggrigate.setJEVisDataSource(ds);
-                    aggrigate.setID("Dynamic");
-                    aggrigate.setFunction(new AggrigatorFunction());
+                    aggregate = new BasicProcess();
+                    aggregate.setJEVisDataSource(ds);
+                    aggregate.setID("Dynamic");
+                    aggregate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.years(1).toString());
-                    aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
+                    aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
                 }
 
 //                    Process dataPorceessor = null;
@@ -107,7 +108,7 @@ public class BarChartDataModel {
                     _attribute = _dataProcessorObject.getAttribute("Value");
                 }
 //                    if (dataPorceessor == null) {
-                if (aggrigate != null) {
+                if (aggregate != null) {
                     Process input = new BasicProcess();
                     input.setJEVisDataSource(ds);
                     input.setID("Dynamic Input");
@@ -117,10 +118,11 @@ public class BarChartDataModel {
                     input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, _attribute.getObject().getID() + ""));
 //                            input.getOptions().put(InputFunction.ATTRIBUTE_ID, getAttribute().getName());
 //                            input.getOptions().put(InputFunction.OBJECT_ID, getAttribute().getObject().getID() + "");
-                    aggrigate.setSubProcesses(Arrays.asList(input));
-                    samples.addAll(aggrigate.getResult());
+                    aggregate.setSubProcesses(Arrays.asList(input));
+                    samples.addAll(factorizeSamples(aggregate.getResult()));
                 } else {
-                    samples.addAll(getAttribute().getSamples(getSelectedStart(), getSelectedEnd()));
+
+                    samples.addAll(factorizeSamples(getAttribute().getSamples(getSelectedStart(), getSelectedEnd())));
 //                            samples.addAll(getAttribute().getAllSamples());
                 }
 
@@ -138,6 +140,240 @@ public class BarChartDataModel {
         }
 
         return samples;
+    }
+
+    private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {
+        if (_unit != null) {
+            List<JEVisSample> outputList = new ArrayList<>();
+            final String outputUnit = UnitManager.getInstance().formate(_unit);
+            final String inputUnit = UnitManager.getInstance().formate(_attribute.getDisplayUnit());
+            Double factor = 1.0;
+            switch (outputUnit) {
+                case "W":
+                    switch (inputUnit) {
+                        case "kW":
+                            factor = 1000d / 1d;
+                            break;
+                        case "MW":
+                            factor = 1000000 / 1d;
+                            break;
+                        case "GW":
+                            factor = 1000000000 / 1d;
+                            break;
+                        case "Wh":
+                            factor = 4 / 1d;
+                            break;
+                        case "kWh":
+                            factor = 4d / 1000d;
+                            break;
+                        case "MWh":
+                            factor = 4 / 1000000d;
+                            break;
+                        case "GWh":
+                            factor = 4 / 1000000000d;
+                            break;
+                    }
+                    break;
+                case "kW":
+                    switch (inputUnit) {
+                        case "W":
+                            factor = 1d / 1000;
+                            break;
+                        case "MW":
+                            factor = 1 / 1000d;
+                            break;
+                        case "GW":
+                            factor = 1 / 1000000d;
+                            break;
+                        case "Wh":
+                            factor = 4000 / 1d;
+                            break;
+                        case "kWh":
+                            factor = 4d / 1d;
+                            break;
+                        case "MWh":
+                            factor = 4 / 1000d;
+                            break;
+                        case "GWh":
+                            factor = 4 / 1000000d;
+                            break;
+                    }
+                    break;
+                case "MW":
+                    switch (inputUnit) {
+                        case "W":
+                            factor = 1 / 1000000d;
+                            break;
+                        case "kW":
+                            factor = 1 / 1000d;
+                            break;
+                        case "GW":
+                            factor = 1000d;
+                            break;
+                        case "Wh":
+                            factor = 4 / 1000000d;
+                            break;
+                        case "kWh":
+                            factor = 4d / 1000d;
+                            break;
+                        case "MWh":
+                            factor = 4 / 1d;
+                            break;
+                        case "GWh":
+                            factor = 4000 / 1d;
+                            break;
+                    }
+                    break;
+                case "GW":
+                    switch (inputUnit) {
+                        case "W":
+                            factor = 1 / 1000000000d;
+                            break;
+                        case "kW":
+                            factor = 1 / 1000000d;
+                            break;
+                        case "MW":
+                            factor = 1 / 1000d;
+                            break;
+                        case "Wh":
+                            factor = 4 / 1000000000d;
+                            break;
+                        case "kWh":
+                            factor = 4d / 1000000d;
+                            break;
+                        case "MWh":
+                            factor = 4 / 1000d;
+                            break;
+                        case "GWh":
+                            factor = 4 / 1d;
+                            break;
+                    }
+                    break;
+                case "Wh":
+                    switch (inputUnit) {
+                        case "kWh":
+                            factor = 1000d;
+                            break;
+                        case "MWh":
+                            factor = 1000000d / 1d;
+                            break;
+                        case "GWh":
+                            factor = 1000000000d / 1d;
+                            break;
+                        case "W":
+                            factor = 1 / 4d;
+                            break;
+                        case "kW":
+                            factor = 1000d / 4d;
+                            break;
+                        case "MW":
+                            factor = 1000000d / 4d;
+                            break;
+                        case "GW":
+                            factor = 1000000000d / 4d;
+                            break;
+                    }
+                    break;
+                case "kWh":
+                    switch (inputUnit) {
+                        case "Wh":
+                            factor = 1 / 1000.0;
+                            break;
+                        case "MWh":
+                            factor = 1000.0;
+                            break;
+                        case "GWh":
+                            factor = 1000000.0;
+                            break;
+                        case "W":
+                            factor = 1000.0 / 4.0;
+                            break;
+                        case "kW":
+                            factor = 1d / 4.0;
+                            break;
+                        case "MW":
+                            factor = 1d / 4000d;
+                            break;
+                        case "GW":
+                            factor = 1 / 4000000d;
+                            break;
+                    }
+                    break;
+                case "MWh":
+                    switch (inputUnit) {
+                        case "Wh":
+                            factor = 1 / 1000000d;
+                            break;
+                        case "kWh":
+                            factor = 1 / 1000d;
+                            break;
+                        case "GWh":
+                            factor = 1000d;
+                            break;
+                        case "W":
+                            factor = 1 / 4000000d;
+                            break;
+                        case "kW":
+                            factor = 1 / 4000d;
+                            break;
+                        case "MW":
+                            factor = 1 / 4d;
+                            break;
+                        case "GW":
+                            factor = 1000 / 4d;
+                            break;
+                    }
+                    break;
+                case "GWh":
+                    switch (inputUnit) {
+                        case "Wh":
+                            factor = 1 / 1000000000d;
+                            break;
+                        case "kWh":
+                            factor = 1 / 1000000d;
+                            break;
+                        case "MWh":
+                            factor = 1 / 1000d;
+                            break;
+                        case "W":
+                            factor = 1d / 4000000000d;
+                            break;
+                        case "kW":
+                            factor = 1d / 4000000d;
+                            break;
+                        case "MW":
+                            factor = 1 / 4000d;
+                            break;
+                        case "GW":
+                            factor = 1 / 4d;
+                            break;
+                    }
+                    break;
+                case "L":
+                    switch (inputUnit) {
+                        case "m³":
+                            factor = 1000d;
+                            break;
+                    }
+                    break;
+                case "m³":
+                    switch (inputUnit) {
+                        case "L":
+                            factor = 1 / 1000d;
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            for (JEVisSample sample : inputList) {
+                JEVisSample newSample = sample;
+                newSample.setValue(sample.getValueAsDouble() * factor);
+                outputList.add(newSample);
+            }
+            return outputList;
+        } else return inputList;
     }
 
     public TableEntry getTableEntry() {
@@ -181,7 +417,6 @@ public class BarChartDataModel {
 
     public void setSelected(boolean selected) {
         _selected = selected;
-        System.out.println("is selectec: " + _object.getName() + "   unit: " + getUnit());
     }
 
     public String getTitle() {
@@ -202,15 +437,6 @@ public class BarChartDataModel {
         } else {
             return null;
         }
-
-//            if (_selectedStart != null && getAttribute() != null) {
-//                System.out.print("-");
-////                System.out.println("getSelectedStart1 " + getAttribute().getTimestampFromFirstSample());
-//                return getAttribute().getTimestampFromFirstSample();
-//            }
-//            System.out.print(".");
-////            System.out.println("getSelectedStart2 " + _selectedStart);
-//            return _selectedStart;
     }
 
     public void setSelectedStart(DateTime selectedStart) {
@@ -229,12 +455,6 @@ public class BarChartDataModel {
         } else {
             return null;
         }
-
-//            if (_selectedEnd != null && getAttribute() != null) {
-//                return getAttribute().getTimestampFromLastSample();
-//            }
-//
-//            return _selectedEnd;
     }
 
     public void setSelectedEnd(DateTime selectedEnd) {
@@ -249,25 +469,21 @@ public class BarChartDataModel {
     }
 
     public void setObject(JEVisObject _object) {
-//            System.out.println("new DataModel: " + _object);
         this._object = _object;
     }
 
     public JEVisAttribute getAttribute() {
 
         if (_attribute == null) {
-//                System.out.println("att is null");
             try {
                 if (getObject().getJEVisClassName().equals("Data") || getObject().getJEVisClassName().equals("Clean Data")) {
                     JEVisAttribute values = getObject().getAttribute("Value");
                     _attribute = values;
                 }
-//                    return values;
             } catch (Exception ex) {
                 Logger.getLogger(BarchartPlugin.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
         return _attribute;
     }
 

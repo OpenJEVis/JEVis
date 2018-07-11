@@ -61,31 +61,31 @@ public class DateValueAxis extends ValueAxis<Long> {
 
     /** These are matching date formatter strings */
     private static final String[] TICK_UNIT_FORMATTER_DEFAULTS = {
-        "MM/dd/yy",     // 1 day
-        "MM/dd/yy",     // 2 das
-        "MM/dd/yy",     // 3 days
-        "MM/dd/yy",     // 4 days
-        "MM/dd/yy",     // 5 days
-        "MM/dd/yy",     // 6 days
-        "MM/dd/yy",     // 7 days
-        "MM/dd/yy",     // 8 days
-        "MM/dd/yy",     // 9 days
-        "MM/dd/yy",     // 10 days
-        "MM/dd/yy",     // 15 days
-        "MM/dd/yy",     // 20 days
-        "MM/dd/yy",     // 25 days
-        "MMM-yyyy",     // 31 days ~ 1 month
-        "MMM-yyyy",     // 41 days
-        "MMM-yyyy",     // 51 days
-        "MMM-yyyy",     // 62 days ~ 2 months
-        "MMM-yyyy",     // 77 days
-        "MMM-yyyy",     // 93 days ~ 3 months
-        "MMM-yyyy",     // 108 days
-        "MMM-yyyy",     // 124 days ~ 4 months
-        "MMM-yyyy",     // 139 days
-        "MMM-yyyy",     // 155 days ~ 5 months
-        "MMM-yyyy",     // 170 days
-        "MMM-yyyy",     // 186 days ~ 6 months
+            "yy-MM-dd",     // 1 day
+            "yy-MM-dd",     // 2 days
+            "yy-MM-dd",     // 3 days
+            "yy-MM-dd",     // 4 days
+            "yy-MM-dd",     // 5 days
+            "yy-MM-dd",     // 6 days
+            "yy-MM-dd",     // 7 days
+            "yy-MM-dd",     // 8 days
+            "yy-MM-dd",     // 9 days
+            "yy-MM-dd",     // 10 days
+            "yy-MM-dd",     // 15 days
+            "yy-MM-dd",     // 20 days
+            "yy-MM-dd",     // 25 days
+            "yyyy-MMM",     // 31 days ~ 1 month
+            "yyyy-MMM",     // 41 days
+            "yyyy-MMM",     // 51 days
+            "yyyy-MMM",     // 62 days ~ 2 months
+            "yyyy-MMM",     // 77 days
+            "yyyy-MMM",     // 93 days ~ 3 months
+            "yyyy-MMM",     // 108 days
+            "yyyy-MMM",     // 124 days ~ 4 months
+            "yyyy-MMM",     // 139 days
+            "yyyy-MMM",     // 155 days ~ 5 months
+            "yyyy-MMM",     // 170 days
+            "yyyy-MMM",     // 186 days ~ 6 months
         "yyyy"          // 366 days ~ 1 year
     };
 

@@ -347,7 +347,7 @@ public class ObjectPlugin implements Plugin {
     }
 
     @Override
-    public void handelRequest(int cmdType) {
+    public void handleRequest(int cmdType) {
         try {
             final TreeItem<JEVisTreeRow> parent = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
             switch (cmdType) {

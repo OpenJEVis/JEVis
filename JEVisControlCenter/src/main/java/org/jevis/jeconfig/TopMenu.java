@@ -93,35 +93,35 @@ public class TopMenu extends MenuBar {
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handelRequest(Constants.Plugin.Command.PASTE);
+                activPlugin.handleRequest(Constants.Plugin.Command.PASTE);
             }
         });
 
         copie.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handelRequest(Constants.Plugin.Command.COPY);
+                activPlugin.handleRequest(Constants.Plugin.Command.COPY);
             }
         });
 
         delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handelRequest(Constants.Plugin.Command.DELTE);
+                activPlugin.handleRequest(Constants.Plugin.Command.DELTE);
             }
         });
 
         rename.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handelRequest(Constants.Plugin.Command.RENAME);
+                activPlugin.handleRequest(Constants.Plugin.Command.RENAME);
             }
         });
 
         findObject.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handelRequest(Constants.Plugin.Command.FIND_OBJECT);
+                activPlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
             }
         });
         menuEdit.getItems().addAll(copie, paste, delete, rename, findObject);

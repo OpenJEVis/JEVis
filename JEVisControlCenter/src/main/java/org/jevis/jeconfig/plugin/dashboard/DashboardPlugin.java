@@ -273,7 +273,7 @@ public class DashboardPlugin implements Plugin {
     }
 
     @Override
-    public void handelRequest(int cmdType) {
+    public void handleRequest(int cmdType) {
     }
 
     @Override

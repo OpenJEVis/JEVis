@@ -207,7 +207,7 @@ public class UnitPlugin implements Plugin {
     }
 
     @Override
-    public void handelRequest(int cmdType) {
+    public void handleRequest(int cmdType) {
 //        try {
 //            switch (cmdType) {
 //                case Constants.Plugin.Command.SAVE:

@@ -38,8 +38,9 @@ public class JsonAnalysisModel {
     private String selectedEnd;
     private String object;
     private String dataProcessorObject;
-    private String aggrigation;
+    private String aggregation;
     private String color;
+    private String unit;
 
     public JsonAnalysisModel() {
     }
@@ -89,13 +90,13 @@ public class JsonAnalysisModel {
         this.dataProcessorObject = dataProcessorObject;
     }
 
-    @XmlElement(name = "aggrigation")
-    public String getAggrigation() {
-        return aggrigation;
+    @XmlElement(name = "aggregation")
+    public String getAggregation() {
+        return aggregation;
     }
 
-    public void setAggrigation(String aggrigation) {
-        this.aggrigation = aggrigation;
+    public void setAggregation(String aggregation) {
+        this.aggregation = aggregation;
     }
 
     @XmlElement(name = "color")
@@ -121,5 +122,14 @@ public class JsonAnalysisModel {
 
     public void setSelected(String selected) {
         this.selected = selected;
+    }
+
+    @XmlElement(name = "unit")
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }

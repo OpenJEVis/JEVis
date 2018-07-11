@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -81,11 +79,12 @@ public class PluginManager {
 
     /**
      * Fetch all Installed Plugins from Source and from JEVis Server
-     *
+     * <p>
      * NOTE: Dynamic JEVis Server plugins are not supported for now
+     *
      * @return
      */
-    public List<Plugin> getInstalledPlugins(){
+    public List<Plugin> getInstalledPlugins() {
         List<Plugin> plugins = new ArrayList<>();
         plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
@@ -93,7 +92,7 @@ public class PluginManager {
         plugins.add(new ISO5001Browser(_ds));
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
         plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
-        plugins.add(new MapViewPlugin(_ds,I18n.getInstance().getString("plugin.map.title")));
+        plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.map.title")));
         plugins.add(new LoytecBrowser(_ds));
 
         return plugins;
@@ -114,45 +113,44 @@ public class PluginManager {
          */
 
 
-
         try {
             JEVisClass servicesClass = _ds.getJEVisClass("Service Directory");
             JEVisClass jevisccClass = _ds.getJEVisClass("Control Center");
             JEVisClass pluginClass = _ds.getJEVisClass("Control Center Plugin");
 
-            List<JEVisObject> servicesDir = _ds.getObjects(servicesClass,false);
-            if(servicesDir== null ||servicesDir.isEmpty()){
+            List<JEVisObject> servicesDir = _ds.getObjects(servicesClass, false);
+            if (servicesDir == null || servicesDir.isEmpty()) {
                 System.out.println("Waring missing ServicesDirectory");
-               return;
+                return;
             }
 
-            List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass,true);
-            if(controlCenterObj == null||controlCenterObj.isEmpty()){
+            List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
+            if (controlCenterObj == null || controlCenterObj.isEmpty()) {
                 System.out.println("Waring missing ControlCenter");
                 return;
             }
 
-            List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass,true);
-            if(pluginObjs == null ||pluginObjs.isEmpty()){
+            List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
+            if (pluginObjs == null || pluginObjs.isEmpty()) {
                 System.out.println("Waring No Plugins installed");
                 return;
             }
 
-            if(user.isSysAdmin()){
+            if (user.isSysAdmin()) {
                 enabledPlugins.addAll(plugins);
-            }else{
+            } else {
 
-                for(JEVisObject plugObj: pluginObjs){
-                    for(Plugin plugin:plugins){
-                        System.out.println("-- "+plugin.getClassName());
-                        if(plugin.getClassName().equals(plugObj.getJEVisClassName())){
-                            JEVisAttribute enabled= plugObj.getAttribute("Enable");
-                            if(enabled==null){
+                for (JEVisObject plugObj : pluginObjs) {
+                    for (Plugin plugin : plugins) {
+                        System.out.println("-- " + plugin.getClassName());
+                        if (plugin.getClassName().equals(plugObj.getJEVisClassName())) {
+                            JEVisAttribute enabled = plugObj.getAttribute("Enable");
+                            if (enabled == null) {
                                 continue;
                             }
-                            JEVisSample value= enabled.getLatestSample();
-                            if(value!=null){
-                                if(value.getValueAsBoolean()){
+                            JEVisSample value = enabled.getLatestSample();
+                            if (value != null) {
+                                if (value.getValueAsBoolean()) {
                                     enabledPlugins.add(plugin);
                                 }
                             }
@@ -193,11 +191,11 @@ public class PluginManager {
 //            }
 
 
-        }catch (NullPointerException | JEVisException ex){
+        } catch (NullPointerException | JEVisException ex) {
             ex.printStackTrace();
         }
 
-        _plugins= enabledPlugins;
+        _plugins = enabledPlugins;
 
 
     }

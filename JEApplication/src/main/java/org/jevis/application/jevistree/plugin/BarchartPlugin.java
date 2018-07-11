@@ -12,7 +12,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.jevis.api.*;
 import org.jevis.application.application.AppLocale;
@@ -20,8 +19,13 @@ import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
 import org.jevis.application.jevistree.TreePlugin;
+import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -464,7 +468,6 @@ public class BarchartPlugin implements TreePlugin {
         processorBox.setItems(FXCollections.observableArrayList(proNames));
 
         processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-            System.out.println("Select GUI Type: " + newValue);
             //TODO:replace this quick and dirty workaround
 
             try {
@@ -630,8 +633,6 @@ public class BarchartPlugin implements TreePlugin {
         column.setPrefWidth(60);
         column.setEditable(true);
 
-        //replace to use the datamodel
-//        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<SelectionTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelecedProperty());
         column.setCellValueFactory(param -> {
             BarChartDataModel data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getUnit());
@@ -644,50 +645,23 @@ public class BarchartPlugin implements TreePlugin {
 
                 TreeTableCell<JEVisTreeRow, JEVisUnit> cell = new TreeTableCell<JEVisTreeRow, JEVisUnit>() {
 
-                    @Override
-                    public void commitEdit(JEVisUnit newValue) {
-                        super.commitEdit(newValue);
-                        BarChartDataModel data = getData(getTreeTableRow().getItem());
-                        data.setUnit(newValue);
-                    }
 
                     @Override
                     protected void updateItem(JEVisUnit item, boolean empty) {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                         if (!empty) {
+
                             StackPane hbox = new StackPane();
-                            Button unitButton = new Button();
-                            unitButton.setPrefWidth(50);
 
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
-
                                 BarChartDataModel data = getData(getTreeTableRow().getItem());
+                                ChoiceBox box = buildUnitBox(data);
 
-                                if (data.getUnit() != null) {
-                                    unitButton.setText(data.getUnit().toString());
-                                }
+                                hbox.getChildren().setAll(box);
 
-                                hbox.getChildren().setAll(unitButton);
-                                StackPane.setAlignment(unitButton, Pos.CENTER_LEFT);
+                                StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
 
-                                unitButton.setOnAction(event -> {
-                                    AttributeSettingsDialog dialog = new AttributeSettingsDialog();
-                                    try {
-                                        dialog.show((Stage) unitButton.getScene().getWindow(), data.getAttribute());
-                                        commitEdit(data.getAttribute().getDisplayUnit());
-                                        unitButton.setText(data.getAttribute().getDisplayUnit().toString());
-                                    } catch (JEVisException ex) {
-                                        Logger.getLogger(BarchartPlugin.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-
-                                });
-
-                                if (data.getAttribute() != null && data.getAttribute().hasSample()) {
-                                    unitButton.setDisable(false);
-                                } else {
-                                    unitButton.setDisable(true);
-                                }
-
+                                box.setDisable(!data.isSelectable());
                             }
 
                             setText(null);
@@ -707,6 +681,127 @@ public class BarchartPlugin implements TreePlugin {
 
         return column;
 
+    }
+
+    private ChoiceBox buildUnitBox(BarChartDataModel singleRow) {
+        List<String> proNames = new ArrayList<>();
+
+        Boolean isEnergyUnit = false;
+        Boolean isVolumeUnit = false;
+        JEVisUnit currentUnit = null;
+        try {
+            if (singleRow.getDataProcessor() != null) {
+                currentUnit = singleRow.getDataProcessor().getAttribute("Value").getDisplayUnit();
+            } else {
+                currentUnit = singleRow.getObject().getAttribute("Value").getDisplayUnit();
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        for (EnergyUnit eu : EnergyUnit.values()) {
+            if (eu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+                isEnergyUnit = true;
+            }
+
+        }
+        if (isEnergyUnit) for (EnergyUnit eu : EnergyUnit.values()) proNames.add(eu.toString());
+
+        for (VolumeUnit vu : VolumeUnit.values()) {
+            if (vu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+                isVolumeUnit = true;
+            }
+        }
+        if (isVolumeUnit) for (VolumeUnit vu : VolumeUnit.values()) proNames.add(vu.toString());
+
+        Unit _l = NonSI.LITER;
+        Unit _m3 = SI.CUBIC_METRE;
+
+        Unit _W = SI.WATT;
+        Unit _kW = SI.KILO(SI.WATT);
+        Unit _MW = SI.MEGA(SI.WATT);
+        Unit _GW = SI.GIGA(SI.WATT);
+        Unit _Wh = SI.WATT.times(NonSI.HOUR);
+        Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
+        Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
+        Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
+
+        final JEVisUnit l = new JEVisUnitImp(_l);
+        final JEVisUnit m3 = new JEVisUnitImp(_m3);
+
+        final JEVisUnit W = new JEVisUnitImp(_W);
+        final JEVisUnit kW = new JEVisUnitImp(_kW);
+        final JEVisUnit MW = new JEVisUnitImp(_MW);
+        final JEVisUnit GW = new JEVisUnitImp(_GW);
+        final JEVisUnit Wh = new JEVisUnitImp(_Wh);
+        final JEVisUnit kWh = new JEVisUnitImp(_kWh);
+        final JEVisUnit MWh = new JEVisUnitImp(_MWh);
+        final JEVisUnit GWh = new JEVisUnitImp(_GWh);
+
+        ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
+
+        processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+            if (oldValue == null || newValue != oldValue) {
+                final String finalNewValue = String.valueOf(newValue);
+                switch (finalNewValue) {
+                    case "W":
+                        singleRow.setUnit(W);
+                        break;
+                    case "kW":
+                        singleRow.setUnit(kW);
+                        break;
+                    case "MW":
+                        singleRow.setUnit(MW);
+                        break;
+                    case "GW":
+                        singleRow.setUnit(GW);
+                        break;
+                    case "Wh":
+                        singleRow.setUnit(Wh);
+                        break;
+                    case "kWh":
+                        singleRow.setUnit(kWh);
+                        break;
+                    case "MWh":
+                        singleRow.setUnit(MWh);
+                        break;
+                    case "GWh":
+                        singleRow.setUnit(GWh);
+                        break;
+                    case "m³":
+                        singleRow.setUnit(m3);
+                        break;
+                    case "l":
+                        singleRow.setUnit(l);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        processorBox.getSelectionModel().select(currentUnit.getLabel());
+
+        return processorBox;
+    }
+
+    private enum EnergyUnit {
+        W, kW, MW, GW, Wh, kWh, MWh, GWh
+    }
+
+    private enum VolumeUnit {
+        l("l"), m3("m³");
+
+        private final String name;
+
+        VolumeUnit(String s) {
+            this.name = s;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
     }
 
     public Map<String, BarChartDataModel> getSelectedData() {
