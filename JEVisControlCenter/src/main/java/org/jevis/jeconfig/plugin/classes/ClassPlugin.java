@@ -222,7 +222,7 @@ public class ClassPlugin implements Plugin {
     }
 
     @Override
-    public void handelRequest(int cmdType) {
+    public void handleRequest(int cmdType) {
         try {
             logger.trace("Event: {}", cmdType);
             switch (cmdType) {

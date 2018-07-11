@@ -80,9 +80,9 @@ public class JEVisTreeRow {
     public String getID() {
 
         if (_obj != null && _attribute != null) {
-            return _obj.getName() + "." + _attribute.getName();
+            return _obj.getID() + "." + _attribute.getName();
         } else if (_obj != null) {
-            return _obj.getName();
+            return _obj.getID().toString();
         } else {
             return "";
         }

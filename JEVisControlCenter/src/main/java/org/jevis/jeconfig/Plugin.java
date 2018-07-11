@@ -52,8 +52,8 @@ public interface Plugin {
 
     void setDataSource(JEVisDataSource ds);
 
-//    void handelRequest(Command command);
-    void handelRequest(int cmdType);
+    //    void handleRequest(Command command);
+    void handleRequest(int cmdType);
 
     Node getContentNode();
 

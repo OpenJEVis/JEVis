@@ -120,26 +120,11 @@ public class GraphSelectionDialog {
         BarchartPlugin bp = null;
         for (TreePlugin plugin : tree.getPlugins()) {
             if (plugin instanceof BarchartPlugin) {
-                System.out.println("Found Barchart plugin");
                 bp = (BarchartPlugin) plugin;
             }
         }
 
         if (!data.isEmpty()) bp.set_data(data);
-
-        BarchartPlugin finalBp = bp;
-        ok.setOnAction(event -> {
-            tree.setUserSelectionEnded();
-            _response = Response.OK;
-
-            System.out.println("Results");
-
-
-            data = finalBp.getSelectedData();
-
-
-            stage.hide();
-        });
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -151,6 +136,16 @@ public class GraphSelectionDialog {
         }
 
         if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
+
+        final BarchartPlugin finalBp = bp;
+        ok.setOnAction(event -> {
+            tree.setUserSelectionEnded();
+            _response = Response.OK;
+
+            data = finalBp.getSelectedData();
+
+            stage.hide();
+        });
 
         stage.showAndWait();
 

@@ -162,18 +162,13 @@ public class ToolBarView {
         GraphSelectionDialog dia = new GraphSelectionDialog(ds);
         Map<String, BarChartDataModel> map = new HashMap<>();
 
-//        if (listAnalysisModel != null) {
-//            for (BarChartDataModel mdl : getBarChartDataModels()) {
-//                map.put(mdl.getObject().getName(), mdl);
-//            }
-//        } else {
-        for (BarChartDataModel mdl : model.getSelectedData()) {
-            map.put(mdl.getObject().getName(), mdl);
+        if (model.getSelectedData() != null) {
+            for (BarChartDataModel mdl : model.getSelectedData()) {
+                map.put(mdl.getObject().getID().toString(), mdl);
+            }
+            dia.setData(map);
         }
-//        }
 
-
-        dia.setData(map);
         if (dia.show(JEConfig.getStage()) == GraphSelectionDialog.Response.OK) {
 
             Set<BarChartDataModel> selectedData = new HashSet<>();
@@ -356,10 +351,6 @@ public class ToolBarView {
 
                 getString("plugin.graph.changedate.buttonlastmonth"));
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
-//            ToggleButton lastDay = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastday"));
-//            ToggleButton last30Days = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days"));
-//            ToggleButton lastWeek = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek"));
-//            ToggleButton lastMonth = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth"));
 
         if (!listAnalysisModel.isEmpty())
 
@@ -690,7 +681,7 @@ public class ToolBarView {
                 newData.set_somethingChanged(true);
                 newData.getSamples();
                 newData.setUnit(unit);
-                data.put(obj.getName(), newData);
+                data.put(obj.getID().toString(), newData);
             } catch (JEVisException e) {
                 e.printStackTrace();
             }

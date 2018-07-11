@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.Axis;
@@ -31,6 +32,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.application.jevistree.plugin.TableEntry;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -209,11 +211,10 @@ public class AreaChartView implements Observer {
         String title = I18n.getInstance().getString("plugin.graph.chart.title1");
 
         for (BarChartDataModel singleRow : selectedData) {
-            unit = singleRow.getUnit().getLabel();
+            unit = UnitManager.getInstance().formate(singleRow.getUnit());
             hexColors.add(singleRow.getColor());
             title = singleRow.getTitle();
 
-            //-----------------------------------------
             List<JEVisSample> samples = singleRow.getSamples();
             ObservableList<XYChart.Data<Number, Number>> series1Data = FXCollections.observableArrayList();
             TreeMap<Double, JEVisSample> sampleMap = new TreeMap();
@@ -221,7 +222,6 @@ public class AreaChartView implements Observer {
             String dp_name = "";
             if (singleRow.getDataProcessor() != null) dp_name = singleRow.getDataProcessor().getName();
             TableEntry tableEntry = new TableEntry(singleRow.getObject().getName() + " (" + dp_name + ")");
-//            tableEntry.setColor(toRGBCode(singleRow.getColor()));
             tableEntry.setColor(singleRow.getColor());
 
             singleRow.setTableEntry(tableEntry);
@@ -262,7 +262,9 @@ public class AreaChartView implements Observer {
                 rect.setVisible(false);
                 data.setNode(rect);
                 series1Data.add(data);
+
             }
+
             if (isQuantitiy) {
                 avg = sum / samples.size();
                 NumberFormat nf_out = NumberFormat.getNumberInstance();
@@ -276,7 +278,7 @@ public class AreaChartView implements Observer {
             }
 
             XYChart.Series<Number, Number> currentSerie = new XYChart.Series<>(singleRow.getObject().getName(), series1Data);
-            currentSerie.setName("test");
+            currentSerie.setName(singleRow.getObject().getName());
             singleRow.setSampleMap(sampleMap);
             series.add(currentSerie);
         }
@@ -304,14 +306,7 @@ public class AreaChartView implements Observer {
             // Set the first series fill to translucent pale green
             nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
         }
-//        int i = 0;
-//        for (Node n : areaChart.lookupAll(".series0")) {
-//            n.setStyle("-fx-fill: blue,white;");
-//            i++;
-//            if (i > 20) {
-//                break;
-//            }
-//        }
+
         areaChart.setTitle(title);
         areaChart.setLegendVisible(false);
         areaChart.setCreateSymbols(false);
@@ -324,21 +319,18 @@ public class AreaChartView implements Observer {
 
         String finalUnit = unit;
         areaChart.setOnMouseMoved(mouseEvent -> {
-            Double valueForDisplay = (Double) areaChart.getXAxis().getValueForDisplay(mouseEvent.getX());
+            Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+            Double x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+            Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
             tableData.clear();
             for (BarChartDataModel singleRow : selectedData) {
                 try {
-                    //TODO change so that only visible data defines table?
-                    Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay);
-                    Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay);
+                    Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                    Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
                     Double nearest = higherKey;
-
-                    if (Objects.nonNull(higherKey) && Objects.nonNull(lowerKey)) {
-                        if (lowerKey - valueForDisplay < higherKey - valueForDisplay) {
-                            nearest = lowerKey;
-                        }
-                    } else if (Objects.isNull(higherKey)) nearest = lowerKey;
-                    else if (Objects.isNull(lowerKey)) nearest = higherKey;
+                    if (lowerKey - valueForDisplay.doubleValue() < higherKey - valueForDisplay.doubleValue()) {
+                        nearest = lowerKey;
+                    }
 
                     NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
                     nf.setMinimumFractionDigits(2);
@@ -352,7 +344,7 @@ public class AreaChartView implements Observer {
                     tableData.add(tableEntry);
 
                     table.layout();
-                } catch (JEVisException ex) {
+                } catch (Exception ex) {
 //                        Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }

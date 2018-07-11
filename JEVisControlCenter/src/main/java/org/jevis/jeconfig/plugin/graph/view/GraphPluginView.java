@@ -177,7 +177,7 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     @Override
-    public void handelRequest(int cmdType) {
+    public void handleRequest(int cmdType) {
         try {
             System.out.println("Command to ClassPlugin: " + cmdType);
             switch (cmdType) {
@@ -213,10 +213,6 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        //create new chart
-        System.out.println("update view");
-        System.out.println(chartView.getAreaChart().getTitle());
-//        border.setCenter(new Button("click me"));
         border.setTop(chartView.getLegend());
         border.setCenter(chartView.getAreaChartRegion());
         border.setBottom(chartView.getVbox());
