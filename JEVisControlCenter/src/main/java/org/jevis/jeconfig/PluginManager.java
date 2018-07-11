@@ -164,7 +164,7 @@ public class PluginManager {
                         ex.printStackTrace();
                     }
                 }
-                _plugins = enabledPlugins;
+                _plugins.addAll(enabledPlugins);
 
             }
 
