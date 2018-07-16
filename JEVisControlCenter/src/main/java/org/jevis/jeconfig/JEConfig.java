@@ -23,9 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -33,13 +30,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.application.application.I18nWS;
@@ -208,12 +203,9 @@ public class JEConfig extends Application {
      */
     private void initGUI(Stage primaryStage) {
 
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent t) {
-                Platform.exit();
-                System.exit(0);
-            }
+        primaryStage.setOnCloseRequest(t -> {
+            Platform.exit();
+            System.exit(0);
         });
 
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
@@ -241,99 +233,92 @@ public class JEConfig extends Application {
         AnchorPane.setLeftAnchor(jeconfigRoot, 0.0);
         AnchorPane.setBottomAnchor(jeconfigRoot, 0.0);
 
-        login.getLoginStatus().addListener(new ChangeListener<Boolean>() {
+        login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                logger.debug("Start JEVis Control Center");
+                _mainDS = login.getDataSource();
+                JEConfig.userpassword = login.getUserPassword();
+                I18n.getInstance().loadBundel(login.getSelectedLocale());
+                I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
+                I18nWS.getInstance().setLocale(login.getSelectedLocale());
+                _config.setLocale(login.getSelectedLocale());
 
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue) {
-                    logger.debug("Start JEVis Control Center");
-                    _mainDS = login.getDataSource();
-                    JEConfig.userpassword = login.getUserPassword();
-                    I18n.getInstance().loadBundel(login.getSelectedLocale());
-                    I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
-                    I18nWS.getInstance().setLocale(login.getSelectedLocale());
-                    _config.setLocale(login.getSelectedLocale());
-
-                    try {
-                        _mainDS.preload();
-                    } catch (Exception ex) {
-                        logger.error("Error while preloading datasource", ex);
-                        ex.printStackTrace();
-                    }
-
-                    ExecutorService exe = Executors.newSingleThreadExecutor();
-                    exe.submit(() -> {
-                        try {
-                            JEVisAttribute activities = _mainDS.getCurrentUser().getUserObject().getAttribute("Activities");
-                            if (activities != null) {
-                                JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
-                                log.commit();
-                            } else {
-                                logger.warn("Missing activities attribute for user");
-                            }
-
-
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    });
-
-                    PROGRAMM_INFO.setJEVisAPI(_mainDS.getInfo());
-                    PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
-                    PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
-
-                    PluginManager pMan = new PluginManager(_mainDS);
-                    TopMenu menu = new TopMenu();
-                    pMan.setMenuBar(menu);
-
-                    GlobalToolBar toolbar = new GlobalToolBar(pMan);
-                    try {
-                        pMan.addPluginsByUserSetting(_mainDS.getCurrentUser());
-                    } catch (JEVisException jex) {
-                        logger.error(jex);
-                    }
-
-                    BorderPane border = new BorderPane();
-                    VBox vbox = new VBox();
-                    vbox.setStyle("-fx-background-color: black;");
-                    vbox.getChildren().addAll(menu, pMan.getToolbar());
-                    border.setTop(vbox);
-                    border.setCenter(pMan.getView());
-
-                    Statusbar statusBar = new Statusbar(_mainDS);
-
-                    border.setBottom(statusBar);
-
-                    //Disable GUI is StatusBar note an disconnect
-                    border.disableProperty().bind(statusBar.connectedProperty.not());
-
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            AnchorPane.setTopAnchor(border, 0.0);
-                            AnchorPane.setRightAnchor(border, 0.0);
-                            AnchorPane.setLeftAnchor(border, 0.0);
-                            AnchorPane.setBottomAnchor(border, 0.0);
-
-                            jeconfigRoot.getChildren().setAll(border);
-                            try {
-
-                                WelcomePage welcome = new WelcomePage();
-                                welcome.show(primaryStage, _config.getWelcomeURL());
-                            } catch (URISyntaxException ex) {
-                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-
-                        }
-                    });
-                    System.gc();
-
-                } else {
-                    System.exit(0);
+                try {
+                    _mainDS.preload();
+                } catch (Exception ex) {
+                    logger.error("Error while preloading datasource", ex);
+                    ex.printStackTrace();
                 }
 
+                PROGRAMM_INFO.setJEVisAPI(_mainDS.getInfo());
+                PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+                PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
+
+                ExecutorService exe = Executors.newSingleThreadExecutor();
+                exe.submit(() -> {
+                    try {
+                        JEVisAttribute activities = getDataSource().getCurrentUser().getUserObject().getAttribute("Activities");
+                        if (activities != null) {
+                            JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
+                            log.commit();
+                        } else {
+                            logger.warn("Missing activities attribute for user");
+                        }
+
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                });
+
+                PluginManager pMan = new PluginManager(_mainDS);
+                TopMenu menu = new TopMenu();
+                pMan.setMenuBar(menu);
+
+                GlobalToolBar toolbar = new GlobalToolBar(pMan);
+                try {
+                    pMan.addPluginsByUserSetting(_mainDS.getCurrentUser());
+                } catch (JEVisException jex) {
+                    logger.error(jex);
+                }
+
+                BorderPane border = new BorderPane();
+                VBox vbox = new VBox();
+                vbox.setStyle("-fx-background-color: black;");
+                vbox.getChildren().addAll(menu, pMan.getToolbar());
+                border.setTop(vbox);
+                border.setCenter(pMan.getView());
+
+                Statusbar statusBar = new Statusbar(_mainDS);
+
+                border.setBottom(statusBar);
+
+                //Disable GUI is StatusBar note an disconnect
+                border.disableProperty().bind(statusBar.connectedProperty.not());
+
+                Platform.runLater(() -> {
+
+                    AnchorPane.setTopAnchor(border, 0.0);
+                    AnchorPane.setRightAnchor(border, 0.0);
+                    AnchorPane.setLeftAnchor(border, 0.0);
+                    AnchorPane.setBottomAnchor(border, 0.0);
+
+                    jeconfigRoot.getChildren().setAll(border);
+                    try {
+
+                        WelcomePage welcome = new WelcomePage();
+                        welcome.show(primaryStage, _config.getWelcomeURL());
+                    } catch (URISyntaxException ex) {
+                        Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                });
+                System.gc();
+
+            } else {
+                System.exit(0);
             }
+
         });
 
         AnchorPane.setTopAnchor(login, 0.0);
@@ -351,36 +336,29 @@ public class JEConfig extends Application {
 
         jeconfigRoot.getChildren().setAll(login);
 
-        primaryStage.onCloseRequestProperty().addListener(new ChangeListener<EventHandler<WindowEvent>>() {
-
-            @Override
-            public void changed(ObservableValue<? extends EventHandler<WindowEvent>> ov, EventHandler<WindowEvent> t, EventHandler<WindowEvent> t1) {
+        primaryStage.onCloseRequestProperty().addListener((ov, t, t1) -> {
+            try {
+                System.out.println("Disconnect");
                 try {
-                    System.out.println("Disconnect");
-                    try {
-                        JEVisAttribute activities = _mainDS.getCurrentUser().getUserObject().getAttribute("Activities");
-                        JEVisSample log = activities.buildSample(new DateTime(), "Logout: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
-                        log.commit();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-
-                    _mainDS.disconnect();
-                } catch (JEVisException ex) {
-                    Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+                    JEVisAttribute activities = _mainDS.getCurrentUser().getUserObject().getAttribute("Activities");
+                    JEVisSample log = activities.buildSample(new DateTime(), "Logout: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
+                    log.commit();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
+
+                _mainDS.disconnect();
+            } catch (JEVisException ex) {
+                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
 
         //Workaround to show the ConnectionStringCreator
 //        ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
         final KeyCombination openEncoder = KeyCodeCombination.keyCombination("Ctrl+Shift+L");
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent ke) {
-                if (openEncoder.match(ke)) {
-                    ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
-                }
+        scene.setOnKeyPressed(ke -> {
+            if (openEncoder.match(ke)) {
+                ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
             }
         });
 

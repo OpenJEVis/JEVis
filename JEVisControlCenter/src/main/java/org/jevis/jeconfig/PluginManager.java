@@ -34,7 +34,6 @@ import javafx.scene.layout.StackPane;
 import org.jevis.api.*;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO5001Browser;
-import org.jevis.jeconfig.plugin.browser.LoytecBrowser;
 import org.jevis.jeconfig.plugin.dashboard.DashboardPlugin;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
@@ -120,24 +119,24 @@ public class PluginManager {
 
             List<JEVisObject> servicesDir = _ds.getObjects(servicesClass, false);
             if (servicesDir == null || servicesDir.isEmpty()) {
-                System.out.println("Waring missing ServicesDirectory");
+                System.out.println("Warning missing ServicesDirectory");
                 return;
             }
 
             List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
             if (controlCenterObj == null || controlCenterObj.isEmpty()) {
-                System.out.println("Waring missing ControlCenter");
+                System.out.println("Warning missing ControlCenter");
                 return;
             }
 
             List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
             if (pluginObjs == null || pluginObjs.isEmpty()) {
-                System.out.println("Waring No Plugins installed");
+                System.out.println("Warning No Plugins installed");
                 return;
             }
 
             if (user.isSysAdmin()) {
-                enabledPlugins.addAll(plugins);
+                _plugins.addAll(getInstalledPlugins());
             } else {
                 for (JEVisObject plugObj : pluginObjs) {
                     try {
