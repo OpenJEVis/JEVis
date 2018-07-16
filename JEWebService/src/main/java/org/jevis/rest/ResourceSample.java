@@ -186,7 +186,15 @@ public class ResourceSample {
 
             JsonAttribute att = ds.getAttribute(obj.getId(), attribute);
 
-            ds.getUserManager().canWrite(obj);//can throw exception
+            if(obj.getJevisClass().equals("User") && obj.getId()==ds.getCurrentUser().getUserID()){
+                if(att.getType().equals("Enabled") || att.getType().equals("Sys Admin")){
+                    throw new JEVisException("permission denied", 3022);
+                }
+            }else{
+                ds.getUserManager().canWrite(obj);//can throw exception
+            }
+
+
 
             //Your local disk path where you want to store the file
             String uploadedFileLocation = createFilePattern(id, attribute, filename, fmt.parseDateTime(timestamp));
