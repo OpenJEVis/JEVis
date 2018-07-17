@@ -32,6 +32,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.application.jevistree.plugin.TableEntry;
+import org.jevis.commons.constants.JEDataProcessorConstants;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
@@ -77,8 +78,12 @@ public class AreaChartView implements Observer {
         value.setStyle("-fx-alignment: CENTER-RIGHT");
 
         TableColumn dateCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.date"));
-        dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, Color>("date"));
+        dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
         dateCol.setStyle("-fx-alignment: CENTER");
+
+        TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
+        note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
+        note.setStyle("-fx-alignment: CENTER");
 
         TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
@@ -101,7 +106,7 @@ public class AreaChartView implements Observer {
         tableData.add(tableEntry);
         table.setItems(tableData);
 
-        table.getColumns().addAll(name, colorCol, value, dateCol, minCol, maxCol, avgCol, sumCol);
+        table.getColumns().addAll(name, colorCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn(String columnName) {
@@ -336,10 +341,13 @@ public class AreaChartView implements Observer {
                     nf.setMinimumFractionDigits(2);
                     nf.setMaximumFractionDigits(2);
                     Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
+                    String note = singleRow.getSampleMap().get(nearest).getNote();
+                    String formattedNote = formatNote(note);
                     String formattedDouble = nf.format(valueAsDouble);
                     TableEntry tableEntry = singleRow.getTableEntry();
                     DateTime dateTime = new DateTime(Math.round(nearest));
                     tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                    tableEntry.setNote(formattedNote);
                     tableEntry.setValue(formattedDouble + " " + finalUnit);
                     tableData.add(tableEntry);
 
@@ -369,6 +377,27 @@ public class AreaChartView implements Observer {
         });
 
         JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+    }
+
+    private String formatNote(String note) {
+        String output = "";
+        if (note.contains("interpolated")) output += "interpolated ";
+        if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
+            output += JEDataProcessorConstants.GapFillingType.AVERAGE;
+        if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
+            output += JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE;
+        if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
+            output += JEDataProcessorConstants.GapFillingType.INTERPOLATION;
+        if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
+            output += JEDataProcessorConstants.GapFillingType.MAXIMUM;
+        if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
+            output += JEDataProcessorConstants.GapFillingType.MINIMUM;
+        if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
+            output += JEDataProcessorConstants.GapFillingType.MEDIAN;
+        if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
+            output += JEDataProcessorConstants.GapFillingType.STATIC;
+
+        return output;
     }
 
     public Region getAreaChartRegion() {
