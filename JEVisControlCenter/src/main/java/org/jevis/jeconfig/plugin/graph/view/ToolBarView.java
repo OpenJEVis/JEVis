@@ -30,6 +30,8 @@ import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 /**
@@ -77,10 +79,11 @@ public class ToolBarView {
         listAnalysesComboBox.setPrefWidth(300);
         updateListAnalyses();
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue == null || !newValue.equals(oldValue)) {
+            if ((oldValue == null) && (Objects.nonNull(newValue)) || !newValue.equals(oldValue)) {
                 this.nameCurrentAnalysis = newValue.toString();
                 setJEVisObjectForCurrentAnalysis(newValue.toString());
                 getListAnalysis();
+                updateTimeFrame();
 
                 updateChart();
             }
@@ -91,6 +94,21 @@ public class ToolBarView {
         Button save = new Button("", JEConfig.getImage("save.gif", iconSize, iconSize));
 
         Button loadNew = new Button("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+
+        Button exportCSV = new Button("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
+
+        exportCSV.setOnAction(action -> {
+            GraphExport ge = new GraphExport(ds, model);
+            try {
+                ge.export();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        });
 
         save.setOnAction(action -> {
             saveCurrentAnalysis();
@@ -141,9 +159,22 @@ public class ToolBarView {
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
 
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select);
+        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV);
         _initialized = true;
         return toolBar;
+    }
+
+    private void updateTimeFrame() {
+        DateTime start = null;
+        DateTime end = null;
+        for (JsonAnalysisModel mdl : listAnalysisModel) {
+            DateTime startNow = DateTime.parse(mdl.getSelectedStart());
+            DateTime endNow = DateTime.parse(mdl.getSelectedEnd());
+            if (start == null || startNow.isBefore(start)) start = startNow;
+            if (end == null || endNow.isAfter(end)) end = endNow;
+        }
+        if (start != null) selectedStart = start;
+        if (end != null) selectedEnd = end;
     }
 
     private void changeSettings(ActionEvent event) {
@@ -324,6 +355,29 @@ public class ToolBarView {
     }
 
     public void updateListAnalyses() {
+        List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
+        try {
+            JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
+            listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+        if (listAnalysesDirectories.isEmpty()) {
+            List<JEVisObject> listBuildings = new ArrayList<>();
+            try {
+                JEVisClass building = ds.getJEVisClass("Building");
+                listBuildings = ds.getObjects(building, false);
+
+                if (!listBuildings.isEmpty()) {
+                    JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
+                    JEVisObject analysesDir = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.graph.analysesdir.defaultname"), analysesDirectory);
+                    analysesDir.commit();
+                }
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+
+        }
         try {
             listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
         } catch (JEVisException e) {
@@ -340,18 +394,21 @@ public class ToolBarView {
         try {
             if (currentAnalysis == null) {
                 updateListAnalyses();
-                setJEVisObjectForCurrentAnalysis(observableListAnalyses.get(0));
+                if (!observableListAnalyses.isEmpty())
+                    setJEVisObjectForCurrentAnalysis(observableListAnalyses.get(0));
             }
-            if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
-                if (currentAnalysis.getAttribute("Data Model").hasSample()) {
-                    String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
-                    if (str.endsWith("]")) {
-                        listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
-                        }.getType());
+            if (currentAnalysis != null) {
+                if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
+                    if (currentAnalysis.getAttribute("Data Model").hasSample()) {
+                        String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
+                        if (str.endsWith("]")) {
+                            listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
+                            }.getType());
 
-                    } else {
-                        listAnalysisModel = new ArrayList<>();
-                        listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                        } else {
+                            listAnalysisModel = new ArrayList<>();
+                            listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                        }
                     }
                 }
             }
