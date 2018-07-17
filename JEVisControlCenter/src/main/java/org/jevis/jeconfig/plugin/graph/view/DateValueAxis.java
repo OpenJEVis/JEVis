@@ -35,9 +35,9 @@ public class DateValueAxis extends ValueAxis<Long> {
     private static final double[] TICK_UNIT_DEFAULTS = {
             3600000,       // 1 day
             7200000,      // 2 das
-            259200000,      // 3 days
-            345600000,      // 4 days
-            432000000,      // 5 days
+            14400000,      // 3 days
+            57600000,      // 4 days
+            18000000,      // 5 days
             518400000,      // 6 days
             604800000,      // 7 days
             691200000,      // 8 days
@@ -65,9 +65,9 @@ public class DateValueAxis extends ValueAxis<Long> {
      * These are matching date formatter strings
      */
     private static final String[] TICK_UNIT_FORMATTER_DEFAULTS = {
-            "yy-MM-dd HH:mm:SS",     // 1 day
-            "yy-MM-dd HH:mm:SS",     // 2 days
-            "yy-MM-dd",     // 3 days
+            "yy-MM-dd HH:mm",     // 1 day
+            "yy-MM-dd HH:mm",     // 2 days
+            "yy-MM-dd HH:mm",     // 3 days
             "yy-MM-dd",     // 4 days
             "yy-MM-dd",     // 5 days
             "yy-MM-dd",     // 6 days
@@ -397,8 +397,6 @@ public class DateValueAxis extends ValueAxis<Long> {
     protected String getTickMarkLabel(Long value) {
         StringConverter<Long> formatter = getTickLabelFormatter();
         if (formatter == null) formatter = defaultFormatter;
-        System.out.println("getTickMarkLabel(): " + formatter.toString(value));
-        System.out.println("defaultFormatter: " + defaultFormatter.toString(value));
         return formatter.toString(value);
     }
 
@@ -791,13 +789,9 @@ public class DateValueAxis extends ValueAxis<Long> {
             if (axis.isAutoRanging()) formatter = getFormatter(axis.currentRangeIndexProperty.get());
             else formatter = getFormatter(-1);
             final ChangeListener axisListener = (observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    if (axis.isAutoRanging()) {
-                        System.out.println("changed formatter");
-                        formatter = getFormatter(axis.currentRangeIndexProperty.get());
-                    } else formatter = getFormatter(-1);
-                }
-
+                if (axis.isAutoRanging()) {
+                    formatter = getFormatter(axis.currentRangeIndexProperty.get());
+                } else formatter = getFormatter(-1);
             };
             axis.currentRangeIndexProperty.addListener(axisListener);
             axis.autoRangingProperty().addListener(axisListener);
