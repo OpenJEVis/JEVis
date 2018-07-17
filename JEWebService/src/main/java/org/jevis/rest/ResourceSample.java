@@ -92,8 +92,12 @@ public class ResourceSample {
                         .entity("Object is not accessable").build();
             }
 
-            if (ds.getUserManager().canRead(obj)) {
-                //will throw exception if not 
+            if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
+                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    throw new JEVisException("permission denied", 3022);
+                }
+            } else {
+                ds.getUserManager().canRead(obj);
             }
 
             logger.trace("got Object: {}", obj);
@@ -173,7 +177,13 @@ public class ResourceSample {
                         .entity("Object is not accessable").build();
             }
 
-            ds.getUserManager().canWrite(obj);//thows exception
+            if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
+                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    throw new JEVisException("permission denied", 3022);
+                }
+            } else {
+                ds.getUserManager().canWrite(obj);//thows exception
+            }
 
             if (timestamp.equals("now")) {
                 timestamp = fmt.print(new DateTime());
@@ -186,14 +196,8 @@ public class ResourceSample {
 
             JsonAttribute att = ds.getAttribute(obj.getId(), attribute);
 
-            if(obj.getJevisClass().equals("User") && obj.getId()==ds.getCurrentUser().getUserID()){
-                if(att.getType().equals("Enabled") || att.getType().equals("Sys Admin")){
-                    throw new JEVisException("permission denied", 3022);
-                }
-            }else{
-                ds.getUserManager().canWrite(obj);//can throw exception
-            }
 
+            ds.getUserManager().canWrite(obj);//can throw exception
 
 
             //Your local disk path where you want to store the file
@@ -372,7 +376,14 @@ public class ResourceSample {
             ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject object = ds.getObject(id);
-            ds.getUserManager().canWrite(object);
+
+            if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
+                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    throw new JEVisException("permission denied", 3022);
+                }
+            } else {
+                ds.getUserManager().canWrite(object);//can throw exception
+            }
 
             List<JsonAttribute> atts = ds.getAttributes(id);
             for (JsonAttribute att : atts) {
@@ -415,9 +426,13 @@ public class ResourceSample {
             ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject object = ds.getObject(id);
-            ds.getUserManager().canDelete(object);
-
-
+            if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
+                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    throw new JEVisException("permission denied", 3022);
+                }
+            } else {
+                ds.getUserManager().canDelete(object);
+            }
             DateTime startDate = null;
             DateTime endDate = null;
             if (onlyLatest) {

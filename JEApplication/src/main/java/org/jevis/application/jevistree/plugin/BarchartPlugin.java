@@ -684,6 +684,8 @@ public class BarchartPlugin implements TreePlugin {
     }
 
     private ChoiceBox buildUnitBox(BarChartDataModel singleRow) {
+        JEVisUnit selectedUnit = null;
+        if (singleRow.getUnit() != null) selectedUnit = singleRow.getUnit();
         List<String> proNames = new ArrayList<>();
 
         Boolean isEnergyUnit = false;
@@ -780,7 +782,9 @@ public class BarchartPlugin implements TreePlugin {
             }
         });
 
-        processorBox.getSelectionModel().select(currentUnit.getLabel());
+        if (selectedUnit != null)
+            processorBox.getSelectionModel().select(UnitManager.getInstance().formate(selectedUnit));
+        else processorBox.getSelectionModel().select(UnitManager.getInstance().formate(currentUnit));
 
         return processorBox;
     }

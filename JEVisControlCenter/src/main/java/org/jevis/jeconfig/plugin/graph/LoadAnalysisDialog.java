@@ -127,11 +127,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         presetDateEntries.addAll(custom, lastDay, last30Days, lastWeek, lastMonth);
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
 
-//            ToggleButton lastDay = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastday"));
-//            ToggleButton last30Days = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days"));
-//            ToggleButton lastWeek = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek"));
-//            ToggleButton lastMonth = new ToggleButton(I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth"));
-
         if (!listAnalysisModel.isEmpty()) {
             DateTime start = DateTime.parse(listAnalysisModel.get(0).getSelectedStart());
             LocalDate ld_start = LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth());
@@ -261,7 +256,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 this.nameCurrentAnalysis = newValue;
                 setJEVisObjectForCurrentAnalysis(newValue);
                 toolBarView.select(nameCurrentAnalysis);
-                toolBarView.select(nameCurrentAnalysis);
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -306,14 +300,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             e.printStackTrace();
         }
         if (listAnalysesDirectories.isEmpty()) {
-            List<JEVisObject> listOrganisation = new ArrayList<>();
+            List<JEVisObject> listBuildings = new ArrayList<>();
             try {
-                JEVisClass organization = ds.getJEVisClass("Organization");
-                listOrganisation = ds.getObjects(organization, false);
+                JEVisClass building = ds.getJEVisClass("Building");
+                listBuildings = ds.getObjects(building, false);
 
-                if (!listOrganisation.isEmpty()) {
+                if (!listBuildings.isEmpty()) {
                     JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
-                    JEVisObject analysesDir = listOrganisation.get(0).buildObject(I18n.getInstance().getString("plugin.graph.analysesdir.defaultname"), analysesDirectory);
+                    JEVisObject analysesDir = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.graph.analysesdir.defaultname"), analysesDirectory);
                     analysesDir.commit();
                 }
             } catch (JEVisException e) {

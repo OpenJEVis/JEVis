@@ -176,7 +176,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
         JEVisSample newSample = null;
 
-        //TODO: replace this , the getPrimitiveType() is very bad because it will call the Webservice for every sampble
+        //TODO: replace this , the getPrimitiveType() is very bad because it will call the Webservice for every sample
 //        if (getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
         if (value instanceof JEVisFile) {// workaround
             JEVisFile file = (JEVisFile) value;
