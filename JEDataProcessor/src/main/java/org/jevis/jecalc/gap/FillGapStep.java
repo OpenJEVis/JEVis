@@ -69,9 +69,7 @@ public class FillGapStep implements ProcessStep {
                     for (Gap g : gaps) {
                         DateTime firstDate = g.getIntervals().get(0).getDate();
                         DateTime lastDate = g.getIntervals().get(g.getIntervals().size() - 1).getDate();
-                        System.out.println("Diff: " + (lastDate.getMillis() - firstDate.getMillis()));
                         if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
-                            System.out.println("Gap: " + g.toString() + " FirstDate: " + firstDate + " LastDate: " + lastDate);
                             newGaps.add(g);
                         }
 

@@ -66,7 +66,6 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public synchronized void notifyListeners(JEVisEvent event) {
-        System.out.println("notify events: " + getID() + "  " + event.getType().toString());
 //        if (event.getType() == JEVisEvent.TYPE.OBJECT_NEW_CHILD) {
 //            children = null;
 //        }
@@ -222,7 +221,6 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public boolean delete() {
-        System.out.println("delete WS object");
         boolean delete = ds.deleteObject(getID());
 
         return delete;
@@ -253,7 +251,6 @@ public class JEVisObjectWS implements JEVisObject {
             rel = ds.buildRelationship(getID(), otherObj.getID(), type);
 
             if (type == JEVisConstants.ObjectRelationship.PARENT) {
-                System.out.println("Event for: " + rel.getEndObject() + " " + rel.getStartObject() + " " + otherObj.getID());
                 otherObj.notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_NEW_CHILD));
             }
 
@@ -314,9 +311,7 @@ public class JEVisObjectWS implements JEVisObject {
         ArrayList allowedChildern = new ArrayList<>();
         for (JEVisClass vp : getJEVisClass().getValidChildren()) {
             if (vp.isUnique()) {
-                System.out.println("Class.isUniqe: " + vp.getName());
                 if (getChildren(vp, false).isEmpty()) {
-                    System.out.println("Does exist so add");
                     allowedChildern.add(vp);
                 }
             } else {
@@ -353,7 +348,6 @@ public class JEVisObjectWS implements JEVisObject {
                 resource += getID();
                 update = true;
             }
-            System.out.println("Update path: " + resource);
 
             StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
             //TODO: remove the relationship from the post json, like in the Webservice JSonFactory

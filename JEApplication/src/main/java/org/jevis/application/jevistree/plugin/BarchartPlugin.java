@@ -518,7 +518,7 @@ public class BarchartPlugin implements TreePlugin {
                     @Override
                     public void commitEdit(JEVisObject newValue) {
                         super.commitEdit(newValue);
-//                        getTreeTableRow().getItem().getObjectSelecedProperty().setValue(newValue);
+//                        getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
 //                        DataModel data = getData(getTreeTableRow().getItem().getID());
 //                        data.setSelected(newValue);
                     }
@@ -565,7 +565,7 @@ public class BarchartPlugin implements TreePlugin {
         column.setEditable(true);
 
         //replace to use the datamodel
-//        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<SelectionTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelecedProperty());
+//        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<SelectionTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelectedProperty());
         column.setCellValueFactory(param -> {
             BarChartDataModel data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getSelected());
@@ -581,7 +581,7 @@ public class BarchartPlugin implements TreePlugin {
                     @Override
                     public void commitEdit(Boolean newValue) {
                         super.commitEdit(newValue);
-                        getTreeTableRow().getItem().getObjectSelecedProperty().setValue(newValue);
+                        getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
                         BarChartDataModel data = getData(getTreeTableRow().getItem());
                         data.setSelected(newValue);
                     }

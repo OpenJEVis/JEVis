@@ -88,6 +88,8 @@ public class HTTPConnection {
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setRequestProperty("Accept-Charset", "UTF-8");
         addAuth(conn, username, password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
@@ -219,7 +221,7 @@ public class HTTPConnection {
 //        logger.trace("resonseCode {}", responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
             BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
+                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
             String inputLine;
             StringBuffer response = new StringBuffer();
 
@@ -227,7 +229,7 @@ public class HTTPConnection {
                 response.append(inputLine);
             }
             in.close();
-            logger.trace("respone.Payload: {}", response);
+            logger.trace("response.Payload: {}", response);
 
 //            try (PrintWriter out = new PrintWriter("/tmp/" + resource.replaceAll("\\/", "") + ".json")) {
 //                out.println(response.toString());
@@ -251,12 +253,14 @@ public class HTTPConnection {
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        addAuth(conn, username, password);
-
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setRequestProperty("Accept-Charset", "UTF-8");
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
+        addAuth(conn, username, password);
 
         logger.debug("HTTP request {}", conn.getURL());
 
+        conn.connect();
         int responseCode = conn.getResponseCode();
 
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();

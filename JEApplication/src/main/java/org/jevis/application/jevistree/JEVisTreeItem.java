@@ -26,7 +26,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.application.object.tree.JEVisRootObject;
 
 import java.util.ArrayList;
@@ -86,72 +89,68 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
     private void addEventHandler() {
         try {
-            getValue().getJEVisObject().addEventListener(new JEVisEventListener() {
-                @Override
-                public void fireEvent(JEVisEvent event) {
-                    System.out.println("TreeItem.event: " + event.getType().toString() + " this: " + JEVisTreeItem.this.getValue().getID());
-                    switch (event.getType()) {
-                        case OBJECT_DELETE:
-                            if (getParent() != null) {
-                                getParent().getChildren().remove(JEVisTreeItem.this);
+            getValue().getJEVisObject().addEventListener(event -> {
+                switch (event.getType()) {
+                    case OBJECT_DELETE:
+                        if (getParent() != null) {
+                            getParent().getChildren().remove(JEVisTreeItem.this);
 
-                                try {
-                                    LOGGER.error("###Delete### Parent: {}", getParent().getValue().getJEVisObject().getName());
-                                    for (JEVisObject child : getParent().getValue().getJEVisObject().getChildren()) {
-                                        LOGGER.error("###Delete### child In DB: {}", child.getName());
+                            try {
+                                LOGGER.error("###Delete### Parent: {}", getParent().getValue().getJEVisObject().getName());
+                                for (JEVisObject child : getParent().getValue().getJEVisObject().getChildren()) {
+                                    LOGGER.error("###Delete### child In DB: {}", child.getName());
 
-                                    }
-                                    for (TreeItem<JEVisTreeRow> child : getParent().getChildren()) {
-                                        LOGGER.error("###Delete### child In Tree: {}", child.getValue().getJEVisObject().getName());
+                                }
+                                for (TreeItem<JEVisTreeRow> child : getParent().getChildren()) {
+                                    LOGGER.error("###Delete### child In Tree: {}", child.getValue().getJEVisObject().getName());
 
-                                    }
-
-                                } catch (Exception ex) {
-                                    LOGGER.catching(ex);
                                 }
 
+                            } catch (Exception ex) {
+                                LOGGER.catching(ex);
                             }
-                            break;
-                        case OBJECT_NEW_CHILD:
-                            JEVisObject ob = (JEVisObject) event.getSource();
-                            LOGGER.error("New Child Event: {}", ob.getID());
 
-                            Platform.runLater(() -> {
-                                setExpanded(false);
-                                _childLoaded = false;
-                                getChildren();
+                        }
+                        break;
+                    case OBJECT_NEW_CHILD:
+                        JEVisObject ob = (JEVisObject) event.getSource();
+                        LOGGER.error("New Child Event: {}", ob.getID());
 
-                                setExpanded(true);
+                        Platform.runLater(() -> {
+                            setExpanded(false);
+                            _childLoaded = false;
+                            getChildren();
 
-                            });
-                            break;
-                        case OBJECT_CHILD_DELETED:
-                            LOGGER.error("Delete Child Event: {}", getValue().getJEVisObject().getID());
-                            Platform.runLater(() -> {
-                                setExpanded(false);
-                                _childLoaded = false;
-                                getChildren();
+                            setExpanded(true);
 
-                                setExpanded(true);
+                        });
+                        break;
+                    case OBJECT_CHILD_DELETED:
+                        LOGGER.error("Delete Child Event: {}", getValue().getJEVisObject().getID());
+                        Platform.runLater(() -> {
+                            setExpanded(false);
+                            _childLoaded = false;
+                            getChildren();
 
-                            });
-                            break;
-                        case OBJECT_UPDATED:
-                            LOGGER.trace("New Update Event: {}", getValue().getJEVisObject().getID());
-                            Platform.runLater(() -> {
-                                JEVisTreeRow oldValue = getValue();
-                                setValue(null);
-                                _childLoaded = false;
-                                getGraphic();
+                            setExpanded(true);
 
-                                setValue(oldValue);
-                            });
-                            break;
-                        default:
-                            break;
-                    }
+                        });
+                        break;
+                    case OBJECT_UPDATED:
+                        LOGGER.trace("New Update Event: {}", getValue().getJEVisObject().getID());
+                        Platform.runLater(() -> {
 
+                            _childLoaded = false;
+
+                            JEVisTreeRow sobj = new JEVisTreeRow(getValue().getJEVisObject());
+                            this.setValue(sobj);
+
+                        });
+                        break;
+                    default:
+                        break;
                 }
+
             });
 
         } catch (Exception ex) {

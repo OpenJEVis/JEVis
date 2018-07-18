@@ -23,6 +23,7 @@ public class TableEntry {
     private final SimpleStringProperty max;
     private final SimpleStringProperty avg;
     private final SimpleStringProperty sum;
+    private final SimpleStringProperty note;
 
     public TableEntry(String name) {
         this.name = new SimpleStringProperty(name);
@@ -35,6 +36,7 @@ public class TableEntry {
         this.min = new SimpleStringProperty();
         this.max = new SimpleStringProperty();
         this.sum = new SimpleStringProperty();
+        this.note = new SimpleStringProperty();
     }
 
     public String getName() {
@@ -47,6 +49,18 @@ public class TableEntry {
 
     public String getDate() {
         return date.get();
+    }
+
+    public String getNote() {
+        return note.get();
+    }
+
+    public void setNote(String note) {
+        this.note.set(note);
+    }
+
+    public SimpleStringProperty noteProperty() {
+        return note;
     }
 
     public void setName(String name) {

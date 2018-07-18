@@ -20,6 +20,8 @@
 package org.jevis.jeconfig.sample;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -31,6 +33,7 @@ import javafx.util.StringConverter;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.jeconfig.plugin.graph.view.DateAxis;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -102,32 +105,32 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
     private XYChart buildChart(final List<JEVisSample> samples) {
 
-        final NumberAxis xAxis = new NumberAxis();
+        final DateAxis xAxis = new DateAxis();
         final NumberAxis yAxis = new NumberAxis();
 
-        xAxis.setAutoRanging(false);
+        xAxis.setAutoRanging(true);
 
         yAxis.setAutoRanging(true);
 
 //        xAxis.setTickUnit(1);
 //        xAxis.setTickMarkVisible(true);
 //        xAxis.setTickLength(1);
+
 //        final DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyy-MM-dd    HH:mm:ss");
         final DateTimeFormatter fmtDate = DateTimeFormat.forPattern("HH:mm yyyy-MM-dd");
 //        xAxis.setMinorTickCount(1);
 //        xAxis.setMinorTickLength(1);
 
-        xAxis.setMinorTickVisible(true);
+
         xAxis.setTickLabelRotation(55d);
         xAxis.setTickLabelGap(10);
-        xAxis.setTickLabelFormatter(new StringConverter<Number>() {
+        xAxis.setTickLabelFormatter(new StringConverter() {
 
             @Override
-            public String toString(Number object) {
-                DateTime dt = new DateTime(object.longValue() * 60 * 1000);//bad performace to convret DateTime to long and back
+            public String toString(Object object) {
+                DateTime dt = new DateTime(object);//bad performace to convret DateTime to long and back
 //                System.out.println("Formate X Axis: " + object.longValue() + "   dt: " + dt + "  to: " + fmtDate.print(dt));
                 return fmtDate.print(dt);
-
             }
 
             @Override
@@ -167,7 +170,19 @@ public class SampleGraphExtension implements SampleEditorExtension {
 //            }
 //        });
 //        xAxis.setLabel("Month");
-        final LineChart<Number, Number> lineChart = new LineChart(xAxis, yAxis);
+
+
+        int intervall = (15 * 60 * 1000);
+        ObservableList<XYChart.Series> listSeries = FXCollections.observableArrayList();
+        try {
+
+            XYChart.Series series1 = buildSeries(samples, intervall);
+            listSeries.add(series1);
+
+        } catch (JEVisException ex) {
+            Logger.getLogger(SampleGraphExtension.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        final LineChart<Number, Number> lineChart = new LineChart(xAxis, yAxis, listSeries);
 //        final BarChart<String, Number> lineChart = new BarChart(xAxis, yAxis);
 
         String titel = String.format("");
@@ -177,26 +192,11 @@ public class SampleGraphExtension implements SampleEditorExtension {
         lineChart.setLegendVisible(false);
         lineChart.setCache(true);
 
-        int intervall = (15 * 60 * 1000);
-
-        try {
-            XYChart.Series series1 = buildSeries(samples, intervall);
-            lineChart.getData().addAll(series1);
-        } catch (JEVisException ex) {
-            Logger.getLogger(SampleGraphExtension.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        XYChart.Series series1 = new XYChart.Series();
-
         try {
             if (samples != null && samples.isEmpty()) {
-                xAxis.setLowerBound((samples.get(0).getTimestamp().getMillis() / 1000 / 60));
-                xAxis.setUpperBound((samples.get(samples.size() - 1).getTimestamp().getMillis() / 1000 / 60));
+                xAxis.setLowerBound((samples.get(0).getTimestamp().toDate()));
+                xAxis.setUpperBound((samples.get(samples.size() - 1).getTimestamp().toDate()));
 
-                double total = (samples.get(samples.size() - 1).getTimestamp().getMillis() / 1000 / 60) - (samples.get(0).getTimestamp().getMillis() / 1000 / 60);
-
-//            System.out.println("Size: " + (total / 75d));
-                lineChart.setPrefWidth(total * 100 / 75d);
             }
 
 
@@ -204,24 +204,6 @@ public class SampleGraphExtension implements SampleEditorExtension {
             Logger.getLogger(SampleGraphExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-//        int pos = 0;
-//
-//        for (JEVisSample sample : samples) {
-//            try {
-//                series1.getData().add(new XYChart.Data((Number) pos, sample.getValueAsDouble()));
-//
-//                if (yAxis.getLowerBound() > sample.getValueAsDouble()) {
-//                    yAxis.setLowerBound(sample.getValueAsDouble() * 0.9d);
-//                }
-//
-//                pos++;
-//            } catch (Exception ex) {
-//                Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
-//        yAxis.setLowerBound(10d);
-//        lineChart.getData().addAll(series1);
-//        lineChart.setPrefWidth(720);
         return lineChart;
     }
 
@@ -251,7 +233,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
                 DateTime ts = sample.getTimestamp();
                 if (ts.isBefore(newStep)) {
 //                    System.out.println("add TS1: " + (ts.getMillis() / 1000 / 60) + "  " + sample.getValueAsDouble());
-                    XYChart.Data data = new XYChart.Data(ts.getMillis() / 1000 / 60, sample.getValueAsDouble());
+                    XYChart.Data data = new XYChart.Data(ts.toDate(), sample.getValueAsDouble());
 
                     Tooltip.install(data.getNode(), new Tooltip(
                             "Timestamp: " + sample.getTimestamp().toString() + "\n"
@@ -261,7 +243,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
 //                    series1.getData().add(new XYChart.Data((Number) (ts.getMillis() / 1000 / 60), sample.getValueAsDouble()));
                     lastPos = i;
                 } else if (ts.equals(newStep)) {
-                    XYChart.Data data = new XYChart.Data(ts.getMillis() / 1000 / 60, sample.getValueAsDouble());
+                    XYChart.Data data = new XYChart.Data(ts.toDate(), sample.getValueAsDouble());
 
                     Tooltip.install(data.getNode(), new Tooltip(
                             "Timestamp: " + sample.getTimestamp().toString() + "\n"
@@ -273,7 +255,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
                     break;
                 } else {
 //                    System.out.println("add TS3: " + (ts.getMillis() / 1000 / 60) + "  " + sample.getValueAsDouble());
-                    series1.getData().add(new XYChart.Data(newStep.getMillis() / 1000 / 60, 0));//? get Last Sample
+                    series1.getData().add(new XYChart.Data(newStep.toDate(), 0));//? get Last Sample
 
                     break;
                 }

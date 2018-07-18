@@ -331,7 +331,7 @@ public class MapPlugin implements TreePlugin {
         column.setEditable(true);
 
         //replace to use the datamodel
-//        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<SelectionTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelecedProperty());
+//        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<SelectionTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelectedProperty());
         column.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<JEVisTreeRow, Boolean>, ObservableValue<Boolean>>() {
 
             @Override
@@ -351,7 +351,7 @@ public class MapPlugin implements TreePlugin {
                     @Override
                     public void commitEdit(Boolean newValue) {
                         super.commitEdit(newValue);
-                        getTreeTableRow().getItem().getObjectSelecedProperty().setValue(newValue);
+                        getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
                         DataModel data = getData(getTreeTableRow().getItem());
                         data.setSelected(newValue);
                     }
