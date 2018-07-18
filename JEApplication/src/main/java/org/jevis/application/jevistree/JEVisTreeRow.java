@@ -37,7 +37,7 @@ public class JEVisTreeRow {
     private final JEVisObject _obj;
     private JEVisAttribute _attribute = null;
     private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLUE);
-    private final BooleanProperty objectSelecedProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty objectSelectedProperty = new SimpleBooleanProperty(false);
 
     public enum TYPE {
 
@@ -69,8 +69,8 @@ public class JEVisTreeRow {
         return _obj;
     }
 
-    public BooleanProperty getObjectSelecedProperty() {
-        return objectSelecedProperty;
+    public BooleanProperty getObjectSelectedProperty() {
+        return objectSelectedProperty;
     }
 
     public ObjectProperty<Color> getColorProperty() {

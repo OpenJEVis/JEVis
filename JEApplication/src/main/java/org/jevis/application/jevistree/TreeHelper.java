@@ -205,7 +205,6 @@ public class TreeHelper {
 
     public static void buildLink(JEVisObject linkSrcObj, final JEVisObject targetParent, String linkName) {
         try {
-            System.out.println("build new link(" + linkName + "): " + linkSrcObj.getName() + " -> " + targetParent.getName());
             JEVisObject newLinkObj = targetParent.buildObject(linkName, targetParent.getDataSource().getJEVisClass(CommonClasses.LINK.NAME));
             CommonObjectTasks.createLink(newLinkObj, linkSrcObj);
         } catch (JEVisException ex) {
@@ -239,8 +238,6 @@ public class TreeHelper {
                         if (!dia.getCreateName().isEmpty()) {
                             object.setName(dia.getCreateName());
                             object.commit();
-                            EventReload(object);
-
                         }
 
                     } catch (JEVisException ex) {
@@ -306,7 +303,6 @@ public class TreeHelper {
         if (recursive) {
             LOGGER.debug("recursive is enabled");
             for (JEVisObject otherChild : toCopyObj.getChildren()) {
-                System.out.println("---> Copy Child: " + otherChild.getID());
                 copyObjectUnder(otherChild, newObject, otherChild.getName(), includeContent, recursive);
             }
         }
@@ -462,7 +458,7 @@ public class TreeHelper {
     }
 
     /**
-     * Opens the new Object dialog for the currently selected note in the tree
+     * Opens the new Object dialog for the currently selected node in the tree
      *
      * @param tree
      */

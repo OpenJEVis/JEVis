@@ -20,8 +20,6 @@
  */
 package org.jevis.application.jevistree;
 
-import java.util.HashMap;
-import java.util.Map;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
@@ -30,27 +28,23 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
-import org.jevis.application.resource.ImageConverter;
 import org.jevis.application.resource.ResourceLoader;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -401,7 +395,7 @@ public class ColumnFactory {
     public static TreeTableColumn<JEVisTreeRow, Boolean> buildBasicRowSelection(JEVisTree tree) {
         TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(SELECT_OBJECT);
         column.setPrefWidth(60);
-        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelecedProperty());
+        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelectedProperty());
 
         column.setEditable(true);
 
@@ -415,7 +409,7 @@ public class ColumnFactory {
                     @Override
                     public void commitEdit(Boolean newValue) {
                         super.commitEdit(newValue);
-                        getTreeTableRow().getItem().getObjectSelecedProperty().setValue(newValue);
+                        getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
                     }
 
                     @Override

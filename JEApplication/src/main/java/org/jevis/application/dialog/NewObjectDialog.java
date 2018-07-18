@@ -106,13 +106,7 @@ public class NewObjectDialog {
             userSetName = true;
         }
 
-        fName.setOnKeyTyped(new EventHandler<KeyEvent>() {
-
-            @Override
-            public void handle(KeyEvent event) {
-                userSetName = true;
-            }
-        });
+        fName.setOnKeyTyped(event -> userSetName = true);
 
         Label lClass = new Label(rb.getString("jevistree.dialog.new.class"));
 
@@ -170,17 +164,13 @@ public class NewObjectDialog {
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 
-        comboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<JEVisClass>() {
-
-            @Override
-            public void changed(ObservableValue<? extends JEVisClass> observable, JEVisClass oldValue, JEVisClass newValue) {
-                try {
-                    if (!userSetName) {
-                        fName.setText(newValue.getName());
-                    }
-                } catch (JEVisException ex) {
-                    Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+        comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!userSetName) {
+                    fName.setText(newValue.getName());
                 }
+            } catch (JEVisException ex) {
+                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
 
@@ -192,7 +182,7 @@ public class NewObjectDialog {
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
 
         Label lCount = new Label(rb.getString("jevistree.dialog.new.amount"));
-        //TODo: disable spinner if class is uniq also disable OK button if there is allready one of its kind
+        //TODo: disable spinner if class is unique also disable OK button if there is already one of its kind
         final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
         if (fixClass) {
@@ -203,10 +193,12 @@ public class NewObjectDialog {
         gp.add(lName, 0, x);
         gp.add(fName, 1, x);
 
+
         gp.add(lClass, 0, ++x, 1, 1);
         gp.add(comboBox, 1, x, 1, 1);
         gp.add(lCount, 0, ++x);
         gp.add(count, 1, x);
+
 
         GridPane.setHgrow(count, Priority.ALWAYS);
 
