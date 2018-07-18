@@ -459,43 +459,52 @@ public class SQLDataSource {
     }
 
     public List<JsonAttribute> getAttributes(long objectID) throws JEVisException {
-        JsonObject ob = getObject(objectID);
-        JsonJEVisClass jc = Config.getClassCache().get(ob.getJevisClass());
-        List<JsonAttribute> atts = getAttributeTable().getAttributes(objectID);
-        List<JsonAttribute> result = new ArrayList<>();
+        try {
+            JsonObject ob = getObject(objectID);
+            JsonJEVisClass jc = Config.getClassCache().get(ob.getJevisClass());
+            List<JsonAttribute> atts = getAttributeTable().getAttributes(objectID);
+            List<JsonAttribute> result = new ArrayList<>();
 
+            // because jevis will not create default attributes or manage the update of types
+            // we check that all and only all types are there
+            if(jc.getTypes()!=null) {
+                for (JsonType type : jc.getTypes()) {
+                    boolean exists = false;
+                    for (JsonAttribute att : atts) {
+                        if (type.getName().equals(att.getType())) {
+                            exists = true;
+                            result.add(att);
+                        }
+                    }
+                    if (!exists) {
+                        //new Default Attribute
+                        JsonAttribute newAtt = new JsonAttribute();
+                        newAtt.setType(type.getName());
+                        newAtt.setBegins("");
+                        newAtt.setEnds("");
+                        newAtt.setDisplaySampleRate(Period.ZERO.toString());
+                        newAtt.setInputSampleRate("");
+                        newAtt.setSampleCount(0);
+                        newAtt.setPrimitiveType(type.getPrimitiveType());
 
-        // because jevis will not create default attributes or manage the update of types
-        // we check that all and only all types are there
-        for (JsonType type : jc.getTypes()) {
-            boolean exists = false;
-            for (JsonAttribute att : atts) {
-                if (type.getName().equals(att.getType())) {
-                    exists = true;
-                    result.add(att);
+                        JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+
+                        newAtt.setDisplayUnit(unit);
+                        newAtt.setInputUnit(unit);
+                        result.add(newAtt);
+                    }
                 }
-            }
-            if (!exists) {
-                //new Default Attribute
-                JsonAttribute newAtt = new JsonAttribute();
-                newAtt.setType(type.getName());
-                newAtt.setBegins("");
-                newAtt.setEnds("");
-                newAtt.setDisplaySampleRate(Period.ZERO.toString());
-                newAtt.setInputSampleRate("");
-                newAtt.setSampleCount(0);
-                newAtt.setPrimitiveType(type.getPrimitiveType());
 
-                JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+                return result;
 
-                newAtt.setDisplayUnit(unit);
-                newAtt.setInputUnit(unit);
-                result.add(newAtt);
             }
+            System.out.println("Emty Type list for class: "+jc.getName());
+            return new ArrayList<>();
+        }catch (Exception ex){
+            System.out.println("================= Error in attribute: "+objectID);
+            ex.printStackTrace();
+            return new ArrayList<>();
         }
-
-        return result;
-
     }
 
     public boolean setAttribute(long objectID, JsonAttribute att) throws JEVisException {

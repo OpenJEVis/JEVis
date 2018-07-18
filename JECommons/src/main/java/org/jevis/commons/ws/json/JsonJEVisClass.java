@@ -20,6 +20,7 @@
  */
 package org.jevis.commons.ws.json;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -36,8 +37,8 @@ public class JsonJEVisClass {
     private String description;
 //    private String inheritance;
     private boolean unique;
-    private List<JsonClassRelationship> relationships;
-    private List<JsonType> types;
+    private List<JsonClassRelationship> relationships= new ArrayList<>();
+    private List<JsonType> types = new ArrayList<>();
 
     public JsonJEVisClass() {
     }

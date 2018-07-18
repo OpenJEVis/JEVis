@@ -11,14 +11,18 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
+import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 
-public class CalculationExtension implements ObjectEditorExtension {
+public class CalculationExtension implements ObjectEditorExtension  {
 
     public static final String CALC_CLASS_NAME = "Calculation";
     private static final String TITLE = I18n.getInstance().getString("plugin.object.calculation");
@@ -26,6 +30,8 @@ public class CalculationExtension implements ObjectEditorExtension {
     private final BorderPane view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisObject _obj;
+    private CalculationViewController contol;
+    private String oldExpression = "";
 
     public CalculationExtension(JEVisObject _obj) {
         this._obj = _obj;
@@ -50,6 +56,7 @@ public class CalculationExtension implements ObjectEditorExtension {
 
     @Override
     public void setVisible() {
+        System.out.println("SetVisible");
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 20, 20));
         gridPane.setHgap(7);
@@ -72,10 +79,24 @@ public class CalculationExtension implements ObjectEditorExtension {
         //fxmlLoader.setController(new CalculationViewController());
         try {
             editConfigPane = fxmlLoader.load();
-        } catch (IOException e) {
+            contol = fxmlLoader.<CalculationViewController>getController();
+            contol.setData(_obj);
+
+            JEVisAttribute aExprsssion = _obj.getAttribute("Expression");
+            JEVisSample lastValue = aExprsssion.getLatestSample();
+
+            if(lastValue!=null){
+                System.out.println("LastSample: "+lastValue.getTimestamp()+" "+lastValue.getValueAsString());
+                oldExpression=lastValue.getValueAsString();
+            }
+
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
 //            editConfigPane = FXMLLoader.load(getClass().getResource("/fxml/EditConfiguration.fxml"));
+
+
 
         ap.getChildren().add(editConfigPane);
         view.setCenter(ap);
@@ -89,7 +110,9 @@ public class CalculationExtension implements ObjectEditorExtension {
 
     @Override
     public boolean needSave() {
-        return false;
+
+
+        return  _changed.getValue();
     }
 
     @Override
@@ -99,7 +122,22 @@ public class CalculationExtension implements ObjectEditorExtension {
 
     @Override
     public boolean save() {
-        return _changed.getValue();
+        try {
+            _changed.setValue(!contol.getFormel().equals(oldExpression));
+            if(needSave()){
+                String newExpression = contol.getFormel();
+                JEVisAttribute aExprsssion = _obj.getAttribute("Expression");
+
+                JEVisSample newSample =aExprsssion.buildSample(new DateTime(),newExpression);
+                newSample.commit();
+                oldExpression=newExpression;
+                _changed.setValue(false);
+            }
+            return true;
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return false;
     }
 
     @Override

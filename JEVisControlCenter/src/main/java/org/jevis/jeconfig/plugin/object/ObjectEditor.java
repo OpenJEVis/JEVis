@@ -186,6 +186,7 @@ public class ObjectEditor {
 
     }
 
+
     public void loadObject(final JEVisObject obj) {
         //        checkIfSaved(obj);
         _currentObject = obj;
@@ -204,20 +205,7 @@ public class ObjectEditor {
                         List<TitledPane> taps = new ArrayList<>();
                         extensions = new ArrayList<>();
 
-                        // Add optional extensions
-                        try {
-                            switch (obj.getJEVisClassName()) {
-                                case CalculationExtension.CALC_CLASS_NAME:
-                                    extensions.add(new CalculationExtension(obj));
-                                    break;
-                                default:
-                            }
-                        } catch (JEVisException e) {
-                            logger.error("Could not get object class" + e.getLocalizedMessage());
-                            e.printStackTrace();
-                        }
-
-                        // Add general extensions
+                        extensions.add(new CalculationExtension(obj));
                         extensions.add(new GenericAttributeExtension(obj, tree));
 //                extensions.add(new BasicMathExtension(obj));
                         extensions.add(new MemberExtension(obj));
@@ -227,45 +215,49 @@ public class ObjectEditor {
                         extensions.add(new ProcessChainExtension(obj));
 
                         for (final ObjectEditorExtension ex : extensions) {
-                            if (ex.isForObject(obj)) {
-                                TitledPane newTab = new TitledPane(ex.getTitle(), ex.getView());
-                                newTab.getStylesheets().add("/styles/objecteditor.css");
+                            try {
+                                if (ex.isForObject(obj)) {
+                                    TitledPane newTab = new TitledPane(ex.getTitle(), ex.getView());
+                                    newTab.getStylesheets().add("/styles/objecteditor.css");
 //                        newTab.setStyle("-fx-background-color: transparent;");
 
-                                newTab.setAnimated(false);
-                                taps.add(newTab);
-                                ex.getValueChangedProperty().addListener(new ChangeListener<Boolean>() {
+                                    newTab.setAnimated(false);
+                                    taps.add(newTab);
+                                    ex.getValueChangedProperty().addListener(new ChangeListener<Boolean>() {
 
-                                    @Override
-                                    public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                                        if (t1) {
-                                            _hasChanged = t1;//TODO: enable/disbale the save button
+                                        @Override
+                                        public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                                            if (t1) {
+                                                _hasChanged = t1;//TODO: enable/disbale the save button
+                                            }
                                         }
-                                    }
-                                });
+                                    });
 
-                                newTab.expandedProperty().addListener(new ChangeListener<Boolean>() {
+                                    newTab.expandedProperty().addListener(new ChangeListener<Boolean>() {
 
-                                    @Override
-                                    public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                                        if (t1) {
-                                            try {
-                                                JEConfig.loadNotification(true);
+                                        @Override
+                                        public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                                            if (t1) {
+                                                try {
+                                                    JEConfig.loadNotification(true);
 //                                        loaderP.setProgress(1);
-                                                ex.setVisible();
+                                                    ex.setVisible();
 //                                        loaderP.setContent(content);
 
 //                                        updateView(content, ex);
 //                                        loaderP.setProgress(100);
-                                                _lastOpenEditor = ex.getTitle();
-                                                JEConfig.loadNotification(false);
-                                            } catch (Exception ex) {
-                                                ex.printStackTrace();
+                                                    _lastOpenEditor = ex.getTitle();
+                                                    JEConfig.loadNotification(false);
+                                                } catch (Exception ex) {
+                                                    ex.printStackTrace();
+                                                }
                                             }
                                         }
-                                    }
-                                });
+                                    });
 
+                                }
+                            }catch (Exception pex){
+                                logger.error("Error while loading extension: ",pex);
                             }
                         }
 
@@ -299,7 +291,19 @@ public class ObjectEditor {
 
                         if (!foundTab) {
 //                    updateView(content, extensions.get(0));
-                            extensions.get(0).setVisible();
+
+                            //Set the first enabled extension visible, waring the order of extensions an tabs is not the same
+                            for (final ObjectEditorExtension ex : extensions) {
+                                try {
+                                    if (ex.isForObject(obj)) {
+                                        ex.setVisible();
+                                        break;
+                                    }
+                                }catch (Exception nex){
+
+                                }
+                            }
+//                            extensions.get(0).setVisible();
                             accordion.setExpandedPane(taps.get(0));
                             taps.get(0).requestFocus();
                             _lastOpenEditor = extensions.get(0).getTitle();

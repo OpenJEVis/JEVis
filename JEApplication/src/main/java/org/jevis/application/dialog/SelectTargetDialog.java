@@ -44,6 +44,7 @@ import org.jevis.application.resource.ResourceLoader;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
+@Deprecated
 public class SelectTargetDialog {
 
 //    private VBox root = new VBox();

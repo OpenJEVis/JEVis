@@ -54,6 +54,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
         _obj = obj;
         _tree = tree;
 
+
+
+
 //        getItems().add(buildMenuNew());
         getItems().setAll(
                 buildNew2(),
@@ -67,6 +70,15 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 buildExport(),
                 buildImport()
         );
+
+        try {
+            if (obj.getJEVisClassName().equals("Calculation")) {
+                getItems().add(new SeparatorMenuItem());
+                getItems().add(buildMenuAddInput());
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
 
     }
 
@@ -164,6 +176,23 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
         return newContent;
     }
+
+    public MenuItem buildMenuAddInput() {
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.addinput"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    TreeHelper.createCalcInput(_obj);
+                } catch (JEVisException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        return menu;
+    }
+
 
     private Menu buildMenuNew() {
         Menu addMenu = new Menu(_tree.getRB().getString("jevistree.menu.new"), ResourceLoader.getImage("list-add.png", 20, 20));
