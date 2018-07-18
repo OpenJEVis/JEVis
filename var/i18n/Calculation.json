@@ -23,7 +23,41 @@
     {
       "type": "Expression",
       "descriptions": {
-        "de": "Formel der Kalkulation",
+        "de": "<P>
+        Formula of the calculation<br>
+        <br>
+        The following types of expressions are supported:<br>
+        <ul>
+        <li><i>mathematical</i> Expression involving numbers. Numbers are treated
+        as doubles, so resulting numbers will contain at least one decimal place.</li>
+        <li><i>string</i> String can also be added together, compared, etc...</li>
+        <li><i>Boolean</i> Expression that evaluate to true (1.0) and false (0.0).</li>
+        <li><i>functional</i> Custom functions can be created or there are many
+        Math and String functions that JEval supplies with this class.</li>
+        </ul>
+        Operators are not allowed in variable names.
+        The following operators are supported:<br>
+        <ul>
+        <li>( open parentheses</li>
+        <li>) closed parentheses</li>
+        <li>+ addition (for numbers and strings)</li>
+        <li>- subtration</li>
+        <li>* mutliplication</li>
+        <li>/ division</li>
+        <li>% modulus</li>
+        <li>+ unary plus</li>
+        <li>- unary minus</li>
+        <li>= equal (for numbers and strings)</li>
+        <li>!= not equal (for numbers and strings)</li>
+        <li>< less than (for numbers and strings)</li>
+        <li><= less than or equal (for numbers and strings)</li>
+        <li>> greater than (for numbers and strings)</li>
+        <li>>= greater than or equal (for numbers and strings)</li>
+        <li>&& boolean and</li>
+        <li>|| boolean or</li>
+        <li>! boolean not</li>
+        </ul>
+        <P> ",
         "ru": "Expression desctiption",
         "en": "<P>
         Formula of the calculation<br>
