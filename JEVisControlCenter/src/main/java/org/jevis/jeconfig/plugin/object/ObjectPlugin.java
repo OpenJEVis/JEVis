@@ -387,7 +387,7 @@ public class ObjectPlugin implements Plugin {
                     tree.setCopyObject(parent.getValue().getJEVisObject());
                     break;
                 default:
-                    System.out.println("Unknows command ignore...");
+                    System.out.println("Unknown command ignore...");
             }
         } catch (Exception ex) {
         }

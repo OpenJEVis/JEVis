@@ -890,7 +890,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 logger.trace("User.object: " + user.getUserObject());
                 return true;
             } else {
-                logger.error("Login faild: [{}] {}", conn.getResponseCode(), conn.getResponseMessage());
+                logger.error("Login failed: [{}] {}", conn.getResponseCode(), conn.getResponseMessage());
                 return false;
             }
 

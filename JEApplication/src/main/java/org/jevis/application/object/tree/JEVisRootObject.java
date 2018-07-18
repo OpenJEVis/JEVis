@@ -38,7 +38,6 @@ public class JEVisRootObject implements JEVisObject {
     public JEVisRootObject(JEVisDataSource ds) throws JEVisException {
         this._ds = ds;
         _children = _ds.getRootObjects();
-        System.out.println("root children: " + _children.size());
     }
 
     public JEVisRootObject(JEVisDataSource ds, List<JEVisObject> roots) {
