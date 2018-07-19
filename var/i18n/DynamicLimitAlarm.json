@@ -53,14 +53,14 @@
     {
       "type": "Operator",
       "descriptions": {
-        "de": "Operator description",
-        "ru": "Operator description",
-        "en": "Operator description"
+        "de": "Bedingung Beschreibung",
+        "ru": "Condition description",
+        "en": "Condition description"
       },
       "names": {
-        "de": "Betreiber",
-        "ru": "Operator",
-        "en": "Operator"
+        "de": "Bedingung",
+        "ru": "Condition",
+        "en": "Condition"
       }
     },
     {
