@@ -188,7 +188,7 @@ public class ObjectEditor {
 
 
     public void loadObject(final JEVisObject obj) {
-        //        checkIfSaved(obj);
+        //        checkIfSaved(obj); //TODO reimplement
         _currentObject = obj;
 
         Platform.runLater(
@@ -196,8 +196,6 @@ public class ObjectEditor {
 
                     @Override
                     public void run() {
-
-//                AnchorPane content = new AnchorPane();
                         Accordion accordion = new Accordion();
                         accordion.getStylesheets().add("/styles/objecteditor.css");
                         accordion.setStyle("-fx-box-border: transparent;");
@@ -207,19 +205,25 @@ public class ObjectEditor {
 
                         extensions.add(new CalculationExtension(obj));
                         extensions.add(new GenericAttributeExtension(obj, tree));
-//                extensions.add(new BasicMathExtension(obj));
+//                      extensions.add(new BasicMathExtension(obj));
                         extensions.add(new MemberExtension(obj));
                         extensions.add(new PermissionExtension(obj));
                         extensions.add(new RootExtension(obj));
                         extensions.add(new LinkExtension(obj));
                         extensions.add(new ProcessChainExtension(obj));
 
+                        List<ObjectEditorExtension> okExtenstion = new ArrayList<>();
+
                         for (final ObjectEditorExtension ex : extensions) {
                             try {
                                 if (ex.isForObject(obj)) {
+                                    if(_lastOpenEditor==null){
+                                        _lastOpenEditor=ex.getTitle();
+                                    }
+
+                                    okExtenstion.add(ex);
                                     TitledPane newTab = new TitledPane(ex.getTitle(), ex.getView());
                                     newTab.getStylesheets().add("/styles/objecteditor.css");
-//                        newTab.setStyle("-fx-background-color: transparent;");
 
                                     newTab.setAnimated(false);
                                     taps.add(newTab);
@@ -240,12 +244,7 @@ public class ObjectEditor {
                                             if (t1) {
                                                 try {
                                                     JEConfig.loadNotification(true);
-//                                        loaderP.setProgress(1);
                                                     ex.setVisible();
-//                                        loaderP.setContent(content);
-
-//                                        updateView(content, ex);
-//                                        loaderP.setProgress(100);
                                                     _lastOpenEditor = ex.getTitle();
                                                     JEConfig.loadNotification(false);
                                                 } catch (Exception ex) {
@@ -256,8 +255,8 @@ public class ObjectEditor {
                                     });
 
                                 }
-                            }catch (Exception pex){
-                                logger.error("Error while loading extension: ",pex);
+                            } catch (Exception pex) {
+                                logger.error("Error while loading extension: ", pex);
                             }
                         }
 
@@ -266,13 +265,12 @@ public class ObjectEditor {
                         AnchorPane.setRightAnchor(accordion, 0.0);
                         AnchorPane.setLeftAnchor(accordion, 0.0);
                         AnchorPane.setBottomAnchor(accordion, 0.0);
-//                content.getChildren().add(accordion);
 
                         //load the last Extensions for the new object
                         boolean foundTab = false;
                         if (!taps.isEmpty()) {
 
-                            for (ObjectEditorExtension ex : extensions) {
+                            for (ObjectEditorExtension ex : okExtenstion) {
                                 if (ex.getTitle().equals(_lastOpenEditor)) {
                                     ex.setVisible();
 //                            updateView(content, ex);
@@ -286,20 +284,16 @@ public class ObjectEditor {
                             }
 
                         }
-//                FXProgressPanel loaderP = new FXProgressPanel(true, accordion);
-//                _view.getChildren().setAll(loaderP);
-
                         if (!foundTab) {
-//                    updateView(content, extensions.get(0));
 
                             //Set the first enabled extension visible, waring the order of extensions an tabs is not the same
-                            for (final ObjectEditorExtension ex : extensions) {
+                            for (final ObjectEditorExtension ex : okExtenstion) {
                                 try {
                                     if (ex.isForObject(obj)) {
                                         ex.setVisible();
                                         break;
                                     }
-                                }catch (Exception nex){
+                                } catch (Exception nex) {
 
                                 }
                             }
@@ -320,10 +314,8 @@ public class ObjectEditor {
                             classIcon = JEConfig.getImage("1390343812_folder-open.png", 20, 20);
                         }
 
-//                FlowPane header = new FlowPane();
                         GridPane header = new GridPane();
                         try {
-//                header.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #1a719c, #f4f4f4)");
                             Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.editor.name"));
                             Label objectName = new Label(obj.getName());
                             objectName.setStyle("-fx-font-weight: bold;");
@@ -335,8 +327,7 @@ public class ObjectEditor {
                             Label idField = new Label(obj.getID() + "");
 
                             //TODO: would be nice if the user can copy the ID and name but the layout is broken if i use this textfield code
-//                    idField.setEditable(false);
-//                    header.setStyle("-fx-background-color: red;");
+
                             Region spacer = new Region();
                             GridPane.setVgrow(spacer, Priority.ALWAYS);
                             GridPane.setFillWidth(spacer, true);
@@ -368,12 +359,10 @@ public class ObjectEditor {
                             Separator sep = new Separator(Orientation.HORIZONTAL);
                             GridPane.setVgrow(sep, Priority.ALWAYS);
 
-//                    header.add(sep, 0, 4, 4, 1);
                             header.setPadding(new Insets(10));
                             header.setVgap(5);
                             header.setHgap(12);
                             header.setPadding(new Insets(10, 0, 20, 10));
-//                    header.getChildren().setAll(classIcon, objectName);
                         } catch (Exception ex) {
 
                         }
@@ -387,7 +376,6 @@ public class ObjectEditor {
                         AnchorPane.setTopAnchor(pane, 1.0);
                         AnchorPane.setBottomAnchor(pane, 1.0);
 
-//                _view.getChildren().setAll(pane);
                         try {
                             //SideNode help = new SideNode(obj.getJEVisClassName(), obj.getJEVisClass().getDescription(), Side.RIGHT, _view);
 
@@ -431,7 +419,6 @@ public class ObjectEditor {
 
                         _view.setContent(pane);
 
-//                _view.getChildren().setAll(accordion);
                     }
                 }
         );
