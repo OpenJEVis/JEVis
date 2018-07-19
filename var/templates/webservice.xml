@@ -10,8 +10,8 @@
     </datasource>
     <webservice>
         <uri>http://hostname:8000/</uri>
-        <i18ndir>/home/jevis/jevis/var/templates/i18n</i18ndir>
-        <filedir>/home/jevis/jevis/var/templates/filedir/</filedir>
+        <i18ndir>/home/jevis/jevis/var/i18n</i18ndir>
+        <filedir>/home/jevis/jevis/var/files/</filedir>
         <classdir>/home/jevis/JEVis/var/classes/</classdir>
         <freemarkerdir>/home/jevis/JEVis/var/freemarker/</freemarkerdir>
         <registration>
