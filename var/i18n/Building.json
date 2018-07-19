@@ -10,12 +10,12 @@
     {
       "type": "Address",
       "descriptions": {
-        "de": "Address description",
+        "de": "Adresse Beschreibung",
         "ru": "Address description",
         "en": "Address description"
       },
       "names": {
-        "de": "Addresse",
+        "de": "Adresse",
         "ru": "Address",
         "en": "Address"
       }
