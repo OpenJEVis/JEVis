@@ -71,9 +71,9 @@
         "en": "Location description"
       },
       "names": {
-        "de": "Organisationsstandort",
-        "ru": "Location",
-        "en": "Location"
+        "de": "GPS Position",
+        "ru": "GPS Position",
+        "en": "GPS Position"
       }
     },
     {
