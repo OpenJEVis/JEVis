@@ -10,12 +10,12 @@
     {
       "type": "Address",
       "descriptions": {
-        "de": "Address description",
+        "de": "Adresse Beschreibung",
         "ru": "Address description",
         "en": "Address description"
       },
       "names": {
-        "de": "Addresse",
+        "de": "Adresse",
         "ru": "Address",
         "en": "Address"
       }
@@ -28,7 +28,7 @@
         "en": "Building Area description"
       },
       "names": {
-        "de": "Gebäudebereich",
+        "de": "Gebäudefläche",
         "ru": "Building Area",
         "en": "Building Area"
       }
@@ -41,9 +41,9 @@
         "en": "Location description"
       },
       "names": {
-        "de": "Standort",
-        "ru": "Location",
-        "en": "Location"
+        "de": "GPS Position",
+        "ru": "GPS Position",
+        "en": "GPS Position"
       }
     },
     {
@@ -54,7 +54,7 @@
         "en": "Year of Construction description"
       },
       "names": {
-        "de": "Konstruktionsjahr",
+        "de": "Baujahr",
         "ru": "Year of Construction",
         "en": "Year of Construction"
       }

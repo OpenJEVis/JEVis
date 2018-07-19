@@ -7,6 +7,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -28,18 +29,31 @@ public class GraphExport {
     private DateTime minDate = null;
     private DateTime maxDate = null;
 
-    public GraphExport(JEVisDataSource ds, GraphDataModel model) {
+    public GraphExport(JEVisDataSource ds, GraphDataModel model, String analysisName) {
         this.model = model;
         this.ds = ds;
+        this.setDates();
 
+        String formattedName = analysisName.replaceAll(" ", "_");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("CSV File Destination");
         DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
-        fileChooser.setInitialFileName("XXXXXXXXXX" + "_" + fmtDate.print(new DateTime()) + ".csv");
+        fileChooser.setInitialFileName(formattedName + I18n.getInstance().getString("plugin.graph.dialog.export.from")
+                + fmtDate.print(minDate) + I18n.getInstance().getString("plugin.graph.dialog.export.to")
+                + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()) + ".csv");
         File file = fileChooser.showSaveDialog(JEConfig.getStage());
         if (file != null) {
             destinationFile = file;
             needSave = true;
+        }
+    }
+
+    private void setDates() {
+        for (BarChartDataModel mdl : model.getSelectedData()) {
+            DateTime startNow = mdl.getSelectedStart();
+            DateTime endNow = mdl.getSelectedEnd();
+            if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
+            if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
         }
     }
 
@@ -71,14 +85,6 @@ public class GraphExport {
         }
         sb.append(header);
         sb.append(System.getProperty("line.separator"));
-
-        for (BarChartDataModel mdl : model.getSelectedData()) {
-            DateTime startNow = mdl.getSelectedStart();
-            DateTime endNow = mdl.getSelectedEnd();
-            if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
-            if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
-        }
-
 
         List<String> dateColumn = new ArrayList<>();
         Boolean firstSet = true;

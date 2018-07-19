@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.1.0</version>
+    <version>3.4.0</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -271,6 +271,12 @@
             <groupId>com.jfoenix</groupId>
             <artifactId>jfoenix</artifactId>
             <version>1.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jeval</groupId>
+            <artifactId>jeval</artifactId>
+            <version>0.9.4</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

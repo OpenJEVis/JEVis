@@ -327,33 +327,35 @@ public class AreaChartView implements Observer {
             Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
             Double x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
             Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
-            tableData.clear();
-            for (BarChartDataModel singleRow : selectedData) {
-                try {
-                    Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                    Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
-                    Double nearest = higherKey;
-                    if (lowerKey - valueForDisplay.doubleValue() < higherKey - valueForDisplay.doubleValue()) {
-                        nearest = lowerKey;
-                    }
+            if (valueForDisplay != null) {
+                tableData.clear();
+                for (BarChartDataModel singleRow : selectedData) {
+                    try {
+                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+                        Double nearest = higherKey;
+                        if (lowerKey - valueForDisplay.doubleValue() < higherKey - valueForDisplay.doubleValue()) {
+                            nearest = lowerKey;
+                        }
 
-                    NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
-                    nf.setMinimumFractionDigits(2);
-                    nf.setMaximumFractionDigits(2);
-                    Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
-                    String note = singleRow.getSampleMap().get(nearest).getNote();
-                    String formattedNote = formatNote(note);
-                    String formattedDouble = nf.format(valueAsDouble);
-                    TableEntry tableEntry = singleRow.getTableEntry();
-                    DateTime dateTime = new DateTime(Math.round(nearest));
-                    tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                    tableEntry.setNote(formattedNote);
-                    tableEntry.setValue(formattedDouble + " " + finalUnit);
-                    tableData.add(tableEntry);
+                        NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
+                        nf.setMinimumFractionDigits(2);
+                        nf.setMaximumFractionDigits(2);
+                        Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
+                        String note = singleRow.getSampleMap().get(nearest).getNote();
+                        String formattedNote = formatNote(note);
+                        String formattedDouble = nf.format(valueAsDouble);
+                        TableEntry tableEntry = singleRow.getTableEntry();
+                        DateTime dateTime = new DateTime(Math.round(nearest));
+                        tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                        tableEntry.setNote(formattedNote);
+                        tableEntry.setValue(formattedDouble + " " + finalUnit);
+                        tableData.add(tableEntry);
 
-                    table.layout();
-                } catch (Exception ex) {
+                        table.layout();
+                    } catch (Exception ex) {
 //                        Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
         });

@@ -98,7 +98,7 @@ public class ToolBarView {
         Button exportCSV = new Button("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
 
         exportCSV.setOnAction(action -> {
-            GraphExport ge = new GraphExport(ds, model);
+            GraphExport ge = new GraphExport(ds, model, nameCurrentAnalysis);
             try {
                 ge.export();
             } catch (FileNotFoundException e) {
