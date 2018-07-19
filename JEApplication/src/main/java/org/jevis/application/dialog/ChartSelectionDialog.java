@@ -20,12 +20,14 @@
  */
 package org.jevis.application.dialog;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -36,8 +38,8 @@ import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.TreePlugin;
-import org.jevis.application.jevistree.plugin.BarChartDataModel;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
+import org.jevis.application.jevistree.plugin.ChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.application.object.tree.UserSelection;
 
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ import java.util.Map;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class GraphSelectionDialog {
+public class ChartSelectionDialog {
 
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 
@@ -56,12 +58,13 @@ public class GraphSelectionDialog {
 
     private final JEVisDataSource _ds;
     private final String ICON = "1404313956_evolution-tasks.png";
-    private Map<String, BarChartDataModel> data = new HashMap<>();
+    private Map<String, ChartDataModel> data = new HashMap<>();
     private Stage stage;
     private boolean init = true;
     private JEVisTree _tree;
+    private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
-    public GraphSelectionDialog(JEVisDataSource ds) {
+    public ChartSelectionDialog(JEVisDataSource ds) {
         _ds = ds;
     }
 
@@ -85,9 +88,13 @@ public class GraphSelectionDialog {
         stage.setHeight(768);
         stage.setResizable(false);
 
+        TabPane tabpane = new TabPane();
+
+        Tab tabConfiguration = new Tab(rb.getString("graph.tabs.configuration"));
+        tabConfiguration.closableProperty().setValue(false);
+
         VBox root = new VBox();
 
-        DialogHeader header = new DialogHeader();
         Node headerNode = DialogHeader.getDialogHeader(ICON, rb.getString("graph.selection.header"));
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
@@ -117,27 +124,54 @@ public class GraphSelectionDialog {
         VBox.setVgrow(buttonBox, Priority.NEVER);
 
 //        stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
-        BarchartPlugin bp = null;
+        ChartPlugin bp = null;
         for (TreePlugin plugin : tree.getPlugins()) {
-            if (plugin instanceof BarchartPlugin) {
-                bp = (BarchartPlugin) plugin;
+            if (plugin instanceof ChartPlugin) {
+                bp = (ChartPlugin) plugin;
             }
         }
 
         if (!data.isEmpty()) bp.set_data(data);
 
-        Scene scene = new Scene(root);
+        tabConfiguration.setContent(root);
+
+        Tab tabChartsSettings = new Tab(rb.getString("graph.tabs.charts"));
+        tabChartsSettings.closableProperty().setValue(false);
+
+        VBox vboxCharts = new VBox();
+
+        TabPane tabPaneCharts = new TabPane();
+
+        getChartsList();
+        for (String s : chartsList) {
+            tabPaneCharts.getTabs().add(getChartTab(s));
+        }
+
+        chartsList.addListener((ListChangeListener<? super String>) c -> {
+            if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
+                tabPaneCharts.getTabs().clear();
+                for (String s : chartsList) {
+                    tabPaneCharts.getTabs().add(getChartTab(s));
+                }
+            }
+        });
+
+        vboxCharts.getChildren().add(tabPaneCharts);
+        tabChartsSettings.setContent(vboxCharts);
+
+        tabpane.getTabs().addAll(tabConfiguration, tabChartsSettings);
+        Scene scene = new Scene(tabpane);
         stage.setScene(scene);
 
         List<UserSelection> listUS = new ArrayList<>();
-        for (Map.Entry<String, BarChartDataModel> entry : data.entrySet()) {
-            BarChartDataModel mdl = entry.getValue();
+        for (Map.Entry<String, ChartDataModel> entry : data.entrySet()) {
+            ChartDataModel mdl = entry.getValue();
             if (mdl.getSelected()) listUS.add(new UserSelection(UserSelection.SelectionType.Object, mdl.getObject()));
         }
 
         if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
 
-        final BarchartPlugin finalBp = bp;
+        final ChartPlugin finalBp = bp;
         ok.setOnAction(event -> {
             tree.setUserSelectionEnded();
             _response = Response.OK;
@@ -150,6 +184,51 @@ public class GraphSelectionDialog {
         stage.showAndWait();
 
         return _response;
+    }
+
+    private Tab getChartTab(String s) {
+        final String currentChart = s;
+        Tab newTab = new Tab(s);
+        newTab.setClosable(false);
+
+        GridPane gp = new GridPane();
+
+        Label labelName = new Label(rb.getString("graph.tabs.tab.name"));
+        TextField textFieldName = new TextField();
+        textFieldName.setText(s);
+
+        textFieldName.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue == null || newValue != oldValue) {
+                for (String ch : chartsList) {
+                    if (ch.contains(currentChart)) ch = newValue;
+                }
+            }
+        });
+
+        Label labelChartType = new Label(rb.getString("graph.tabs.tab.charttype"));
+
+        ObservableList<String> listChartTypes = FXCollections.observableArrayList();
+        ComboBox<String> boxChartType = new ComboBox<>(listChartTypes);
+
+        gp.add(labelName, 0, 1);
+        gp.add(textFieldName, 1, 1);
+
+        gp.add(labelChartType, 0, 3);
+        gp.add(boxChartType, 1, 3);
+
+        newTab.setContent(gp);
+
+        return newTab;
+    }
+
+    public ObservableList<String> getChartsList() {
+        List<String> tempList = new ArrayList<>();
+        for (Map.Entry<String, ChartDataModel> mdl : data.entrySet()) {
+            if (!tempList.contains(mdl.getValue().getTitle())) tempList.add(mdl.getValue().getTitle());
+        }
+
+        chartsList = FXCollections.observableArrayList(tempList);
+        return chartsList;
     }
 
     public JEVisTree getTree() {
@@ -167,11 +246,11 @@ public class GraphSelectionDialog {
         OK, CANCEL
     }
 
-    public Map<String, BarChartDataModel> getSelectedData() {
+    public Map<String, ChartDataModel> getSelectedData() {
         return data;
     }
 
-    public void setData(Map<String, BarChartDataModel> data) {
+    public void setData(Map<String, ChartDataModel> data) {
         this.data = data;
     }
 }

@@ -4,7 +4,7 @@ import javafx.stage.FileChooser;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.jevistree.plugin.BarChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
@@ -49,7 +49,7 @@ public class GraphExport {
     }
 
     private void setDates() {
-        for (BarChartDataModel mdl : model.getSelectedData()) {
+        for (ChartDataModel mdl : model.getSelectedData()) {
             DateTime startNow = mdl.getSelectedStart();
             DateTime endNow = mdl.getSelectedEnd();
             if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
@@ -78,7 +78,7 @@ public class GraphExport {
         DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss");
 
         String header = "Date";
-        for (BarChartDataModel mdl : model.getSelectedData()) {
+        for (ChartDataModel mdl : model.getSelectedData()) {
             String objectName = mdl.getObject().getName();
             String dpName = mdl.getDataProcessor().getName();
             header += ";" + objectName + " (" + dpName + ")";
@@ -88,7 +88,7 @@ public class GraphExport {
 
         List<String> dateColumn = new ArrayList<>();
         Boolean firstSet = true;
-        for (BarChartDataModel mdl : model.getSelectedData()) {
+        for (ChartDataModel mdl : model.getSelectedData()) {
             if (firstSet) {
                 for (JEVisSample sample : mdl.getSamples()) {
                     dateColumn.add(standard.print(sample.getTimestamp()));
@@ -98,7 +98,7 @@ public class GraphExport {
         }
 
         Map<String, List<JEVisSample>> map = new HashMap<>();
-        for (BarChartDataModel mdl : model.getSelectedData()) {
+        for (ChartDataModel mdl : model.getSelectedData()) {
             map.put(mdl.getObject().getName(), mdl.getSamples());
         }
 
@@ -106,7 +106,7 @@ public class GraphExport {
             String s = "";
             s += dateColumn.get(i) + ";";
 
-            for (BarChartDataModel mdl : model.getSelectedData()) {
+            for (ChartDataModel mdl : model.getSelectedData()) {
                 s += map.get(mdl.getObject().getName()).get(i).getValueAsDouble() + ";";
             }
             sb.append(s);

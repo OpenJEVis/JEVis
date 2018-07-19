@@ -22,7 +22,6 @@ package org.jevis.application.jevistree;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -30,7 +29,7 @@ import javafx.scene.input.KeyEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
+import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.application.jevistree.plugin.MapPlugin;
 
 /**
@@ -98,7 +97,7 @@ public class JEVisTreeFactory {
         ViewFilter filter = ViewFilterFactory.createDefaultGraphFilter();
         tree.setFiler(filter);
 
-        TreePlugin bp = new BarchartPlugin();
+        TreePlugin bp = new ChartPlugin();
 //        bp.setTree(tree);
 
 //        getColumns().addAll(ColumnFactory.buildName(), ColumnFactory.buildID(), ColumnFactory.buildClass(), ColumnFactory.buildColor(this), ColumnFactory.buildBasicRowSelection(this));

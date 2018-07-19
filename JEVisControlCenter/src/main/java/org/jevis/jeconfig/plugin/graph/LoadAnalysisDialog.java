@@ -14,7 +14,7 @@ import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import jfxtras.scene.control.ListView;
 import org.jevis.api.*;
-import org.jevis.application.jevistree.plugin.BarChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
@@ -73,7 +73,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         super.updateItem(item, empty);
                         LocalDate min = null;
                         LocalDate max = null;
-                        for (BarChartDataModel mdl : data.getSelectedData()) {
+                        for (ChartDataModel mdl : data.getSelectedData()) {
                             JEVisAttribute att = mdl.getAttribute();
 
                             LocalDate min_check = LocalDate.of(
@@ -365,16 +365,16 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     private void updateData() {
-        Set<BarChartDataModel> selectedData = getBarChartDataModels();
+        Set<ChartDataModel> selectedData = getBarChartDataModels();
 
         data.setSelectedData(selectedData);
     }
 
-    private Set<BarChartDataModel> getBarChartDataModels() {
-        Map<String, BarChartDataModel> data = new HashMap<>();
+    private Set<ChartDataModel> getBarChartDataModels() {
+        Map<String, ChartDataModel> data = new HashMap<>();
 
         for (JsonAnalysisModel mdl : listAnalysisModel) {
-            BarChartDataModel newData = new BarChartDataModel();
+            ChartDataModel newData = new ChartDataModel();
             try {
                 Long id = Long.parseLong(mdl.getObject());
                 Long id_dp = Long.parseLong(mdl.getDataProcessorObject());
@@ -401,9 +401,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
 
         }
-        Set<BarChartDataModel> selectedData = new HashSet<>();
-        for (Map.Entry<String, BarChartDataModel> entrySet : data.entrySet()) {
-            BarChartDataModel value = entrySet.getValue();
+        Set<ChartDataModel> selectedData = new HashSet<>();
+        for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
+            ChartDataModel value = entrySet.getValue();
             if (value.getSelected()) {
                 selectedData.add(value);
             }

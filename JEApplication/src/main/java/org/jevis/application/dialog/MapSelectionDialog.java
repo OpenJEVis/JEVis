@@ -20,8 +20,6 @@
  */
 package org.jevis.application.dialog;
 
-import java.util.HashMap;
-import java.util.Map;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -30,11 +28,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -42,41 +36,16 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.TreePlugin;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
 import org.jevis.application.jevistree.plugin.MapPlugin;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class MapSelectionDialog {
-
-    public static enum Response {
-        OK, CANCEL
-    };
-    private Response _response = Response.CANCEL;
-
-    private final JEVisDataSource _ds;
-    private final String ICON = "1404313956_evolution-tasks.png";
-    private Map<String, MapPlugin.DataModel> data = new HashMap<>();
-    private Stage stage;
-    private boolean init = true;
-    private JEVisTree _tree;
-
-    public MapSelectionDialog(JEVisDataSource ds) {
-        _ds = ds;
-    }
-
-    public JEVisTree getTree() {
-        if (!init) {
-            return _tree;
-        }
-
-        _tree = JEVisTreeFactory.buildDefaultMapTree(_ds);
-        init = false;
-
-        return _tree;
-    }
 
     public Response show(Stage owner) {
         _response = Response.CANCEL;
@@ -101,7 +70,7 @@ public class MapSelectionDialog {
         VBox root = new VBox();
 
         DialogHeader header = new DialogHeader();
-        Node headerNode = header.getDialogHeader(ICON, "Selection Dialog");
+        Node headerNode = DialogHeader.getDialogHeader(ICON, "Selection Dialog");
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
 
@@ -156,6 +125,34 @@ public class MapSelectionDialog {
         stage.showAndWait();
 
         return _response;
+    }
+
+    private Response _response = Response.CANCEL;
+
+    private final JEVisDataSource _ds;
+    private final String ICON = "1404313956_evolution-tasks.png";
+    private Map<String, MapPlugin.DataModel> data = new HashMap<>();
+    private Stage stage;
+    private boolean init = true;
+    private JEVisTree _tree;
+
+    public MapSelectionDialog(JEVisDataSource ds) {
+        _ds = ds;
+    }
+
+    public JEVisTree getTree() {
+        if (!init) {
+            return _tree;
+        }
+
+        _tree = JEVisTreeFactory.buildDefaultMapTree(_ds);
+        init = false;
+
+        return _tree;
+    }
+
+    public enum Response {
+        OK, CANCEL
     }
 
     public Map<String, MapPlugin.DataModel> getSelectedData() {

@@ -17,9 +17,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.jevis.api.*;
-import org.jevis.application.dialog.GraphSelectionDialog;
-import org.jevis.application.jevistree.plugin.BarChartDataModel;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
+import org.jevis.application.dialog.ChartSelectionDialog;
+import org.jevis.application.jevistree.plugin.ChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
@@ -119,13 +119,13 @@ public class ToolBarView {
             dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
             dialog.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                    GraphSelectionDialog selectionDialog = new GraphSelectionDialog(ds);
+                    ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds);
 
-                    if (selectionDialog.show(JEConfig.getStage()) == GraphSelectionDialog.Response.OK) {
+                    if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
-                        Set<BarChartDataModel> selectedData = new HashSet<>();
-                        for (Map.Entry<String, BarChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
-                            BarChartDataModel value = entrySet.getValue();
+                        Set<ChartDataModel> selectedData = new HashSet<>();
+                        for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
+                            ChartDataModel value = entrySet.getValue();
                             if (value.getSelected()) {
                                 selectedData.add(value);
                             }
@@ -178,33 +178,37 @@ public class ToolBarView {
     }
 
     private void changeSettings(ActionEvent event) {
-        GraphSelectionDialog dia = new GraphSelectionDialog(ds);
-        Map<String, BarChartDataModel> map = new HashMap<>();
+        ChartSelectionDialog dia = new ChartSelectionDialog(ds);
+        Map<String, ChartDataModel> map = new HashMap<>();
 
         if (model.getSelectedData() != null) {
-            for (BarChartDataModel mdl : model.getSelectedData()) {
+            for (ChartDataModel mdl : model.getSelectedData()) {
                 map.put(mdl.getObject().getID().toString(), mdl);
             }
             dia.setData(map);
         }
 
-        if (dia.show(JEConfig.getStage()) == GraphSelectionDialog.Response.OK) {
+        if (dia.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
-            Set<BarChartDataModel> selectedData = new HashSet<>();
-            for (Map.Entry<String, BarChartDataModel> entrySet : dia.getSelectedData().entrySet()) {
-                BarChartDataModel value = entrySet.getValue();
+            Set<ChartDataModel> selectedData = new HashSet<>();
+            for (Map.Entry<String, ChartDataModel> entrySet : dia.getSelectedData().entrySet()) {
+                ChartDataModel value = entrySet.getValue();
                 if (value.getSelected()) {
                     selectedData.add(value);
                 }
             }
             model.setSelectedData(selectedData);
-            if (view == null) view = new AreaChartView(model);
-            try {
-                view.drawAreaChart();
+            drawChart();
+        }
+    }
 
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
+    private void drawChart() {
+        if (view == null) view = new AreaChartView(model);
+        try {
+            view.drawAreaChart();
+
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
     }
 
@@ -295,9 +299,9 @@ public class ToolBarView {
 
     }
 
-    private void updateJsonDataModel(Set<BarChartDataModel> selectedData) {
+    private void updateJsonDataModel(Set<ChartDataModel> selectedData) {
         List<JsonAnalysisModel> jsonDataModels = new ArrayList<>();
-        for (BarChartDataModel mdl : selectedData) {
+        for (ChartDataModel mdl : selectedData) {
             JsonAnalysisModel json = new JsonAnalysisModel();
             json.setName(mdl.getTitle());
             json.setSelected(String.valueOf(mdl.getSelected()));
@@ -313,12 +317,12 @@ public class ToolBarView {
         this.listAnalysisModel = jsonDataModels;
     }
 
-    private void saveDataModel(Set<BarChartDataModel> selectedData) {
+    private void saveDataModel(Set<ChartDataModel> selectedData) {
         try {
             JEVisAttribute dataModel = currentAnalysis.getAttribute("Data Model");
 
             List<JsonAnalysisModel> jsonDataModels = new ArrayList<>();
-            for (BarChartDataModel mdl : selectedData) {
+            for (ChartDataModel mdl : selectedData) {
                 JsonAnalysisModel json = new JsonAnalysisModel();
                 json.setName(mdl.getTitle());
                 json.setSelected(String.valueOf(mdl.getSelected()));
@@ -418,24 +422,18 @@ public class ToolBarView {
     }
 
     public void updateChart() {
-        Set<BarChartDataModel> selectedData = getBarChartDataModels();
+        Set<ChartDataModel> selectedData = getBarChartDataModels();
 
         model.setSelectedData(selectedData);
 
-        if (view == null) view = new AreaChartView(model);
-        try {
-            view.drawAreaChart();
-
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
+        drawChart();
     }
 
-    private Set<BarChartDataModel> getBarChartDataModels() {
-        Map<String, BarChartDataModel> data = new HashMap<>();
+    private Set<ChartDataModel> getBarChartDataModels() {
+        Map<String, ChartDataModel> data = new HashMap<>();
 
         for (JsonAnalysisModel mdl : listAnalysisModel) {
-            BarChartDataModel newData = new BarChartDataModel();
+            ChartDataModel newData = new ChartDataModel();
             try {
                 Long id = Long.parseLong(mdl.getObject());
                 Long id_dp = Long.parseLong(mdl.getDataProcessorObject());
@@ -468,9 +466,9 @@ public class ToolBarView {
                 e.printStackTrace();
             }
         }
-        Set<BarChartDataModel> selectedData = new HashSet<>();
-        for (Map.Entry<String, BarChartDataModel> entrySet : data.entrySet()) {
-            BarChartDataModel value = entrySet.getValue();
+        Set<ChartDataModel> selectedData = new HashSet<>();
+        for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
+            ChartDataModel value = entrySet.getValue();
             if (value.getSelected()) {
                 selectedData.add(value);
             }
@@ -478,20 +476,20 @@ public class ToolBarView {
         return selectedData;
     }
 
-    private BarchartPlugin.AGGREGATION parseAggrigation(String aggrigation) {
+    private ChartPlugin.AGGREGATION parseAggrigation(String aggrigation) {
         switch (aggrigation) {
             case ("None"):
-                return BarchartPlugin.AGGREGATION.None;
+                return ChartPlugin.AGGREGATION.None;
             case ("Daily"):
-                return BarchartPlugin.AGGREGATION.Daily;
+                return ChartPlugin.AGGREGATION.Daily;
             case ("Weekly"):
-                return BarchartPlugin.AGGREGATION.Weekly;
+                return ChartPlugin.AGGREGATION.Weekly;
             case ("Monthly"):
-                return BarchartPlugin.AGGREGATION.Monthly;
+                return ChartPlugin.AGGREGATION.Monthly;
             case ("Yearly"):
-                return BarchartPlugin.AGGREGATION.Yearly;
+                return ChartPlugin.AGGREGATION.Yearly;
             default:
-                return BarchartPlugin.AGGREGATION.None;
+                return ChartPlugin.AGGREGATION.None;
         }
     }
 

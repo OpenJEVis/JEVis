@@ -19,7 +19,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class BarChartDataModel {
+public class ChartDataModel {
 
 
     private TableEntry tableEntry;
@@ -31,14 +31,14 @@ public class BarChartDataModel {
     private Color _color = Color.LIGHTBLUE;
     private boolean _selected = false;
     private Process _task = null;
-    private BarchartPlugin.AGGREGATION aggregation = BarchartPlugin.AGGREGATION.None;
+    private ChartPlugin.AGGREGATION aggregation = ChartPlugin.AGGREGATION.None;
     private JEVisObject _dataProcessorObject = null;
     private List<JEVisSample> samples = new ArrayList<>();
     private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<>();
     private boolean _somethingChanged = true;
     private JEVisUnit _unit;
 
-    public BarChartDataModel() {
+    public ChartDataModel() {
     }
 
     public JEVisUnit getUnit() {
@@ -49,7 +49,7 @@ public class BarChartDataModel {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(BarchartPlugin.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
         }
         return _unit;
     }
@@ -68,30 +68,30 @@ public class BarChartDataModel {
             try {
                 JEVisDataSource ds = _object.getDataSource();
                 Process aggregate = null;
-                if (aggregation == BarchartPlugin.AGGREGATION.None) {
+                if (aggregation == ChartPlugin.AGGREGATION.None) {
 
-                } else if (aggregation == BarchartPlugin.AGGREGATION.Daily) {
+                } else if (aggregation == ChartPlugin.AGGREGATION.Daily) {
                     aggregate = new BasicProcess();
                     aggregate.setJEVisDataSource(ds);
                     aggregate.setID("Dynamic");
                     aggregate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.days(1).toString());
                     aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
-                } else if (aggregation == BarchartPlugin.AGGREGATION.Monthly) {
+                } else if (aggregation == ChartPlugin.AGGREGATION.Monthly) {
                     aggregate = new BasicProcess();
                     aggregate.setJEVisDataSource(ds);
                     aggregate.setID("Dynamic");
                     aggregate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.months(1).toString());
                     aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
-                } else if (aggregation == BarchartPlugin.AGGREGATION.Weekly) {
+                } else if (aggregation == ChartPlugin.AGGREGATION.Weekly) {
                     aggregate = new BasicProcess();
                     aggregate.setJEVisDataSource(ds);
                     aggregate.setID("Dynamic");
                     aggregate.setFunction(new AggrigatorFunction());
 //                        aggrigate.addOption(Options.PERIOD, Period.weeks(1).toString());
                     aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
-                } else if (aggregation == BarchartPlugin.AGGREGATION.Yearly) {
+                } else if (aggregation == ChartPlugin.AGGREGATION.Yearly) {
 //                        System.out.println("year.....  " + Period.years(1).toString());
                     aggregate = new BasicProcess();
                     aggregate.setJEVisDataSource(ds);
@@ -401,11 +401,11 @@ public class BarChartDataModel {
         this._dataProcessorObject = _dataProcessor;
     }
 
-    public BarchartPlugin.AGGREGATION getAggregation() {
+    public ChartPlugin.AGGREGATION getAggregation() {
         return aggregation;
     }
 
-    public void setAggregation(BarchartPlugin.AGGREGATION aggregation) {
+    public void setAggregation(ChartPlugin.AGGREGATION aggregation) {
         _somethingChanged = true;
         this.aggregation = aggregation;
     }
@@ -481,7 +481,7 @@ public class BarChartDataModel {
                     _attribute = values;
                 }
             } catch (Exception ex) {
-                Logger.getLogger(BarchartPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return _attribute;

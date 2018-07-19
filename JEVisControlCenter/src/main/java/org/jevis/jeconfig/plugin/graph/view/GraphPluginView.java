@@ -27,8 +27,8 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.dialog.GraphSelectionDialog;
-import org.jevis.application.jevistree.plugin.BarChartDataModel;
+import org.jevis.application.dialog.ChartSelectionDialog;
+import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -84,13 +84,13 @@ public class GraphPluginView implements Plugin, Observer {
             dialog.showAndWait()
                     .ifPresent(response -> {
                         if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                            GraphSelectionDialog selectionDialog = new GraphSelectionDialog(ds);
+                            ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds);
 
-                            if (selectionDialog.show(JEConfig.getStage()) == GraphSelectionDialog.Response.OK) {
+                            if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
-                                Set<BarChartDataModel> selectedData = new HashSet<>();
-                                for (Map.Entry<String, BarChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
-                                    BarChartDataModel value = entrySet.getValue();
+                                Set<ChartDataModel> selectedData = new HashSet<>();
+                                for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
+                                    ChartDataModel value = entrySet.getValue();
                                     if (value.getSelected()) {
                                         selectedData.add(value);
                                     }
