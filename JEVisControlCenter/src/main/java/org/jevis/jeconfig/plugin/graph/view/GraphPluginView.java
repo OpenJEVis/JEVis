@@ -21,12 +21,16 @@ package org.jevis.jeconfig.plugin.graph.view;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.jeconfig.Constants;
@@ -46,7 +50,8 @@ public class GraphPluginView implements Plugin, Observer {
     private ToolBarView toolBarView;
     private GraphDataModel dataModel;
     private GraphController controller;
-    private AreaChartView chartView;
+    private ChartView chartView;
+    private List<ChartView> listChartViews = null;
 
     private StringProperty name = new SimpleStringProperty("Graph");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
@@ -55,18 +60,8 @@ public class GraphPluginView implements Plugin, Observer {
     private boolean firstStart = true;
     private ToolBar toolBar;
     private LoadAnalysisDialog dialog;
-
-    public GraphPluginView(JEVisDataSource ds, String newname) {
-        dataModel = new GraphDataModel();
-        dataModel.addObserver(this);
-
-        controller = new GraphController(this, dataModel);
-        toolBarView = new ToolBarView(dataModel, ds, chartView);
-        chartView = new AreaChartView(dataModel);
-
-        this.ds = ds;
-        name.set(newname);
-    }
+    private VBox vBox = new VBox();
+    private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
     @Override
     public String getClassName() {
@@ -137,19 +132,16 @@ public class GraphPluginView implements Plugin, Observer {
         return id;
     }
 
-    @Override
-    public Node getContentNode() {
-        if (border == null) {
-            border = new BorderPane();
-            chartView.drawDefaultAreaChart();
-            border.setCenter(chartView.getAreaChartRegion());
-//            border.setCenter(new Button("click me"));
+    public GraphPluginView(JEVisDataSource ds, String newname) {
+        dataModel = new GraphDataModel();
+        dataModel.addObserver(this);
 
-//            border.setCenter(lineChart);
-            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-        }
+        controller = new GraphController(this, dataModel);
+        toolBarView = new ToolBarView(dataModel, ds, chartView, listChartViews);
+        chartView = new ChartView(dataModel);
 
-        return border;
+        this.ds = ds;
+        name.set(newname);
     }
 
     @Override
@@ -217,12 +209,67 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     @Override
+    public Node getContentNode() {
+        if (dataModel.getSelectedData() != null) getChartsList();
+        if (chartsList.size() == 1 || chartsList.isEmpty()) {
+            if (border == null) {
+                border = new BorderPane();
+                chartView.drawDefaultAreaChart();
+                border.setCenter(chartView.getAreaChartRegion());
+//            border.setCenter(new Button("click me"));
+
+//            border.setCenter(lineChart);
+                border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+            }
+
+            return border;
+        } else {
+            if (border == null) {
+                border = new BorderPane();
+                try {
+                    listChartViews = chartView.getChartViews();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+
+                vBox.getChildren().clear();
+                for (ChartView cv : listChartViews) {
+                    cv.drawDefaultAreaChart();
+                    vBox.getChildren().add(cv.getAreaChartRegion());
+                }
+                border.setCenter(vBox);
+//            border.setCenter(new Button("click me"));
+
+//            border.setCenter(lineChart);
+                border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+            }
+
+            return border;
+        }
+    }
+
+    @Override
     public void update(Observable o, Object arg) {
-        border.setTop(chartView.getLegend());
-        border.setCenter(chartView.getAreaChartRegion());
-        border.setBottom(chartView.getVbox());
+        if (dataModel.getSelectedData() != null) getChartsList();
+        if (chartsList.size() == 1 || chartsList.isEmpty()) {
+            border.setTop(chartView.getLegend());
+            border.setCenter(chartView.getAreaChartRegion());
+            border.setBottom(chartView.getVbox());
+        } else {
+
+            border.setCenter(vBox);
+
+        }
 
     }
 
+    public ObservableList<String> getChartsList() {
+        List<String> tempList = new ArrayList<>();
+        for (ChartDataModel mdl : dataModel.getSelectedData()) {
+            if (!tempList.contains(mdl.getTitle()) && mdl.getTitle() != null) tempList.add(mdl.getTitle());
+        }
 
+        chartsList = FXCollections.observableArrayList(tempList);
+        return chartsList;
+    }
 }

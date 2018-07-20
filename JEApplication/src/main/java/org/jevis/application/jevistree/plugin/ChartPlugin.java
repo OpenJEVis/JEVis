@@ -42,11 +42,8 @@ public class ChartPlugin implements TreePlugin {
 
     private JEVisTree _tree;
 
-    private Map<Long, List<JEVisSample>> _samples = new HashMap<>();
     private Map<String, ChartDataModel> _data = new HashMap<>();
-    private TextField textField;
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
-    private String _title = rb.getString("graph.title");
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
     private enum DATE_TYPE {
@@ -71,12 +68,17 @@ public class ChartPlugin implements TreePlugin {
             String key = entrySet.getKey();
             ChartDataModel value = entrySet.getValue();
             if (value.getSelected()) {
-                value.setTitle(getTitle());
+
                 System.out.println("key: " + key);
             }
 
         }
 
+    }
+
+    @Override
+    public String getTitle() {
+        return rb.getString("graph.title");
     }
 
     @Override
@@ -109,6 +111,7 @@ public class ChartPlugin implements TreePlugin {
     private TreeTableColumn<JEVisTreeRow, String> buildSelectChartcolumn(JEVisTree tree, String columnName) {
         TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn(columnName);
         column.setPrefWidth(100);
+        getChartsList();
         column.setCellValueFactory(param -> {
 
             ChartDataModel data = getData(param.getValue().getValue());
@@ -127,6 +130,8 @@ public class ChartPlugin implements TreePlugin {
                     @Override
                     public void commitEdit(String newValue) {
                         super.commitEdit(newValue);
+                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        data.setTitle(newValue);
                     }
 
                     @Override
@@ -137,7 +142,33 @@ public class ChartPlugin implements TreePlugin {
 
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
+
                                 ChoiceBox selectChartBox = buildSelectChartBox(data);
+
+                                final String chartTitle = rb.getString("graph.title");
+                                final String addChart = rb.getString("graph.table.addchart");
+
+                                selectChartBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                    String newValueStr = newValue.toString();
+                                    String oldValueStr = oldValue.toString();
+                                    if (newValueStr != null || !newValueStr.equals(oldValueStr)) {
+                                        String newString = null;
+                                        if (newValueStr.equals(addChart)) {
+                                            if (chartsList.contains(chartTitle)) {
+                                                chartsList.add(chartTitle + " 2");
+                                                newString = chartTitle + " 2";
+                                            } else {
+                                                chartsList.add(chartTitle);
+                                                newString = chartTitle;
+                                            }
+                                        }
+                                        if (newString != null) {
+                                            commitEdit(newString);
+                                            selectChartBox.getSelectionModel().select(newString);
+                                        } else
+                                            commitEdit(newValue.toString());
+                                    }
+                                });
 
                                 hbox.getChildren().setAll(selectChartBox);
                                 StackPane.setAlignment(selectChartBox, Pos.CENTER_LEFT);
@@ -166,11 +197,13 @@ public class ChartPlugin implements TreePlugin {
 
     public ObservableList<String> getChartsList() {
         List<String> tempList = new ArrayList<>();
+        final String chartTitle = rb.getString("graph.title");
         for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
-            if (!tempList.contains(mdl.getValue().getTitle())) tempList.add(mdl.getValue().getTitle());
+            if (!tempList.contains(mdl.getValue().getTitle()) && mdl.getValue().getTitle() != null)
+                tempList.add(mdl.getValue().getTitle());
         }
-        if (tempList.isEmpty() || !tempList.contains(rb.getString("graph.title"))) {
-            tempList.add(rb.getString("graph.title"));
+        if (tempList.isEmpty() || !tempList.contains(chartTitle)) {
+            tempList.add(chartTitle);
         }
 
         final String addChart = rb.getString("graph.table.addchart");
@@ -180,24 +213,11 @@ public class ChartPlugin implements TreePlugin {
         return chartsList;
     }
 
-    private ChoiceBox buildSelectChartBox(final ChartDataModel data) {
+    private ChoiceBox buildSelectChartBox(ChartDataModel data) {
 
         ChoiceBox chartsBox = new ChoiceBox();
-        chartsBox.setItems(getChartsList());
+        chartsBox.setItems(chartsList);
         chartsBox.getSelectionModel().select(data.getTitle());
-
-        final String addChart = rb.getString("graph.table.addchart");
-
-        chartsBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-
-            if (newValue.equals(addChart)) {
-                if (chartsList.contains(newValue)) {
-                    chartsList.add(rb.getString("graph.table.addchart") + " 2");
-                }
-            } else {
-                data.setTitle(newValue);
-            }
-        });
 
         return chartsBox;
     }
@@ -214,15 +234,6 @@ public class ChartPlugin implements TreePlugin {
             _data.put(id, newData);
             return newData;
         }
-    }
-
-    public void setTitle(String title) {
-        _title = title;
-    }
-
-    @Override
-    public String getTitle() {
-        return textField.getText();
     }
 
     public List<JEVisSample> getSelectedSamples(JEVisObject object) {

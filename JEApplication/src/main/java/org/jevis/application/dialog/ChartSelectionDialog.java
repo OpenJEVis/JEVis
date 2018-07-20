@@ -224,7 +224,8 @@ public class ChartSelectionDialog {
     public ObservableList<String> getChartsList() {
         List<String> tempList = new ArrayList<>();
         for (Map.Entry<String, ChartDataModel> mdl : data.entrySet()) {
-            if (!tempList.contains(mdl.getValue().getTitle())) tempList.add(mdl.getValue().getTitle());
+            if (!tempList.contains(mdl.getValue().getTitle()) && chartsList != null)
+                tempList.add(mdl.getValue().getTitle());
         }
 
         chartsList = FXCollections.observableArrayList(tempList);

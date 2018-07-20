@@ -49,7 +49,7 @@ import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 /**
  * @author broder
  */
-public class AreaChartView implements Observer {
+public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
     private AreaChart<Number, Number> areaChart;
@@ -58,7 +58,9 @@ public class AreaChartView implements Observer {
     private final TableView table;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
 
-    public AreaChartView(GraphDataModel dataModel) {
+    private ObservableList<String> chartsList = FXCollections.observableArrayList();
+
+    public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
         dataModel.addObserver(this);
 
@@ -107,6 +109,16 @@ public class AreaChartView implements Observer {
         table.setItems(tableData);
 
         table.getColumns().addAll(name, colorCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
+    }
+
+    public ObservableList<String> getChartsList() {
+        List<String> tempList = new ArrayList<>();
+        for (ChartDataModel mdl : dataModel.getSelectedData()) {
+            if (!tempList.contains(mdl.getTitle()) && mdl.getTitle() != null) tempList.add(mdl.getTitle());
+        }
+
+        chartsList = FXCollections.observableArrayList(tempList);
+        return chartsList;
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn(String columnName) {
@@ -198,13 +210,28 @@ public class AreaChartView implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
-            this.drawAreaChart();
+            getChartsList();
+            if (chartsList.size() == 1) this.drawAreaChart("");
+            else getChartViews();
         } catch (JEVisException ex) {
-            Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void drawAreaChart() throws JEVisException {
+    public List<ChartView> getChartViews() throws JEVisException {
+        List<ChartView> charts = new ArrayList<>();
+
+        getChartsList();
+        for (String s : chartsList) {
+            ChartView view = new ChartView(dataModel);
+            view.drawAreaChart(s);
+            charts.add(view);
+        }
+
+        return charts;
+    }
+
+    public void drawAreaChart(String chartName) throws JEVisException {
         tableData.clear();
         String unit = "";
 
@@ -216,76 +243,78 @@ public class AreaChartView implements Observer {
         String title = I18n.getInstance().getString("plugin.graph.chart.title1");
 
         for (ChartDataModel singleRow : selectedData) {
-            unit = UnitManager.getInstance().formate(singleRow.getUnit());
-            hexColors.add(singleRow.getColor());
-            title = singleRow.getTitle();
+            if (chartName.equals("") || singleRow.getTitle().equals(chartName)) {
+                unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                hexColors.add(singleRow.getColor());
+                title = singleRow.getTitle();
 
-            List<JEVisSample> samples = singleRow.getSamples();
-            ObservableList<XYChart.Data<Number, Number>> series1Data = FXCollections.observableArrayList();
-            TreeMap<Double, JEVisSample> sampleMap = new TreeMap();
+                List<JEVisSample> samples = singleRow.getSamples();
+                ObservableList<XYChart.Data<Number, Number>> series1Data = FXCollections.observableArrayList();
+                TreeMap<Double, JEVisSample> sampleMap = new TreeMap();
 
-            String dp_name = "";
-            if (singleRow.getDataProcessor() != null) dp_name = singleRow.getDataProcessor().getName();
-            TableEntry tableEntry = new TableEntry(singleRow.getObject().getName() + " (" + dp_name + ")");
-            tableEntry.setColor(singleRow.getColor());
+                String dp_name = "";
+                if (singleRow.getDataProcessor() != null) dp_name = singleRow.getDataProcessor().getName();
+                TableEntry tableEntry = new TableEntry(singleRow.getObject().getName() + " (" + dp_name + ")");
+                tableEntry.setColor(singleRow.getColor());
 
-            singleRow.setTableEntry(tableEntry);
-            tableData.add(tableEntry);
-            Boolean isQuantitiy = false;
-            Double min = Double.MAX_VALUE;
-            Double max = Double.MIN_VALUE;
-            Double avg;
-            Double sum = 0.0;
+                singleRow.setTableEntry(tableEntry);
+                tableData.add(tableEntry);
+                Boolean isQuantitiy = false;
+                Double min = Double.MAX_VALUE;
+                Double max = Double.MIN_VALUE;
+                Double avg;
+                Double sum = 0.0;
 
-            for (JEVisSample sample : samples) {
-                JEVisObject dp = singleRow.getDataProcessor();
-                if (Objects.nonNull(dp)) {
-                    if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
-                        if (Objects.nonNull(dp.getAttribute("Value is a Quantity").getLatestSample())) {
-                            if (dp.getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
+                for (JEVisSample sample : samples) {
+                    JEVisObject dp = singleRow.getDataProcessor();
+                    if (Objects.nonNull(dp)) {
+                        if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
+                            if (Objects.nonNull(dp.getAttribute("Value is a Quantity").getLatestSample())) {
+                                if (dp.getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
 
-                                isQuantitiy = true;
+                                    isQuantitiy = true;
+                                }
                             }
                         }
                     }
-                }
 
-                sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
-                DateTime dateTime = sample.getTimestamp();
-                Double value = sample.getValueAsDouble();
-                if (isQuantitiy) {
-                    min = Math.min(value, min);
-                    max = Math.max(value, max);
-                    sum += value;
-                }
+                    sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
+                    DateTime dateTime = sample.getTimestamp();
+                    Double value = sample.getValueAsDouble();
+                    if (isQuantitiy) {
+                        min = Math.min(value, min);
+                        max = Math.max(value, max);
+                        sum += value;
+                    }
 //                Date date = dateTime.toGregorianCalendar().getTime();
-                Long timestamp = dateTime.getMillis();
-                XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
+                    Long timestamp = dateTime.getMillis();
+                    XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
 
-                //dot for the chart
-                Rectangle rect = new Rectangle(0, 0);
-                rect.setVisible(false);
-                data.setNode(rect);
-                series1Data.add(data);
+                    //dot for the chart
+                    Rectangle rect = new Rectangle(0, 0);
+                    rect.setVisible(false);
+                    data.setNode(rect);
+                    series1Data.add(data);
 
+                }
+
+                if (isQuantitiy) {
+                    avg = sum / samples.size();
+                    NumberFormat nf_out = NumberFormat.getNumberInstance();
+                    nf_out.setMaximumFractionDigits(2);
+                    nf_out.setMinimumFractionDigits(2);
+
+                    tableEntry.setMin(nf_out.format(min) + " " + unit);
+                    tableEntry.setMax(nf_out.format(max) + " " + unit);
+                    tableEntry.setAvg(nf_out.format(avg) + " " + unit);
+                    tableEntry.setSum(nf_out.format(sum) + " " + unit);
+                }
+
+                XYChart.Series<Number, Number> currentSerie = new XYChart.Series<>(singleRow.getObject().getName(), series1Data);
+                currentSerie.setName(singleRow.getObject().getName());
+                singleRow.setSampleMap(sampleMap);
+                series.add(currentSerie);
             }
-
-            if (isQuantitiy) {
-                avg = sum / samples.size();
-                NumberFormat nf_out = NumberFormat.getNumberInstance();
-                nf_out.setMaximumFractionDigits(2);
-                nf_out.setMinimumFractionDigits(2);
-
-                tableEntry.setMin(nf_out.format(min) + " " + unit);
-                tableEntry.setMax(nf_out.format(max) + " " + unit);
-                tableEntry.setAvg(nf_out.format(avg) + " " + unit);
-                tableEntry.setSum(nf_out.format(sum) + " " + unit);
-            }
-
-            XYChart.Series<Number, Number> currentSerie = new XYChart.Series<>(singleRow.getObject().getName(), series1Data);
-            currentSerie.setName(singleRow.getObject().getName());
-            singleRow.setSampleMap(sampleMap);
-            series.add(currentSerie);
         }
 
         table.setItems(tableData);
@@ -354,7 +383,7 @@ public class AreaChartView implements Observer {
 
                         table.layout();
                     } catch (Exception ex) {
-//                        Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);
+//                        Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }

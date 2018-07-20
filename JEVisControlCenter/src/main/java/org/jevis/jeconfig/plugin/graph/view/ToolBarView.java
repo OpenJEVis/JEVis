@@ -50,7 +50,8 @@ public class ToolBarView {
     private ComboBox listAnalysesComboBox;
     private List<JsonAnalysisModel> listAnalysisModel;
     private BorderPane border;
-    private AreaChartView view;
+    private ChartView view;
+    private List<ChartView> listView;
     DateTime selectedStart;
     DateTime selectedEnd;
     private Boolean _initialized = false;
@@ -59,13 +60,7 @@ public class ToolBarView {
     private JFXDatePicker pickerDateEnd = new JFXDatePicker();
     private JFXTimePicker pickerTimeEnd = new JFXTimePicker();
     LoadAnalysisDialog dialog;
-
-    public ToolBarView(GraphDataModel model, JEVisDataSource ds, AreaChartView chartView) {
-        this.model = model;
-        this.controller = new ToolBarController(this, model, ds);
-        this.ds = ds;
-        this.view = chartView;
-    }
+    private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
     public ToolBar getToolbar(JEVisDataSource ds) {
         ToolBar toolBar = new ToolBar();
@@ -202,10 +197,30 @@ public class ToolBarView {
         }
     }
 
+    public ToolBarView(GraphDataModel model, JEVisDataSource ds, ChartView chartView, List<ChartView> listChartViews) {
+        this.model = model;
+        this.controller = new ToolBarController(this, model, ds);
+        this.ds = ds;
+        this.view = chartView;
+        this.listView = listChartViews;
+    }
+
+    public ObservableList<String> getChartsList() {
+        List<String> tempList = new ArrayList<>();
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            if (!tempList.contains(mdl.getTitle())) tempList.add(mdl.getTitle());
+        }
+
+        chartsList = FXCollections.observableArrayList(tempList);
+        return chartsList;
+    }
+
     private void drawChart() {
-        if (view == null) view = new AreaChartView(model);
+        if (view == null) view = new ChartView(model);
         try {
-            view.drawAreaChart();
+            getChartsList();
+            if (chartsList.size() == 1 || chartsList.isEmpty()) view.drawAreaChart("");
+            else listView = view.getChartViews();
 
         } catch (JEVisException e) {
             e.printStackTrace();
