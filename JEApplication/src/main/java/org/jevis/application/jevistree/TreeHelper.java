@@ -40,6 +40,7 @@ import org.jevis.application.cache.CacheObjectEvent;
 import org.jevis.application.cache.Cached;
 import org.jevis.application.dialog.*;
 import org.jevis.application.object.tree.UserSelection;
+import org.jevis.application.tools.CalculationNameFormater;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -418,40 +419,44 @@ public class TreeHelper {
 
         SelectTargetDialog2.Response response = dia.show(null, calcObject.getDataSource(), "Input Selection", userSeclection, SelectTargetDialog2.MODE.OBJECT);
 
-        System.out.println("response: " +response +"  OK: "+SelectTargetDialog2.Response.OK);
         if (response == SelectTargetDialog2.Response.OK) {
-            System.out.println("Selection OK");
             for (UserSelection us : dia.getUserSelection()) {
-                System.out.println("Userseclect Object: "+us.getSelectedObject());
+                JEVisAttribute valueAttribute = us.getSelectedAttribute();
+
+                //Simple help for user so they do not have to select the Value attribute under Data
                 if (us.getSelectedObject().getJEVisClassName().equals("Data")) {
-
-                    DateTime now = new DateTime();
-                    System.out.println("Create new Data input");
-                    System.out.println("Name: " + us.getSelectedObject().getName());
-
-                    String inputName = us.getSelectedObject().getName();
-
-                    JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
-                    newInputObj.commit();
-
-                    JEVisAttribute aIdentifier = newInputObj.getAttribute("Identifier");
-                    JEVisSample newSample = aIdentifier.buildSample(now, inputName);
-                    newSample.commit();
-
-                    JEVisAttribute aInputData = newInputObj.getAttribute("Input Data");
-
-                    TargetHelper th = new TargetHelper(aInputData.getDataSource(), us.getSelectedObject(), aInputData);
-                    if (th.isValid() && th.targetAccessable()) {
-                        JEVisSample newTarget = aInputData.buildSample(now, th.getSourceString());
-                        newTarget.commit();
-                    }
-
-
-                    JEVisAttribute aDataType = newInputObj.getAttribute("Input Data Type");
-                    JEVisSample newTypeSample = aDataType.buildSample(now, "PERIODIC");
-                    newTypeSample.commit();
-
+                    valueAttribute = us.getSelectedObject().getAttribute("Value");
                 }
+
+                DateTime now = new DateTime();
+
+                String inputName = CalculationNameFormater.formatInputVariable(us.getSelectedObject().getName());
+
+                JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
+                newInputObj.commit();
+
+                JEVisAttribute aIdentifier = newInputObj.getAttribute("Identifier");
+                JEVisSample newSample = aIdentifier.buildSample(now, inputName);
+                newSample.commit();
+
+                JEVisAttribute aInputData = newInputObj.getAttribute("Input Data");
+
+
+
+                TargetHelper th = new TargetHelper(aInputData.getDataSource(), us.getSelectedObject(),valueAttribute );
+                if (th.isValid() && th.targetAccessable()) {
+                    System.out.println("Target Is valid");
+                    JEVisSample newTarget = aInputData.buildSample(now, th.getSourceString());
+                    newTarget.commit();
+                }else{
+                    System.out.println("Target is not valid");
+                }
+
+
+                JEVisAttribute aDataType = newInputObj.getAttribute("Input Data Type");
+                JEVisSample newTypeSample = aDataType.buildSample(now, "PERIODIC");
+                newTypeSample.commit();
+
             }
         }
 
