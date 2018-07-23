@@ -149,11 +149,9 @@ public class ChartPlugin implements TreePlugin {
                                 final String addChart = rb.getString("graph.table.addchart");
 
                                 selectChartBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-                                    String newValueStr = newValue.toString();
-                                    String oldValueStr = oldValue.toString();
-                                    if (newValueStr != null || !newValueStr.equals(oldValueStr)) {
+                                    if (newValue != null || !newValue.equals(oldValue)) {
                                         String newString = null;
-                                        if (newValueStr.equals(addChart)) {
+                                        if (newValue.equals(addChart)) {
                                             if (chartsList.contains(chartTitle)) {
                                                 chartsList.add(chartTitle + " 2");
                                                 newString = chartTitle + " 2";

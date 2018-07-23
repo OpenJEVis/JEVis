@@ -23,8 +23,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -235,7 +237,11 @@ public class GraphPluginView implements Plugin, Observer {
                 vBox.getChildren().clear();
                 for (ChartView cv : listChartViews) {
                     cv.drawDefaultAreaChart();
-                    vBox.getChildren().add(cv.getAreaChartRegion());
+                    BorderPane bp = new BorderPane();
+                    bp.setTop(cv.getLegend());
+                    bp.setCenter(cv.getAreaChartRegion());
+                    bp.setBottom(cv.getVbox());
+                    vBox.getChildren().add(bp);
                 }
                 border.setCenter(vBox);
 //            border.setCenter(new Button("click me"));
@@ -256,8 +262,39 @@ public class GraphPluginView implements Plugin, Observer {
             border.setCenter(chartView.getAreaChartRegion());
             border.setBottom(chartView.getVbox());
         } else {
+            if (border == null) {
+                border = new BorderPane();
+            }
+            try {
+                listChartViews = chartView.getChartViews();
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
 
+            vBox.getChildren().clear();
+
+            ScrollBar sb = new ScrollBar();
+            sb.setMin(0);
+            sb.orientationProperty().setValue(Orientation.VERTICAL);
+            sb.valueProperty().addListener((ov, old_val, new_val) -> vBox.setLayoutY(-new_val.doubleValue()));
+
+            for (ChartView cv : listChartViews) {
+                BorderPane bp = new BorderPane();
+                bp.setTop(cv.getLegend());
+                bp.setCenter(cv.getAreaChartRegion());
+                bp.setBottom(cv.getVbox());
+                vBox.getChildren().add(bp);
+            }
+            vBox.getChildren().add(sb);
+            border.setTop(null);
+            border.setBottom(null);
             border.setCenter(vBox);
+            border.setRight(sb);
+//            border.setCenter(new Button("click me"));
+
+//            border.setCenter(lineChart);
+            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+
 
         }
 
