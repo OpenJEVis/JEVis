@@ -24,21 +24,16 @@ import java.util.List;
 import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisConstants;
-import static org.jevis.api.JEVisConstants.ClassRelationship.*;
+
 import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisExceptionCodes;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUser;
 
 /**
- * This class helps handeling the Relationship
+ * This class helps handling the Relationship
  *
  * TODO: this class belongs into he JEAp or JECommons
  *
@@ -55,7 +50,7 @@ public class RelationsManagment {
      * @return
      */
     public static boolean canRead(JEVisObject user, JEVisObject object) throws JEVisException {
-        return checkMebershipForType(user, object, MEMBER_READ);
+        return checkMembershipForType(user, object, MEMBER_READ);
     }
 
     /**
@@ -65,7 +60,7 @@ public class RelationsManagment {
      * @return
      */
     public static boolean canWrite(JEVisObject user, JEVisObject object) throws JEVisException {
-        return checkMebershipForType(user, object, MEMBER_WRITE);
+        return checkMembershipForType(user, object, MEMBER_WRITE);
     }
 
     /**
@@ -75,7 +70,7 @@ public class RelationsManagment {
      * @return
      */
     public static boolean canDelete(JEVisObject user, JEVisObject object) throws JEVisException {
-        return checkMebershipForType(user, object, MEMBER_DELETE);
+        return checkMembershipForType(user, object, MEMBER_DELETE);
     }
 
     /**
@@ -85,7 +80,7 @@ public class RelationsManagment {
      * @return
      */
     public static boolean canCreate(JEVisObject user, JEVisObject object) throws JEVisException {
-        return checkMebershipForType(user, object, MEMBER_CREATE);
+        return checkMembershipForType(user, object, MEMBER_CREATE);
     }
 
     /**
@@ -95,7 +90,7 @@ public class RelationsManagment {
      * @return
      */
     public static boolean canExcecude(JEVisObject user, JEVisObject object) throws JEVisException {
-        return checkMebershipForType(user, object, MEMBER_EXECUTE);
+        return checkMembershipForType(user, object, MEMBER_EXECUTE);
     }
 
     /**
@@ -105,17 +100,16 @@ public class RelationsManagment {
      * @param type
      * @return
      */
-    public static boolean checkMebershipForType(JEVisObject user, JEVisObject object, int type) throws JEVisException {
+    public static boolean checkMembershipForType(JEVisObject user, JEVisObject object, int type) throws JEVisException {
         logger.trace("CheckMembership {} {} {}", user.getID(), object.getID(), type);
         try {
-
-            return isSysAdmin(user);
+            return user.getDataSource().getCurrentUser().isSysAdmin();
         } catch (Exception ex) {
             System.out.println("Error while checking Sys Admin status:  " + ex);
             logger.error("Error while checking Sys Admin status:  {}", ex.getMessage());//ToDO there is some error here
         }
 
-        logger.debug("checkMebershipForType: user: " + user.getID() + " object: " + object.getID() + " type: " + type);
+        logger.debug("checkMembershipForType: user: " + user.getID() + " object: " + object.getID() + " type: " + type);
         try {
             List<JEVisRelationship> userMemberships = getMembershipsRel(user);
 
@@ -181,63 +175,56 @@ public class RelationsManagment {
         return memberships;
     }
 
-    /**
-     * Is this still in use? also implementation seems wrong
-     *
-     * @param user
-     * @return
-     * @throws JEVisException
-     */
-    public static boolean isSysAdmin(JEVisObject user) throws JEVisException {
-        logger.trace("isSysAdmin {} ", user.getID());
+//    /**
+//     * Is this still in use? also implementation seems wrong
+//     *
+//     * @param user
+//     * @return
+//     * @throws JEVisException
+//     */
+//    public static boolean isSysAdmin(JEVisObject user) throws JEVisException {
+//        logger.trace("isSysAdmin {} ", user.getID());
+//
+//        JEVisAttribute sysAdminAtt = user.getAttribute("Sys Admin");
+//        logger.trace("sysAdmin getValue");
+//        JEVisSample value = sysAdminAtt.getLatestSample();
+//        if (value == null || value.getValueAsBoolean() == false) {
+//            logger.trace("isSysAdmin {} {}", user.getID(), false);
+//            return false;
+//        } else {
+//            logger.trace("isSysAdmin {} {}", user.getID(), true);
+//            return value.getValueAsBoolean();
+//        }
+//
+//    }
 
-        JEVisAttribute sysAdminAtt = user.getAttribute("Sys Admin");
-        logger.trace("sysAdmin getValue");
-        JEVisSample value = sysAdminAtt.getLatestSample();
-        if (value == null || value.getValueAsBoolean() == false) {
-            logger.trace("isSysAdmin {} {}", user.getID(), false);
-            return false;
-        } else {
-            logger.trace("isSysAdmin {} {}", user.getID(), true);
-            return value.getValueAsBoolean();
-        }
-
-//        JEVisDataSourceSQL ds = (JEVisDataSourceSQL) user.getDataSource();
-//        return ds.getCurrentUserObject().isSysAdmin();
-//        if (user.getJEVisClass().getName().equals(USER)) {
-//            JEVisAttribute sysAdmin = user.getAttribute(USER_SYS_ADMIN);
-//            return sysAdmin.getLatestSample().getValueAsBoolean();
+//    public static boolean isParentRelationship(JEVisClass parent, JEVisClass child) throws JEVisException {
+//
+//        if (child.getInheritance() != null) {
+//            return isParentRelationship(parent, child.getInheritance());
+//        }
+//
+//        for (JEVisClassRelationship rel : parent.getRelationships(OK_PARENT)) {
+//            if (rel.getOtherClass(parent).equals(child)) {
+//                return true;
+//            }
 //        }
 //        return false;
-    }
-
-    public static boolean isParentRelationship(JEVisClass parent, JEVisClass child) throws JEVisException {
-
-        if (child.getInheritance() != null) {
-            return isParentRelationship(parent, child.getInheritance());
-        }
-
-        for (JEVisClassRelationship rel : parent.getRelationships(OK_PARENT)) {
-            if (rel.getOtherClass(parent).equals(child)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isNestedRelationship(JEVisClass parent, JEVisClass child) throws JEVisException {
-        if (child.getInheritance() != null) {
-            return isNestedRelationship(parent, child.getInheritance());
-        }
-
-        for (JEVisClassRelationship rel : parent.getRelationships(NESTED)) {
-            if (rel.getOtherClass(parent).equals(child)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    }
+//
+//    public static boolean isNestedRelationship(JEVisClass parent, JEVisClass child) throws JEVisException {
+//        if (child.getInheritance() != null) {
+//            return isNestedRelationship(parent, child.getInheritance());
+//        }
+//
+//        for (JEVisClassRelationship rel : parent.getRelationships(NESTED)) {
+//            if (rel.getOtherClass(parent).equals(child)) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
     private static List<JEVisObject> getObjectOwner(JEVisObject obj, int type) {
         List<JEVisObject> owners = new ArrayList<JEVisObject>();
@@ -266,17 +253,20 @@ public class RelationsManagment {
      * Checks if an membership relationship can be deleted by the current user.
      *
      *
-     * @param rel JEVisRealtionship from the type Membership
-     * @return true if the user can delte, thows an execption with the reason
-     * when not. returns fals if the type is not an membership
+     * @param rel JEVisRelationship from the type Membership
+     * @return true if the user can delete, throws an exception with the reason
+     * when not. returns false if the type is not an membership
      */
     public static boolean canDeleteMembership(JEVisRelationship rel) {
-
+        System.out.println("canDeleteMembership: "+rel);
         try {
             JEVisUser juser = rel.getStartObject().getDataSource().getCurrentUser();
-//            JEVisUser juser = new JEVisUser(currentUser);
-//            List<JEVisObject> userMembership = juser.getUserGroups();
-//            System.out.println("Usergroups: " + Arrays.toString(userMembership.toArray()));
+
+
+            if(juser.isSysAdmin()){
+                System.out.println("is sysadmin");
+                return true;
+            }
 
             if (rel.getType() == JEVisConstants.ObjectRelationship.MEMBER_CREATE
                     || rel.getType() == JEVisConstants.ObjectRelationship.MEMBER_DELETE
@@ -284,14 +274,14 @@ public class RelationsManagment {
                     || rel.getType() == JEVisConstants.ObjectRelationship.MEMBER_READ
                     || rel.getType() == JEVisConstants.ObjectRelationship.MEMBER_WRITE) {
 
-//                System.out.println("end Rel: " + rel.getEndObject());
-//                if (userMembership.contains(rel.getEndObject())) {
-//                    System.out.println("rule a63: " + rel);
-//                    return false;
-//                }
+
                 if (rel.getStartID() == juser.getUserID()) {
-                    throw new JEVisException("Unsifficent rights, user cannot delete its own user right", JEVisExceptionCodes.UNAUTHORIZED);
+                    System.out.println("UserID: "+juser.getUserID()+ " Rel.start: "+rel.getStartID());
+                    return false;
+//                    throw new JEVisException("Insufficient rights, user cannot delete its own user right", JEVisExceptionCodes.UNAUTHORIZED);
                 }
+
+
 
                 if (getObjectOwner(rel.getStartObject(), JEVisConstants.ObjectRelationship.MEMBER_DELETE).contains(juser.getUserObject())) {
 //                    System.out.println("is owner-owner: " + rel);
@@ -299,7 +289,7 @@ public class RelationsManagment {
                 }
 
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             java.util.logging.Logger.getLogger(RelationsManagment.class.getName()).log(Level.SEVERE, null, ex);
         }
 

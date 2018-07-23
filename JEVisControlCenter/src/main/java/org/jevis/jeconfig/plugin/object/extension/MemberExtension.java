@@ -138,20 +138,25 @@ public class MemberExtension implements ObjectEditorExtension {
         });
 
         try {
-            //content
             for (JEVisRelationship rel : obj.getRelationships()) {
-                if (rel.isType(MEMBER_CREATE)
-                        || rel.isType(MEMBER_DELETE)
-                        || rel.isType(MEMBER_READ)
-                        || rel.isType(MEMBER_WRITE)
-                        || rel.isType(MEMBER_CREATE)
-                        || rel.isType(MEMBER_EXECUTE)) {
-//                    System.out.println("is userright");
-                    if (members.get(rel.getOtherObject(obj)) == null) {
-                        members.put(rel.getOtherObject(obj), new ArrayList<JEVisRelationship>());
+                try {
+                    if(rel==null || rel.getStartObject()==null || rel.getEndObject()==null){
+                        System.out.println("Incorect relationship: "+rel);
+                        continue;
                     }
-
-                    members.get(rel.getOtherObject(obj)).add(rel);
+                    if (rel.isType(MEMBER_CREATE)
+                            || rel.isType(MEMBER_DELETE)
+                            || rel.isType(MEMBER_READ)
+                            || rel.isType(MEMBER_WRITE)
+                            || rel.isType(MEMBER_CREATE)
+                            || rel.isType(MEMBER_EXECUTE)) {
+                        if (members.get(rel.getOtherObject(obj)) == null) {
+                            members.put(rel.getOtherObject(obj), new ArrayList<JEVisRelationship>());
+                        }
+                        members.get(rel.getOtherObject(obj)).add(rel);
+                    }
+                }catch (Exception ex){
+                    Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             }
@@ -165,6 +170,9 @@ public class MemberExtension implements ObjectEditorExtension {
         } catch (JEVisException ex) {
             Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        boolean userCanEdit = obj.getDataSource().getCurrentUser().canWrite(obj.getID());
+        System.out.println("User is allowed to edit the object: "+obj.getID());
 
         for (final Map.Entry<JEVisObject, List<JEVisRelationship>> member : members.entrySet()) {
             yAxis++;
@@ -184,57 +192,64 @@ public class MemberExtension implements ObjectEditorExtension {
 
             CheckBox readBox = new CheckBox();
             CheckBox writeBox = new CheckBox();
-            CheckBox exceBox = new CheckBox();
+            CheckBox execBox = new CheckBox();
             CheckBox deleteBox = new CheckBox();
             CheckBox createBox = new CheckBox();
 
-            JEVisRelationship readRel = null;
+            JEVisRelationship aRelationship = null;
 
+            /**
+             * Add existing Member relationships
+             */
             for (JEVisRelationship rel : member.getValue()) {
                 try {
-//                    System.out.println("###### Check re: " + rel);
+                    System.out.println("###### Check re: " + rel);
+                    aRelationship = rel;//we need one of the relationship to test if we can delete all this relationships. Doesnt matter which one of this.
                     switch (rel.getType()) {
 
                         case MEMBER_READ:
                             readBox.setSelected(true);
-                            //TODo: does not make nuch sens to have and user how cannot read but do everything else?!
-//                            System.out.println("Read membership: " + rel);
-                            addRemoverelationshipAction(readBox, MEMBER_READ, member.getKey(), obj, rel);
-                            readRel = rel;
+                             addRelationshipAction(readBox, MEMBER_READ, member.getKey(), obj, rel,userCanEdit);
                             break;
                         case MEMBER_WRITE:
                             writeBox.setSelected(true);
-                            addRemoverelationshipAction(writeBox, MEMBER_WRITE, member.getKey(), obj, rel);
+                            addRelationshipAction(writeBox, MEMBER_WRITE, member.getKey(), obj, rel,userCanEdit);
                             break;
                         case MEMBER_EXECUTE:
-                            exceBox.setSelected(true);
-                            addRemoverelationshipAction(exceBox, MEMBER_EXECUTE, member.getKey(), obj, rel);
+                            execBox.setSelected(true);
+                            addRelationshipAction(execBox, MEMBER_EXECUTE, member.getKey(), obj, rel,userCanEdit);
                             break;
                         case MEMBER_DELETE:
                             deleteBox.setSelected(true);
-                            addRemoverelationshipAction(deleteBox, MEMBER_DELETE, member.getKey(), obj, rel);
+                            addRelationshipAction(deleteBox, MEMBER_DELETE, member.getKey(), obj, rel,userCanEdit);
                             break;
                         case MEMBER_CREATE:
                             createBox.setSelected(true);
-                            addRemoverelationshipAction(createBox, MEMBER_CREATE, member.getKey(), obj, rel);
+                            addRelationshipAction(createBox, MEMBER_CREATE, member.getKey(), obj, rel,userCanEdit);
                             break;
                     }
-                } catch (JEVisException ex) {
+                } catch (Exception ex) {
                     Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
-            if (!writeBox.isSelected()) {
-                addRemoverelationshipAction(writeBox, MEMBER_WRITE, member.getKey(), obj, null);
+            /**
+             * Add ActionEvents to create Relationships
+             */
+            if (!readBox.isSelected()) {
+                addRelationshipAction(readBox, MEMBER_READ, member.getKey(), obj, null,userCanEdit);
             }
-            if (!exceBox.isSelected()) {
-                addRemoverelationshipAction(exceBox, MEMBER_EXECUTE, member.getKey(), obj, null);
+            if (!writeBox.isSelected()) {
+                addRelationshipAction(writeBox, MEMBER_WRITE, member.getKey(), obj, null,userCanEdit);
+            }
+            if (!execBox.isSelected()) {
+                addRelationshipAction(execBox, MEMBER_EXECUTE, member.getKey(), obj, null,userCanEdit);
             }
             if (!deleteBox.isSelected()) {
-                addRemoverelationshipAction(deleteBox, MEMBER_DELETE, member.getKey(), obj, null);
+                addRelationshipAction(deleteBox, MEMBER_DELETE, member.getKey(), obj, null,userCanEdit);
             }
             if (!createBox.isSelected()) {
-                addRemoverelationshipAction(createBox, MEMBER_CREATE, member.getKey(), obj, null);
+                addRelationshipAction(createBox, MEMBER_CREATE, member.getKey(), obj, null,userCanEdit);
             }
 
             HBox control = new HBox(0.5);
@@ -242,8 +257,9 @@ public class MemberExtension implements ObjectEditorExtension {
             Button remove = new Button();
             remove.setGraphic(JEConfig.getImage("list-remove.png", 17, 17));
 
-            if (RelationsManagment.canDeleteMembership(readRel)) {
-//                System.out.println("can delete Relationship");
+            //if the currentUser has a group which has delete right on the userObj he can delete it
+            if (RelationsManagment.canDeleteMembership(aRelationship)) {
+                System.out.println("can delete Relationship");
                 remove.setDisable(false);
 
                 remove.setOnAction(new EventHandler<ActionEvent>() {
@@ -267,39 +283,17 @@ public class MemberExtension implements ObjectEditorExtension {
                 });
 
             } else {
+                System.out.println("user has no remove ");
                 remove.setDisable(true);
             }
 
-//            if (!member.getKey().equals(member.getKey().getDataSource().getCurrentUser())) {
-//                remove.setOnAction(new EventHandler<ActionEvent>() {
-//                    @Override
-//                    public void handle(ActionEvent t) {
-//
-//                        removeRelationhsips(member.getValue());
-//
-//                        Platform.runLater(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                try {
-//                                    buildView(_obj);
-//                                } catch (JEVisException ex) {
-//                                    Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
-//                                }
-//
-//                            }
-//                        });
-//                    }
-//                });
-//            } else {
-//                remove.setDisable(true);
-//            }
             remove.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.member.remove_tooltip")));
             control.getChildren().setAll(remove);
 
             gridPane.add(userBox, 0, yAxis);
             gridPane.add(readBox, 1, yAxis);
             gridPane.add(writeBox, 2, yAxis);
-            gridPane.add(exceBox, 3, yAxis);
+            gridPane.add(execBox, 3, yAxis);
             gridPane.add(deleteBox, 4, yAxis);
             gridPane.add(createBox, 5, yAxis);
             gridPane.add(control, 6, yAxis);
@@ -427,21 +421,10 @@ public class MemberExtension implements ObjectEditorExtension {
      * @param group
      * @param rel
      */
-    private void addRemoverelationshipAction(final CheckBox button, final int type, final JEVisObject userObj, final JEVisObject group, final JEVisRelationship rel) {
+    private void addRelationshipAction(final CheckBox button, final int type, final JEVisObject userObj, final JEVisObject group, final JEVisRelationship rel,boolean userCanEdit) {
 
         try {
-
-            //Disable the posibility to configure the mombership of the user himself
-//            if (userObj.equals(userObj.getDataSource().getCurrentUser())) {
-            boolean isOK = false;
-            try {
-                RelationsManagment.canDeleteRelationship(userObj, rel);
-                isOK = true;
-            } catch (Exception ex) {
-
-            }
-
-            if (false) {
+            if (!userCanEdit) {
                 button.setDisable(true);
             } else {
 
@@ -460,7 +443,9 @@ public class MemberExtension implements ObjectEditorExtension {
 
                         } else {
                             try {
-                                rel.getStartObject().deleteRelationship(rel);
+                                if(rel!=null){
+                                    rel.getStartObject().deleteRelationship(rel);
+                                }
                             } catch (JEVisException ex) {
                                 Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
                             }
@@ -470,6 +455,7 @@ public class MemberExtension implements ObjectEditorExtension {
                             @Override
                             public void run() {
                                 try {
+                                    System.out.println("Rebuild GUI");
                                     buildView(_obj);
                                 } catch (JEVisException ex) {
                                     Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
