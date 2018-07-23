@@ -393,9 +393,9 @@ public class JEConfig extends Application {
                     tnames.put("ru", type.getName());
 
                     Map<String, String> tdescriptions = new HashMap<>();
-                    tdescriptions.put("en", type.getName() + " desctiption");
-                    tdescriptions.put("de", type.getName() + " desctiption");
-                    tdescriptions.put("ru", type.getName() + " desctiption");
+                    tdescriptions.put("en", type.getName() + " description");
+                    tdescriptions.put("de", type.getName() + " description");
+                    tdescriptions.put("ru", type.getName() + " description");
 
 
                     JsonI18nType jtype = new JsonI18nType();

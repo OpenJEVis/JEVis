@@ -52,13 +52,6 @@ public class ConfirmDialog {
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON_QUESTION = "1400874302_question_blue.png";
 
-    public static enum Response {
-
-        NO, YES, CANCEL
-    };
-
-    private Response response = Response.CANCEL;
-
     public Response show(Stage owner, String title, String titleLong, String message) {
         final Stage stage = new Stage();
 
@@ -77,6 +70,7 @@ public class ConfirmDialog {
         stage.setHeight(250);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(false);
+        stage.setAlwaysOnTop(true);
 
         BorderPane header = new BorderPane();
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
@@ -152,9 +146,17 @@ public class ConfirmDialog {
         });
 
         ok.requestFocus();
+        stage.toFront();
         stage.showAndWait();
 
         return response;
+    }
+
+    private Response response = Response.CANCEL;
+
+    public enum Response {
+
+        NO, YES, CANCEL
     }
 
 }
