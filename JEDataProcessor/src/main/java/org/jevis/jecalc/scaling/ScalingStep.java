@@ -16,6 +16,7 @@ import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -31,16 +32,20 @@ public class ScalingStep implements ProcessStep {
         List<CleanInterval> intervals = resourceManager.getIntervals();
 
         StopWatch stopWatch = new Slf4JStopWatch("scaling");
-        Double multiplier = calcAttribute.getMultiplier();
-        Double offset = calcAttribute.getOffset();
+        BigDecimal multiplier = new BigDecimal(calcAttribute.getMultiplier().toString());
+        BigDecimal offset = new BigDecimal(calcAttribute.getOffset().toString());
         logger.info("scale with multiplier {} and offset {}", multiplier, offset);
         for (CleanInterval currentInt : intervals) {
             for (JEVisSample sample : currentInt.getTmpSamples()) {
                 try {
                     Double rawValue = sample.getValueAsDouble();
                     if (rawValue != null) {
-                        Double cleanedValue = rawValue * multiplier + offset;
-                        sample.setValue(cleanedValue);
+                        BigDecimal rawValueDec = new BigDecimal(rawValue.toString());
+                        BigDecimal productDec = new BigDecimal(0);
+                        productDec = productDec.add(rawValueDec);
+                        productDec = productDec.multiply(multiplier);
+                        productDec = productDec.add(offset);
+                        sample.setValue(productDec.doubleValue());
                         String note = sample.getNote();
                         note += ",scale";
                         sample.setNote(note);
