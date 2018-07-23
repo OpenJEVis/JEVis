@@ -146,7 +146,7 @@ public class SampleEditor {
         enddate.getCalendarView().setShowWeeks(true);
         enddate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
 
-//        SampleTabelExtension tabelExtension = new SampleTabelExtension(attribute, stage);//Default plugin
+//        SampleTableExtension tabelExtension = new SampleTableExtension(attribute, stage);//Default plugin
 
 //        final List<JEVisSample> samples = attribute.getAllSamples();
         if (attribute.hasSample()) {
@@ -195,7 +195,7 @@ public class SampleEditor {
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(cancel, Priority.NEVER);
 
-        extensions.add(new SampleTabelExtension(attribute, stage));
+        extensions.add(new SampleTableExtension(attribute, stage));
         extensions.add(new SampleGraphExtension(attribute)); // we now habe an graph plugin
         extensions.add(new AttributeStatesExtension(attribute));
         extensions.add(new SampleExportExtension(attribute));
@@ -340,7 +340,7 @@ public class SampleEditor {
             }
 
         } catch (Exception ex) {
-            Logger.getLogger(SampleTabelExtension.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SampleTableExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         ChoiceBox processorBox = new ChoiceBox();
@@ -372,7 +372,7 @@ public class SampleEditor {
                     }
 
                 } catch (JEVisException ex) {
-                    Logger.getLogger(SampleTabelExtension.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(SampleTableExtension.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             }
