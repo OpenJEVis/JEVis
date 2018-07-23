@@ -265,6 +265,10 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public void deleteRelationship(JEVisRelationship rel) throws JEVisException {
         ds.deleteRelationship(rel.getStartID(), rel.getEndID(), rel.getType());
+
+        /**
+         * Delete form cache and other objects
+         */
         if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
             rel.getEndObject().notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_CHILD_DELETED));
 
@@ -399,7 +403,6 @@ public class JEVisObjectWS implements JEVisObject {
                 }
             }
         } catch (Exception ex) {
-            System.out.println("error, cannot compare objects");
             return false;
         }
         return false;
