@@ -164,7 +164,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.debug("payload: {}", gson.toJson(newJsonRel));
             StringBuffer response = getHTTPConnection().postRequest(resource, gson.toJson(newJsonRel));
 
-
             JsonRelationship newJson = gson.fromJson(response.toString(), JsonRelationship.class);
             JEVisRelationship newRel = new JEVisRelationshipWS(this, newJson);
 
@@ -262,6 +261,52 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
 
         return objectRelCache;
+    }
+
+
+    private void removeRelationshipFromCache(long startID, long endID, int type) {
+        List<JEVisRelationship> startRels = objectRelMapCache.get(startID);
+        List<JEVisRelationship> endRels = objectRelMapCache.get(endID);
+
+        try {
+            for (JEVisRelationship rel : startRels) {
+                if (rel.getStartID() == startID && rel.getEndID() == endID && rel.getType() == type) {
+                    startRels.remove(rel);
+                    break;
+                }
+            }
+
+            for (JEVisRelationship rel : endRels) {
+                if (rel.getStartID() == startID && rel.getEndID() == endID && rel.getType() == type) {
+                    endRels.remove(rel);
+                    break;
+                }
+            }
+
+            /**
+             * Workaround, i guess we dont want the relationship list but only the map but its there and in use
+             */
+            List<JEVisRelationship> all=getRelationships();
+            for(JEVisRelationship rel:getRelationships()){
+                if (rel.getStartID() == startID && rel.getEndID() == endID && rel.getType() == type) {
+                    all.remove(rel);
+                    break;
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<JEVisRelationship> getRelationships(long objectID) {
+        if (!orLoaded) {
+            getRelationships();
+        }
+
+        return objectRelMapCache.get(objectID);
+
     }
 
     public List<JEVisRelationship> getRelationshipsWS() {
@@ -444,6 +489,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         try {
             logger.trace("Delete: '{}' -> '{}' type:{}", fromObject, toObject, type);
 
+
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.RELATIONSHIPS.PATH
                     + "?"
@@ -455,6 +501,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
 //            Gson gson = new Gson();
             HttpURLConnection conn = getHTTPConnection().getDeleteConnection(resource);
+
+            if(conn.getResponseCode()== HttpURLConnection.HTTP_OK){
+                removeRelationshipFromCache(fromObject,toObject,type);
+            }else{
+                logger.error("Error while deleting Relationship {}",conn.getResponseCode());
+            }
+
+
             return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
 
         } catch (Exception ex) {
@@ -462,6 +516,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return false;
         }
     }
+
 
     @Override
     public boolean deleteClassRelationship(String fromClass, String toClass, int type) {
@@ -929,15 +984,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return new ArrayList<>();
     }
 
-    @Override
-    public List<JEVisRelationship> getRelationships(long objectID) {
-        if (!orLoaded) {
-            getRelationships();
-        }
-
-        return objectRelMapCache.get(objectID);
-
-    }
 
     @Override
     public void preload() {

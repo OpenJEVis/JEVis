@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 /**
  * TODO: has to be an JEConfig Driver at runtime
  *
+ * @deprecated i guess this will not be used anymore
  * @author Florian Simon
  */
 public class ProcessChainExtension implements ObjectEditorExtension {

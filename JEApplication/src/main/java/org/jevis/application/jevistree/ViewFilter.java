@@ -49,7 +49,6 @@ public class ViewFilter {
     }
 
     public void putRule(ViewFilterRowRule setting) {
-        System.out.println("put rule " + setting.getKey());
         _rowRules.put(setting.getKey(), setting);
     }
 
