@@ -137,4 +137,10 @@ public class PasswordEditor implements AttributeEditor {
     public JEVisAttribute getAttribute() {
         return _attribute;
     }
+
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
 }

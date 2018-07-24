@@ -286,5 +286,10 @@ public class FileEdior implements AttributeEditor {
         new Thread(upload).start();
     }
 
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
 
 }

@@ -129,7 +129,7 @@ public class StringMultyLine implements AttributeEditor {
                             _changed.setValue(false);
                         }
                     } catch (JEVisException ex) {
-                        Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(StringMultyLine.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
                 }
@@ -174,5 +174,11 @@ public class StringMultyLine implements AttributeEditor {
     @Override
     public JEVisAttribute getAttribute() {
         return _attribute;
+    }
+
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
     }
 }
