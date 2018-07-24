@@ -56,4 +56,10 @@ public class ErrorEditor implements AttributeEditor {
         return null;
     }
 
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
+
 }

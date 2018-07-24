@@ -56,7 +56,6 @@ public class CalculationExtension implements ObjectEditorExtension  {
 
     @Override
     public void setVisible() {
-        System.out.println("SetVisible");
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 20, 20));
         gridPane.setHgap(7);
@@ -99,7 +98,7 @@ public class CalculationExtension implements ObjectEditorExtension  {
 
 
         ap.getChildren().add(editConfigPane);
-        view.setCenter(ap);
+        view.setCenter(new ScrollPane(ap));
 
     }
 

@@ -487,4 +487,10 @@ public class GapFillingEditor implements AttributeEditor {
 
         NO, YES, CANCEL
     }
+
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
 }

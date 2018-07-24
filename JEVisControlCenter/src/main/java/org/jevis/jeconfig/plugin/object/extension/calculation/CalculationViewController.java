@@ -15,6 +15,9 @@ public class CalculationViewController {
     private final org.apache.logging.log4j.Logger log = LogManager.getLogger(CalculationViewController.class);
 
     @FXML
+    public Button atan2;
+
+    @FXML
     private Button buttonCeil;
 
     @FXML
@@ -212,7 +215,6 @@ public class CalculationViewController {
     @FXML
     void onThree(ActionEvent event) {
         formelBox.addExpression("3");
-
     }
 
     @FXML
@@ -299,7 +301,7 @@ public class CalculationViewController {
 
     @FXML
     void onBack(ActionEvent event) {
-        //TODO
+        formelBox.backspaceExpression();
     }
 
     @FXML
