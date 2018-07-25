@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.validation.base.ValidatorBase;
-import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.commons.validator.routines.LongValidator;
 import javafx.beans.DefaultProperty;
 import javafx.scene.control.TextInputControl;
@@ -9,9 +8,6 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.tool.I18n;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 
 public class LongEditor extends BasicEditor {
@@ -28,6 +24,7 @@ public class LongEditor extends BasicEditor {
     public ValidatorBase getValidator() {
         ValidatorBase validator = new LocalDoubleValidator();
         validator.setMessage("Value must be a rational number");
+
         return validator;
 
     }
@@ -35,15 +32,13 @@ public class LongEditor extends BasicEditor {
     @Override
     public Object parseValue(String value) throws ParseException {
         try {
-            DecimalFormat formatter = (DecimalFormat)NumberFormat.getInstance(I18n.getInstance().getLocale());
-            formatter.setParseIntegerOnly(true);
-            double newVal =formatter.parse(value).intValue();
+            long newValue = validator.validate(value,I18n.getInstance().getLocale());
 
             if (attribute.getInputUnit() != null && attribute.getDisplayUnit() != null) {
-
-                return attribute.getDisplayUnit().converteTo(attribute.getInputUnit(),newVal);
+                Double doubleWithUnit= Double.valueOf(attribute.getDisplayUnit().converteTo(attribute.getInputUnit(),newValue));
+                return doubleWithUnit.longValue();
             }else{
-                return newVal;
+                return newValue;
             }
         }catch (Exception ex){
             ex.printStackTrace();
@@ -55,8 +50,6 @@ public class LongEditor extends BasicEditor {
 
     @Override
     public String formatSample(JEVisSample value) throws ParseException,JEVisException {
-
-
         if(attribute.getInputUnit()!=null && attribute.getDisplayUnit()!=null){
             return formatValue(value.getValueAsLong(attribute.getDisplayUnit()));
         }else{
@@ -93,7 +86,7 @@ public class LongEditor extends BasicEditor {
             TextInputControl textField = (TextInputControl) srcControl.get();
             try {
 
-                Long test = validator.validate(textField.getText(),I18n.getInstance().getLocale())+1;
+                Long.valueOf(validator.validate(textField.getText(),I18n.getInstance().getLocale())).longValue();
 
                 hasErrors.set(false);
             } catch (Exception e) {

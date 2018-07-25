@@ -313,6 +313,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
         try {
             return new JEVisUnitImp(json.getInputUnit());
         } catch (Exception ex) {
+            logger.debug("No unit selected using fallback unit.one");
             return new JEVisUnitImp(Unit.ONE);
         }
     }

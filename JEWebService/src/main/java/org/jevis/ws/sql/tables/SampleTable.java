@@ -20,6 +20,7 @@
  */
 package org.jevis.ws.sql.tables;
 
+import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
@@ -39,6 +40,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Florian Simon<florian.simon@envidatec.com>
@@ -121,6 +123,7 @@ public class SampleTable {
 
             Calendar cal = Calendar.getInstance();//care tor TZ?
             long now = cal.getTimeInMillis();
+            DoubleValidator dv = DoubleValidator.getInstance();
 
             int p = 0;
             for (int i = 0; i < samples.size(); i++) {
@@ -129,7 +132,7 @@ public class SampleTable {
                 ps.setString(++p, attribute);
                 DateTime ts = JsonFactory.sampleDTF.parseDateTime(sample.getTs());
                 ps.setTimestamp(++p, new Timestamp(ts.getMillis()));
-
+                System.out.println("Value: "+sample.getValue());
                 switch (priType) {
                     case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
                         //Passwords will be stored as Saled Hash
@@ -147,6 +150,14 @@ public class SampleTable {
                     case JEVisConstants.PrimitiveType.MULTI_SELECTION:
                         ps.setString(++p, sample.getValue());
                         break;
+                    case JEVisConstants.PrimitiveType.LONG:
+                        System.out.println("Type: long");
+                        ps.setLong(++p, dv.validate(sample.getValue(),Locale.US).longValue());
+                        System.out.println("PS done");
+                        break;
+                    case JEVisConstants.PrimitiveType.DOUBLE:
+                        ps.setDouble(++p, dv.validate(sample.getValue(),Locale.US));
+                        break;
                     default:
                         ps.setString(++p, sample.getValue());
                         break;
@@ -157,19 +168,9 @@ public class SampleTable {
                 ps.setString(++p, sample.getNote());
                 ps.setTimestamp(++p, new Timestamp(now));
 
-//                if (priType == JEVisConstants.PrimitiveType.FILE) {
-//                    //TODO nedd extra function
-////                    ps.setString(++p, sample.getValueAsFile().getFilename());
-//
-////                    ByteArrayInputStream bis = new ByteArrayInputStream(sample.getValueAsFile().getBytes());
-////                    ps.setBlob(++p, bis);
-//                } else {
-//                    ps.setNull(++p, Types.BLOB);
-//                    ps.setNull(++p, Types.VARCHAR);
-//                }
             }
 //            System.out.println("SamplDB.putSample SQL: \n" + ps);
-            logger.trace("SQL: {}", ps);
+            logger.error("SQL: {}", ps);
             _connection.addQuery("Sample.insert()", ps.toString());
             count = ps.executeUpdate();
 

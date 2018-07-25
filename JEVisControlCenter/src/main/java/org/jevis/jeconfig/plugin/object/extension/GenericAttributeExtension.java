@@ -261,10 +261,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LIMITS_CONFIG.getId())) {
                                         editor = new LimitsEditor(att);
                                     }
-
-//                                else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TIME_ZONE.getId())) {
-//                                    editor = new TimeZoneEditor(att);
-//                                }
                                 } catch (Exception e) {
                                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());
                                     editor = new StringEditor(att);
@@ -328,16 +324,12 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         logger.catching(ex);
                     }
 
-                    //Label name = new Label(I18n.getInstance().getString("plugin.object.attribute.missingname"));
-                    //Label name = new Label(I18n.getInstance().getString(I18nWS.TYPE_NAME,type.getJEVisClassName()+type.getName()));
                     Label name = new Label(I18nWS.getInstance().getAttributeName(att));
                     Tooltip tt = new Tooltip(I18nWS.getInstance().getAttributeDescription(att));
                     if (!tt.getText().isEmpty()) {
                         name.setTooltip(tt);
                     }
 
-
-//                    name.setId("attributelabel");
                     SampleEditor se = new SampleEditor();
 
                     AttributeAdvSettingDialogButton attSettingsButton = new AttributeAdvSettingDialogButton(att);
@@ -351,30 +343,10 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     gridPane.add(editNode, 2, coloum);
                     gridPane.add(attSettingsButton, 1, coloum);
 
-//                    name.setTextFill(Color.CORNFLOWERBLUE);
-
                     coloum++;
                     Separator sep = new Separator(Orientation.HORIZONTAL);
                     sep.setOpacity(0.2d);
-//                    sep.setStyle("-fx-border-color: blue;");
                     gridPane.add(sep, 0, coloum, 3, 1);
-//                    String bgColor = "-fx-background: #EDEFF0";
-//                    if (coloum % 2 == 0) {
-//                        bgColor = "-fx-background-color: #EDEFF0";
-
-//                    } else {
-//                        bgColor = "-fx-background-color: #DFE3E";
-//                    }
-//                    editorRegion.setStyle(bgColor);
-//                    attNameRegion.setStyle(bgColor);
-//                    advRegion.setStyle(bgColor);
-
-//                    JFXHamburger testB = new JFXHamburger();
-//                    testB.setMaxHeight(18);
-//                    testB.setMaxWidth(18);
-//                    name.setText(type.getName() + ":");
-//                    name.setTextAlignment(TextAlignment.RIGHT);
-//                    name.setContentDisplay(ContentDisplay.RIGHT);
                     name.setAlignment(Pos.CENTER_RIGHT);
 
                     coloum++;

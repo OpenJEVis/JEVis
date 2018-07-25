@@ -179,7 +179,6 @@ public class LanguageEditor implements AttributeEditor {
 
     @Override
     public void setReadOnly(boolean canRead) {
-        logger.error("setReadOnly on Enum: {}", canRead);
         _editor.setDisable(canRead);
     }
 

@@ -310,7 +310,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public List<JEVisRelationship> getRelationshipsWS() {
-        logger.error("Get ALL RelationshipsWS");
+        logger.debug("Get ALL RelationshipsWS");
         try {
             Benchmark bm = new Benchmark();
             List<JEVisRelationship> objects = new ArrayList<>();
@@ -353,7 +353,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisAttribute> getAttributes(long objectID) {
-        logger.error("Get  getAttributes: {}", objectID);
+        logger.debug("Get  getAttributes: {}", objectID);
         StringBuffer response = new StringBuffer();
         try {
 //            JEVisObject obj = getObject(objectID);
@@ -395,10 +395,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisType> getTypes(String className) throws JEVisException {
-        logger.trace("Get  getTypes: {}", className);
-
         return getJEVisClass(className).getTypes();
-
     }
 
     private void removeObjectFromCache(long objectID) {
@@ -413,23 +410,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
             reloadRelationships();//takes 30ms
 
-//            List<JEVisRelationship> toDelete = new ArrayList<>();
-//            for (JEVisRelationship rel : objectRelCache) {
-//                if (ids.contains(rel.getStartID()) || ids.contains(rel.getEndID())) {
-//                    toDelete.add(rel);
-//                }
-//            }
-//
-//            for (JEVisRelationship rel : toDelete) {
-//                try {
-//                    objectRelCache.remove(rel);
-//                } catch (NullPointerException ne) {
-//
-//                }
-//            }
-//            objectCache.remove(objectID);
         } catch (JEVisException | NullPointerException ne) {
-
+            logger.error(ne);
         }
 
     }
@@ -441,7 +423,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public boolean deleteObject(long objectID) {
         try {
-            logger.error("Delete: {}", objectID);
+            logger.debug("Delete: {}", objectID);
 
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH
@@ -467,7 +449,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public boolean deleteClass(String jclass) {
         try {
-            logger.trace("Delete: {}", jclass);
+            logger.debug("Delete: {}", jclass);
 
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.CLASSES.PATH
@@ -487,7 +469,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public boolean deleteRelationship(Long fromObject, Long toObject, int type) {
         try {
-            logger.trace("Delete: '{}' -> '{}' type:{}", fromObject, toObject, type);
+            logger.debug("Delete: '{}' -> '{}' type:{}", fromObject, toObject, type);
 
 
             String resource = REQUEST.API_PATH_V1
@@ -499,7 +481,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     + "&"
                     + REQUEST.RELATIONSHIPS.OPTIONS.TYPE + type;
 
-//            Gson gson = new Gson();
             HttpURLConnection conn = getHTTPConnection().getDeleteConnection(resource);
 
             if(conn.getResponseCode()== HttpURLConnection.HTTP_OK){
@@ -526,27 +507,21 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisOption> getConfiguration() {
-        logger.debug("GetConfig");
         return this.config;
     }
 
     @Override
     public void setConfiguration(List<JEVisOption> config) {
-        logger.debug("SetConfig: {}", config);
         this.config = config;
         for (JEVisOption opt : config) {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
                 host = opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue();
-//                _dbPort = opt.getOption(CommonOptions.DataSource.PORT.getKey()).getValue();
-//                _dbSchema = opt.getOption(CommonOptions.DataSource.SCHEMA.getKey()).getValue();
-//                _dbUser = opt.getOption(CommonOptions.DataSource.USERNAME.getKey()).getValue();
-//                _dbPW = opt.getOption(CommonOptions.DataSource.PASSWORD.getKey()).getValue();
             }
         }
     }
 
     public JEVisObject buildObject(long parentID, String jclass, String name) throws JEVisException {
-        logger.trace("ds.buildObject: {} {} {}", parentID, jclass, name);
+        logger.debug("ds.buildObject: {} {} {}", parentID, jclass, name);
         JEVisObject parent = getObject(parentID);
         JEVisClass newObjClass = getJEVisClass(jclass);
         JEVisObject newObj = parent.buildObject(name, newObjClass);
@@ -563,7 +538,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     public List<JEVisSample> getSamples(JEVisAttribute att, DateTime from, DateTime until) {
 
-        logger.trace("Get  getSamples: {} {}-{}", att.getName(), from, until);
+        logger.debug("Get  getSamples: {} {}-{}", att.getName(), from, until);
         try {
             List<JEVisSample> samples = new ArrayList<>();
             String resource = REQUEST.API_PATH_V1
@@ -720,7 +695,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      * @return
      */
     public BufferedImage getClassIcon(String jclass) {
-        logger.debug("getClassIconNeu: {}", jclass);
         String resource = REQUEST.API_PATH_V1 + REQUEST.CLASS_ICONS.PATH;
         try {
 
@@ -878,13 +852,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public List<JEVisClass> getJEVisClassesWS() {
-        logger.error("Connection: " + con);
         try {
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_CLASSES;
             List<JEVisClass> classes = new ArrayList<>();
             StringBuffer response = con.getRequest(resource);
             if (response == null) {
-                logger.error("Emty response for getClasses");
                 return new ArrayList<>();//hmmm not the best solutuin
             }
 

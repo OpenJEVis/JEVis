@@ -35,6 +35,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.application.application.I18nWS;
@@ -72,7 +73,7 @@ import java.util.prefs.Preferences;
  */
 public class JEConfig extends Application {
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.0");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.2");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
     /*
@@ -93,12 +94,17 @@ public class JEConfig extends Application {
     @Override
     public void init() throws Exception {
         super.init();
-
+        BasicConfigurator.configure();//Load an default log4j config
+        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
         I18n.getInstance().loadBundel(Locale.getDefault());
         JEConfig.PROGRAMM_INFO.setName(I18n.getInstance().getString("appname"));
+        PROGRAMM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
+        PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
+        PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
     }
+
 
     /**
      * Returns the last path the local user selected

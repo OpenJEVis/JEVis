@@ -93,13 +93,11 @@ public class BooleanValueEditor implements AttributeEditor {
     }
 
     private void buildEditor() throws JEVisException {
-        logger.trace("start");
         _field = new ToggleSwitch("On");
 
         JEVisSample lsample = _attribute.getLatestSample();
 
         if (lsample != null) {
-            System.out.println("set Old Value: " + lsample.getValueAsBoolean());
             boolean selected = lsample.getValueAsBoolean();
             _field.setSelected(selected);
             _field.selectedProperty().setValue(selected);
