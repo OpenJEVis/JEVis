@@ -76,26 +76,27 @@ class CalcJobFactory {
 
     private DateTime getStartTimeFromOutputs(List<JEVisAttribute> outputAttributes) {
         DateTime startTime = null;
+        final DateTime ultimateStart = new DateTime(0);
         for (JEVisAttribute valueAttribute : outputAttributes) {
             //if a attribute is without date -> start whole calculation
             DateTime ts = null;
             try {
                 List<JEVisSample> sampleList = valueAttribute.getAllSamples();
                 if (sampleList.size() > 0) {
-                    JEVisSample smp = sampleList.get(0);
-                    if (smp != null) {
-                        if (startTime == null) ts = smp.getTimestamp();
-                        else if (ts.isBefore(startTime)) ts = smp.getTimestamp();
+                    JEVisSample smp = sampleList.get(sampleList.size() - 1);
+
+                    if (startTime == null) ts = smp.getTimestamp();
+
+                    if (!ts.equals(ultimateStart)) startTime = ts;
+                } else {
+                    if (startTime == null) {
+                        startTime = ultimateStart;
+                        break;
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (valueAttribute == null || ts == null) {
-                startTime = new DateTime(0);
-                break;
-            }
-
         }
         if (startTime == null) {
             throw new IllegalStateException("Cant calculate a start date");
