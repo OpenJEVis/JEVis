@@ -47,6 +47,17 @@ public class FormelBox extends HBox {
         return textArea.getText();
     }
 
+    public void backspaceExpression(){
+            int caret = textArea.getCaretPosition();
+            String beforeText = textArea.getText().substring(0, caret-1);
+            Platform.runLater(() -> {
+                textArea.setText(beforeText);
+                textArea.positionCaret(caret -1);
+
+            });
+
+    }
+
     public void addExpression(String expression) {
         if (expression != null && !expression.isEmpty()) {
             int caret = textArea.getCaretPosition();

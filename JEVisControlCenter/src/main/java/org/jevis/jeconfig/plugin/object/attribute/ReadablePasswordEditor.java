@@ -106,4 +106,10 @@ public class ReadablePasswordEditor implements AttributeEditor {
         return att;
     }
 
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
+
 }

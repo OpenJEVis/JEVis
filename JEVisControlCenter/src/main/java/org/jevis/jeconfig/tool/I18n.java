@@ -32,6 +32,10 @@ public class I18n {
         bundle = ResourceBundle.getBundle("JEVisCC", local);
     }
 
+    public Locale getLocale(){
+        return this.locale;
+    }
+
 
     /**
      * Format the string using MessagePattern

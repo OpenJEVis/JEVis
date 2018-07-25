@@ -28,10 +28,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -52,8 +49,10 @@ import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.sample.SampleEditor;
 import org.jevis.jeconfig.tool.I18n;
 
+import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 
@@ -127,6 +126,41 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     @Override
     public boolean save() {
         logger.debug("Extensions: {}", _attributesEditor.size());
+
+        boolean allValid = true;
+        for (AttributeEditor editor : _attributesEditor) {
+            if(!editor.isValid()){
+                allValid=false;
+            }
+        }
+
+        /**
+         * If an extension is not valid ask the user if he wants to save. This is not working for now
+         * because of save progress bar.
+         */
+
+//        if(!allValid){
+//            System.out.println("Show warning");
+//            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//            alert.setTitle("Save Dialog");
+//            alert.setHeaderText("Invalid value");
+//            alert.setContentText("Do you sill want to save?");
+//
+//            Optional<ButtonType> result = alert.showAndWait();
+//            if (result.get() == ButtonType.OK){
+//                return saveAll();
+//            } else {
+//                return false;
+//                // ... user chose CANCEL or closed the dialog
+//            }
+//        }else {
+//            return saveAll();
+//        }
+        return saveAll();
+
+    }
+
+    private boolean saveAll(){
         for (AttributeEditor editor : _attributesEditor) {
             try {
                 logger.debug("{}.save(): {}", this.getTitle(), editor.getAttribute().getName());
@@ -199,9 +233,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                 try {
 
                                     if (guiDisplayType == null) {
-                                        editor = new BasicEditorNew(att, BasicEditorNew.TYPE.STRING, false, true, false);
+                                        editor = new StringEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
-                                        editor = new BasicEditorNew(att, BasicEditorNew.TYPE.STRING, false, true, false);
+                                        editor = new StringEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
                                         editor = new StringMultyLine(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
@@ -233,7 +267,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 //                                }
                                 } catch (Exception e) {
                                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());
-                                    editor = new StringValueEditor(att);
+                                    editor = new StringEditor(att);
                                 }
 
                                 break;
@@ -252,7 +286,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                 } else if (guiDisplayType.equals(GUIConstants.BASIC_FILER.getId())) {
                                     editor = new FileEdior(att);
                                 } else {
-                                    editor = new StringValueEditor(att);
+                                    editor = new StringEditor(att);
                                 }
                                 break;
                             case JEVisConstants.PrimitiveType.DOUBLE:
@@ -260,7 +294,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                 if (guiDisplayType == null) {
                                     editor = new FileEdior(att);
                                 } else {
-                                    editor = new BasicEditorNew(att, BasicEditorNew.TYPE.DOUBLE, true, true, true);
+                                    editor = new DoubleEditor(att);
                                 }
                                 break;
                             case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
@@ -273,16 +307,16 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                             case JEVisConstants.PrimitiveType.LONG:
 
                                 try {
-                                    editor = new BasicEditorNew(att, BasicEditorNew.TYPE.LONG, true, true, true);
+                                    //TODO
+                                    editor = new LongEditor(att);
                                 } catch (Exception e) {
                                     logger.catching(e);
-                                    editor = new NumberWithUnit(att, false);
-//                            editor = new NumberWithUnit(att);
+                                    editor = new LongEditor(att);
                                 }
                                 break;
 
                             default:
-                                editor = new StringValueEditor(att);
+                                editor = new StringEditor(att);
                                 break;
 
                         }

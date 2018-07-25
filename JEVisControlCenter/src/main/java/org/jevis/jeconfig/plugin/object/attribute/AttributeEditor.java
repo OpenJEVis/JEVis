@@ -42,4 +42,6 @@ public interface AttributeEditor {
     void setReadOnly(boolean canRead);
 
     JEVisAttribute getAttribute();
+
+    boolean isValid();
 }
