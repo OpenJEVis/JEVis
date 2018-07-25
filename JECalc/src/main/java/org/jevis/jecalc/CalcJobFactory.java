@@ -80,22 +80,22 @@ class CalcJobFactory {
             //if a attribute is without date -> start whole calculation
             DateTime ts = null;
             try {
-                JEVisSample smp = valueAttribute.getLatestSample();
-                if (smp != null) {
-                    ts = valueAttribute.getLatestSample().getTimestamp();
+                List<JEVisSample> sampleList = valueAttribute.getAllSamples();
+                if (sampleList.size() > 0) {
+                    JEVisSample smp = sampleList.get(0);
+                    if (smp != null) {
+                        if (startTime == null) ts = smp.getTimestamp();
+                        else if (ts.isBefore(startTime)) ts = smp.getTimestamp();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (valueAttribute != null && ts == null) {
+            if (valueAttribute == null || ts == null) {
                 startTime = new DateTime(0);
                 break;
             }
 
-            //else take the earliest last timestamp
-            if (startTime == null || startTime.isAfter(ts)) {
-                startTime = ts.plusMillis(1);
-            }
         }
         if (startTime == null) {
             throw new IllegalStateException("Cant calculate a start date");
