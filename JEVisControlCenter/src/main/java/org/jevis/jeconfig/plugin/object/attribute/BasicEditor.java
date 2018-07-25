@@ -60,12 +60,8 @@ public abstract class BasicEditor implements AttributeEditor {
      * @param att
      */
     public BasicEditor(JEVisAttribute att) {
-        logger.error("BasicEditor -=- Att: '{}' unit: {} chart: {} delete: {} ", att);
         this.attribute = att;
         orgSample = att.getLatestSample();
-
-
-
     }
 
 
@@ -84,18 +80,13 @@ public abstract class BasicEditor implements AttributeEditor {
         valueField.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                System.out.println("Focus: "+newValue);
                 if(!newValue){
-
                     try {
                         if(valueField.validate() ){
                             isValied.setValue(true);
-                            System.out.println("IS Valid");
                             finalNewValue = parseValue(valueField.getText());
-//                            valueField.setText(formatValue(parseValue(valueField.getText())));
                             BasicEditor.this.changedProperty.setValue(true);
                         }else{
-                            System.out.println("IS NOT Valid");
                             isValied.setValue(false);
                         }
                     }catch (Exception ex){
@@ -109,22 +100,14 @@ public abstract class BasicEditor implements AttributeEditor {
         valueField.setPrefWidth(maxwidth);
         valueField.setAlignment(Pos.CENTER_RIGHT);
 
-        logger.error("sample: {}", orgSample);
         try {
-            JEVisUnit unit = new JEVisUnitImp(Unit.ONE);
-            if (att.getInputUnit() != null && att.getDisplayUnit() != null) {
-                unit = att.getDisplayUnit();
-            }
-
-
             if (orgSample != null) {
                 valueField.setText(formatSample(orgSample));
+                isValied.setValue(true);
 
                 Tooltip tt = new Tooltip("TimeStamp: " + orgSample.getTimestamp());
                 tt.setOpacity(0.5);
                 valueField.setTooltip(tt);
-            } else {
-                System.out.println("Sample is NULL");
             }
 
         } catch (Exception ex) {
@@ -160,13 +143,11 @@ public abstract class BasicEditor implements AttributeEditor {
 
     @Override
     public void commit() throws JEVisException {
-        logger.error("Commit() ");
-        if (hasChanged()) {
-            logger.error("Commit: " + finalNewValue);
+        logger.debug("Commit() ");
+        if (hasChanged() && isValid()) {
             JEVisSample newSample = attribute.buildSample(new DateTime(), finalNewValue);
             newSample.commit();
         }
-
     }
 
     @Override
@@ -202,7 +183,6 @@ public abstract class BasicEditor implements AttributeEditor {
 
     @Override
     public boolean isValid() {
-        System.out.println("Basic Editor: "+attribute.getName()+" isValid: "+isValied.getValue());
         return isValied.getValue();
     }
 }

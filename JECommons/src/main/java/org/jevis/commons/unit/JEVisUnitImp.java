@@ -63,7 +63,6 @@ public class JEVisUnitImp implements JEVisUnit {
     public JEVisUnitImp(org.jevis.commons.ws.json.JsonUnit json) {
 
         Gson gson = new Gson();
-        logger.trace("Init Unit: {}", gson.toJson(json));
         _label = json.getLabel();
         _prefix = UnitManager.getInstance().getPrefix(json.getPrefix(), Locale.getDefault());
         ParsePosition pp = new ParsePosition(0);
