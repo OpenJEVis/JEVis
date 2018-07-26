@@ -833,19 +833,13 @@ public class FXLogin extends AnchorPane {
     public Node buldBuildInfos() {
         VBox vbox = new VBox();
         setDefaultStyle(vbox, "-fx-background-color: transparent;");
-//        Label name = new Label(JEConfig.PROGRAMM_INFO.getName());
-//        Label version = new Label("Version: " + JEConfig.PROGRAMM_INFO.getVersion());
-//        Label version = new Label("Version: " + JEConfig.PROGRAMM_INFO.getVersion());
-        System.out.println("------------------- " + app.toString());
+        System.out.println(app.toString());
         Label coypLeft = new Label(app.getName() + " " + app.getVersion());//©Envidatec GmbH 2014-2016");
         Label java = new Label("Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
 
-//        name.setTextFill(javafx.scene.paint.Color.WHITE);
-//        version.setTextFill(javafx.scene.paint.Color.WHITE);
         coypLeft.setTextFill(javafx.scene.paint.Color.WHITE);
         java.setTextFill(javafx.scene.paint.Color.WHITE);
 
-//        vbox.getChildren().setAll(name, version, coypLeft, java);
         vbox.getChildren().setAll(coypLeft, java);
         return vbox;
     }

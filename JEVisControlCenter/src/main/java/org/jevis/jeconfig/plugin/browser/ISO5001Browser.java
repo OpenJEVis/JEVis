@@ -78,7 +78,6 @@ public class ISO5001Browser implements Plugin {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            System.out.println("urlProperty: "+urlProperty.getValue());
 
             contentPane.setCenter(page);
             webEngine = page.getEngine();
