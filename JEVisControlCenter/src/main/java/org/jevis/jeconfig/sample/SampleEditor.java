@@ -185,7 +185,6 @@ public class SampleEditor {
         timeSpan.add(enddate, 1, 2, 1, 1); // column=1 row=0
 
         buttonPanel.getChildren().addAll(timeSpan, preclean, spacer, ok, cancel);
-//        buttonPanel.getChildren().addAll(startLabel, startdate, endLabel, enddate, preclean, spacer, ok, cancel);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(10, 10, 10, 10));
         buttonPanel.setSpacing(15);//10
@@ -440,10 +439,10 @@ public class SampleEditor {
         grid.setVgap(2);
         grid.add(header, 0, 0, 2, 1); // column=1 row=0
 
-        grid.add(settingL, 0, 1, 1, 1); // column=1 row=0
+//        grid.add(settingL, 0, 1, 1, 1); // column=1 row=0
         grid.add(aggregation, 0, 2, 1, 1); // column=1 row=0
 
-        grid.add(hbox, 1, 1, 1, 1); // column=1 row=0
+//        grid.add(hbox, 1, 1, 1, 1); // column=1 row=0
         grid.add(aggrigate, 1, 2, 1, 1); // column=1 row=0
 
         return grid;
