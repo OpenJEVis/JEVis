@@ -82,13 +82,21 @@ public abstract class BasicEditor implements AttributeEditor {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if(!newValue){
                     try {
-                        if(valueField.validate() ){
-                            isValied.setValue(true);
-                            finalNewValue = parseValue(valueField.getText());
-                            BasicEditor.this.changedProperty.setValue(true);
+                        if(     (valueField.getText().isEmpty() && validateEmptyValue())
+                                || (!valueField.getText().isEmpty( ) )
+                                ){
+
+                            if(valueField.validate() ){
+                                isValied.setValue(true);
+                                finalNewValue = parseValue(valueField.getText());
+                                BasicEditor.this.changedProperty.setValue(true);
+                            }else{
+                                isValied.setValue(false);
+                            }
                         }else{
-                            isValied.setValue(false);
+                            isValied.setValue(true);
                         }
+
                     }catch (Exception ex){
                         ex.printStackTrace();
                     }
@@ -180,6 +188,13 @@ public abstract class BasicEditor implements AttributeEditor {
     public abstract String formatSample(JEVisSample value)throws ParseException,JEVisException;
 
     public abstract Object parseValue(String value) throws ParseException;
+
+    /**
+     * Check if en empty string shall be validated
+     * Workaround for the problem that null is not a valid numbers and we dont know how to handel this in the GUI or JEVis for now
+     * @return
+     */
+    public abstract boolean validateEmptyValue();
 
     @Override
     public boolean isValid() {

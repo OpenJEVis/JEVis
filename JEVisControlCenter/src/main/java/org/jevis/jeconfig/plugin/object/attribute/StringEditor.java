@@ -83,6 +83,10 @@ public class StringEditor extends BasicEditor {
     }
 
 
+    @Override
+    public boolean validateEmptyValue() {
+        return true;
+    }
 
 
 

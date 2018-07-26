@@ -86,7 +86,6 @@ public class DoubleEditor extends BasicEditor {
         private void evalTextInputField() {
             TextInputControl textField = (TextInputControl) srcControl.get();
             try {
-
                 double test = validator.validate(textField.getText(),I18n.getInstance().getLocale())+1;
 
                 hasErrors.set(false);
@@ -96,5 +95,8 @@ public class DoubleEditor extends BasicEditor {
         }
     }
 
-
+    @Override
+    public boolean validateEmptyValue() {
+        return false;
+    }
 }
