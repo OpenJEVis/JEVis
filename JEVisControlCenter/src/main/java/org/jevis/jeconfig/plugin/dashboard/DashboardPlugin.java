@@ -24,7 +24,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
-import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.dialog.SelectTargetDialog2;
 import org.jevis.application.object.tree.UserSelection;
 import org.jevis.jeconfig.GlobalToolBar;
@@ -51,7 +50,6 @@ public class DashboardPlugin implements Plugin {
     private double orgSceneX, orgSceneY;
     private ObservableList<DataObject> objects = FXCollections.observableArrayList();
     private double orgTranslateX, orgTranslateY;
-    private SelectTargetDialog selectionDialog;
     private ToolBar toolBar;
     SelectionModel selectionModel = new SelectionModel();
     //private final RubberBandSelection rubberBandSelection;

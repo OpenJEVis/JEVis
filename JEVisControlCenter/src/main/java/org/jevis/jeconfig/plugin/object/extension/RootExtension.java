@@ -37,12 +37,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.jevis.api.*;
+import org.jevis.application.dialog.SelectTargetDialog2;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
-import org.jevis.jeconfig.plugin.object.selectiontree.SelectObjectDialog;
-import org.jevis.jeconfig.plugin.object.selectiontree.UserSelection;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
@@ -255,14 +254,19 @@ public class RootExtension implements ObjectEditorExtension {
             @Override
             public void handle(ActionEvent t) {
                 try {
-                    SelectObjectDialog dia = new SelectObjectDialog();
-                    SelectObjectDialog.Response re = dia.show(JEConfig.getStage(), _obj.getDataSource());
+                    SelectTargetDialog2 dia = new SelectTargetDialog2();
 
-                    if (re == SelectObjectDialog.Response.OK) {
-                        for (UserSelection selection : dia.getUserSelection()) {
+                    SelectTargetDialog2.Response re = dia.show(
+                            JEConfig.getStage(),
+                            obj.getDataSource(),
+                            "Select Entrypoint",
+                            new ArrayList<>(),
+                            SelectTargetDialog2.MODE.OBJECT);
+
+                    if (re == SelectTargetDialog2.Response.OK) {
+                        for (org.jevis.application.object.tree.UserSelection selection : dia.getUserSelection()) {
                             obj.buildRelationship(selection.getSelectedObject(), JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
                         }
-
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
@@ -274,8 +278,8 @@ public class RootExtension implements ObjectEditorExtension {
 
                             }
                         });
-
                     }
+
 
                 } catch (Exception ex) {
                     Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
