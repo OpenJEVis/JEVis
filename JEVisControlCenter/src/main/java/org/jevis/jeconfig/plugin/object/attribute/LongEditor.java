@@ -85,7 +85,6 @@ public class LongEditor extends BasicEditor {
         private void evalTextInputField() {
             TextInputControl textField = (TextInputControl) srcControl.get();
             try {
-
                 Long.valueOf(validator.validate(textField.getText(),I18n.getInstance().getLocale())).longValue();
 
                 hasErrors.set(false);
@@ -95,6 +94,10 @@ public class LongEditor extends BasicEditor {
         }
     }
 
+    @Override
+    public boolean validateEmptyValue() {
+        return false;
+    }
 
 
 
