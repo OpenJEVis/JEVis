@@ -32,8 +32,10 @@ public class ResultCalculator {
         for (Map.Entry<DateTime, List<Sample>> entry : mergedSamples.entrySet()) {
             for (Sample sample : entry.getValue()) {
                 template.put(sample.getVariable(), sample.getValue());
+                System.out.println("template.value" + sample.getValue());
             }
-            double evaluate = template.evaluate();
+            Double evaluate = template.evaluate();
+            System.out.println("evaluate: " + evaluate);
             resultList.add(new VirtualSample(entry.getKey(), evaluate));
         }
         return resultList;

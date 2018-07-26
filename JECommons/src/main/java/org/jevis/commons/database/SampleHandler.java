@@ -150,17 +150,22 @@ public class SampleHandler {
     }
 
     public DateTime getTimestampFromFirstSample(JEVisObject object, String attributeName) {
-        DateTime lastDate = null;
+        DateTime firstDate = null;
         try {
             JEVisAttribute attribute = object.getAttribute(attributeName);
             if (attribute != null) {
-                lastDate = attribute.getTimestampFromFirstSample();
+                List<JEVisSample> sampleList = attribute.getAllSamples();
+                if (sampleList.size() > 0) {
+                    JEVisSample smp = sampleList.get(0);
+                    firstDate = smp.getTimestamp();
+                }
+                firstDate = attribute.getTimestampFromFirstSample();
 
             }
         } catch (JEVisException ex) {
             Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return lastDate;
+        return firstDate;
     }
 
     public List<JEVisSample> getSamplesInPeriod(JEVisObject object, String attributeName, DateTime firstDate, DateTime lastDate) {
