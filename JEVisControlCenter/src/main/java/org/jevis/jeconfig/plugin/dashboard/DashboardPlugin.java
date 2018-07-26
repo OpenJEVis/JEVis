@@ -25,7 +25,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.application.dialog.SelectTargetDialog2;
-import org.jevis.application.object.tree.UserSelection;
+import org.jevis.application.jevistree.UserSelection;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;

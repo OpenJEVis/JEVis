@@ -43,8 +43,8 @@ import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
+import org.jevis.application.jevistree.UserSelection;
 import org.jevis.application.jevistree.plugin.SimpleTargetPlugin;
-import org.jevis.application.object.tree.UserSelection;
 import org.jevis.application.resource.ResourceLoader;
 
 /**

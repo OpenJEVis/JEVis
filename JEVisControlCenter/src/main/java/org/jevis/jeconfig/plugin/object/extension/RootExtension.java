@@ -38,6 +38,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.jevis.api.*;
 import org.jevis.application.dialog.SelectTargetDialog2;
+import org.jevis.application.jevistree.UserSelection;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
@@ -264,7 +265,7 @@ public class RootExtension implements ObjectEditorExtension {
                             SelectTargetDialog2.MODE.OBJECT);
 
                     if (re == SelectTargetDialog2.Response.OK) {
-                        for (org.jevis.application.object.tree.UserSelection selection : dia.getUserSelection()) {
+                        for (UserSelection selection : dia.getUserSelection()) {
                             obj.buildRelationship(selection.getSelectedObject(), JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
                         }
                         Platform.runLater(new Runnable() {

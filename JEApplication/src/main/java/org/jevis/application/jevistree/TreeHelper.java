@@ -39,7 +39,6 @@ import org.jevis.application.cache.CacheEvent;
 import org.jevis.application.cache.CacheObjectEvent;
 import org.jevis.application.cache.Cached;
 import org.jevis.application.dialog.*;
-import org.jevis.application.object.tree.UserSelection;
 import org.jevis.application.tools.CalculationNameFormater;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;

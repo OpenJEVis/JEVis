@@ -36,9 +36,9 @@ import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.TreePlugin;
+import org.jevis.application.jevistree.UserSelection;
 import org.jevis.application.jevistree.plugin.BarChartDataModel;
 import org.jevis.application.jevistree.plugin.BarchartPlugin;
-import org.jevis.application.object.tree.UserSelection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
