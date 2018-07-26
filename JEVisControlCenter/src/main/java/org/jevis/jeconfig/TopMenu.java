@@ -222,7 +222,7 @@ public class TopMenu extends MenuBar {
             classImport.setDisable(true);
         }
 
-        getMenus().addAll(menuFile, menuEdit, menuView, options, system, help);
+        getMenus().addAll(menuFile, menuEdit, options, system, help);
     }
 
     public void setPlugin(Plugin plugin) {

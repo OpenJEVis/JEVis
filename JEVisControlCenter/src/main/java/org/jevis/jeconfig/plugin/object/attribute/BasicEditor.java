@@ -76,6 +76,7 @@ public abstract class BasicEditor implements AttributeEditor {
     private Node buildGui(JEVisAttribute att) {
         HBox hbox = new HBox();
         JFXTextField valueField = new JFXTextField();
+
         valueField.getValidators().add(getValidator() );
         valueField.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override

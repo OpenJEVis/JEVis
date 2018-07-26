@@ -28,6 +28,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
@@ -282,6 +283,14 @@ public class JEConfig extends Application {
                 TopMenu menu = new TopMenu();
                 pMan.setMenuBar(menu);
 
+                final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S,KeyCombination.CONTROL_DOWN);
+                scene.setOnKeyPressed(ke -> {
+                    if (saveCombo.match(ke)) {
+                        pMan.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
+                        pMan.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
+                    }
+                });
+
                 GlobalToolBar toolbar = new GlobalToolBar(pMan);
                 try {
                     pMan.addPluginsByUserSetting(_mainDS.getCurrentUser());
@@ -360,133 +369,9 @@ public class JEConfig extends Application {
             }
         });
 
-        //Workaround to show the ConnectionStringCreator
-//        ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
-        final KeyCombination openEncoder = KeyCodeCombination.keyCombination("Ctrl+Shift+L");
-        scene.setOnKeyPressed(ke -> {
-            if (openEncoder.match(ke)) {
-                ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
-            }
-        });
 
     }
 
-    private void printClasses2(JEVisDataSource ds) {
-
-
-        try {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-
-            for (JEVisClass jc : ds.getJEVisClasses()) {
-                PrintWriter writer = new PrintWriter("/tmp/json/" + jc.getName().replaceAll(" ", "") + ".json", "UTF-8");
-
-                Map<String, String> cnames = new HashMap<>();
-                cnames.put("en", jc.getName());
-                cnames.put("de", jc.getName());
-                cnames.put("ru", jc.getName());
-
-                Map<String, String> descriptions = new HashMap<>();
-                descriptions.put("en", jc.getDescription());
-                descriptions.put("de", jc.getDescription());
-                descriptions.put("ru", jc.getDescription());
-
-
-                List<JsonI18nType> types = new ArrayList<>();
-                for (JEVisType type : jc.getTypes()) {
-                    Map<String, String> tnames = new HashMap<>();
-                    tnames.put("en", type.getName());
-                    tnames.put("de", type.getName());
-                    tnames.put("ru", type.getName());
-
-                    Map<String, String> tdescriptions = new HashMap<>();
-                    tdescriptions.put("en", type.getName() + " description");
-                    tdescriptions.put("de", type.getName() + " description");
-                    tdescriptions.put("ru", type.getName() + " description");
-
-
-                    JsonI18nType jtype = new JsonI18nType();
-                    jtype.setType(type.getName());
-                    jtype.setNames(tnames);
-                    jtype.setDescriptions(tdescriptions);
-                    types.add(jtype);
-                }
-
-                JsonI18nClass jClass = new JsonI18nClass();
-                jClass.setJevisclass(jc.getName());
-                jClass.setNames(cnames);
-                jClass.setDescriptions(descriptions);
-                jClass.setTypes(types);
-
-                writer.println(gson.toJson(jClass));
-                writer.close();
-            }
-
-        } catch (Exception ex) {
-            System.out.println(ex);
-        }
-    }
-
-    private void printClasses3(JEVisDataSource ds) {
-
-
-        try {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-            PrintWriter writer = new PrintWriter("/tmp/json/all.csv", "UTF-8");
-            StringBuilder sb = new StringBuilder();
-
-            for (JEVisClass jc : ds.getJEVisClasses()) {
-
-                sb.append(jc.getName());
-                sb.append(";");
-                if (jc.getInheritance() != null) {
-                    sb.append(jc.getInheritance().getName());
-                } else {
-                    sb.append("-");
-                }
-                sb.append(";");
-                sb.append(jc.getName());
-                sb.append(";");
-                sb.append(";");
-                sb.append(";");
-                sb.append(jc.getDescription());
-                sb.append(";");
-                sb.append(";");
-                sb.append(";");
-                sb.append("\n");
-
-                for (JEVisType type : jc.getTypes()) {
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(type.getName());
-                    sb.append(";");
-                    sb.append(type.getName());
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-
-                    sb.append("\n");
-                }
-            }
-
-            writer.println(sb.toString());
-            writer.close();
-        } catch (Exception ex) {
-            System.out.println(ex);
-        }
-    }
 
     /**
      * Return an common resource
