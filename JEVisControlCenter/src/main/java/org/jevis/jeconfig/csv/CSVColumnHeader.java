@@ -66,7 +66,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.dialog.SelectTargetDialog2;
-import org.jevis.application.object.tree.UserSelection;
+import org.jevis.application.jevistree.UserSelection;
 import org.jevis.application.unit.UnitChooserDialog;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;

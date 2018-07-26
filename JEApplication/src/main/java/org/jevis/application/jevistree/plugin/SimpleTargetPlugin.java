@@ -24,7 +24,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
 import org.jevis.application.jevistree.TreePlugin;
-import org.jevis.application.object.tree.UserSelection;
+import org.jevis.application.jevistree.UserSelection;
 
 import java.util.ArrayList;
 import java.util.List;

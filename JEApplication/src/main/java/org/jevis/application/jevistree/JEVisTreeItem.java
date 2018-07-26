@@ -30,7 +30,6 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.application.object.tree.JEVisRootObject;
 import org.jevis.commons.classes.ClassHelper;
 
 import java.util.ArrayList;

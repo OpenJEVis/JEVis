@@ -1,3 +1,5 @@
+package org.jevis.application.jevistree;
+
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
  *
@@ -17,7 +19,6 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.application.object.tree;
 
 import org.jevis.api.*;
 
@@ -175,7 +176,7 @@ public class JEVisRootObject implements JEVisObject {
         return "JEVisRootObject{ This Object is a fake and does not exist on the Server }";
     }
 
-//    @Override
+    //    @Override
 //    public JEVisObject buildLink(String name, JEVisObject parent) throws JEVisException {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 //    }
@@ -186,7 +187,7 @@ public class JEVisRootObject implements JEVisObject {
 
     @Override
     public boolean isPublic() {
-       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -196,20 +197,20 @@ public class JEVisRootObject implements JEVisObject {
 
     @Override
     public void addEventListener(JEVisEventListener listener) {
-        
+
     }
 
     @Override
     public void removeEventListener(JEVisEventListener listener) {
-        
+
     }
 
     @Override
     public void notifyListeners(JEVisEvent event) {
     }
-    
-    
-    
-    
-    
+
+
+
+
+
 }

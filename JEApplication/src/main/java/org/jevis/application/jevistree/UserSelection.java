@@ -1,3 +1,5 @@
+package org.jevis.application.jevistree;
+
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
  *
@@ -18,7 +20,6 @@
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.object.selectiontree;
 
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
@@ -49,6 +50,7 @@ public class UserSelection {
     public UserSelection(SelectionType type, JEVisAttribute _att, DateTime _startDate, DateTime _endDate) {
         _type = type;
         this._att = _att;
+        this._obj = _att.getObject();
         this._startDate = _startDate;
         this._endDate = _endDate;
     }
@@ -67,6 +69,11 @@ public class UserSelection {
 
     public JEVisObject getSelectedObject() {
         return _obj;
+    }
+
+    @Override
+    public String toString() {
+        return "UserSelection{" + "_obj=" + _obj + ", _att=" + _att + ", _startDate=" + _startDate + ", _endDate=" + _endDate + ", _type=" + _type + '}';
     }
 
 }
