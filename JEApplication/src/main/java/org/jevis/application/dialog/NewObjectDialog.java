@@ -102,8 +102,12 @@ public class NewObjectDialog {
         fName.setPromptText(rb.getString("jevistree.dialog.new.name.prompt"));
 
         if (objName != null) {
-            fName.setText(objName);
-            userSetName = true;
+            try {
+                fName.setText(I18nWS.getInstance().getClassName(jclass.getName()));
+            } catch (JEVisException ex) {
+                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            userSetName = false;
         }
 
         fName.setOnKeyTyped(event -> userSetName = true);
@@ -167,7 +171,7 @@ public class NewObjectDialog {
         comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!userSetName) {
-                    fName.setText(newValue.getName());
+                    fName.setText(I18nWS.getInstance().getClassName(newValue.getName()));
                 }
             } catch (JEVisException ex) {
                 Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
