@@ -22,7 +22,7 @@
     {
       "name": "Password",
       "primitiveType": 0,
-      "guiType": "Text",
+      "guiType": "Password",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
