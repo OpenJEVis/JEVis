@@ -103,6 +103,7 @@ public class JEConfig extends Application {
         PROGRAMM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
         PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
         PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+
     }
 
 

@@ -31,8 +31,10 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.object.tree.JEVisRootObject;
+import org.jevis.commons.classes.ClassHelper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -47,7 +49,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
     public static Logger LOGGER = LogManager.getLogger(JEVisTreeItem.class);
 
     /**
-     * Consturctor for the Root Item. This them will call getRoot drom teh
+     * Constructor for the Root Item. This them will call getRoot from the
      * Datasource
      *
      * @param tree
@@ -61,12 +63,6 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
         setValue(sobj);
 
         _tree = tree;
-
-        _childLoaded = true;
-        for (JEVisObject child : _obj.getChildren()) {
-            final JEVisTreeItem item = new JEVisTreeItem(_tree, child);
-            super.getChildren().add(item);
-        }
 
         addEventHandler();
     }
@@ -207,7 +203,24 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
 //                    LOGGER.trace("2");
-                        return o1.getValue().getJEVisObject().getName().compareTo(o2.getValue().getJEVisObject().getName());
+                        try {
+                            boolean o1IsDir = ClassHelper.isDirectory(o1.getValue().getJEVisObject().getJEVisClass());
+                            boolean o2IsDir = ClassHelper.isDirectory(o2.getValue().getJEVisObject().getJEVisClass());
+
+
+                            if (o1IsDir && !o2IsDir) {//o1 is dir
+                                System.out.println(o1.getValue().getJEVisObject().getName() + " > " + o2.getValue().getJEVisObject().getName());
+                                return -1;
+                            } else if (!o1IsDir && o2IsDir) {//o2 is dir
+                                System.out.println(o1.getValue().getJEVisObject().getName() + " < " + o2.getValue().getJEVisObject().getName());
+                                return 1;
+                            } else { //non or both are a dir
+                                return o1.getValue().getJEVisObject().getName().compareTo(o2.getValue().getJEVisObject().getName());
+                            }
+                        }catch (JEVisException jex){
+                            LOGGER.error(jex);
+                        }
+
                     }
 
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
