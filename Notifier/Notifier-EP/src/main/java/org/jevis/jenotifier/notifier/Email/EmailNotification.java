@@ -683,8 +683,6 @@ public class EmailNotification implements Notification {
 //                System.out.println(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
 //                setAttachments(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
 
-                System.out.println("notiObj: " + notiObj.getName() + " Attachment: " + !ATTACHMENTS.isEmpty());
-
                 do {
                     file = getJEVisFile(notiObj, ATTACHMENTS); //TODO this workaround needs to be fixed
                 } while (Objects.isNull(file.getBytes()));

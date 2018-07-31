@@ -195,6 +195,7 @@ public class ReportExecutor {
             JEVisObject notiObj = reportObject.getDataSource().getObject(notificationObject.getID());
             Notification nofi = new EmailNotification();
             nofi.setNotificationObject(notiObj, jeVisFileImp);
+
             NotificationDriver emailNofi = new EmailNotificationDriver();
 
             JEVisObject notiDriObj = reportObject.getDataSource().getObject(service.getMailID());
