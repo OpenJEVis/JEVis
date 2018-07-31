@@ -283,7 +283,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
                 resource += "&" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL;
                 resource += HTTPConnection.FMT.print(from);
             }
-            System.out.println("delete html: " + resource);
 
             Gson gson = new Gson();
             HttpURLConnection conn = ds.getHTTPConnection().getDeleteConnection(resource);
