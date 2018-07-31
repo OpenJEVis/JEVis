@@ -5,6 +5,10 @@
     "ru": "Document Directory",
     "en": "Document Directory"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "In einem Dokumentenverzeichnis werden Dateien wie z.B. PDFs verwaltet.",
+    "ru": "In a Document Directory files, such as PDF files, are managed.",
+    "en": "In a Document Directory files, such as PDF files, are managed."
+  },
   "types": []
 }
