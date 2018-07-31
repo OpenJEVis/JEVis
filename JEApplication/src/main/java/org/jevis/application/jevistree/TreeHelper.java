@@ -273,6 +273,7 @@ public class TreeHelper {
         LOGGER.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
+        newObject.commit();
 
         for (JEVisAttribute originalAtt : toCopyObj.getAttributes()) {
             LOGGER.debug("Copy attribute: {}", originalAtt);
