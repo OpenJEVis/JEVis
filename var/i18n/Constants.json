@@ -1,21 +1,25 @@
 {
   "jevisclass": "Constants",
   "names": {
-    "de": "Constants",
+    "de": "Konstanten",
     "ru": "Constants",
     "en": "Constants"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Mit Konstanten werden die Enumerationen eines Attributs definiert.",
+    "ru": "Constants are used to define the enumerations of a attribute.",
+    "en": "Constants are used to define the enumerations of a attribute."
+  },
   "types": [
     {
       "type": "Attribute",
       "descriptions": {
-        "de": "Attribute description",
-        "ru": "Attribute description",
-        "en": "Attribute description"
+        "de": "Definiert das Attribut der JEVis-Klasse für das diese Enumerationen gelten.",
+        "ru": "Defines the Attribute of the JEVis Class where these enumerations are used.",
+        "en": "Defines the Attribute of the JEVis Class where these enumerations are used."
       },
       "names": {
-        "de": "Attribute",
+        "de": "Attribut",
         "ru": "Attribute",
         "en": "Attribute"
       }
@@ -23,12 +27,12 @@
     {
       "type": "Editable",
       "descriptions": {
-        "de": "Editable description",
-        "ru": "Editable description",
-        "en": "Editable description"
+        "de": "Definiert ob die Enumerationen für Benutzer editierbar sind",
+        "ru": "Defines if the enumeration is editable for users",
+        "en": "Defines if the enumeration is editable for users"
       },
       "names": {
-        "de": "Editable",
+        "de": "Editierbar",
         "ru": "Editable",
         "en": "Editable"
       }
@@ -36,12 +40,12 @@
     {
       "type": "Entries",
       "descriptions": {
-        "de": "Entries description",
-        "ru": "Entries description",
-        "en": "Entries description"
+        "de": "Definiert die möglichen Einträge, welche ein Benutzer zur Auswahl des Attributswert hat",
+        "ru": "Defines the selection of attribute values a user can choose",
+        "en": "Defines the selection of attribute values a user can choose"
       },
       "names": {
-        "de": "Entries",
+        "de": "Einträge",
         "ru": "Entries",
         "en": "Entries"
       }
