@@ -6,9 +6,9 @@
     "en": "Administration Directory"
   },
   "descriptions": {
-    "de": "Ein Administrationsverzeichnis ist ein Verzeichnis zum verwalten von administrativen Daten, wie z.B. Gruppen- und Benutzerrechten. Ein Administrationsverzeichnis ist unique, d.h. es kann auf oberster Ebene nur ein einzelnes Objekt dieses Typs existieren.",
-    "ru": "The class Administration Directory represents a specific directory for the management of administrative data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
-    "en": "A Administration Directory represents a directory for the management of administrative data, such as group and user rights. The class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+    "de": "In einem Administrationsverzeichnis werden administrative Informationen, wie z.B. Gruppen- und Benutzerrechten verwaltet.",
+    "ru": "In an Administration Directory administrative data, such as group and user rights are managed.",
+    "en": "In an Administration Directory administrative data, such as group and user rights are managed."
   },
   "types": []
 }
