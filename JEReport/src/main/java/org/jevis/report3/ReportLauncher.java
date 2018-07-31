@@ -13,7 +13,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.JEVisCommandLine;
 import org.jevis.commons.cli.JEVisServerConnectionCLI;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
-import org.jevis.report3.data.report.ReportAttributes;
 import org.jevis.report3.data.report.ReportExecutor;
 import org.jevis.report3.policy.ReportPolicy;
 import org.joda.time.DateTime;
@@ -71,32 +70,42 @@ public class ReportLauncher {
             Long singleObject = cmd.getSingleObject();
             JEVisObject reportbject = jevisDataSource.getObject(singleObject);
             singleMode = reportObjects.add(reportbject);
-        } else {
-            JEVisClass reportClass = jevisDataSource.getJEVisClass(ReportAttributes.NAME);
-            reportObjects = jevisDataSource.getObjects(reportClass, true);
-        }
 
-        //execute the report objects
-        logger.info("nr of reports {}", reportObjects.size());
-        for (JEVisObject reportObject : reportObjects) {
-            try {
-                logger.info("---------------------------------------------------------------------");
-                logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                //check if the report is enabled
-                ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
-                Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
-                if (!reportEnabled & !singleMode) {
-                    logger.info("Report is not enabled");
-                    continue;
+            //execute the report objects
+            logger.info("nr of reports {}", reportObjects.size());
+            for (JEVisObject reportObject : reportObjects) {
+                try {
+                    logger.info("---------------------------------------------------------------------");
+                    logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                    //check if the report is enabled
+                    ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
+                    Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
+                    if (!reportEnabled & !singleMode) {
+                        logger.info("Report is not enabled");
+                        continue;
+                    }
+
+                    ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+                    executor.executeReport();
+                } catch (Exception e) {
+                    logger.error("Error while creating report", e);
+                    e.printStackTrace();
                 }
-
-                ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
-                executor.executeReport();
-            } catch (Exception e) {
-                logger.error("Error while creating report", e);
-                e.printStackTrace();
             }
+        } else {
+
+            if (cmd.getCycleSleepTime() != null) {
+                ServiceMode sm = new ServiceMode(jevisDataSource, cmd.getCycleSleepTime());
+                sm.run();
+            } else {
+                ServiceMode sm = new ServiceMode();
+                sm.run();
+            }
+
+
         }
+
+
     }
 
     public static JEVisDataSource getDataSource() {
