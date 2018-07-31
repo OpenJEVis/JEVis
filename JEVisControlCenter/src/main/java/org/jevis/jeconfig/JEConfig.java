@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -38,27 +36,25 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
 import org.jevis.application.application.I18nWS;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.login.FXLogin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.commons.ws.json.JsonI18nClass;
-import org.jevis.commons.ws.json.JsonI18nType;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
-import org.jevis.jeconfig.connectionencoder.ConnectionEncoderWindow;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
 import java.awt.*;
 import java.io.File;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
-import java.util.*;
-import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -116,13 +112,35 @@ public class JEConfig extends Application {
      */
     public static File getLastPath() {
         if (getConfig().getLastPath() == null) {
-            getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
+            if (!OsUtils.isWindows())
+                getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
         }
         if (!getConfig().getLastPath().canRead()) {
-            getConfig().setLastPath(new File(System.getProperty("user.home")));
+            if (!OsUtils.isWindows()) getConfig().setLastPath(new File(System.getProperty("user.home")));
         }
 
         return getConfig().getLastPath();
+    }
+
+    public static final class OsUtils {
+        private static String OS = null;
+
+        public static String getOsName() {
+            if (OS == null) {
+                OS = System.getProperty("os.name");
+            }
+            return OS;
+        }
+
+        public static boolean isWindows() {
+            return getOsName().startsWith("Windows");
+        }
+
+        //TODO stuff for recognizing different os
+//        public static boolean isUnix()
+//        {
+//            return false;
+//        }
     }
 
     /**

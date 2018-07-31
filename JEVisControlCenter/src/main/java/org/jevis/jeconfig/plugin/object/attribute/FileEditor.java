@@ -35,7 +35,6 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ProgressForm;
@@ -51,7 +50,7 @@ import java.io.File;
 /**
  * @author fs
  */
-public class FileEdior implements AttributeEditor {
+public class FileEditor implements AttributeEditor {
 
     HBox box = new HBox();
     public JEVisAttribute _attribute;
@@ -64,9 +63,9 @@ public class FileEdior implements AttributeEditor {
     private boolean _autoDownload = true;
 
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final Logger logger = LogManager.getLogger(FileEdior.class);
+    private final Logger logger = LogManager.getLogger(FileEditor.class);
 
-    public FileEdior(JEVisAttribute att) {
+    public FileEditor(JEVisAttribute att) {
         _attribute = att;
     }
 
@@ -87,7 +86,7 @@ public class FileEdior implements AttributeEditor {
     }
 
     @Override
-    public void commit() throws JEVisException {
+    public void commit() {
     }
 
     @Override
