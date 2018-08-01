@@ -297,9 +297,22 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     private void updateTimeFrame() {
-        for (ChartDataModel mdl : data.getSelectedData()) {
-            mdl.setSelectedStart(selectedStart);
-            mdl.setSelectedEnd(selectedEnd);
+        if (data.getSelectedData() != null) {
+            for (ChartDataModel mdl : data.getSelectedData()) {
+                if (mdl.getSelected()) {
+                    mdl.setSelectedStart(selectedStart);
+                    mdl.setSelectedEnd(selectedEnd);
+                }
+            }
+        }
+
+        if (!listAnalysisModel.isEmpty()) {
+            for (JsonAnalysisModel mdl : listAnalysisModel) {
+                if (Boolean.parseBoolean(mdl.getSelected())) {
+                    mdl.setSelectedStart(selectedStart.toString());
+                    mdl.setSelectedEnd(selectedEnd.toString());
+                }
+            }
         }
     }
 
@@ -393,6 +406,10 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<JsonAnalysisModel> getListAnalysisModel() {
+        return listAnalysisModel;
     }
 
     private void updateData() {

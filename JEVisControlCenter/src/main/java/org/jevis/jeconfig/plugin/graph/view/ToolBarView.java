@@ -73,6 +73,8 @@ public class ToolBarView {
         listAnalysesComboBox = new ComboBox();
         listAnalysesComboBox.setPrefWidth(300);
         updateListAnalyses();
+        getListAnalysis();
+
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) && (Objects.nonNull(newValue)) || !newValue.equals(oldValue)) {
                 this.nameCurrentAnalysis = newValue.toString();
@@ -130,6 +132,8 @@ public class ToolBarView {
                     }
                 } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
+                    model.setSelectedData(dialog.getData().getSelectedData());
+                    saveDataModel(model.getSelectedData());
                     select(dialog.getLv().getSelectionModel().getSelectedItem());
                 }
             });
