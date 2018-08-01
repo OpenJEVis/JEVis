@@ -6,9 +6,9 @@
     "en": "Data Source Directory"
   },
   "descriptions": {
-    "de": "Die Klasse Datenquellenverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Quelldaten dar.",
-    "ru": "The class Data Source Directory represents a specific directory for the management of source data.\n",
-    "en": "The class Data Source Directory represents a specific directory for the management of source data.\n"
+    "de": "Im Datenquellenverzeichnis werden die Quellen der Datenerfassung, wie z.B. Datenlogger, verwaltet.",
+    "ru": "In the Data Source Directory sources, such as data loggers, are managed.",
+    "en": "In the Data Source Directory sources, such as data loggers, are managed."
   },
   "types": []
 }
