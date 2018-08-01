@@ -14,9 +14,9 @@
     {
       "type": "Activities",
       "descriptions": {
-        "de": "Activities description",
-        "ru": "Activities description",
-        "en": "Activities description"
+        "de": "Protokolliert die Aktivitäten eines Benutzers",
+        "ru": "Records the activities of a user",
+        "en": "Records the activities of a user"
       },
       "names": {
         "de": "Aktivität",
@@ -27,9 +27,9 @@
     {
       "type": "E-Mail",
       "descriptions": {
-        "de": "E-Mail description",
-        "ru": "E-Mail description",
-        "en": "E-Mail description"
+        "de": "E-Mail des Benutzers",
+        "ru": "E-Mail of the user",
+        "en": "E-Mail of the user"
       },
       "names": {
         "de": "E-Mail",
@@ -40,9 +40,9 @@
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Enabled description",
-        "ru": "Enabled description",
-        "en": "Enabled description"
+        "de": "Aktiviert/Deaktiviert den Benutzer",
+        "ru": "Enables/Disables the user",
+        "en": "Enables/Disables the user"
       },
       "names": {
         "de": "Aktiviert",
@@ -53,9 +53,9 @@
     {
       "type": "First Name",
       "descriptions": {
-        "de": "First Name description",
-        "ru": "First Name description",
-        "en": "First Name description"
+        "de": "Vorname des Benutzers",
+        "ru": "User's first name",
+        "en": "User's first name"
       },
       "names": {
         "de": "Vorname",
@@ -66,9 +66,9 @@
     {
       "type": "Language",
       "descriptions": {
-        "de": "Language description",
-        "ru": "Language description",
-        "en": "Language description"
+        "de": "Definiert die Sprache des Benutzers",
+        "ru": "Defines the user's language",
+        "en": "Defines the user's language"
       },
       "names": {
         "de": "Sprache",
@@ -79,9 +79,9 @@
     {
       "type": "Last Login",
       "descriptions": {
-        "de": "Last Login description",
-        "ru": "Last Login description",
-        "en": "Last Login description"
+        "de": "Protokolliert die Logins des Benutzers",
+        "ru": "Records the logins of the user",
+        "en": "Records the logins of the user"
       },
       "names": {
         "de": "Letzter Login",
@@ -92,22 +92,22 @@
     {
       "type": "Last Name",
       "descriptions": {
-        "de": "Last Name description",
+        "de": "Nachname des Benutzers",
         "ru": "Last Name description",
         "en": "Last Name description"
       },
       "names": {
         "de": "Nachname",
-        "ru": "Last Name",
-        "en": "Last Name"
+        "ru": "User's last name",
+        "en": "User's last name"
       }
     },
     {
       "type": "Password",
       "descriptions": {
-        "de": "Password description",
-        "ru": "Password description",
-        "en": "Password description"
+        "de": "Passwort des Benutzers",
+        "ru": "User's password",
+        "en": "User's password"
       },
       "names": {
         "de": "Passwort",
@@ -118,9 +118,9 @@
     {
       "type": "Phone",
       "descriptions": {
-        "de": "Phone description",
-        "ru": "Phone description",
-        "en": "Phone description"
+        "de": "Telefonnummer des Benutzers",
+        "ru": "User's phone number",
+        "en": "User's phone number"
       },
       "names": {
         "de": "Telefon",
@@ -131,9 +131,9 @@
     {
       "type": "Position",
       "descriptions": {
-        "de": "Position description",
-        "ru": "Position description",
-        "en": "Position description"
+        "de": "Position/Funktion des Benutzers in der Organisation",
+        "ru": "Position/Function of the user within the organization",
+        "en": "Position/Function of the user within the organization"
       },
       "names": {
         "de": "Position",
@@ -144,9 +144,9 @@
     {
       "type": "Sys Admin",
       "descriptions": {
-        "de": "Sys Admin description",
-        "ru": "Sys Admin description",
-        "en": "Sys Admin description"
+        "de": "Erteilt dem Benutzer uneingeschränkte Rechte als Systemadministrator",
+        "ru": "Grants all priveleges to the user as a system administrator",
+        "en": "Grants all priveleges to the user as a system administrator"
       },
       "names": {
         "de": "Sys Admin",
@@ -157,22 +157,22 @@
     {
       "type": "TimeZone",
       "descriptions": {
-        "de": "TimeZone description",
-        "ru": "TimeZone description",
-        "en": "TimeZone description"
+        "de": "Zeitzone des Benutzers",
+        "ru": "User's time zone",
+        "en": "User's time zone"
       },
       "names": {
         "de": "Zeitzone",
-        "ru": "TimeZone",
-        "en": "TimeZone"
+        "ru": "Time Zone",
+        "en": "Time Zone"
       }
     },
     {
       "type": "Title",
       "descriptions": {
-        "de": "Title description",
-        "ru": "Title description",
-        "en": "Title description"
+        "de": "Titel des Benutzers",
+        "ru": "User's title",
+        "en": "User's title"
       },
       "names": {
         "de": "Titel",
