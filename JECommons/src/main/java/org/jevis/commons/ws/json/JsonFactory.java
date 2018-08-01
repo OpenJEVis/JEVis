@@ -255,7 +255,6 @@ public class JsonFactory {
         if (!obj.getParents().isEmpty()) {
             json.setParent(obj.getParents().get(0).getID());
         }
-        System.out.println("--");
 
         if (includeRelationships) {
             json.setRelationships(JsonFactory.buildRelationship(obj.getRelationships()));
