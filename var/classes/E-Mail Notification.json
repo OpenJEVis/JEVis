@@ -52,6 +52,15 @@
       "jevisClass": "E-Mail Notification"
     },
     {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "E-Mail Notification"
+    },
+    {
       "name": "HTML E-Mail",
       "primitiveType": 4,
       "guiType": "Check Box",

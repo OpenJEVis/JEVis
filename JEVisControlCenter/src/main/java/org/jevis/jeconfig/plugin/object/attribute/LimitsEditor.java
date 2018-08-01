@@ -558,4 +558,10 @@ public class LimitsEditor implements AttributeEditor {
 
         NO, YES, CANCEL
     }
+
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
 }

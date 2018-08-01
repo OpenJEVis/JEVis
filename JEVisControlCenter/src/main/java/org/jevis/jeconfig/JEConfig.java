@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -28,6 +26,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
@@ -35,28 +34,27 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
 import org.jevis.application.application.I18nWS;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.login.FXLogin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.commons.ws.json.JsonI18nClass;
-import org.jevis.commons.ws.json.JsonI18nType;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
-import org.jevis.jeconfig.connectionencoder.ConnectionEncoderWindow;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
 import java.awt.*;
 import java.io.File;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
-import java.util.*;
-import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -72,7 +70,7 @@ import java.util.prefs.Preferences;
  */
 public class JEConfig extends Application {
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.0");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.2");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
     /*
@@ -93,12 +91,18 @@ public class JEConfig extends Application {
     @Override
     public void init() throws Exception {
         super.init();
-
+        BasicConfigurator.configure();//Load an default log4j config
+        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
         I18n.getInstance().loadBundel(Locale.getDefault());
         JEConfig.PROGRAMM_INFO.setName(I18n.getInstance().getString("appname"));
+        PROGRAMM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
+        PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
+        PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+
     }
+
 
     /**
      * Returns the last path the local user selected
@@ -108,13 +112,35 @@ public class JEConfig extends Application {
      */
     public static File getLastPath() {
         if (getConfig().getLastPath() == null) {
-            getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
+            if (!OsUtils.isWindows())
+                getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
         }
         if (!getConfig().getLastPath().canRead()) {
-            getConfig().setLastPath(new File(System.getProperty("user.home")));
+            if (!OsUtils.isWindows()) getConfig().setLastPath(new File(System.getProperty("user.home")));
         }
 
         return getConfig().getLastPath();
+    }
+
+    public static final class OsUtils {
+        private static String OS = null;
+
+        public static String getOsName() {
+            if (OS == null) {
+                OS = System.getProperty("os.name");
+            }
+            return OS;
+        }
+
+        public static boolean isWindows() {
+            return getOsName().startsWith("Windows");
+        }
+
+        //TODO stuff for recognizing different os
+//        public static boolean isUnix()
+//        {
+//            return false;
+//        }
     }
 
     /**
@@ -275,6 +301,14 @@ public class JEConfig extends Application {
                 TopMenu menu = new TopMenu();
                 pMan.setMenuBar(menu);
 
+                final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S,KeyCombination.CONTROL_DOWN);
+                scene.setOnKeyPressed(ke -> {
+                    if (saveCombo.match(ke)) {
+                        pMan.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
+                        pMan.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
+                    }
+                });
+
                 GlobalToolBar toolbar = new GlobalToolBar(pMan);
                 try {
                     pMan.addPluginsByUserSetting(_mainDS.getCurrentUser());
@@ -353,133 +387,9 @@ public class JEConfig extends Application {
             }
         });
 
-        //Workaround to show the ConnectionStringCreator
-//        ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
-        final KeyCombination openEncoder = KeyCodeCombination.keyCombination("Ctrl+Shift+L");
-        scene.setOnKeyPressed(ke -> {
-            if (openEncoder.match(ke)) {
-                ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
-            }
-        });
 
     }
 
-    private void printClasses2(JEVisDataSource ds) {
-
-
-        try {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-
-            for (JEVisClass jc : ds.getJEVisClasses()) {
-                PrintWriter writer = new PrintWriter("/tmp/json/" + jc.getName().replaceAll(" ", "") + ".json", "UTF-8");
-
-                Map<String, String> cnames = new HashMap<>();
-                cnames.put("en", jc.getName());
-                cnames.put("de", jc.getName());
-                cnames.put("ru", jc.getName());
-
-                Map<String, String> descriptions = new HashMap<>();
-                descriptions.put("en", jc.getDescription());
-                descriptions.put("de", jc.getDescription());
-                descriptions.put("ru", jc.getDescription());
-
-
-                List<JsonI18nType> types = new ArrayList<>();
-                for (JEVisType type : jc.getTypes()) {
-                    Map<String, String> tnames = new HashMap<>();
-                    tnames.put("en", type.getName());
-                    tnames.put("de", type.getName());
-                    tnames.put("ru", type.getName());
-
-                    Map<String, String> tdescriptions = new HashMap<>();
-                    tdescriptions.put("en", type.getName() + " desctiption");
-                    tdescriptions.put("de", type.getName() + " desctiption");
-                    tdescriptions.put("ru", type.getName() + " desctiption");
-
-
-                    JsonI18nType jtype = new JsonI18nType();
-                    jtype.setType(type.getName());
-                    jtype.setNames(tnames);
-                    jtype.setDescriptions(tdescriptions);
-                    types.add(jtype);
-                }
-
-                JsonI18nClass jClass = new JsonI18nClass();
-                jClass.setJevisclass(jc.getName());
-                jClass.setNames(cnames);
-                jClass.setDescriptions(descriptions);
-                jClass.setTypes(types);
-
-                writer.println(gson.toJson(jClass));
-                writer.close();
-            }
-
-        } catch (Exception ex) {
-            System.out.println(ex);
-        }
-    }
-
-    private void printClasses3(JEVisDataSource ds) {
-
-
-        try {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-            PrintWriter writer = new PrintWriter("/tmp/json/all.csv", "UTF-8");
-            StringBuilder sb = new StringBuilder();
-
-            for (JEVisClass jc : ds.getJEVisClasses()) {
-
-                sb.append(jc.getName());
-                sb.append(";");
-                if (jc.getInheritance() != null) {
-                    sb.append(jc.getInheritance().getName());
-                } else {
-                    sb.append("-");
-                }
-                sb.append(";");
-                sb.append(jc.getName());
-                sb.append(";");
-                sb.append(";");
-                sb.append(";");
-                sb.append(jc.getDescription());
-                sb.append(";");
-                sb.append(";");
-                sb.append(";");
-                sb.append("\n");
-
-                for (JEVisType type : jc.getTypes()) {
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(type.getName());
-                    sb.append(";");
-                    sb.append(type.getName());
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-                    sb.append(";");
-
-                    sb.append("\n");
-                }
-            }
-
-            writer.println(sb.toString());
-            writer.close();
-        } catch (Exception ex) {
-            System.out.println(ex);
-        }
-    }
 
     /**
      * Return an common resource

@@ -39,7 +39,6 @@ import org.jevis.application.cache.CacheEvent;
 import org.jevis.application.cache.CacheObjectEvent;
 import org.jevis.application.cache.Cached;
 import org.jevis.application.dialog.*;
-import org.jevis.application.object.tree.UserSelection;
 import org.jevis.application.tools.CalculationNameFormater;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
@@ -274,6 +273,7 @@ public class TreeHelper {
         LOGGER.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
+        newObject.commit();
 
         for (JEVisAttribute originalAtt : toCopyObj.getAttributes()) {
             LOGGER.debug("Copy attribute: {}", originalAtt);

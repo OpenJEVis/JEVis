@@ -36,7 +36,6 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
-import org.jevis.application.object.tree.UserSelection;
 
 import java.util.ArrayList;
 import java.util.List;

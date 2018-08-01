@@ -4,16 +4,11 @@
  */
 package org.jevis.commons.cli;
 
-import java.util.List;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import java.util.List;
 
 /**
  *
@@ -36,8 +31,8 @@ public class JEVisCommandLine {
     private static String HELP = "help";
     private static String DEBUG = "debug";
     private static String SINGLE = "single";
-    private static String DEAMONCYLCE = "daemon-cycle";
-    private static String DEAMON = "deamon";
+    private static String DAEMONCYLCE = "daemon-cycle";
+    private static String DAEMON = "daemon";
 
     private boolean _isUsed = false;
 
@@ -64,8 +59,8 @@ public class JEVisCommandLine {
         _options.addOption("d", DEBUG, true, "Sets the debug level (INFO, WARN, ALL)");
         _options.addOption("df", DRIVER_FOLDER, true, "Sets the root folder for the driver structure");
         _options.addOption("si", SINGLE, true, "set a single equipment to start");
-        _options.addOption("de", DEAMON, false, "Start in service(deamon) mode");
-        _options.addOption("dec", DEAMONCYLCE, false, "service(deamon) mode sleep time between run cycles in seconds. Default is 3600sec");
+        _options.addOption("de", DAEMON, false, "Start in service(daemon) mode");
+        _options.addOption("dec", DAEMONCYLCE, false, "service(daemon) mode sleep time between run cycles in milliseconds. Default is 3600000ms");
 
     }
 
@@ -123,14 +118,14 @@ public class JEVisCommandLine {
     }
 
     public boolean isService() {
-        return _cmd.hasOption(DEAMON);
+        return _cmd.hasOption(DAEMON);
     }
 
-    public int getCycleSeepTime() {
+    public Long getCycleSleepTime() {
         try {
-            return Integer.parseInt(_cmd.getOptionValue(DEAMONCYLCE, "3600"));
+            return Long.parseLong(_cmd.getOptionValue(DAEMONCYLCE, "3600000"));
         } catch (Exception px) {
-            return 3600;
+            return 3600000L;
         }
 
     }

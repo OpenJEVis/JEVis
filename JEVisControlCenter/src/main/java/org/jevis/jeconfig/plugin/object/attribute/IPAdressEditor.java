@@ -123,4 +123,10 @@ public class IPAdressEditor implements AttributeEditor {
     public JEVisAttribute getAttribute() {
         return att;
     }
+
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
 }

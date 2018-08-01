@@ -41,7 +41,6 @@ import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.HiddenSidesPane;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.application.application.I18nWS;
@@ -65,7 +64,8 @@ import java.util.List;
 public class ObjectEditor {
 
     private JEVisObject _currentObject = null;
-    private List<ObjectEditorExtension> extensions = new LinkedList<>();
+    private List<ObjectEditorExtension> installedExtensions = new LinkedList<>();
+    private List<ObjectEditorExtension> activeExtensions = new ArrayList<>();
     private boolean _hasChanged = true;
     private String _lastOpenEditor = "";
     private final Logger logger = LogManager.getLogger(ObjectEditor.class);
@@ -82,15 +82,15 @@ public class ObjectEditor {
     }
 
     public void commitAll() {
-        for (ObjectEditorExtension extension : extensions) {
-            System.out.println("ObjectEditor.comitall: " + extension.getClass());
+        for (ObjectEditorExtension extension : activeExtensions) {
+            logger.debug("ObjectEditor.comitall: {}",extension.getClass());
             extension.save();
         }
     }
 
     public boolean needSave() {
         if (_currentObject != null) {
-            for (ObjectEditorExtension extension : extensions) {
+            for (ObjectEditorExtension extension : activeExtensions) {
                 if (extension.needSave()) {
                     return true;
                 }
@@ -101,7 +101,7 @@ public class ObjectEditor {
 
     public void dismissChanges() {
         if (_currentObject != null) {
-            for (ObjectEditorExtension extension : extensions) {
+            for (ObjectEditorExtension extension : activeExtensions) {
                 extension.dismissChanges();
             }
         }
@@ -114,7 +114,7 @@ public class ObjectEditor {
 //            List<ObjectEditorExtension> needSave = new ArrayList<>();
 //
 //            _hasChanged = true;
-//            for (ObjectEditorExtension extension : extensions) {
+//            for (ObjectEditorExtension extension : installedExtensions) {
 //                if (extension.needSave()) {
 //                    System.out.println("extension need save: " + extension.getTitle());
 //                    needSave.add(extension);
@@ -201,27 +201,29 @@ public class ObjectEditor {
                         accordion.setStyle("-fx-box-border: transparent;");
 
                         List<TitledPane> taps = new ArrayList<>();
-                        extensions = new ArrayList<>();
+                        installedExtensions = new ArrayList<>();
 
-                        extensions.add(new CalculationExtension(obj));
-                        extensions.add(new GenericAttributeExtension(obj, tree));
-//                      extensions.add(new BasicMathExtension(obj));
-                        extensions.add(new MemberExtension(obj));
-                        extensions.add(new PermissionExtension(obj));
-                        extensions.add(new RootExtension(obj));
-                        extensions.add(new LinkExtension(obj));
-                        extensions.add(new ProcessChainExtension(obj));
+                        installedExtensions.add(new CalculationExtension(obj));
+                        installedExtensions.add(new MemberExtension(obj));
 
-                        List<ObjectEditorExtension> okExtenstion = new ArrayList<>();
 
-                        for (final ObjectEditorExtension ex : extensions) {
+                        //Generic Extensions every Class has
+                        //TODO: make an better logic to decide/configure the extension order
+                        installedExtensions.add(new GenericAttributeExtension(obj, tree));
+                        installedExtensions.add(new PermissionExtension(obj));
+                        installedExtensions.add(new RootExtension(obj));
+                        installedExtensions.add(new LinkExtension(obj));
+
+                        activeExtensions = new ArrayList<>();
+
+                        for (final ObjectEditorExtension ex : installedExtensions) {
                             try {
                                 if (ex.isForObject(obj)) {
                                     if(_lastOpenEditor==null){
                                         _lastOpenEditor=ex.getTitle();
                                     }
 
-                                    okExtenstion.add(ex);
+                                    activeExtensions.add(ex);
                                     TitledPane newTab = new TitledPane(ex.getTitle(), ex.getView());
                                     newTab.getStylesheets().add("/styles/objecteditor.css");
 
@@ -270,7 +272,7 @@ public class ObjectEditor {
                         boolean foundTab = false;
                         if (!taps.isEmpty()) {
 
-                            for (ObjectEditorExtension ex : okExtenstion) {
+                            for (ObjectEditorExtension ex : activeExtensions) {
                                 if (ex.getTitle().equals(_lastOpenEditor)) {
                                     ex.setVisible();
 //                            updateView(content, ex);
@@ -286,8 +288,8 @@ public class ObjectEditor {
                         }
                         if (!foundTab) {
 
-                            //Set the first enabled extension visible, waring the order of extensions an tabs is not the same
-                            for (final ObjectEditorExtension ex : okExtenstion) {
+                            //Set the first enabled extension visible, waring the order of installedExtensions an tabs is not the same
+                            for (final ObjectEditorExtension ex : activeExtensions) {
                                 try {
                                     if (ex.isForObject(obj)) {
                                         ex.setVisible();
@@ -297,10 +299,10 @@ public class ObjectEditor {
 
                                 }
                             }
-//                            extensions.get(0).setVisible();
+//                            installedExtensions.get(0).setVisible();
                             accordion.setExpandedPane(taps.get(0));
                             taps.get(0).requestFocus();
-                            _lastOpenEditor = extensions.get(0).getTitle();
+                            _lastOpenEditor = installedExtensions.get(0).getTitle();
                         }
 
                         Button helpButton = new Button("", JEConfig.getImage("1400874302_question_blue.png", 34, 34));

@@ -86,6 +86,23 @@ public class ClassHelper {
 
     }
 
+    public static boolean isDirectory(JEVisClass jclass) throws JEVisException{
+
+        if(jclass.getName().equals("Directory")){
+            return true;
+        }
+
+        if(jclass.getInheritance()!=null ){
+            if(jclass.getInheritance().getName().equals("Directory")){
+                return true;
+            }else{
+                return isDirectory(jclass.getInheritance());
+            }
+        }else{
+            return false;
+        }
+    }
+
     public static void AddAllInherited(List<JEVisClass> all, JEVisClass jclass) throws JEVisException {
         JEVisClass inhert = jclass.getInheritance();
         if (inhert != null) {

@@ -40,7 +40,7 @@ import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.TreePlugin;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
-import org.jevis.application.object.tree.UserSelection;
+import org.jevis.application.jevistree.UserSelection;
 
 import java.util.ArrayList;
 import java.util.HashMap;

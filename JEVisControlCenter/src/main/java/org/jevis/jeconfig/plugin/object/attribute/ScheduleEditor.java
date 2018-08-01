@@ -442,4 +442,10 @@ public class ScheduleEditor implements AttributeEditor {
         return _attribute;
     }
 
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
+
 }

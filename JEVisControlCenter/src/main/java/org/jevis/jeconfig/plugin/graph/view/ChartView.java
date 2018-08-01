@@ -364,8 +364,12 @@ public class ChartView implements Observer {
                             Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
                             Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
                             Double nearest = higherKey;
-                            if (lowerKey - valueForDisplay.doubleValue() < higherKey - valueForDisplay.doubleValue()) {
-                                nearest = lowerKey;
+                            if (lowerKey != null && higherKey != null) {
+                                Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
+                                Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
+                                if (lower < higher) {
+                                    nearest = lowerKey;
+                                }
                             }
 
                             NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);

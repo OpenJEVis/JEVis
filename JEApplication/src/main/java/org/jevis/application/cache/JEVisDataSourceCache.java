@@ -489,7 +489,9 @@ public class JEVisDataSourceCache implements JEVisDataSource {
     public boolean deleteRelationship(Long fromObject, Long toObject, int type) throws JEVisException {
         for (JEVisRelationship rel : getRelationships(type)) {
             if (rel.getStartID() == fromObject && rel.getEndID() == toObject) {
+
                 if (otherDS.deleteRelationship(fromObject, toObject, type)) {
+
                     getRelationships().remove(rel);
                     JEVisObject startObj = getObject(fromObject);
                     JEVisObject endObj = getObject(fromObject);

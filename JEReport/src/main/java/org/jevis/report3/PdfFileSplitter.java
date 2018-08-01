@@ -10,15 +10,14 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfCopy;
 import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.jevis.api.JEVisFile;
-import org.jevis.commons.JEVisFileImp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -40,11 +39,9 @@ public class PdfFileSplitter {
             Path pdfSplittedFilePath = Files.createTempFile(pdfFileName.replace(".pdf", "_split"), ".pdf");
 
             outputPath = pdfSplittedFilePath.toString();
-            System.out.println(outputPath);
             outputFile = pdfSplittedFilePath.toFile();
             nrOfPages = nrOfPdfPages.intValue();
         } catch (IOException ex) {
-            System.out.println(ex);
             logger.error("error while creating pdf splitter", ex);
         }
     }
@@ -79,7 +76,6 @@ public class PdfFileSplitter {
             }
 
         } catch (DocumentException | IOException ex) {
-            System.out.println(ex);
             logger.error("error while splitting pdf file", ex);
         } finally {
             document.close();

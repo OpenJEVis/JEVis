@@ -283,7 +283,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
                 resource += "&" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL;
                 resource += HTTPConnection.FMT.print(from);
             }
-            System.out.println("delete html: " + resource);
 
             Gson gson = new Gson();
             HttpURLConnection conn = ds.getHTTPConnection().getDeleteConnection(resource);
@@ -313,6 +312,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
         try {
             return new JEVisUnitImp(json.getInputUnit());
         } catch (Exception ex) {
+            logger.debug("No unit selected using fallback unit.one");
             return new JEVisUnitImp(Unit.ONE);
         }
     }

@@ -21,16 +21,22 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.jfoenix.controls.JFXPasswordField;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.PasswordField;
+import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
 /**
@@ -39,7 +45,7 @@ import org.joda.time.DateTime;
  */
 public class ReadablePasswordEditor implements AttributeEditor {
 
-    private PasswordField passField = new PasswordField();
+    private JFXPasswordField passField = new JFXPasswordField();
     private HBox editor = new HBox();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisDataSource ds;
@@ -72,6 +78,8 @@ public class ReadablePasswordEditor implements AttributeEditor {
     private void builedGUI() {
         JEVisSample sample = att.getLatestSample();
 
+        passField.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
+        passField.setAlignment(Pos.CENTER_RIGHT);
         if (sample != null) {
             try {
                 passField.setText(sample.getValueAsString());
@@ -87,7 +95,24 @@ public class ReadablePasswordEditor implements AttributeEditor {
             }
         });
 
-        passField.setPrefWidth(500);
+        /**
+         * Not so secure function to get a readable password for service purpose. This password are by design not so save because
+         * the applications like the JEDataCollector will need the in clean form to send use them anyways. If there is a user with
+         * read-right he can get the via API anyway.
+         */
+        final KeyCombination keyComb1 = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
+        passField.addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (keyComb1.match(event)) {
+                    Clipboard clipboard = Clipboard.getSystemClipboard();
+                    final ClipboardContent content = new ClipboardContent();
+                    content.putString(passField.getText());
+                    clipboard.setContent(content);
+                }
+            }
+        });
+
         editor.getChildren().add(passField);
     }
 
@@ -104,6 +129,12 @@ public class ReadablePasswordEditor implements AttributeEditor {
     @Override
     public JEVisAttribute getAttribute() {
         return att;
+    }
+
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
     }
 
 }

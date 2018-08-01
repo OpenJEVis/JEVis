@@ -70,15 +70,10 @@ public class ApplicationInfo {
 
     @Override
     public String toString() {
-        String msg = name + " Version: " + version + "\n"
-                + "JEAPI Version: -/-";
-        if (api != null) {
-            msg = name + " Version: " + version + "\n"
-                    + "JEAPI Version: " + api.getName() + " " + api.getVersion();
-        }
+        String msg = name + " Version: " + version + "\n";
 
         for (LibraryInfo lib : libs) {
-            msg += "\n" + lib.getName() + ":" + lib.getVersion();
+            msg += "\n" + lib.getName() + ": " + lib.getVersion();
         }
 
         return msg;
