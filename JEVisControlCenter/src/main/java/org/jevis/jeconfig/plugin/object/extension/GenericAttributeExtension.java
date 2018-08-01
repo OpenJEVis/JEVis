@@ -200,7 +200,13 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
         boolean readOnly = true;
         try {
-            readOnly = !obj.getDataSource().getCurrentUser().canWrite(obj.getID());
+            readOnly=false;
+            /**
+             * TODO: implement write access check
+             * Read check is disabled for now, the problem is that if the user has ne read access to his UserGroup he can not
+             * see if he has write access. The webservice will still check it.
+             */
+//            readOnly = !obj.getDataSource().getCurrentUser().canWrite(obj.getID());
         } catch (Exception ex) {
             readOnly = true;
             logger.catching(ex);
