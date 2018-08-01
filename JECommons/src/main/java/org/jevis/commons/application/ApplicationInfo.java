@@ -19,9 +19,10 @@
  */
 package org.jevis.commons.application;
 
+import org.jevis.api.JEVisInfo;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.jevis.api.JEVisInfo;
 
 /**
  *

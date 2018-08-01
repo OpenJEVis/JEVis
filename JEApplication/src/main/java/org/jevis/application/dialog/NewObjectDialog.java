@@ -102,12 +102,9 @@ public class NewObjectDialog {
         fName.setPromptText(rb.getString("jevistree.dialog.new.name.prompt"));
 
         if (objName != null) {
-            try {
-                fName.setText(I18nWS.getInstance().getClassName(jclass.getName()));
-            } catch (JEVisException ex) {
-                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            userSetName = false;
+            fName.setText(objName);
+            userSetName = true;
+
         }
 
         fName.setOnKeyTyped(event -> userSetName = true);

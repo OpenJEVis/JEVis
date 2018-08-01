@@ -128,19 +128,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
 
         if (!listAnalysisModel.isEmpty()) {
-            DateTime start = DateTime.parse(listAnalysisModel.get(0).getSelectedStart());
-            LocalDate ld_start = LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth());
-            LocalTime lt_start = LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour());
-            pickerDateStart.valueProperty().setValue(ld_start);
-            pickerTimeStart.valueProperty().setValue(lt_start);
-            selectedStart = start;
-
-            DateTime end = DateTime.parse(listAnalysisModel.get(0).getSelectedEnd());
-            LocalDate ld_end = LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth());
-            LocalTime lt_end = LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour());
-            pickerDateEnd.valueProperty().setValue(ld_end);
-            pickerTimeEnd.valueProperty().setValue(lt_end);
-            selectedEnd = end;
+            updateTimeFramePicker();
         }
 
         comboBoxPresetDates.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -196,6 +184,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getMillisOfSecond());
+                updateTimeFrame();
                 comboBoxPresetDates.getSelectionModel().select(0);
             }
         });
@@ -203,6 +192,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getMillisOfSecond());
+                updateTimeFrame();
                 comboBoxPresetDates.getSelectionModel().select(0);
             }
         });
@@ -210,6 +200,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         pickerTimeStart.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
+                updateTimeFrame();
                 comboBoxPresetDates.getSelectionModel().select(0);
             }
         });
@@ -217,6 +208,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         pickerTimeEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
+                updateTimeFrame();
                 comboBoxPresetDates.getSelectionModel().select(0);
             }
         });
@@ -237,7 +229,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         VBox vbox_buttons = new VBox();
         vbox_buttons.setSpacing(4);
         vbox_buttons.getChildren().addAll(comboBoxPresetDates);
-        vbox_buttons.setAlignment(Pos.CENTER);
+        vbox_buttons.setAlignment(Pos.BOTTOM_RIGHT);
         gp_date.add(vbox_picker, 0, 0);
         gp_date.add(vbox_buttons, 1, 0);
         gp_date.setPrefWidth(hbox_list.getWidth());
@@ -256,6 +248,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 this.nameCurrentAnalysis = newValue;
                 setJEVisObjectForCurrentAnalysis(newValue);
                 toolBarView.select(nameCurrentAnalysis);
+                updateTimeFramePicker();
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -270,6 +263,44 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         this.getDialogPane().setContent(vbox);
 
+    }
+
+    private void updateTimeFramePicker() {
+        DateTime start = null;
+        DateTime end = null;
+
+        if (data.getSelectedData() == null) {
+            for (JsonAnalysisModel mdl : listAnalysisModel) {
+                if (start == null || DateTime.parse(mdl.getSelectedStart()).isBefore(selectedStart))
+                    start = DateTime.parse(mdl.getSelectedStart());
+                if (end == null || DateTime.parse(mdl.getSelectedEnd()).isAfter(selectedEnd))
+                    end = DateTime.parse(mdl.getSelectedEnd());
+            }
+        } else {
+            for (ChartDataModel mdl : data.getSelectedData()) {
+                if (start == null || mdl.getSelectedStart().isBefore(selectedStart)) start = mdl.getSelectedStart();
+                if (end == null || mdl.getSelectedEnd().isAfter(selectedEnd)) end = mdl.getSelectedEnd();
+            }
+        }
+
+        LocalDate ld_start = LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth());
+        LocalTime lt_start = LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour());
+        pickerDateStart.valueProperty().setValue(ld_start);
+        pickerTimeStart.valueProperty().setValue(lt_start);
+        selectedStart = start;
+
+        LocalDate ld_end = LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth());
+        LocalTime lt_end = LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour());
+        pickerDateEnd.valueProperty().setValue(ld_end);
+        pickerTimeEnd.valueProperty().setValue(lt_end);
+        selectedEnd = end;
+    }
+
+    private void updateTimeFrame() {
+        for (ChartDataModel mdl : data.getSelectedData()) {
+            mdl.setSelectedStart(selectedStart);
+            mdl.setSelectedEnd(selectedEnd);
+        }
     }
 
     public void updateToolBarView() {
@@ -368,6 +399,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         Set<ChartDataModel> selectedData = getBarChartDataModels();
 
         data.setSelectedData(selectedData);
+    }
+
+    public DateTime getSelectedStart() {
+        return selectedStart;
+    }
+
+    public DateTime getSelectedEnd() {
+        return selectedEnd;
     }
 
     private Set<ChartDataModel> getBarChartDataModels() {

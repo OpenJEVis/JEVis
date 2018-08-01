@@ -19,18 +19,6 @@
  */
 package org.jevis.jeconfig.csv;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -43,22 +31,11 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
@@ -73,6 +50,14 @@ import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -107,15 +92,79 @@ public class CSVColumnHeader {
 
     private SimpleDateFormat _dateFormater = new SimpleDateFormat();
 
-    public static enum Meaning {
+    public double getValueAsDouble(String value) {
+//        DecimalFormat df = new DecimalFormat("#.#", symbols);
+//        System.out.println("org value: " + value);
+//        System.out.println("Seperator in use: " + symbols.getDecimalSeparator());
+//        String tmpValue = value;
+//
+//        if (getDecimalSeparator() == ',') {
+//            tmpValue = tmpValue.replace('.', ' ');//removeall grouping chars
+//        } else {
+//            tmpValue = tmpValue.replace(',', ' ');//removeall grouping chars
+//        }
+//        tmpValue = tmpValue.replaceAll(" ", "");
+//        tmpValue = tmpValue.trim();//some locales use the spaceas grouping
+//        System.out.println("Value after fix: " + tmpValue);
+//
+//        Number number = df.parse(tmpValue);
 
-        Ignore, Date, DateTime, Time, Value, Text, Index
-    };
+        String tmpValue = value;
+        if (getDecimalSeparator() == ',') {
+            tmpValue = tmpValue.replace('.', ' ');//removeall grouping chars
+            tmpValue = tmpValue.replaceAll(",", ".");
+        } else {
+            tmpValue = tmpValue.replace(',', ' ');//removeall grouping chars
+        }
+        tmpValue = tmpValue.replaceAll(" ", "");
 
-    public static enum DateTimeMode {
+        Double number = Double.valueOf(tmpValue);
 
-        Date, DateTime, Time
-    };
+        return number;
+    }
+
+    public void formteAllRows() {
+//        _table.setScrollBottom();
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                _table.setScrollBottom();
+//            }
+//        });
+
+        Iterator it = _valuePropertys.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+//            System.out.println(pairs.getKey() + " = " + pairs.getValue());
+
+            SimpleObjectProperty prop = (SimpleObjectProperty) pairs.getValue();
+            CSVCellGraphic graphic = _valueGraphic.get(pairs.getKey());
+            CSVLine csvLIne = _lines.get(pairs.getKey());
+
+            graphic.setText(getFormatedValue(csvLIne.getColumn(coloumNr)));
+            graphic.setValid(valueIsValid(csvLIne.getColumn(coloumNr)));
+            graphic.setToolTipText("Original: '" + csvLIne.getColumn(coloumNr) + "'");
+
+            if (getMeaning() == Meaning.Ignore) {
+                graphic.setIgnore();
+                graphic.getGraphic().setDisable(true);
+            } else {
+                graphic.getGraphic().setDisable(false);
+            }
+
+            prop.setValue(graphic.getGraphic());
+
+        }
+
+//        _table.setLastScrollPosition();
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                _table.setLastScrollPosition();
+//            }
+//        });
+    }
+
     private Meaning currentMeaning = Meaning.Ignore;
     private int coloumNr = -1;
 
@@ -227,35 +276,9 @@ public class CSVColumnHeader {
         }
     }
 
-    public double getValueAsDouble(String value) throws ParseException {
-//        DecimalFormat df = new DecimalFormat("#.#", symbols);
-//        System.out.println("org value: " + value);
-//        System.out.println("Seperator in use: " + symbols.getDecimalSeparator());
-//        String tmpValue = value;
-//
-//        if (getDecimalSeparator() == ',') {
-//            tmpValue = tmpValue.replace('.', ' ');//removeall grouping chars
-//        } else {
-//            tmpValue = tmpValue.replace(',', ' ');//removeall grouping chars
-//        }
-//        tmpValue = tmpValue.replaceAll(" ", "");
-//        tmpValue = tmpValue.trim();//some locales use the spaceas grouping
-//        System.out.println("Value after fix: " + tmpValue);
-//
-//        Number number = df.parse(tmpValue);
+    public enum Meaning {
 
-        String tmpValue = value;
-        if (getDecimalSeparator() == ',') {
-            tmpValue = tmpValue.replace('.', ' ');//removeall grouping chars
-            tmpValue = tmpValue.replaceAll(",", ".");
-        } else {
-            tmpValue = tmpValue.replace(',', ' ');//removeall grouping chars
-        }
-        tmpValue = tmpValue.replaceAll(" ", "");
-
-        Double number = Double.valueOf(tmpValue);
-
-        return number;
+        Ignore, Date, DateTime, Time, Value, Text, Index
     }
 
     /**
@@ -340,46 +363,9 @@ public class CSVColumnHeader {
         return false;
     }
 
-    public void formteAllRows() {
-//        _table.setScrollBottom();
-//        Platform.runLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                _table.setScrollBottom();
-//            }
-//        });
+    public enum DateTimeMode {
 
-        Iterator it = _valuePropertys.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
-//            System.out.println(pairs.getKey() + " = " + pairs.getValue());
-
-            SimpleObjectProperty prop = (SimpleObjectProperty) pairs.getValue();
-            CSVCellGraphic graphic = _valueGraphic.get((Integer) pairs.getKey());
-            CSVLine csvLIne = _lines.get((Integer) pairs.getKey());
-
-            graphic.setText(getFormatedValue(csvLIne.getColumn(coloumNr)));
-            graphic.setValid(valueIsValid(csvLIne.getColumn(coloumNr)));
-            graphic.setToolTipText("Original: '" + csvLIne.getColumn(coloumNr) + "'");
-
-            if (getMeaning() == Meaning.Ignore) {
-                graphic.setIgnore();
-                graphic.getGraphic().setDisable(true);
-            } else {
-                graphic.getGraphic().setDisable(false);
-            }
-
-            prop.setValue(graphic.getGraphic());
-
-        }
-
-//        _table.setLastScrollPosition();
-//        Platform.runLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                _table.setLastScrollPosition();
-//            }
-//        });
+        Date, DateTime, Time
     }
 
     public TimeZone getTimeZone() {

@@ -60,26 +60,8 @@ public class ChartPlugin implements TreePlugin {
         return _tree;
     }
 
-    @Override
-    public void selectionFinished() {
-        //Will happen if the user peress some kinde of OK button
-        System.out.println("selectionFinished()");
-        for (Map.Entry<String, ChartDataModel> entrySet : _data.entrySet()) {
-            String key = entrySet.getKey();
-            ChartDataModel value = entrySet.getValue();
-            if (value.getSelected()) {
-
-                System.out.println("key: " + key);
-            }
-
-        }
-
-    }
-
-    @Override
-    public String getTitle() {
-        return rb.getString("graph.title");
-    }
+    final String chartTitle = rb.getString("graph.title");
+    final String addChart = rb.getString("graph.table.addchart");
 
     @Override
     public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns() {
@@ -87,10 +69,6 @@ public class ChartPlugin implements TreePlugin {
 
         TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn();
         column.setEditable(true);
-//        textField = new TextField();
-//        textField.setText(_title);
-//        textField.setEditable(true);
-//        column.setGraphic(textField);
 
         TreeTableColumn<JEVisTreeRow, Color> colorColumn = buildColorColumn(_tree, rb.getString("graph.table.color"));
         TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, rb.getString("graph.table.load"));
@@ -108,107 +86,47 @@ public class ChartPlugin implements TreePlugin {
         return list;
     }
 
-    private TreeTableColumn<JEVisTreeRow, String> buildSelectChartcolumn(JEVisTree tree, String columnName) {
-        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(100);
-        getChartsList();
-        column.setCellValueFactory(param -> {
+    private final Color[] color_list = {
+            Color.web("0xFFB300"),    // Vivid Yellow
+            Color.web("0x803E75"),    // Strong Purple
+            Color.web("0xFF6800"),    // Vivid Orange
+            Color.web("0xA6BDD7"),    // Very Light Blue
+            Color.web("0xC10020"),    // Vivid Red
+            Color.web("0xCEA262"),    // Grayish Yellow
+            Color.web("0x817066"),    // Medium Gray
 
-            ChartDataModel data = getData(param.getValue().getValue());
+            Color.web("0x007D34"),    // Vivid Green
+            Color.web("0xF6768E"),    // Strong Purplish Pink
+            Color.web("0x00538A"),    // Strong Blue
+            Color.web("0xFF7A5C"),    // Strong Yellowish Pink
+            Color.web("0x53377A"),    // Strong Violet
+            Color.web("0xFF8E00"),    // Vivid Orange Yellow
+            Color.web("0xB32851"),    // Strong Purplish Red
+            Color.web("0xF4C800"),    // Vivid Greenish Yellow
+            Color.web("0x7F180D"),    // Strong Reddish Brown
+            Color.web("0x93AA00"),    // Vivid Yellowish Green
+            Color.web("0x593315"),    // Deep Yellowish Brown
+            Color.web("0xF13A13"),    // Vivid Reddish Orange
+            Color.web("0x232C16"),    // Dark Olive Green
+    };
+    private int counterColor = 0;
 
-            return new ReadOnlyObjectWrapper<>(data.getTitle());
-//                return param.getValue().getValue().getJEVisObject();
-        });
-
-        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, String>, TreeTableCell<JEVisTreeRow, String>>() {
-
-            @Override
-            public TreeTableCell<JEVisTreeRow, String> call(TreeTableColumn<JEVisTreeRow, String> param) {
-
-                TreeTableCell<JEVisTreeRow, String> cell = new TreeTableCell<JEVisTreeRow, String>() {
-
-                    @Override
-                    public void commitEdit(String newValue) {
-                        super.commitEdit(newValue);
-                        ChartDataModel data = getData(getTreeTableRow().getItem());
-                        data.setTitle(newValue);
-                    }
-
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (!empty) {
-                            StackPane hbox = new StackPane();
-
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
-                                ChartDataModel data = getData(getTreeTableRow().getItem());
-
-                                ChoiceBox selectChartBox = buildSelectChartBox(data);
-
-                                final String chartTitle = rb.getString("graph.title");
-                                final String addChart = rb.getString("graph.table.addchart");
-
-                                selectChartBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-                                    if (newValue != null || !newValue.equals(oldValue)) {
-                                        String newString = null;
-                                        if (newValue.equals(addChart)) {
-                                            if (chartsList.contains(chartTitle)) {
-                                                chartsList.add(chartTitle + " 2");
-                                                newString = chartTitle + " 2";
-                                            } else {
-                                                chartsList.add(chartTitle);
-                                                newString = chartTitle;
-                                            }
-                                        }
-                                        if (newString != null) {
-                                            commitEdit(newString);
-                                            selectChartBox.getSelectionModel().select(newString);
-                                        } else
-                                            commitEdit(newValue.toString());
-                                    }
-                                });
-
-                                hbox.getChildren().setAll(selectChartBox);
-                                StackPane.setAlignment(selectChartBox, Pos.CENTER_LEFT);
-
-                                selectChartBox.setDisable(!data.isSelectable());
-
-                            }
-
-                            setText(null);
-                            setGraphic(hbox);
-                        } else {
-                            setText(null);
-                            setGraphic(null);
-                        }
-
-                    }
-
-                };
-
-                return cell;
+    @Override
+    public void selectionFinished() {
+        //Will happen if the user presses some kind of OK button
+        for (Map.Entry<String, ChartDataModel> entrySet : _data.entrySet()) {
+            String key = entrySet.getKey();
+            ChartDataModel value = entrySet.getValue();
+            if (value.getSelected()) {
             }
-        });
 
-        return column;
+        }
+
     }
 
-    public ObservableList<String> getChartsList() {
-        List<String> tempList = new ArrayList<>();
-        final String chartTitle = rb.getString("graph.title");
-        for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
-            if (!tempList.contains(mdl.getValue().getTitle()) && mdl.getValue().getTitle() != null)
-                tempList.add(mdl.getValue().getTitle());
-        }
-        if (tempList.isEmpty() || !tempList.contains(chartTitle)) {
-            tempList.add(chartTitle);
-        }
-
-        final String addChart = rb.getString("graph.table.addchart");
-
-        tempList.add(addChart);
-        chartsList = FXCollections.observableArrayList(tempList);
-        return chartsList;
+    @Override
+    public String getTitle() {
+        return null;
     }
 
     private ChoiceBox buildSelectChartBox(ChartDataModel data) {
@@ -221,7 +139,6 @@ public class ChartPlugin implements TreePlugin {
     }
 
     private ChartDataModel getData(JEVisTreeRow row) {
-//        System.out.println("add" + row.getJEVisObject());
         String id = row.getID();
         if (_data.containsKey(id)) {
             return _data.get(id);
@@ -244,7 +161,6 @@ public class ChartPlugin implements TreePlugin {
         column.setCellValueFactory(param -> {
             ChartDataModel data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getColor());
-//                return param.getValue().getValue().getColorProperty();
         });
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Color>, TreeTableCell<JEVisTreeRow, Color>>() {
@@ -259,7 +175,6 @@ public class ChartPlugin implements TreePlugin {
                         super.commitEdit(newValue);
                         ChartDataModel data = getData(getTreeTableRow().getItem());
                         data.setColor(newValue);
-//                        getTreeTableRow().getItem().getColorProperty().setValue(newValue);
                     }
 
                     @Override
@@ -273,7 +188,6 @@ public class ChartPlugin implements TreePlugin {
 
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                 colorPicker.setValue(item);
-//                                colorPicker.getStylesheets().add("/styles/ColorPicker.css");
                                 colorPicker.setStyle("-fx-color-label-visible: false ;");
 
                                 colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
@@ -667,13 +581,109 @@ public class ChartPlugin implements TreePlugin {
 
     }
 
+    private TreeTableColumn<JEVisTreeRow, String> buildSelectChartcolumn(JEVisTree tree, String columnName) {
+        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn(columnName);
+        column.setPrefWidth(100);
+        getChartsList();
+        column.setCellValueFactory(param -> {
+
+            ChartDataModel data = getData(param.getValue().getValue());
+
+            return new ReadOnlyObjectWrapper<>(data.getTitle());
+        });
+
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, String>, TreeTableCell<JEVisTreeRow, String>>() {
+
+            @Override
+            public TreeTableCell<JEVisTreeRow, String> call(TreeTableColumn<JEVisTreeRow, String> param) {
+
+                TreeTableCell<JEVisTreeRow, String> cell = new TreeTableCell<JEVisTreeRow, String>() {
+
+                    @Override
+                    public void commitEdit(String newValue) {
+                        super.commitEdit(newValue);
+                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        data.setTitle(newValue);
+                    }
+
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (!empty) {
+                            StackPane hbox = new StackPane();
+
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                                ChartDataModel data = getData(getTreeTableRow().getItem());
+
+                                ChoiceBox selectChartBox = buildSelectChartBox(data);
+
+                                selectChartBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                    if (newValue != null || !newValue.equals(oldValue)) {
+                                        String newString = null;
+                                        if (newValue.equals(addChart)) {
+                                            if (chartsList.contains(chartTitle)) {
+                                                chartsList.add(chartTitle + " 2");
+                                                newString = chartTitle + " 2";
+                                            } else {
+                                                chartsList.add(chartTitle);
+                                                newString = chartTitle;
+                                            }
+                                        }
+                                        if (newString != null) {
+                                            commitEdit(newString);
+                                            selectChartBox.getSelectionModel().select(newString);
+                                        } else {
+                                            commitEdit(newValue.toString());
+                                            selectChartBox.getSelectionModel().select(newValue.toString());
+                                        }
+                                    }
+                                });
+
+                                hbox.getChildren().setAll(selectChartBox);
+                                StackPane.setAlignment(selectChartBox, Pos.CENTER_LEFT);
+
+                                selectChartBox.setDisable(!data.isSelectable());
+
+                            }
+
+                            setText(null);
+                            setGraphic(hbox);
+                        } else {
+                            setText(null);
+                            setGraphic(null);
+                        }
+
+                    }
+
+                };
+
+                return cell;
+            }
+        });
+
+        return column;
+    }
+
+    public ObservableList<String> getChartsList() {
+        List<String> tempList = new ArrayList<>();
+
+        for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
+            if (!tempList.contains(mdl.getValue().getTitle()) && mdl.getValue().getTitle() != null)
+                tempList.add(mdl.getValue().getTitle());
+        }
+        if (tempList.isEmpty() || !tempList.contains(chartTitle)) {
+            tempList.add(chartTitle);
+        }
+        tempList.add(addChart);
+        chartsList = FXCollections.observableArrayList(tempList);
+        return chartsList;
+    }
+
     private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, String columnName) {
         TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(columnName);
         column.setPrefWidth(60);
         column.setEditable(true);
 
-        //replace to use the datamodel
-//        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<SelectionTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelectedProperty());
         column.setCellValueFactory(param -> {
             ChartDataModel data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getSelected());
@@ -707,7 +717,18 @@ public class ChartPlugin implements TreePlugin {
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                 cbox.setSelected(item);
 
-                                cbox.setOnAction(event -> commitEdit(cbox.isSelected()));
+                                cbox.setOnAction(event -> {
+                                    commitEdit(cbox.isSelected());
+                                    if (data.getTitle().isEmpty()) {
+                                        data.setTitle(chartTitle);
+                                    }
+
+                                    if (counterColor < color_list.length) {
+                                        data.setColor(color_list[counterColor]);
+                                        counterColor++;
+                                    }
+                                    getTreeTableView().refresh();
+                                });
 
                                 if (data.getAttribute() != null && data.getAttribute().hasSample()) {
                                     cbox.setDisable(false);

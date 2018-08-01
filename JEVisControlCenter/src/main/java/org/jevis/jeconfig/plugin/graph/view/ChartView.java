@@ -128,14 +128,7 @@ public class ChartView implements Observer {
         column.setMinWidth(100);
 
         column.setCellValueFactory(param -> {
-//                return new Simpleob<Color>
-
-//                Color newColor = Color.valueOf(param.getValue().colorProperty().getName());
-//                ObservableValue<Color> obColor = new SimpleObjectProperty<Color>(newColor);
             return new SimpleObjectProperty<>(param.getValue().getColor());
-
-//                return obColor;
-//                return param.getValue().colorProperty();
         });
         column.setCellFactory(new Callback<TableColumn<TableEntry, Color>, TableCell<TableEntry, Color>>() {
             @Override
@@ -152,14 +145,7 @@ public class ChartView implements Observer {
                         if (!empty && item != null) {
                             StackPane hbox = new StackPane();
                             hbox.setBackground(new Background(new BackgroundFill(item.deriveColor(1, 1, 50, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
-//                            ColorPicker colorPicker = new ColorPicker();
-//
-//                            StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
-//                            colorPicker.setValue(item);
-//                            colorPicker.setStyle("-fx-color-label-visible: false ;");
 
-//                            colorPicker.setDisable(true);
-//                            hbox.getChildren().setAll(colorPicker);
                             setText(null);
                             setGraphic(hbox);
                         } else {
@@ -363,7 +349,10 @@ public class ChartView implements Observer {
                         try {
                             Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
                             Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+
                             Double nearest = higherKey;
+                            if (nearest == null) nearest = lowerKey;
+
                             if (lowerKey != null && higherKey != null) {
                                 Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
                                 Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
@@ -387,6 +376,7 @@ public class ChartView implements Observer {
                             tableData.add(tableEntry);
 
                             table.layout();
+
                         } catch (Exception ex) {
 //                        Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
                         }

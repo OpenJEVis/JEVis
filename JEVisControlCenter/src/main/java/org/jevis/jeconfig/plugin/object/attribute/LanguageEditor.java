@@ -6,10 +6,6 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXComboBox;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -27,6 +23,11 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
+
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -66,7 +67,7 @@ public class LanguageEditor implements AttributeEditor {
     public ObservableList<Locale> getEnumList(JEVisAttribute att) {
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
         try {
-            List<String> langs = Arrays.asList(Locale.getISOLanguages());
+            String[] langs = Locale.getISOLanguages();
             for(String lang:langs){
                 enumList.add(LocaleUtils.toLocale(lang));
             }

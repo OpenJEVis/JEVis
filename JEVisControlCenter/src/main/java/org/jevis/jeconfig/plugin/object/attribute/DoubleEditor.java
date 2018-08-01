@@ -9,8 +9,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.tool.I18n;
 
-import java.text.ParseException;
-
 public class DoubleEditor extends BasicEditor {
 
     private JEVisAttribute attribute;
@@ -18,7 +16,7 @@ public class DoubleEditor extends BasicEditor {
 
     public DoubleEditor(JEVisAttribute att) {
         super(att);
-        this.attribute=att;
+        this.attribute = att;
     }
 
     @Override
@@ -30,17 +28,17 @@ public class DoubleEditor extends BasicEditor {
     }
 
     @Override
-    public Object parseValue(String value) throws ParseException {
+    public Object parseValue(String value) {
         try {
 
-            double newVal = validator.validate(value,I18n.getInstance().getLocale());
+            double newVal = validator.validate(value, I18n.getInstance().getLocale());
 
             if (attribute.getInputUnit() != null && attribute.getDisplayUnit() != null) {
-                return attribute.getDisplayUnit().converteTo(attribute.getInputUnit(),newVal);
-            }else{
+                return attribute.getDisplayUnit().converteTo(attribute.getInputUnit(), newVal);
+            } else {
                 return newVal;
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -49,19 +47,24 @@ public class DoubleEditor extends BasicEditor {
     }
 
     @Override
-    public String formatSample(JEVisSample value) throws ParseException,JEVisException {
-        if(attribute.getInputUnit()!=null && attribute.getDisplayUnit()!=null){
+    public String formatSample(JEVisSample value) throws JEVisException {
+        if (attribute.getInputUnit() != null && attribute.getDisplayUnit() != null) {
             return formatValue(value.getValueAsDouble(attribute.getDisplayUnit()));
-        }else{
+        } else {
             return formatValue(value.getValueAsDouble());
         }
 
     }
 
     @Override
-    public String formatValue(Object value) throws ParseException, JEVisException {
-        return validator.format(value,I18n.getInstance().getLocale());
+    public String formatValue(Object value) {
+        return validator.format(value, I18n.getInstance().getLocale());
 
+    }
+
+    @Override
+    public boolean validateEmptyValue() {
+        return false;
     }
 
     @DefaultProperty(value = "icon")
@@ -86,17 +89,12 @@ public class DoubleEditor extends BasicEditor {
         private void evalTextInputField() {
             TextInputControl textField = (TextInputControl) srcControl.get();
             try {
-                double test = validator.validate(textField.getText(),I18n.getInstance().getLocale())+1;
+                double test = validator.validate(textField.getText(), I18n.getInstance().getLocale()) + 1;
 
                 hasErrors.set(false);
             } catch (Exception e) {
                 hasErrors.set(true);
             }
         }
-    }
-
-    @Override
-    public boolean validateEmptyValue() {
-        return false;
     }
 }

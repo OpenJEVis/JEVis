@@ -19,7 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import java.time.LocalDate;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
@@ -32,6 +31,8 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
+
+import java.time.LocalDate;
 
 /**
  *

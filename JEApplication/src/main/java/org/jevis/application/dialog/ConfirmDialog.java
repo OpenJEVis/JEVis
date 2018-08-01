@@ -52,6 +52,8 @@ public class ConfirmDialog {
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON_QUESTION = "1400874302_question_blue.png";
 
+    private Response response = Response.CANCEL;
+
     public Response show(Stage owner, String title, String titleLong, String message) {
         final Stage stage = new Stage();
 
@@ -151,8 +153,6 @@ public class ConfirmDialog {
 
         return response;
     }
-
-    private Response response = Response.CANCEL;
 
     public enum Response {
 

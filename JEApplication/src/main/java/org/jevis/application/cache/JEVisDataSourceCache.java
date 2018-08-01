@@ -20,32 +20,12 @@
  */
 package org.jevis.application.cache;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import org.apache.commons.collections.MapUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisClassRelationship;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisInfo;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisOption;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisType;
-import org.jevis.api.JEVisUnit;
-import org.jevis.api.JEVisUser;
+import org.jevis.api.*;
+
+import java.awt.image.BufferedImage;
+import java.util.*;
 
 /**
  * @TODO: store/load cache local and load, needs and changelog on server side
@@ -171,7 +151,7 @@ public class JEVisDataSourceCache implements JEVisDataSource {
 
     }
 
-    public void updateObject(JEVisObject obj) throws JEVisException {
+    public void updateObject(JEVisObject obj) {
         logger.trace("CacheDS.updateObject: {}", obj.getName());
         relationships.clear();
 //        JEVisObject update = otherDS.getObject(obj.getID());
@@ -579,7 +559,7 @@ public class JEVisDataSourceCache implements JEVisDataSource {
     }
 
     @Override
-    public void preload() throws JEVisException {
+    public void preload() {
         //performace workaround, we know the we will only use the JEVisDatasourceWs but 
         //the JEAPI does not provide the needet functions to handel the advanced features of the JEVisDatasourceWs. 
 

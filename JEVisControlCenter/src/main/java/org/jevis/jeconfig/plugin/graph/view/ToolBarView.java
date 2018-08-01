@@ -125,11 +125,11 @@ public class ToolBarView {
                                 selectedData.add(value);
                             }
                         }
+
                         model.setSelectedData(selectedData);
                     }
                 } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
-                    //dialog.updateToolBarView();
                     select(dialog.getLv().getSelectionModel().getSelectedItem());
                 }
             });

@@ -140,8 +140,8 @@ public class MemberExtension implements ObjectEditorExtension {
         try {
             for (JEVisRelationship rel : obj.getRelationships()) {
                 try {
-                    if(rel==null || rel.getStartObject()==null || rel.getEndObject()==null){
-                        System.out.println("Incorect relationship: "+rel);
+                    if (rel == null || rel.getStartObject() == null || rel.getEndObject() == null) {
+                        System.out.println("Incorect relationship: " + rel);
                         continue;
                     }
                     if (rel.isType(MEMBER_CREATE)
@@ -155,7 +155,7 @@ public class MemberExtension implements ObjectEditorExtension {
                         }
                         members.get(rel.getOtherObject(obj)).add(rel);
                     }
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
@@ -172,7 +172,7 @@ public class MemberExtension implements ObjectEditorExtension {
         }
 
         boolean userCanEdit = obj.getDataSource().getCurrentUser().canWrite(obj.getID());
-        System.out.println("User is allowed to edit the object: "+obj.getID());
+        System.out.println("User is allowed to edit the object: " + obj.getID());
 
         for (final Map.Entry<JEVisObject, List<JEVisRelationship>> member : members.entrySet()) {
             yAxis++;
@@ -209,23 +209,23 @@ public class MemberExtension implements ObjectEditorExtension {
 
                         case MEMBER_READ:
                             readBox.setSelected(true);
-                             addRelationshipAction(readBox, MEMBER_READ, member.getKey(), obj, rel,userCanEdit);
+                            addRelationshipAction(readBox, MEMBER_READ, member.getKey(), obj, rel, userCanEdit);
                             break;
                         case MEMBER_WRITE:
                             writeBox.setSelected(true);
-                            addRelationshipAction(writeBox, MEMBER_WRITE, member.getKey(), obj, rel,userCanEdit);
+                            addRelationshipAction(writeBox, MEMBER_WRITE, member.getKey(), obj, rel, userCanEdit);
                             break;
                         case MEMBER_EXECUTE:
                             execBox.setSelected(true);
-                            addRelationshipAction(execBox, MEMBER_EXECUTE, member.getKey(), obj, rel,userCanEdit);
+                            addRelationshipAction(execBox, MEMBER_EXECUTE, member.getKey(), obj, rel, userCanEdit);
                             break;
                         case MEMBER_DELETE:
                             deleteBox.setSelected(true);
-                            addRelationshipAction(deleteBox, MEMBER_DELETE, member.getKey(), obj, rel,userCanEdit);
+                            addRelationshipAction(deleteBox, MEMBER_DELETE, member.getKey(), obj, rel, userCanEdit);
                             break;
                         case MEMBER_CREATE:
                             createBox.setSelected(true);
-                            addRelationshipAction(createBox, MEMBER_CREATE, member.getKey(), obj, rel,userCanEdit);
+                            addRelationshipAction(createBox, MEMBER_CREATE, member.getKey(), obj, rel, userCanEdit);
                             break;
                     }
                 } catch (Exception ex) {
@@ -237,19 +237,19 @@ public class MemberExtension implements ObjectEditorExtension {
              * Add ActionEvents to create Relationships
              */
             if (!readBox.isSelected()) {
-                addRelationshipAction(readBox, MEMBER_READ, member.getKey(), obj, null,userCanEdit);
+                addRelationshipAction(readBox, MEMBER_READ, member.getKey(), obj, null, userCanEdit);
             }
             if (!writeBox.isSelected()) {
-                addRelationshipAction(writeBox, MEMBER_WRITE, member.getKey(), obj, null,userCanEdit);
+                addRelationshipAction(writeBox, MEMBER_WRITE, member.getKey(), obj, null, userCanEdit);
             }
             if (!execBox.isSelected()) {
-                addRelationshipAction(execBox, MEMBER_EXECUTE, member.getKey(), obj, null,userCanEdit);
+                addRelationshipAction(execBox, MEMBER_EXECUTE, member.getKey(), obj, null, userCanEdit);
             }
             if (!deleteBox.isSelected()) {
-                addRelationshipAction(deleteBox, MEMBER_DELETE, member.getKey(), obj, null,userCanEdit);
+                addRelationshipAction(deleteBox, MEMBER_DELETE, member.getKey(), obj, null, userCanEdit);
             }
             if (!createBox.isSelected()) {
-                addRelationshipAction(createBox, MEMBER_CREATE, member.getKey(), obj, null,userCanEdit);
+                addRelationshipAction(createBox, MEMBER_CREATE, member.getKey(), obj, null, userCanEdit);
             }
 
             HBox control = new HBox(0.5);
@@ -421,7 +421,7 @@ public class MemberExtension implements ObjectEditorExtension {
      * @param group
      * @param rel
      */
-    private void addRelationshipAction(final CheckBox button, final int type, final JEVisObject userObj, final JEVisObject group, final JEVisRelationship rel,boolean userCanEdit) {
+    private void addRelationshipAction(final CheckBox button, final int type, final JEVisObject userObj, final JEVisObject group, final JEVisRelationship rel, boolean userCanEdit) {
 
         try {
             if (!userCanEdit) {
@@ -443,7 +443,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
                         } else {
                             try {
-                                if(rel!=null){
+                                if (rel != null) {
                                     rel.getStartObject().deleteRelationship(rel);
                                 }
                             } catch (JEVisException ex) {

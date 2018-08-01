@@ -1,23 +1,22 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.validation.base.ValidatorBase;
-import org.apache.commons.validator.routines.LongValidator;
 import javafx.beans.DefaultProperty;
 import javafx.scene.control.TextInputControl;
+import org.apache.commons.validator.routines.LongValidator;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.tool.I18n;
-import java.text.ParseException;
 
 public class LongEditor extends BasicEditor {
 
     private JEVisAttribute attribute;
-    private  LongValidator validator = LongValidator.getInstance();
+    private LongValidator validator = LongValidator.getInstance();
 
     public LongEditor(JEVisAttribute att) {
         super(att);
-        this.attribute=att;
+        this.attribute = att;
     }
 
     @Override
@@ -30,17 +29,17 @@ public class LongEditor extends BasicEditor {
     }
 
     @Override
-    public Object parseValue(String value) throws ParseException {
+    public Object parseValue(String value) {
         try {
-            long newValue = validator.validate(value,I18n.getInstance().getLocale());
+            long newValue = validator.validate(value, I18n.getInstance().getLocale());
 
             if (attribute.getInputUnit() != null && attribute.getDisplayUnit() != null) {
-                Double doubleWithUnit= Double.valueOf(attribute.getDisplayUnit().converteTo(attribute.getInputUnit(),newValue));
+                Double doubleWithUnit = Double.valueOf(attribute.getDisplayUnit().converteTo(attribute.getInputUnit(), newValue));
                 return doubleWithUnit.longValue();
-            }else{
+            } else {
                 return newValue;
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -49,18 +48,23 @@ public class LongEditor extends BasicEditor {
     }
 
     @Override
-    public String formatSample(JEVisSample value) throws ParseException,JEVisException {
-        if(attribute.getInputUnit()!=null && attribute.getDisplayUnit()!=null){
+    public String formatSample(JEVisSample value) throws JEVisException {
+        if (attribute.getInputUnit() != null && attribute.getDisplayUnit() != null) {
             return formatValue(value.getValueAsLong(attribute.getDisplayUnit()));
-        }else{
+        } else {
             return formatValue(value.getValueAsLong());
         }
 
     }
 
     @Override
-    public String formatValue(Object value) throws ParseException, JEVisException {
-        return validator.validate(value.toString(),I18n.getInstance().getLocale()).toString();
+    public String formatValue(Object value) {
+        return validator.validate(value.toString(), I18n.getInstance().getLocale()).toString();
+    }
+
+    @Override
+    public boolean validateEmptyValue() {
+        return false;
     }
 
     @DefaultProperty(value = "icon")
@@ -85,7 +89,7 @@ public class LongEditor extends BasicEditor {
         private void evalTextInputField() {
             TextInputControl textField = (TextInputControl) srcControl.get();
             try {
-                Long.valueOf(validator.validate(textField.getText(),I18n.getInstance().getLocale())).longValue();
+                Long.valueOf(validator.validate(textField.getText(), I18n.getInstance().getLocale())).longValue();
 
                 hasErrors.set(false);
             } catch (Exception e) {
@@ -93,13 +97,6 @@ public class LongEditor extends BasicEditor {
             }
         }
     }
-
-    @Override
-    public boolean validateEmptyValue() {
-        return false;
-    }
-
-
 
 
 }

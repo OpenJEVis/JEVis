@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
@@ -38,6 +36,9 @@ import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

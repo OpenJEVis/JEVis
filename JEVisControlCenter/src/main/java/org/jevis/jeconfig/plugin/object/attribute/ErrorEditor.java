@@ -10,7 +10,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 
 /**
  *
@@ -27,8 +26,7 @@ public class ErrorEditor implements AttributeEditor {
     }
 
     @Override
-    public void commit() throws JEVisException {
-        ;
+    public void commit() {
     }
 
     @Override
@@ -44,7 +42,6 @@ public class ErrorEditor implements AttributeEditor {
 
     @Override
     public void setReadOnly(boolean canRead) {
-        ;
     }
 
     public void setException(Exception ex) {

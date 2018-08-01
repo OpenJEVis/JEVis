@@ -33,7 +33,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.ClassHelper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -216,7 +215,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                             } else { //non or both are a dir
                                 return o1.getValue().getJEVisObject().getName().compareTo(o2.getValue().getJEVisObject().getName());
                             }
-                        }catch (JEVisException jex){
+                        } catch (JEVisException jex) {
                             LOGGER.error(jex);
                         }
 

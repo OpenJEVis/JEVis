@@ -19,14 +19,15 @@
  */
 package org.jevis.commons.classes;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -86,19 +87,19 @@ public class ClassHelper {
 
     }
 
-    public static boolean isDirectory(JEVisClass jclass) throws JEVisException{
+    public static boolean isDirectory(JEVisClass jclass) throws JEVisException {
 
-        if(jclass.getName().equals("Directory")){
+        if (jclass.getName().equals("Directory")) {
             return true;
         }
 
-        if(jclass.getInheritance()!=null ){
-            if(jclass.getInheritance().getName().equals("Directory")){
+        if (jclass.getInheritance() != null) {
+            if (jclass.getInheritance().getName().equals("Directory")) {
                 return true;
-            }else{
+            } else {
                 return isDirectory(jclass.getInheritance());
             }
-        }else{
+        } else {
             return false;
         }
     }

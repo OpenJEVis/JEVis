@@ -5,9 +5,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -33,6 +30,10 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -95,7 +96,7 @@ public class TargetEditor implements AttributeEditor {
         return box;
     }
 
-    private void init() throws JEVisException {
+    private void init() {
         logger.debug("init TargetEditor");
         _treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),

@@ -20,8 +20,6 @@ import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewCon
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
-import java.io.IOException;
-
 public class CalculationExtension implements ObjectEditorExtension  {
 
     public static final String CALC_CLASS_NAME = "Calculation";
@@ -78,7 +76,7 @@ public class CalculationExtension implements ObjectEditorExtension  {
         //fxmlLoader.setController(new CalculationViewController());
         try {
             editConfigPane = fxmlLoader.load();
-            contol = fxmlLoader.<CalculationViewController>getController();
+            contol = fxmlLoader.getController();
             contol.setData(_obj);
 
             JEVisAttribute aExprsssion = _obj.getAttribute("Expression");

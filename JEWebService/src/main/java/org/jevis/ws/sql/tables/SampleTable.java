@@ -132,7 +132,7 @@ public class SampleTable {
                 ps.setString(++p, attribute);
                 DateTime ts = JsonFactory.sampleDTF.parseDateTime(sample.getTs());
                 ps.setTimestamp(++p, new Timestamp(ts.getMillis()));
-                System.out.println("Value: "+sample.getValue());
+                System.out.println("Value: " + sample.getValue());
                 switch (priType) {
                     case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
                         //Passwords will be stored as Saled Hash
@@ -152,11 +152,11 @@ public class SampleTable {
                         break;
                     case JEVisConstants.PrimitiveType.LONG:
                         System.out.println("Type: long");
-                        ps.setLong(++p, dv.validate(sample.getValue(),Locale.US).longValue());
+                        ps.setLong(++p, dv.validate(sample.getValue(), Locale.US).longValue());
                         System.out.println("PS done");
                         break;
                     case JEVisConstants.PrimitiveType.DOUBLE:
-                        ps.setDouble(++p, dv.validate(sample.getValue(),Locale.US));
+                        ps.setDouble(++p, dv.validate(sample.getValue(), Locale.US));
                         break;
                     default:
                         ps.setString(++p, sample.getValue());
