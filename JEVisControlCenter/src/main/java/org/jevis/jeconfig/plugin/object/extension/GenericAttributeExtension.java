@@ -28,7 +28,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -49,10 +52,8 @@ import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.sample.SampleEditor;
 import org.jevis.jeconfig.tool.I18n;
 
-import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 
@@ -284,9 +285,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                 break;
                             case JEVisConstants.PrimitiveType.FILE:
                                 if (guiDisplayType == null) {
-                                    editor = new FileEdior(att);
+                                    editor = new FileEditor(att);
                                 } else if (guiDisplayType.equals(GUIConstants.BASIC_FILER.getId())) {
-                                    editor = new FileEdior(att);
+                                    editor = new FileEditor(att);
                                 } else {
                                     editor = new StringEditor(att);
                                 }
@@ -294,14 +295,14 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                             case JEVisConstants.PrimitiveType.DOUBLE:
 
                                 if (guiDisplayType == null) {
-                                    editor = new FileEdior(att);
+                                    editor = new FileEditor(att);
                                 } else {
                                     editor = new DoubleEditor(att);
                                 }
                                 break;
                             case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
                                 if (guiDisplayType == null) {
-                                    editor = new FileEdior(att);
+                                    editor = new FileEditor(att);
                                 } else {
                                     editor = new PasswordEditor(att);
                                 }

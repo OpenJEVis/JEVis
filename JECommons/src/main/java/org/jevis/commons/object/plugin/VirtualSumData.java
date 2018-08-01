@@ -161,7 +161,7 @@ public class VirtualSumData {
 
             DateTime ts = entrySet.getKey();
 
-            JEVisSample newSample = new VirtualSample(ts, 0);
+            JEVisSample newSample = new VirtualSample(ts, 0d);
 //            System.out.println("--- " + ts + " ---");
 
             double newValue = 0;

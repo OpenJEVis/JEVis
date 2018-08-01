@@ -7,6 +7,7 @@ package org.jevis.jecalc.calculation;
 
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
+import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
 
 /**
@@ -35,7 +36,10 @@ public class CalcTemplate {
         Double returnVal = null;
         try {
             returnVal = Double.parseDouble(value);
-        } catch (NullPointerException | NumberFormatException ex) { 
+
+            returnVal = Precision.round(returnVal, 12);
+
+        } catch (NullPointerException | NumberFormatException ex) {
             logger.error("Cant evaluate expression {}", expression, ex);
         }
         return returnVal;

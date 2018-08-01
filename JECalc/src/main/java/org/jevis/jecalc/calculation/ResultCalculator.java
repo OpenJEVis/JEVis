@@ -33,7 +33,7 @@ public class ResultCalculator {
             for (Sample sample : entry.getValue()) {
                 template.put(sample.getVariable(), sample.getValue());
             }
-            double evaluate = template.evaluate();
+            Double evaluate = template.evaluate();
             resultList.add(new VirtualSample(entry.getKey(), evaluate));
         }
         return resultList;

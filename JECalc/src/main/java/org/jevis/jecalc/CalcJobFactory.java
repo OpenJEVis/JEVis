@@ -5,25 +5,20 @@
  */
 package org.jevis.jecalc;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jecalc.calculation.SampleMerger.InputType;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
 /**
- *
  * @author broder
  */
 class CalcJobFactory {
@@ -81,16 +76,26 @@ class CalcJobFactory {
 
     private DateTime getStartTimeFromOutputs(List<JEVisAttribute> outputAttributes) {
         DateTime startTime = null;
+        final DateTime ultimateStart = new DateTime(0);
         for (JEVisAttribute valueAttribute : outputAttributes) {
             //if a attribute is without date -> start whole calculation
-            if (valueAttribute != null && valueAttribute.getTimestampFromLastSample() == null) {
-                startTime = new DateTime(0);
-                break;
-            }
+            DateTime ts = null;
+            try {
+                List<JEVisSample> sampleList = valueAttribute.getAllSamples();
+                if (sampleList.size() > 0) {
+                    JEVisSample smp = sampleList.get(sampleList.size() - 1);
 
-            //else take the earliest last timestamp
-            if (startTime == null || startTime.isAfter(valueAttribute.getTimestampFromLastSample())) {
-                startTime = valueAttribute.getTimestampFromLastSample().plusMillis(1);
+                    if (startTime == null) ts = smp.getTimestamp();
+
+                    if (!ts.equals(ultimateStart)) startTime = ts;
+                } else {
+                    if (startTime == null) {
+                        startTime = ultimateStart;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         if (startTime == null) {
@@ -102,7 +107,7 @@ class CalcJobFactory {
     private List<CalcInputObject> getInputDataObjects(JEVisObject jevisObject, DateTime startTime, JEVisDataSource ds) {
         List<CalcInputObject> calcObjects = new ArrayList<>();
         try {
-            
+
             JEVisClass inputClass = jevisObject.getDataSource().getJEVisClass(Calculation.INPUT.getName());
             List<JEVisObject> inputDataObjects = jevisObject.getChildren(inputClass, false);
             for (JEVisObject child : inputDataObjects) { //Todo differenciate based on input type
@@ -160,7 +165,7 @@ class CalcJobFactory {
 
         String name;
 
-        private Calculation(String name) {
+        Calculation(String name) {
             this.name = name;
         }
 

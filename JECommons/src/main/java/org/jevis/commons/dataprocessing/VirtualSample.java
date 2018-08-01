@@ -36,19 +36,19 @@ public class VirtualSample implements JEVisSample {
     private JEVisUnit _unit;
     JEVisDataSource _ds;
 
-    public VirtualSample(DateTime ts, double value) {
+    public VirtualSample(DateTime ts, Double value) {
         _value = value;
         _timeSatmp = ts;
     }
 
-    public VirtualSample(DateTime ts, double value, JEVisDataSource ds, JEVisAttribute att) {
+    public VirtualSample(DateTime ts, Double value, JEVisDataSource ds, JEVisAttribute att) {
         _value = value;
         _timeSatmp = ts;
         _att = att;
         _ds = ds;
     }
 
-    public VirtualSample(DateTime ts, double value, JEVisUnit unit, JEVisDataSource ds, JEVisAttribute att) {
+    public VirtualSample(DateTime ts, Double value, JEVisUnit unit, JEVisDataSource ds, JEVisAttribute att) {
         _value = value;
         _unit = unit;
         _timeSatmp = ts;
