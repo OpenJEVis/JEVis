@@ -325,7 +325,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public Period getDisplaySampleRate() {
         try {
-            System.out.println("SampleRate: "+json.getDisplaySampleRate());
             if (json.getDisplaySampleRate()==null || json.getDisplaySampleRate().isEmpty()) {
                 return Period.ZERO;
             } else {
@@ -340,7 +339,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public Period getInputSampleRate() {
         try {
-            System.out.println("InputRate: "+json.getInputSampleRate());
             if (json.getInputSampleRate()==null || json.getInputSampleRate().isEmpty()) {
                 return Period.ZERO;
             }else {
@@ -353,7 +351,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public void setInputSampleRate(Period period) {
-        System.out.println("setInputSampleRate: " + period.toString());
         json.setInputSampleRate(period.toString());
     }
 

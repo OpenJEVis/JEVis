@@ -42,9 +42,12 @@ import org.jevis.application.dialog.*;
 import org.jevis.application.tools.CalculationNameFormater;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
+import org.jevis.commons.cli.CommonCLIOptions;
+import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -221,6 +224,7 @@ public class TreeHelper {
 
     }
 
+
     public static void EventRename(final JEVisTree tree, JEVisObject object) {
         LOGGER.trace("EventRename");
 
@@ -291,6 +295,9 @@ public class TreeHelper {
 
                     List<JEVisSample> newSamples = new ArrayList<>();
                     for (JEVisSample sample : originalAtt.getAllSamples()) {
+                        if(!originalAtt.getName().equals("Value")){
+                            System.out.println("Copy sample: "+originalAtt.getName()+" Value: "+sample.getValue()+"  TS: "+sample.getTimestamp());
+                        }
                         newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValue(), sample.getNote()));
                     }
                     LOGGER.debug("Add samples: {}", newSamples.size());
@@ -409,6 +416,30 @@ public class TreeHelper {
             }
         }
     }
+
+    public static void EventExportTree(JEVisObject obj) throws JEVisException {
+        SelectTargetDialog2 dia = new SelectTargetDialog2();
+        dia.allowMultySelect(true);
+        List<UserSelection> userSeclection = new ArrayList<>();
+        userSeclection.add(new UserSelection(UserSelection.SelectionType.Object,obj));
+
+        SelectTargetDialog2.Response response = dia.show(null, obj.getDataSource(), "Export", userSeclection, SelectTargetDialog2.MODE.OBJECT);
+
+        if (response == SelectTargetDialog2.Response.OK) {
+            List<JEVisObject> objects = new ArrayList<>();
+
+            for (UserSelection us : dia.getUserSelection()) {
+                objects.add(us.getSelectedObject());
+            }
+
+            ExportMaster em = new ExportMaster();
+            em.setObject(objects,true);
+            em.export(new File("/tmp/file.json"));
+
+            em.createTemplate(obj);
+        }
+    }
+
 
     public static void createCalcInput(JEVisObject calcObject) throws JEVisException {
         System.out.println("Event Create new Input");
