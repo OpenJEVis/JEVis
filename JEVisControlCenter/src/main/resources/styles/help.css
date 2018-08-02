@@ -1,0 +1,6 @@
+p {
+    font: 16px sans-serif;
+}
+.text{
+    -fx-font-smoothing-type: gray;
+}
