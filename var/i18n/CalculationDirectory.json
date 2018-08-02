@@ -6,9 +6,9 @@
     "en": "Calculation Directory"
   },
   "descriptions": {
-    "de": "Ordner für Kalkulationen",
-    "ru": "Enabled desctiption",
-    "en": "Directory that contains calculations"
+    "de": "Im Kalkulationsverzeichnis werden Berechnungen verwaltet.",
+    "ru": "Calculations are managed in the Calculation Directory.",
+    "en": "Calculations are managed in the Calculation Directory."
   },
   "types": []
 }

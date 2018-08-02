@@ -1,14 +1,14 @@
 {
   "jevisclass": "Monitored Object Directory",
   "names": {
-    "de": "Standorte",
-    "ru": "Monitored Object Directory",
-    "en": "Monitored Object Directory"
+    "de": "Monitoring-Verzeichnis",
+    "ru": "Monitoring Directory",
+    "en": "Monitoring Directory"
   },
   "descriptions": {
-    "de": "Die Klasse Standorte stellt ein spezifisches Verzeichnis für die Verwaltung von überwachten Objekten dar.\n\nDie Klasse ist eindeutig, was bedeutet, dass es nicht möglich ist, ein Objekt dieser Klasse parallel zu einem bereits existierenden Objekt der gleichen Klasse anzulegen",
-    "ru": "The class Monitored Object Directory represents a specific directory for the management of monitored objects.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class",
-    "en": "The class Monitored Object Directory represents a specific directory for the management of monitored objects.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class"
+    "de": "Im Monitoring-Verzeichnis werden überwachte Objekte, wie z.B. Gebäude, verwaltet.",
+    "ru": "In the Monitoring Directory the monitored objects, such as buildings, are managed.",
+    "en": "In the Monitoring Directory the monitored objects, such as buildings, are managed."
   },
   "types": []
 }

@@ -6,9 +6,9 @@
     "en": "User Directory"
   },
   "descriptions": {
-    "de": "Die Klasse Benutzerverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Benutzern dar.",
-    "ru": "The class User Directory represents a specific directory for the management of users.",
-    "en": "The class User Directory represents a specific directory for the management of users."
+    "de": "Im Benutzerverzeichnis werden die Benutzer des JEVis Servers verwaltet.",
+    "ru": "In the User Directory the users of the JEVis server are managed.",
+    "en": "In the User Directory the users of the JEVis server are managed."
   },
   "types": []
 }

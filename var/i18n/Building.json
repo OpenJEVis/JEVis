@@ -1,7 +1,7 @@
 {
   "jevisclass": "Building",
   "names": {
-    "de": "Standort",
+    "de": "Gebäude",
     "ru": "Building",
     "en": "Building"
   },
@@ -10,9 +10,9 @@
     {
       "type": "Address",
       "descriptions": {
-        "de": "Adresse Beschreibung",
-        "ru": "Address description",
-        "en": "Address description"
+        "de": "Postanschrift des Gebäudes",
+        "ru": "Postal address of the building",
+        "en": "Postal address of the building"
       },
       "names": {
         "de": "Adresse",
@@ -23,9 +23,9 @@
     {
       "type": "Building Area",
       "descriptions": {
-        "de": "Building Area description",
-        "ru": "Building Area description",
-        "en": "Building Area description"
+        "de": "Grundfläche des Gebäudes",
+        "ru": "Floor space of the building",
+        "en": "Floor space of the building"
       },
       "names": {
         "de": "Gebäudefläche",
@@ -36,12 +36,12 @@
     {
       "type": "Location",
       "descriptions": {
-        "de": "Location description",
-        "ru": "Location description",
-        "en": "Location description"
+        "de": "GPS-Position des Gebäudes",
+        "ru": "GPS position of the building",
+        "en": "GPS position of the building"
       },
       "names": {
-        "de": "GPS Position",
+        "de": "GPS-Position",
         "ru": "GPS Position",
         "en": "GPS Position"
       }
@@ -49,9 +49,9 @@
     {
       "type": "Year of Construction",
       "descriptions": {
-        "de": "Year of Construction description",
-        "ru": "Year of Construction description",
-        "en": "Year of Construction description"
+        "de": "Baujahr oder Jahr der letzten Modernisierung des Gebäudes",
+        "ru": "Year of construction or year of the last retrofitting of the building",
+        "en": "Year of construction or year of the last retrofitting of the building"
       },
       "names": {
         "de": "Baujahr",
