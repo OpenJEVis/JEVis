@@ -379,8 +379,8 @@ public class SQLDataSource {
         return getSampleTable().getSamples(obj, attribute, from, until, limit);
     }
 
-    public int setSamples(long obj, String attribute, int pritype, List<JsonSample> samples) throws JEVisException {
-        return getSampleTable().insertSamples(obj, attribute, pritype, samples);
+    public int setSamples(long obj, String attribute, int primitype, List<JsonSample> samples) throws JEVisException {
+        return getSampleTable().insertSamples(obj, attribute, primitype, samples);
     }
 
     public JsonSample getLastSample(long obj, String attribute) throws JEVisException {
