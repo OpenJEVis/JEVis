@@ -388,10 +388,10 @@ public class ResourceSample {
             List<JsonAttribute> atts = ds.getAttributes(id);
             for (JsonAttribute att : atts) {
                 if (att.getType().equals(attribute)) {
-                    List<JsonSample> sampes = new Gson().fromJson(input, new TypeToken<List<JsonSample>>() {
+                    List<JsonSample> samples = new Gson().fromJson(input, new TypeToken<List<JsonSample>>() {
                     }.getType());
                     JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
-                    int result = ds.setSamples(id, attribute, type.getPrimitiveType(), sampes);
+                    int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
                     return Response.status(Status.CREATED).build();
                 }
             }
