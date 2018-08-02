@@ -185,6 +185,13 @@ public class ToolBarView {
                 map.put(mdl.getObject().getID().toString(), mdl);
             }
             dia.setData(map);
+        } else {
+            model.setSelectedData(getBarChartDataModels());
+
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                map.put(mdl.getObject().getID().toString(), mdl);
+            }
+            dia.setData(map);
         }
 
         if (dia.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
@@ -212,7 +219,9 @@ public class ToolBarView {
     public ObservableList<String> getChartsList() {
         List<String> tempList = new ArrayList<>();
         for (ChartDataModel mdl : model.getSelectedData()) {
-            if (!tempList.contains(mdl.getTitle())) tempList.add(mdl.getTitle());
+            for (String s : mdl.get_selectedCharts()) {
+                if (!tempList.contains(s) && s != null) tempList.add(s);
+            }
         }
 
         chartsList = FXCollections.observableArrayList(tempList);
@@ -352,6 +361,7 @@ public class ToolBarView {
                 json.setSelectedStart(mdl.getSelectedStart().toString());
                 json.setSelectedEnd(mdl.getSelectedEnd().toString());
                 json.setUnit(mdl.getUnit().toJSON());
+                json.setSelectedCharts(listToString(mdl.get_selectedCharts()));
                 jsonDataModels.add(json);
             }
             DateTime now = DateTime.now();
@@ -361,6 +371,22 @@ public class ToolBarView {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
+    }
+
+    private String listToString(List<String> listString) {
+        if (listString != null) {
+            StringBuilder sb = new StringBuilder();
+            for (String s : listString) {
+                sb.append(s);
+                sb.append(", ");
+            }
+            return sb.toString();
+        } else return "";
+    }
+
+    private List<String> stringToList(String s) {
+        if (Objects.nonNull(s)) return new ArrayList<>(Arrays.asList(s.split(", ")));
+        else return new ArrayList<>();
     }
 
     private void setJEVisObjectForCurrentAnalysis(String s) {
@@ -479,6 +505,7 @@ public class ToolBarView {
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
                 newData.getSamples();
+                newData.set_selectedCharts(stringToList(mdl.getSelectedCharts()));
                 newData.setUnit(unit);
                 data.put(obj.getID().toString(), newData);
             } catch (JEVisException e) {

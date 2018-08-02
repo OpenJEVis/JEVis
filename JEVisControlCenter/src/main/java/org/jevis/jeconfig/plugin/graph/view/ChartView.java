@@ -114,7 +114,9 @@ public class ChartView implements Observer {
     public ObservableList<String> getChartsList() {
         List<String> tempList = new ArrayList<>();
         for (ChartDataModel mdl : dataModel.getSelectedData()) {
-            if (!tempList.contains(mdl.getTitle()) && mdl.getTitle() != null) tempList.add(mdl.getTitle());
+            for (String s : mdl.get_selectedCharts()) {
+                if (!tempList.contains(s) && s != null) tempList.add(s);
+            }
         }
 
         chartsList = FXCollections.observableArrayList(tempList);
@@ -229,7 +231,7 @@ public class ChartView implements Observer {
         String title = I18n.getInstance().getString("plugin.graph.chart.title1");
 
         for (ChartDataModel singleRow : selectedData) {
-            if (Objects.isNull(chartName) || chartName.equals("") || singleRow.getTitle().equals(chartName)) {
+            if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
                 unit = UnitManager.getInstance().formate(singleRow.getUnit());
                 hexColors.add(singleRow.getColor());
                 title = singleRow.getTitle();

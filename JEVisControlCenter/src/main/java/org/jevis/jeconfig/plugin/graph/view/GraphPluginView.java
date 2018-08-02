@@ -303,7 +303,9 @@ public class GraphPluginView implements Plugin, Observer {
     public ObservableList<String> getChartsList() {
         List<String> tempList = new ArrayList<>();
         for (ChartDataModel mdl : dataModel.getSelectedData()) {
-            if (!tempList.contains(mdl.getTitle()) && mdl.getTitle() != null) tempList.add(mdl.getTitle());
+            for (String s : mdl.get_selectedCharts()) {
+                if (!tempList.contains(s) && s != null) tempList.add(s);
+            }
         }
 
         chartsList = FXCollections.observableArrayList(tempList);

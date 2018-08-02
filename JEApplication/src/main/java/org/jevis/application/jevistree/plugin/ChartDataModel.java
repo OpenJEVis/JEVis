@@ -36,6 +36,7 @@ public class ChartDataModel {
     private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<>();
     private boolean _somethingChanged = true;
     private JEVisUnit _unit;
+    private List<String> _selectedCharts = new ArrayList<>();
 
     public ChartDataModel() {
     }
@@ -488,6 +489,15 @@ public class ChartDataModel {
 
     public boolean isSelectable() {
         return getAttribute() != null && getAttribute().hasSample();
+    }
+
+
+    public List<String> get_selectedCharts() {
+        return _selectedCharts;
+    }
+
+    public void set_selectedCharts(List<String> _selectedCharts) {
+        this._selectedCharts = _selectedCharts;
     }
 
     public void set_somethingChanged(boolean _somethingChanged) {

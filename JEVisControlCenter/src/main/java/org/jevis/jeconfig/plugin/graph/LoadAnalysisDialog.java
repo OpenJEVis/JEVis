@@ -449,6 +449,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 newData.getAttribute();
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
+                newData.set_selectedCharts(stringToList(mdl.getSelectedCharts()));
                 newData.getSamples();
                 newData.setUnit(unit);
                 data.put(id.toString(), newData);
@@ -469,6 +470,22 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
     public GraphDataModel getData() {
         return data;
+    }
+
+    private String listToString(List<String> listString) {
+        if (listString != null) {
+            StringBuilder sb = new StringBuilder();
+            for (String s : listString) {
+                sb.append(s);
+                sb.append(", ");
+            }
+            return sb.toString();
+        } else return "";
+    }
+
+    private List<String> stringToList(String s) {
+        if (Objects.nonNull(s)) return new ArrayList<>(Arrays.asList(s.split(", ")));
+        else return new ArrayList<>();
     }
 
     private enum DATE_TYPE {
