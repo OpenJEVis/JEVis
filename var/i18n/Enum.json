@@ -1,23 +1,27 @@
 {
   "jevisclass": "Enum",
   "names": {
-    "de": "Enum",
-    "ru": "Enum",
-    "en": "Enum"
+    "de": "Enumeration",
+    "ru": "Enumeration",
+    "en": "Enumeration"
   },
-  "descriptions": {},
+  "descriptions": {
+      "de": "Eine Enumeration wird verwendet, um dem Benutzer die Auswahl möglicher Attributwerte anzubieten.",
+      "ru": "An Enumeration is used to present a user all possible attribute values.",
+      "en": "An Enumeration is used to present a user all possible attribute values."
+  },
   "types": [
     {
       "type": "JEVisClass",
       "descriptions": {
-        "de": "JEVisClass description",
-        "ru": "JEVisClass description",
-        "en": "JEVisClass description"
+        "de": "Definiert die Datenklasse des JEVis Servers für die diese Enumeration gilt",
+        "ru": "Defines the data class of the JEVis Server where the enumeration is used.",
+        "en": "Defines the data class of the JEVis Server where the enumeration is used."
       },
       "names": {
         "de": "JEVis-Klasse",
-        "ru": "JEVisClass",
-        "en": "JEVisClass"
+        "ru": "JEVis Class",
+        "en": "JEVis Class"
       }
     }
   ]

@@ -6,17 +6,17 @@
     "en": "System"
   },
   "descriptions": {
-    "de": "JEVis Root Node mit Systeminformationen",
+    "de": "System stellt das oberste Objekt eines JEVis Systems dar und enthält grundlegende Systemeigenschaften.",
     "ru": "JEVis Root Node whit system informations",
-    "en": "JEVis Root Node whit system informations"
+    "en": "System represents the root object of a JEVis system which contains general system information."
   },
   "types": [
     {
       "type": "Domain Name",
       "descriptions": {
-        "de": "Domain Name description",
+        "de": "Definiert den DNS Domain-Namen des JEVis Servers",
         "ru": "Domain Name description",
-        "en": "Domain Name description"
+        "en": "Defines the DNS domain name of the JEVis server"
       },
       "names": {
         "de": "Domain Name",
@@ -27,9 +27,9 @@
     {
       "type": "Hostname",
       "descriptions": {
-        "de": "Hostname description",
+        "de": "Definiert den Hostname des JEVis Servers",
         "ru": "Hostname description",
-        "en": "Hostname description"
+        "en": "Defines the hostname of the JEVis server"
       },
       "names": {
         "de": "Hostname",
@@ -40,9 +40,9 @@
     {
       "type": "Language",
       "descriptions": {
-        "de": "Language description",
+        "de": "Definiert die systemweite Standardsprache",
         "ru": "Language description",
-        "en": "Language description"
+        "en": "Defines the system-wide standard language"
       },
       "names": {
         "de": "Sprache",
@@ -53,9 +53,9 @@
     {
       "type": "Local IP",
       "descriptions": {
-        "de": "Local IP description",
+        "de": "Definiert die lokale IP-Adresse des JEVis Servers",
         "ru": "Local IP description",
-        "en": "Local IP description"
+        "en": "Defines the local IP address of the JEVis server"
       },
       "names": {
         "de": "Lokale IP",
@@ -66,9 +66,9 @@
     {
       "type": "Public IP",
       "descriptions": {
-        "de": "Public IP description",
+        "de": "Definiert die öffentliche IP-Adresse des JEVis Servers",
         "ru": "Public IP description",
-        "en": "Public IP description"
+        "en": "Defines the public IP of the JEVis server"
       },
       "names": {
         "de": "Öffentliche IP",
@@ -79,14 +79,14 @@
     {
       "type": "TimeZone",
       "descriptions": {
-        "de": "TimeZone description",
+        "de": "Definiert die Zeitzone des JEVis Servers",
         "ru": "TimeZone description",
-        "en": "TimeZone description"
+        "en": "Defines the time zone of the JEVis server"
       },
       "names": {
         "de": "Zeitzone",
-        "ru": "TimeZone",
-        "en": "TimeZone"
+        "ru": "Time Zone",
+        "en": "Time Zone"
       }
     }
   ]

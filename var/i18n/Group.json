@@ -6,9 +6,9 @@
     "en": "Group"
   },
   "descriptions": {
-    "de": "Eine Gruppe für Benutzerrechte",
-    "ru": "Group for user rights",
-    "en": "Group for user rights"
+    "de": "In einer Gruppe werden die Zugriffsrechte für eine Gruppe von Benutern verwaltet.\n\nIm Bereich 'Mitglied' können Benutzer der Gruppe hinzugefügt und entfernt werden.\n\n\n\nIm Bereich 'Berechtigungen' können die Berechtigungen mit anderen Gruppen geteilt werden und für die Öffentlichkeit (Gast-Benutzer) freigegeben werden.\n\nIm Bereich 'Einstiegspunkt' wird die Ebene der Datenstruktur definiert, an welcher die Mitglieder der Gruppe das System betreten.",
+    "ru": "In a Group the priveleges for a group of users is managed.\n\nIn the 'Member' section users can be added or deleted to/from the group.\n\nIn the 'Permissions' section the priveleges of the group can be shared with other groups or be shared with the public (guest users)\n\nIn the 'Entry Points' section the level where the members of the group can enter the system is defined.",
+    "en": "In a Group the priveleges for a group of users is managed.\n\nIn the 'Member' section users can be added or deleted to/from the group.\n\nIn the 'Permissions' section the priveleges of the group can be shared with other groups or be shared with the public (guest users)\n\nIn the 'Entry Points' section the level where the members of the group can enter the system is defined."
   },
   "types": []
 }

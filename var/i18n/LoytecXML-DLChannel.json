@@ -27,9 +27,9 @@
     {
       "type": "Target ID",
       "descriptions": {
-        "de": "Target ID description",
-        "ru": "Target ID description",
-        "en": "Target ID description"
+        "de": "Definiert die Datenreihe zur Speicherung der ausgelesenen Daten",
+        "ru": "Defines the data row for the storage of the received data",
+        "en": "Defines the data row for the storage of the received data"
       },
       "names": {
         "de": "Ziel ID",
@@ -40,9 +40,9 @@
     {
       "type": "Trend ID",
       "descriptions": {
-        "de": "Trend ID description",
-        "ru": "Trend ID description",
-        "en": "Trend ID description"
+        "de": "Definiert die sog. Trend ID - die Adresse im Ringspeicher des Geräts",
+        "ru": "Defines the so called Trend ID - the address within the circuit buffer of the device",
+        "en": "Defines the so called Trend ID - the address within the circuit buffer of the device"
       },
       "names": {
         "de": "Trend ID",
