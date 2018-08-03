@@ -114,8 +114,10 @@ public class ChartView implements Observer {
     public ObservableList<String> getChartsList() {
         List<String> tempList = new ArrayList<>();
         for (ChartDataModel mdl : dataModel.getSelectedData()) {
-            for (String s : mdl.get_selectedCharts()) {
-                if (!tempList.contains(s) && s != null) tempList.add(s);
+            if (mdl.getSelected()) {
+                for (String s : mdl.get_selectedCharts()) {
+                    if (!tempList.contains(s)) tempList.add(s);
+                }
             }
         }
 
@@ -234,7 +236,10 @@ public class ChartView implements Observer {
             if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
                 unit = UnitManager.getInstance().formate(singleRow.getUnit());
                 hexColors.add(singleRow.getColor());
-                title = singleRow.getTitle();
+
+                if (chartName == "") {
+                    if (singleRow.get_selectedCharts().size() == 1) title = singleRow.get_selectedCharts().get(0);
+                } else title = chartName;
 
                 List<JEVisSample> samples = singleRow.getSamples();
                 ObservableList<XYChart.Data<Number, Number>> series1Data = FXCollections.observableArrayList();
@@ -347,7 +352,7 @@ public class ChartView implements Observer {
                 Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
                 tableData.clear();
                 for (ChartDataModel singleRow : selectedData) {
-                    if (Objects.isNull(chartName) || chartName.equals("") || singleRow.getTitle().equals(chartName)) {
+                    if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
                         try {
                             Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
                             Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());

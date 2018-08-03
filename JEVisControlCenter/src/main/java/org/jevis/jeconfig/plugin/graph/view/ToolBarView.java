@@ -7,8 +7,6 @@ package org.jevis.jeconfig.plugin.graph.view;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTimePicker;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -52,14 +50,10 @@ public class ToolBarView {
     private BorderPane border;
     private ChartView view;
     private List<ChartView> listView;
-    DateTime selectedStart;
-    DateTime selectedEnd;
+    private DateTime selectedStart;
+    private DateTime selectedEnd;
     private Boolean _initialized = false;
-    private JFXDatePicker pickerDateStart = new JFXDatePicker();
-    private JFXTimePicker pickerTimeStart = new JFXTimePicker();
-    private JFXDatePicker pickerDateEnd = new JFXDatePicker();
-    private JFXTimePicker pickerTimeEnd = new JFXTimePicker();
-    LoadAnalysisDialog dialog;
+    private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
     public ToolBar getToolbar(JEVisDataSource ds) {
@@ -76,7 +70,7 @@ public class ToolBarView {
         getListAnalysis();
 
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if ((oldValue == null) && (Objects.nonNull(newValue)) || !newValue.equals(oldValue)) {
+            if ((oldValue == null) && (Objects.nonNull(newValue))) {
                 this.nameCurrentAnalysis = newValue.toString();
                 setJEVisObjectForCurrentAnalysis(newValue.toString());
                 getListAnalysis();
@@ -116,7 +110,7 @@ public class ToolBarView {
             dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
             dialog.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                    ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds);
+                    ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null);
 
                     if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
@@ -177,22 +171,21 @@ public class ToolBarView {
     }
 
     private void changeSettings(ActionEvent event) {
-        ChartSelectionDialog dia = new ChartSelectionDialog(ds);
         Map<String, ChartDataModel> map = new HashMap<>();
 
         if (model.getSelectedData() != null) {
             for (ChartDataModel mdl : model.getSelectedData()) {
                 map.put(mdl.getObject().getID().toString(), mdl);
             }
-            dia.setData(map);
         } else {
             model.setSelectedData(getBarChartDataModels());
 
             for (ChartDataModel mdl : model.getSelectedData()) {
                 map.put(mdl.getObject().getID().toString(), mdl);
             }
-            dia.setData(map);
         }
+
+        ChartSelectionDialog dia = new ChartSelectionDialog(ds, map);
 
         if (dia.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
@@ -219,8 +212,10 @@ public class ToolBarView {
     public ObservableList<String> getChartsList() {
         List<String> tempList = new ArrayList<>();
         for (ChartDataModel mdl : model.getSelectedData()) {
-            for (String s : mdl.get_selectedCharts()) {
-                if (!tempList.contains(s) && s != null) tempList.add(s);
+            if (mdl.getSelected()) {
+                for (String s : mdl.get_selectedCharts()) {
+                    if (!tempList.contains(s) && s != null) tempList.add(s);
+                }
             }
         }
 
@@ -327,24 +322,6 @@ public class ToolBarView {
 
     }
 
-    private void updateJsonDataModel(Set<ChartDataModel> selectedData) {
-        List<JsonAnalysisModel> jsonDataModels = new ArrayList<>();
-        for (ChartDataModel mdl : selectedData) {
-            JsonAnalysisModel json = new JsonAnalysisModel();
-            json.setName(mdl.getTitle());
-            json.setSelected(String.valueOf(mdl.getSelected()));
-            json.setColor(mdl.getColor().toString());
-            json.setObject(mdl.getObject().getID().toString());
-            json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
-            json.setAggregation(mdl.getAggregation().toString());
-            json.setSelectedStart(mdl.getSelectedStart().toString());
-            json.setSelectedEnd(mdl.getSelectedEnd().toString());
-            json.setUnit(mdl.getUnit().toJSON());
-            jsonDataModels.add(json);
-        }
-        this.listAnalysisModel = jsonDataModels;
-    }
-
     private void saveDataModel(Set<ChartDataModel> selectedData) {
         try {
             JEVisAttribute dataModel = currentAnalysis.getAttribute("Data Model");
@@ -352,7 +329,7 @@ public class ToolBarView {
             List<JsonAnalysisModel> jsonDataModels = new ArrayList<>();
             for (ChartDataModel mdl : selectedData) {
                 JsonAnalysisModel json = new JsonAnalysisModel();
-                json.setName(mdl.getTitle());
+                json.setName(mdl.getObject().getName() + ":" + mdl.getObject().getID());
                 json.setSelected(String.valueOf(mdl.getSelected()));
                 json.setColor(mdl.getColor().toString());
                 json.setObject(mdl.getObject().getID().toString());
@@ -376,17 +353,22 @@ public class ToolBarView {
     private String listToString(List<String> listString) {
         if (listString != null) {
             StringBuilder sb = new StringBuilder();
-            for (String s : listString) {
-                sb.append(s);
-                sb.append(", ");
-            }
+            if (listString.size() > 1) {
+                for (String s : listString) {
+                    sb.append(s);
+                    sb.append(", ");
+                }
+            } else if (listString.size() == 1) sb.append(listString.get(0));
             return sb.toString();
         } else return "";
     }
 
     private List<String> stringToList(String s) {
-        if (Objects.nonNull(s)) return new ArrayList<>(Arrays.asList(s.split(", ")));
-        else return new ArrayList<>();
+        if (Objects.nonNull(s)) {
+            List<String> tempList = new ArrayList<>(Arrays.asList(s.split(", ")));
+            for (String str : tempList) if (str.contains(", ")) str.replace(", ", "");
+            return tempList;
+        } else return new ArrayList<>();
     }
 
     private void setJEVisObjectForCurrentAnalysis(String s) {

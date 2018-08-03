@@ -64,8 +64,9 @@ public class ChartSelectionDialog {
     private JEVisTree _tree;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
-    public ChartSelectionDialog(JEVisDataSource ds) {
-        _ds = ds;
+    public ChartSelectionDialog(JEVisDataSource ds, Map<String, ChartDataModel> data) {
+        this._ds = ds;
+        this.data = data;
     }
 
     public Response show(Stage owner) {
@@ -128,10 +129,11 @@ public class ChartSelectionDialog {
         for (TreePlugin plugin : tree.getPlugins()) {
             if (plugin instanceof ChartPlugin) {
                 bp = (ChartPlugin) plugin;
+                if (!data.isEmpty()) {
+                    bp.set_data(data);
+                }
             }
         }
-
-        if (!data.isEmpty()) bp.set_data(data);
 
         tabConfiguration.setContent(root);
 
@@ -171,12 +173,9 @@ public class ChartSelectionDialog {
 
         if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
 
-        final ChartPlugin finalBp = bp;
         ok.setOnAction(event -> {
             tree.setUserSelectionEnded();
             _response = Response.OK;
-
-            data = finalBp.getSelectedData();
 
             stage.hide();
         });
@@ -223,9 +222,13 @@ public class ChartSelectionDialog {
 
     public ObservableList<String> getChartsList() {
         List<String> tempList = new ArrayList<>();
-        for (Map.Entry<String, ChartDataModel> mdl : data.entrySet()) {
-            if (!tempList.contains(mdl.getValue().getTitle()) && chartsList != null)
-                tempList.add(mdl.getValue().getTitle());
+        for (Map.Entry<String, ChartDataModel> entry : data.entrySet()) {
+            ChartDataModel mdl = entry.getValue();
+            if (mdl.getSelected()) {
+                for (String s : mdl.get_selectedCharts()) {
+                    if (!tempList.contains(s) && s != null) tempList.add(s);
+                }
+            }
         }
 
         chartsList = FXCollections.observableArrayList(tempList);

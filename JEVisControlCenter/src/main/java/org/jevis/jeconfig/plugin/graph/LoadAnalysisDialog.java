@@ -484,8 +484,11 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     private List<String> stringToList(String s) {
-        if (Objects.nonNull(s)) return new ArrayList<>(Arrays.asList(s.split(", ")));
-        else return new ArrayList<>();
+        if (Objects.nonNull(s)) {
+            List<String> tempList = new ArrayList<>(Arrays.asList(s.split(", ")));
+            for (String str : tempList) if (str.contains(", ")) str.replace(", ", "");
+            return tempList;
+        } else return new ArrayList<>();
     }
 
     private enum DATE_TYPE {

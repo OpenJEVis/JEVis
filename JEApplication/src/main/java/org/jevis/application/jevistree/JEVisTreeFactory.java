@@ -98,6 +98,7 @@ public class JEVisTreeFactory {
         tree.setFiler(filter);
 
         TreePlugin bp = new ChartPlugin();
+
 //        bp.setTree(tree);
 
 //        getColumns().addAll(ColumnFactory.buildName(), ColumnFactory.buildID(), ColumnFactory.buildClass(), ColumnFactory.buildColor(this), ColumnFactory.buildBasicRowSelection(this));

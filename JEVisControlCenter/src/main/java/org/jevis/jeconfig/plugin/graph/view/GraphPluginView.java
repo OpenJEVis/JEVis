@@ -81,7 +81,7 @@ public class GraphPluginView implements Plugin, Observer {
             dialog.showAndWait()
                     .ifPresent(response -> {
                         if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                            ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds);
+                            ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null);
 
                             if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
