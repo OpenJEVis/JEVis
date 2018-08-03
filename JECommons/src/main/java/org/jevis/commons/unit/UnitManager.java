@@ -660,12 +660,26 @@ public class UnitManager {
         additonalUnits.add(SI.CUBIC_METRE.alternate("Nm³"));
 
 
-        additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("vah"));
-        additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("vahr"));
-        additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("cal"));
+        try {
+            additonalUnits.add(SI.WATT.alternate("va"));
+            /**
+             * Workaround, should be Watt.time(hour) but this somehow does not work with .alternativ
+             */
+            //additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
+            additonalUnits.add(Unit.ONE.alternate("vah"));
+            additonalUnits.add(Unit.ONE.alternate("cal"));
+            additonalUnits.add(Unit.ONE.alternate("vahr"));
 
-        additonalUnits.add(SI.WATT.alternate("va"));
-
+//            additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
+//            System.out.println("1: " + SI.WATT.times(NonSI.HOUR).alternate("vahr"));
+//            additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("cal"));
+//            System.out.println("1: " + SI.WATT.times(NonSI.HOUR).alternate("cal"));
+//
+//            additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("vah"));
+//            System.out.println("4: " + SI.WATT.times(NonSI.HOUR).alternate("vah"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
 
 //        additonalUnits.add(Dimensionless.UNIT.alternate("Status"));
