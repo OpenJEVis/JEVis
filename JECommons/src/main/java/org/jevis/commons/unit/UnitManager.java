@@ -656,6 +656,18 @@ public class UnitManager {
         //kWh/m²kWh/m²
         additonalUnits.add(((SI.KILO(SI.WATT).times(NonSI.HOUR)).divide(SI.SQUARE_METRE)));
 
+        //Norm cubic metre
+        additonalUnits.add(SI.CUBIC_METRE.alternate("Nm³"));
+
+
+        additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("vah"));
+        additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("vahr"));
+        additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("cal"));
+
+        additonalUnits.add(SI.WATT.alternate("va"));
+
+
+
 //        additonalUnits.add(Dimensionless.UNIT.alternate("Status"));
         return additonalUnits;
     }
