@@ -71,9 +71,9 @@
         "en": "Define the method for the filling of data gaps"
       },
       "names": {
-        "de": "Lückenbefüllung",
-        "ru": "Gap Filling",
-        "en": "Gap Filling"
+        "de": "Ersatzwertbildung",
+        "ru": "Replacement Values",
+        "en": "Replacement Values"
       }
     },
     {
@@ -84,9 +84,9 @@
         "en": "Define the method for the gap filling"
       },
       "names": {
-        "de": "Ersatzwertbildung der Lücken",
-        "ru": "Gap Filling",
-        "en": "Gap Filling"
+        "de": "Ersatzwert-Konfiguration",
+        "ru": "Replacement Configuration",
+        "en": "Replacement Configuration"
       }
     },
     {
