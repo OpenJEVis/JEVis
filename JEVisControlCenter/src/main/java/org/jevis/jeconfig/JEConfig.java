@@ -45,6 +45,9 @@ import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.login.FXLogin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.export.ExportMaster;
+import org.jevis.commons.ws.json.JsonI18nClass;
+import org.jevis.commons.ws.json.JsonI18nType;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
@@ -229,6 +232,7 @@ public class JEConfig extends Application {
             if (newValue) {
                 logger.debug("Start JEVis Control Center");
                 _mainDS = login.getDataSource();
+
                 JEConfig.userpassword = login.getUserPassword();
                 I18n.getInstance().loadBundel(login.getSelectedLocale());
                 I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);

@@ -173,7 +173,6 @@ public class HTTPConnection {
             return bytes;
 
         } else {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!! Not file");
             return null;
         }
 

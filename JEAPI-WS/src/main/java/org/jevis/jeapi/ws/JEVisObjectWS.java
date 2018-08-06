@@ -24,6 +24,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;
@@ -201,6 +202,20 @@ public class JEVisObjectWS implements JEVisObject {
                 return att;
             }
         }
+        /**
+         * Workaround, the webservice will not check for missing attributes, because of performance.
+         * We also dont use type.equals() because its does not check inherit types.
+         */
+//        for(JEVisType exitingType: getJEVisClass().getTypes()){
+//            if(exitingType.getName().equals(type.getName())){
+//                JsonAttribute att = new JsonAttribute();
+//                att.setType(type.getName());
+//                att.setPrimitiveType(type.getPrimitiveType());
+//                getAttributes().add(att);
+//                return new JEVisAttributeWS(ds,att,getID());
+//            }
+//        }
+
         return null;
     }
 

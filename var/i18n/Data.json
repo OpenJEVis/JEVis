@@ -6,22 +6,22 @@
     "en": "Data"
   },
   "descriptions": {
-    "de": "Die Klasse Daten stellt einen Container für eine Reihe von numerischen Werten dar.",
-    "ru": "The class Data represents a container for a series of numeric values.",
-    "en": "The class Data represents a container for a series of numeric values."
+    "de": "In Daten werden numerische Datenreihen gespeichert.",
+    "ru": "Storage of numerical data.",
+    "en": "Storage of numerical data."
   },
   "types": [
     {
       "type": "Value",
       "descriptions": {
-        "de": "Value description",
-        "ru": "Value description",
-        "en": "Value description"
+        "de": "Werte der Datenreihe",
+        "ru": "Values of the data series",
+        "en": "Values of the data series"
       },
       "names": {
         "de": "Werte",
-        "ru": "Value",
-        "en": "Value"
+        "ru": "Values",
+        "en": "Values"
       }
     }
   ]

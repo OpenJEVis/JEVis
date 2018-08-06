@@ -104,7 +104,6 @@ public class NewObjectDialog {
         if (objName != null) {
             fName.setText(objName);
             userSetName = true;
-
         }
 
         fName.setOnKeyTyped(event -> userSetName = true);
@@ -209,17 +208,6 @@ public class NewObjectDialog {
         root.getChildren().addAll(gp);
         VBox.setVgrow(gp, Priority.ALWAYS);
 
-
-        fName.setOnKeyReleased(new EventHandler<KeyEvent>() {
-
-            @Override
-            public void handle(KeyEvent t) {
-                if (!fName.getText().equals("")) {
-//                    ok.setDisable(false);
-                    //@ TODO
-                }
-            }
-        });
 
         fName.setDisable(true);
         comboBox.setDisable(true);

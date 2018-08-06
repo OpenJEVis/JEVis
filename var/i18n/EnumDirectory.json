@@ -1,10 +1,14 @@
 {
   "jevisclass": "Enum Directory",
   "names": {
-    "de": "Enumverzeichnis",
+    "de": "Enum-Verzeichnis",
     "ru": "Enum Directory",
     "en": "Enum Directory"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "In einem Enum-Verzeichnis werden systemweite Enumerationen verwaltet.",
+    "ru": "In a Enum Directory system-wude enumerations are managed.",
+    "en": "In a Enum Directory system-wude enumerations are managed."
+  },
   "types": []
 }

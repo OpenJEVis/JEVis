@@ -383,9 +383,6 @@ public class ObjectEditor {
 
                             StringBuilder sb = new StringBuilder();
                             sb.append("<htlm><body>");
-                            //sb.append("<h1>");
-                            //sb.append(I18nWS.getInstance().getClassName(obj.getJEVisClassName()));
-                            //sb.append("</h1>");
                             sb.append("<p>");
                             sb.append(I18nWS.getInstance().getClassDescription(obj.getJEVisClassName()));
                             sb.append("</p><br>");
@@ -398,9 +395,7 @@ public class ObjectEditor {
                                 sb.append("</p>");
                             }
 
-
                             sb.append("</body></htlm>");
-
                             SideNode help = new SideNode(
                                     I18nWS.getInstance().getClassName(obj.getJEVisClassName()),
                                     sb.toString(),
@@ -454,7 +449,10 @@ public class ObjectEditor {
 //            helpText.setTextFill(font);
 //            helpText.setAlignment(Pos.TOP_LEFT);
 //            helpText.setWrapText(true);
+            helpText.getEngine().setUserStyleSheetLocation(ObjectEditor.class.getResource("/styles/help.css").toExternalForm());
+
             helpText.getEngine().loadContent(text);
+
 
             getChildren().addAll(header, spacerHeader, helpText);
             VBox.setVgrow(header, Priority.NEVER);
