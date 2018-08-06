@@ -1,25 +1,26 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplicationL. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.jevistree;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -40,11 +41,11 @@ import org.jevis.application.application.SaveResourceBundle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEVisTree extends TreeTableView {
@@ -58,13 +59,14 @@ public class JEVisTree extends TreeTableView {
 
     private JEVisTreeRow dragItem;
     private SaveResourceBundle rb;
+    private static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
 
 
-    public void reload(){
+    public void reload() {
         init();
     }
 
-    private void init(){
+    private void init() {
         try {
             JEVisTreeItem root = new JEVisTreeItem(this, ds);
             root.setExpanded(true);
@@ -94,91 +96,90 @@ public class JEVisTree extends TreeTableView {
                 }
             });
 
-            setRowFactory(new Callback<TreeTableView, TreeTableRow<JEVisTreeRow>>() {
-                @Override
-                public TreeTableRow<JEVisTreeRow> call(final TreeTableView param) {
-                    final TreeTableRow<JEVisTreeRow> row = new TreeTableRow<JEVisTreeRow>();
-
-                    row.setOnDragDetected(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent event) {
-                            try {
-                                // drag was detected, start drag-and-drop gesture
-                                TreeItem<JEVisTreeRow> selected = (TreeItem<JEVisTreeRow>) getSelectionModel().getSelectedItem();
-                                // to access your RowContainer use 'selected.getValue()'
-
-                                if (selected != null) {
-                                    Dragboard db = startDragAndDrop(TransferMode.ANY);
-
-//                                 create a miniature of the row you're dragging
-                                    db.setDragView(SwingFXUtils.toFXImage(selected.getValue().getJEVisObject().getJEVisClass().getIcon(), null));
-//                                 Keep whats being dragged on the clipboard
-                                    ClipboardContent content = new ClipboardContent();
-                                    content.putString(selected.getValue().getJEVisObject().getID() + "");
-                                    System.out.println("---------------- " + selected.getValue().getJEVisObject().getName());
-                                    setDragRow(selected.getValue());
-
-                                    db.setContent(content);
-                                    event.consume();
-                                }
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    });
-                    row.setOnDragOver(new EventHandler<DragEvent>() {
-                        @Override
-                        public void handle(DragEvent event) {
-                            // data is dragged over the target
-                            Dragboard db = event.getDragboard();
-                            if (event.getDragboard().hasString()) {
-                                event.acceptTransferModes(TransferMode.MOVE);
-                            }
-                            event.consume();
-                        }
-                    });
-                    row.setOnDragDropped(new EventHandler<DragEvent>() {
-                        @Override
-                        public void handle(DragEvent event) {
-
-                            Dragboard db = event.getDragboard();
-                            boolean success = false;
-                            if (event.getDragboard().hasString()) {
-
-                                if (!row.isEmpty()) {
-                                    // This is were you do your magic.
-                                    // Move your row in the tree etc
-                                    // Here is two examples of how to access
-                                    // the drop destination:
-
-//                                    ClipboardContent content = new ClipboardContent();
-//                                    JEVisObject toCopyObj = ((JEVisTreeRow) content.get(JEVisTreeRowFormate)).getJEVisObject();
-                                }
-                            }
-                            success = true;
-                            event.setDropCompleted(success);
-                            event.consume();
-
-                            int dropIndex = row.getIndex();
-                            TreeItem<JEVisTreeRow> droppedon = row.getTreeItem();
-
-                            if (getDragRow() != null) {
-                                JEVisObject toCopyObj = getDragRow().getJEVisObject();
-
-                                setCursor(Cursor.DEFAULT);
-                                TreeHelper.EventDrop(JEVisTree.this, toCopyObj, droppedon.getValue().getJEVisObject());
-                            }
-
-                        }
-                    });
-                    return row;
-                }
-            });
+//            setRowFactory(new Callback<TreeTableView, TreeTableRow<JEVisTreeRow>>() {
+//                @Override
+//                public TreeTableRow<JEVisTreeRow> call(final TreeTableView param) {
+//                    final TreeTableRow<JEVisTreeRow> row = new TreeTableRow<JEVisTreeRow>();
+//
+//                    row.setOnDragDetected(event -> {
+//                        try {
+//                            if (!row.isEmpty()) {
+//                                System.out.println("drag detect: " + row.getTreeItem().getValue().getID());
+//                                System.out.println("is not null");
+//                                Dragboard db = row.startDragAndDrop(TransferMode.ANY);
+////                            db.setDragView(row.snapshot(null, null));
+//                                try {
+//                                    db.setDragView(SwingFXUtils.toFXImage(row.getTreeItem().getValue().getJEVisObject().getJEVisClass().getIcon(), null));
+//                                } catch (Exception ex) {
+//                                    ex.printStackTrace();
+//                                }
+//                                ClipboardContent cc = new ClipboardContent();
+//                                cc.putString(row.getIndex() + "");
+//                                db.setContent(cc);
+//                                event.consume();
+//                            }
+//                        } catch (Exception ex) {
+//                            ex.printStackTrace();
+//                        }
+//                    });
+//
+//                    row.setOnDragOver(event -> {
+//                        try {
+//                            System.out.println("drag over");
+//                            Dragboard db = event.getDragboard();
+//                            if (acceptable(db, row)) {
+//                                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+//                                event.consume();
+//                            }
+//                        } catch (Exception ex) {
+//                            ex.printStackTrace();
+//                        }
+//                    });
+//
+//                    row.setOnDragDropped(event -> {
+//                        System.out.println("drag dropped");
+//                        Dragboard db = event.getDragboard();
+//                        System.out.println("Dropped: " + row.getTreeItem().getValue().getID());
+//                        if (acceptable(db, row)) {
+//                            int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+////                            TreeItem item = getTreeItem(index);
+////                            item.getParent().getChildren().remove(item);
+//
+//
+////                            getTarget(row).getChildren().add(item);
+//                            event.setDropCompleted(true);
+////                            tree.getSelectionModel().select(item);
+//                            event.consume();
+//                        }
+//                    });
+//                    row.setOnDragEntered(event -> {
+//                        System.out.println("Drag enterd");
+//                    });
+//                    row.setOnDragDone(event -> {
+//                        System.out.println("Drag done");
+//                    });
+//                    return row;
+//                }
+//            });
 
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger.getLogger(JEVisTree.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private boolean acceptable(Dragboard db, TreeTableRow<JEVisTreeRow> row) {
+        return true;
+//        boolean result = false;
+//        if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+//            int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+//            if (row.getIndex() != index) {
+//                TreeItem target = getTarget(row);
+//                TreeItem item = tree.getTreeItem(index);
+//                result = !isParent(item, target);
+//            }
+//        }
+//        return result;
     }
 
     public JEVisTree(JEVisDataSource ds) {
@@ -247,7 +248,7 @@ public class JEVisTree extends TreeTableView {
         return plugins;
     }
 
-//    public ObservableList<ViewFilter> getFilter(){
+    //    public ObservableList<ViewFilter> getFilter(){
 //        return filter;
 //    }
     public void setUserSelectionEnded() {

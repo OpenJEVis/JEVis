@@ -381,7 +381,7 @@ public class ObjectPlugin implements Plugin {
                     break;
                 case Constants.Plugin.Command.PASE:
 
-                    TreeHelper.EventDrop(tree, tree.getCopyObject(), parent.getValue().getJEVisObject());
+                    TreeHelper.EventDrop(tree, tree.getCopyObject(), parent.getValue().getJEVisObject(),CopyObjectDialog.DefaultAction.COPY);
                     break;
                 case Constants.Plugin.Command.COPY:
                     tree.setCopyObject(parent.getValue().getJEVisObject());
