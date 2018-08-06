@@ -63,6 +63,7 @@ public class ChartSelectionDialog {
     private boolean init = true;
     private JEVisTree _tree;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
+    private ChartPlugin bp = null;
 
     public ChartSelectionDialog(JEVisDataSource ds, Map<String, ChartDataModel> data) {
         this._ds = ds;
@@ -125,11 +126,11 @@ public class ChartSelectionDialog {
         VBox.setVgrow(buttonBox, Priority.NEVER);
 
 //        stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
-        ChartPlugin bp = null;
+
         for (TreePlugin plugin : tree.getPlugins()) {
             if (plugin instanceof ChartPlugin) {
                 bp = (ChartPlugin) plugin;
-                if (!data.isEmpty()) {
+                if (data != null && !data.isEmpty()) {
                     bp.set_data(data);
                 }
             }
@@ -139,6 +140,7 @@ public class ChartSelectionDialog {
 
         Tab tabChartsSettings = new Tab(rb.getString("graph.tabs.charts"));
         tabChartsSettings.closableProperty().setValue(false);
+        tabChartsSettings.setDisable(true);
 
         VBox vboxCharts = new VBox();
 
@@ -162,16 +164,20 @@ public class ChartSelectionDialog {
         tabChartsSettings.setContent(vboxCharts);
 
         tabpane.getTabs().addAll(tabConfiguration, tabChartsSettings);
+
         Scene scene = new Scene(tabpane);
         stage.setScene(scene);
 
-        List<UserSelection> listUS = new ArrayList<>();
-        for (Map.Entry<String, ChartDataModel> entry : data.entrySet()) {
-            ChartDataModel mdl = entry.getValue();
-            if (mdl.getSelected()) listUS.add(new UserSelection(UserSelection.SelectionType.Object, mdl.getObject()));
-        }
+        if (data != null && !data.isEmpty()) {
+            List<UserSelection> listUS = new ArrayList<>();
+            for (Map.Entry<String, ChartDataModel> entry : data.entrySet()) {
+                ChartDataModel mdl = entry.getValue();
+                if (mdl.getSelected())
+                    listUS.add(new UserSelection(UserSelection.SelectionType.Object, mdl.getObject()));
+            }
 
-        if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
+            if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
+        }
 
         ok.setOnAction(event -> {
             tree.setUserSelectionEnded();
@@ -222,16 +228,18 @@ public class ChartSelectionDialog {
 
     public ObservableList<String> getChartsList() {
         List<String> tempList = new ArrayList<>();
-        for (Map.Entry<String, ChartDataModel> entry : data.entrySet()) {
-            ChartDataModel mdl = entry.getValue();
-            if (mdl.getSelected()) {
-                for (String s : mdl.get_selectedCharts()) {
-                    if (!tempList.contains(s) && s != null) tempList.add(s);
+        if (data != null && !data.isEmpty()) {
+            for (Map.Entry<String, ChartDataModel> entry : data.entrySet()) {
+                ChartDataModel mdl = entry.getValue();
+                if (mdl.getSelected()) {
+                    for (String s : mdl.get_selectedCharts()) {
+                        if (!tempList.contains(s) && s != null) tempList.add(s);
+                    }
                 }
             }
         }
-
         chartsList = FXCollections.observableArrayList(tempList);
+
         return chartsList;
     }
 
@@ -256,5 +264,9 @@ public class ChartSelectionDialog {
 
     public void setData(Map<String, ChartDataModel> data) {
         this.data = data;
+    }
+
+    public ChartPlugin getBp() {
+        return bp;
     }
 }

@@ -48,15 +48,15 @@ public class EnumEditor implements AttributeEditor {
             List<JEVisObject> enumObjs = att.getDataSource().getObjects(enumClass, true);
 
             for (JEVisObject enumObj : enumObjs) {
-                logger.debug("Enum Obj: {}",enumObj);
+                logger.debug("Enum Obj: {}", enumObj);
                 String jclass = enumObj.getAttribute("JEVisClass").getLatestSample().getValueAsString();
-                logger.debug("Class to compare to: {}",jclass);
+                logger.debug("Class to compare to: {}", jclass);
                 try {
                     if (jclass.equals(att.getObject().getJEVisClassName())) {
                         logger.debug("true");
                         List<JEVisObject> constats = enumObj.getChildren(constansClass, true);
                         for (JEVisObject con : constats) {
-                            logger.debug("Constants obj: {}",con.getID());
+                            logger.debug("Constants obj: {}", con.getID());
                             
                             
                             if (con.getAttribute("Attribute").getLatestSample().getValueAsString().equals(att.getName())) {
@@ -65,7 +65,7 @@ public class EnumEditor implements AttributeEditor {
                                 if (entrieA.hasSample()) {
                                     String[] entries = entrieA.getLatestSample().getValueAsString().split(";");
                                     for (String value : entries) {
-                                        logger.debug("add Value: {}",value);
+                                        logger.debug("add Value: {}", value);
                                         enumList.add(value);
                                     }
                                 }

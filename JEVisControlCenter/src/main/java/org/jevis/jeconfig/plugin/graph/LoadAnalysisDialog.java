@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -183,33 +184,41 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getMillisOfSecond());
-                updateTimeFrame();
-                comboBoxPresetDates.getSelectionModel().select(0);
+                if (selectedStart != null) {
+                    selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getSecondOfMinute());
+                    updateTimeFrame();
+                    comboBoxPresetDates.getSelectionModel().select(0);
+                }
             }
         });
 
         pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getMillisOfSecond());
-                updateTimeFrame();
-                comboBoxPresetDates.getSelectionModel().select(0);
+                if (selectedEnd != null) {
+                    selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getSecondOfMinute());
+                    updateTimeFrame();
+                    comboBoxPresetDates.getSelectionModel().select(0);
+                }
             }
         });
 
         pickerTimeStart.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
-                updateTimeFrame();
-                comboBoxPresetDates.getSelectionModel().select(0);
+                if (selectedStart != null) {
+                    selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
+                    updateTimeFrame();
+                    comboBoxPresetDates.getSelectionModel().select(0);
+                }
             }
         });
 
         pickerTimeEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
-                updateTimeFrame();
-                comboBoxPresetDates.getSelectionModel().select(0);
+                if (selectedEnd != null) {
+                    selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
+                    updateTimeFrame();
+                    comboBoxPresetDates.getSelectionModel().select(0);
+                }
             }
         });
 
@@ -247,8 +256,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (!newValue.equals(oldValue)) {
                 this.nameCurrentAnalysis = newValue;
                 setJEVisObjectForCurrentAnalysis(newValue);
-                toolBarView.select(nameCurrentAnalysis);
                 updateTimeFramePicker();
+
+                selectedStart = DateTime.now().minusDays(7);
+                selectedEnd = new DateTime();
+                updateTimeFrame();
+                Platform.runLater(() -> toolBarView.select(nameCurrentAnalysis));
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -271,15 +284,15 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         if (data.getSelectedData() == null) {
             for (JsonAnalysisModel mdl : listAnalysisModel) {
-                if (start == null || DateTime.parse(mdl.getSelectedStart()).isBefore(selectedStart))
+                if (start == null || DateTime.parse(mdl.getSelectedStart()).isBefore(start))
                     start = DateTime.parse(mdl.getSelectedStart());
-                if (end == null || DateTime.parse(mdl.getSelectedEnd()).isAfter(selectedEnd))
+                if (end == null || DateTime.parse(mdl.getSelectedEnd()).isAfter(end))
                     end = DateTime.parse(mdl.getSelectedEnd());
             }
         } else {
             for (ChartDataModel mdl : data.getSelectedData()) {
-                if (start == null || mdl.getSelectedStart().isBefore(selectedStart)) start = mdl.getSelectedStart();
-                if (end == null || mdl.getSelectedEnd().isAfter(selectedEnd)) end = mdl.getSelectedEnd();
+                if (start == null || mdl.getSelectedStart().isBefore(start)) start = mdl.getSelectedStart();
+                if (end == null || mdl.getSelectedEnd().isAfter(end)) end = mdl.getSelectedEnd();
             }
         }
 

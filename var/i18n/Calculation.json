@@ -24,36 +24,163 @@
       "type": "Expression",
       "descriptions": {
         "de": "<P>
-        Formel der Kalkulatoin<br>
+        Formel
+        der
+        Kalkulatoin<br>
         <br>
-        Folgende Ausdrücke werden unterstützt:<br>
+        Folgende
+        Ausdrücke
+        werden
+        unterstützt: <br>
         <ul>
-        <li><i>Zahlen</i> Zahlen werden als Double behandelt, d.h. ein Ergebnis wird auch wenn es ganzzahlig ist immer eine Nachkommastelle mitziehen.</li>
-        <li><i>Text</i> Es können auch Texte behandelt werden, z.B. um zwei Texte miteinander zu vergleichen.</li>
-        <li><i>Wahrheitswert</i> Wahrheiswete sind entweder true (1,0) oder false (0,0).</li>
-        <li><i>Funktionen</i> Es werden zahlreiche mathematische Funktionen unterstützt. Zusätzlich können eigene Funktionen erstellt werden.</li>
+        <li><i>Zahlen</i>
+        Zahlen
+        werden
+        als
+        Double
+        behandelt,
+        d.h.
+        ein
+        Ergebnis
+        wird
+        auch
+        wenn
+        es
+        ganzzahlig
+        ist
+        immer
+        eine
+        Nachkommastelle
+        mitziehen.</li>
+        <li><i>Text</i>
+        Es
+        können
+        auch
+        Texte
+        behandelt
+        werden,
+        z.B.
+        um
+        zwei
+        Texte
+        miteinander
+        zu
+        vergleichen.</li>
+        <li><i>Wahrheitswert</i>
+        Wahrheiswete
+        sind
+        entweder
+        true
+        (1,
+        0)
+        oder
+        false
+        (0,
+        0).</li>
+        <li><i>Funktionen</i>
+        Es
+        werden
+        zahlreiche
+        mathematische
+        Funktionen
+        unterstützt.
+        Zusätzlich
+        können
+        eigene
+        Funktionen
+        erstellt
+        werden.</li>
         </ul>
-        Eingangsvariablen dürfen keine Operatoren enthalten.
-        Folgende Operatoren werden unterstützt:<br>
+        Eingangsvariablen
+        dürfen
+        keine
+        Operatoren
+        enthalten.
+        Folgende
+        Operatoren
+        werden
+        unterstützt: <br>
         <ul>
-        <li>( Beginnt einen Klammerinhalt</li>
-        <li>) Beendet einen Klammerinhalt</li>
-        <li>+ Addition (für Zahlen und Text)</li>
-        <li>- Subtraktion</li>
-        <li>* Multiplikation</li>
-        <li>/ Division</li>
-        <li>% Modulo</li>
-        <li>+ unär Plus</li>
-        <li>- unär Minus</li>
-        <li>= ist-gleich (für Zahlen und Text)</li>
-        <li>!= ungleich (für Zahlen und Text)</li>
-        <li>< kleiner (für Zahlen und Text)</li>
-        <li><= kleiner-gleich (für Zahlen und Text)</li>
-        <li>> größer (für Zahlen und Text)</li>
-        <li>>= größer-gleich (für Zahlen und Text)</li>
-        <li>&& logisch und</li>
-        <li>|| logisch oder</li>
-        <li>! logisch nicht</li>
+        <li>(
+        Beginnt
+        einen
+        Klammerinhalt</li>
+        <li>)
+        Beendet
+        einen
+        Klammerinhalt</li>
+        <li>
+        +
+        Addition
+        (für
+        Zahlen
+        und
+        Text)</li>
+        <li>-
+        Subtraktion</li>
+        <li>*
+        Multiplikation</li>
+        <li>/
+        Division</li>
+        <li>
+        %
+        Modulo</li>
+        <li>
+        +
+        unär
+        Plus</li>
+        <li>-
+        unär
+        Minus</li>
+        <li>=
+        ist-gleich
+        (für
+        Zahlen
+        und
+        Text)</li>
+        <li>!=
+        ungleich
+        (für
+        Zahlen
+        und
+        Text)</li>
+        <li><
+        kleiner
+        (für
+        Zahlen
+        und
+        Text)</li>
+        <li><=
+        kleiner-gleich
+        (für
+        Zahlen
+        und
+        Text)</li>
+        <li>>
+        größer
+        (für
+        Zahlen
+        und
+        Text)</li>
+        <li>>=
+        größer-gleich
+        (für
+        Zahlen
+        und
+        Text)</li>
+        <li>
+        &
+        &
+        logisch
+        und</li>
+        <li>
+        |
+        |
+        logisch
+        oder</li>
+        <li>!
+        logisch
+        nicht</li>
         </ul>
         <P> ",
         "ru": "Expression desctiption",

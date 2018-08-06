@@ -28,11 +28,22 @@ public class GraphExport {
     private File destinationFile;
     private DateTime minDate = null;
     private DateTime maxDate = null;
+    private Boolean multiAnalyses = false;
+    private List<String> charts = new ArrayList<>();
 
     public GraphExport(JEVisDataSource ds, GraphDataModel model, String analysisName) {
         this.model = model;
         this.ds = ds;
         this.setDates();
+
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            if (mdl.getSelected()) {
+                for (String s : mdl.get_selectedCharts()) {
+                    if (charts.isEmpty() || !charts.contains(s)) charts.add(s);
+                }
+            }
+        }
+        if (charts.size() > 1) multiAnalyses = true;
 
         String formattedName = analysisName.replaceAll(" ", "_");
         FileChooser fileChooser = new FileChooser();
@@ -58,7 +69,9 @@ public class GraphExport {
     }
 
     public void export() throws FileNotFoundException, UnsupportedEncodingException, JEVisException {
-        String exportStrg = createCSVString(Integer.MAX_VALUE);
+        String exportStrg = "";
+        if (!multiAnalyses) exportStrg = createCSVString(Integer.MAX_VALUE);
+        else exportStrg = createCSVStringMulti(Integer.MAX_VALUE);
 
         if (destinationFile != null && exportStrg.length() > 90) {
             writeFile(destinationFile, exportStrg);
@@ -80,8 +93,10 @@ public class GraphExport {
         String header = "Date";
         for (ChartDataModel mdl : model.getSelectedData()) {
             String objectName = mdl.getObject().getName();
-            String dpName = mdl.getDataProcessor().getName();
-            header += ";" + objectName + " (" + dpName + ")";
+            String dpName = "";
+            if (mdl.getDataProcessor() != null) dpName = mdl.getDataProcessor().getName();
+            header += ";" + objectName;
+            if (mdl.getDataProcessor() != null) header += " (" + dpName + ")";
         }
         sb.append(header);
         sb.append(System.getProperty("line.separator"));
@@ -110,6 +125,73 @@ public class GraphExport {
                 s += map.get(mdl.getObject().getName()).get(i).getValueAsDouble() + ";";
             }
             sb.append(s);
+            sb.append(System.getProperty("line.separator"));
+        }
+
+        return sb.toString();
+    }
+
+    private String createCSVStringMulti(int lineCount) throws JEVisException {
+        final StringBuilder sb = new StringBuilder();
+
+        DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss");
+
+        for (String s : charts) {
+            String header = "Date";
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                String objectName = mdl.getObject().getName();
+                String dpName = "";
+                if (mdl.getDataProcessor() != null) dpName = mdl.getDataProcessor().getName();
+                header += ";" + objectName;
+                if (mdl.getDataProcessor() != null) header += " (" + dpName + ")";
+            }
+            header += ";";
+            sb.append(header);
+        }
+
+        sb.append(System.getProperty("line.separator"));
+
+
+        Long size = 0L;
+
+        List<List<String>> listDateColumns = new ArrayList<>();
+        for (String s : charts) {
+            List<String> dateColumn = new ArrayList<>();
+            Boolean firstSet = true;
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (firstSet && mdl.get_selectedCharts().contains(s)) {
+                    for (JEVisSample sample : mdl.getSamples()) {
+                        dateColumn.add(standard.print(sample.getTimestamp()));
+                    }
+                    firstSet = false;
+                    size = Math.max(size, dateColumn.size());
+                }
+            }
+            listDateColumns.add(dateColumn);
+        }
+
+        List<Map<String, List<JEVisSample>>> listMaps = new ArrayList<>();
+        for (String s : charts) {
+            Map<String, List<JEVisSample>> map = new HashMap<>();
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (mdl.get_selectedCharts().contains(s)) {
+                    map.put(mdl.getObject().getName(), mdl.getSamples());
+                }
+            }
+            listMaps.add(map);
+        }
+
+        for (int i = 0; i < size; i++) {
+            String str = "";
+            for (String s : charts) {
+                str += listDateColumns.get(charts.indexOf(s)).get(i) + ";";
+
+                for (ChartDataModel mdl : model.getSelectedData()) {
+                    if (mdl.get_selectedCharts().contains(s))
+                        str += listMaps.get(charts.indexOf(s)).get(mdl.getObject().getName()).get(i).getValueAsDouble() + ";";
+                }
+            }
+            sb.append(str);
             sb.append(System.getProperty("line.separator"));
         }
 

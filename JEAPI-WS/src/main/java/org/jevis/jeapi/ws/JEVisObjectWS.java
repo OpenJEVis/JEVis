@@ -24,7 +24,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
-import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;

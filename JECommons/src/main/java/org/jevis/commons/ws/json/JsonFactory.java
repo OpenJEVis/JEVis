@@ -20,26 +20,17 @@
  */
 package org.jevis.commons.ws.json;
 
+import org.apache.logging.log4j.LogManager;
+import org.jevis.api.*;
+import org.jevis.commons.unit.UnitManager;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.measure.unit.Unit;
-import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisClassRelationship;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisType;
-import org.jevis.api.JEVisUnit;
-import org.jevis.commons.unit.UnitManager;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * This Factory can convert JEAPI interfaces into a JSON representation
@@ -125,9 +116,8 @@ public class JsonFactory {
      *
      * @param objs
      * @return
-     * @throws JEVisException
      */
-    public static List<JsonRelationship> buildRelationship(List<JEVisRelationship> objs) throws JEVisException {
+    public static List<JsonRelationship> buildRelationship(List<JEVisRelationship> objs) {
         List<JsonRelationship> jRels = new ArrayList<JsonRelationship>();
         for (JEVisRelationship rel : objs) {
             try {
@@ -149,9 +139,8 @@ public class JsonFactory {
      *
      * @param objs
      * @return
-     * @throws JEVisException
      */
-    public static List<JsonClassRelationship> buildClassRelationships(List<JEVisClassRelationship> objs) throws JEVisException {
+    public static List<JsonClassRelationship> buildClassRelationships(List<JEVisClassRelationship> objs) {
         List<JsonClassRelationship> jRels = new ArrayList<JsonClassRelationship>();
         for (JEVisClassRelationship rel : objs) {
             try {
@@ -184,9 +173,8 @@ public class JsonFactory {
      *
      * @param objs
      * @return
-     * @throws JEVisException
      */
-    public static List<JsonObject> buildObject(List<JEVisObject> objs, boolean includeRelationships) throws JEVisException {
+    public static List<JsonObject> buildObject(List<JEVisObject> objs, boolean includeRelationships) {
         List<JsonObject> jObjects = new ArrayList<JsonObject>();
 
         for (JEVisObject obj : objs) {

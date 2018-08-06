@@ -86,7 +86,7 @@ public class GraphPluginView implements Plugin, Observer {
                             if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
                                 Set<ChartDataModel> selectedData = new HashSet<>();
-                                for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
+                                for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getBp().getSelectedData().entrySet()) {
                                     ChartDataModel value = entrySet.getValue();
                                     if (value.getSelected()) {
                                         selectedData.add(value);

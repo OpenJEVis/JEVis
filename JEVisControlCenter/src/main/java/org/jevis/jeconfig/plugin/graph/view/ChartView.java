@@ -30,15 +30,20 @@ import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.TableEntry;
 import org.jevis.commons.constants.JEDataProcessorConstants;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
@@ -271,6 +276,9 @@ public class ChartView implements Observer {
                         }
                     }
 
+                    QuantityUnits qu = new QuantityUnits();
+                    if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
+
                     sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
                     DateTime dateTime = sample.getTimestamp();
                     Double value = sample.getValueAsDouble();
@@ -415,22 +423,23 @@ public class ChartView implements Observer {
 
     private String formatNote(String note) {
         String output = "";
-        if (note.contains("interpolated")) output += "interpolated ";
-        if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
-            output += JEDataProcessorConstants.GapFillingType.AVERAGE;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
-            output += JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
-            output += JEDataProcessorConstants.GapFillingType.INTERPOLATION;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
-            output += JEDataProcessorConstants.GapFillingType.MAXIMUM;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
-            output += JEDataProcessorConstants.GapFillingType.MINIMUM;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
-            output += JEDataProcessorConstants.GapFillingType.MEDIAN;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
-            output += JEDataProcessorConstants.GapFillingType.STATIC;
-
+        if (note != null) {
+            if (note.contains("interpolated")) output += "interpolated ";
+            if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
+                output += JEDataProcessorConstants.GapFillingType.AVERAGE;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
+                output += JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
+                output += JEDataProcessorConstants.GapFillingType.INTERPOLATION;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
+                output += JEDataProcessorConstants.GapFillingType.MAXIMUM;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
+                output += JEDataProcessorConstants.GapFillingType.MINIMUM;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
+                output += JEDataProcessorConstants.GapFillingType.MEDIAN;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
+                output += JEDataProcessorConstants.GapFillingType.STATIC;
+        }
         return output;
     }
 
@@ -453,4 +462,22 @@ public class ChartView implements Observer {
                 (int) (color.getBlue() * 255));
     }
 
+    private class QuantityUnits {
+        Unit _l = NonSI.LITER;
+        final JEVisUnit l = new JEVisUnitImp(_l);
+        Unit _m3 = SI.CUBIC_METRE;
+        final JEVisUnit m3 = new JEVisUnitImp(_m3);
+        Unit _Wh = SI.WATT.times(NonSI.HOUR);
+        final JEVisUnit Wh = new JEVisUnitImp(_Wh);
+        Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
+        final JEVisUnit kWh = new JEVisUnitImp(_kWh);
+        Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
+        final JEVisUnit MWh = new JEVisUnitImp(_MWh);
+        Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
+        final JEVisUnit GWh = new JEVisUnitImp(_GWh);
+
+        public List<JEVisUnit> get() {
+            return new ArrayList<>(Arrays.asList(l, m3, Wh, kWh, MWh, GWh));
+        }
+    }
 }
