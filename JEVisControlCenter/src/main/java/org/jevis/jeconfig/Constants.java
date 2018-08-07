@@ -44,7 +44,7 @@ public interface Constants {
             public static int CREATE_WIZARD = 10;
             public static int FIND_OBJECT = 11;
             public static int RENAME = 12;
-            public static int PASTE = 12;
+            public static int PASTE = 13;
         }
     }
 

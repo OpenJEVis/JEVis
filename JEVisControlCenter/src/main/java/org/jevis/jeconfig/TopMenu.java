@@ -107,7 +107,7 @@ public class TopMenu extends MenuBar {
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handleRequest(Constants.Plugin.Command.PASTE);
+                activPlugin.handleRequest(Constants.Plugin.Command.PASE);
             }
         });
 

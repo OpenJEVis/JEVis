@@ -358,6 +358,9 @@ public class ObjectPlugin implements Plugin {
                 case Constants.Plugin.Command.DELTE:
                     TreeHelper.EventDelete(tree);
                     break;
+                case Constants.Plugin.Command.RENAME:
+                    TreeHelper.EventRename(tree, parent.getValue().getJEVisObject());
+                    break;
                 case Constants.Plugin.Command.EXPAND:
                     break;
                 case Constants.Plugin.Command.NEW:
