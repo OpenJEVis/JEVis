@@ -640,15 +640,13 @@ public class ChartPlugin implements TreePlugin {
             if (oldValue == null || newValue != oldValue) {
                 for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
                     ChartDataModel mdl = entry.getValue();
-                    if (mdl.getSelected() && mdl.get_selectedCharts().contains(oldValue)) {
+                    if (mdl.getSelected()) {
                         if (mdl.get_selectedCharts().contains(oldValue)) {
                             mdl.get_selectedCharts().set(mdl.get_selectedCharts().indexOf(oldValue), newValue);
-                        } else {
-                            mdl.get_selectedCharts().add(newValue);
                         }
-                        chartsList.set(selectionColumnIndex, newValue);
                     }
                 }
+                chartsList.set(selectionColumnIndex, newValue);
             }
         });
 

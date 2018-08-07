@@ -242,7 +242,7 @@ public class ChartView implements Observer {
                 unit = UnitManager.getInstance().formate(singleRow.getUnit());
                 hexColors.add(singleRow.getColor());
 
-                if (chartName == "") {
+                if (chartName == "" || chartName == null) {
                     if (singleRow.get_selectedCharts().size() == 1) title = singleRow.get_selectedCharts().get(0);
                 } else title = chartName;
 
