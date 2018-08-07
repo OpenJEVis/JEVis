@@ -80,7 +80,7 @@ public class NewObjectDialog {
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
 
         Dialog<ButtonType> dialog = new Dialog();
-        dialog.setTitle("jevistree.dialog.new.title");
+        dialog.setTitle(rb.getString("jevistree.dialog.new.title"));
         dialog.setHeaderText(rb.getString("jevistree.dialog.new.header"));
         dialog.getDialogPane().getButtonTypes().setAll();
         dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));

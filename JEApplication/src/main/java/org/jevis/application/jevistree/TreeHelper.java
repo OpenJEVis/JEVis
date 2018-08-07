@@ -254,11 +254,11 @@ public class TreeHelper {
 
     }
 
-    public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent) {
+    public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent,CopyObjectDialog.DefaultAction mode) {
 
         LOGGER.trace("EventDrop");
         CopyObjectDialog dia = new CopyObjectDialog();
-        CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent);
+        CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent,mode);
 
         if (re == CopyObjectDialog.Response.MOVE) {
             moveObject(dragObj, targetParent);

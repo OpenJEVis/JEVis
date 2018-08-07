@@ -31,6 +31,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.util.logging.Level;
@@ -102,15 +103,15 @@ public class BooleanValueEditor implements AttributeEditor {
             _field.selectedProperty().setValue(selected);
 //            _field.setSelected(selected);//TODO: get default Value
             if (selected) {
-                _field.setText("On");
+                _field.setText(I18n.getInstance().getString("button.toggle.activate"));
             } else {
-                _field.setText("Off");
+                _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
             }
 
             _lastSample = lsample;
         } else {
             _field.setSelected(false);//TODO: get default Value
-            _field.setText("Off");
+            _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
         }
 
         _field.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -119,9 +120,9 @@ public class BooleanValueEditor implements AttributeEditor {
                 try {
                     _newSample = _attribute.buildSample(new DateTime(), _field.isSelected());
                     if (t1) {
-                        _field.setText("On");
+                        _field.setText(I18n.getInstance().getString("button.toggle.activate"));
                     } else {
-                        _field.setText("Off");
+                        _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
                     }
                     _changed.setValue(true);
                 } catch (Exception ex) {

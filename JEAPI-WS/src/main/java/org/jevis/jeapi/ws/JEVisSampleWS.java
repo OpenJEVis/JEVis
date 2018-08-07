@@ -132,7 +132,7 @@ public class JEVisSampleWS implements JEVisSample {
     @Override
     public JEVisFile getValueAsFile() {
 
-        if (file != null) {
+        if (file != null && file.getBytes()!=null) {
             return file;
         } else {
             try {

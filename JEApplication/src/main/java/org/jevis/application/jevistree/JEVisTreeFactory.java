@@ -69,7 +69,7 @@ public class JEVisTreeFactory {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject());
                 } else if (pasteObj.match(t)) {
                     final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
-                    TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject());
+                    TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(),CopyObjectDialog.DefaultAction.COPY);
                 } else if (rename.match(t)) {
                     TreeHelper.EventRename(tree, selectedObj.getValue().getJEVisObject());
                 }

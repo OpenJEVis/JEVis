@@ -70,7 +70,7 @@ public class SampleTableExtension implements SampleEditorExtension {
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER);
 
-        final SampleTable table = new SampleTable(samples);
+        final SampleTable table = new SampleTable(att,samples);
 //        final org.jevis.jeconfig.sampletable.SampleTableView table = new org.jevis.jeconfig.sampletable.SampleTableView(samples);
         table.setPrefSize(1000, 1000);
 
