@@ -30,6 +30,7 @@ public class GraphExport {
     private DateTime maxDate = null;
     private Boolean multiAnalyses = false;
     private List<String> charts = new ArrayList<>();
+    final DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     public GraphExport(JEVisDataSource ds, GraphDataModel model, String analysisName) {
         this.model = model;
@@ -88,8 +89,6 @@ public class GraphExport {
     private String createCSVString(int lineCount) throws JEVisException {
         final StringBuilder sb = new StringBuilder();
 
-        DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss");
-
         String header = "Date";
         for (ChartDataModel mdl : model.getSelectedData()) {
             String objectName = mdl.getObject().getName();
@@ -134,16 +133,16 @@ public class GraphExport {
     private String createCSVStringMulti(int lineCount) throws JEVisException {
         final StringBuilder sb = new StringBuilder();
 
-        DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss");
-
         for (String s : charts) {
             String header = "Date";
             for (ChartDataModel mdl : model.getSelectedData()) {
-                String objectName = mdl.getObject().getName();
-                String dpName = "";
-                if (mdl.getDataProcessor() != null) dpName = mdl.getDataProcessor().getName();
-                header += ";" + objectName;
-                if (mdl.getDataProcessor() != null) header += " (" + dpName + ")";
+                if (mdl.get_selectedCharts().contains(s)) {
+                    String objectName = mdl.getObject().getName();
+                    String dpName = "";
+                    if (mdl.getDataProcessor() != null) dpName = mdl.getDataProcessor().getName();
+                    header += ";" + objectName;
+                    if (mdl.getDataProcessor() != null) header += " (" + dpName + ")";
+                }
             }
             header += ";";
             sb.append(header);
@@ -184,11 +183,23 @@ public class GraphExport {
         for (int i = 0; i < size; i++) {
             String str = "";
             for (String s : charts) {
-                str += listDateColumns.get(charts.indexOf(s)).get(i) + ";";
+                int chartsIndex = charts.indexOf(s);
+                boolean hasValues = i < listDateColumns.get(chartsIndex).size();
+                if (hasValues) {
+                    str += listDateColumns.get(chartsIndex).get(i) + ";";
+                } else {
+                    str += ";";
+                }
 
                 for (ChartDataModel mdl : model.getSelectedData()) {
-                    if (mdl.get_selectedCharts().contains(s))
-                        str += listMaps.get(charts.indexOf(s)).get(mdl.getObject().getName()).get(i).getValueAsDouble() + ";";
+                    String objName = mdl.getObject().getName();
+                    if (mdl.get_selectedCharts().contains(s)) {
+                        if (hasValues) {
+                            str += listMaps.get(chartsIndex).get(objName).get(i).getValueAsDouble() + ";";
+                        } else {
+                            str += ";";
+                        }
+                    }
                 }
             }
             sb.append(str);
