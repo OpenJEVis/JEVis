@@ -20,6 +20,7 @@ public class ExportMaster {
     List<Long> root = new ArrayList<>();
     List<Long> rootParents = new ArrayList<>();
 
+    Map<String,String> keymatching = new HashMap<>();
 
     List<Integer> backlist = Arrays.asList(new Integer[]{100, 101, 102, 103, 104, 105});
 

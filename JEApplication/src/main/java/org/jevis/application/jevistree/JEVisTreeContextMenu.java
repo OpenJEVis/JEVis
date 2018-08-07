@@ -19,6 +19,7 @@
  */
 package org.jevis.application.jevistree;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
@@ -55,8 +56,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
         _tree = tree;
 
 
-
-
 //        getItems().add(buildMenuNew());
         getItems().setAll(
                 buildNew2(),
@@ -67,7 +66,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 buildCopy(),
                 buildPaste(),
                 new SeparatorMenuItem(),
-                buildExport(),
+                buildMenuExport(),
                 buildImport()
         );
 
@@ -76,7 +75,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 getItems().add(new SeparatorMenuItem());
                 getItems().add(buildMenuAddInput());
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -91,7 +90,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                              @Override
                              public void handle(ActionEvent t) {
 //                final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) _tree.getSelectionModel().getSelectedItem());
-                                 TreeHelper.EventDrop(_tree, _tree.getCopyObject(), _obj);
+                                 TreeHelper.EventDrop(_tree, _tree.getCopyObject(), _obj,CopyObjectDialog.DefaultAction.COPY);
                              }
                          }
         );
@@ -187,6 +186,28 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 } catch (JEVisException ex) {
                     ex.printStackTrace();
                 }
+            }
+        });
+
+        return menu;
+    }
+
+
+    public MenuItem buildMenuExport() {
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                Platform.runLater(() -> {
+                    try {
+                        TreeHelper.EventExportTree(_obj);
+                    } catch (JEVisException ex) {
+                        ex.printStackTrace();
+                    }
+                });
+
+
             }
         });
 
