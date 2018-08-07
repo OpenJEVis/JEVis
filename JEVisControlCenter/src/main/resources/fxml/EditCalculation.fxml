@@ -83,7 +83,7 @@
                                         <Button fx:id="buttonSmallerEquals" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" maxHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onSmallerEquals" text="&lt;=" GridPane.columnIndex="4" GridPane.rowIndex="7" />
                                         <Button fx:id="buttonAnd" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" maxHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onAnd" text="&amp;&amp;" GridPane.columnIndex="6" GridPane.rowIndex="6" />
                                         <Button fx:id="buttonOr" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" maxHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onOr" text="||" GridPane.columnIndex="7" GridPane.rowIndex="6" />
-                                        <Button fx:id="buttonVerify" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onVerify" text="Verify" textFill="#2d9024" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                        <Button fx:id="buttonVerify" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onVerify" text="%plugin.object.calc.verify" textFill="#2d9024" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                                         <Button fx:id="atan2" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onAtan2" text="atan2" GridPane.columnIndex="8" GridPane.rowIndex="5" />
                                     </children>
                                     <columnConstraints>
@@ -113,7 +113,7 @@
                               <RowConstraints />
                                     </rowConstraints>
                                 </GridPane>
-                        <Label focusTraversable="false" text="Input Varibales:" />
+                        <Label focusTraversable="false" text="%plugin.object.calc.variables" />
                                   <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
                                       <content>
                                           <VariablesBox fx:id="variablesBox" />

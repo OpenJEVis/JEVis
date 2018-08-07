@@ -27,6 +27,10 @@ public class I18n {
 
     }
 
+    public ResourceBundle getBundle(){
+        return bundle;
+    }
+
     public void loadBundel(Locale local){
         this.locale=local;
         bundle = ResourceBundle.getBundle("JEVisCC", local);
