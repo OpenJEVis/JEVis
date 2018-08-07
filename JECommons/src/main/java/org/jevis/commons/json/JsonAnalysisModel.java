@@ -41,6 +41,7 @@ public class JsonAnalysisModel {
     private String aggregation;
     private String color;
     private String unit;
+    private String selectedCharts;
 
     public JsonAnalysisModel() {
     }
@@ -131,5 +132,14 @@ public class JsonAnalysisModel {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    @XmlElement(name = "selectedCharts")
+    public String getSelectedCharts() {
+        return selectedCharts;
+    }
+
+    public void setSelectedCharts(String selectedCharts) {
+        this.selectedCharts = selectedCharts;
     }
 }

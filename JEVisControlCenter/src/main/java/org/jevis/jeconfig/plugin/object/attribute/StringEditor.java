@@ -3,22 +3,17 @@ package org.jevis.jeconfig.plugin.object.attribute;
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.DefaultProperty;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.shape.VLineTo;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jeconfig.tool.I18n;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
 
 public class StringEditor extends BasicEditor {
 
     private JEVisAttribute attribute;
+
     public StringEditor(JEVisAttribute att) {
         super(att);
-        this.attribute=att;
+        this.attribute = att;
     }
 
     @Override
@@ -30,11 +25,11 @@ public class StringEditor extends BasicEditor {
     }
 
     @Override
-    public Object parseValue(String value) throws ParseException {
+    public Object parseValue(String value) {
         try {
             return value;
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -43,13 +38,18 @@ public class StringEditor extends BasicEditor {
     }
 
     @Override
-    public String formatSample(JEVisSample value) throws ParseException,JEVisException {
+    public String formatSample(JEVisSample value) throws JEVisException {
         return value.getValueAsString();
     }
 
     @Override
-    public String formatValue(Object value) throws ParseException, JEVisException {
+    public String formatValue(Object value) {
         return value.toString();
+    }
+
+    @Override
+    public boolean validateEmptyValue() {
+        return true;
     }
 
     @DefaultProperty(value = "icon")
@@ -81,13 +81,6 @@ public class StringEditor extends BasicEditor {
             }
         }
     }
-
-
-    @Override
-    public boolean validateEmptyValue() {
-        return true;
-    }
-
 
 
 }

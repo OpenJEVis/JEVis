@@ -9,8 +9,8 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.dialog.GraphSelectionDialog;
-import org.jevis.application.jevistree.plugin.BarChartDataModel;
+import org.jevis.application.dialog.ChartSelectionDialog;
+import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 
@@ -27,7 +27,7 @@ public class ToolBarController implements EventHandler {
     private GraphDataModel model;
     private ToolBarView view;
     private final JEVisDataSource ds;
-    private GraphSelectionDialog selectionDialog;
+    private ChartSelectionDialog selectionDialog;
 
     public ToolBarController(ToolBarView view, GraphDataModel model, JEVisDataSource ds) {
         this.model = model;
@@ -38,14 +38,14 @@ public class ToolBarController implements EventHandler {
     @Override
     public void handle(Event event) {
         if (selectionDialog == null) {
-            selectionDialog = new GraphSelectionDialog(ds);
+            selectionDialog = new ChartSelectionDialog(ds, null);
         }
 
-        if (selectionDialog.show(new Stage()) == GraphSelectionDialog.Response.OK) {
+        if (selectionDialog.show(new Stage()) == ChartSelectionDialog.Response.OK) {
 
-            Set<BarChartDataModel> selectedData = new HashSet<>();
-            for (Map.Entry<String, BarChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
-                BarChartDataModel value = entrySet.getValue();
+            Set<ChartDataModel> selectedData = new HashSet<>();
+            for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
+                ChartDataModel value = entrySet.getValue();
                 if (value.getSelected()) {
                     selectedData.add(value);
                 }

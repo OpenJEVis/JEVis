@@ -6,7 +6,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 
 

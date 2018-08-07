@@ -19,9 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jfoenix.controls.JFXPasswordField;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,7 +26,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.PasswordField;
 import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import org.jevis.api.JEVisAttribute;
@@ -38,6 +34,9 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

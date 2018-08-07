@@ -325,7 +325,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public Period getDisplaySampleRate() {
         try {
-            if (json.getDisplaySampleRate()==null || json.getDisplaySampleRate().isEmpty()) {
+            if (json.getDisplaySampleRate() == null || json.getDisplaySampleRate().isEmpty()) {
                 return Period.ZERO;
             } else {
                 return Period.parse(json.getDisplaySampleRate());
@@ -339,9 +339,9 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public Period getInputSampleRate() {
         try {
-            if (json.getInputSampleRate()==null || json.getInputSampleRate().isEmpty()) {
+            if (json.getInputSampleRate() == null || json.getInputSampleRate().isEmpty()) {
                 return Period.ZERO;
-            }else {
+            } else {
                 return Period.parse(json.getInputSampleRate());
             }
         } catch (Exception ex) {

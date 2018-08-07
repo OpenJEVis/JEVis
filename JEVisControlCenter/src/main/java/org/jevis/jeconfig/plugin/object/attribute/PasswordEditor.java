@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -35,6 +33,9 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.joda.time.DateTime;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -74,7 +75,7 @@ public class PasswordEditor implements AttributeEditor {
 //        _attribute = att;
 //    }
     @Override
-    public void commit() throws JEVisException {
+    public void commit() {
 //        if (_hasChanged && _newSample != null) {
 //
 //            //TODO: check if tpye is ok, maybe better at imput time
@@ -94,7 +95,7 @@ public class PasswordEditor implements AttributeEditor {
 //        return _field;
     }
 
-    private void buildTextFild() throws JEVisException {
+    private void buildTextFild() {
         if (_setPW == null) {
             _setPW = new Button(I18n.getInstance().getString("plugin.object.attribute.password.button"),
                     JEConfig.getImage("1415303685_lock-s1.png", 18, 18));

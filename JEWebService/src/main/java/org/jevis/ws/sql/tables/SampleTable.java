@@ -141,9 +141,9 @@ public class SampleTable {
 //                        ps.setNull(++p, Types.VARCHAR);
 //                        break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
-                        if(sample.getValue().equals("1") || sample.getValue().equals("2")){
+                        if (sample.getValue().equals("1") || sample.getValue().equals("2")) {
                             ps.setBoolean(++p, "1".equals(sample.getValue()));
-                        }else{
+                        } else {
                             ps.setBoolean(++p, Boolean.valueOf(sample.getValue()));
                         }
                         break;
@@ -154,10 +154,10 @@ public class SampleTable {
                         ps.setString(++p, sample.getValue());
                         break;
                     case JEVisConstants.PrimitiveType.LONG:
-                        ps.setLong(++p, dv.validate(sample.getValue(),Locale.US).longValue());
+                        ps.setLong(++p, dv.validate(sample.getValue(), Locale.US).longValue());
                         break;
                     case JEVisConstants.PrimitiveType.DOUBLE:
-                        ps.setDouble(++p, dv.validate(sample.getValue(),Locale.US));
+                        ps.setDouble(++p, dv.validate(sample.getValue(), Locale.US));
                         break;
                     default:
                         ps.setString(++p, sample.getValue());

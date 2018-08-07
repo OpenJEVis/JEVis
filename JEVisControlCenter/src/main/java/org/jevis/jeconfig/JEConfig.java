@@ -45,9 +45,6 @@ import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.login.FXLogin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.commons.export.ExportMaster;
-import org.jevis.commons.ws.json.JsonI18nClass;
-import org.jevis.commons.ws.json.JsonI18nType;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
@@ -91,22 +88,6 @@ public class JEConfig extends Application {
      */
     public static String userpassword;
 
-    @Override
-    public void init() throws Exception {
-        super.init();
-        BasicConfigurator.configure();//Load an default log4j config
-        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
-        Parameters parameters = getParameters();
-        _config.parseParameters(parameters);
-        I18n.getInstance().loadBundel(Locale.getDefault());
-        JEConfig.PROGRAMM_INFO.setName(I18n.getInstance().getString("appname"));
-        PROGRAMM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
-        PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
-        PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
-
-    }
-
-
     /**
      * Returns the last path the local user selected
      *
@@ -125,25 +106,19 @@ public class JEConfig extends Application {
         return getConfig().getLastPath();
     }
 
-    public static final class OsUtils {
-        private static String OS = null;
+    @Override
+    public void init() throws Exception {
+        super.init();
+        BasicConfigurator.configure();//Load an default log4j config
+        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
+        Parameters parameters = getParameters();
+        _config.parseParameters(parameters);
+        I18n.getInstance().loadBundel(Locale.getDefault());
+        JEConfig.PROGRAMM_INFO.setName(I18n.getInstance().getString("appname"));
+        PROGRAMM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
+        PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
+        PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
-        public static String getOsName() {
-            if (OS == null) {
-                OS = System.getProperty("os.name");
-            }
-            return OS;
-        }
-
-        public static boolean isWindows() {
-            return getOsName().startsWith("Windows");
-        }
-
-        //TODO stuff for recognizing different os
-//        public static boolean isUnix()
-//        {
-//            return false;
-//        }
     }
 
     /**
@@ -211,18 +186,6 @@ public class JEConfig extends Application {
 
     public static Stage getStage() {
         return _primaryStage;
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle(PROGRAMM_INFO.getName());
-        JavaVersionCheck checkVersion = new JavaVersionCheck();
-        if (!checkVersion.isVersionOK()) {
-            System.exit(1);
-        }
-
-        _primaryStage = primaryStage;
-        initGUI(primaryStage);
     }
 
     /**
@@ -305,7 +268,7 @@ public class JEConfig extends Application {
                 TopMenu menu = new TopMenu();
                 pMan.setMenuBar(menu);
 
-                final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S,KeyCombination.CONTROL_DOWN);
+                final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
                 scene.setOnKeyPressed(ke -> {
                     if (saveCombo.match(ke)) {
                         pMan.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
@@ -392,6 +355,39 @@ public class JEConfig extends Application {
         });
 
 
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle(PROGRAMM_INFO.getName());
+        JavaVersionCheck checkVersion = new JavaVersionCheck();
+        if (!checkVersion.isVersionOK()) {
+            System.exit(1);
+        }
+
+        _primaryStage = primaryStage;
+        initGUI(primaryStage);
+    }
+
+    public static final class OsUtils {
+        private static String OS = null;
+
+        public static String getOsName() {
+            if (OS == null) {
+                OS = System.getProperty("os.name");
+            }
+            return OS;
+        }
+
+        public static boolean isWindows() {
+            return getOsName().startsWith("Windows");
+        }
+
+        //TODO stuff for recognizing different os
+//        public static boolean isUnix()
+//        {
+//            return false;
+//        }
     }
 
 

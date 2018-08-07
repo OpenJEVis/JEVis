@@ -1,0 +1,28 @@
+{
+  "jevisclass": "Analysis",
+  "names": {
+    "de": "Analyse",
+    "ru": "Analysis",
+    "en": "Analysis"
+  },
+  "descriptions": {
+    "de": "Das Analysenobjekt beeinhaltet das Daten Modell aus Graph. Alle wichtigen Einstellungen zu der entsprechenden Analyse sind hier abgelegt.",
+    "ru": "The analysis object contains the data model from graph. All important settings for the corresponding analysis are stored here.",
+    "en": "The analysis object contains the data model from graph. All important settings for the corresponding analysis are stored here."
+  },
+  "types": [
+    {
+      "type": "Data Model",
+      "descriptions": {
+        "de": "Beeinhaltet das Datenmodell zur gespeicherten Analyse",
+        "ru": "Includes the data model for stored analysis",
+        "en": "Includes the data model for stored analysis"
+      },
+      "names": {
+        "de": "Datenmodell",
+        "ru": "Data Model",
+        "en": "Data Model"
+      }
+    }
+  ]
+}

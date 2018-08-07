@@ -434,7 +434,7 @@ public class ScheduleEditor implements AttributeEditor {
 
     @Override
     public void setReadOnly(boolean canRead) {
-        ;//TODO
+        //TODO
     }
 
     @Override

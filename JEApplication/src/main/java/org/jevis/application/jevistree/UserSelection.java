@@ -37,10 +37,10 @@ public class UserSelection {
     private DateTime _endDate;
     private SelectionType _type;
 
-    public static enum SelectionType {
+    public enum SelectionType {
 
         Object, Attribute, AttributeAndTime
-    };
+    }
 
     public UserSelection(SelectionType _type, JEVisObject _obj) {
         this._obj = _obj;

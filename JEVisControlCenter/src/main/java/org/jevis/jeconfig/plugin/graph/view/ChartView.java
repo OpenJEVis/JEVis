@@ -30,15 +30,20 @@ import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.jevistree.plugin.BarChartDataModel;
+import org.jevis.api.JEVisUnit;
+import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.TableEntry;
 import org.jevis.commons.constants.JEDataProcessorConstants;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
@@ -49,7 +54,7 @@ import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 /**
  * @author broder
  */
-public class AreaChartView implements Observer {
+public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
     private AreaChart<Number, Number> areaChart;
@@ -58,7 +63,9 @@ public class AreaChartView implements Observer {
     private final TableView table;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
 
-    public AreaChartView(GraphDataModel dataModel) {
+    private ObservableList<String> chartsList = FXCollections.observableArrayList();
+
+    public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
         dataModel.addObserver(this);
 
@@ -109,6 +116,20 @@ public class AreaChartView implements Observer {
         table.getColumns().addAll(name, colorCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
     }
 
+    public ObservableList<String> getChartsList() {
+        List<String> tempList = new ArrayList<>();
+        for (ChartDataModel mdl : dataModel.getSelectedData()) {
+            if (mdl.getSelected()) {
+                for (String s : mdl.get_selectedCharts()) {
+                    if (!tempList.contains(s)) tempList.add(s);
+                }
+            }
+        }
+
+        chartsList = FXCollections.observableArrayList(tempList);
+        return chartsList;
+    }
+
     private TableColumn<TableEntry, Color> buildColorColumn(String columnName) {
         TableColumn<TableEntry, Color> column = new TableColumn(columnName);
         column.setPrefWidth(100);
@@ -116,14 +137,7 @@ public class AreaChartView implements Observer {
         column.setMinWidth(100);
 
         column.setCellValueFactory(param -> {
-//                return new Simpleob<Color>
-
-//                Color newColor = Color.valueOf(param.getValue().colorProperty().getName());
-//                ObservableValue<Color> obColor = new SimpleObjectProperty<Color>(newColor);
             return new SimpleObjectProperty<>(param.getValue().getColor());
-
-//                return obColor;
-//                return param.getValue().colorProperty();
         });
         column.setCellFactory(new Callback<TableColumn<TableEntry, Color>, TableCell<TableEntry, Color>>() {
             @Override
@@ -140,14 +154,7 @@ public class AreaChartView implements Observer {
                         if (!empty && item != null) {
                             StackPane hbox = new StackPane();
                             hbox.setBackground(new Background(new BackgroundFill(item.deriveColor(1, 1, 50, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
-//                            ColorPicker colorPicker = new ColorPicker();
-//
-//                            StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
-//                            colorPicker.setValue(item);
-//                            colorPicker.setStyle("-fx-color-label-visible: false ;");
 
-//                            colorPicker.setDisable(true);
-//                            hbox.getChildren().setAll(colorPicker);
                             setText(null);
                             setGraphic(hbox);
                         } else {
@@ -198,94 +205,117 @@ public class AreaChartView implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
-            this.drawAreaChart();
+            getChartsList();
+            if (chartsList.size() == 1) this.drawAreaChart("");
+            else getChartViews();
         } catch (JEVisException ex) {
-            Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void drawAreaChart() throws JEVisException {
+    public List<ChartView> getChartViews() throws JEVisException {
+        List<ChartView> charts = new ArrayList<>();
+
+        getChartsList();
+        for (String s : chartsList) {
+            ChartView view = new ChartView(dataModel);
+            view.drawAreaChart(s);
+            charts.add(view);
+        }
+
+        return charts;
+    }
+
+    public void drawAreaChart(String chartName) throws JEVisException {
         tableData.clear();
         String unit = "";
 
-        Set<BarChartDataModel> selectedData = dataModel.getSelectedData();
+        Set<ChartDataModel> selectedData = dataModel.getSelectedData();
 
         ObservableList<XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
         List<Color> hexColors = new ArrayList<>();
 
         String title = I18n.getInstance().getString("plugin.graph.chart.title1");
 
-        for (BarChartDataModel singleRow : selectedData) {
-            unit = UnitManager.getInstance().formate(singleRow.getUnit());
-            hexColors.add(singleRow.getColor());
-            title = singleRow.getTitle();
+        for (ChartDataModel singleRow : selectedData) {
+            if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                hexColors.add(singleRow.getColor());
 
-            List<JEVisSample> samples = singleRow.getSamples();
-            ObservableList<XYChart.Data<Number, Number>> series1Data = FXCollections.observableArrayList();
-            TreeMap<Double, JEVisSample> sampleMap = new TreeMap();
+                if (chartName == "" || chartName == null) {
+                    if (singleRow.get_selectedCharts().size() == 1) title = singleRow.get_selectedCharts().get(0);
+                } else title = chartName;
 
-            String dp_name = "";
-            if (singleRow.getDataProcessor() != null) dp_name = singleRow.getDataProcessor().getName();
-            TableEntry tableEntry = new TableEntry(singleRow.getObject().getName() + " (" + dp_name + ")");
-            tableEntry.setColor(singleRow.getColor());
+                List<JEVisSample> samples = singleRow.getSamples();
+                ObservableList<XYChart.Data<Number, Number>> series1Data = FXCollections.observableArrayList();
+                TreeMap<Double, JEVisSample> sampleMap = new TreeMap();
 
-            singleRow.setTableEntry(tableEntry);
-            tableData.add(tableEntry);
-            Boolean isQuantitiy = false;
-            Double min = Double.MAX_VALUE;
-            Double max = Double.MIN_VALUE;
-            Double avg;
-            Double sum = 0.0;
+                String dp_name = "";
+                if (singleRow.getDataProcessor() != null) dp_name = singleRow.getDataProcessor().getName();
+                TableEntry tableEntry = new TableEntry(singleRow.getObject().getName() + " (" + dp_name + ")");
+                tableEntry.setColor(singleRow.getColor());
 
-            for (JEVisSample sample : samples) {
-                JEVisObject dp = singleRow.getDataProcessor();
-                if (Objects.nonNull(dp)) {
-                    if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
-                        if (Objects.nonNull(dp.getAttribute("Value is a Quantity").getLatestSample())) {
-                            if (dp.getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
+                singleRow.setTableEntry(tableEntry);
+                tableData.add(tableEntry);
+                Boolean isQuantitiy = false;
+                Double min = Double.MAX_VALUE;
+                Double max = Double.MIN_VALUE;
+                Double avg;
+                Double sum = 0.0;
 
-                                isQuantitiy = true;
+                for (JEVisSample sample : samples) {
+                    JEVisObject dp = singleRow.getDataProcessor();
+                    if (Objects.nonNull(dp)) {
+                        if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
+                            if (Objects.nonNull(dp.getAttribute("Value is a Quantity").getLatestSample())) {
+                                if (dp.getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
+
+                                    isQuantitiy = true;
+                                }
                             }
                         }
                     }
-                }
 
-                sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
-                DateTime dateTime = sample.getTimestamp();
-                Double value = sample.getValueAsDouble();
-                if (isQuantitiy) {
-                    min = Math.min(value, min);
-                    max = Math.max(value, max);
-                    sum += value;
-                }
+                    QuantityUnits qu = new QuantityUnits();
+                    if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
+
+                    sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
+                    DateTime dateTime = sample.getTimestamp();
+                    Double value = sample.getValueAsDouble();
+                    if (isQuantitiy) {
+                        min = Math.min(value, min);
+                        max = Math.max(value, max);
+                        sum += value;
+                    }
 //                Date date = dateTime.toGregorianCalendar().getTime();
-                Long timestamp = dateTime.getMillis();
-                XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
+                    Long timestamp = dateTime.getMillis();
+                    XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
 
-                //dot for the chart
-                Rectangle rect = new Rectangle(0, 0);
-                rect.setVisible(false);
-                data.setNode(rect);
-                series1Data.add(data);
+                    //dot for the chart
+                    Rectangle rect = new Rectangle(0, 0);
+                    rect.setVisible(false);
+                    data.setNode(rect);
+                    series1Data.add(data);
 
+                }
+
+                if (isQuantitiy) {
+                    avg = sum / samples.size();
+                    NumberFormat nf_out = NumberFormat.getNumberInstance();
+                    nf_out.setMaximumFractionDigits(2);
+                    nf_out.setMinimumFractionDigits(2);
+
+                    tableEntry.setMin(nf_out.format(min) + " " + unit);
+                    tableEntry.setMax(nf_out.format(max) + " " + unit);
+                    tableEntry.setAvg(nf_out.format(avg) + " " + unit);
+                    tableEntry.setSum(nf_out.format(sum) + " " + unit);
+                }
+
+                XYChart.Series<Number, Number> currentSerie = new XYChart.Series<>(singleRow.getObject().getName(), series1Data);
+                currentSerie.setName(singleRow.getObject().getName());
+                singleRow.setSampleMap(sampleMap);
+                series.add(currentSerie);
             }
-
-            if (isQuantitiy) {
-                avg = sum / samples.size();
-                NumberFormat nf_out = NumberFormat.getNumberInstance();
-                nf_out.setMaximumFractionDigits(2);
-                nf_out.setMinimumFractionDigits(2);
-
-                tableEntry.setMin(nf_out.format(min) + " " + unit);
-                tableEntry.setMax(nf_out.format(max) + " " + unit);
-                tableEntry.setAvg(nf_out.format(avg) + " " + unit);
-                tableEntry.setSum(nf_out.format(sum) + " " + unit);
-            }
-
-            XYChart.Series<Number, Number> currentSerie = new XYChart.Series<>(singleRow.getObject().getName(), series1Data);
-            currentSerie.setName(singleRow.getObject().getName());
-            singleRow.setSampleMap(sampleMap);
-            series.add(currentSerie);
         }
 
         table.setItems(tableData);
@@ -326,39 +356,45 @@ public class AreaChartView implements Observer {
         areaChart.setOnMouseMoved(mouseEvent -> {
             Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
             Double x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-            Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
-            if (valueForDisplay != null) {
+            if (x != null) {
+                Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
                 tableData.clear();
-                for (BarChartDataModel singleRow : selectedData) {
-                    try {
-                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
-                        Double nearest = higherKey;
-                        if (lowerKey != null && higherKey != null) {
-                            Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
-                            Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
-                            if (lower < higher) {
-                                nearest = lowerKey;
+                for (ChartDataModel singleRow : selectedData) {
+                    if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                        try {
+                            Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                            Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+
+                            Double nearest = higherKey;
+                            if (nearest == null) nearest = lowerKey;
+
+                            if (lowerKey != null && higherKey != null) {
+                                Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
+                                Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
+                                if (lower < higher) {
+                                    nearest = lowerKey;
+                                }
                             }
+
+                            NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
+                            nf.setMinimumFractionDigits(2);
+                            nf.setMaximumFractionDigits(2);
+                            Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
+                            String note = singleRow.getSampleMap().get(nearest).getNote();
+                            String formattedNote = formatNote(note);
+                            String formattedDouble = nf.format(valueAsDouble);
+                            TableEntry tableEntry = singleRow.getTableEntry();
+                            DateTime dateTime = new DateTime(Math.round(nearest));
+                            tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                            tableEntry.setNote(formattedNote);
+                            tableEntry.setValue(formattedDouble + " " + finalUnit);
+                            tableData.add(tableEntry);
+
+                            table.layout();
+
+                        } catch (Exception ex) {
+//                        Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
                         }
-
-                        NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
-                        nf.setMinimumFractionDigits(2);
-                        nf.setMaximumFractionDigits(2);
-                        Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
-                        String note = singleRow.getSampleMap().get(nearest).getNote();
-                        String formattedNote = formatNote(note);
-                        String formattedDouble = nf.format(valueAsDouble);
-                        TableEntry tableEntry = singleRow.getTableEntry();
-                        DateTime dateTime = new DateTime(Math.round(nearest));
-                        tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                        tableEntry.setNote(formattedNote);
-                        tableEntry.setValue(formattedDouble + " " + finalUnit);
-                        tableData.add(tableEntry);
-
-                        table.layout();
-                    } catch (Exception ex) {
-//                        Logger.getLogger(AreaChartView.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -387,22 +423,23 @@ public class AreaChartView implements Observer {
 
     private String formatNote(String note) {
         String output = "";
-        if (note.contains("interpolated")) output += "interpolated ";
-        if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
-            output += JEDataProcessorConstants.GapFillingType.AVERAGE;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
-            output += JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
-            output += JEDataProcessorConstants.GapFillingType.INTERPOLATION;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
-            output += JEDataProcessorConstants.GapFillingType.MAXIMUM;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
-            output += JEDataProcessorConstants.GapFillingType.MINIMUM;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
-            output += JEDataProcessorConstants.GapFillingType.MEDIAN;
-        if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
-            output += JEDataProcessorConstants.GapFillingType.STATIC;
-
+        if (note != null) {
+            if (note.contains("interpolated")) output += "interpolated ";
+            if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
+                output += JEDataProcessorConstants.GapFillingType.AVERAGE;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
+                output += JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
+                output += JEDataProcessorConstants.GapFillingType.INTERPOLATION;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
+                output += JEDataProcessorConstants.GapFillingType.MAXIMUM;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
+                output += JEDataProcessorConstants.GapFillingType.MINIMUM;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
+                output += JEDataProcessorConstants.GapFillingType.MEDIAN;
+            if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
+                output += JEDataProcessorConstants.GapFillingType.STATIC;
+        }
         return output;
     }
 
@@ -425,4 +462,22 @@ public class AreaChartView implements Observer {
                 (int) (color.getBlue() * 255));
     }
 
+    private class QuantityUnits {
+        Unit _l = NonSI.LITER;
+        final JEVisUnit l = new JEVisUnitImp(_l);
+        Unit _m3 = SI.CUBIC_METRE;
+        final JEVisUnit m3 = new JEVisUnitImp(_m3);
+        Unit _Wh = SI.WATT.times(NonSI.HOUR);
+        final JEVisUnit Wh = new JEVisUnitImp(_Wh);
+        Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
+        final JEVisUnit kWh = new JEVisUnitImp(_kWh);
+        Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
+        final JEVisUnit MWh = new JEVisUnitImp(_MWh);
+        Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
+        final JEVisUnit GWh = new JEVisUnitImp(_GWh);
+
+        public List<JEVisUnit> get() {
+            return new ArrayList<>(Arrays.asList(l, m3, Wh, kWh, MWh, GWh));
+        }
+    }
 }

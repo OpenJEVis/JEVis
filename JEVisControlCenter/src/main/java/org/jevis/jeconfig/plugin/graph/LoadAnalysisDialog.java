@@ -14,7 +14,8 @@ import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import jfxtras.scene.control.ListView;
 import org.jevis.api.*;
-import org.jevis.application.jevistree.plugin.BarChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
@@ -73,7 +74,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         super.updateItem(item, empty);
                         LocalDate min = null;
                         LocalDate max = null;
-                        for (BarChartDataModel mdl : data.getSelectedData()) {
+                        for (ChartDataModel mdl : data.getSelectedData()) {
                             JEVisAttribute att = mdl.getAttribute();
 
                             LocalDate min_check = LocalDate.of(
@@ -128,19 +129,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
 
         if (!listAnalysisModel.isEmpty()) {
-            DateTime start = DateTime.parse(listAnalysisModel.get(0).getSelectedStart());
-            LocalDate ld_start = LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth());
-            LocalTime lt_start = LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour());
-            pickerDateStart.valueProperty().setValue(ld_start);
-            pickerTimeStart.valueProperty().setValue(lt_start);
-            selectedStart = start;
-
-            DateTime end = DateTime.parse(listAnalysisModel.get(0).getSelectedEnd());
-            LocalDate ld_end = LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth());
-            LocalTime lt_end = LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour());
-            pickerDateEnd.valueProperty().setValue(ld_end);
-            pickerTimeEnd.valueProperty().setValue(lt_end);
-            selectedEnd = end;
+            updateTimeFramePicker();
         }
 
         comboBoxPresetDates.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -195,29 +184,41 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getMillisOfSecond());
-                comboBoxPresetDates.getSelectionModel().select(0);
+                if (selectedStart != null) {
+                    selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getSecondOfMinute());
+                    updateTimeFrame();
+                    comboBoxPresetDates.getSelectionModel().select(0);
+                }
             }
         });
 
         pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getMillisOfSecond());
-                comboBoxPresetDates.getSelectionModel().select(0);
+                if (selectedEnd != null) {
+                    selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getSecondOfMinute());
+                    updateTimeFrame();
+                    comboBoxPresetDates.getSelectionModel().select(0);
+                }
             }
         });
 
         pickerTimeStart.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
-                comboBoxPresetDates.getSelectionModel().select(0);
+                if (selectedStart != null) {
+                    selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
+                    updateTimeFrame();
+                    comboBoxPresetDates.getSelectionModel().select(0);
+                }
             }
         });
 
         pickerTimeEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
-                comboBoxPresetDates.getSelectionModel().select(0);
+                if (selectedEnd != null) {
+                    selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
+                    updateTimeFrame();
+                    comboBoxPresetDates.getSelectionModel().select(0);
+                }
             }
         });
 
@@ -237,7 +238,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         VBox vbox_buttons = new VBox();
         vbox_buttons.setSpacing(4);
         vbox_buttons.getChildren().addAll(comboBoxPresetDates);
-        vbox_buttons.setAlignment(Pos.CENTER);
+        vbox_buttons.setAlignment(Pos.BOTTOM_RIGHT);
         gp_date.add(vbox_picker, 0, 0);
         gp_date.add(vbox_buttons, 1, 0);
         gp_date.setPrefWidth(hbox_list.getWidth());
@@ -255,6 +256,13 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (!newValue.equals(oldValue)) {
                 this.nameCurrentAnalysis = newValue;
                 setJEVisObjectForCurrentAnalysis(newValue);
+
+                selectedStart = DateTime.now().minusDays(7);
+                selectedEnd = new DateTime();
+
+                updateTimeFramePicker();
+                updateTimeFrame();
+                updateToolBarView();
                 toolBarView.select(nameCurrentAnalysis);
 
                 if (oldValue == null) {
@@ -270,6 +278,84 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         this.getDialogPane().setContent(vbox);
 
+    }
+
+    private void getTimeFromJsonModel() {
+        if (listAnalysisModel != null && !listAnalysisModel.isEmpty()) {
+            DateTime start = null;
+            DateTime end = null;
+
+            for (JsonAnalysisModel mdl : listAnalysisModel) {
+                if (start == null || DateTime.parse(mdl.getSelectedStart()).isBefore(start))
+                    start = DateTime.parse(mdl.getSelectedStart());
+                if (end == null || DateTime.parse(mdl.getSelectedEnd()).isAfter(end))
+                    end = DateTime.parse(mdl.getSelectedEnd());
+            }
+            selectedStart = start;
+            selectedEnd = end;
+
+            if (data.getSelectedData() != null) {
+                for (ChartDataModel mdl : data.getSelectedData()) {
+                    if (mdl.getSelected()) {
+                        mdl.setSelectedStart(start);
+                        mdl.setSelectedEnd(end);
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateTimeFramePicker() {
+        DateTime start = null;
+        DateTime end = null;
+
+        if (data.getSelectedData() == null) {
+            for (JsonAnalysisModel mdl : listAnalysisModel) {
+                if (start == null || DateTime.parse(mdl.getSelectedStart()).isBefore(start))
+                    start = DateTime.parse(mdl.getSelectedStart());
+                if (end == null || DateTime.parse(mdl.getSelectedEnd()).isAfter(end))
+                    end = DateTime.parse(mdl.getSelectedEnd());
+            }
+        } else {
+            for (ChartDataModel mdl : data.getSelectedData()) {
+                if (mdl.getSelected()) {
+                    if (start == null || mdl.getSelectedStart().isBefore(start)) start = mdl.getSelectedStart();
+                    if (end == null || mdl.getSelectedEnd().isAfter(end)) end = mdl.getSelectedEnd();
+                }
+            }
+        }
+
+        LocalDate ld_start = LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth());
+        LocalTime lt_start = LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour());
+        pickerDateStart.valueProperty().setValue(ld_start);
+        pickerTimeStart.valueProperty().setValue(lt_start);
+        selectedStart = start;
+
+        LocalDate ld_end = LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth());
+        LocalTime lt_end = LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour());
+        pickerDateEnd.valueProperty().setValue(ld_end);
+        pickerTimeEnd.valueProperty().setValue(lt_end);
+        selectedEnd = end;
+    }
+
+    private void updateTimeFrame() {
+        if (data.getSelectedData() != null) {
+            for (ChartDataModel mdl : data.getSelectedData()) {
+                if (mdl.getSelected()) {
+                    mdl.setSelectedStart(selectedStart);
+                    mdl.setSelectedEnd(selectedEnd);
+                }
+            }
+        }
+
+        if (!listAnalysisModel.isEmpty()) {
+            for (JsonAnalysisModel mdl : listAnalysisModel) {
+                if (Boolean.parseBoolean(mdl.getSelected())) {
+                    mdl.setSelectedStart(selectedStart.toString());
+                    mdl.setSelectedEnd(selectedEnd.toString());
+                }
+            }
+        }
     }
 
     public void updateToolBarView() {
@@ -364,46 +450,63 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         }
     }
 
+    public List<JsonAnalysisModel> getListAnalysisModel() {
+        return listAnalysisModel;
+    }
+
     private void updateData() {
-        Set<BarChartDataModel> selectedData = getBarChartDataModels();
+        Set<ChartDataModel> selectedData = getChartDataModels();
 
         data.setSelectedData(selectedData);
     }
 
-    private Set<BarChartDataModel> getBarChartDataModels() {
-        Map<String, BarChartDataModel> data = new HashMap<>();
+    public DateTime getSelectedStart() {
+        return selectedStart;
+    }
+
+    public DateTime getSelectedEnd() {
+        return selectedEnd;
+    }
+
+    private Set<ChartDataModel> getChartDataModels() {
+        Map<String, ChartDataModel> data = new HashMap<>();
 
         for (JsonAnalysisModel mdl : listAnalysisModel) {
-            BarChartDataModel newData = new BarChartDataModel();
+            ChartDataModel newData = new ChartDataModel();
             try {
                 Long id = Long.parseLong(mdl.getObject());
-                Long id_dp = Long.parseLong(mdl.getDataProcessorObject());
+                Long id_dp = null;
+                if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
                 JEVisObject obj = ds.getObject(id);
-                JEVisObject obj_dp = ds.getObject(id_dp);
+                JEVisObject obj_dp = null;
+                if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
                 JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
-                DateTime start = DateTime.parse(mdl.getSelectedStart());
-                DateTime end = DateTime.parse(mdl.getSelectedEnd());
+                DateTime start;
+                start = DateTime.parse(mdl.getSelectedStart());
+                DateTime end;
+                end = DateTime.parse(mdl.getSelectedEnd());
                 Boolean selected = Boolean.parseBoolean(mdl.getSelected());
                 newData.setObject(obj);
                 newData.setSelectedStart(start);
                 newData.setSelectedEnd(end);
                 newData.setColor(Color.valueOf(mdl.getColor()));
                 newData.setTitle(mdl.getName());
-                newData.setDataProcessor(obj_dp);
+                if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
                 newData.getAttribute();
+                newData.setAggregation(parseAggregation(mdl.getAggregation()));
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
                 newData.getSamples();
+                newData.set_selectedCharts(stringToList(mdl.getSelectedCharts()));
                 newData.setUnit(unit);
-                data.put(id.toString(), newData);
+                data.put(obj.getID().toString(), newData);
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
-
         }
-        Set<BarChartDataModel> selectedData = new HashSet<>();
-        for (Map.Entry<String, BarChartDataModel> entrySet : data.entrySet()) {
-            BarChartDataModel value = entrySet.getValue();
+        Set<ChartDataModel> selectedData = new HashSet<>();
+        for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
+            ChartDataModel value = entrySet.getValue();
             if (value.getSelected()) {
                 selectedData.add(value);
             }
@@ -411,8 +514,44 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         return selectedData;
     }
 
+    private ChartPlugin.AGGREGATION parseAggregation(String aggrigation) {
+        switch (aggrigation) {
+            case ("None"):
+                return ChartPlugin.AGGREGATION.None;
+            case ("Daily"):
+                return ChartPlugin.AGGREGATION.Daily;
+            case ("Weekly"):
+                return ChartPlugin.AGGREGATION.Weekly;
+            case ("Monthly"):
+                return ChartPlugin.AGGREGATION.Monthly;
+            case ("Yearly"):
+                return ChartPlugin.AGGREGATION.Yearly;
+            default:
+                return ChartPlugin.AGGREGATION.None;
+        }
+    }
+
     public GraphDataModel getData() {
         return data;
+    }
+
+    private String listToString(List<String> listString) {
+        if (listString != null) {
+            StringBuilder sb = new StringBuilder();
+            for (String s : listString) {
+                sb.append(s);
+                sb.append(", ");
+            }
+            return sb.toString();
+        } else return "";
+    }
+
+    private List<String> stringToList(String s) {
+        if (Objects.nonNull(s)) {
+            List<String> tempList = new ArrayList<>(Arrays.asList(s.split(", ")));
+            for (String str : tempList) if (str.contains(", ")) str.replace(", ", "");
+            return tempList;
+        } else return new ArrayList<>();
     }
 
     private enum DATE_TYPE {

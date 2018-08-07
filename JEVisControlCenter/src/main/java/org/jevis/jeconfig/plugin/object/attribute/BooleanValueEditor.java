@@ -19,16 +19,12 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.controlsfx.control.ToggleSwitch;
 import org.jevis.api.JEVisAttribute;
@@ -37,6 +33,9 @@ import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

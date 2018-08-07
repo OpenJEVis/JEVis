@@ -130,8 +130,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
         boolean allValid = true;
         for (AttributeEditor editor : _attributesEditor) {
-            if(!editor.isValid()){
-                allValid=false;
+            if (!editor.isValid()) {
+                allValid = false;
             }
         }
 
@@ -161,7 +161,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     }
 
-    private boolean saveAll(){
+    private boolean saveAll() {
         for (AttributeEditor editor : _attributesEditor) {
             try {
                 logger.debug("{}.save(): {}", this.getTitle(), editor.getAttribute().getName());

@@ -19,9 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -36,6 +33,10 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -74,7 +75,7 @@ public class BooleanButton implements AttributeEditor {
     }
 
     @Override
-    public void commit() throws JEVisException {
+    public void commit() {
 //        System.out.println("Commit boolean ");
 //        if (_newSample != null) {
 //            System.out.println("Value: " + _newSample.getValue());

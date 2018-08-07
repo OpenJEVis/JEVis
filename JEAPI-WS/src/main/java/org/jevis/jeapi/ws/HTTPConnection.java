@@ -208,7 +208,7 @@ public class HTTPConnection {
 //            reader = new InputStreamReader(con.getInputStream());
 //        }
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8));
         writer.write(json);
         writer.close();
         wr.close();

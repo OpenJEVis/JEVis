@@ -21,7 +21,7 @@ public class ExportMaster {
     List<Long> rootParents = new ArrayList<>();
 
 
-    List<Integer> backlist = Arrays.asList(new Integer[]{100, 101, 102, 103, 104, 105});
+    List<Integer> backlist = Arrays.asList(100, 101, 102, 103, 104, 105);
 
     public void ExportMaster(File outputFile) {
 
@@ -56,12 +56,10 @@ public class ExportMaster {
                 List<JsonRelationship> jsonRels = JsonFactory.buildRelationship(obj.getRelationships());
                 for (JsonRelationship rel : jsonRels) {
                     if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
-                        if(!rootParents.contains(rel.getTo())){
+                        if (!rootParents.contains(rel.getTo())) {
                             String key = getKey(rel);
-                            if(!structure.contains(key)){
-//                                System.out.println("add new Key:" +key);
-                                structure.add(key);
-                            }
+                            //                                System.out.println("add new Key:" +key);
+                            structure.add(key);
                         }
 
 
@@ -83,7 +81,7 @@ public class ExportMaster {
                     rootParents.add(object.getParents().get(0).getID());
                 }
 
-            }catch (JEVisException ex){
+            } catch (JEVisException ex) {
                 ex.printStackTrace();
             }
         });
@@ -117,25 +115,25 @@ public class ExportMaster {
     }
 
 
-    public void createTemplate(JEVisObject parent){
+    public void createTemplate(JEVisObject parent) {
         System.out.println("Create first level");
         root.forEach(rootID -> {
 
             MetaObject mo = metaObjects.get(rootID.toString());
-            System.out.println("Build: "+mo.getObject().getName());
+            System.out.println("Build: " + mo.getObject().getName());
 
-            buildChildren(mo.getObject().getId()+"");
+            buildChildren(mo.getObject().getId() + "");
 
         });
     }
 
-    public void buildChildren(String parentID){
+    public void buildChildren(String parentID) {
         structure.forEach(key -> {
 //            System.out.println("("+parentID+") ? "+key);
             String[] keys = key.split(":");
-            if(keys[1].equals(parentID)){
+            if (keys[1].equals(parentID)) {
                 MetaObject mo = metaObjects.get(keys[0]);
-                System.out.println("--> Build child: "+mo.getObject().getName());
+                System.out.println("--> Build child: " + mo.getObject().getName());
                 buildChildren(mo.getKey());
             }
 
@@ -165,8 +163,8 @@ public class ExportMaster {
                 } else {
                     System.out.println("Key: " + keys[1] + " is NOK");
                 }
-            }catch (Exception ex){
-                System.out.println("Key error: "+key);
+            } catch (Exception ex) {
+                System.out.println("Key error: " + key);
                 ex.printStackTrace();
             }
 

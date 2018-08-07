@@ -52,10 +52,10 @@ public class SampleTableExtension implements SampleEditorExtension {
 
     private final static String TITLE = "Editor";
     private final BorderPane _view = new BorderPane();
+    Stage owner = JEConfig.getStage();
     private JEVisAttribute _att;
     private List<JEVisSample> _samples;
     private boolean _dataChanged = true;
-    Stage owner = JEConfig.getStage();
 
     public SampleTableExtension(JEVisAttribute att, Stage stage) {
         _att = att;

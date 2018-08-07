@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Analyses Directory",
+  "names": {
+    "de": "Analysen",
+    "ru": "Analyses",
+    "en": "Analyses"
+  },
+  "descriptions": {
+    "de": "Das Analysenverzeichnis beeinhaltet die gespeicherten Analysen",
+    "ru": "The Analyses Directory contains the stored analyses",
+    "en": "The Analyses Directory contains the stored analyses"
+  },
+  "types": []
+}

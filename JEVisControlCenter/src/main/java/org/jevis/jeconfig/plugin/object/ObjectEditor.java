@@ -83,7 +83,7 @@ public class ObjectEditor {
 
     public void commitAll() {
         for (ObjectEditorExtension extension : activeExtensions) {
-            logger.debug("ObjectEditor.comitall: {}",extension.getClass());
+            logger.debug("ObjectEditor.comitall: {}", extension.getClass());
             extension.save();
         }
     }

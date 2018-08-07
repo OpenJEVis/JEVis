@@ -19,8 +19,6 @@
  */
 package org.jevis.application.dialog;
 
-import java.util.List;
-
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -47,6 +45,8 @@ import org.jevis.application.jevistree.UserSelection;
 import org.jevis.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.application.resource.ResourceLoader;
 
+import java.util.List;
+
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -63,10 +63,10 @@ public class SelectTargetDialog2 {
     private JEVisTree tree;
     private SimpleTargetPlugin stp = new SimpleTargetPlugin();
 
-    public static enum Response {
+    public enum Response {
 
         OK, CANCEL
-    };
+    }
 
     public enum MODE {
         OBJECT, ATTRIBUTE

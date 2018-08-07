@@ -26,7 +26,11 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -230,7 +234,7 @@ public class SQLDataSource {
             byte[] decoded = Base64.decodeBase64(auth);
 
             try {
-                String decodeS = (new String(decoded, "UTF-8"));
+                String decodeS = (new String(decoded, StandardCharsets.UTF_8));
                 String[] dauth = decodeS.split(":");
                 if (dauth.length == 2) {
 
@@ -247,8 +251,6 @@ public class SQLDataSource {
                 } else {
                     throw ErrorBuilder.ErrorBuilder(Response.Status.BAD_REQUEST.getStatusCode(), 2002, "The HTML authorization header is not correct formate");
                 }
-            } catch (UnsupportedEncodingException uee) {
-                throw ErrorBuilder.ErrorBuilder(Response.Status.BAD_REQUEST.getStatusCode(), 2003, "The HTML authorization header is not in Base64");
             } catch (NullPointerException nex) {
                 throw new AuthenticationException("Username/Password is not correct.");
             }
@@ -441,7 +443,7 @@ public class SQLDataSource {
         return false;
     }
 
-    public JsonAttribute getAttribute(long objectID, String name) throws JEVisException {
+    public JsonAttribute getAttribute(long objectID, String name) {
         for (JsonAttribute att : getAttributes(objectID)) {
             if (att.getType().equals(name)) {
                 return att;
@@ -458,7 +460,7 @@ public class SQLDataSource {
         return getSampleTable().deleteSamples(object, attribute, startDate, endDate);
     }
 
-    public List<JsonAttribute> getAttributes(long objectID) throws JEVisException {
+    public List<JsonAttribute> getAttributes(long objectID) {
         try {
             JsonObject ob = getObject(objectID);
             JsonJEVisClass jc = Config.getClassCache().get(ob.getJevisClass());

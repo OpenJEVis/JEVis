@@ -7,12 +7,10 @@ import java.util.Map;
 
 public class ControlFile {
 
-    Map<String,String> idMatching = new HashMap<>();
+    Map<String, String> idMatching = new HashMap<>();
 
 
-
-
-    public void export(JEVisObject obj){
+    public void export(JEVisObject obj) {
 
     }
 

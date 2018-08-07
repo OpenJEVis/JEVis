@@ -19,18 +19,15 @@
  */
 package org.jevis.commons.relationship;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisConstants;
 
 import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisUser;
 
 /**
  * This class helps handling the Relationship
@@ -258,12 +255,12 @@ public class RelationsManagment {
      * when not. returns false if the type is not an membership
      */
     public static boolean canDeleteMembership(JEVisRelationship rel) {
-        System.out.println("canDeleteMembership: "+rel);
+        System.out.println("canDeleteMembership: " + rel);
         try {
             JEVisUser juser = rel.getStartObject().getDataSource().getCurrentUser();
 
 
-            if(juser.isSysAdmin()){
+            if (juser.isSysAdmin()) {
                 System.out.println("is sysadmin");
                 return true;
             }
@@ -276,11 +273,10 @@ public class RelationsManagment {
 
 
                 if (rel.getStartID() == juser.getUserID()) {
-                    System.out.println("UserID: "+juser.getUserID()+ " Rel.start: "+rel.getStartID());
+                    System.out.println("UserID: " + juser.getUserID() + " Rel.start: " + rel.getStartID());
                     return false;
 //                    throw new JEVisException("Insufficient rights, user cannot delete its own user right", JEVisExceptionCodes.UNAUTHORIZED);
                 }
-
 
 
                 if (getObjectOwner(rel.getStartObject(), JEVisConstants.ObjectRelationship.MEMBER_DELETE).contains(juser.getUserObject())) {

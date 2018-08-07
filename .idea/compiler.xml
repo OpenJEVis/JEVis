@@ -28,28 +28,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="CSVParser" target="1.7" />
-      <module name="DataCollector" target="1.5" />
-      <module name="FTPDataSource" target="1.7" />
-      <module name="HTTPDataSource" target="1.8" />
-      <module name="jeapi" target="1.6" />
-      <module name="JEAPI-WS" target="1.7" />
-      <module name="jeapplication" target="1.8" />
-      <module name="JECalc" target="1.8" />
-      <module name="JECommons" target="1.8" />
-      <module name="JEDataCollector" target="1.8" />
-      <module name="JEDataProcessor" target="1.8" />
-      <module name="JENotifier" target="1.7" />
-      <module name="JEReport" target="1.8" />
-      <module name="JEVisControlCenter" target="1.8" />
       <module name="JEVisCore" target="1.5" />
-      <module name="JEWebservice" target="1.8" />
-      <module name="Notifier (1) (org.jevis.jenotifier.notifier)" target="1.8" />
-      <module name="Notifier (2) (org.jevis)" target="1.5" />
-      <module name="Notifier-EP" target="1.8" />
-      <module name="sFTPDataSource" target="1.7" />
-      <module name="SOAPDataSource" target="1.7" />
-      <module name="XMLParser" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>

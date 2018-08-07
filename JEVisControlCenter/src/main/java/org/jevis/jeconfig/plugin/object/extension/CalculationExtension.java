@@ -24,7 +24,6 @@ import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
 import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
-
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

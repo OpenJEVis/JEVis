@@ -286,8 +286,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             /**
              * Workaround, i guess we dont want the relationship list but only the map but its there and in use
              */
-            List<JEVisRelationship> all=getRelationships();
-            for(JEVisRelationship rel:getRelationships()){
+            List<JEVisRelationship> all = getRelationships();
+            for (JEVisRelationship rel : getRelationships()) {
                 if (rel.getStartID() == startID && rel.getEndID() == endID && rel.getType() == type) {
                     all.remove(rel);
                     break;
@@ -483,10 +483,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
             HttpURLConnection conn = getHTTPConnection().getDeleteConnection(resource);
 
-            if(conn.getResponseCode()== HttpURLConnection.HTTP_OK){
-                removeRelationshipFromCache(fromObject,toObject,type);
-            }else{
-                logger.error("Error while deleting Relationship {}",conn.getResponseCode());
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                removeRelationshipFromCache(fromObject, toObject, type);
+            } else {
+                logger.error("Error while deleting Relationship {}", conn.getResponseCode());
             }
 
 

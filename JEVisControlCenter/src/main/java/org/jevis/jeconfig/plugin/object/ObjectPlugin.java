@@ -331,12 +331,12 @@ public class ObjectPlugin implements Plugin {
         upload.setOnSucceeded(event -> pForm.getDialogStage().close());
 
         upload.setOnCancelled(event -> {
-            LOGGER.error("Save Cancel");
+            LOGGER.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
             pForm.getDialogStage().hide();
         });
 
         upload.setOnFailed(event -> {
-            LOGGER.error("Save failed");
+            LOGGER.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
             pForm.getDialogStage().hide();
         });
 

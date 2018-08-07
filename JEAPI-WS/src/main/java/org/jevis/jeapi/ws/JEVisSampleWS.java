@@ -19,7 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.commons.validator.routines.LongValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,17 +79,17 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public void setValue(Object value) throws ClassCastException {
-        logger.debug("setValue: {} Value: {}",getAttribute().getName(),value);
+        logger.debug("setValue: {} Value: {}", getAttribute().getName(), value);
         try {
             if (getAttribute().getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
                 Double.valueOf(value.toString());
-            }else if(getAttribute().getPrimitiveType() == JEVisConstants.PrimitiveType.LONG){
+            } else if (getAttribute().getPrimitiveType() == JEVisConstants.PrimitiveType.LONG) {
                 Long.valueOf(value.toString());
             }
 
             json.setValue(value.toString());
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             throw new ClassCastException("Value object does not match the PrimitiveType of the Attribute");
         }
     }
@@ -98,7 +97,7 @@ public class JEVisSampleWS implements JEVisSample {
     @Override
     public Long getValueAsLong() {
         LongValidator validator = LongValidator.getInstance();
-        return validator.validate(getValueAsString(),Locale.US);
+        return validator.validate(getValueAsString(), Locale.US);
     }
 
     @Override

@@ -8,14 +8,21 @@ package org.jevis.application.jevistree.plugin;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import org.jevis.api.*;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisUnit;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
+import org.jevis.application.jevistree.ColumnFactory;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
 import org.jevis.application.jevistree.TreePlugin;
@@ -37,31 +44,13 @@ import java.util.logging.Logger;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class BarchartPlugin implements TreePlugin {
+public class ChartPlugin implements TreePlugin {
 
     private JEVisTree _tree;
 
-    private Map<Long, List<JEVisSample>> _samples = new HashMap<>();
-    private Map<String, BarChartDataModel> _data = new HashMap<>();
-    private TextField textField;
+    private Map<String, ChartDataModel> _data = new HashMap<>();
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
-    private String _title = rb.getString("graph.title");
-
-    @Override
-    public void selectionFinished() {
-        //Will happen if the user peress some kinde of OK button
-        System.out.println("selectionFinished()");
-        for (Map.Entry<String, BarChartDataModel> entrySet : _data.entrySet()) {
-            String key = entrySet.getKey();
-            BarChartDataModel value = entrySet.getValue();
-            if (value.getSelected()) {
-                value.setTitle(getTitle());
-                System.out.println("key: " + key);
-            }
-
-        }
-
-    }
+    private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
     private enum DATE_TYPE {
 
@@ -77,39 +66,107 @@ public class BarchartPlugin implements TreePlugin {
         return _tree;
     }
 
+    private final String chartTitle = rb.getString("graph.title");
+    private final String addChart = rb.getString("graph.table.addchart");
+
     @Override
     public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns() {
         List<TreeTableColumn<JEVisTreeRow, Long>> list = new ArrayList<>();
 
         TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn();
         column.setEditable(true);
-        textField = new TextField();
-        textField.setText(_title);
-        textField.setEditable(true);
-        column.setGraphic(textField);
+
+        Image img = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "list-add.png"));
+        ImageView image = new ImageView(img);
+        image.fitHeightProperty().set(20);
+        image.fitWidthProperty().set(20);
+        Button addChart = new Button(rb.getString("graph.table.addchart"), image);
+
+        addChart.setOnAction(event -> {
+            if (!chartsList.contains(chartTitle)) {
+
+                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size());
+
+                column.getColumns().add(column.getColumns().size() - 6, selectColumn);
+            }
+        });
+
+        column.setGraphic(addChart);
 
         TreeTableColumn<JEVisTreeRow, Color> colorColumn = buildColorColumn(_tree, rb.getString("graph.table.color"));
-        TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, rb.getString("graph.table.load"));
+
+        getChartsList();
+        List<TreeTableColumn> charts = new ArrayList<>();
+        for (int i = 0; i < chartsList.size(); i++) {
+
+            TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, i);
+
+            charts.add(selectColumn);
+        }
+
         TreeTableColumn<JEVisTreeRow, AGGREGATION> aggregationColumn = buildAggregationColumn(_tree, rb.getString("graph.table.interval"));
         TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn = buildDataPorcessorColumn(_tree, rb.getString("graph.table.cleaning"));
         TreeTableColumn<JEVisTreeRow, DateTime> startDateColumn = buildDateColumn(_tree, rb.getString("graph.table.startdate"), DATE_TYPE.START);
         TreeTableColumn<JEVisTreeRow, DateTime> endDateColumn = buildDateColumn(_tree, rb.getString("graph.table.enddate"), DATE_TYPE.END);
         TreeTableColumn<JEVisTreeRow, JEVisUnit> unitColumn = buildUnitColumn(_tree, rb.getString("graph.table.unit"));
 
-        column.getColumns().addAll(selectColumn, colorColumn, aggregationColumn, dataProcessorColumn, startDateColumn, endDateColumn, unitColumn);
+        for (TreeTableColumn ttc : charts) column.getColumns().add(ttc);
+        column.getColumns().addAll(colorColumn, aggregationColumn, dataProcessorColumn, startDateColumn, endDateColumn, unitColumn);
 
         list.add(column);
 
         return list;
     }
 
-    private BarChartDataModel getData(JEVisTreeRow row) {
-//        System.out.println("add" + row.getJEVisObject());
+    private final Color[] color_list = {
+            Color.web("0xFFB300"),    // Vivid Yellow
+            Color.web("0x803E75"),    // Strong Purple
+            Color.web("0xFF6800"),    // Vivid Orange
+            Color.web("0xA6BDD7"),    // Very Light Blue
+            Color.web("0xC10020"),    // Vivid Red
+            Color.web("0xCEA262"),    // Grayish Yellow
+            Color.web("0x817066"),    // Medium Gray
+
+            Color.web("0x007D34"),    // Vivid Green
+            Color.web("0xF6768E"),    // Strong Purplish Pink
+            Color.web("0x00538A"),    // Strong Blue
+            Color.web("0xFF7A5C"),    // Strong Yellowish Pink
+            Color.web("0x53377A"),    // Strong Violet
+            Color.web("0xFF8E00"),    // Vivid Orange Yellow
+            Color.web("0xB32851"),    // Strong Purplish Red
+            Color.web("0xF4C800"),    // Vivid Greenish Yellow
+            Color.web("0x7F180D"),    // Strong Reddish Brown
+            Color.web("0x93AA00"),    // Vivid Yellowish Green
+            Color.web("0x593315"),    // Deep Yellowish Brown
+            Color.web("0xF13A13"),    // Vivid Reddish Orange
+            Color.web("0x232C16"),    // Dark Olive Green
+    };
+    private int counterColor = 0;
+
+    @Override
+    public void selectionFinished() {
+        //Will happen if the user presses some kind of OK button
+        for (Map.Entry<String, ChartDataModel> entrySet : _data.entrySet()) {
+            String key = entrySet.getKey();
+            ChartDataModel value = entrySet.getValue();
+            if (value.getSelected()) {
+            }
+
+        }
+
+    }
+
+    @Override
+    public String getTitle() {
+        return null;
+    }
+
+    private ChartDataModel getData(JEVisTreeRow row) {
         String id = row.getID();
         if (_data.containsKey(id)) {
             return _data.get(id);
         } else {
-            BarChartDataModel newData = new BarChartDataModel();
+            ChartDataModel newData = new ChartDataModel();
             newData.setObject(row.getJEVisObject());
             newData.setAttribute(row.getJEVisAttribute());
             _data.put(id, newData);
@@ -117,26 +174,12 @@ public class BarchartPlugin implements TreePlugin {
         }
     }
 
-    public void setTitle(String title) {
-        _title = title;
-    }
-
-    @Override
-    public String getTitle() {
-        return textField.getText();
-    }
-
-    public List<JEVisSample> getSelectedSamples(JEVisObject object) {
-        return new ArrayList<>();
-    }
-
     private TreeTableColumn<JEVisTreeRow, Color> buildColorColumn(JEVisTree tree, String columnName) {
         TreeTableColumn<JEVisTreeRow, Color> column = new TreeTableColumn(columnName);
         column.setPrefWidth(130);
         column.setCellValueFactory(param -> {
-            BarChartDataModel data = getData(param.getValue().getValue());
+            ChartDataModel data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getColor());
-//                return param.getValue().getValue().getColorProperty();
         });
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Color>, TreeTableCell<JEVisTreeRow, Color>>() {
@@ -149,9 +192,8 @@ public class BarchartPlugin implements TreePlugin {
                     @Override
                     public void commitEdit(Color newValue) {
                         super.commitEdit(newValue);
-                        BarChartDataModel data = getData(getTreeTableRow().getItem());
+                        ChartDataModel data = getData(getTreeTableRow().getItem());
                         data.setColor(newValue);
-//                        getTreeTableRow().getItem().getColorProperty().setValue(newValue);
                     }
 
                     @Override
@@ -160,12 +202,11 @@ public class BarchartPlugin implements TreePlugin {
                         if (!empty) {
                             StackPane hbox = new StackPane();
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
-                                BarChartDataModel data = getData(getTreeTableRow().getItem());
+                                ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ColorPicker colorPicker = new ColorPicker();
 
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                 colorPicker.setValue(item);
-//                                colorPicker.getStylesheets().add("/styles/ColorPicker.css");
                                 colorPicker.setStyle("-fx-color-label-visible: false ;");
 
                                 colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
@@ -193,7 +234,7 @@ public class BarchartPlugin implements TreePlugin {
 
     }
 
-    private DatePicker buildDatePicker(BarChartDataModel data, DATE_TYPE type) {
+    private DatePicker buildDatePicker(ChartDataModel data, DATE_TYPE type) {
 
         LocalDate ld = null;
 
@@ -256,7 +297,7 @@ public class BarchartPlugin implements TreePlugin {
         column.setPrefWidth(130);
         column.setCellValueFactory(param -> {
             try {
-                BarChartDataModel data = getData(param.getValue().getValue());
+                ChartDataModel data = getData(param.getValue().getValue());
                 DateTime date;
                 if (type == DATE_TYPE.START) {
                     date = data.getSelectedStart();
@@ -281,7 +322,7 @@ public class BarchartPlugin implements TreePlugin {
                     @Override
                     public void commitEdit(DateTime newValue) {
                         super.commitEdit(newValue);
-                        BarChartDataModel data = getData(getTreeTableRow().getItem());
+                        ChartDataModel data = getData(getTreeTableRow().getItem());
 
                         if (type == DATE_TYPE.START) {
                             data.setSelectedStart(newValue);
@@ -298,7 +339,7 @@ public class BarchartPlugin implements TreePlugin {
                         if (!empty) {
                             StackPane hbox = new StackPane();
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
-                                BarChartDataModel data = getData(getTreeTableRow().getItem());
+                                ChartDataModel data = getData(getTreeTableRow().getItem());
                                 DatePicker dp = buildDatePicker(data, type);
 
                                 hbox.getChildren().setAll(dp);
@@ -330,7 +371,7 @@ public class BarchartPlugin implements TreePlugin {
 
     }
 
-    private ChoiceBox buildAggregateBox(final BarChartDataModel data) {
+    private ChoiceBox buildAggregateBox(final ChartDataModel data) {
         List<String> aggList = new ArrayList<>();
 
         final String keyPreset = rb.getString("graph.interval.preset");
@@ -393,7 +434,7 @@ public class BarchartPlugin implements TreePlugin {
         column.setPrefWidth(100);
         column.setCellValueFactory(param -> {
 
-            BarChartDataModel data = getData(param.getValue().getValue());
+            ChartDataModel data = getData(param.getValue().getValue());
 
             return new ReadOnlyObjectWrapper<>(data.getAggregation());
 //                return param.getValue().getValue().getJEVisObject();
@@ -419,7 +460,7 @@ public class BarchartPlugin implements TreePlugin {
                             StackPane hbox = new StackPane();
 
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
-                                BarChartDataModel data = getData(getTreeTableRow().getItem());
+                                ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox aggBox = buildAggregateBox(data);
 
                                 hbox.getChildren().setAll(aggBox);
@@ -448,7 +489,7 @@ public class BarchartPlugin implements TreePlugin {
 
     }
 
-    private ChoiceBox buildProcessorBox(BarChartDataModel data) {
+    private ChoiceBox buildProcessorBox(ChartDataModel data) {
         List<String> proNames = new ArrayList<>();
         final List<JEVisObject> _dataProcessors = new ArrayList<JEVisObject>();
         proNames.add(rb.getString("graph.processing.raw"));
@@ -461,7 +502,7 @@ public class BarchartPlugin implements TreePlugin {
             }
 
         } catch (JEVisException ex) {
-            Logger.getLogger(BarchartPlugin.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         ChoiceBox processorBox = new ChoiceBox();
@@ -487,7 +528,7 @@ public class BarchartPlugin implements TreePlugin {
                 }
 
             } catch (Exception ex) {
-                Logger.getLogger(BarchartPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         });
@@ -504,7 +545,7 @@ public class BarchartPlugin implements TreePlugin {
         column.setEditable(true);
 
         column.setCellValueFactory(param -> {
-            BarChartDataModel data = getData(param.getValue().getValue());
+            ChartDataModel data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getDataProcessor());
         });
 
@@ -518,9 +559,6 @@ public class BarchartPlugin implements TreePlugin {
                     @Override
                     public void commitEdit(JEVisObject newValue) {
                         super.commitEdit(newValue);
-//                        getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
-//                        DataModel data = getData(getTreeTableRow().getItem().getID());
-//                        data.setSelected(newValue);
                     }
 
                     @Override
@@ -530,7 +568,7 @@ public class BarchartPlugin implements TreePlugin {
                             StackPane hbox = new StackPane();
 
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
-                                BarChartDataModel data = getData(getTreeTableRow().getItem());
+                                ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox box = buildProcessorBox(data);
 
                                 hbox.getChildren().setAll(box);
@@ -559,17 +597,61 @@ public class BarchartPlugin implements TreePlugin {
 
     }
 
-    private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, String columnName) {
+    public ObservableList<String> getChartsList() {
+        List<String> tempList = new ArrayList<>();
+
+        for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
+            ChartDataModel mdl = entry.getValue();
+            if (mdl.getSelected()) {
+                for (String s : mdl.get_selectedCharts()) {
+                    if (!tempList.contains(s))
+                        tempList.add(s);
+                }
+            }
+        }
+        if (tempList.isEmpty()) {
+            tempList.add(chartTitle);
+        }
+        chartsList = FXCollections.observableArrayList(tempList);
+        return chartsList;
+    }
+
+    private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, Integer selectionColumnIndex) {
+        if (selectionColumnIndex == chartsList.size()) {
+            chartsList.add(chartTitle);
+        }
+        String columnName = chartsList.get(selectionColumnIndex);
+
         TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(60);
+        column.setPrefWidth(120);
         column.setEditable(true);
 
-        //replace to use the datamodel
-//        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<SelectionTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelectedProperty());
         column.setCellValueFactory(param -> {
-            BarChartDataModel data = getData(param.getValue().getValue());
-            return new ReadOnlyObjectWrapper<>(data.getSelected());
+            ChartDataModel data = getData(param.getValue().getValue());
+            Boolean selectedChart = data.get_selectedCharts().contains(chartsList.get(selectionColumnIndex));
+            return new ReadOnlyObjectWrapper<>(data.getSelected() && selectedChart);
         });
+
+        TextField tf = new TextField(columnName);
+        tf.setText(columnName);
+        tf.setEditable(true);
+
+        tf.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue == null || newValue != oldValue) {
+                for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
+                    ChartDataModel mdl = entry.getValue();
+                    if (mdl.getSelected()) {
+                        if (mdl.get_selectedCharts().contains(oldValue)) {
+                            mdl.get_selectedCharts().set(mdl.get_selectedCharts().indexOf(oldValue), newValue);
+                        }
+                    }
+                }
+                chartsList.set(selectionColumnIndex, newValue);
+            }
+        });
+
+        column.setGraphic(tf);
+        column.setText(null);
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Boolean>, TreeTableCell<JEVisTreeRow, Boolean>>() {
 
@@ -582,8 +664,17 @@ public class BarchartPlugin implements TreePlugin {
                     public void commitEdit(Boolean newValue) {
                         super.commitEdit(newValue);
                         getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
-                        BarChartDataModel data = getData(getTreeTableRow().getItem());
+                        ChartDataModel data = getData(getTreeTableRow().getItem());
                         data.setSelected(newValue);
+                        String selectedChart = chartsList.get(selectionColumnIndex);
+                        if (newValue) {
+                            if (!data.get_selectedCharts().contains(selectedChart)) {
+
+                                data.get_selectedCharts().add(selectedChart);
+                            }
+                        } else {
+                            data.get_selectedCharts().remove(selectedChart);
+                        }
                     }
 
                     @Override
@@ -593,39 +684,43 @@ public class BarchartPlugin implements TreePlugin {
                             StackPane hbox = new StackPane();
                             CheckBox cbox = new CheckBox();
 
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
-                                BarChartDataModel data = getData(getTreeTableRow().getItem());
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), chartsList.get(selectionColumnIndex))) {
+                                ChartDataModel data = getData(getTreeTableRow().getItem());
                                 hbox.getChildren().setAll(cbox);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                 cbox.setSelected(item);
 
-                                cbox.setOnAction(event -> commitEdit(cbox.isSelected()));
+                                cbox.setOnAction(event -> {
+                                    commitEdit(cbox.isSelected());
+
+                                    if (cbox.isSelected()) {
+                                        if (counterColor < color_list.length) {
+                                            data.setColor(color_list[counterColor]);
+                                            counterColor++;
+                                        }
+                                        getTreeTableView().refresh();
+                                    }
+                                });
 
                                 if (data.getAttribute() != null && data.getAttribute().hasSample()) {
                                     cbox.setDisable(false);
                                 } else {
                                     cbox.setDisable(true);
                                 }
-
                             }
-
                             setText(null);
                             setGraphic(hbox);
                         } else {
                             setText(null);
                             setGraphic(null);
                         }
-
                     }
-
                 };
-
                 return cell;
             }
         });
 
         return column;
-
     }
 
     private TreeTableColumn<JEVisTreeRow, JEVisUnit> buildUnitColumn(JEVisTree tree, String columnName) {
@@ -634,7 +729,7 @@ public class BarchartPlugin implements TreePlugin {
         column.setEditable(true);
 
         column.setCellValueFactory(param -> {
-            BarChartDataModel data = getData(param.getValue().getValue());
+            ChartDataModel data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getUnit());
         });
 
@@ -654,7 +749,7 @@ public class BarchartPlugin implements TreePlugin {
                             StackPane hbox = new StackPane();
 
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
-                                BarChartDataModel data = getData(getTreeTableRow().getItem());
+                                ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox box = buildUnitBox(data);
 
                                 hbox.getChildren().setAll(box);
@@ -683,7 +778,7 @@ public class BarchartPlugin implements TreePlugin {
 
     }
 
-    private ChoiceBox buildUnitBox(BarChartDataModel singleRow) {
+    private ChoiceBox buildUnitBox(ChartDataModel singleRow) {
         JEVisUnit selectedUnit = null;
         if (singleRow.getUnit() != null) selectedUnit = singleRow.getUnit();
         List<String> proNames = new ArrayList<>();
@@ -808,12 +903,15 @@ public class BarchartPlugin implements TreePlugin {
         }
     }
 
-    public Map<String, BarChartDataModel> getSelectedData() {
+    public Map<String, ChartDataModel> getSelectedData() {
         return _data;
     }
 
-    public void set_data(Map<String, BarChartDataModel> _data) {
+    public void set_data(Map<String, ChartDataModel> _data) {
         this._data = _data;
+        _tree.getColumns().clear();
+        _tree.getColumns().addAll(ColumnFactory.buildName(), ColumnFactory.buildID());
+        for (TreeTableColumn<JEVisTreeRow, Long> column : getColumns()) _tree.getColumns().add(column);
     }
 
     public enum AGGREGATION {
