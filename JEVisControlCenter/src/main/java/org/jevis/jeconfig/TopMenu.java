@@ -24,6 +24,9 @@ import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.FileChooser;
 import org.jevis.application.dialog.AboutDialog;
 import org.jevis.commons.drivermanagment.ClassImporter;
@@ -62,6 +65,7 @@ public class TopMenu extends MenuBar {
         menuFile.getItems().add(new SeparatorMenuItem());
         menuFile.getItems().add(subMenuImport);
         MenuItem exit = new MenuItem(I18n.getInstance().getString("menu.exit"));
+        exit.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
         menuFile.getItems().add(exit);
 
         importJSON.setDisable(true);
@@ -84,11 +88,21 @@ public class TopMenu extends MenuBar {
 
         // --- Menu Edit
         Menu menuEdit = new Menu(I18n.getInstance().getString("menu.edit"));
+
         MenuItem copie = new MenuItem(I18n.getInstance().getString("menu.edit.copy"));
+        copie.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
+
         MenuItem paste = new MenuItem(I18n.getInstance().getString("menu.edit.paste"));
+        paste.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
+
         MenuItem delete = new MenuItem(I18n.getInstance().getString("menu.edit.delete"));
+        delete.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
+
         MenuItem rename = new MenuItem(I18n.getInstance().getString("menu.edit.rename"));
+        rename.setAccelerator(new KeyCodeCombination(KeyCode.F2));
+
         MenuItem findObject = new MenuItem(I18n.getInstance().getString("menu.edit.find"));
+        findObject.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
 
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
