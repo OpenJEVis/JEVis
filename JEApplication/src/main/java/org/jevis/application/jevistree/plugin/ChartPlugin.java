@@ -623,7 +623,7 @@ public class ChartPlugin implements TreePlugin {
         String columnName = chartsList.get(selectionColumnIndex);
 
         TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(60);
+        column.setPrefWidth(120);
         column.setEditable(true);
 
         column.setCellValueFactory(param -> {

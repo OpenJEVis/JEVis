@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -16,6 +15,7 @@ import javafx.util.converter.LocalTimeStringConverter;
 import jfxtras.scene.control.ListView;
 import org.jevis.api.*;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
@@ -256,12 +256,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (!newValue.equals(oldValue)) {
                 this.nameCurrentAnalysis = newValue;
                 setJEVisObjectForCurrentAnalysis(newValue);
-                updateTimeFramePicker();
 
                 selectedStart = DateTime.now().minusDays(7);
                 selectedEnd = new DateTime();
+
+                updateTimeFramePicker();
                 updateTimeFrame();
-                Platform.runLater(() -> toolBarView.select(nameCurrentAnalysis));
+                updateToolBarView();
+                toolBarView.select(nameCurrentAnalysis);
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -278,6 +280,31 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
     }
 
+    private void getTimeFromJsonModel() {
+        if (listAnalysisModel != null && !listAnalysisModel.isEmpty()) {
+            DateTime start = null;
+            DateTime end = null;
+
+            for (JsonAnalysisModel mdl : listAnalysisModel) {
+                if (start == null || DateTime.parse(mdl.getSelectedStart()).isBefore(start))
+                    start = DateTime.parse(mdl.getSelectedStart());
+                if (end == null || DateTime.parse(mdl.getSelectedEnd()).isAfter(end))
+                    end = DateTime.parse(mdl.getSelectedEnd());
+            }
+            selectedStart = start;
+            selectedEnd = end;
+
+            if (data.getSelectedData() != null) {
+                for (ChartDataModel mdl : data.getSelectedData()) {
+                    if (mdl.getSelected()) {
+                        mdl.setSelectedStart(start);
+                        mdl.setSelectedEnd(end);
+                    }
+                }
+            }
+        }
+    }
+
     private void updateTimeFramePicker() {
         DateTime start = null;
         DateTime end = null;
@@ -291,8 +318,10 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         } else {
             for (ChartDataModel mdl : data.getSelectedData()) {
-                if (start == null || mdl.getSelectedStart().isBefore(start)) start = mdl.getSelectedStart();
-                if (end == null || mdl.getSelectedEnd().isAfter(end)) end = mdl.getSelectedEnd();
+                if (mdl.getSelected()) {
+                    if (start == null || mdl.getSelectedStart().isBefore(start)) start = mdl.getSelectedStart();
+                    if (end == null || mdl.getSelectedEnd().isAfter(end)) end = mdl.getSelectedEnd();
+                }
             }
         }
 
@@ -426,7 +455,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     private void updateData() {
-        Set<ChartDataModel> selectedData = getBarChartDataModels();
+        Set<ChartDataModel> selectedData = getChartDataModels();
 
         data.setSelectedData(selectedData);
     }
@@ -439,37 +468,41 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         return selectedEnd;
     }
 
-    private Set<ChartDataModel> getBarChartDataModels() {
+    private Set<ChartDataModel> getChartDataModels() {
         Map<String, ChartDataModel> data = new HashMap<>();
 
         for (JsonAnalysisModel mdl : listAnalysisModel) {
             ChartDataModel newData = new ChartDataModel();
             try {
                 Long id = Long.parseLong(mdl.getObject());
-                Long id_dp = Long.parseLong(mdl.getDataProcessorObject());
+                Long id_dp = null;
+                if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
                 JEVisObject obj = ds.getObject(id);
-                JEVisObject obj_dp = ds.getObject(id_dp);
+                JEVisObject obj_dp = null;
+                if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
                 JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
-                DateTime start = DateTime.parse(mdl.getSelectedStart());
-                DateTime end = DateTime.parse(mdl.getSelectedEnd());
+                DateTime start;
+                start = DateTime.parse(mdl.getSelectedStart());
+                DateTime end;
+                end = DateTime.parse(mdl.getSelectedEnd());
                 Boolean selected = Boolean.parseBoolean(mdl.getSelected());
                 newData.setObject(obj);
                 newData.setSelectedStart(start);
                 newData.setSelectedEnd(end);
                 newData.setColor(Color.valueOf(mdl.getColor()));
                 newData.setTitle(mdl.getName());
-                newData.setDataProcessor(obj_dp);
+                if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
                 newData.getAttribute();
+                newData.setAggregation(parseAggregation(mdl.getAggregation()));
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
-                newData.set_selectedCharts(stringToList(mdl.getSelectedCharts()));
                 newData.getSamples();
+                newData.set_selectedCharts(stringToList(mdl.getSelectedCharts()));
                 newData.setUnit(unit);
-                data.put(id.toString(), newData);
+                data.put(obj.getID().toString(), newData);
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
-
         }
         Set<ChartDataModel> selectedData = new HashSet<>();
         for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
@@ -479,6 +512,23 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         }
         return selectedData;
+    }
+
+    private ChartPlugin.AGGREGATION parseAggregation(String aggrigation) {
+        switch (aggrigation) {
+            case ("None"):
+                return ChartPlugin.AGGREGATION.None;
+            case ("Daily"):
+                return ChartPlugin.AGGREGATION.Daily;
+            case ("Weekly"):
+                return ChartPlugin.AGGREGATION.Weekly;
+            case ("Monthly"):
+                return ChartPlugin.AGGREGATION.Monthly;
+            case ("Yearly"):
+                return ChartPlugin.AGGREGATION.Yearly;
+            default:
+                return ChartPlugin.AGGREGATION.None;
+        }
     }
 
     public GraphDataModel getData() {

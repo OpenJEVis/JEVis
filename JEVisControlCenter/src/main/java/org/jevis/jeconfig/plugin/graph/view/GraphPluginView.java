@@ -305,7 +305,7 @@ public class GraphPluginView implements Plugin, Observer {
         for (ChartDataModel mdl : dataModel.getSelectedData()) {
             if (mdl.getSelected()) {
                 for (String s : mdl.get_selectedCharts()) {
-                    if (!tempList.contains(s) && s != null) tempList.add(s);
+                    if (!tempList.contains(s)) tempList.add(s);
                 }
             }
         }
