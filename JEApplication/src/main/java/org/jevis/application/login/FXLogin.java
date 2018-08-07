@@ -753,7 +753,6 @@ public class FXLogin extends AnchorPane {
      * Load usersettings from Prederence.
      *
      * @param showServer
-     * @param defaultServer
      */
     private void loadPreference(boolean showServer) {
 //        System.out.println("load from disk");
@@ -809,7 +808,8 @@ public class FXLogin extends AnchorPane {
                 url = "http://openjevis.org/account/register";
             }
         } else {
-            url = "http://openjevis.org/account/register";
+            link.setVisible(false);
+            url = "";
 
         }
 

@@ -208,10 +208,8 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
 
                             if (o1IsDir && !o2IsDir) {//o1 is dir
-                                System.out.println(o1.getValue().getJEVisObject().getName() + " > " + o2.getValue().getJEVisObject().getName());
                                 return -1;
                             } else if (!o1IsDir && o2IsDir) {//o2 is dir
-                                System.out.println(o1.getValue().getJEVisObject().getName() + " < " + o2.getValue().getJEVisObject().getName());
                                 return 1;
                             } else { //non or both are a dir
                                 return o1.getValue().getJEVisObject().getName().compareTo(o2.getValue().getJEVisObject().getName());

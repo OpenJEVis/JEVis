@@ -1,73 +1,66 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.sample;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.sampletable.EditingCell;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SampleTable extends TableView {
 
     static final DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z");
+    private JEVisAttribute attribute;
 
-    public SampleTable(List<JEVisSample> samples) {
+    public SampleTable(JEVisAttribute attribute, List<JEVisSample> samples) {
         super();
+        this.attribute = attribute;
         getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         setPlaceholder(new Label("No Data"));
-        
+
         build();
-//        TableColumn tsColum = new TableColumn("Timestamp");
-//        tsColum.setCellValueFactory(new PropertyValueFactory<TableSample, String>("Date"));
-//
-//        TableColumn valueColum = new TableColumn("Value");
-//        valueColum.setCellValueFactory(new PropertyValueFactory<TableSample, Double>("Value"));
-//
-//        TableColumn noteColum = new TableColumn("Note");
-//        noteColum.setCellValueFactory(new PropertyValueFactory<TableSample, String>("Note"));
 
         setMinWidth(555d);//TODo: replace Dirty workaround
         setPrefHeight(200d);//TODo: replace Dirty workaround
         setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-//        getColumns().addAll(tsColum, valueColum, noteColum);
 
 
         List<org.jevis.jeconfig.sampletable.TableSample> tjc = new LinkedList<>();
@@ -80,6 +73,7 @@ public class SampleTable extends TableView {
 
     }
 
+
     public class TableSample {
 
         private SimpleStringProperty date = new SimpleStringProperty("Error");
@@ -88,11 +82,7 @@ public class SampleTable extends TableView {
 
         private JEVisSample _sample = null;
 
-        /**
-         *
-         * @param relation
-         * @param jclass
-         */
+
         public TableSample(JEVisSample sample) {
             try {
                 this.date = new SimpleStringProperty(fmtDate.print(sample.getTimestamp()));
@@ -137,7 +127,9 @@ public class SampleTable extends TableView {
             value.set(fName);
         }
     }
-        private void build() {
+
+
+    private void build() {
 
         Callback<TableColumn, TableCell> cellFactory = new Callback<TableColumn, TableCell>() {
             @Override
@@ -148,77 +140,109 @@ public class SampleTable extends TableView {
 
         TableColumn dateCol = new TableColumn("Date");
 
-        dateCol.setMinWidth(
-                100);
+        dateCol.setMinWidth(100);
         dateCol.setCellValueFactory(
                 new PropertyValueFactory<org.jevis.jeconfig.sampletable.TableSample, String>("date"));
         dateCol.setCellFactory(cellFactory);
 
-        dateCol.setEditable(
-                false);
+        dateCol.setEditable(false);
 
         TableColumn valueCol = new TableColumn("Value");
 
-        valueCol.setMinWidth(
-                100);
-        valueCol.setCellValueFactory(
-                new PropertyValueFactory<org.jevis.jeconfig.sampletable.TableSample, String>("value"));
+        valueCol.setMinWidth(100);
+        valueCol.setCellValueFactory(new PropertyValueFactory<org.jevis.jeconfig.sampletable.TableSample, String>("value"));
         valueCol.setCellFactory(cellFactory);
 
-        valueCol.setEditable(
-                true);
+
+        valueCol.setEditable(true);
 
         TableColumn noteCol = new TableColumn("Note");
 
-        noteCol.setMinWidth(
-                200);
-        noteCol.setCellValueFactory(
-                new PropertyValueFactory<org.jevis.jeconfig.sampletable.TableSample, String>("note"));
+        noteCol.setMinWidth(200);
+        noteCol.setCellValueFactory(new PropertyValueFactory<org.jevis.jeconfig.sampletable.TableSample, String>("note"));
         noteCol.setCellFactory(cellFactory);
 
         noteCol.setEditable(true);
 
-        //Add the columns and data to the table.
-//        _table.setItems(_data);
-//        setItems(_data);
-
-//        _table.getColumns()
-//                .addAll(dateCol, valueCol, noteCol);
         getColumns().addAll(dateCol, valueCol, noteCol);
 
-        //Make the table editable
-//        _table.setEditable(true);
         setEditable(true);
 
-        //Modifying the firstName property
         dateCol.setOnEditCommit(
                 new EventHandler<TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String>>() {
-            @Override
-            public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t
-            ) {
-                ((org.jevis.jeconfig.sampletable.TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setDate(t.getNewValue());
-            }
-        }
+                    @Override
+                    public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t
+                    ) {
+                        ((org.jevis.jeconfig.sampletable.TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setDate(t.getNewValue());
+                    }
+                }
         );
-        //Modifying the lastName property
-        valueCol.setOnEditCommit(
-                new EventHandler<TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String>>() {
-            @Override
-            public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t
-            ) {
-                ((org.jevis.jeconfig.sampletable.TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setValue(t.getNewValue());
+
+        try {
+            if (attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
+                valueCol.setOnEditStart(new EventHandler<TableColumn.CellEditEvent>() {
+                    @Override
+                    public void handle(TableColumn.CellEditEvent event) {
+                        try {
+                            event.consume();
+                            JEVisSample sample = ((org.jevis.jeconfig.sampletable.TableSample) event.getTableView().getItems().get(event.getTablePosition().getRow())).getSample();
+                            System.out.println("Sample: " + sample.getTimestamp());
+
+                            try {
+//                                loadWithAnimation();
+                                JEVisFile file = sample.getValueAsFile();
+
+                                FileChooser fileChooser = new FileChooser();
+                                fileChooser.setInitialFileName(file.getFilename());
+                                fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
+                                fileChooser.getExtensionFilters().addAll(
+                                        new FileChooser.ExtensionFilter("All Files", "*.*"));
+                                File selectedFile = fileChooser.showSaveDialog(null);
+                                if (selectedFile != null) {
+                                    JEConfig.setLastPath(selectedFile);
+                                    file.saveToFile(selectedFile);
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+                valueCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
+                    @Override
+                    public void handle(TableColumn.CellEditEvent event) {
+                        event.consume();
+                    }
+                });
+
+            } else {
+                valueCol.setOnEditCommit(
+                        new EventHandler<TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String>>() {
+                            @Override
+                            public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t) {
+                                ((org.jevis.jeconfig.sampletable.TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setValue(t.getNewValue());
+                            }
+                        }
+                );
             }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        );
-        //Modifying the primary email property
+
+
         noteCol.setOnEditCommit(
                 new EventHandler<TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String>>() {
-            @Override
-            public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t
-            ) {
-                ((org.jevis.jeconfig.sampletable.TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setNote(t.getNewValue());
-            }
-        }
+                    @Override
+                    public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t
+                    ) {
+                        ((org.jevis.jeconfig.sampletable.TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setNote(t.getNewValue());
+                    }
+                }
         );
     }
 }

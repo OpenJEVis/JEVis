@@ -61,6 +61,8 @@ import javafx.stage.StageStyle;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.tools.NumberSpinner;
 
@@ -72,6 +74,7 @@ import org.jevis.application.tools.NumberSpinner;
 public class CopyObjectDialog {
 
     public static String ICON = "1403555565_stock_folder-move.png";
+    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 
     private JEVisClass createClass;
     private String infoText = "";
@@ -79,19 +82,24 @@ public class CopyObjectDialog {
     private int createCount = 1;
     private boolean recursionAllowed = false;
     private boolean includeDataAllowed = true;
-    final Button ok = new Button("OK");
+    final Button ok = new Button(rb.getString("jevistree.dialog.copy.ok"));
 
-    final RadioButton move = new RadioButton("Move");
-    final RadioButton link = new RadioButton("Link");
-    final RadioButton copy = new RadioButton("Copy");
+    final RadioButton move = new RadioButton(rb.getString("jevistree.dialog.copy.move"));
+    final RadioButton link = new RadioButton(rb.getString("jevistree.dialog.copy.link"));
+    final RadioButton copy = new RadioButton(rb.getString("jevistree.dialog.copy.copy"));
 //    final RadioButton clone = new RadioButton("Clone");
-    final CheckBox recursion = new CheckBox("Include substructure");
-    final CheckBox includeSamples = new CheckBox("Include data");
+    final CheckBox recursion = new CheckBox(rb.getString("jevistree.dialog.copy.substructure"));
+    final CheckBox includeSamples = new CheckBox(rb.getString("jevistree.dialog.copy.adddata"));
     final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
     public static enum Response {
 
         MOVE, LINK, CANCEL, COPY //,CLONE
+    };
+
+    public static enum DefaultAction {
+
+        MOVE, LINK, COPY
     };
 
     private Response response = Response.CANCEL;
@@ -122,11 +130,9 @@ public class CopyObjectDialog {
      * @param owner
      * @param object
      * @param newParent
-     * @param fixClass
-     * @param objName
      * @return
      */
-    public Response show(Stage owner, final JEVisObject object, final JEVisObject newParent) {
+    public Response show(Stage owner, final JEVisObject object, final JEVisObject newParent,DefaultAction defaultAction) {
 
         boolean linkOK = false;
         try {
@@ -164,7 +170,7 @@ public class CopyObjectDialog {
 
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
-        stage.setTitle("Move/Link Object");
+        stage.setTitle(rb.getString("jevistree.dialog.copy.title"));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
 
@@ -183,7 +189,7 @@ public class CopyObjectDialog {
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));
 
-        Label topTitle = new Label("Choose Action");
+        Label topTitle = new Label(rb.getString("jevistree.dialog.copy.chooseaction"));
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));
 
@@ -207,7 +213,7 @@ public class CopyObjectDialog {
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button(rb.getString("jevistree.dialog.copy.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -235,16 +241,16 @@ public class CopyObjectDialog {
 //        clone.setToggleGroup(group);
 
         nameField.setPrefWidth(250);
-        nameField.setPromptText("Name of the new object(s)");
+        nameField.setPromptText(rb.getString("jevistree.dialog.copy.name.prompt"));
 
-        final Label nameLabel = new Label("Name:");
-        final Label countLabel = new Label("Count:");
+        final Label nameLabel = new Label(rb.getString("jevistree.dialog.copy.name"));
+        final Label countLabel = new Label(rb.getString("jevistree.dialog.copy.amount"));
 
-        final Label info = new Label("Test");
-        info.wrapTextProperty().setValue(true);
+//        final Label info = new Label("Test");
+//        info.wrapTextProperty().setValue(true);
 //        info.setPrefRowCount(4);
 //        info.setDisable(true);
-        info.setMinWidth(1d);
+//        info.setMinWidth(1d);
 //        info.setMaxWidth(200);
 //        info.setPrefWidth(200);
 
@@ -256,7 +262,7 @@ public class CopyObjectDialog {
                 if (t1 != null) {
 //                    System.out.println("new toggel: " + t1);
                     if (t1.equals(move)) {
-                        infoText = String.format("Move '%s' into '%s'", object.getName(), newParent.getName());
+//                        infoText = String.format("Move '%s' into '%s'", object.getName(), newParent.getName());
                         ok.setDisable(false);
                         nameField.setDisable(true);
                         nameLabel.setDisable(true);
@@ -269,7 +275,7 @@ public class CopyObjectDialog {
                         recursion.setSelected(false);
 
                     } else if (t1.equals(link)) {
-                        infoText = String.format("Create an new link of '%s' into '%s'", object.getName(), newParent.getName());
+//                        infoText = String.format("Create an new link of '%s' into '%s'", object.getName(), newParent.getName());
                         nameField.setDisable(false);
                         count.setDisable(true);
                         nameLabel.setDisable(false);
@@ -282,7 +288,7 @@ public class CopyObjectDialog {
                         checkName();
 
                     } else if (t1.equals(copy)) {
-                        infoText = String.format("Copy '%s' into '%s'", object.getName(), newParent.getName());
+//                        infoText = String.format("Copy '%s' into '%s'", object.getName(), newParent.getName());
 
 //                        infoText = String.format("<html>Copy <font color=\"#DB6A6A\">'%s'</font> into <font color=\"#DB6A6A\">'%s'</font> without data</html>", object.getName(), newParent.getName());
                         nameField.setDisable(false);
@@ -311,7 +317,8 @@ public class CopyObjectDialog {
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
-                            info.setText(infoText);
+
+//                            info.setText(infoText);
                         }
                     });
                 }
@@ -370,7 +377,7 @@ public class CopyObjectDialog {
         gp.add(copy, 0, ++yAxis);
 //        gp.add(clone, 0, ++x);
 
-        gp.add(new Separator(Orientation.VERTICAL), 1, 0, 1, 3);
+//        gp.add(new Separator(Orientation.VERTICAL), 1, 0, 1, 3);
         gp.add(s1, 0, ++yAxis, 3, 1);
 
         gp.add(recursion, 0, ++yAxis, 3, 1);//new
@@ -379,12 +386,12 @@ public class CopyObjectDialog {
         gp.add(new Separator(Orientation.HORIZONTAL), 0, ++yAxis, 3, 1);
         gp.add(nameBox, 0, ++yAxis, 3, 1);
 
-        gp.add(info, 2, 0, 1, 4);
-
-        GridPane.setHgrow(info, Priority.ALWAYS);
-        GridPane.setVgrow(info, Priority.ALWAYS);
-        GridPane.setHalignment(info, HPos.LEFT);
-        GridPane.setValignment(info, VPos.TOP);
+//        gp.add(info, 2, 0, 1, 4);
+//
+//        GridPane.setHgrow(info, Priority.ALWAYS);
+//        GridPane.setVgrow(info, Priority.ALWAYS);
+//        GridPane.setHalignment(info, HPos.LEFT);
+//        GridPane.setValignment(info, VPos.TOP);
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
@@ -432,6 +439,26 @@ public class CopyObjectDialog {
             }
         });
 
+        switch (defaultAction){
+            case COPY:
+                if(!copy.isDisable()){
+                    copy.setSelected(true);
+                }
+                break;
+            case MOVE:
+                if(!move.isDisable()) {
+                    move.setSelected(true);
+                }
+                break;
+            case LINK:
+                if(!link.isDisable()) {
+                    link.setSelected(true);
+                }
+                break;
+
+        }
+
+
         stage.sizeToScene();
         stage.showAndWait();
 
@@ -471,7 +498,7 @@ public class CopyObjectDialog {
             //check if the obj its os own parent
             for (JEVisObject parent : target.getParents()) {
                 if (parent.equals(target)) {
-                    showError("Error", "Recrusion Error", "Recrusion error detected. ");
+                    showError("Error", "Recursion Error", "Recursion error detected. ");
                     return false;
                 }
                 if (!parentCheck(obj, parent)) {
