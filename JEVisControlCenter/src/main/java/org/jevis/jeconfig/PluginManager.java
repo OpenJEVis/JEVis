@@ -142,7 +142,6 @@ public class PluginManager {
                     try {
                         for (Plugin plugin : plugins) {
                             try{
-                                System.out.println("-- " + plugin.getClassName());
                                 if (plugin.getClassName().equals(plugObj.getJEVisClassName())) {
                                     JEVisAttribute enabled = plugObj.getAttribute("Enable");
                                     if (enabled == null) {

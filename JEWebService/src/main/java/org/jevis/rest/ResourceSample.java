@@ -385,6 +385,12 @@ public class ResourceSample {
                 ds.getUserManager().canWrite(object);//can throw exception
             }
 
+            if(object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()){
+                if(attribute.equals("Sys Admin")){
+                    throw new JEVisException("permission denied", 3023);
+                }
+            }
+
             List<JsonAttribute> atts = ds.getAttributes(id);
             for (JsonAttribute att : atts) {
                 if (att.getType().equals(attribute)) {
