@@ -84,8 +84,18 @@ public class ChartPlugin implements TreePlugin {
 
         addChart.setOnAction(event -> {
             if (!chartsList.contains(chartTitle)) {
+                chartsList.add(chartTitle);
 
-                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size());
+                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
+
+                column.getColumns().add(column.getColumns().size() - 6, selectColumn);
+            } else {
+                int counter = 0;
+                for (String s : chartsList) if (s.contains(chartTitle)) counter++;
+
+                chartsList.add(chartTitle + " " + counter);
+
+                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
 
                 column.getColumns().add(column.getColumns().size() - 6, selectColumn);
             }
@@ -141,7 +151,7 @@ public class ChartPlugin implements TreePlugin {
             Color.web("0xF13A13"),    // Vivid Reddish Orange
             Color.web("0x232C16"),    // Dark Olive Green
     };
-    private int counterColor = 0;
+    private List<Color> usedColors = new ArrayList<>();
 
     @Override
     public void selectionFinished() {
@@ -194,6 +204,7 @@ public class ChartPlugin implements TreePlugin {
                         super.commitEdit(newValue);
                         ChartDataModel data = getData(getTreeTableRow().getItem());
                         data.setColor(newValue);
+                        if (!usedColors.contains(newValue)) usedColors.add(newValue);
                     }
 
                     @Override
@@ -207,6 +218,7 @@ public class ChartPlugin implements TreePlugin {
 
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                 colorPicker.setValue(item);
+                                if (!usedColors.contains(item)) usedColors.add(item);
                                 colorPicker.setStyle("-fx-color-label-visible: false ;");
 
                                 colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
@@ -617,9 +629,7 @@ public class ChartPlugin implements TreePlugin {
     }
 
     private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, Integer selectionColumnIndex) {
-        if (selectionColumnIndex == chartsList.size()) {
-            chartsList.add(chartTitle);
-        }
+
         String columnName = chartsList.get(selectionColumnIndex);
 
         TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(columnName);
@@ -694,12 +704,18 @@ public class ChartPlugin implements TreePlugin {
                                     commitEdit(cbox.isSelected());
 
                                     if (cbox.isSelected()) {
-                                        if (counterColor < color_list.length) {
-                                            data.setColor(color_list[counterColor]);
-                                            counterColor++;
+                                        for (Color c : color_list) {
+                                            if (!usedColors.contains(c)) {
+                                                data.setColor(c);
+                                                usedColors.add(c);
+                                                break;
+                                            }
                                         }
-                                        getTreeTableView().refresh();
+                                    } else {
+                                        usedColors.remove(data.getColor());
+                                        data.setColor(Color.LIGHTBLUE);
                                     }
+                                    getTreeTableView().refresh();
                                 });
 
                                 if (data.getAttribute() != null && data.getAttribute().hasSample()) {
