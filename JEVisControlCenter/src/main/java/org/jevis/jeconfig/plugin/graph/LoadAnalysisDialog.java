@@ -265,6 +265,11 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 updateToolBarView();
                 toolBarView.select(nameCurrentAnalysis);
 
+                getListAnalysis();
+                getTimeFromJsonModel();
+                updateTimeFramePicker();
+                updateTimeFrame();
+
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
                     this.getDialogPane().getButtonTypes().addAll(newGraph, loadGraph);
