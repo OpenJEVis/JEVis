@@ -129,6 +129,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
 
         if (!listAnalysisModel.isEmpty()) {
+            getTimeFromJsonModel();
             updateTimeFramePicker();
         }
 
@@ -311,36 +312,16 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     private void updateTimeFramePicker() {
-        DateTime start = null;
-        DateTime end = null;
 
-        if (data.getSelectedData() == null) {
-            for (JsonAnalysisModel mdl : listAnalysisModel) {
-                if (start == null || DateTime.parse(mdl.getSelectedStart()).isBefore(start))
-                    start = DateTime.parse(mdl.getSelectedStart());
-                if (end == null || DateTime.parse(mdl.getSelectedEnd()).isAfter(end))
-                    end = DateTime.parse(mdl.getSelectedEnd());
-            }
-        } else {
-            for (ChartDataModel mdl : data.getSelectedData()) {
-                if (mdl.getSelected()) {
-                    if (start == null || mdl.getSelectedStart().isBefore(start)) start = mdl.getSelectedStart();
-                    if (end == null || mdl.getSelectedEnd().isAfter(end)) end = mdl.getSelectedEnd();
-                }
-            }
-        }
-
-        LocalDate ld_start = LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth());
-        LocalTime lt_start = LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour());
+        LocalDate ld_start = LocalDate.of(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth());
+        LocalTime lt_start = LocalTime.of(selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour());
         pickerDateStart.valueProperty().setValue(ld_start);
         pickerTimeStart.valueProperty().setValue(lt_start);
-        selectedStart = start;
 
-        LocalDate ld_end = LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth());
-        LocalTime lt_end = LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour());
+        LocalDate ld_end = LocalDate.of(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth());
+        LocalTime lt_end = LocalTime.of(selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour());
         pickerDateEnd.valueProperty().setValue(ld_end);
         pickerTimeEnd.valueProperty().setValue(lt_end);
-        selectedEnd = end;
     }
 
     private void updateTimeFrame() {

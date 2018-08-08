@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -98,6 +99,9 @@ public class GraphPluginView implements Plugin, Observer {
 
                             dialog.updateToolBarView();
                             toolBarView.select(dialog.getLv().getSelectionModel().getSelectedItem());
+                            if (toolBarView.getListAnalysesComboBox().getSelectionModel().getSelectedIndex() == dialog.getLv().getSelectionModel().getSelectedIndex()) {
+                                Platform.runLater(() -> toolBarView.updateChart());
+                            }
                         }
                     });
 
