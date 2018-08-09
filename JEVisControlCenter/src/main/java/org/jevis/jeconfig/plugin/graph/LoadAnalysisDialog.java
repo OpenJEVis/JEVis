@@ -9,7 +9,6 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import jfxtras.scene.control.ListView;
@@ -17,8 +16,6 @@ import org.jevis.api.*;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
-import org.jevis.commons.unit.JEVisUnitImp;
-import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
@@ -27,7 +24,10 @@ import org.joda.time.DateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private String nameCurrentAnalysis;
@@ -359,10 +359,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         return lv;
     }
 
-    public String getNameCurrentAnalysis() {
-        return nameCurrentAnalysis;
-    }
-
     public void updateListAnalyses() {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
         try {
@@ -420,7 +416,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
                     if (currentAnalysis.getAttribute("Data Model").hasSample()) {
                         String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
-                        if (str.endsWith("]")) {
+                        if (str.startsWith("[")) {
                             listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
                             }.getType());
 
@@ -434,70 +430,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
-    }
-
-    public List<JsonAnalysisModel> getListAnalysisModel() {
-        return listAnalysisModel;
-    }
-
-    private void updateData() {
-        Set<ChartDataModel> selectedData = getChartDataModels();
-
-        data.setSelectedData(selectedData);
-    }
-
-    public DateTime getSelectedStart() {
-        return selectedStart;
-    }
-
-    public DateTime getSelectedEnd() {
-        return selectedEnd;
-    }
-
-    private Set<ChartDataModel> getChartDataModels() {
-        Map<String, ChartDataModel> data = new HashMap<>();
-
-        for (JsonAnalysisModel mdl : listAnalysisModel) {
-            ChartDataModel newData = new ChartDataModel();
-            try {
-                Long id = Long.parseLong(mdl.getObject());
-                Long id_dp = null;
-                if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
-                JEVisObject obj = ds.getObject(id);
-                JEVisObject obj_dp = null;
-                if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
-                JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
-                DateTime start;
-                start = DateTime.parse(mdl.getSelectedStart());
-                DateTime end;
-                end = DateTime.parse(mdl.getSelectedEnd());
-                Boolean selected = Boolean.parseBoolean(mdl.getSelected());
-                newData.setObject(obj);
-                newData.setSelectedStart(start);
-                newData.setSelectedEnd(end);
-                newData.setColor(Color.valueOf(mdl.getColor()));
-                newData.setTitle(mdl.getName());
-                if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
-                newData.getAttribute();
-                newData.setAggregation(parseAggregation(mdl.getAggregation()));
-                newData.setSelected(selected);
-                newData.set_somethingChanged(true);
-                newData.getSamples();
-                newData.set_selectedCharts(stringToList(mdl.getSelectedCharts()));
-                newData.setUnit(unit);
-                data.put(obj.getID().toString(), newData);
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-        }
-        Set<ChartDataModel> selectedData = new HashSet<>();
-        for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
-            ChartDataModel value = entrySet.getValue();
-            if (value.getSelected()) {
-                selectedData.add(value);
-            }
-        }
-        return selectedData;
     }
 
     private ChartPlugin.AGGREGATION parseAggregation(String aggrigation) {
@@ -521,17 +453,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         return data;
     }
 
-    private String listToString(List<String> listString) {
-        if (listString != null) {
-            StringBuilder sb = new StringBuilder();
-            for (String s : listString) {
-                sb.append(s);
-                sb.append(", ");
-            }
-            return sb.toString();
-        } else return "";
-    }
-
     private List<String> stringToList(String s) {
         if (Objects.nonNull(s)) {
             List<String> tempList = new ArrayList<>(Arrays.asList(s.split(", ")));
@@ -540,7 +461,4 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         } else return new ArrayList<>();
     }
 
-    private enum DATE_TYPE {
-        START, END
-    }
 }

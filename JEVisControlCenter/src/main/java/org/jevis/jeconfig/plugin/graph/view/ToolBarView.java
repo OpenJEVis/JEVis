@@ -368,9 +368,14 @@ public class ToolBarView {
                     jsonDataModels.add(json);
                 }
             }
-            DateTime now = DateTime.now();
-            JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonDataModels.toString());
-            smp.commit();
+            if (jsonDataModels.toString().length() <= 4096) {
+                DateTime now = DateTime.now();
+                JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonDataModels.toString());
+                smp.commit();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
+                alert.showAndWait();
+            }
 
         } catch (JEVisException e) {
             e.printStackTrace();
@@ -481,12 +486,6 @@ public class ToolBarView {
         model.setSelectedData(selectedData);
 
         Platform.runLater(() -> drawChart());
-    }
-
-    public void updateData() {
-        Set<ChartDataModel> selectedData = getChartDataModels();
-
-        model.setSelectedData(selectedData);
     }
 
     private Set<ChartDataModel> getChartDataModels() {
