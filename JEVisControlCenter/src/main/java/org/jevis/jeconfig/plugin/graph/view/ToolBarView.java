@@ -80,13 +80,18 @@ public class ToolBarView {
             }
         });
 
-        Button newB = new Button("", JEConfig.getImage("list-add.png", iconSize, iconSize));
-
         Button save = new Button("", JEConfig.getImage("save.gif", iconSize, iconSize));
 
+        Tooltip saveTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.save"));
+        save.setTooltip(saveTooltip);
+
         Button loadNew = new Button("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        Tooltip loadNewTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.loadNew"));
+        loadNew.setTooltip(loadNewTooltip);
 
         Button exportCSV = new Button("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
+        Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
+        exportCSV.setTooltip(exportCSVTooltip);
 
         exportCSV.setOnAction(action -> {
             GraphExport ge = new GraphExport(ds, model, nameCurrentAnalysis);
@@ -133,19 +138,17 @@ public class ToolBarView {
         });
 
         Button delete = new Button("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
+        Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
+        delete.setTooltip(deleteTooltip);
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
         save.setDisable(false);
-        newB.setDisable(false);
         delete.setDisable(false);
 
         Button select = new Button("", JEConfig.getImage("Data.png", iconSize, iconSize));
-
-        newB.setOnAction(event -> {
-            controller = new ToolBarController(this, model, ds);
-            controller.handle(event);
-        });
+        Tooltip selectTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
+        select.setTooltip(selectTooltip);
 
         select.setOnAction(event -> changeSettings(event));
 

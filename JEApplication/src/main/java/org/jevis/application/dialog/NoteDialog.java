@@ -58,7 +58,7 @@ public class NoteDialog extends Dialog<ButtonType> {
 
         this.setResizable(true);
 
-        tv.getScene().getWindow().sizeToScene();
+        this.getDialogPane().setPrefWidth(600);
     }
 
     class rowNote {

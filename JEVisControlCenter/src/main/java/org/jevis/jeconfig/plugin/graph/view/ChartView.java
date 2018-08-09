@@ -95,7 +95,6 @@ public class ChartView implements Observer {
         TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
         note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
         note.setStyle("-fx-alignment: CENTER");
-        note.setMaxWidth(36);
 
         TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
@@ -367,18 +366,19 @@ public class ChartView implements Observer {
             if (mouseEvent.getButton() == MouseButton.SECONDARY
                     || (mouseEvent.getButton() == MouseButton.PRIMARY
                     && mouseEvent.isShortcutDown())) {
-                //let it through
             } else {
                 mouseEvent.consume();
             }
         });
         panner.start();
         areaChartRegion = JFXChartUtil.setupZooming(areaChart, mouseEvent -> {
+
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
                 mouseEvent.consume();
-            } else if (mouseEvent.getButton() == MouseButton.PRIMARY) {
-                showNote(mouseEvent, selectedData, chartName);
+                if (mouseEvent.isControlDown()) {
+                    showNote(mouseEvent, selectedData, chartName);
+                }
             }
         });
 
@@ -526,6 +526,10 @@ public class ChartView implements Observer {
     }
 
     private class QuantityUnits {
+        Unit _kg = SI.KILOGRAM;
+        final JEVisUnit kg = new JEVisUnitImp(_kg);
+        Unit _t = NonSI.METRIC_TON;
+        final JEVisUnit t = new JEVisUnitImp(_t);
         Unit _l = NonSI.LITER;
         final JEVisUnit l = new JEVisUnitImp(_l);
         Unit _m3 = SI.CUBIC_METRE;
@@ -540,7 +544,7 @@ public class ChartView implements Observer {
         final JEVisUnit GWh = new JEVisUnitImp(_GWh);
 
         public List<JEVisUnit> get() {
-            return new ArrayList<>(Arrays.asList(l, m3, Wh, kWh, MWh, GWh));
+            return new ArrayList<>(Arrays.asList(kg, t, l, m3, Wh, kWh, MWh, GWh));
         }
     }
 }
