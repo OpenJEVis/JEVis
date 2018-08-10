@@ -951,7 +951,7 @@ public class ChartPlugin implements TreePlugin {
     public void set_data(Map<String, ChartDataModel> _data) {
         this._data = _data;
         _tree.getColumns().clear();
-        _tree.getColumns().addAll(ColumnFactory.buildName(), ColumnFactory.buildID());
+        _tree.getColumns().addAll(ColumnFactory.buildName());
         for (TreeTableColumn<JEVisTreeRow, Long> column : getColumns()) _tree.getColumns().add(column);
     }
 
