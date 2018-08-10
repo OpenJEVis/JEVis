@@ -13,6 +13,8 @@ import javafx.scene.layout.*;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import jfxtras.scene.control.ListView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
@@ -47,6 +49,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private DateTime selectedEnd;
     private JEVisObject currentAnalysis;
     private JEVisDataSource ds;
+    private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.data = data;
@@ -374,7 +377,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
             listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not get analyses directories", e);
         }
         if (listAnalysesDirectories.isEmpty()) {
             List<JEVisObject> listBuildings = new ArrayList<>();
@@ -388,14 +391,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     analysesDir.commit();
                 }
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error: could not create new analyses directory", e);
             }
 
         }
         try {
             listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not get analysis", e);
         }
         observableListAnalyses.clear();
         for (JEVisObject obj : listAnalyses) {
@@ -425,19 +428,23 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
                     if (currentAnalysis.getAttribute("Data Model").hasSample()) {
                         String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
-                        if (str.startsWith("[")) {
-                            listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
-                            }.getType());
+                        try {
+                            if (str.endsWith("]")) {
+                                listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
+                                }.getType());
 
-                        } else {
-                            listAnalysisModel = new ArrayList<>();
-                            listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                            } else {
+                                listAnalysisModel = new ArrayList<>();
+                                listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error: could not read data model", e);
                         }
                     }
                 }
             }
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not get analysis model", e);
         }
     }
 

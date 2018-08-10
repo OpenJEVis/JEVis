@@ -136,7 +136,7 @@ public class AttributeTable {
 //            System.out.println("SQL: " + ps);
             logger.trace("SQL {}", ps);
             _connection.addQuery("Attribute.get(long)", ps.toString());
-            System.out.println("SQL: " + ps);
+            //System.out.println("SQL: " + ps);
             ResultSet rs = ps.executeQuery();
 
 

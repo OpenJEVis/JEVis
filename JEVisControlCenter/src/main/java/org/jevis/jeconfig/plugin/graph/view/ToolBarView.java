@@ -15,6 +15,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
@@ -56,6 +58,7 @@ public class ToolBarView {
     private Boolean _initialized = false;
     private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
+    private final Logger logger = LogManager.getLogger(ToolBarView.class);
 
     public ToolBar getToolbar(JEVisDataSource ds) {
         ToolBar toolBar = new ToolBar();
@@ -242,16 +245,24 @@ public class ToolBarView {
 
     private void drawChart() {
         if (view == null) view = new ChartView(model);
-        try {
-            getChartsList();
-            if (chartsList.size() == 1 || chartsList.isEmpty()) view.drawAreaChart("");
-            else listView = view.getChartViews();
+        getChartsList();
+        if (chartsList.size() == 1 || chartsList.isEmpty()) view.drawAreaChart("");
+        else listView = getChartViews();
 
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
     }
 
+    public List<ChartView> getChartViews() {
+        List<ChartView> charts = new ArrayList<>();
+
+        getChartsList();
+        for (String s : chartsList) {
+            ChartView view = new ChartView(model);
+            view.drawAreaChart(s);
+            charts.add(view);
+        }
+
+        return charts;
+    }
 
     private void saveCurrentAnalysis() {
 
@@ -338,7 +349,7 @@ public class ToolBarView {
                 try {
                     ds.deleteObject(currentAnalysis.getID());
                 } catch (JEVisException e) {
-                    e.printStackTrace();
+                    logger.error("Error: could not delete current analysis", e);
                 }
 
                 updateListAnalyses();
@@ -371,7 +382,7 @@ public class ToolBarView {
                     jsonDataModels.add(json);
                 }
             }
-            if (jsonDataModels.toString().length() <= 4096) {
+            if (jsonDataModels.toString().length() < 4096) {
                 DateTime now = DateTime.now();
                 JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonDataModels.toString());
                 smp.commit();
@@ -381,7 +392,7 @@ public class ToolBarView {
             }
 
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not save data model", e);
         }
     }
 
@@ -426,7 +437,7 @@ public class ToolBarView {
             JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
             listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not get analyses directories", e);
         }
         if (listAnalysesDirectories.isEmpty()) {
             List<JEVisObject> listBuildings = new ArrayList<>();
@@ -440,14 +451,14 @@ public class ToolBarView {
                     analysesDir.commit();
                 }
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error: could not create new analyses directory", e);
             }
 
         }
         try {
             listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not get analysis", e);
         }
         observableListAnalyses.clear();
         for (JEVisObject obj : listAnalyses) {
@@ -467,19 +478,23 @@ public class ToolBarView {
                 if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
                     if (currentAnalysis.getAttribute("Data Model").hasSample()) {
                         String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
-                        if (str.endsWith("]")) {
-                            listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
-                            }.getType());
+                        try {
+                            if (str.endsWith("]")) {
+                                listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
+                                }.getType());
 
-                        } else {
-                            listAnalysisModel = new ArrayList<>();
-                            listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                            } else {
+                                listAnalysisModel = new ArrayList<>();
+                                listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error: could not read data model", e);
                         }
                     }
                 }
             }
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not get analysis model", e);
         }
     }
 
@@ -488,7 +503,7 @@ public class ToolBarView {
 
         model.setSelectedData(selectedData);
 
-        Platform.runLater(() -> drawChart());
+        //Platform.runLater(() -> drawChart());
     }
 
     private Set<ChartDataModel> getChartDataModels() {
@@ -524,7 +539,7 @@ public class ToolBarView {
                 newData.setUnit(unit);
                 data.put(obj.getID().toString(), newData);
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error: could not get chart data model", e);
             }
         }
         Set<ChartDataModel> selectedData = new HashSet<>();

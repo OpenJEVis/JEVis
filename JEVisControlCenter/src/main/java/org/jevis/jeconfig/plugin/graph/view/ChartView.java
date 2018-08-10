@@ -27,6 +27,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
@@ -50,8 +52,6 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 
@@ -66,7 +66,7 @@ public class ChartView implements Observer {
     private Region areaChartRegion;
     private final TableView table;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-
+    private final Logger logger = LogManager.getLogger(ChartView.class);
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
     public ChartView(GraphDataModel dataModel) {
@@ -209,42 +209,33 @@ public class ChartView implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        try {
-            getChartsList();
-            if (chartsList.size() == 1) this.drawAreaChart("");
-            else getChartViews();
-        } catch (JEVisException ex) {
-            Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            getChartsList();
+//            if (chartsList.size() == 1) this.drawAreaChart("");
+//            else if (chartsList.size() > 1) getChartViews();
+//
+//        } catch (JEVisException ex) {
+//            Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
-    public List<ChartView> getChartViews() throws JEVisException {
-        List<ChartView> charts = new ArrayList<>();
 
-        getChartsList();
-        for (String s : chartsList) {
-            ChartView view = new ChartView(dataModel);
-            view.drawAreaChart(s);
-            charts.add(view);
-        }
-
-        return charts;
-    }
-
-    public void drawAreaChart(String chartName) throws JEVisException {
+    public void drawAreaChart(String chartName) {
         tableData.clear();
-        String unit = "";
 
         Set<ChartDataModel> selectedData = dataModel.getSelectedData();
 
         ObservableList<XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
         List<Color> hexColors = new ArrayList<>();
 
-        String title = I18n.getInstance().getString("plugin.graph.chart.title1");
+        String unit = null;
+        String title = null;
 
         for (ChartDataModel singleRow : selectedData) {
             if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
                 unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                title = I18n.getInstance().getString("plugin.graph.chart.title1");
+
                 hexColors.add(singleRow.getColor());
 
                 if (chartName == "" || chartName == null) {
@@ -268,9 +259,9 @@ public class ChartView implements Observer {
                 Double avg;
                 Double sum = 0.0;
 
-                for (JEVisSample sample : samples) {
-                    JEVisObject dp = singleRow.getDataProcessor();
-                    if (Objects.nonNull(dp)) {
+                JEVisObject dp = singleRow.getDataProcessor();
+                if (Objects.nonNull(dp)) {
+                    try {
                         if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
                             if (Objects.nonNull(dp.getAttribute("Value is a Quantity").getLatestSample())) {
                                 if (dp.getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
@@ -279,29 +270,36 @@ public class ChartView implements Observer {
                                 }
                             }
                         }
+                    } catch (JEVisException e) {
+                        logger.error("Error: could not data processor attribute", e);
                     }
+                }
 
-                    QuantityUnits qu = new QuantityUnits();
-                    if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
+                QuantityUnits qu = new QuantityUnits();
+                if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
 
-                    sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
-                    DateTime dateTime = sample.getTimestamp();
-                    Double value = sample.getValueAsDouble();
-                    if (isQuantitiy) {
-                        min = Math.min(value, min);
-                        max = Math.max(value, max);
-                        sum += value;
+                for (JEVisSample sample : samples) {
+                    try {
+                        sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
+                        DateTime dateTime = sample.getTimestamp();
+
+                        Double value = sample.getValueAsDouble();
+
+                        if (isQuantitiy) {
+                            min = Math.min(value, min);
+                            max = Math.max(value, max);
+                            sum += value;
+                        }
+                        Long timestamp = dateTime.getMillis();
+                        XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
+
+                        Rectangle rect = new Rectangle(0, 0);
+                        rect.setVisible(false);
+                        data.setNode(rect);
+                        series1Data.add(data);
+                    } catch (JEVisException e) {
+
                     }
-//                Date date = dateTime.toGregorianCalendar().getTime();
-                    Long timestamp = dateTime.getMillis();
-                    XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
-
-                    //dot for the chart
-                    Rectangle rect = new Rectangle(0, 0);
-                    rect.setVisible(false);
-                    data.setNode(rect);
-                    series1Data.add(data);
-
                 }
 
                 if (isQuantitiy) {
@@ -320,6 +318,7 @@ public class ChartView implements Observer {
                 currentSerie.setName(singleRow.getObject().getName());
                 singleRow.setSampleMap(sampleMap);
                 series.add(currentSerie);
+
             }
         }
 
@@ -386,7 +385,8 @@ public class ChartView implements Observer {
         JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
     }
 
-    private void updateTable(String chartName, Set<ChartDataModel> selectedData, String finalUnit, MouseEvent mouseEvent) {
+    private void updateTable(String chartName, Set<ChartDataModel> selectedData, String finalUnit, MouseEvent
+            mouseEvent) {
         Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         Double x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
         if (x != null) {
@@ -465,6 +465,7 @@ public class ChartView implements Observer {
                             map.put(title, note);
                         }
                     } catch (Exception ex) {
+                        logger.error("Error: could not get note", ex);
                     }
                 }
             }
