@@ -4,21 +4,21 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import jfxtras.scene.control.ListView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
-import org.jevis.commons.unit.JEVisUnitImp;
-import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
@@ -27,7 +27,10 @@ import org.joda.time.DateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private String nameCurrentAnalysis;
@@ -46,6 +49,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private DateTime selectedEnd;
     private JEVisObject currentAnalysis;
     private JEVisDataSource ds;
+    private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.data = data;
@@ -121,11 +125,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         ObservableList<String> presetDateEntries = FXCollections.observableArrayList();
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
         final String lastDay = I18n.getInstance().getString("plugin.graph.changedate.buttonlastday");
+        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
         final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
         final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
         final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
 
-        presetDateEntries.addAll(custom, lastDay, last30Days, lastWeek, lastMonth);
+        presetDateEntries.addAll(custom, lastDay, last7Days, last30Days, lastWeek, lastMonth);
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
 
         if (!listAnalysisModel.isEmpty()) {
@@ -135,47 +140,50 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         comboBoxPresetDates.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
+                DateHelper dh = new DateHelper();
                 switch (newValue.intValue()) {
+                    //Custom
                     case 0:
                         break;
+                    //last day
                     case 1:
-                        LocalDate ld_1 = LocalDate.now();
-                        LocalDate ld_start_1 = LocalDate.of(ld_1.getYear(), ld_1.getMonth(), ld_1.getDayOfMonth());
-                        LocalDate ld_end_1 = LocalDate.of(ld_1.getYear(), ld_1.getMonth(), ld_1.getDayOfMonth());
-                        pickerDateStart.valueProperty().setValue(ld_start_1);
-                        pickerDateEnd.valueProperty().setValue(ld_end_1);
-                        pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
-                        pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
+                        dh = new DateHelper(TransformType.LASTDAY);
+                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
+                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
+                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
+                    //last 7 days
                     case 2:
-                        LocalDate ld_2 = LocalDate.now();
-                        LocalDate ld_start_2 = LocalDate.of(ld_2.getYear(), ld_2.getMonth(), ld_2.getDayOfMonth());
-                        LocalDate ld_end_2 = LocalDate.of(ld_2.getYear(), ld_2.getMonth(), ld_2.getDayOfMonth());
-                        pickerDateStart.valueProperty().setValue(ld_start_2.minusDays(30));
-                        pickerDateEnd.valueProperty().setValue(ld_end_2);
-                        pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
-                        pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
+                        dh = new DateHelper(TransformType.LAST7DAYS);
+                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
+                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
+                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
+                    //last 30 days
                     case 3:
-                        LocalDate ld_3 = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1);
-                        ld_3 = ld_3.minusWeeks(1);
-                        LocalDate ld_start_3 = LocalDate.of(ld_3.getYear(), ld_3.getMonth(), ld_3.getDayOfMonth());
-                        LocalDate ld_end_3 = LocalDate.of(ld_3.getYear(), ld_3.getMonth(), ld_3.getDayOfMonth());
-                        ld_end_3 = ld_end_3.plusDays(6);
-                        pickerDateStart.valueProperty().setValue(ld_start_3);
-                        pickerDateEnd.valueProperty().setValue(ld_end_3);
-                        pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
-                        pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
+                        dh = new DateHelper(TransformType.LAST30DAYS);
+                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
+                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
+                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
+                    //last Week days
                     case 4:
-                        LocalDate ld_4 = LocalDate.now();
-                        ld_4 = ld_4.minusDays(LocalDate.now().getDayOfMonth() - 1);
-                        LocalDate ld_start_4 = LocalDate.of(ld_4.getYear(), ld_4.getMonth(), ld_4.getDayOfMonth()).minusMonths(1);
-                        LocalDate ld_end_4 = LocalDate.of(ld_4.getYear(), ld_4.getMonth(), ld_4.getDayOfMonth()).minusDays(1);
-                        pickerDateStart.valueProperty().setValue(ld_start_4);
-                        pickerDateEnd.valueProperty().setValue(ld_end_4);
-                        pickerTimeStart.valueProperty().setValue(LocalTime.of(0, 0, 0, 0));
-                        pickerTimeEnd.valueProperty().setValue(LocalTime.of(23, 59, 59, 999));
+                        dh = new DateHelper(TransformType.LASTWEEK);
+                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
+                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
+                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        break;
+                    case 5:
+                        //last Month
+                        dh = new DateHelper(TransformType.LASTMONTH);
+                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
+                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
+                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
                     default:
                         break;
@@ -188,7 +196,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 if (selectedStart != null) {
                     selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getSecondOfMinute());
                     updateTimeFrame();
-                    comboBoxPresetDates.getSelectionModel().select(0);
+                    DateHelper dh = new DateHelper(InputType.STARTDATE, newValue);
+                    if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
         });
@@ -198,7 +207,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 if (selectedEnd != null) {
                     selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getSecondOfMinute());
                     updateTimeFrame();
-                    comboBoxPresetDates.getSelectionModel().select(0);
+                    DateHelper dh = new DateHelper(InputType.ENDDATE, newValue);
+                    if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
         });
@@ -208,7 +218,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 if (selectedStart != null) {
                     selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
                     updateTimeFrame();
-                    comboBoxPresetDates.getSelectionModel().select(0);
+                    DateHelper dh = new DateHelper(InputType.STARTTIME, newValue);
+                    if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
         });
@@ -218,7 +229,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 if (selectedEnd != null) {
                     selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
                     updateTimeFrame();
-                    comboBoxPresetDates.getSelectionModel().select(0);
+                    DateHelper dh = new DateHelper(InputType.ENDTIME, newValue);
+                    if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
         });
@@ -359,17 +371,13 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         return lv;
     }
 
-    public String getNameCurrentAnalysis() {
-        return nameCurrentAnalysis;
-    }
-
     public void updateListAnalyses() {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
         try {
             JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
             listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not get analyses directories", e);
         }
         if (listAnalysesDirectories.isEmpty()) {
             List<JEVisObject> listBuildings = new ArrayList<>();
@@ -383,14 +391,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     analysesDir.commit();
                 }
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error: could not create new analyses directory", e);
             }
 
         }
         try {
             listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not get analysis", e);
         }
         observableListAnalyses.clear();
         for (JEVisObject obj : listAnalyses) {
@@ -420,84 +428,24 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
                     if (currentAnalysis.getAttribute("Data Model").hasSample()) {
                         String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
-                        if (str.endsWith("]")) {
-                            listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
-                            }.getType());
+                        try {
+                            if (str.endsWith("]")) {
+                                listAnalysisModel = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisModel>>() {
+                                }.getType());
 
-                        } else {
-                            listAnalysisModel = new ArrayList<>();
-                            listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                            } else {
+                                listAnalysisModel = new ArrayList<>();
+                                listAnalysisModel.add(new Gson().fromJson(str, JsonAnalysisModel.class));
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error: could not read data model", e);
                         }
                     }
                 }
             }
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error: could not get analysis model", e);
         }
-    }
-
-    public List<JsonAnalysisModel> getListAnalysisModel() {
-        return listAnalysisModel;
-    }
-
-    private void updateData() {
-        Set<ChartDataModel> selectedData = getChartDataModels();
-
-        data.setSelectedData(selectedData);
-    }
-
-    public DateTime getSelectedStart() {
-        return selectedStart;
-    }
-
-    public DateTime getSelectedEnd() {
-        return selectedEnd;
-    }
-
-    private Set<ChartDataModel> getChartDataModels() {
-        Map<String, ChartDataModel> data = new HashMap<>();
-
-        for (JsonAnalysisModel mdl : listAnalysisModel) {
-            ChartDataModel newData = new ChartDataModel();
-            try {
-                Long id = Long.parseLong(mdl.getObject());
-                Long id_dp = null;
-                if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
-                JEVisObject obj = ds.getObject(id);
-                JEVisObject obj_dp = null;
-                if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
-                JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
-                DateTime start;
-                start = DateTime.parse(mdl.getSelectedStart());
-                DateTime end;
-                end = DateTime.parse(mdl.getSelectedEnd());
-                Boolean selected = Boolean.parseBoolean(mdl.getSelected());
-                newData.setObject(obj);
-                newData.setSelectedStart(start);
-                newData.setSelectedEnd(end);
-                newData.setColor(Color.valueOf(mdl.getColor()));
-                newData.setTitle(mdl.getName());
-                if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
-                newData.getAttribute();
-                newData.setAggregation(parseAggregation(mdl.getAggregation()));
-                newData.setSelected(selected);
-                newData.set_somethingChanged(true);
-                newData.getSamples();
-                newData.set_selectedCharts(stringToList(mdl.getSelectedCharts()));
-                newData.setUnit(unit);
-                data.put(obj.getID().toString(), newData);
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-        }
-        Set<ChartDataModel> selectedData = new HashSet<>();
-        for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
-            ChartDataModel value = entrySet.getValue();
-            if (value.getSelected()) {
-                selectedData.add(value);
-            }
-        }
-        return selectedData;
     }
 
     private ChartPlugin.AGGREGATION parseAggregation(String aggrigation) {
@@ -521,17 +469,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         return data;
     }
 
-    private String listToString(List<String> listString) {
-        if (listString != null) {
-            StringBuilder sb = new StringBuilder();
-            for (String s : listString) {
-                sb.append(s);
-                sb.append(", ");
-            }
-            return sb.toString();
-        } else return "";
-    }
-
     private List<String> stringToList(String s) {
         if (Objects.nonNull(s)) {
             List<String> tempList = new ArrayList<>(Arrays.asList(s.split(", ")));
@@ -540,7 +477,146 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         } else return new ArrayList<>();
     }
 
-    private enum DATE_TYPE {
-        START, END
+    public enum TransformType {CUSTOM, LASTDAY, LAST7DAYS, LAST30DAYS, LASTWEEK, LASTMONTH}
+
+    public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
+
+    public class DateHelper {
+        final LocalTime startTime = LocalTime.of(0, 0, 0, 0);
+        final LocalTime endTime = LocalTime.of(23, 59, 59, 999);
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private LocalDate checkDate;
+        private LocalTime checkTime;
+        private TransformType type;
+        private LocalDate now;
+        private InputType inputType;
+        private Boolean userSet = true;
+
+        public DateHelper(TransformType type) {
+            this.type = type;
+            now = LocalDate.now();
+        }
+
+        public DateHelper() {
+            now = LocalDate.now();
+        }
+
+        public DateHelper(InputType inputType, LocalDate localDate) {
+            this.inputType = inputType;
+            checkDate = localDate;
+        }
+
+        public DateHelper(InputType inputType, LocalTime localTime) {
+            this.inputType = inputType;
+            checkTime = localTime;
+        }
+
+        public LocalDate getStartDate() {
+            now = LocalDate.now();
+            switch (type) {
+                case CUSTOM:
+                    break;
+                case LASTDAY:
+                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
+                    break;
+                case LAST7DAYS:
+                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(7);
+                    break;
+                case LAST30DAYS:
+                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(30);
+                    break;
+                case LASTWEEK:
+                    now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
+                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
+                    break;
+                case LASTMONTH:
+                    now = now.minusDays(LocalDate.now().getDayOfMonth() - 1);
+                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusMonths(1);
+                    break;
+                default:
+                    break;
+            }
+            return startDate;
+        }
+
+        public LocalDate getEndDate() {
+            now = LocalDate.now();
+            switch (type) {
+                case CUSTOM:
+                    break;
+                case LASTDAY:
+                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
+                    break;
+                case LAST7DAYS:
+                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
+                    break;
+                case LAST30DAYS:
+                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
+                    break;
+                case LASTWEEK:
+                    now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
+                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).plusDays(6);
+                    break;
+                case LASTMONTH:
+                    now = now.minusDays(LocalDate.now().getDayOfMonth() - 1);
+                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(1);
+                    break;
+                default:
+                    break;
+            }
+            return endDate;
+        }
+
+        public void setType(TransformType type) {
+            this.type = type;
+        }
+
+        public LocalTime getStartTime() {
+            return startTime;
+        }
+
+        public LocalTime getEndTime() {
+            return endTime;
+        }
+
+        public Boolean isCustom() {
+            switch (inputType) {
+                case STARTDATE:
+                    for (TransformType tt : TransformType.values()) {
+                        this.type = tt;
+                        if (checkDate.equals(getStartDate())) {
+                            userSet = false;
+                            break;
+                        }
+                    }
+                    break;
+                case ENDDATE:
+                    for (TransformType tt : TransformType.values()) {
+                        this.type = tt;
+                        if (checkDate.equals(getEndDate())) {
+                            userSet = false;
+                            break;
+                        }
+                    }
+                    break;
+                case STARTTIME:
+                    if (checkTime.equals(getStartTime())) {
+                        userSet = false;
+                        break;
+                    }
+                    break;
+                case ENDTIME:
+                    if (checkTime.equals(getEndTime())) {
+                        userSet = false;
+                        break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return userSet;
+        }
     }
 }

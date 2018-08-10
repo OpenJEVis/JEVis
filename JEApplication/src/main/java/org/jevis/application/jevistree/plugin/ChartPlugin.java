@@ -59,6 +59,7 @@ public class ChartPlugin implements TreePlugin {
 
     @Override
     public void setTree(JEVisTree tree) {
+
         _tree = tree;
     }
 
@@ -801,6 +802,7 @@ public class ChartPlugin implements TreePlugin {
 
         Boolean isEnergyUnit = false;
         Boolean isVolumeUnit = false;
+        Boolean isMassUnit = false;
         JEVisUnit currentUnit = null;
         try {
             if (singleRow.getDataProcessor() != null) {
@@ -827,6 +829,16 @@ public class ChartPlugin implements TreePlugin {
         }
         if (isVolumeUnit) for (VolumeUnit vu : VolumeUnit.values()) proNames.add(vu.toString());
 
+        for (MassUnit mu : MassUnit.values()) {
+            if (mu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+                isMassUnit = true;
+            }
+        }
+        if (isMassUnit) for (MassUnit mu : MassUnit.values()) proNames.add(mu.toString());
+
+        Unit _kg = SI.KILOGRAM;
+        Unit _t = NonSI.METRIC_TON;
+
         Unit _l = NonSI.LITER;
         Unit _m3 = SI.CUBIC_METRE;
 
@@ -838,6 +850,9 @@ public class ChartPlugin implements TreePlugin {
         Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
         Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
         Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
+
+        final JEVisUnit kg = new JEVisUnitImp(_kg);
+        final JEVisUnit t = new JEVisUnitImp(_t);
 
         final JEVisUnit l = new JEVisUnitImp(_l);
         final JEVisUnit m3 = new JEVisUnitImp(_m3);
@@ -857,6 +872,12 @@ public class ChartPlugin implements TreePlugin {
             if (oldValue == null || newValue != oldValue) {
                 final String finalNewValue = String.valueOf(newValue);
                 switch (finalNewValue) {
+                    case "kg":
+                        singleRow.setUnit(kg);
+                        break;
+                    case "t":
+                        singleRow.setUnit(t);
+                        break;
                     case "W":
                         singleRow.setUnit(W);
                         break;
@@ -902,6 +923,10 @@ public class ChartPlugin implements TreePlugin {
 
     private enum EnergyUnit {
         W, kW, MW, GW, Wh, kWh, MWh, GWh
+    }
+
+    private enum MassUnit {
+        kg, t
     }
 
     private enum VolumeUnit {

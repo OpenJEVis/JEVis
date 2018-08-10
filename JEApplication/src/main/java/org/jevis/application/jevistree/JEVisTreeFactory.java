@@ -99,17 +99,12 @@ public class JEVisTreeFactory {
 
         TreePlugin bp = new ChartPlugin();
 
-//        bp.setTree(tree);
-
-//        getColumns().addAll(ColumnFactory.buildName(), ColumnFactory.buildID(), ColumnFactory.buildClass(), ColumnFactory.buildColor(this), ColumnFactory.buildBasicRowSelection(this));
-//        tree.getColumns().addAll(ColumnFactory.buildName(), ColumnFactory.buildID(), ColumnFactory.buildClass(), ColumnFactory.buildBasicGraph(tree));
-        tree.getColumns().addAll(ColumnFactory.buildName(), ColumnFactory.buildID());
+        tree.getColumns().addAll(ColumnFactory.buildName());
 
         tree.getPlugins().add(bp);
 
-//        for (TreeTableColumn<SelectionTreeRow, Long> column : bp.getColumns()) {
-//            tree.getColumns().add(column);
-//        }
+        addGraphKeys(tree);
+
         return tree;
 
     }
@@ -129,4 +124,17 @@ public class JEVisTreeFactory {
 
     }
 
+    public static void addGraphKeys(JEVisTree tree) {
+
+        final KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
+
+        tree.addEventHandler(KeyEvent.KEY_PRESSED, t -> {
+            LOGGER.trace("TreeEvent: {}", t.getCode());
+
+            if (findNode.match(t)) {
+                TreeHelper.EventOpenObject(tree);
+            }
+        });
+
+    }
 }

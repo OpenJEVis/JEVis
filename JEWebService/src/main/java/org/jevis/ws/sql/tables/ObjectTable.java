@@ -459,9 +459,9 @@ public class ObjectTable {
             children.add(obj);
             getAllChildren(children, obj);
 
-            for (JsonObject o : children) {
-                System.out.println("deleteIDs: " + o.getId());
-            }
+            //           for (JsonObject o : children) {
+            //             System.out.println("deleteIDs: " + o.getId());
+            //       }
 
             boolean first = true;
             for (JsonObject ch : children) {
@@ -475,7 +475,7 @@ public class ObjectTable {
             }
 
             sql += ")";
-            System.out.println("pSql: " + sql);
+            //           System.out.println("pSql: " + sql);
             Calendar now = new GregorianCalendar();
             ps = _connection.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 //            ps = _connection.getConnection().prepareStatement(sql);
@@ -487,7 +487,7 @@ public class ObjectTable {
                 raw++;
             }
 
-            System.out.println("ps: " + ps);
+            //        System.out.println("ps: " + ps);
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Object.delete()", ps.toString());
             int count = ps.executeUpdate();
