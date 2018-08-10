@@ -95,6 +95,7 @@ public class ChartView implements Observer {
         TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
         note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
         note.setStyle("-fx-alignment: CENTER");
+        note.setMaxWidth(50);
 
         TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));

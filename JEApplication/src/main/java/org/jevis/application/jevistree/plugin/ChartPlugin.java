@@ -60,17 +60,6 @@ public class ChartPlugin implements TreePlugin {
     @Override
     public void setTree(JEVisTree tree) {
 
-//        try {
-//            JEVisClass dataDir = null;
-//            dataDir = tree.getJEVisDataSource().getJEVisClass("Data Directory");
-//            List<JEVisObject> listDataDirs = tree.getJEVisDataSource().getObjects(dataDir, false);
-//            JEVisTreeItem newItem = new JEVisTreeItem(tree, listDataDirs.get(0));
-//            tree.setRoot(newItem);
-//
-//        } catch (JEVisException e) {
-//            e.printStackTrace();
-//        }
-
         _tree = tree;
     }
 
