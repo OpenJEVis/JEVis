@@ -217,7 +217,7 @@ public class ToolBarView {
                 }
             }
             model.setSelectedData(selectedData);
-            Platform.runLater(() -> drawChart());
+            //Platform.runLater(() -> drawChart());
         }
     }
 
@@ -503,7 +503,6 @@ public class ToolBarView {
 
         model.setSelectedData(selectedData);
 
-        //Platform.runLater(() -> drawChart());
     }
 
     private Set<ChartDataModel> getChartDataModels() {
