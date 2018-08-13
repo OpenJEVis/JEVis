@@ -38,6 +38,7 @@ public class ChartDataModel {
     private JEVisUnit _unit;
     private List<String> _selectedCharts = new ArrayList<>();
 
+
     public ChartDataModel() {
     }
 
@@ -515,4 +516,5 @@ public class ChartDataModel {
     public void set_somethingChanged(boolean _somethingChanged) {
         this._somethingChanged = _somethingChanged;
     }
+
 }

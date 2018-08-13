@@ -41,6 +41,7 @@ import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.plugin.graph.DateHelper;
 import org.jevis.jeconfig.plugin.graph.GraphController;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
@@ -85,7 +86,7 @@ public class GraphPluginView implements Plugin, Observer {
             dialog.showAndWait()
                     .ifPresent(response -> {
                         if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                            ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null);
+                            ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null, null);
 
                             if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
@@ -101,6 +102,14 @@ public class GraphPluginView implements Plugin, Observer {
                         } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
                             dialog.updateToolBarView();
+
+                            if (dialog.getInitialTimeFrame()) {
+                                DateHelper dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
+                                dialog.setSelectedStart(dh.getDateTimeStartDate());
+                                dialog.setSelectedEnd(dh.getDateTimeEndDate());
+                                dialog.updateTimeFrame();
+                            }
+
                             toolBarView.select(dialog.getLv().getSelectionModel().getSelectedItem());
                             if (toolBarView.getListAnalysesComboBox().getSelectionModel().getSelectedIndex() == dialog.getLv().getSelectionModel().getSelectedIndex()) {
                                 Platform.runLater(() -> toolBarView.updateChart());

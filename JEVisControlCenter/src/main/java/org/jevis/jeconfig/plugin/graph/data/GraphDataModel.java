@@ -6,6 +6,7 @@
 package org.jevis.jeconfig.plugin.graph.data;
 
 import org.jevis.application.jevistree.plugin.ChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class GraphDataModel extends Observable {
 
     List<GraphDataRow> dataRows = new ArrayList<>();
     Set<ChartDataModel> selectedRawData;
+    Set<ChartSettings> charts;
 
     public Set<ChartDataModel> getSelectedData() {
         return selectedRawData;
@@ -31,4 +33,11 @@ public class GraphDataModel extends Observable {
         notifyObservers();
     }
 
+    public Set<ChartSettings> getCharts() {
+        return charts;
+    }
+
+    public void setCharts(Set<ChartSettings> charts) {
+        this.charts = charts;
+    }
 }

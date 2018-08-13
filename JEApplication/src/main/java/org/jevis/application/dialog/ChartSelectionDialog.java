@@ -38,6 +38,7 @@ import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.*;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
+import org.jevis.application.jevistree.plugin.ChartSettings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,15 +57,17 @@ public class ChartSelectionDialog {
     private final JEVisDataSource _ds;
     private final String ICON = "1404313956_evolution-tasks.png";
     private Map<String, ChartDataModel> data = new HashMap<>();
+    private Map<String, ChartSettings> charts = new HashMap<>();
     private Stage stage;
     private boolean init = true;
     private JEVisTree _tree;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private ChartPlugin bp = null;
 
-    public ChartSelectionDialog(JEVisDataSource ds, Map<String, ChartDataModel> data) {
+    public ChartSelectionDialog(JEVisDataSource ds, Map<String, ChartDataModel> data, Map<String, ChartSettings> charts) {
         this._ds = ds;
         this.data = data;
+        this.charts = charts;
     }
 
     public Response show(Stage owner) {
@@ -129,6 +132,8 @@ public class ChartSelectionDialog {
                 if (data != null && !data.isEmpty()) {
                     bp.set_data(data);
                 }
+                if (charts != null && !charts.isEmpty())
+                    bp.setCharts(charts);
             }
         }
 
