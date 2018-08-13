@@ -63,14 +63,14 @@ import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 public class GenericAttributeExtension implements ObjectEditorExtension {
 
     private static final String TITEL = I18n.getInstance().getString("plugin.object.attribute.title");
+    public static DoubleProperty editorWhith = new SimpleDoubleProperty(350);
     private final BorderPane _view = new BorderPane();
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     private JEVisObject _obj;
     private boolean _needSave = false;
     private List<AttributeEditor> _attributesEditor;
-    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     private JEVisTree tree;
-    public static DoubleProperty editorWhith = new SimpleDoubleProperty(350);
 
     public GenericAttributeExtension(JEVisObject obj, JEVisTree tree) {
         this.tree = tree;
@@ -200,7 +200,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
         boolean readOnly = true;
         try {
-            readOnly=false;
+            readOnly = false;
             /**
              * TODO: implement write access check
              * Read check is disabled for now, the problem is that if the user has ne read access to his UserGroup he can not
@@ -266,7 +266,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.GAP_FILLING_CONFIG.getId())) {
                                         editor = new GapFillingEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LIMITS_CONFIG.getId())) {
-                                        editor = new LimitsEditor(att);
+                                        editor = new LimitEditor(att);
                                     }
                                 } catch (Exception e) {
                                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());
