@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -31,9 +32,11 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.application.dialog.ChartSelectionDialog;
+import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
@@ -64,6 +67,7 @@ public class GraphPluginView implements Plugin, Observer {
     private LoadAnalysisDialog dialog;
     private VBox vBox = new VBox();
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
+    private final Logger logger = LogManager.getLogger(GraphPluginView.class);
 
     @Override
     public String getClassName() {
@@ -98,6 +102,9 @@ public class GraphPluginView implements Plugin, Observer {
 
                             dialog.updateToolBarView();
                             toolBarView.select(dialog.getLv().getSelectionModel().getSelectedItem());
+                            if (toolBarView.getListAnalysesComboBox().getSelectionModel().getSelectedIndex() == dialog.getLv().getSelectionModel().getSelectedIndex()) {
+                                Platform.runLater(() -> toolBarView.updateChart());
+                            }
                         }
                     });
 
@@ -213,7 +220,7 @@ public class GraphPluginView implements Plugin, Observer {
     @Override
     public Node getContentNode() {
         if (dataModel.getSelectedData() != null) getChartsList();
-        if (chartsList.size() == 1 || chartsList.isEmpty()) {
+
             if (border == null) {
                 border = new BorderPane();
                 chartView.drawDefaultAreaChart();
@@ -225,39 +232,16 @@ public class GraphPluginView implements Plugin, Observer {
             }
 
             return border;
-        } else {
-            if (border == null) {
-                border = new BorderPane();
-                try {
-                    listChartViews = chartView.getChartViews();
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
 
-                vBox.getChildren().clear();
-                for (ChartView cv : listChartViews) {
-                    cv.drawDefaultAreaChart();
-                    BorderPane bp = new BorderPane();
-                    bp.setTop(cv.getLegend());
-                    bp.setCenter(cv.getAreaChartRegion());
-                    bp.setBottom(cv.getVbox());
-                    vBox.getChildren().add(bp);
-                }
-                border.setCenter(vBox);
-//            border.setCenter(new Button("click me"));
-
-//            border.setCenter(lineChart);
-                border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-            }
-
-            return border;
-        }
     }
 
     @Override
     public void update(Observable o, Object arg) {
         if (dataModel.getSelectedData() != null) getChartsList();
         if (chartsList.size() == 1 || chartsList.isEmpty()) {
+            if (chartsList.size() == 1) {
+                chartView.drawAreaChart(chartsList.get(0));
+            }
             border.setTop(chartView.getLegend());
             border.setCenter(chartView.getAreaChartRegion());
             border.setBottom(chartView.getVbox());
@@ -265,11 +249,7 @@ public class GraphPluginView implements Plugin, Observer {
             if (border == null) {
                 border = new BorderPane();
             }
-            try {
-                listChartViews = chartView.getChartViews();
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
+            listChartViews = toolBarView.getChartViews();
 
             vBox.getChildren().clear();
 
@@ -309,6 +289,9 @@ public class GraphPluginView implements Plugin, Observer {
                 }
             }
         }
+
+        AlphanumComparator ac = new AlphanumComparator();
+        tempList.sort(ac);
 
         chartsList = FXCollections.observableArrayList(tempList);
         return chartsList;

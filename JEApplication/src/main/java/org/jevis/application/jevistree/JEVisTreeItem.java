@@ -211,7 +211,9 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                             } else if (!o1IsDir && o2IsDir) {//o2 is dir
                                 return 1;
                             } else { //non or both are a dir
-                                return o1.getValue().getJEVisObject().getName().compareTo(o2.getValue().getJEVisObject().getName());
+                                AlphanumComparator ac = new AlphanumComparator();
+
+                                return ac.compare(o1.getValue().getJEVisObject().getName(), o2.getValue().getJEVisObject().getName());
                             }
                         } catch (JEVisException jex) {
                             LOGGER.error(jex);

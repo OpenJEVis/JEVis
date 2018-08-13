@@ -16,26 +16,33 @@ import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
+import org.jevis.application.dialog.NoteDialog;
+import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.TableEntry;
 import org.jevis.commons.constants.JEDataProcessorConstants;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -46,8 +53,6 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 
@@ -62,7 +67,7 @@ public class ChartView implements Observer {
     private Region areaChartRegion;
     private final TableView table;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-
+    private final Logger logger = LogManager.getLogger(ChartView.class);
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
     public ChartView(GraphDataModel dataModel) {
@@ -91,6 +96,7 @@ public class ChartView implements Observer {
         TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
         note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
         note.setStyle("-fx-alignment: CENTER");
+        note.setPrefWidth(30);
 
         TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
@@ -109,7 +115,7 @@ public class ChartView implements Observer {
         sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
 
         final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-        TableEntry tableEntry = new TableEntry("testeintrag");
+        TableEntry tableEntry = new TableEntry("empty");
         tableData.add(tableEntry);
         table.setItems(tableData);
 
@@ -125,6 +131,8 @@ public class ChartView implements Observer {
                 }
             }
         }
+        AlphanumComparator ac = new AlphanumComparator();
+        tempList.sort(ac);
 
         chartsList = FXCollections.observableArrayList(tempList);
         return chartsList;
@@ -204,42 +212,33 @@ public class ChartView implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        try {
-            getChartsList();
-            if (chartsList.size() == 1) this.drawAreaChart("");
-            else getChartViews();
-        } catch (JEVisException ex) {
-            Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            getChartsList();
+//            if (chartsList.size() == 1) this.drawAreaChart("");
+//            else if (chartsList.size() > 1) getChartViews();
+//
+//        } catch (JEVisException ex) {
+//            Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
-    public List<ChartView> getChartViews() throws JEVisException {
-        List<ChartView> charts = new ArrayList<>();
 
-        getChartsList();
-        for (String s : chartsList) {
-            ChartView view = new ChartView(dataModel);
-            view.drawAreaChart(s);
-            charts.add(view);
-        }
-
-        return charts;
-    }
-
-    public void drawAreaChart(String chartName) throws JEVisException {
+    public void drawAreaChart(String chartName) {
         tableData.clear();
-        String unit = "";
 
         Set<ChartDataModel> selectedData = dataModel.getSelectedData();
 
         ObservableList<XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
         List<Color> hexColors = new ArrayList<>();
 
-        String title = I18n.getInstance().getString("plugin.graph.chart.title1");
+        String unit = null;
+        String title = null;
 
         for (ChartDataModel singleRow : selectedData) {
             if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
                 unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                title = I18n.getInstance().getString("plugin.graph.chart.title1");
+
                 hexColors.add(singleRow.getColor());
 
                 if (chartName == "" || chartName == null) {
@@ -263,9 +262,9 @@ public class ChartView implements Observer {
                 Double avg;
                 Double sum = 0.0;
 
-                for (JEVisSample sample : samples) {
-                    JEVisObject dp = singleRow.getDataProcessor();
-                    if (Objects.nonNull(dp)) {
+                JEVisObject dp = singleRow.getDataProcessor();
+                if (Objects.nonNull(dp)) {
+                    try {
                         if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
                             if (Objects.nonNull(dp.getAttribute("Value is a Quantity").getLatestSample())) {
                                 if (dp.getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
@@ -274,29 +273,36 @@ public class ChartView implements Observer {
                                 }
                             }
                         }
+                    } catch (JEVisException e) {
+                        logger.error("Error: could not data processor attribute", e);
                     }
+                }
 
-                    QuantityUnits qu = new QuantityUnits();
-                    if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
+                QuantityUnits qu = new QuantityUnits();
+                if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
 
-                    sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
-                    DateTime dateTime = sample.getTimestamp();
-                    Double value = sample.getValueAsDouble();
-                    if (isQuantitiy) {
-                        min = Math.min(value, min);
-                        max = Math.max(value, max);
-                        sum += value;
+                for (JEVisSample sample : samples) {
+                    try {
+                        sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
+                        DateTime dateTime = sample.getTimestamp();
+
+                        Double value = sample.getValueAsDouble();
+
+                        if (isQuantitiy) {
+                            min = Math.min(value, min);
+                            max = Math.max(value, max);
+                            sum += value;
+                        }
+                        Long timestamp = dateTime.getMillis();
+                        XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
+
+                        Rectangle rect = new Rectangle(0, 0);
+                        rect.setVisible(false);
+                        data.setNode(rect);
+                        series1Data.add(data);
+                    } catch (JEVisException e) {
+
                     }
-//                Date date = dateTime.toGregorianCalendar().getTime();
-                    Long timestamp = dateTime.getMillis();
-                    XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
-
-                    //dot for the chart
-                    Rectangle rect = new Rectangle(0, 0);
-                    rect.setVisible(false);
-                    data.setNode(rect);
-                    series1Data.add(data);
-
                 }
 
                 if (isQuantitiy) {
@@ -315,6 +321,7 @@ public class ChartView implements Observer {
                 currentSerie.setName(singleRow.getObject().getName());
                 singleRow.setSampleMap(sampleMap);
                 series.add(currentSerie);
+
             }
         }
 
@@ -354,50 +361,7 @@ public class ChartView implements Observer {
 
         String finalUnit = unit;
         areaChart.setOnMouseMoved(mouseEvent -> {
-            Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-            Double x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-            if (x != null) {
-                Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
-                tableData.clear();
-                for (ChartDataModel singleRow : selectedData) {
-                    if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
-                        try {
-                            Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                            Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
-
-                            Double nearest = higherKey;
-                            if (nearest == null) nearest = lowerKey;
-
-                            if (lowerKey != null && higherKey != null) {
-                                Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
-                                Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
-                                if (lower < higher) {
-                                    nearest = lowerKey;
-                                }
-                            }
-
-                            NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
-                            nf.setMinimumFractionDigits(2);
-                            nf.setMaximumFractionDigits(2);
-                            Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
-                            String note = singleRow.getSampleMap().get(nearest).getNote();
-                            String formattedNote = formatNote(note);
-                            String formattedDouble = nf.format(valueAsDouble);
-                            TableEntry tableEntry = singleRow.getTableEntry();
-                            DateTime dateTime = new DateTime(Math.round(nearest));
-                            tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                            tableEntry.setNote(formattedNote);
-                            tableEntry.setValue(formattedDouble + " " + finalUnit);
-                            tableData.add(tableEntry);
-
-                            table.layout();
-
-                        } catch (Exception ex) {
-//                        Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }
-            }
+            updateTable(chartName, selectedData, finalUnit, mouseEvent);
         });
 
         ChartPanManager panner = new ChartPanManager(areaChart);
@@ -405,40 +369,144 @@ public class ChartView implements Observer {
             if (mouseEvent.getButton() == MouseButton.SECONDARY
                     || (mouseEvent.getButton() == MouseButton.PRIMARY
                     && mouseEvent.isShortcutDown())) {
-                //let it through
             } else {
                 mouseEvent.consume();
             }
         });
         panner.start();
         areaChartRegion = JFXChartUtil.setupZooming(areaChart, mouseEvent -> {
+
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
                 mouseEvent.consume();
+                if (mouseEvent.isControlDown()) {
+                    showNote(mouseEvent, selectedData, chartName);
+                }
             }
         });
 
         JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
     }
 
-    private String formatNote(String note) {
-        String output = "";
+    private void updateTable(String chartName, Set<ChartDataModel> selectedData, String finalUnit, MouseEvent
+            mouseEvent) {
+        Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        Double x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+        if (x != null) {
+            Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+            tableData.clear();
+            for (ChartDataModel singleRow : selectedData) {
+                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                    try {
+                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+
+                        Double nearest = higherKey;
+                        if (nearest == null) nearest = lowerKey;
+
+                        if (lowerKey != null && higherKey != null) {
+                            Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
+                            Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
+                            if (lower < higher) {
+                                nearest = lowerKey;
+                            }
+                        }
+
+                        NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
+                        nf.setMinimumFractionDigits(2);
+                        nf.setMaximumFractionDigits(2);
+                        Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
+                        String note = singleRow.getSampleMap().get(nearest).getNote();
+                        Node formattedNote = formatNote(note);
+                        String formattedDouble = nf.format(valueAsDouble);
+                        TableEntry tableEntry = singleRow.getTableEntry();
+                        DateTime dateTime = new DateTime(Math.round(nearest));
+                        tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                        tableEntry.setNote(formattedNote);
+                        tableEntry.setValue(formattedDouble + " " + finalUnit);
+                        tableData.add(tableEntry);
+
+                        table.layout();
+
+                    } catch (Exception ex) {
+//                        Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
+    }
+
+    private void showNote(MouseEvent mouseEvent, Set<ChartDataModel> selectedData, String chartName) {
+        Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        Double x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+        if (x != null) {
+            Map<String, String> map = new HashMap<>();
+            Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+            for (ChartDataModel singleRow : selectedData) {
+                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                    try {
+                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+
+                        Double nearest = higherKey;
+                        if (nearest == null) nearest = lowerKey;
+
+                        if (lowerKey != null && higherKey != null) {
+                            Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
+                            Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
+                            if (lower < higher) {
+                                nearest = lowerKey;
+                            }
+
+                            String note = singleRow.getSampleMap().get(nearest).getNote();
+
+                            String title = "";
+                            title += singleRow.getObject().getName();
+                            if (singleRow.getDataProcessor() != null)
+                                title += " (" + singleRow.getDataProcessor().getName() + ")";
+
+                            map.put(title, note);
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Error: could not get note", ex);
+                    }
+                }
+            }
+
+            NoteDialog nd = new NoteDialog(map);
+
+            nd.showAndWait().ifPresent(response -> {
+                if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+
+                } else if (response.getButtonData().getTypeCode() == ButtonType.CANCEL.getButtonData().getTypeCode()) {
+
+                }
+            });
+        }
+    }
+
+    private Node formatNote(String note) {
+        Node output = null;
         if (note != null) {
-            if (note.contains("interpolated")) output += "interpolated ";
+            HBox hbox = new HBox();
+            double iconSize = 12;
+            if (note.contains("interpolated-break"))
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_process-stop.png", iconSize, iconSize));
             if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
-                output += JEDataProcessorConstants.GapFillingType.AVERAGE;
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
             if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
-                output += JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE;
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
             if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
-                output += JEDataProcessorConstants.GapFillingType.INTERPOLATION;
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
             if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
-                output += JEDataProcessorConstants.GapFillingType.MAXIMUM;
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
             if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
-                output += JEDataProcessorConstants.GapFillingType.MINIMUM;
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
             if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
-                output += JEDataProcessorConstants.GapFillingType.MEDIAN;
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
             if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
-                output += JEDataProcessorConstants.GapFillingType.STATIC;
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+            output = hbox;
         }
         return output;
     }
@@ -463,6 +531,10 @@ public class ChartView implements Observer {
     }
 
     private class QuantityUnits {
+        Unit _kg = SI.KILOGRAM;
+        final JEVisUnit kg = new JEVisUnitImp(_kg);
+        Unit _t = NonSI.METRIC_TON;
+        final JEVisUnit t = new JEVisUnitImp(_t);
         Unit _l = NonSI.LITER;
         final JEVisUnit l = new JEVisUnitImp(_l);
         Unit _m3 = SI.CUBIC_METRE;
@@ -477,7 +549,7 @@ public class ChartView implements Observer {
         final JEVisUnit GWh = new JEVisUnitImp(_GWh);
 
         public List<JEVisUnit> get() {
-            return new ArrayList<>(Arrays.asList(l, m3, Wh, kWh, MWh, GWh));
+            return new ArrayList<>(Arrays.asList(kg, t, l, m3, Wh, kWh, MWh, GWh));
         }
     }
 }

@@ -351,6 +351,18 @@ public class ChartDataModel {
                             break;
                     }
                     break;
+                case "kg":
+                    switch (inputUnit) {
+                        case "t":
+                            factor = 1000d;
+                            break;
+                    }
+                case "t":
+                    switch (inputUnit) {
+                        case "kg":
+                            factor = 1 / 1000d;
+                            break;
+                    }
                 default:
                     break;
             }
