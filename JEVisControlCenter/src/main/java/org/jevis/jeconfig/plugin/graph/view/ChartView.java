@@ -36,6 +36,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.dialog.NoteDialog;
+import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.TableEntry;
 import org.jevis.commons.constants.JEDataProcessorConstants;
@@ -95,7 +96,7 @@ public class ChartView implements Observer {
         TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
         note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
         note.setStyle("-fx-alignment: CENTER");
-        note.setMaxWidth(50);
+        note.setPrefWidth(30);
 
         TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
@@ -130,6 +131,8 @@ public class ChartView implements Observer {
                 }
             }
         }
+        AlphanumComparator ac = new AlphanumComparator();
+        tempList.sort(ac);
 
         chartsList = FXCollections.observableArrayList(tempList);
         return chartsList;

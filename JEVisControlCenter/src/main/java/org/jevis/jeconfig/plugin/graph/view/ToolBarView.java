@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.dialog.ChartSelectionDialog;
+import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
@@ -163,20 +164,22 @@ public class ToolBarView {
     }
 
     public void updateTimeFrame() {
-        if (model.getSelectedData() != null) {
-            for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.getSelected()) {
-                    mdl.setSelectedStart(selectedStart);
-                    mdl.setSelectedEnd(selectedEnd);
+        if (selectedStart != null && selectedEnd != null) {
+            if (model.getSelectedData() != null && !model.getSelectedData().isEmpty()) {
+                for (ChartDataModel mdl : model.getSelectedData()) {
+                    if (mdl.getSelected()) {
+                        mdl.setSelectedStart(selectedStart);
+                        mdl.setSelectedEnd(selectedEnd);
+                    }
                 }
             }
-        }
 
-        if (!listAnalysisModel.isEmpty()) {
-            for (JsonAnalysisModel mdl : listAnalysisModel) {
-                if (Boolean.parseBoolean(mdl.getSelected())) {
-                    mdl.setSelectedStart(selectedStart.toString());
-                    mdl.setSelectedEnd(selectedEnd.toString());
+            if (listAnalysisModel != null && !listAnalysisModel.isEmpty()) {
+                for (JsonAnalysisModel mdl : listAnalysisModel) {
+                    if (Boolean.parseBoolean(mdl.getSelected())) {
+                        mdl.setSelectedStart(selectedStart.toString());
+                        mdl.setSelectedEnd(selectedEnd.toString());
+                    }
                 }
             }
         }
@@ -238,6 +241,9 @@ public class ToolBarView {
                 }
             }
         }
+
+        AlphanumComparator ac = new AlphanumComparator();
+        tempList.sort(ac);
 
         chartsList = FXCollections.observableArrayList(tempList);
         return chartsList;

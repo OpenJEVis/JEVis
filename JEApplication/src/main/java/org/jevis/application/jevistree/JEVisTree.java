@@ -20,19 +20,15 @@
  */
 package org.jevis.application.jevistree;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.event.EventHandler;
-import javafx.scene.Cursor;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
-import javafx.scene.input.*;
-import javafx.util.Callback;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.Dragboard;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
@@ -41,7 +37,6 @@ import org.jevis.application.application.SaveResourceBundle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -220,6 +215,19 @@ public class JEVisTree extends TreeTableView {
         }
     }
 
+
+    /**
+     * This UserSelection doesn't open the children of the selected object
+     **/
+    public void openUserSelectionNoChildren(List<UserSelection> selection) {
+        for (UserSelection sel : selection) {
+            List<JEVisObject> parents = new ArrayList<>();
+            parents.add(sel.getSelectedObject());
+            findNodePath(parents, sel.getSelectedObject());
+            openPathNoChildren(parents, getRoot(), sel.getSelectedObject());
+        }
+    }
+
     private void openPath(List<JEVisObject> toOpen, TreeItem<JEVisTreeRow> parentNode) {
         for (TreeItem<JEVisTreeRow> child : parentNode.getChildren()) {
             for (JEVisObject findObj : toOpen) {
@@ -227,6 +235,19 @@ public class JEVisTree extends TreeTableView {
                     child.expandedProperty().setValue(Boolean.TRUE);
                     openPath(toOpen, child);
                 }
+            }
+
+        }
+    }
+
+    private void openPathNoChildren(List<JEVisObject> toOpen, TreeItem<JEVisTreeRow> parentNode, JEVisObject selectedObject) {
+        for (TreeItem<JEVisTreeRow> child : parentNode.getChildren()) {
+            for (JEVisObject findObj : toOpen) {
+                if (findObj.getID().equals(child.getValue().getJEVisObject().getID())) {
+                    child.expandedProperty().setValue(Boolean.TRUE);
+                    openPathNoChildren(toOpen, child, selectedObject);
+                }
+                if (findObj.getID().equals(selectedObject.getID())) child.setExpanded(Boolean.FALSE);
             }
 
         }
