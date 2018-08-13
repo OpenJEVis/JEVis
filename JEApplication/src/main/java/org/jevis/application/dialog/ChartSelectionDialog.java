@@ -35,10 +35,7 @@ import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
-import org.jevis.application.jevistree.JEVisTree;
-import org.jevis.application.jevistree.JEVisTreeFactory;
-import org.jevis.application.jevistree.TreePlugin;
-import org.jevis.application.jevistree.UserSelection;
+import org.jevis.application.jevistree.*;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 
@@ -86,9 +83,10 @@ public class ChartSelectionDialog {
         stage.initStyle(StageStyle.UTILITY);
         stage.initOwner(owner);
 
-        stage.setWidth(1124);
+        //1150 for the columns
+        stage.setWidth(1190);
         stage.setHeight(768);
-        stage.setResizable(false);
+        stage.setResizable(true);
 
         TabPane tabpane = new TabPane();
 
@@ -124,8 +122,6 @@ public class ChartSelectionDialog {
         VBox.setVgrow(treePane, Priority.ALWAYS);
         VBox.setVgrow(sep, Priority.NEVER);
         VBox.setVgrow(buttonBox, Priority.NEVER);
-
-//        stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
 
         for (TreePlugin plugin : tree.getPlugins()) {
             if (plugin instanceof ChartPlugin) {
@@ -174,9 +170,10 @@ public class ChartSelectionDialog {
                 ChartDataModel mdl = entry.getValue();
                 if (mdl.getSelected())
                     listUS.add(new UserSelection(UserSelection.SelectionType.Object, mdl.getObject()));
+
             }
 
-            if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
+            if (!listUS.isEmpty()) _tree.openUserSelectionNoChildren(listUS);
         }
 
         ok.setOnAction(event -> {
@@ -238,6 +235,10 @@ public class ChartSelectionDialog {
                 }
             }
         }
+
+        AlphanumComparator ac = new AlphanumComparator();
+        tempList.sort(ac);
+
         chartsList = FXCollections.observableArrayList(tempList);
 
         return chartsList;

@@ -5,6 +5,7 @@
  */
 package org.jevis.application.jevistree.plugin;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -13,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
@@ -22,10 +24,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
-import org.jevis.application.jevistree.ColumnFactory;
-import org.jevis.application.jevistree.JEVisTree;
-import org.jevis.application.jevistree.JEVisTreeRow;
-import org.jevis.application.jevistree.TreePlugin;
+import org.jevis.application.jevistree.*;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
@@ -70,64 +69,9 @@ public class ChartPlugin implements TreePlugin {
     private final String chartTitle = rb.getString("graph.title");
     private final String addChart = rb.getString("graph.table.addchart");
 
-    @Override
-    public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns() {
-        List<TreeTableColumn<JEVisTreeRow, Long>> list = new ArrayList<>();
-
-        TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn();
-        column.setEditable(true);
-
-        Image img = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "list-add.png"));
-        ImageView image = new ImageView(img);
-        image.fitHeightProperty().set(20);
-        image.fitWidthProperty().set(20);
-        Button addChart = new Button(rb.getString("graph.table.addchart"), image);
-
-        addChart.setOnAction(event -> {
-            if (!chartsList.contains(chartTitle)) {
-                chartsList.add(chartTitle);
-
-                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
-
-                column.getColumns().add(column.getColumns().size() - 6, selectColumn);
-            } else {
-                int counter = 0;
-                for (String s : chartsList) if (s.contains(chartTitle)) counter++;
-
-                chartsList.add(chartTitle + " " + counter);
-
-                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
-
-                column.getColumns().add(column.getColumns().size() - 6, selectColumn);
-            }
-        });
-
-        column.setGraphic(addChart);
-
-        TreeTableColumn<JEVisTreeRow, Color> colorColumn = buildColorColumn(_tree, rb.getString("graph.table.color"));
-
-        getChartsList();
-        List<TreeTableColumn> charts = new ArrayList<>();
-        for (int i = 0; i < chartsList.size(); i++) {
-
-            TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, i);
-
-            charts.add(selectColumn);
-        }
-
-        TreeTableColumn<JEVisTreeRow, AGGREGATION> aggregationColumn = buildAggregationColumn(_tree, rb.getString("graph.table.interval"));
-        TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn = buildDataPorcessorColumn(_tree, rb.getString("graph.table.cleaning"));
-        TreeTableColumn<JEVisTreeRow, DateTime> startDateColumn = buildDateColumn(_tree, rb.getString("graph.table.startdate"), DATE_TYPE.START);
-        TreeTableColumn<JEVisTreeRow, DateTime> endDateColumn = buildDateColumn(_tree, rb.getString("graph.table.enddate"), DATE_TYPE.END);
-        TreeTableColumn<JEVisTreeRow, JEVisUnit> unitColumn = buildUnitColumn(_tree, rb.getString("graph.table.unit"));
-
-        for (TreeTableColumn ttc : charts) column.getColumns().add(ttc);
-        column.getColumns().addAll(colorColumn, aggregationColumn, dataProcessorColumn, startDateColumn, endDateColumn, unitColumn);
-
-        list.add(column);
-
-        return list;
-    }
+    final Image img = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "list-add.png"));
+    final ImageView image = new ImageView(img);
+    final Image imgMarkAll = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
 
     private final Color[] color_list = {
             Color.web("0xFFB300"),    // Vivid Yellow
@@ -156,7 +100,6 @@ public class ChartPlugin implements TreePlugin {
 
     @Override
     public void selectionFinished() {
-        //Will happen if the user presses some kind of OK button
         for (Map.Entry<String, ChartDataModel> entrySet : _data.entrySet()) {
             String key = entrySet.getKey();
             ChartDataModel value = entrySet.getValue();
@@ -185,67 +128,7 @@ public class ChartPlugin implements TreePlugin {
         }
     }
 
-    private TreeTableColumn<JEVisTreeRow, Color> buildColorColumn(JEVisTree tree, String columnName) {
-        TreeTableColumn<JEVisTreeRow, Color> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(130);
-        column.setCellValueFactory(param -> {
-            ChartDataModel data = getData(param.getValue().getValue());
-            return new ReadOnlyObjectWrapper<>(data.getColor());
-        });
-
-        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Color>, TreeTableCell<JEVisTreeRow, Color>>() {
-
-            @Override
-            public TreeTableCell<JEVisTreeRow, Color> call(TreeTableColumn<JEVisTreeRow, Color> param) {
-
-                TreeTableCell<JEVisTreeRow, Color> cell = new TreeTableCell<JEVisTreeRow, Color>() {
-
-                    @Override
-                    public void commitEdit(Color newValue) {
-                        super.commitEdit(newValue);
-                        ChartDataModel data = getData(getTreeTableRow().getItem());
-                        data.setColor(newValue);
-                        if (!usedColors.contains(newValue)) usedColors.add(newValue);
-                    }
-
-                    @Override
-                    protected void updateItem(Color item, boolean empty) {
-                        super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
-                        if (!empty) {
-                            StackPane hbox = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
-                                ChartDataModel data = getData(getTreeTableRow().getItem());
-                                ColorPicker colorPicker = new ColorPicker();
-
-                                StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
-                                colorPicker.setValue(item);
-                                if (!usedColors.contains(item)) usedColors.add(item);
-                                colorPicker.setStyle("-fx-color-label-visible: false ;");
-
-                                colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
-
-                                colorPicker.setDisable(!data.isSelectable());
-                                hbox.getChildren().setAll(colorPicker);
-                            }
-
-                            setText(null);
-                            setGraphic(hbox);
-                        } else {
-                            setText(null);
-                            setGraphic(null);
-                        }
-
-                    }
-
-                };
-
-                return cell;
-            }
-        });
-
-        return column;
-
-    }
+    final Tooltip tpMarkAll = new Tooltip(rb.getString("plugin.graph.dialog.changesettings.tooltip.forall"));
 
     private DatePicker buildDatePicker(ChartDataModel data, DATE_TYPE type) {
 
@@ -305,9 +188,129 @@ public class ChartPlugin implements TreePlugin {
         return dp;
     }
 
+    @Override
+    public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns() {
+        List<TreeTableColumn<JEVisTreeRow, Long>> list = new ArrayList<>();
+
+        TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn();
+        column.setEditable(true);
+
+        image.fitHeightProperty().set(20);
+        image.fitWidthProperty().set(20);
+
+        Button addChart = new Button(rb.getString("graph.table.addchart"), image);
+
+        addChart.setOnAction(event -> {
+            if (!chartsList.contains(chartTitle)) {
+                chartsList.add(chartTitle);
+
+                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
+
+                column.getColumns().add(column.getColumns().size() - 6, selectColumn);
+            } else {
+                int counter = 0;
+                for (String s : chartsList) if (s.contains(chartTitle)) counter++;
+
+                chartsList.add(chartTitle + " " + counter);
+
+                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
+
+                column.getColumns().add(column.getColumns().size() - 6, selectColumn);
+            }
+        });
+
+        column.setGraphic(addChart);
+
+        TreeTableColumn<JEVisTreeRow, Color> colorColumn = buildColorColumn(_tree, rb.getString("graph.table.color"));
+
+        getChartsList();
+        List<TreeTableColumn> charts = new ArrayList<>();
+        for (int i = 0; i < chartsList.size(); i++) {
+
+            TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, i);
+
+            charts.add(selectColumn);
+        }
+
+        TreeTableColumn<JEVisTreeRow, AGGREGATION> aggregationColumn = buildAggregationColumn(_tree, rb.getString("graph.table.interval"));
+        TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn = buildDataPorcessorColumn(_tree, rb.getString("graph.table.cleaning"));
+        TreeTableColumn<JEVisTreeRow, DateTime> startDateColumn = buildDateColumn(_tree, rb.getString("graph.table.startdate"), DATE_TYPE.START);
+        TreeTableColumn<JEVisTreeRow, DateTime> endDateColumn = buildDateColumn(_tree, rb.getString("graph.table.enddate"), DATE_TYPE.END);
+        TreeTableColumn<JEVisTreeRow, JEVisUnit> unitColumn = buildUnitColumn(_tree, rb.getString("graph.table.unit"));
+
+        for (TreeTableColumn ttc : charts) column.getColumns().add(ttc);
+        column.getColumns().addAll(colorColumn, aggregationColumn, dataProcessorColumn, startDateColumn, endDateColumn, unitColumn);
+
+        list.add(column);
+
+        return list;
+    }
+
+    private TreeTableColumn<JEVisTreeRow, Color> buildColorColumn(JEVisTree tree, String columnName) {
+        TreeTableColumn<JEVisTreeRow, Color> column = new TreeTableColumn(columnName);
+        column.setPrefWidth(130);
+        column.setCellValueFactory(param -> {
+            ChartDataModel data = getData(param.getValue().getValue());
+            return new ReadOnlyObjectWrapper<>(data.getColor());
+        });
+
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Color>, TreeTableCell<JEVisTreeRow, Color>>() {
+
+            @Override
+            public TreeTableCell<JEVisTreeRow, Color> call(TreeTableColumn<JEVisTreeRow, Color> param) {
+
+                TreeTableCell<JEVisTreeRow, Color> cell = new TreeTableCell<JEVisTreeRow, Color>() {
+
+                    @Override
+                    public void commitEdit(Color newValue) {
+                        super.commitEdit(newValue);
+                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        data.setColor(newValue);
+                        if (!usedColors.contains(newValue)) usedColors.add(newValue);
+                    }
+
+                    @Override
+                    protected void updateItem(Color item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (!empty) {
+                            StackPane hbox = new StackPane();
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                                ChartDataModel data = getData(getTreeTableRow().getItem());
+                                ColorPicker colorPicker = new ColorPicker();
+
+                                StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
+                                colorPicker.setValue(item);
+                                if (!usedColors.contains(item)) usedColors.add(item);
+                                colorPicker.setStyle("-fx-color-label-visible: false ;");
+
+                                colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
+
+                                colorPicker.setDisable(!data.isSelectable());
+                                hbox.getChildren().setAll(colorPicker);
+                            }
+
+                            setText(null);
+                            setGraphic(hbox);
+                        } else {
+                            setText(null);
+                            setGraphic(null);
+                        }
+
+                    }
+
+                };
+
+                return cell;
+            }
+        });
+
+        return column;
+
+    }
+
     private TreeTableColumn<JEVisTreeRow, DateTime> buildDateColumn(JEVisTree tree, String columnName, DATE_TYPE type) {
         TreeTableColumn<JEVisTreeRow, DateTime> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(130);
+        column.setPrefWidth(160);
         column.setCellValueFactory(param -> {
             try {
                 ChartDataModel data = getData(param.getValue().getValue());
@@ -342,21 +345,50 @@ public class ChartPlugin implements TreePlugin {
                         } else {
                             data.setSelectedEnd(newValue);
                         }
-
-//                        getTreeTableRow().getItem().getColorProperty().setValue(newValue);
                     }
 
                     @Override
                     protected void updateItem(DateTime item, boolean empty) {
-                        super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
+                        super.updateItem(item, empty);
                         if (!empty) {
-                            StackPane hbox = new StackPane();
+                            StackPane stackPane = new StackPane();
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 DatePicker dp = buildDatePicker(data, type);
 
-                                hbox.getChildren().setAll(dp);
-                                StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
+                                ImageView imageMarkAll = new ImageView(imgMarkAll);
+                                imageMarkAll.fitHeightProperty().set(12);
+                                imageMarkAll.fitWidthProperty().set(12);
+
+                                Button tb = new Button("", imageMarkAll);
+
+                                tb.setTooltip(tpMarkAll);
+
+                                tb.setOnAction(event -> {
+                                    if (type == DATE_TYPE.START) {
+                                        for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
+                                            ChartDataModel cdm = mdl.getValue();
+                                            if (cdm.getSelected()) {
+                                                LocalDate ld = dp.valueProperty().get();
+                                                cdm.setSelectedStart(new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0));
+                                            }
+                                        }
+                                    } else {
+                                        for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
+                                            ChartDataModel cdm = mdl.getValue();
+                                            if (cdm.getSelected()) {
+                                                LocalDate ld = dp.valueProperty().get();
+                                                cdm.setSelectedStart(new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999));
+                                            }
+                                        }
+                                    }
+                                    tree.refresh();
+                                });
+
+                                HBox hbox = new HBox();
+                                hbox.getChildren().addAll(dp, tb);
+                                stackPane.getChildren().add(hbox);
+                                StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
                                 dp.setOnAction(event -> {
                                     LocalDate ld = dp.getValue();
@@ -366,7 +398,7 @@ public class ChartPlugin implements TreePlugin {
                             }
 
                             setText(null);
-                            setGraphic(hbox);
+                            setGraphic(stackPane);
                         } else {
                             setText(null);
                             setGraphic(null);
@@ -450,7 +482,6 @@ public class ChartPlugin implements TreePlugin {
             ChartDataModel data = getData(param.getValue().getValue());
 
             return new ReadOnlyObjectWrapper<>(data.getAggregation());
-//                return param.getValue().getValue().getJEVisObject();
         });
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, AGGREGATION>, TreeTableCell<JEVisTreeRow, AGGREGATION>>() {
@@ -463,12 +494,11 @@ public class ChartPlugin implements TreePlugin {
                     @Override
                     public void commitEdit(AGGREGATION newValue) {
                         super.commitEdit(newValue);
-//                        getTreeTableRow().getItem().getColorProperty().setValue(newValue);
                     }
 
                     @Override
                     protected void updateItem(AGGREGATION item, boolean empty) {
-                        super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
+                        super.updateItem(item, empty);
                         if (!empty) {
                             StackPane hbox = new StackPane();
 
@@ -525,7 +555,6 @@ public class ChartPlugin implements TreePlugin {
             //TODO:replace this quick and dirty workaround
 
             try {
-//                    JEVisClass dpClass = data.getObject().getDataSource().getJEVisClass("Data Processor");
 
                 if (newValue.equals(rb.getString("graph.processing.raw"))) {
                     data.setDataProcessor(null);
@@ -576,7 +605,7 @@ public class ChartPlugin implements TreePlugin {
 
                     @Override
                     protected void updateItem(JEVisObject item, boolean empty) {
-                        super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
+                        super.updateItem(item, empty);
                         if (!empty) {
                             StackPane hbox = new StackPane();
 
@@ -625,6 +654,10 @@ public class ChartPlugin implements TreePlugin {
         if (tempList.isEmpty()) {
             tempList.add(chartTitle);
         }
+
+        AlphanumComparator ac = new AlphanumComparator();
+        tempList.sort(ac);
+
         chartsList = FXCollections.observableArrayList(tempList);
         return chartsList;
     }
@@ -690,7 +723,7 @@ public class ChartPlugin implements TreePlugin {
 
                     @Override
                     protected void updateItem(Boolean item, boolean empty) {
-                        super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
+                        super.updateItem(item, empty);
                         if (!empty) {
                             StackPane hbox = new StackPane();
                             CheckBox cbox = new CheckBox();
@@ -709,14 +742,24 @@ public class ChartPlugin implements TreePlugin {
                                             if (!usedColors.contains(c)) {
                                                 data.setColor(c);
                                                 usedColors.add(c);
+                                                Platform.runLater(() -> {
+                                                    JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                    getTreeTableRow().getTreeItem().setValue(sobj);
+
+                                                });
                                                 break;
                                             }
                                         }
                                     } else {
                                         usedColors.remove(data.getColor());
                                         data.setColor(Color.LIGHTBLUE);
+                                        Platform.runLater(() -> {
+                                            JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                            getTreeTableRow().getTreeItem().setValue(sobj);
+
+                                        });
                                     }
-                                    getTreeTableView().refresh();
+
                                 });
 
                                 if (data.getAttribute() != null && data.getAttribute().hasSample()) {
@@ -760,7 +803,7 @@ public class ChartPlugin implements TreePlugin {
 
                     @Override
                     protected void updateItem(JEVisUnit item, boolean empty) {
-                        super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
+                        super.updateItem(item, empty);
                         if (!empty) {
 
                             StackPane hbox = new StackPane();

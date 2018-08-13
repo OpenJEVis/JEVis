@@ -36,6 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.dialog.ChartSelectionDialog;
+import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
@@ -288,6 +289,9 @@ public class GraphPluginView implements Plugin, Observer {
                 }
             }
         }
+
+        AlphanumComparator ac = new AlphanumComparator();
+        tempList.sort(ac);
 
         chartsList = FXCollections.observableArrayList(tempList);
         return chartsList;
