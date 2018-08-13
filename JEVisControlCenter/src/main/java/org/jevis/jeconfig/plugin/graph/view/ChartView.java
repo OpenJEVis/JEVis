@@ -12,10 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.Axis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -62,7 +59,14 @@ import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
+
     private AreaChart<Number, Number> areaChart;
+    private LineChart<Number, Number> lineChart;
+    private BarChart<Number, Number> barChart;
+    private BubbleChart<Number, Number> bubbleChart;
+    private ScatterChart<Number, Number> scatterChart;
+    private PieChart pieChart;
+
     private VBox vbox;
     private Region areaChartRegion;
     private final TableView table;
