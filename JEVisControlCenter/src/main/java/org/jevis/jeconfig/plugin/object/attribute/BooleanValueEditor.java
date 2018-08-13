@@ -32,6 +32,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
 import java.util.logging.Level;
@@ -45,7 +46,7 @@ public class BooleanValueEditor implements AttributeEditor {
 
     public JEVisAttribute _attribute;
     private final HBox editorNode = new HBox();
-    private ToggleSwitch _field;
+    private ToggleSwitchPlus _field;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
@@ -93,7 +94,7 @@ public class BooleanValueEditor implements AttributeEditor {
     }
 
     private void buildEditor() throws JEVisException {
-        _field = new ToggleSwitch("On");
+            _field = new ToggleSwitchPlus();
 
         JEVisSample lsample = _attribute.getLatestSample();
 
@@ -103,15 +104,15 @@ public class BooleanValueEditor implements AttributeEditor {
             _field.selectedProperty().setValue(selected);
 //            _field.setSelected(selected);//TODO: get default Value
             if (selected) {
-                _field.setText(I18n.getInstance().getString("button.toggle.activate"));
+//                _field.setText(I18n.getInstance().getString("button.toggle.activate"));
             } else {
-                _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+//                _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
             }
 
             _lastSample = lsample;
         } else {
             _field.setSelected(false);//TODO: get default Value
-            _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+//            _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
         }
 
         _field.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -119,11 +120,11 @@ public class BooleanValueEditor implements AttributeEditor {
             public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 try {
                     _newSample = _attribute.buildSample(new DateTime(), _field.isSelected());
-                    if (t1) {
-                        _field.setText(I18n.getInstance().getString("button.toggle.activate"));
-                    } else {
-                        _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-                    }
+//                    if (t1) {
+//                        _field.setText(I18n.getInstance().getString("button.toggle.activate"));
+//                    } else {
+//                        _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+//                    }
                     _changed.setValue(true);
                 } catch (Exception ex) {
                     Logger.getLogger(BooleanValueEditor.class.getName()).log(Level.SEVERE, null, ex);
@@ -131,9 +132,9 @@ public class BooleanValueEditor implements AttributeEditor {
             }
         });
 
-        _field.setPrefWidth(65);
-        editorNode.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
-        _field.setId("attributelabel");
+//        _field.setPrefWidth(65);
+//        editorNode.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
+//        _field.setId("attributelabel");
 
         logger.trace("end");
 //        Region spacer = new  Region();

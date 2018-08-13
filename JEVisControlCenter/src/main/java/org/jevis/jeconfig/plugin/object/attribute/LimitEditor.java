@@ -33,12 +33,13 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
@@ -52,8 +53,8 @@ import static org.jevis.commons.constants.JEDataProcessorConstants.*;
 /**
  * Editor to configure JsonGapFillingConfig elements
  */
-public class GapFillingEditor implements AttributeEditor {
-    private final Logger logger = LogManager.getLogger(GapFillingEditor.class);
+public class LimitEditor implements AttributeEditor {
+    private final Logger logger = LogManager.getLogger(LimitEditor.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _readOnly = new SimpleBooleanProperty(false);
     private final ObservableList<String> optionsReferencePeriods = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
@@ -66,10 +67,10 @@ public class GapFillingEditor implements AttributeEditor {
     private HBox box = new HBox(12);
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
-    private List<JsonGapFillingConfig> _listConfig;
+    private List<JsonLimitsConfig> _listConfig;
     private boolean delete = false;
 
-    public GapFillingEditor(JEVisAttribute att) {
+    public LimitEditor(JEVisAttribute att) {
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
@@ -80,7 +81,7 @@ public class GapFillingEditor implements AttributeEditor {
      * Build main UI
      */
     private void init() {
-        Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
+        Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.limitseditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();
@@ -91,14 +92,15 @@ public class GapFillingEditor implements AttributeEditor {
 
 
         ToggleSwitchPlus enableButton = new ToggleSwitchPlus();
+
         enableButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-//                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
+
+
+            if (!newValue) {
                 _changed.setValue((_lastSample != null));
                 delete = (_lastSample != null);
-            } else {
-//                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
             }
+
         });
 
         openConfig.visibleProperty().bind(enableButton.selectedProperty());
@@ -118,12 +120,11 @@ public class GapFillingEditor implements AttributeEditor {
 
 
         box.getChildren().addAll(enableButton, openConfig);
-
     }
 
     @Override
     public boolean hasChanged() {
-        _changed.setValue(true);
+//        _changed.setValue(true);
 
         return _changed.getValue();
     }
@@ -174,22 +175,15 @@ public class GapFillingEditor implements AttributeEditor {
      *
      * @return
      */
-    private List<JsonGapFillingConfig> createDefaultConfig() {
-        List<JsonGapFillingConfig> list = new ArrayList<>();
-        JsonGapFillingConfig newConfig1 = new JsonGapFillingConfig();
-        newConfig1.setType(GapFillingType.INTERPOLATION);
-        newConfig1.setBoundary("3600");
+    private List<JsonLimitsConfig> createDefaultConfig() {
+        List<JsonLimitsConfig> list = new ArrayList<>();
 
+        JsonLimitsConfig newConfig1 = new JsonLimitsConfig();
 
         newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
         list.add(newConfig1);
 
-        JsonGapFillingConfig newConfig2 = new JsonGapFillingConfig();
-        newConfig2.setType(GapFillingType.AVERAGE);
-        newConfig2.setBoundary("2592000");
-        newConfig2.setBindtospecific(GapFillingBoundToSpecific.WEEKDAY);
-        newConfig2.setReferenceperiodcount("4");
-        newConfig2.setReferenceperiod(GapFillingReferencePeriod.WEEK);
+        JsonLimitsConfig newConfig2 = new JsonLimitsConfig();
 
         newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
         list.add(newConfig2);
@@ -202,15 +196,15 @@ public class GapFillingEditor implements AttributeEditor {
      * @param jsonstring
      * @return
      */
-    private List<JsonGapFillingConfig> parseJson(String jsonstring) {
-        List<JsonGapFillingConfig> list = new ArrayList<>();
+    private List<JsonLimitsConfig> parseJson(String jsonstring) {
+        List<JsonLimitsConfig> list = new ArrayList<>();
 
 
         if (jsonstring.endsWith("]")) {
-            list = new Gson().fromJson(jsonstring, new TypeToken<List<JsonGapFillingConfig>>() {
+            list = new Gson().fromJson(jsonstring, new TypeToken<List<JsonLimitsConfig>>() {
             }.getType());
         } else {
-            list.add(new Gson().fromJson(jsonstring, JsonGapFillingConfig.class));
+            list.add(new Gson().fromJson(jsonstring, JsonLimitsConfig.class));
         }
 
 
@@ -235,13 +229,15 @@ public class GapFillingEditor implements AttributeEditor {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setResizable(true);
         dialog.setHeight(300);
-        dialog.setWidth(350);
-        dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.title"));
-        dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.header"));
+        dialog.setWidth(620);
+
+
+        dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.limitseditor.dialog.title"));
+        dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.limitseditor.dialog.header"));
         dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));
         dialog.getDialogPane().getButtonTypes().setAll();
 
-        for (JsonGapFillingConfig config : _listConfig) {
+        for (JsonLimitsConfig config : _listConfig) {
             Tab newTab = new Tab(config.getName());
             tabPane.getTabs().add(newTab);
             fillTab(newTab, config);
@@ -260,8 +256,9 @@ public class GapFillingEditor implements AttributeEditor {
                     if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-
-                            commit();
+                            System.out.println("Commit: " + _newSample.getValueAsString());
+                            _changed.setValue(true);
+//                            commit();
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }
@@ -276,47 +273,79 @@ public class GapFillingEditor implements AttributeEditor {
      * @param tab
      * @param config
      */
-    private void fillTab(Tab tab, JsonGapFillingConfig config) {
+    private void fillTab(Tab tab, JsonLimitsConfig config) {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(10));
         gridPane.setHgap(10);
         gridPane.setVgap(5);
+        gridPane.setMinHeight(220);//we have hidden element and need space
+        gridPane.setMinWidth(435);
 
 
-        Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.name"));
-        Label typeLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.type"));
-        Label boundaryLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.boundary"));
-        Label defaultValueLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.defaultvalue"));
-        Label referencePeriodLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.referenceperiod"));
-        Label referencePeriodCountLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.referenceperiodcount"));
-        Label boundToSpecificLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.boundto"));
+        Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.name"));
+        Label minLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.min"));
+        Label maxLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.max"));
+        Label typeOfSubstituteLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.typeOfSubstituteValue"));
+        Label durationOverUnderRunLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.durationOverUnderRun"));
+        Label defaultMinLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.defaultminvalue"));
+        Label defaultMaxLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.defaultmaxvalue"));
+        Label referencePeriodLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.referenceperiod"));
+        Label referencePeriodCountLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.referenceperiodcount"));
+        Label boundTosSecificLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.boundto"));
+
+
+        JFXTextField nameField = new JFXTextField();
+        JFXTextField minField = new JFXTextField();
+        JFXTextField maxField = new JFXTextField();
+        JFXTextField durationOverUnderRunField = new JFXTextField();
+        JFXTextField defaultMinField = new JFXTextField();
+        JFXTextField defaultMaxField = new JFXTextField();
+        JFXTextField referencePeriodCountField = new JFXTextField();
+
 
         JFXComboBox typeBox = new JFXComboBox(optionsType);
         JFXComboBox referencePeriodBox = new JFXComboBox(optionsReferencePeriods);
         JFXComboBox boundSpecificBox = new JFXComboBox(optionsBoundSpecifics);
-        JFXTextField referencePeriodCountText = new JFXTextField();
-        JFXTextField boundaryText = new JFXTextField();
-        JFXTextField defaultValueText = new JFXTextField();
+
+        double prefFieldWidth = 150;
+
+//        referencePeriodBox.setMinWidth(100);
+//        referencePeriodBox.setMaxWidth(100);
+//        referencePeriodCountField.setMinWidth(prefFieldWidth-referencePeriodBox.getMinWidth()-gridPane.getHgap());
+//        referencePeriodCountField.setMinWidth(prefFieldWidth-referencePeriodBox.getMaxWidth()-gridPane.getHgap());
 
         /**
          * Text layout
          */
-        FXCollections.observableArrayList(typeBox, boundaryText, defaultValueText, referencePeriodBox, boundSpecificBox, referencePeriodCountText)
-                .forEach(field -> field.setPrefWidth(150));
-        FXCollections.observableArrayList(referencePeriodCountText, boundaryText, defaultValueText)
+        FXCollections.observableArrayList(typeBox, boundSpecificBox, referencePeriodBox, minField, referencePeriodCountField, maxField, durationOverUnderRunField, defaultMinField, defaultMinField, defaultMaxField)
+                .forEach(field -> {
+                    GridPane.setHgrow(field, Priority.ALWAYS);
+//                    field.setPrefWidth(prefFieldWidth);
+                    field.setMinWidth(prefFieldWidth);
+                    field.setMaxWidth(prefFieldWidth);
+                });
+        FXCollections.observableArrayList(nameField, minField, maxField, durationOverUnderRunField, defaultMinField, defaultMaxField, referencePeriodCountField)
                 .forEach(field -> field.setAlignment(Pos.CENTER_RIGHT));
+//        FXCollections.observableArrayList(typeBox,boundSpecificBox, _field_Min, _field_Max, _field_Duration_Over_Underrun, _field_Default_Min_Value, _field_Default_Min_Value,_field_Default_Max_Value,_field_Reference_Period_Count)
+//                .forEach(field -> field.setPrefWidth(150));
 
 
         /**
          * Fill configuration values into gui elements
          */
-        typeBox.getSelectionModel().select(config.getType());
-        boundaryText.setText((Long.parseLong(config.getBoundary()) / 1000) + ""); //msec -> sec
-        defaultValueText.setText(config.getDefaultvalue());
-        referencePeriodCountText.setText(config.getReferenceperiodcount());
+        try {
+            durationOverUnderRunField.setText((Long.parseLong(config.getDurationOverUnderRun()) / 1000) + ""); //msec -> sec
+        } catch (Exception ex) {
+        }
+        minField.setText(config.getMin());
+        maxField.setText(config.getMax());
+        defaultMinField.setText(config.getDefaultMinValue());
+        defaultMaxField.setText(config.getDefaultMaxValue());
+        referencePeriodCountField.setText(config.getReferenceperiodcount());
+
 
         typeBox.getSelectionModel().select(
-                optionsType.contains(config.getType()) ? config.getType()
+                optionsType.contains(config.getTypeOfSubstituteValue()) ? config.getTypeOfSubstituteValue()
                         : GapFillingType.NONE);
         referencePeriodBox.getSelectionModel().select(
                 optionsReferencePeriods.contains(config.getReferenceperiod()) ? config.getReferenceperiod()
@@ -325,23 +354,15 @@ public class GapFillingEditor implements AttributeEditor {
                 optionsBoundSpecifics.contains(config.getBindtospecific()) ? config.getBindtospecific()
                         : GapFillingBoundToSpecific.NONE);
 
+
         /**
          * Change Listeners
          */
         typeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            config.setType(newValue.toString());
+            System.out.println("Type Event: " + newValue);
+            config.setTypeOfSubstituteValue(newValue.toString());
             fillTab(tab, config);
         });
-        defaultValueText.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setDefaultvalue(newValue);
-        });
-        boundaryText.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setBoundary((Long.parseLong(newValue) * 1000l) + "");//sec -> msec
-        });
-        referencePeriodCountText.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setReferenceperiodcount(newValue);
-        });
-
         referencePeriodBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             config.setReferenceperiod(newValue.toString());
         });
@@ -350,9 +371,26 @@ public class GapFillingEditor implements AttributeEditor {
             config.setBindtospecific(newValue.toString());
         });
 
-        typeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            config.setType(newValue.toString());
-
+        minField.textProperty().addListener((observable, oldValue, newValue) -> {
+            config.setMin(newValue);
+        });
+        maxField.textProperty().addListener((observable, oldValue, newValue) -> {
+            config.setMax(newValue);
+        });
+        durationOverUnderRunField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                config.setDurationOverUnderRun((Long.parseLong(newValue) * 1000l) + "");//sec -> msec
+            } catch (Exception ex) {
+            }
+        });
+        defaultMinField.textProperty().addListener((observable, oldValue, newValue) -> {
+            config.setDefaultMinValue(newValue);
+        });
+        defaultMaxField.textProperty().addListener((observable, oldValue, newValue) -> {
+            config.setDefaultMaxValue(newValue);
+        });
+        referencePeriodCountField.textProperty().addListener((observable, oldValue, newValue) -> {
+            config.setReferenceperiodcount(newValue);
         });
 
 
@@ -360,33 +398,43 @@ public class GapFillingEditor implements AttributeEditor {
          * Create layout based on JsonGapFillingConfig type
          */
         int row = 0;
-        gridPane.add(typeLabel, 0, row);
-        gridPane.add(typeBox, 1, row);
-
+//        gridPane.add(name, 0, row);
+//        gridPane.add(typeBox, 1, row);
+//        row++;
+        gridPane.add(minLabel, 0, row);
+        gridPane.add(minField, 1, row, 2, 1);
         row++;
-        gridPane.add(boundaryLabel, 0, row);
-        gridPane.add(boundaryText, 1, row);
+        gridPane.add(maxLabel, 0, row);
+        gridPane.add(maxField, 1, row, 2, 1);
+        row++;
+        gridPane.add(durationOverUnderRunLabel, 0, row);
+        gridPane.add(durationOverUnderRunField, 1, row, 2, 1);
+        row++;
+        gridPane.add(typeOfSubstituteLabel, 0, row);
+        gridPane.add(typeBox, 1, row, 2, 1);
 
-        if (config.getType().equals(GapFillingType.DEFAULT_VALUE)) {
-            row++;
-            gridPane.add(defaultValueLabel, 0, row);
-            gridPane.add(defaultValueText, 1, row);
-        } else if (config.getType().equals(GapFillingType.NONE)) {
-            //Noting to add
-        } else {
-            row++;
-            gridPane.add(defaultValueLabel, 0, row);
-            gridPane.add(defaultValueText, 1, row);
+//        System.out.println("Type: '" +config.getTypeOfSubstituteValue()+"' ?= '" +GapFillingType.MEDIAN +"' ="+ (config.getTypeOfSubstituteValue().equals(GapFillingType.MEDIAN)));
+        if (config.getTypeOfSubstituteValue() == null || config.getTypeOfSubstituteValue().equals(GapFillingType.NONE)) {
 
+        } else if (config.getTypeOfSubstituteValue().equals(GapFillingType.DEFAULT_VALUE)) {
+            row++;
+            gridPane.add(defaultMinLabel, 0, row);
+            gridPane.add(defaultMinField, 1, row, 2, 1);
+            row++;
+            gridPane.add(defaultMaxLabel, 0, row);
+            gridPane.add(defaultMaxField, 1, row, 2, 1);
+        } else if (config.getTypeOfSubstituteValue().equals(GapFillingType.INTERPOLATION)
+                || config.getTypeOfSubstituteValue().equals(GapFillingType.AVERAGE)
+                || config.getTypeOfSubstituteValue().equals(GapFillingType.MEDIAN)) {
             row++;
             gridPane.add(referencePeriodLabel, 0, row);
-            gridPane.add(referencePeriodBox, 1, row);
+            gridPane.add(referencePeriodBox, 1, row, 2, 1);
             row++;
             gridPane.add(referencePeriodCountLabel, 0, row);
-            gridPane.add(referencePeriodCountText, 1, row);
+            gridPane.add(referencePeriodCountField, 1, row, 2, 1);
             row++;
-            gridPane.add(boundToSpecificLabel, 0, row);
-            gridPane.add(boundSpecificBox, 1, row);
+            gridPane.add(boundTosSecificLabel, 0, row);
+            gridPane.add(boundSpecificBox, 1, row, 2, 1);
         }
 
 
