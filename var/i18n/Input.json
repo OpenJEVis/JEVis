@@ -36,9 +36,24 @@
     {
       "type": "Input Data Type",
       "descriptions": {
-        "de": "Definiert den Typ der Datenreihe. ",
-        "ru": "Type of input data",
-        "en": "Type of input data"
+        "de": "Definiert den Typ der Datenreihe.\n
+        <ul>
+          <li>PERIODIC: Die Eingangsvariable ist eine Datenreihe mit fester Periode. Die Berechnung stoppt, wenn eine Datenlücke existiert.</li>
+          <li>STATIC: Die Eingangsvariable ist ein fester Wert. Der letzte Wert gilt unabhängig seines Zeitstempels für die ganze Berechnung.</li>
+          <li>NON_PERIODIC: Die Eingangsvariable ist eine Datenreihe ohne feste Periode. Die Berechnung nutzt jeweiligen Zeitraum letzten gültigen Wert.</li>
+        </ul>",
+        "ru": "Type of input data\n
+        <ul>
+          <li>PERIODIC: The input is a data series with a fixed period. The calculation stopps when data is missing.</li>
+          <li>STATIC: The input is a fixed value. The calculation will use this value for the whole calculation.</li>
+          <li>NON_PERIODIC: The input is a data series with a no fixed period. The calculation uses the last value for the calculated time frame.</li>
+        </ul>",
+        "en": "Type of input data\n
+        <ul>
+          <li>PERIODIC: The input is a data series with a fixed period. The calculation stopps when data is missing.</li>
+          <li>STATIC: The input is a fixed value. The calculation will use this value for the whole calculation.</li>
+          <li>NON_PERIODIC: The input is a data series with a no fixed period. The calculation uses the last value for the calculated time frame.</li>
+        </ul>"
       },
       "names": {
         "de": "Datenreihentyp",
