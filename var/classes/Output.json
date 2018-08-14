@@ -1,6 +1,6 @@
 {
   "name": "Output",
-  "unique": false,
+  "unique": true,
   "relationships": [
     {
       "start": "Output",
