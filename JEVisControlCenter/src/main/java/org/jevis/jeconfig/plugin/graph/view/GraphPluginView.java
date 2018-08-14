@@ -38,6 +38,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartSettings;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -97,6 +98,13 @@ public class GraphPluginView implements Plugin, Observer {
                                         selectedData.add(value);
                                     }
                                 }
+
+                                Set<ChartSettings> chartSettings = new HashSet<>();
+                                for (Map.Entry<String, ChartSettings> entry : selectionDialog.getBp().getCharts().entrySet()) {
+                                    chartSettings.add(entry.getValue());
+                                }
+
+                                dataModel.setCharts(chartSettings);
                                 dataModel.setSelectedData(selectedData);
                             }
                         } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
@@ -249,7 +257,14 @@ public class GraphPluginView implements Plugin, Observer {
         if (dataModel.getSelectedData() != null) getChartsList();
         if (chartsList.size() == 1 || chartsList.isEmpty()) {
             if (chartsList.size() == 1) {
-                chartView.drawAreaChart(chartsList.get(0));
+                String chartTitle = chartsList.get(0);
+                ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
+                if (dataModel.getCharts() != null && !dataModel.getCharts().isEmpty()) {
+                    for (ChartSettings set : dataModel.getCharts()) {
+                        if (set.getName().equals(chartTitle)) type = set.getChartType();
+                    }
+                }
+                chartView.drawAreaChart(chartTitle, type);
             }
             border.setTop(chartView.getLegend());
             border.setCenter(chartView.getAreaChartRegion());

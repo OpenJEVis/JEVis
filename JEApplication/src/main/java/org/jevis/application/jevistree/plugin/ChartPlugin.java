@@ -372,12 +372,12 @@ public class ChartPlugin implements TreePlugin {
                                                 cdm.setSelectedStart(new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0));
                                             }
                                         }
-                                    } else {
+                                    } else if (type == DATE_TYPE.END) {
                                         for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
                                             ChartDataModel cdm = mdl.getValue();
                                             if (cdm.getSelected()) {
                                                 LocalDate ld = dp.valueProperty().get();
-                                                cdm.setSelectedStart(new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999));
+                                                cdm.setSelectedEnd(new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999));
                                             }
                                         }
                                     }
@@ -391,7 +391,12 @@ public class ChartPlugin implements TreePlugin {
 
                                 dp.setOnAction(event -> {
                                     LocalDate ld = dp.getValue();
-                                    DateTime jodaTime = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0);
+                                    DateTime jodaTime = null;
+                                    if (type == DATE_TYPE.START) {
+                                        jodaTime = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
+                                    } else if (type == DATE_TYPE.END) {
+                                        jodaTime = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
+                                    }
                                     commitEdit(jodaTime);
                                 });
                             }
@@ -654,6 +659,22 @@ public class ChartPlugin implements TreePlugin {
             tempList.add(chartTitle);
         }
 
+        if (charts.isEmpty()) {
+            for (String s : tempList) {
+                charts.put(s, new ChartSettings(s));
+            }
+        } else {
+            if (charts.size() == 1) {
+                for (Map.Entry<String, ChartSettings> settings : charts.entrySet()) {
+                    if (settings.getValue().getName().equals(chartTitle)) {
+                        charts.clear();
+                        for (String s : tempList)
+                            charts.put(s, new ChartSettings(s));
+                    }
+                }
+            }
+        }
+
         AlphanumComparator ac = new AlphanumComparator();
         tempList.sort(ac);
 
@@ -908,11 +929,53 @@ public class ChartPlugin implements TreePlugin {
                         }
                     }
                 }
+                for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
+                    ChartSettings set = chart.getValue();
+                    if (set.getName().contains(oldValue)) {
+                        set.setName(newValue);
+                    }
+                }
                 chartsList.set(selectionColumnIndex, newValue);
+
             }
         });
 
-        ComboBox<String> comboBoxChartType = new ComboBox(listNamesChartTypes());
+        ComboBox<String> comboBoxChartType = new ComboBox(getlistNamesChartTypes());
+        if (charts != null && !charts.isEmpty()) {
+            if (columnName != null) {
+                if (columnName.equals(chartTitle)) {
+                    comboBoxChartType.getSelectionModel().select(ChartSettings.ChartType.AREA.toString());
+                } else {
+                    Boolean foundChart = false;
+                    for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
+                        ChartSettings settings = chart.getValue();
+                        if (settings.getName().equals(columnName)) {
+                            comboBoxChartType.getSelectionModel().select(settings.getChartType().toString());
+                            foundChart = true;
+                        }
+                    }
+                    if (!foundChart) comboBoxChartType.getSelectionModel().select(0);
+                }
+            }
+        } else {
+            comboBoxChartType.getSelectionModel().select(0);
+            if (columnName != null) charts.put(columnName, new ChartSettings(chartTitle));
+            else charts.put(chartTitle, new ChartSettings(chartTitle));
+        }
+
+        comboBoxChartType.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue == null || newValue != oldValue) {
+                int i = 0;
+                for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
+                    ChartSettings set = chart.getValue();
+                    if (i == chartsList.indexOf(set.getName())) {
+                        ChartSettings.ChartType type = parseChartType(newValue);
+                        set.setChartType(type);
+                    }
+                    i++;
+                }
+            }
+        });
 
         vbox.getChildren().addAll(tf, comboBoxChartType);
 
@@ -1019,10 +1082,28 @@ public class ChartPlugin implements TreePlugin {
         this.charts = charts;
     }
 
-    private final ObservableList<String> listNamesChartTypes() {
+    private ObservableList<String> getlistNamesChartTypes() {
         List<String> tempList = new ArrayList<>();
         for (ChartSettings.ChartType ct : listChartTypes) tempList.add(ct.toString());
         return FXCollections.observableArrayList(tempList);
     }
 
+    private ChartSettings.ChartType parseChartType(String chartTypeIndex) {
+        switch (chartTypeIndex) {
+            case ("AREA"):
+                return ChartSettings.ChartType.AREA;
+            case ("LINE"):
+                return ChartSettings.ChartType.LINE;
+            case ("BAR"):
+                return ChartSettings.ChartType.BAR;
+            case ("BUBBLE"):
+                return ChartSettings.ChartType.BUBBLE;
+            case ("SCATTER"):
+                return ChartSettings.ChartType.SCATTER;
+            case ("PIE"):
+                return ChartSettings.ChartType.PIE;
+            default:
+                return ChartSettings.ChartType.AREA;
+        }
+    }
 }

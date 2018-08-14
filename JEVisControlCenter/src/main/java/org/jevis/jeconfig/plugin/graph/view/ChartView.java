@@ -35,6 +35,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.application.dialog.NoteDialog;
 import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartSettings;
 import org.jevis.application.jevistree.plugin.TableEntry;
 import org.jevis.commons.constants.JEDataProcessorConstants;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -44,6 +45,7 @@ import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
@@ -227,16 +229,30 @@ public class ChartView implements Observer {
     }
 
 
-    public void drawAreaChart(String chartName) {
+    public void drawAreaChart(String chartName, ChartSettings.ChartType chartType) {
         tableData.clear();
 
         Set<ChartDataModel> selectedData = dataModel.getSelectedData();
 
-        ObservableList<XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
+        ObservableList series = null;
+        String cType = chartType.toString();
+        if (cType.equals("AREA") || cType.equals("LINE") || cType.equals("BUBBLE")
+                || cType.equals("SCATTER")) {
+            ObservableList<XYChart.Series<Number, Number>> ol = FXCollections.observableArrayList();
+            series = ol;
+        } else if (cType.equals("BAR")) {
+            ObservableList<BarChart.Series<String, Number>> ol = FXCollections.observableArrayList();
+            series = ol;
+        } else if (cType.equals("PIE")) {
+            ObservableList<PieChart.Data> ol = FXCollections.observableArrayList();
+            series = ol;
+        }
         List<Color> hexColors = new ArrayList<>();
 
         String unit = null;
         String title = null;
+        List<Double> listSumsPiePieces = new ArrayList<>();
+        List<String> listTableEntryNames = new ArrayList<>();
 
         for (ChartDataModel singleRow : selectedData) {
             if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
@@ -250,12 +266,27 @@ public class ChartView implements Observer {
                 } else title = chartName;
 
                 List<JEVisSample> samples = singleRow.getSamples();
-                ObservableList<XYChart.Data<Number, Number>> series1Data = FXCollections.observableArrayList();
-                TreeMap<Double, JEVisSample> sampleMap = new TreeMap();
+                ObservableList series1Data = null;
+                TreeMap sampleMap = new TreeMap();
+
+                if (cType.equals("AREA") || cType.equals("LINE") || cType.equals("BUBBLE")
+                        || cType.equals("SCATTER")) {
+                    ObservableList<XYChart.Data<Number, Number>> tl = FXCollections.observableArrayList();
+                    series1Data = tl;
+                    sampleMap = new TreeMap<Double, JEVisSample>();
+                } else if (cType.equals("BAR")) {
+                    ObservableList<BarChart.Data<String, Number>> tl = FXCollections.observableArrayList();
+                    series1Data = tl;
+                    sampleMap = new TreeMap<Double, JEVisSample>();
+                } else if (cType.equals("PIE")) {
+                    ObservableList<PieChart.Data> tl = FXCollections.observableArrayList();
+                    series1Data = tl;
+                }
 
                 String dp_name = "";
                 if (singleRow.getDataProcessor() != null) dp_name = singleRow.getDataProcessor().getName();
-                TableEntry tableEntry = new TableEntry(singleRow.getObject().getName() + " (" + dp_name + ")");
+                String tableEntryName = singleRow.getObject().getName() + " (" + dp_name + ")";
+                TableEntry tableEntry = new TableEntry(tableEntryName);
                 tableEntry.setColor(singleRow.getColor());
 
                 singleRow.setTableEntry(tableEntry);
@@ -285,27 +316,41 @@ public class ChartView implements Observer {
                 QuantityUnits qu = new QuantityUnits();
                 if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
 
-                for (JEVisSample sample : samples) {
-                    try {
-                        sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
-                        DateTime dateTime = sample.getTimestamp();
+                if (!cType.equals("PIE")) {
+                    for (JEVisSample sample : samples) {
+                        try {
+                            DateTime dateTime = sample.getTimestamp();
+                            Double value = sample.getValueAsDouble();
+                            Long timestamp = dateTime.getMillis();
 
-                        Double value = sample.getValueAsDouble();
+                            if (cType.equals("AREA") || cType.equals("LINE") || cType.equals("BUBBLE")
+                                    || cType.equals("SCATTER") || cType.equals("BAR")) {
+                                sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
+                            } else {
+                            }
 
-                        if (isQuantitiy) {
-                            min = Math.min(value, min);
-                            max = Math.max(value, max);
-                            sum += value;
+                            if (isQuantitiy) {
+                                min = Math.min(value, min);
+                                max = Math.max(value, max);
+                                sum += value;
+                            }
+
+                            if (cType.equals("AREA") || cType.equals("LINE") || cType.equals("BUBBLE")
+                                    || cType.equals("SCATTER")) {
+                                XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
+                                Rectangle rect = new Rectangle(0, 0);
+                                rect.setVisible(false);
+                                data.setNode(rect);
+                                series1Data.add(data);
+                            } else if (cType.equals("BAR")) {
+                                DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+                                String s = dateTime.toString(dtf);
+                                BarChart.Data<String, Number> data = new BarChart.Data<>(s, value);
+                                series1Data.add(data);
+                            }
+                        } catch (JEVisException e) {
+
                         }
-                        Long timestamp = dateTime.getMillis();
-                        XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
-
-                        Rectangle rect = new Rectangle(0, 0);
-                        rect.setVisible(false);
-                        data.setNode(rect);
-                        series1Data.add(data);
-                    } catch (JEVisException e) {
-
                     }
                 }
 
@@ -321,83 +366,445 @@ public class ChartView implements Observer {
                     tableEntry.setSum(nf_out.format(sum) + " " + unit);
                 }
 
-                XYChart.Series<Number, Number> currentSerie = new XYChart.Series<>(singleRow.getObject().getName(), series1Data);
-                currentSerie.setName(singleRow.getObject().getName());
-                singleRow.setSampleMap(sampleMap);
-                series.add(currentSerie);
+                XYChart.Series currentSerie = null;
+                if (cType.equals("AREA") || cType.equals("LINE") || cType.equals("BUBBLE")
+                        || cType.equals("SCATTER")) {
+                    currentSerie = new XYChart.Series<>(tableEntryName, series1Data);
+                    singleRow.setSampleMap(sampleMap);
+                    series.add(currentSerie);
+                } else if (cType.equals("BAR")) {
+                    currentSerie = new BarChart.Series<>(tableEntryName, series1Data);
+                    singleRow.setSampleMap(sampleMap);
+                    series.add(currentSerie);
+                } else {
+                    Double sumPiePiece = 0d;
+                    for (JEVisSample sample : samples) {
+                        try {
+                            sumPiePiece += sample.getValueAsDouble();
+                        } catch (JEVisException e) {
+
+                        }
+                    }
+                    listSumsPiePieces.add(sumPiePiece);
+                    listTableEntryNames.add(tableEntryName);
+                }
+            }
+        }
+
+        if (cType.equals("PIE")) {
+            Double whole = 0d;
+            List<Double> listPercentages = new ArrayList<>();
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMinimumFractionDigits(2);
+            nf.setMaximumFractionDigits(2);
+            for (Double d : listSumsPiePieces) whole += d;
+            for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
+            for (String name : listTableEntryNames) {
+                String seriesName = name + " - " + nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
+                        + " " + unit + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
+
+                PieChart.Data data = new PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
+                series.add(data);
 
             }
         }
 
-        table.setItems(tableData);
-        table.setFixedCellSize(25);
-        table.prefHeightProperty().bind(Bindings.size(table.getItems()).multiply(table.getFixedCellSize()).add(30));
         NumberAxis numberAxis = new NumberAxis();
         Axis dateAxis = new DateValueAxis();
 
-        areaChart = new AreaChart<>(dateAxis, numberAxis, series);
-        areaChart.applyCss();
+        switch (chartType.toString()) {
+            case ("AREA"):
+                areaChart = new AreaChart<>(dateAxis, numberAxis, series);
+                areaChart.applyCss();
+                setTableStandard();
+                break;
+            case ("LINE"):
+                lineChart = new LineChart<>(dateAxis, numberAxis, series);
+                lineChart.applyCss();
+                setTableStandard();
+                break;
+            case ("BAR"):
+                CategoryAxis catAxis = new CategoryAxis();
+                catAxis.setTickLabelRotation(-90);
+                barChart = new BarChart<>(catAxis, numberAxis, series);
+                barChart.applyCss();
+                setTableStandard();
+                break;
+            case ("BUBBLE"):
+                bubbleChart = new BubbleChart<>(dateAxis, numberAxis, series);
+                bubbleChart.applyCss();
+                setTableStandard();
+                break;
+            case ("SCATTER"):
+                scatterChart = new ScatterChart<>(dateAxis, numberAxis, series);
+                scatterChart.applyCss();
+                setTableStandard();
+                break;
+            case ("PIE"):
+                pieChart = new PieChart(series);
+                pieChart.applyCss();
+                disableTable();
+                break;
+            default:
+                areaChart = new AreaChart<>(dateAxis, numberAxis, series);
+                areaChart.applyCss();
+                setTableStandard();
+                break;
+        }
+
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
             Color brighter = currentColor.deriveColor(1, 1, 50, 0.3);
             String hexColor = toRGBCode(currentColor) + "55";
             String hexBrighter = toRGBCode(brighter) + "55";
             String preIdent = ".default-color" + i;
-            Node node = areaChart.lookup(preIdent + ".chart-series-area-fill");
-            node.setStyle("-fx-fill: linear-gradient(" + hexBrighter + "," + hexBrighter + ");"
-                    + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
-                    + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
+            Node node = null;
+            Node nodew = null;
+            switch (chartType.toString()) {
+                case ("AREA"):
+                    node = areaChart.lookup(preIdent + ".chart-series-area-fill");
+                    nodew = areaChart.lookup(preIdent + ".chart-series-area-line");
+                    node.setStyle("-fx-fill: linear-gradient(" + hexBrighter + "," + hexBrighter + ");"
+                            + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
+                            + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
+                    nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+                    break;
+                case ("LINE"):
+                    node = lineChart.lookup(preIdent + ".chart-series-line");
+                    node.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+                    break;
+                case ("BAR"):
+                    node = barChart.lookup(preIdent + ".chart-bar");
+                    node.setStyle("-fx-bar-fill: " + hexColor + ";");
+                    break;
+                case ("BUBBLE"):
+                    node = bubbleChart.lookup(preIdent + ".chart-series-area-fill");
+                    nodew = bubbleChart.lookup(preIdent + ".chart-series-area-line");
+                    break;
+                case ("SCATTER"):
+                    node = scatterChart.lookup(preIdent + ".chart-symbol");
+                    node.setStyle("-fx-background-color: " + hexColor + ";");
+                    break;
+                case ("PIE"):
+                    node = pieChart.lookup(preIdent + ".chart-pie");
+                    node.setStyle("-fx-pie-color: " + hexColor + ";");
+                    break;
+                default:
+                    node = areaChart.lookup(preIdent + ".chart-series-area-fill");
+                    nodew = areaChart.lookup(preIdent + ".chart-series-area-line");
+                    node.setStyle("-fx-fill: linear-gradient(" + hexBrighter + "," + hexBrighter + ");"
+                            + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
+                            + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
+                    nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+                    break;
+            }
 
-            Node nodew = areaChart.lookup(preIdent + ".chart-series-area-line");
-            // Set the first series fill to translucent pale green
-            nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
         }
 
-        areaChart.setTitle(title);
-        areaChart.setLegendVisible(false);
-        areaChart.setCreateSymbols(false);
-        areaChart.layout();
+        ChartPanManager panner = null;
+        switch (chartType.toString()) {
+            case ("AREA"):
+                areaChart.setTitle(title);
+                areaChart.setLegendVisible(false);
+                areaChart.setCreateSymbols(false);
+                areaChart.layout();
 
-        areaChart.getXAxis().setAutoRanging(true);
-        areaChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
-        areaChart.getYAxis().setAutoRanging(true);
-        areaChart.getYAxis().setLabel(unit);
+                areaChart.getXAxis().setAutoRanging(true);
+                areaChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
+                areaChart.getYAxis().setAutoRanging(true);
+                areaChart.getYAxis().setLabel(unit);
 
-        String finalUnit = unit;
-        areaChart.setOnMouseMoved(mouseEvent -> {
-            updateTable(chartName, selectedData, finalUnit, mouseEvent);
-        });
+                String finalUnitArea = unit;
+                areaChart.setOnMouseMoved(mouseEvent -> {
+                    updateTable(chartName, chartType, selectedData, finalUnitArea, mouseEvent);
+                });
 
-        ChartPanManager panner = new ChartPanManager(areaChart);
-        panner.setMouseFilter(mouseEvent -> {
-            if (mouseEvent.getButton() == MouseButton.SECONDARY
-                    || (mouseEvent.getButton() == MouseButton.PRIMARY
-                    && mouseEvent.isShortcutDown())) {
-            } else {
-                mouseEvent.consume();
-            }
-        });
-        panner.start();
-        areaChartRegion = JFXChartUtil.setupZooming(areaChart, mouseEvent -> {
+                panner = new ChartPanManager(areaChart);
+                break;
+            case ("LINE"):
+                lineChart.setTitle(title);
+                lineChart.setLegendVisible(false);
+                lineChart.setCreateSymbols(false);
+                lineChart.layout();
 
-            if (mouseEvent.getButton() != MouseButton.PRIMARY
-                    || mouseEvent.isShortcutDown()) {
-                mouseEvent.consume();
-                if (mouseEvent.isControlDown()) {
-                    showNote(mouseEvent, selectedData, chartName);
+                lineChart.getXAxis().setAutoRanging(true);
+                lineChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
+                lineChart.getYAxis().setAutoRanging(true);
+                lineChart.getYAxis().setLabel(unit);
+
+                String finalUnitLine = unit;
+                lineChart.setOnMouseMoved(mouseEvent -> {
+                    updateTable(chartName, chartType, selectedData, finalUnitLine, mouseEvent);
+                });
+
+                panner = new ChartPanManager(lineChart);
+                break;
+            case ("BAR"):
+                barChart.setTitle(title);
+                barChart.setLegendVisible(false);
+                barChart.layout();
+
+                barChart.getXAxis().setAutoRanging(true);
+                barChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
+                barChart.getYAxis().setAutoRanging(true);
+                barChart.getYAxis().setLabel(unit);
+
+                String finalUnitBar = unit;
+                barChart.setOnMouseMoved(mouseEvent -> {
+                    //updateTable(chartName, chartType, selectedData, finalUnitBar, mouseEvent);
+                });
+
+                //panner = new ChartPanManager(barChart);
+                break;
+            case ("BUBBLE"):
+                bubbleChart.setTitle(title);
+                bubbleChart.setLegendVisible(false);
+                bubbleChart.layout();
+
+                bubbleChart.getXAxis().setAutoRanging(true);
+                bubbleChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
+                bubbleChart.getYAxis().setAutoRanging(true);
+                bubbleChart.getYAxis().setLabel(unit);
+
+                String finalUnitBubble = unit;
+                bubbleChart.setOnMouseMoved(mouseEvent -> {
+                    updateTable(chartName, chartType, selectedData, finalUnitBubble, mouseEvent);
+                });
+
+                panner = new ChartPanManager(bubbleChart);
+                break;
+            case ("SCATTER"):
+                scatterChart.setTitle(title);
+                scatterChart.setLegendVisible(false);
+                scatterChart.layout();
+
+                scatterChart.getXAxis().setAutoRanging(true);
+                scatterChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
+                scatterChart.getYAxis().setAutoRanging(true);
+                scatterChart.getYAxis().setLabel(unit);
+
+                String finalUnitScatter = unit;
+                scatterChart.setOnMouseMoved(mouseEvent -> {
+                    updateTable(chartName, chartType, selectedData, finalUnitScatter, mouseEvent);
+                });
+
+                panner = new ChartPanManager(scatterChart);
+                break;
+            case ("PIE"):
+                table.setVisible(false);
+                pieChart.setTitle(title);
+                pieChart.setLegendVisible(false);
+                pieChart.layout();
+
+                String finalUnitPie = unit;
+//                pieChart.setOnMouseMoved(mouseEvent -> {
+//                    updateTable(chartName, chartType, selectedData, finalUnitPie, mouseEvent);
+//                });
+
+                //panner = new ChartPanManager(pieChart);
+                break;
+            default:
+                areaChart.setTitle(title);
+                areaChart.setLegendVisible(false);
+                areaChart.setCreateSymbols(false);
+                areaChart.layout();
+
+                areaChart.getXAxis().setAutoRanging(true);
+                areaChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
+                areaChart.getYAxis().setAutoRanging(true);
+                areaChart.getYAxis().setLabel(unit);
+
+                String finalUnitDefault = unit;
+                areaChart.setOnMouseMoved(mouseEvent -> {
+                    updateTable(chartName, chartType, selectedData, finalUnitDefault, mouseEvent);
+                });
+
+                panner = new ChartPanManager(areaChart);
+                break;
+        }
+        if (panner != null) {
+            panner.setMouseFilter(mouseEvent -> {
+                if (mouseEvent.getButton() == MouseButton.SECONDARY
+                        || (mouseEvent.getButton() == MouseButton.PRIMARY
+                        && mouseEvent.isShortcutDown())) {
+                } else {
+                    mouseEvent.consume();
                 }
-            }
-        });
+            });
+            panner.start();
+        }
 
-        JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+        switch (chartType.toString()) {
+            case ("AREA"):
+                areaChartRegion = JFXChartUtil.setupZooming(areaChart, mouseEvent -> {
+
+                    if (mouseEvent.getButton() != MouseButton.PRIMARY
+                            || mouseEvent.isShortcutDown()) {
+                        mouseEvent.consume();
+                        if (mouseEvent.isControlDown()) {
+                            showNote(mouseEvent, selectedData, chartName, chartType);
+                        }
+                    }
+                });
+
+                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                break;
+            case ("LINE"):
+                areaChartRegion = JFXChartUtil.setupZooming(lineChart, mouseEvent -> {
+
+                    if (mouseEvent.getButton() != MouseButton.PRIMARY
+                            || mouseEvent.isShortcutDown()) {
+                        mouseEvent.consume();
+                        if (mouseEvent.isControlDown()) {
+                            showNote(mouseEvent, selectedData, chartName, chartType);
+                        }
+                    }
+                });
+
+                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                break;
+            case ("BAR"):
+                areaChartRegion = barChart;
+//                areaChartRegion = JFXChartUtil.setupZooming(barChart, mouseEvent -> {
+//
+//                    if (mouseEvent.getButton() != MouseButton.PRIMARY
+//                            || mouseEvent.isShortcutDown()) {
+//                        mouseEvent.consume();
+//                        if (mouseEvent.isControlDown()) {
+//                            showNote(mouseEvent, selectedData, chartName, chartType);
+//                        }
+//                    }
+//                });
+//
+//                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                break;
+            case ("BUBBLE"):
+                areaChartRegion = JFXChartUtil.setupZooming(bubbleChart, mouseEvent -> {
+
+                    if (mouseEvent.getButton() != MouseButton.PRIMARY
+                            || mouseEvent.isShortcutDown()) {
+                        mouseEvent.consume();
+                        if (mouseEvent.isControlDown()) {
+                            showNote(mouseEvent, selectedData, chartName, chartType);
+                        }
+                    }
+                });
+
+                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                break;
+            case ("SCATTER"):
+                areaChartRegion = JFXChartUtil.setupZooming(scatterChart, mouseEvent -> {
+
+                    if (mouseEvent.getButton() != MouseButton.PRIMARY
+                            || mouseEvent.isShortcutDown()) {
+                        mouseEvent.consume();
+                        if (mouseEvent.isControlDown()) {
+                            showNote(mouseEvent, selectedData, chartName, chartType);
+                        }
+                    }
+                });
+
+                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                break;
+            case ("PIE"):
+                areaChartRegion = pieChart;
+//                areaChartRegion = JFXChartUtil.setupZooming(pieChart, mouseEvent -> {
+//
+//                    if (mouseEvent.getButton() != MouseButton.PRIMARY
+//                            || mouseEvent.isShortcutDown()) {
+//                        mouseEvent.consume();
+//                        if (mouseEvent.isControlDown()) {
+//                            showNote(mouseEvent, selectedData, chartName, chartType);
+//                        }
+//                    }
+//                });
+//
+//                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                break;
+            default:
+                areaChartRegion = JFXChartUtil.setupZooming(areaChart, mouseEvent -> {
+
+                    if (mouseEvent.getButton() != MouseButton.PRIMARY
+                            || mouseEvent.isShortcutDown()) {
+                        mouseEvent.consume();
+                        if (mouseEvent.isControlDown()) {
+                            showNote(mouseEvent, selectedData, chartName, chartType);
+                        }
+                    }
+                });
+
+                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                break;
+        }
     }
 
-    private void updateTable(String chartName, Set<ChartDataModel> selectedData, String finalUnit, MouseEvent
+    private void disableTable() {
+        table.setVisible(false);
+        table.setItems(tableData);
+        table.setFixedCellSize(25);
+        table.prefHeightProperty().unbind();
+        table.setPrefHeight(0);
+    }
+
+    private void setTableStandard() {
+        table.setVisible(true);
+        table.setItems(tableData);
+        table.setFixedCellSize(25);
+        table.prefHeightProperty().bind(Bindings.size(table.getItems()).multiply(table.getFixedCellSize()).add(30));
+    }
+
+    private void updateTable(String chartName, ChartSettings.ChartType chartType, Set<ChartDataModel> selectedData, String finalUnit, MouseEvent
             mouseEvent) {
         Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        Double x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+        Double x = null;
+        switch (chartType.toString()) {
+            case ("AREA"):
+                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("LINE"):
+                x = lineChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("BAR"):
+                x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("BUBBLE"):
+                x = bubbleChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("SCATTER"):
+                x = scatterChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("PIE"):
+                //x = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            default:
+                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+        }
         if (x != null) {
-            Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+            Number valueForDisplay = null;
+            switch (chartType.toString()) {
+                case ("AREA"):
+                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("LINE"):
+                    valueForDisplay = lineChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("BAR"):
+                    valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("BUBBLE"):
+                    valueForDisplay = bubbleChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("SCATTER"):
+                    valueForDisplay = scatterChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("PIE"):
+                    //valueForDisplay = pieChart.getXAxis().getValueForDisplay(x);
+                    break;
+                default:
+                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+                    break;
+            }
             tableData.clear();
             for (ChartDataModel singleRow : selectedData) {
                 if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
@@ -440,12 +847,58 @@ public class ChartView implements Observer {
         }
     }
 
-    private void showNote(MouseEvent mouseEvent, Set<ChartDataModel> selectedData, String chartName) {
+    private void showNote(MouseEvent mouseEvent, Set<ChartDataModel> selectedData, String chartName, ChartSettings.ChartType chartType) {
         Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        Double x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+        Double x = null;
+        switch (chartType.toString()) {
+            case ("AREA"):
+                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("LINE"):
+                x = lineChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("BAR"):
+                x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("BUBBLE"):
+                x = bubbleChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("SCATTER"):
+                x = scatterChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("PIE"):
+                //x = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            default:
+                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+        }
         if (x != null) {
             Map<String, String> map = new HashMap<>();
-            Number valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+            Number valueForDisplay = null;
+            switch (chartType.toString()) {
+                case ("AREA"):
+                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("LINE"):
+                    valueForDisplay = lineChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("BAR"):
+                    valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("BUBBLE"):
+                    valueForDisplay = bubbleChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("SCATTER"):
+                    valueForDisplay = scatterChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("PIE"):
+                    //valueForDisplay = pieChart.getXAxis().getValueForDisplay(x);
+                    break;
+                default:
+                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+                    break;
+            }
             for (ChartDataModel singleRow : selectedData) {
                 if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
                     try {

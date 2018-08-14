@@ -129,11 +129,12 @@ public class ChartSelectionDialog {
         for (TreePlugin plugin : tree.getPlugins()) {
             if (plugin instanceof ChartPlugin) {
                 bp = (ChartPlugin) plugin;
+                if (charts != null && !charts.isEmpty())
+                    bp.setCharts(charts);
                 if (data != null && !data.isEmpty()) {
                     bp.set_data(data);
                 }
-                if (charts != null && !charts.isEmpty())
-                    bp.setCharts(charts);
+
             }
         }
 

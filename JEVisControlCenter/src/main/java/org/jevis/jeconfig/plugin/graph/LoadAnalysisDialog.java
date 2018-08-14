@@ -161,7 +161,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
-
+                        break;
                     //last 30 days
                     case 3:
                         dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);

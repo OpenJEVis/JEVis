@@ -5,7 +5,9 @@ public class ChartSettings {
     private String name;
     private ChartType chartType;
 
-    public ChartSettings() {
+    public ChartSettings(String name) {
+        this.name = name;
+        this.chartType = ChartType.AREA;
     }
 
     public String getName() {

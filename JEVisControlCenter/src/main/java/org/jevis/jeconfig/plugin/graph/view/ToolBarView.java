@@ -131,7 +131,14 @@ public class ToolBarView {
                             }
                         }
 
+                        Set<ChartSettings> chartSettings = new HashSet<>();
+                        for (Map.Entry<String, ChartSettings> entry : selectionDialog.getBp().getCharts().entrySet()) {
+                            chartSettings.add(entry.getValue());
+                        }
+
+                        model.setCharts(chartSettings);
                         model.setSelectedData(selectedData);
+
                     }
                 } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
@@ -142,6 +149,7 @@ public class ToolBarView {
                         dialog.updateTimeFrame();
                     }
 
+                    model.setCharts(dialog.getData().getCharts());
                     model.setSelectedData(dialog.getData().getSelectedData());
                     select(dialog.getLv().getSelectionModel().getSelectedItem());
                 }
@@ -239,6 +247,13 @@ public class ToolBarView {
                     selectedData.add(value);
                 }
             }
+
+            Set<ChartSettings> chartSettings = new HashSet<>();
+            for (Map.Entry<String, ChartSettings> entry : dia.getBp().getCharts().entrySet()) {
+                chartSettings.add(entry.getValue());
+            }
+
+            model.setCharts(chartSettings);
             model.setSelectedData(selectedData);
             //Platform.runLater(() -> drawChart());
         }
@@ -269,21 +284,19 @@ public class ToolBarView {
         return chartsList;
     }
 
-    private void drawChart() {
-        if (view == null) view = new ChartView(model);
-        getChartsList();
-        if (chartsList.size() == 1 || chartsList.isEmpty()) view.drawAreaChart("");
-        else listView = getChartViews();
-
-    }
-
     public List<ChartView> getChartViews() {
         List<ChartView> charts = new ArrayList<>();
 
         getChartsList();
         for (String s : chartsList) {
             ChartView view = new ChartView(model);
-            view.drawAreaChart(s);
+            ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
+            if (model.getCharts() != null && !model.getCharts().isEmpty()) {
+                for (ChartSettings set : model.getCharts()) {
+                    if (set.getName().equals(s)) type = set.getChartType();
+                }
+            }
+            view.drawAreaChart(s, type);
             charts.add(view);
         }
 
@@ -423,6 +436,7 @@ public class ToolBarView {
                 JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonDataModels.toString());
                 JEVisSample smp2 = charts.buildSample(now.toDateTimeISO(), jsonChartSettings.toString());
                 smp.commit();
+                smp2.commit();
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
                 alert.showAndWait();
@@ -554,7 +568,9 @@ public class ToolBarView {
 
     public void updateChart() {
         Set<ChartDataModel> selectedData = getChartDataModels();
+        Set<ChartSettings> charts = getCharts();
 
+        model.setCharts(charts);
         model.setSelectedData(selectedData);
 
     }
@@ -607,33 +623,37 @@ public class ToolBarView {
 
     private Set<ChartSettings> getCharts() {
         Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
-
-        for (JsonChartSettings settings : listChartsSettings) {
-            ChartSettings newSettings = new ChartSettings();
-            newSettings.setName(settings.getName());
-            newSettings.setChartType(parseChartType(settings.getChartType()));
-        }
         Set<ChartSettings> chartSettings = new HashSet<>();
-        for (Map.Entry<String, ChartSettings> entrySet : chartSettingsHashMap.entrySet()) {
-            ChartSettings value = entrySet.getValue();
-            chartSettings.add(value);
+
+        if (listChartsSettings != null && !listChartsSettings.isEmpty()) {
+            for (JsonChartSettings settings : listChartsSettings) {
+                ChartSettings newSettings = new ChartSettings("");
+                newSettings.setName(settings.getName());
+                newSettings.setChartType(parseChartType(settings.getChartType()));
+                chartSettingsHashMap.put(newSettings.getName(), newSettings);
+            }
+
+            for (Map.Entry<String, ChartSettings> entrySet : chartSettingsHashMap.entrySet()) {
+                ChartSettings value = entrySet.getValue();
+                chartSettings.add(value);
+            }
         }
         return chartSettings;
     }
 
     private ChartSettings.ChartType parseChartType(String chartType) {
         switch (chartType) {
-            case ("area"):
+            case ("AREA"):
                 return ChartSettings.ChartType.AREA;
-            case ("line"):
+            case ("LINE"):
                 return ChartSettings.ChartType.LINE;
-            case ("bar"):
+            case ("BAR"):
                 return ChartSettings.ChartType.BAR;
-            case ("bubble"):
+            case ("BUBBLE"):
                 return ChartSettings.ChartType.BUBBLE;
-            case ("scatter"):
+            case ("SCATTER"):
                 return ChartSettings.ChartType.SCATTER;
-            case ("pie"):
+            case ("PIE"):
                 return ChartSettings.ChartType.PIE;
             default:
                 return ChartSettings.ChartType.AREA;
