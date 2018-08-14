@@ -5,10 +5,6 @@
  */
 package org.jevis.report3.process;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -30,6 +26,11 @@ import org.jevis.report3.data.reportlink.ReportLinkProperty;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -93,6 +94,15 @@ public class PeriodSampleGenerator implements SampleGenerator {
 
         AggregationModus mode = AggregationModus.get(modeName.toUpperCase());
         switch (mode) {
+            case MIN:
+                aggrigate.setFunction(new AggregationFunktion(mode.name().toLowerCase()));
+                break;
+            case MAX:
+                aggrigate.setFunction(new AggregationFunktion(mode.name().toLowerCase()));
+                break;
+            case MEDIAN:
+                aggrigate.setFunction(new AggregationFunktion(mode.name().toLowerCase()));
+                break;
             case AVERAGE:
                 aggrigate.setFunction(new AggregationFunktion(mode.name().toLowerCase()));
                 break;
@@ -150,7 +160,7 @@ public class PeriodSampleGenerator implements SampleGenerator {
 
     private enum AggregationModus {
 
-        TOTAL, AVERAGE;
+        TOTAL, AVERAGE, MIN, MAX, MEDIAN;
 
         public static AggregationModus get(String modusName) {
             String[] modusArray = modusName.split("_");
