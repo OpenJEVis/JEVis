@@ -229,6 +229,189 @@ public class ChartView implements Observer {
     }
 
 
+    private double x;
+
+    private void disableTable() {
+        table.setVisible(false);
+        table.setItems(tableData);
+        table.setFixedCellSize(25);
+        table.prefHeightProperty().unbind();
+        table.setPrefHeight(0);
+    }
+
+    private void setTableStandard() {
+        table.setVisible(true);
+        table.setItems(tableData);
+        table.setFixedCellSize(25);
+        table.prefHeightProperty().bind(Bindings.size(table.getItems()).multiply(table.getFixedCellSize()).add(30));
+    }
+
+    private ChartSettings.ChartType chartType = ChartSettings.ChartType.AREA;
+    private String chartName = "";
+
+    private void showNote(MouseEvent mouseEvent, Set<ChartDataModel> selectedData, String chartName, ChartSettings.ChartType chartType) {
+        Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        Double x = null;
+        switch (chartType.toString()) {
+            case ("AREA"):
+                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("LINE"):
+                x = lineChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("BAR"):
+                x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("BUBBLE"):
+                x = bubbleChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("SCATTER"):
+                x = scatterChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            case ("PIE"):
+                //x = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+            default:
+                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                break;
+        }
+        if (x != null) {
+            Map<String, String> map = new HashMap<>();
+            Number valueForDisplay = null;
+            switch (chartType.toString()) {
+                case ("AREA"):
+                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("LINE"):
+                    valueForDisplay = lineChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("BAR"):
+                    valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("BUBBLE"):
+                    valueForDisplay = bubbleChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("SCATTER"):
+                    valueForDisplay = scatterChart.getXAxis().getValueForDisplay(x);
+                    break;
+                case ("PIE"):
+                    //valueForDisplay = pieChart.getXAxis().getValueForDisplay(x);
+                    break;
+                default:
+                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+                    break;
+            }
+            for (ChartDataModel singleRow : selectedData) {
+                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                    try {
+                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+
+                        Double nearest = higherKey;
+                        if (nearest == null) nearest = lowerKey;
+
+                        if (lowerKey != null && higherKey != null) {
+                            Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
+                            Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
+                            if (lower < higher) {
+                                nearest = lowerKey;
+                            }
+
+                            String note = singleRow.getSampleMap().get(nearest).getNote();
+
+                            String title = "";
+                            title += singleRow.getObject().getName();
+                            if (singleRow.getDataProcessor() != null)
+                                title += " (" + singleRow.getDataProcessor().getName() + ")";
+
+                            map.put(title, note);
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Error: could not get note", ex);
+                    }
+                }
+            }
+
+            NoteDialog nd = new NoteDialog(map);
+
+            nd.showAndWait().ifPresent(response -> {
+                if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+
+                } else if (response.getButtonData().getTypeCode() == ButtonType.CANCEL.getButtonData().getTypeCode()) {
+
+                }
+            });
+        }
+    }
+
+    private Node formatNote(String note) {
+        Node output = null;
+        if (note != null) {
+            HBox hbox = new HBox();
+            double iconSize = 12;
+            if (note.contains("interpolated-break"))
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_process-stop.png", iconSize, iconSize));
+            if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+            if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+            if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+            if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+            if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+            if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+            if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+            output = hbox;
+        }
+        return output;
+    }
+
+    public Region getAreaChartRegion() {
+        return areaChartRegion;
+    }
+
+    public VBox getVbox() {
+        return vbox;
+    }
+
+    public TableView getLegend() {
+        return table;
+    }
+
+    public String toRGBCode(Color color) {
+        return String.format("#%02X%02X%02X",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
+    }
+
+    private class QuantityUnits {
+        Unit _kg = SI.KILOGRAM;
+        final JEVisUnit kg = new JEVisUnitImp(_kg);
+        Unit _t = NonSI.METRIC_TON;
+        final JEVisUnit t = new JEVisUnitImp(_t);
+        Unit _l = NonSI.LITER;
+        final JEVisUnit l = new JEVisUnitImp(_l);
+        Unit _m3 = SI.CUBIC_METRE;
+        final JEVisUnit m3 = new JEVisUnitImp(_m3);
+        Unit _Wh = SI.WATT.times(NonSI.HOUR);
+        final JEVisUnit Wh = new JEVisUnitImp(_Wh);
+        Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
+        final JEVisUnit kWh = new JEVisUnitImp(_kWh);
+        Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
+        final JEVisUnit MWh = new JEVisUnitImp(_MWh);
+        Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
+        final JEVisUnit GWh = new JEVisUnitImp(_GWh);
+
+        public List<JEVisUnit> get() {
+            return new ArrayList<>(Arrays.asList(kg, t, l, m3, Wh, kWh, MWh, GWh));
+        }
+    }
+
     public void drawAreaChart(String chartName, ChartSettings.ChartType chartType) {
         tableData.clear();
 
@@ -236,6 +419,7 @@ public class ChartView implements Observer {
 
         ObservableList series = null;
         String cType = chartType.toString();
+        setChartType(chartType);
         if (cType.equals("AREA") || cType.equals("LINE") || cType.equals("BUBBLE")
                 || cType.equals("SCATTER")) {
             ObservableList<XYChart.Series<Number, Number>> ol = FXCollections.observableArrayList();
@@ -256,6 +440,7 @@ public class ChartView implements Observer {
 
         for (ChartDataModel singleRow : selectedData) {
             if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                setChartName(chartName);
                 unit = UnitManager.getInstance().formate(singleRow.getUnit());
                 title = I18n.getInstance().getString("plugin.graph.chart.title1");
 
@@ -425,7 +610,6 @@ public class ChartView implements Observer {
                 break;
             case ("BAR"):
                 CategoryAxis catAxis = new CategoryAxis();
-                catAxis.setTickLabelRotation(-90);
                 barChart = new BarChart<>(catAxis, numberAxis, series);
                 barChart.applyCss();
                 setTableStandard();
@@ -514,9 +698,8 @@ public class ChartView implements Observer {
                 areaChart.getYAxis().setAutoRanging(true);
                 areaChart.getYAxis().setLabel(unit);
 
-                String finalUnitArea = unit;
                 areaChart.setOnMouseMoved(mouseEvent -> {
-                    updateTable(chartName, chartType, selectedData, finalUnitArea, mouseEvent);
+                    updateTable(chartName, chartType, mouseEvent, null);
                 });
 
                 panner = new ChartPanManager(areaChart);
@@ -532,9 +715,8 @@ public class ChartView implements Observer {
                 lineChart.getYAxis().setAutoRanging(true);
                 lineChart.getYAxis().setLabel(unit);
 
-                String finalUnitLine = unit;
                 lineChart.setOnMouseMoved(mouseEvent -> {
-                    updateTable(chartName, chartType, selectedData, finalUnitLine, mouseEvent);
+                    updateTable(chartName, chartType, mouseEvent, null);
                 });
 
                 panner = new ChartPanManager(lineChart);
@@ -547,9 +729,9 @@ public class ChartView implements Observer {
                 barChart.getXAxis().setAutoRanging(true);
                 barChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
                 barChart.getYAxis().setAutoRanging(true);
+                barChart.getXAxis().setTickLabelRotation(-90);
                 barChart.getYAxis().setLabel(unit);
 
-                String finalUnitBar = unit;
                 barChart.setOnMouseMoved(mouseEvent -> {
                     //updateTable(chartName, chartType, selectedData, finalUnitBar, mouseEvent);
                 });
@@ -566,9 +748,8 @@ public class ChartView implements Observer {
                 bubbleChart.getYAxis().setAutoRanging(true);
                 bubbleChart.getYAxis().setLabel(unit);
 
-                String finalUnitBubble = unit;
                 bubbleChart.setOnMouseMoved(mouseEvent -> {
-                    updateTable(chartName, chartType, selectedData, finalUnitBubble, mouseEvent);
+                    updateTable(chartName, chartType, mouseEvent, null);
                 });
 
                 panner = new ChartPanManager(bubbleChart);
@@ -583,9 +764,8 @@ public class ChartView implements Observer {
                 scatterChart.getYAxis().setAutoRanging(true);
                 scatterChart.getYAxis().setLabel(unit);
 
-                String finalUnitScatter = unit;
                 scatterChart.setOnMouseMoved(mouseEvent -> {
-                    updateTable(chartName, chartType, selectedData, finalUnitScatter, mouseEvent);
+                    updateTable(chartName, chartType, mouseEvent, null);
                 });
 
                 panner = new ChartPanManager(scatterChart);
@@ -596,7 +776,6 @@ public class ChartView implements Observer {
                 pieChart.setLegendVisible(false);
                 pieChart.layout();
 
-                String finalUnitPie = unit;
 //                pieChart.setOnMouseMoved(mouseEvent -> {
 //                    updateTable(chartName, chartType, selectedData, finalUnitPie, mouseEvent);
 //                });
@@ -614,9 +793,8 @@ public class ChartView implements Observer {
                 areaChart.getYAxis().setAutoRanging(true);
                 areaChart.getYAxis().setLabel(unit);
 
-                String finalUnitDefault = unit;
                 areaChart.setOnMouseMoved(mouseEvent -> {
-                    updateTable(chartName, chartType, selectedData, finalUnitDefault, mouseEvent);
+                    updateTable(chartName, chartType, mouseEvent, null);
                 });
 
                 panner = new ChartPanManager(areaChart);
@@ -661,7 +839,7 @@ public class ChartView implements Observer {
                     }
                 });
 
-                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                //JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
                 break;
             case ("BAR"):
                 areaChartRegion = barChart;
@@ -738,275 +916,163 @@ public class ChartView implements Observer {
         }
     }
 
-    private void disableTable() {
-        table.setVisible(false);
-        table.setItems(tableData);
-        table.setFixedCellSize(25);
-        table.prefHeightProperty().unbind();
-        table.setPrefHeight(0);
+    public void updateTablesSimultaneously(String chartName, ChartSettings.ChartType chartType, MouseEvent mouseEvent, Double x) {
+        updateTable(chartName, chartType, mouseEvent, x);
     }
 
-    private void setTableStandard() {
-        table.setVisible(true);
-        table.setItems(tableData);
-        table.setFixedCellSize(25);
-        table.prefHeightProperty().bind(Bindings.size(table.getItems()).multiply(table.getFixedCellSize()).add(30));
-    }
-
-    private void updateTable(String chartName, ChartSettings.ChartType chartType, Set<ChartDataModel> selectedData, String finalUnit, MouseEvent
-            mouseEvent) {
-        Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        Double x = null;
-        switch (chartType.toString()) {
-            case ("AREA"):
-                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("LINE"):
-                x = lineChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("BAR"):
-                x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("BUBBLE"):
-                x = bubbleChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("SCATTER"):
-                x = scatterChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("PIE"):
-                //x = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            default:
-                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
+    private void updateTable(String chartName, ChartSettings.ChartType chartType, MouseEvent
+            mouseEvent, Double x) {
+        Point2D mouseCoordinates = null;
+        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        if (x == null) {
+            switch (chartType.toString()) {
+                case ("AREA"):
+                    x = getAreaChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    break;
+                case ("LINE"):
+                    x = getLineChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    break;
+                case ("BAR"):
+                    //x = getBarChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    break;
+                case ("BUBBLE"):
+                    //x = getBubbleChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    break;
+                case ("SCATTER"):
+                    //x = getScatterChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    break;
+                case ("PIE"):
+                    //x = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    break;
+                default:
+                    x = getAreaChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    break;
+            }
         }
         if (x != null) {
+            setX(x);
             Number valueForDisplay = null;
             switch (chartType.toString()) {
                 case ("AREA"):
-                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+                    valueForDisplay = (Number) getAreaChart().getXAxis().getValueForDisplay(x);
                     break;
                 case ("LINE"):
-                    valueForDisplay = lineChart.getXAxis().getValueForDisplay(x);
+                    valueForDisplay = getLineChart().getXAxis().getValueForDisplay(x);
                     break;
                 case ("BAR"):
-                    valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
+                    //valueForDisplay = getBarChart().getXAxis().getValueForDisplay(x);
                     break;
                 case ("BUBBLE"):
-                    valueForDisplay = bubbleChart.getXAxis().getValueForDisplay(x);
+                    //valueForDisplay = getBubbleChart().getXAxis().getValueForDisplay(x);
                     break;
                 case ("SCATTER"):
-                    valueForDisplay = scatterChart.getXAxis().getValueForDisplay(x);
+                    //valueForDisplay = getScatterChart().getXAxis().getValueForDisplay(x);
                     break;
                 case ("PIE"):
                     //valueForDisplay = pieChart.getXAxis().getValueForDisplay(x);
                     break;
                 default:
-                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
+                    valueForDisplay = (Number) getAreaChart().getXAxis().getValueForDisplay(x);
                     break;
             }
-            tableData.clear();
-            for (ChartDataModel singleRow : selectedData) {
-                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
-                    try {
-                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+            if (valueForDisplay != null) {
+                getTableData().clear();
+                for (ChartDataModel singleRow : getDataModel().getSelectedData()) {
+                    if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                        try {
+                            Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                            Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
 
-                        Double nearest = higherKey;
-                        if (nearest == null) nearest = lowerKey;
+                            Double nearest = higherKey;
+                            if (nearest == null) nearest = lowerKey;
 
-                        if (lowerKey != null && higherKey != null) {
-                            Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
-                            Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
-                            if (lower < higher) {
-                                nearest = lowerKey;
-                            }
-                        }
-
-                        NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
-                        nf.setMinimumFractionDigits(2);
-                        nf.setMaximumFractionDigits(2);
-                        Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
-                        String note = singleRow.getSampleMap().get(nearest).getNote();
-                        Node formattedNote = formatNote(note);
-                        String formattedDouble = nf.format(valueAsDouble);
-                        TableEntry tableEntry = singleRow.getTableEntry();
-                        DateTime dateTime = new DateTime(Math.round(nearest));
-                        tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                        tableEntry.setNote(formattedNote);
-                        tableEntry.setValue(formattedDouble + " " + finalUnit);
-                        tableData.add(tableEntry);
-
-                        table.layout();
-
-                    } catch (Exception ex) {
-//                        Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        }
-    }
-
-    private void showNote(MouseEvent mouseEvent, Set<ChartDataModel> selectedData, String chartName, ChartSettings.ChartType chartType) {
-        Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        Double x = null;
-        switch (chartType.toString()) {
-            case ("AREA"):
-                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("LINE"):
-                x = lineChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("BAR"):
-                x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("BUBBLE"):
-                x = bubbleChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("SCATTER"):
-                x = scatterChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            case ("PIE"):
-                //x = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-            default:
-                x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-                break;
-        }
-        if (x != null) {
-            Map<String, String> map = new HashMap<>();
-            Number valueForDisplay = null;
-            switch (chartType.toString()) {
-                case ("AREA"):
-                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
-                    break;
-                case ("LINE"):
-                    valueForDisplay = lineChart.getXAxis().getValueForDisplay(x);
-                    break;
-                case ("BAR"):
-                    valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
-                    break;
-                case ("BUBBLE"):
-                    valueForDisplay = bubbleChart.getXAxis().getValueForDisplay(x);
-                    break;
-                case ("SCATTER"):
-                    valueForDisplay = scatterChart.getXAxis().getValueForDisplay(x);
-                    break;
-                case ("PIE"):
-                    //valueForDisplay = pieChart.getXAxis().getValueForDisplay(x);
-                    break;
-                default:
-                    valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
-                    break;
-            }
-            for (ChartDataModel singleRow : selectedData) {
-                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
-                    try {
-                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
-
-                        Double nearest = higherKey;
-                        if (nearest == null) nearest = lowerKey;
-
-                        if (lowerKey != null && higherKey != null) {
-                            Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
-                            Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
-                            if (lower < higher) {
-                                nearest = lowerKey;
+                            if (lowerKey != null && higherKey != null) {
+                                Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
+                                Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
+                                if (lower < higher) {
+                                    nearest = lowerKey;
+                                }
                             }
 
+                            NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
+                            nf.setMinimumFractionDigits(2);
+                            nf.setMaximumFractionDigits(2);
+                            Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
                             String note = singleRow.getSampleMap().get(nearest).getNote();
+                            Node formattedNote = formatNote(note);
+                            String formattedDouble = nf.format(valueAsDouble);
+                            TableEntry tableEntry = singleRow.getTableEntry();
+                            DateTime dateTime = new DateTime(Math.round(nearest));
+                            tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                            tableEntry.setNote(formattedNote);
+                            final String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                            tableEntry.setValue(formattedDouble + " " + unit);
+                            getTableData().add(tableEntry);
 
-                            String title = "";
-                            title += singleRow.getObject().getName();
-                            if (singleRow.getDataProcessor() != null)
-                                title += " (" + singleRow.getDataProcessor().getName() + ")";
+                            getTable().layout();
 
-                            map.put(title, note);
+                        } catch (Exception ex) {
+//                        Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                    } catch (Exception ex) {
-                        logger.error("Error: could not get note", ex);
                     }
                 }
             }
-
-            NoteDialog nd = new NoteDialog(map);
-
-            nd.showAndWait().ifPresent(response -> {
-                if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-
-                } else if (response.getButtonData().getTypeCode() == ButtonType.CANCEL.getButtonData().getTypeCode()) {
-
-                }
-            });
         }
     }
 
-    private Node formatNote(String note) {
-        Node output = null;
-        if (note != null) {
-            HBox hbox = new HBox();
-            double iconSize = 12;
-            if (note.contains("interpolated-break"))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_process-stop.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            output = hbox;
-        }
-        return output;
-    }
-
-    public Region getAreaChartRegion() {
-        return areaChartRegion;
-    }
-
-    public VBox getVbox() {
-        return vbox;
-    }
-
-    public TableView getLegend() {
+    public TableView getTable() {
         return table;
     }
 
-    public String toRGBCode(Color color) {
-        return String.format("#%02X%02X%02X",
-                (int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
+    public ObservableList<TableEntry> getTableData() {
+        return tableData;
     }
 
-    private class QuantityUnits {
-        Unit _kg = SI.KILOGRAM;
-        final JEVisUnit kg = new JEVisUnitImp(_kg);
-        Unit _t = NonSI.METRIC_TON;
-        final JEVisUnit t = new JEVisUnitImp(_t);
-        Unit _l = NonSI.LITER;
-        final JEVisUnit l = new JEVisUnitImp(_l);
-        Unit _m3 = SI.CUBIC_METRE;
-        final JEVisUnit m3 = new JEVisUnitImp(_m3);
-        Unit _Wh = SI.WATT.times(NonSI.HOUR);
-        final JEVisUnit Wh = new JEVisUnitImp(_Wh);
-        Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
-        final JEVisUnit kWh = new JEVisUnitImp(_kWh);
-        Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
-        final JEVisUnit MWh = new JEVisUnitImp(_MWh);
-        Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
-        final JEVisUnit GWh = new JEVisUnitImp(_GWh);
+    public LineChart<Number, Number> getLineChart() {
+        return lineChart;
+    }
 
-        public List<JEVisUnit> get() {
-            return new ArrayList<>(Arrays.asList(kg, t, l, m3, Wh, kWh, MWh, GWh));
-        }
+    public BarChart<Number, Number> getBarChart() {
+        return barChart;
+    }
+
+    public BubbleChart<Number, Number> getBubbleChart() {
+        return bubbleChart;
+    }
+
+    public ScatterChart<Number, Number> getScatterChart() {
+        return scatterChart;
+    }
+
+    public PieChart getPieChart() {
+        return pieChart;
+    }
+
+    public GraphDataModel getDataModel() {
+        return dataModel;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public ChartSettings.ChartType getChartType() {
+        return chartType;
+    }
+
+    public void setChartType(ChartSettings.ChartType chartType) {
+        this.chartType = chartType;
+    }
+
+    public String getChartName() {
+        return this.chartName;
+    }
+
+    public void setChartName(String chartName) {
+        this.chartName = chartName;
     }
 }

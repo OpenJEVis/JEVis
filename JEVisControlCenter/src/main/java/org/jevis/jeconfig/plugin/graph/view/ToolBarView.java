@@ -207,34 +207,34 @@ public class ToolBarView {
     private void changeSettings(ActionEvent event) {
         Map<String, ChartDataModel> dataModelHashMap = new HashMap<>();
         Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
-
-        if (model.getSelectedData() != null) {
+//
+//        if (model.getSelectedData() != null) {
+//            for (ChartDataModel mdl : model.getSelectedData()) {
+//                if (mdl.getSelected()) {
+//                    dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
+//                }
+//            }
+//        } else {
+//            model.setSelectedData(getChartDataModels());
+//
             for (ChartDataModel mdl : model.getSelectedData()) {
                 if (mdl.getSelected()) {
                     dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
                 }
             }
-        } else {
-            model.setSelectedData(getChartDataModels());
-
-            for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.getSelected()) {
-                    dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
-                }
-            }
-        }
-
-        if (model.getCharts() != null) {
+//        }
+//
+//        if (model.getCharts() != null) {
+//            for (ChartSettings settings : model.getCharts()) {
+//                chartSettingsHashMap.put(settings.getName(), settings);
+//            }
+//        } else {
+//            model.setCharts(getCharts());
+//
             for (ChartSettings settings : model.getCharts()) {
                 chartSettingsHashMap.put(settings.getName(), settings);
             }
-        } else {
-            model.setCharts(getCharts());
-
-            for (ChartSettings settings : model.getCharts()) {
-                chartSettingsHashMap.put(settings.getName(), settings);
-            }
-        }
+//        }
 
         ChartSelectionDialog dia = new ChartSelectionDialog(ds, dataModelHashMap, chartSettingsHashMap);
 

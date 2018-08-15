@@ -238,17 +238,17 @@ public class GraphPluginView implements Plugin, Observer {
     public Node getContentNode() {
         if (dataModel.getSelectedData() != null) getChartsList();
 
-            if (border == null) {
-                border = new BorderPane();
-                chartView.drawDefaultAreaChart();
-                border.setCenter(chartView.getAreaChartRegion());
+        if (border == null) {
+            border = new BorderPane();
+            chartView.drawDefaultAreaChart();
+            border.setCenter(chartView.getAreaChartRegion());
 //            border.setCenter(new Button("click me"));
 
 //            border.setCenter(lineChart);
-                border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-            }
+            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        }
 
-            return border;
+        return border;
 
     }
 
@@ -288,6 +288,61 @@ public class GraphPluginView implements Plugin, Observer {
                 bp.setCenter(cv.getAreaChartRegion());
                 bp.setBottom(cv.getVbox());
                 vBox.getChildren().add(bp);
+                List<ChartView> notActive = FXCollections.observableArrayList(listChartViews);
+                notActive.remove(cv);
+                ChartSettings.ChartType chartType = cv.getChartType();
+                switch (chartType.toString()) {
+                    case ("AREA"):
+                        cv.getAreaChart().setOnMouseMoved(event -> {
+                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+                            for (ChartView na : notActive) {
+                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+                            }
+                        });
+                        break;
+                    case ("LINE"):
+                        cv.getLineChart().setOnMouseMoved(event -> {
+                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+                            for (ChartView na : notActive) {
+                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+                            }
+                        });
+                        break;
+                    case ("BAR"):
+//                        cv.getBarChart().setOnMouseMoved(event -> {
+//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+//                            for (ChartView na : notActive) {
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                            }
+//                        });
+                        break;
+                    case ("BUBBLE"):
+//                        cv.getBubbleChart().setOnMouseMoved(event -> {
+//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+//                            for (ChartView na : notActive) {
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                            }
+//                        });
+                        break;
+                    case ("SCATTER"):
+//                        cv.getScatterChart().setOnMouseMoved(event -> {
+//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+//                            for (ChartView na : notActive) {
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                            }
+//                        });
+                        break;
+                    case ("PIE"):
+//                        cv.getPieChart().setOnMouseMoved(event -> {
+//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+//                            for (ChartView na : notActive) {
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                            }
+//                        });
+                        break;
+                    default:
+                        break;
+                }
             }
             vBox.getChildren().add(sb);
             border.setTop(null);

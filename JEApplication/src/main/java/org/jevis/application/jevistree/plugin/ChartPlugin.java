@@ -26,6 +26,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.*;
+import org.jevis.application.tools.DisabledItemsComboBox;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
@@ -892,11 +893,29 @@ public class ChartPlugin implements TreePlugin {
         return _data;
     }
 
+    private final List<String> disabledItems = Arrays.asList(rb.getString("plugin.graph.charttype.scatter.name"),
+            rb.getString("plugin.graph.charttype.bubble.name"));
+
     public void set_data(Map<String, ChartDataModel> _data) {
         this._data = _data;
         _tree.getColumns().clear();
+        charts.clear();
         _tree.getColumns().addAll(ColumnFactory.buildName());
         for (TreeTableColumn<JEVisTreeRow, Long> column : getColumns()) _tree.getColumns().add(column);
+    }
+
+    public Map<String, ChartSettings> getCharts() {
+        return charts;
+    }
+
+    public enum AGGREGATION {
+
+        None, Daily, Weekly, Monthly,
+        Yearly
+    }
+
+    public void setCharts(Map<String, ChartSettings> charts) {
+        this.charts = charts;
     }
 
     private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, Integer selectionColumnIndex) {
@@ -940,17 +959,19 @@ public class ChartPlugin implements TreePlugin {
             }
         });
 
-        ComboBox<String> comboBoxChartType = new ComboBox(getlistNamesChartTypes());
+        DisabledItemsComboBox<String> comboBoxChartType = new DisabledItemsComboBox(getlistNamesChartTypes());
+        comboBoxChartType.setDisabledItems(disabledItems);
+
         if (charts != null && !charts.isEmpty()) {
             if (columnName != null) {
                 if (columnName.equals(chartTitle)) {
-                    comboBoxChartType.getSelectionModel().select(ChartSettings.ChartType.AREA.toString());
+                    comboBoxChartType.getSelectionModel().select(getlistNamesChartTypes().get(0));
                 } else {
                     Boolean foundChart = false;
                     for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
                         ChartSettings settings = chart.getValue();
                         if (settings.getName().equals(columnName)) {
-                            comboBoxChartType.getSelectionModel().select(settings.getChartType().toString());
+                            comboBoxChartType.getSelectionModel().select(parseChartIndex(settings.getChartType()));
                             foundChart = true;
                         }
                     }
@@ -965,14 +986,12 @@ public class ChartPlugin implements TreePlugin {
 
         comboBoxChartType.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                int i = 0;
                 for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
-                    ChartSettings set = chart.getValue();
-                    if (i == chartsList.indexOf(set.getName())) {
-                        ChartSettings.ChartType type = parseChartType(newValue);
-                        set.setChartType(type);
+                    ChartSettings settings = chart.getValue();
+                    if (tf.getText().equals(settings.getName())) {
+                        ChartSettings.ChartType type = parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
+                        settings.setChartType(type);
                     }
-                    i++;
                 }
             }
         });
@@ -1068,28 +1087,56 @@ public class ChartPlugin implements TreePlugin {
         return column;
     }
 
-    public Map<String, ChartSettings> getCharts() {
-        return charts;
-    }
-
-    public enum AGGREGATION {
-
-        None, Daily, Weekly, Monthly,
-        Yearly
-    }
-
-    public void setCharts(Map<String, ChartSettings> charts) {
-        this.charts = charts;
-    }
-
     private ObservableList<String> getlistNamesChartTypes() {
         List<String> tempList = new ArrayList<>();
-        for (ChartSettings.ChartType ct : listChartTypes) tempList.add(ct.toString());
+        for (ChartSettings.ChartType ct : listChartTypes) {
+            switch (ct.toString()) {
+                case ("AREA"):
+                    tempList.add(rb.getString("plugin.graph.charttype.area.name"));
+                    break;
+                case ("LINE"):
+                    tempList.add(rb.getString("plugin.graph.charttype.line.name"));
+                    break;
+                case ("BAR"):
+                    tempList.add(rb.getString("plugin.graph.charttype.bar.name"));
+                    break;
+                case ("BUBBLE"):
+                    tempList.add(rb.getString("plugin.graph.charttype.bubble.name"));
+                    break;
+                case ("SCATTER"):
+                    tempList.add(rb.getString("plugin.graph.charttype.scatter.name"));
+                    break;
+                case ("PIE"):
+                    tempList.add(rb.getString("plugin.graph.charttype.pie.name"));
+                    break;
+                default:
+                    break;
+            }
+        }
         return FXCollections.observableArrayList(tempList);
     }
 
-    private ChartSettings.ChartType parseChartType(String chartTypeIndex) {
+    private ChartSettings.ChartType parseChartType(Integer chartTypeIndex) {
         switch (chartTypeIndex) {
+            case (0):
+                return ChartSettings.ChartType.AREA;
+            case (1):
+                return ChartSettings.ChartType.LINE;
+            case (2):
+                return ChartSettings.ChartType.BAR;
+            case (3):
+                return ChartSettings.ChartType.BUBBLE;
+            case (4):
+                return ChartSettings.ChartType.SCATTER;
+            case (5):
+                return ChartSettings.ChartType.PIE;
+            default:
+                return ChartSettings.ChartType.AREA;
+        }
+    }
+
+    private ChartSettings.ChartType parseChartType(String chartType) {
+        switch (chartType) {
             case ("AREA"):
                 return ChartSettings.ChartType.AREA;
             case ("LINE"):
@@ -1106,4 +1153,26 @@ public class ChartPlugin implements TreePlugin {
                 return ChartSettings.ChartType.AREA;
         }
     }
+
+    private Integer parseChartIndex(ChartSettings.ChartType chartType) {
+
+        switch (chartType.toString()) {
+            case ("AREA"):
+                return 0;
+            case ("LINE"):
+                return 1;
+            case ("BAR"):
+                return 2;
+            case ("BUBBLE"):
+                return 3;
+            case ("SCATTER"):
+                return 4;
+            case ("PIE"):
+                return 5;
+            default:
+                return 0;
+        }
+    }
+
+
 }

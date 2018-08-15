@@ -27,4 +27,6 @@ public class ChartSettings {
     }
 
     public enum ChartType {AREA, LINE, BAR, BUBBLE, SCATTER, PIE}
+
+
 }
