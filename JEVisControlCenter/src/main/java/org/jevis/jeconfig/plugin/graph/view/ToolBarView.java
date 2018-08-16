@@ -22,10 +22,13 @@ import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
+import org.jevis.application.jevistree.plugin.ChartSettings;
 import org.jevis.commons.json.JsonAnalysisModel;
+import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.graph.DateHelper;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.plugin.graph.ToolBarController;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
@@ -51,6 +54,7 @@ public class ToolBarView {
     private ObservableList<String> observableListAnalyses = FXCollections.observableArrayList();
     private ComboBox listAnalysesComboBox;
     private List<JsonAnalysisModel> listAnalysisModel;
+    private List<JsonChartSettings> listChartsSettings;
     private BorderPane border;
     private ChartView view;
     private List<ChartView> listView;
@@ -101,12 +105,8 @@ public class ToolBarView {
             GraphExport ge = new GraphExport(ds, model, nameCurrentAnalysis);
             try {
                 ge.export();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (JEVisException e) {
-                e.printStackTrace();
+            } catch (FileNotFoundException | UnsupportedEncodingException | JEVisException e) {
+                logger.error("Error: could not export to file.", e);
             }
         });
 
@@ -119,7 +119,7 @@ public class ToolBarView {
             dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
             dialog.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                    ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null);
+                    ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null, null);
 
                     if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
@@ -131,10 +131,25 @@ public class ToolBarView {
                             }
                         }
 
+                        Set<ChartSettings> chartSettings = new HashSet<>();
+                        for (Map.Entry<String, ChartSettings> entry : selectionDialog.getBp().getCharts().entrySet()) {
+                            chartSettings.add(entry.getValue());
+                        }
+
+                        model.setCharts(chartSettings);
                         model.setSelectedData(selectedData);
+
                     }
                 } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
+                    if (dialog.getInitialTimeFrame()) {
+                        DateHelper dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
+                        dialog.setSelectedStart(dh.getDateTimeStartDate());
+                        dialog.setSelectedEnd(dh.getDateTimeEndDate());
+                        dialog.updateTimeFrame();
+                    }
+
+                    model.setCharts(dialog.getData().getCharts());
                     model.setSelectedData(dialog.getData().getSelectedData());
                     select(dialog.getLv().getSelectionModel().getSelectedItem());
                 }
@@ -190,25 +205,38 @@ public class ToolBarView {
     }
 
     private void changeSettings(ActionEvent event) {
-        Map<String, ChartDataModel> map = new HashMap<>();
-
-        if (model.getSelectedData() != null) {
+        Map<String, ChartDataModel> dataModelHashMap = new HashMap<>();
+        Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
+//
+//        if (model.getSelectedData() != null) {
+//            for (ChartDataModel mdl : model.getSelectedData()) {
+//                if (mdl.getSelected()) {
+//                    dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
+//                }
+//            }
+//        } else {
+//            model.setSelectedData(getChartDataModels());
+//
             for (ChartDataModel mdl : model.getSelectedData()) {
                 if (mdl.getSelected()) {
-                    map.put(mdl.getObject().getID().toString(), mdl);
+                    dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
                 }
             }
-        } else {
-            model.setSelectedData(getChartDataModels());
-
-            for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.getSelected()) {
-                    map.put(mdl.getObject().getID().toString(), mdl);
-                }
+//        }
+//
+//        if (model.getCharts() != null) {
+//            for (ChartSettings settings : model.getCharts()) {
+//                chartSettingsHashMap.put(settings.getName(), settings);
+//            }
+//        } else {
+//            model.setCharts(getCharts());
+//
+            for (ChartSettings settings : model.getCharts()) {
+                chartSettingsHashMap.put(settings.getName(), settings);
             }
-        }
+//        }
 
-        ChartSelectionDialog dia = new ChartSelectionDialog(ds, map);
+        ChartSelectionDialog dia = new ChartSelectionDialog(ds, dataModelHashMap, chartSettingsHashMap);
 
         if (dia.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
@@ -219,6 +247,13 @@ public class ToolBarView {
                     selectedData.add(value);
                 }
             }
+
+            Set<ChartSettings> chartSettings = new HashSet<>();
+            for (Map.Entry<String, ChartSettings> entry : dia.getBp().getCharts().entrySet()) {
+                chartSettings.add(entry.getValue());
+            }
+
+            model.setCharts(chartSettings);
             model.setSelectedData(selectedData);
             //Platform.runLater(() -> drawChart());
         }
@@ -249,21 +284,19 @@ public class ToolBarView {
         return chartsList;
     }
 
-    private void drawChart() {
-        if (view == null) view = new ChartView(model);
-        getChartsList();
-        if (chartsList.size() == 1 || chartsList.isEmpty()) view.drawAreaChart("");
-        else listView = getChartViews();
-
-    }
-
     public List<ChartView> getChartViews() {
         List<ChartView> charts = new ArrayList<>();
 
         getChartsList();
         for (String s : chartsList) {
             ChartView view = new ChartView(model);
-            view.drawAreaChart(s);
+            ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
+            if (model.getCharts() != null && !model.getCharts().isEmpty()) {
+                for (ChartSettings set : model.getCharts()) {
+                    if (set.getName().equals(s)) type = set.getChartType();
+                }
+            }
+            view.drawAreaChart(s, type);
             charts.add(view);
         }
 
@@ -314,7 +347,7 @@ public class ToolBarView {
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
-                            saveDataModel(model.getSelectedData());
+                            saveDataModel(model.getSelectedData(), model.getCharts());
                             updateListAnalyses();
                             listAnalysesComboBox.getSelectionModel().select(nameCurrentAnalysis);
                         } else {
@@ -328,7 +361,7 @@ public class ToolBarView {
 
                             dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
                                 if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                                    saveDataModel(model.getSelectedData());
+                                    saveDataModel(model.getSelectedData(), model.getCharts());
                                     updateListAnalyses();
                                     listAnalysesComboBox.getSelectionModel().select(nameCurrentAnalysis);
                                 } else {
@@ -366,7 +399,7 @@ public class ToolBarView {
 
     }
 
-    private void saveDataModel(Set<ChartDataModel> selectedData) {
+    private void saveDataModel(Set<ChartDataModel> selectedData, Set<ChartSettings> chartSettings) {
         try {
             JEVisAttribute dataModel = currentAnalysis.getAttribute("Data Model");
 
@@ -388,17 +421,29 @@ public class ToolBarView {
                     jsonDataModels.add(json);
                 }
             }
-            if (jsonDataModels.toString().length() < 4096) {
+
+            JEVisAttribute charts = currentAnalysis.getAttribute("Charts");
+            List<JsonChartSettings> jsonChartSettings = new ArrayList<>();
+            for (ChartSettings cset : chartSettings) {
+                JsonChartSettings set = new JsonChartSettings();
+                set.setName(cset.getName());
+                set.setChartType(cset.getChartType().toString());
+                jsonChartSettings.add(set);
+            }
+
+            if (jsonDataModels.toString().length() < 4096 && jsonChartSettings.toString().length() < 4096) {
                 DateTime now = DateTime.now();
                 JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonDataModels.toString());
+                JEVisSample smp2 = charts.buildSample(now.toDateTimeISO(), jsonChartSettings.toString());
                 smp.commit();
+                smp2.commit();
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
                 alert.showAndWait();
             }
 
         } catch (JEVisException e) {
-            logger.error("Error: could not save data model", e);
+            logger.error("Error: could not save data model and chart settings", e);
         }
     }
 
@@ -498,6 +543,23 @@ public class ToolBarView {
                         }
                     }
                 }
+                if (Objects.nonNull(currentAnalysis.getAttribute("Charts"))) {
+                    if (currentAnalysis.getAttribute("Charts").hasSample()) {
+                        String str = currentAnalysis.getAttribute("Charts").getLatestSample().getValueAsString();
+                        try {
+                            if (str.endsWith("]")) {
+                                listChartsSettings = new Gson().fromJson(str, new TypeToken<List<JsonChartSettings>>() {
+                                }.getType());
+
+                            } else {
+                                listChartsSettings = new ArrayList<>();
+                                listChartsSettings.add(new Gson().fromJson(str, JsonChartSettings.class));
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error: could not read chart settings", e);
+                        }
+                    }
+                }
             }
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis model", e);
@@ -506,7 +568,9 @@ public class ToolBarView {
 
     public void updateChart() {
         Set<ChartDataModel> selectedData = getChartDataModels();
+        Set<ChartSettings> charts = getCharts();
 
+        model.setCharts(charts);
         model.setSelectedData(selectedData);
 
     }
@@ -555,6 +619,45 @@ public class ToolBarView {
             }
         }
         return selectedData;
+    }
+
+    private Set<ChartSettings> getCharts() {
+        Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
+        Set<ChartSettings> chartSettings = new HashSet<>();
+
+        if (listChartsSettings != null && !listChartsSettings.isEmpty()) {
+            for (JsonChartSettings settings : listChartsSettings) {
+                ChartSettings newSettings = new ChartSettings("");
+                newSettings.setName(settings.getName());
+                newSettings.setChartType(parseChartType(settings.getChartType()));
+                chartSettingsHashMap.put(newSettings.getName(), newSettings);
+            }
+
+            for (Map.Entry<String, ChartSettings> entrySet : chartSettingsHashMap.entrySet()) {
+                ChartSettings value = entrySet.getValue();
+                chartSettings.add(value);
+            }
+        }
+        return chartSettings;
+    }
+
+    private ChartSettings.ChartType parseChartType(String chartType) {
+        switch (chartType) {
+            case ("AREA"):
+                return ChartSettings.ChartType.AREA;
+            case ("LINE"):
+                return ChartSettings.ChartType.LINE;
+            case ("BAR"):
+                return ChartSettings.ChartType.BAR;
+            case ("BUBBLE"):
+                return ChartSettings.ChartType.BUBBLE;
+            case ("SCATTER"):
+                return ChartSettings.ChartType.SCATTER;
+            case ("PIE"):
+                return ChartSettings.ChartType.PIE;
+            default:
+                return ChartSettings.ChartType.AREA;
+        }
     }
 
     private ChartPlugin.AGGREGATION parseAggregation(String aggrigation) {

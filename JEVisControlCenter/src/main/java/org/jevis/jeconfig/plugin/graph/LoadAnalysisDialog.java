@@ -50,6 +50,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private JEVisObject currentAnalysis;
     private JEVisDataSource ds;
     private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
+    private Boolean initialTimeFrame = true;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.data = data;
@@ -132,6 +133,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         presetDateEntries.addAll(custom, lastDay, last7Days, last30Days, lastWeek, lastMonth);
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
+        comboBoxPresetDates.getSelectionModel().select(3);
 
         if (!listAnalysisModel.isEmpty()) {
             getTimeFromJsonModel();
@@ -147,7 +149,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         break;
                     //last day
                     case 1:
-                        dh = new DateHelper(TransformType.LASTDAY);
+                        dh = new DateHelper(DateHelper.TransformType.LASTDAY);
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
@@ -155,15 +157,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         break;
                     //last 7 days
                     case 2:
-                        dh = new DateHelper(TransformType.LAST7DAYS);
+                        dh = new DateHelper(DateHelper.TransformType.LAST7DAYS);
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
                     //last 30 days
                     case 3:
-                        dh = new DateHelper(TransformType.LAST30DAYS);
+                        dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
@@ -171,7 +172,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         break;
                     //last Week days
                     case 4:
-                        dh = new DateHelper(TransformType.LASTWEEK);
+                        dh = new DateHelper(DateHelper.TransformType.LASTWEEK);
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
@@ -179,7 +180,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         break;
                     case 5:
                         //last Month
-                        dh = new DateHelper(TransformType.LASTMONTH);
+                        dh = new DateHelper(DateHelper.TransformType.LASTMONTH);
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
@@ -193,10 +194,11 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
+                initialTimeFrame = false;
                 if (selectedStart != null) {
                     selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getSecondOfMinute());
                     updateTimeFrame();
-                    DateHelper dh = new DateHelper(InputType.STARTDATE, newValue);
+                    DateHelper dh = new DateHelper(DateHelper.InputType.STARTDATE, newValue);
                     if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
@@ -204,10 +206,11 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
+                initialTimeFrame = false;
                 if (selectedEnd != null) {
                     selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getSecondOfMinute());
                     updateTimeFrame();
-                    DateHelper dh = new DateHelper(InputType.ENDDATE, newValue);
+                    DateHelper dh = new DateHelper(DateHelper.InputType.ENDDATE, newValue);
                     if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
@@ -215,10 +218,11 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         pickerTimeStart.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
+                initialTimeFrame = false;
                 if (selectedStart != null) {
                     selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
                     updateTimeFrame();
-                    DateHelper dh = new DateHelper(InputType.STARTTIME, newValue);
+                    DateHelper dh = new DateHelper(DateHelper.InputType.STARTTIME, newValue);
                     if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
@@ -226,10 +230,11 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         pickerTimeEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
+                initialTimeFrame = false;
                 if (selectedEnd != null) {
                     selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
                     updateTimeFrame();
-                    DateHelper dh = new DateHelper(InputType.ENDTIME, newValue);
+                    DateHelper dh = new DateHelper(DateHelper.InputType.ENDTIME, newValue);
                     if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
@@ -283,6 +288,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 updateTimeFramePicker();
                 updateTimeFrame();
 
+                initialTimeFrame = true;
+
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
                     this.getDialogPane().getButtonTypes().addAll(newGraph, loadGraph);
@@ -334,9 +341,10 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         LocalTime lt_end = LocalTime.of(selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour());
         pickerDateEnd.valueProperty().setValue(ld_end);
         pickerTimeEnd.valueProperty().setValue(lt_end);
+
     }
 
-    private void updateTimeFrame() {
+    public void updateTimeFrame() {
         if (data.getSelectedData() != null) {
             for (ChartDataModel mdl : data.getSelectedData()) {
                 if (mdl.getSelected()) {
@@ -477,146 +485,15 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         } else return new ArrayList<>();
     }
 
-    public enum TransformType {CUSTOM, LASTDAY, LAST7DAYS, LAST30DAYS, LASTWEEK, LASTMONTH}
+    public Boolean getInitialTimeFrame() {
+        return initialTimeFrame;
+    }
 
-    public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
+    public void setSelectedStart(DateTime selectedStart) {
+        this.selectedStart = selectedStart;
+    }
 
-    public class DateHelper {
-        final LocalTime startTime = LocalTime.of(0, 0, 0, 0);
-        final LocalTime endTime = LocalTime.of(23, 59, 59, 999);
-        private LocalDate startDate;
-        private LocalDate endDate;
-        private LocalDate checkDate;
-        private LocalTime checkTime;
-        private TransformType type;
-        private LocalDate now;
-        private InputType inputType;
-        private Boolean userSet = true;
-
-        public DateHelper(TransformType type) {
-            this.type = type;
-            now = LocalDate.now();
-        }
-
-        public DateHelper() {
-            now = LocalDate.now();
-        }
-
-        public DateHelper(InputType inputType, LocalDate localDate) {
-            this.inputType = inputType;
-            checkDate = localDate;
-        }
-
-        public DateHelper(InputType inputType, LocalTime localTime) {
-            this.inputType = inputType;
-            checkTime = localTime;
-        }
-
-        public LocalDate getStartDate() {
-            now = LocalDate.now();
-            switch (type) {
-                case CUSTOM:
-                    break;
-                case LASTDAY:
-                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
-                    break;
-                case LAST7DAYS:
-                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(7);
-                    break;
-                case LAST30DAYS:
-                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(30);
-                    break;
-                case LASTWEEK:
-                    now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
-                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
-                    break;
-                case LASTMONTH:
-                    now = now.minusDays(LocalDate.now().getDayOfMonth() - 1);
-                    startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusMonths(1);
-                    break;
-                default:
-                    break;
-            }
-            return startDate;
-        }
-
-        public LocalDate getEndDate() {
-            now = LocalDate.now();
-            switch (type) {
-                case CUSTOM:
-                    break;
-                case LASTDAY:
-                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
-                    break;
-                case LAST7DAYS:
-                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
-                    break;
-                case LAST30DAYS:
-                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
-                    break;
-                case LASTWEEK:
-                    now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
-                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).plusDays(6);
-                    break;
-                case LASTMONTH:
-                    now = now.minusDays(LocalDate.now().getDayOfMonth() - 1);
-                    endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(1);
-                    break;
-                default:
-                    break;
-            }
-            return endDate;
-        }
-
-        public void setType(TransformType type) {
-            this.type = type;
-        }
-
-        public LocalTime getStartTime() {
-            return startTime;
-        }
-
-        public LocalTime getEndTime() {
-            return endTime;
-        }
-
-        public Boolean isCustom() {
-            switch (inputType) {
-                case STARTDATE:
-                    for (TransformType tt : TransformType.values()) {
-                        this.type = tt;
-                        if (checkDate.equals(getStartDate())) {
-                            userSet = false;
-                            break;
-                        }
-                    }
-                    break;
-                case ENDDATE:
-                    for (TransformType tt : TransformType.values()) {
-                        this.type = tt;
-                        if (checkDate.equals(getEndDate())) {
-                            userSet = false;
-                            break;
-                        }
-                    }
-                    break;
-                case STARTTIME:
-                    if (checkTime.equals(getStartTime())) {
-                        userSet = false;
-                        break;
-                    }
-                    break;
-                case ENDTIME:
-                    if (checkTime.equals(getEndTime())) {
-                        userSet = false;
-                        break;
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            return userSet;
-        }
+    public void setSelectedEnd(DateTime selectedEnd) {
+        this.selectedEnd = selectedEnd;
     }
 }

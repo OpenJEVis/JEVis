@@ -23,6 +23,19 @@
         "ru": "Data Model",
         "en": "Data Model"
       }
+    },
+    {
+      "type": "Charts",
+      "descriptions": {
+        "de": "Beeinhaltet die Einstellungen der Diagramme zur gespeicherten Analyse",
+        "ru": "Includes the settings of the charts for stored analysis",
+        "en": "Includes the settings of the charts for stored analysis"
+      },
+      "names": {
+        "de": "Diagramme",
+        "ru": "Charts",
+        "en": "Charts"
+      }
     }
   ]
 }

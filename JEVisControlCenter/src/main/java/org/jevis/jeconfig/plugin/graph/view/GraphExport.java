@@ -4,6 +4,7 @@ import javafx.stage.FileChooser;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
@@ -16,10 +17,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GraphExport {
     private final GraphDataModel model;
@@ -44,7 +42,11 @@ public class GraphExport {
                 }
             }
         }
-        if (charts.size() > 1) multiAnalyses = true;
+        if (charts.size() > 1) {
+            AlphanumComparator ac = new AlphanumComparator();
+            Collections.sort(charts, ac);
+            multiAnalyses = true;
+        }
 
         String formattedName = analysisName.replaceAll(" ", "_");
         FileChooser fileChooser = new FileChooser();

@@ -38,9 +38,11 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
+import org.jevis.application.jevistree.plugin.ChartSettings;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.plugin.graph.DateHelper;
 import org.jevis.jeconfig.plugin.graph.GraphController;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
@@ -85,7 +87,7 @@ public class GraphPluginView implements Plugin, Observer {
             dialog.showAndWait()
                     .ifPresent(response -> {
                         if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                            ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null);
+                            ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null, null);
 
                             if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
@@ -96,11 +98,26 @@ public class GraphPluginView implements Plugin, Observer {
                                         selectedData.add(value);
                                     }
                                 }
+
+                                Set<ChartSettings> chartSettings = new HashSet<>();
+                                for (Map.Entry<String, ChartSettings> entry : selectionDialog.getBp().getCharts().entrySet()) {
+                                    chartSettings.add(entry.getValue());
+                                }
+
+                                dataModel.setCharts(chartSettings);
                                 dataModel.setSelectedData(selectedData);
                             }
                         } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
                             dialog.updateToolBarView();
+
+                            if (dialog.getInitialTimeFrame()) {
+                                DateHelper dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
+                                dialog.setSelectedStart(dh.getDateTimeStartDate());
+                                dialog.setSelectedEnd(dh.getDateTimeEndDate());
+                                dialog.updateTimeFrame();
+                            }
+
                             toolBarView.select(dialog.getLv().getSelectionModel().getSelectedItem());
                             if (toolBarView.getListAnalysesComboBox().getSelectionModel().getSelectedIndex() == dialog.getLv().getSelectionModel().getSelectedIndex()) {
                                 Platform.runLater(() -> toolBarView.updateChart());
@@ -221,17 +238,17 @@ public class GraphPluginView implements Plugin, Observer {
     public Node getContentNode() {
         if (dataModel.getSelectedData() != null) getChartsList();
 
-            if (border == null) {
-                border = new BorderPane();
-                chartView.drawDefaultAreaChart();
-                border.setCenter(chartView.getAreaChartRegion());
+        if (border == null) {
+            border = new BorderPane();
+            chartView.drawDefaultAreaChart();
+            border.setCenter(chartView.getAreaChartRegion());
 //            border.setCenter(new Button("click me"));
 
 //            border.setCenter(lineChart);
-                border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-            }
+            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        }
 
-            return border;
+        return border;
 
     }
 
@@ -240,7 +257,14 @@ public class GraphPluginView implements Plugin, Observer {
         if (dataModel.getSelectedData() != null) getChartsList();
         if (chartsList.size() == 1 || chartsList.isEmpty()) {
             if (chartsList.size() == 1) {
-                chartView.drawAreaChart(chartsList.get(0));
+                String chartTitle = chartsList.get(0);
+                ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
+                if (dataModel.getCharts() != null && !dataModel.getCharts().isEmpty()) {
+                    for (ChartSettings set : dataModel.getCharts()) {
+                        if (set.getName().equals(chartTitle)) type = set.getChartType();
+                    }
+                }
+                chartView.drawAreaChart(chartTitle, type);
             }
             border.setTop(chartView.getLegend());
             border.setCenter(chartView.getAreaChartRegion());
@@ -264,6 +288,61 @@ public class GraphPluginView implements Plugin, Observer {
                 bp.setCenter(cv.getAreaChartRegion());
                 bp.setBottom(cv.getVbox());
                 vBox.getChildren().add(bp);
+                List<ChartView> notActive = FXCollections.observableArrayList(listChartViews);
+                notActive.remove(cv);
+                ChartSettings.ChartType chartType = cv.getChartType();
+                switch (chartType.toString()) {
+                    case ("AREA"):
+                        cv.getAreaChart().setOnMouseMoved(event -> {
+                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+                            for (ChartView na : notActive) {
+                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+                            }
+                        });
+                        break;
+                    case ("LINE"):
+                        cv.getLineChart().setOnMouseMoved(event -> {
+                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+                            for (ChartView na : notActive) {
+                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+                            }
+                        });
+                        break;
+                    case ("BAR"):
+//                        cv.getBarChart().setOnMouseMoved(event -> {
+//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+//                            for (ChartView na : notActive) {
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                            }
+//                        });
+                        break;
+                    case ("BUBBLE"):
+//                        cv.getBubbleChart().setOnMouseMoved(event -> {
+//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+//                            for (ChartView na : notActive) {
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                            }
+//                        });
+                        break;
+                    case ("SCATTER"):
+//                        cv.getScatterChart().setOnMouseMoved(event -> {
+//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+//                            for (ChartView na : notActive) {
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                            }
+//                        });
+                        break;
+                    case ("PIE"):
+//                        cv.getPieChart().setOnMouseMoved(event -> {
+//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
+//                            for (ChartView na : notActive) {
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                            }
+//                        });
+                        break;
+                    default:
+                        break;
+                }
             }
             vBox.getChildren().add(sb);
             border.setTop(null);

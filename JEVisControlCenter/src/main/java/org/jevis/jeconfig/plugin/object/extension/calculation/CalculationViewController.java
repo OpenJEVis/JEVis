@@ -415,7 +415,7 @@ public class CalculationViewController {
 
     @FXML
     void onEquals(ActionEvent event) {
-        formelBox.addExpression("=");
+        formelBox.addExpression("==");
     }
 
     @FXML
