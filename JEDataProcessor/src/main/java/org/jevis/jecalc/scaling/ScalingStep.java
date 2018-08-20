@@ -11,6 +11,7 @@ import org.jevis.jecalc.data.CleanDataAttribute;
 import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.workflow.ProcessStep;
+import org.joda.time.DateTime;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
@@ -31,30 +32,45 @@ public class ScalingStep implements ProcessStep {
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
         List<CleanInterval> intervals = resourceManager.getIntervals();
 
-        StopWatch stopWatch = new Slf4JStopWatch("scaling");
-        BigDecimal multiplier = new BigDecimal(calcAttribute.getMultiplier().toString());
-        BigDecimal offset = new BigDecimal(calcAttribute.getOffset().toString());
-        logger.info("scale with multiplier {} and offset {}", multiplier, offset);
-        for (CleanInterval currentInt : intervals) {
-            for (JEVisSample sample : currentInt.getTmpSamples()) {
-                try {
-                    Double rawValue = sample.getValueAsDouble();
-                    if (rawValue != null) {
-                        BigDecimal rawValueDec = new BigDecimal(rawValue.toString());
-                        BigDecimal productDec = new BigDecimal(0);
-                        productDec = productDec.add(rawValueDec);
-                        productDec = productDec.multiply(multiplier);
-                        productDec = productDec.add(offset);
-                        sample.setValue(productDec.doubleValue());
-                        String note = sample.getNote();
-                        note += ",scale";
-                        sample.setNote(note);
-                    }
-                } catch (JEVisException ex) {
-                    logger.error(null, ex);
-                }
-            }
 
+        StopWatch stopWatch = new Slf4JStopWatch("scaling");
+
+        for (JEVisSample multiplier : calcAttribute.getMultiplier()) {
+
+            DateTime timeStampOfMultiplier = null;
+            Double multiplierDouble = null;
+            BigDecimal offset = new BigDecimal(calcAttribute.getOffset().toString());
+            try {
+                timeStampOfMultiplier = multiplier.getTimestamp();
+                multiplierDouble = multiplier.getValueAsDouble();
+            } catch (JEVisException e) {
+                logger.error("no timestamp for multiplier", e);
+            }
+            logger.info("scale with multiplier {} and offset {}", multiplierDouble, offset);
+            for (CleanInterval currentInt : intervals) {
+                if (currentInt.getDate().isAfter(timeStampOfMultiplier)) {
+                    BigDecimal multi = new BigDecimal(multiplierDouble.toString());
+                    for (JEVisSample sample : currentInt.getTmpSamples()) {
+                        try {
+                            Double rawValue = sample.getValueAsDouble();
+                            if (rawValue != null) {
+                                BigDecimal rawValueDec = new BigDecimal(rawValue.toString());
+                                BigDecimal productDec = new BigDecimal(0);
+                                productDec = productDec.add(rawValueDec);
+                                productDec = productDec.multiply(multi);
+                                productDec = productDec.add(offset);
+                                sample.setValue(productDec.doubleValue());
+                                String note = sample.getNote();
+                                note += ",scale";
+                                sample.setNote(note);
+                            }
+                        } catch (JEVisException ex) {
+                            logger.error(null, ex);
+                        }
+                    }
+                }
+
+            }
         }
         stopWatch.stop();
     }
