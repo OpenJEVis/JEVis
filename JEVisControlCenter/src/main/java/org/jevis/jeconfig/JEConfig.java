@@ -98,6 +98,7 @@ public class JEConfig extends Application {
         if (getConfig().getLastPath() == null) {
             if (!OsUtils.isWindows())
                 getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
+            else getConfig().setLastFile(new File("/"));
         }
         if (!getConfig().getLastPath().canRead()) {
             if (!OsUtils.isWindows()) getConfig().setLastPath(new File(System.getProperty("user.home")));
