@@ -49,7 +49,6 @@ import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
@@ -194,32 +193,12 @@ public class CSVImportDialog {
         VBox.setVgrow(spacer, Priority.ALWAYS);
         VBox.setVgrow(header, Priority.NEVER);
 
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                stage.close();
-                response = Response.CANCEL;
-            }
+        cancel.setOnAction(t -> {
+            stage.close();
+            response = Response.CANCEL;
         });
 
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                if (table.doImport()) {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle(I18n.getInstance().getString("csv.export.dialog.success.header"));
-                    alert.setHeaderText(null);
-                    alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
-                    alert.showAndWait();
-                } else {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle(I18n.getInstance().getString("csv.export.dialog.failed.title"));
-                    alert.setHeaderText(null);
-                    alert.setContentText(I18n.getInstance().getString("ccsv.export.dialog.failed.message"));
-                    alert.showAndWait();
-                }
-            }
-        });
+        ok.setOnAction(t -> table.doImport());
 
         stage.sizeToScene();
         stage.showAndWait();
@@ -234,13 +213,9 @@ public class CSVImportDialog {
                 final CSVParser parser = parseCSV();
                 table = new CSVTable(_ds, parser);
                 tableRootPane.getChildren().setAll(table);
-                tableRootPane.heightProperty().addListener(new ChangeListener<Number>() {
-
-                    @Override
-                    public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
-                        if (table != null) {
-                            table.setPrefHeight(t1.doubleValue());
-                        }
+                tableRootPane.heightProperty().addListener((ov, t, t1) -> {
+                    if (table != null) {
+                        table.setPrefHeight(t1.doubleValue());
                     }
                 });
                 VBox.setVgrow(table, Priority.ALWAYS);

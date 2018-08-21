@@ -288,7 +288,6 @@ public class CSVColumnHeader {
      * @throws ParseException
      */
     public DateTime getValueAsDate(String value) throws ParseException {
-        System.out.println("getValueAsDate: " + value);
         if (getMeaning() == Meaning.Date || getMeaning() == Meaning.DateTime || getMeaning() == Meaning.Time) {
             Date datetime = getDateFormater().parse(value);
             datetime.getTime();

@@ -114,12 +114,14 @@ public class ChartSelectionDialog {
         HBox buttonBox = new HBox(10);
         Region spacer = new Region();
         Button ok = new Button(rb.getString("graph.selection.load"));
+        Button removeAllSelections = new Button(rb.getString("graph.selection.removeselections"));
+
         ok.setDefaultButton(true);
 
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setMargin(ok, new Insets(10));
-        buttonBox.getChildren().setAll(spacer, ok);
+        buttonBox.getChildren().setAll(spacer, removeAllSelections, ok);
         root.getChildren().setAll(headerNode, treePane, sep, buttonBox);
 
         VBox.setVgrow(treePane, Priority.ALWAYS);
@@ -137,6 +139,8 @@ public class ChartSelectionDialog {
 
             }
         }
+
+        removeAllSelections.setOnAction(event -> bp.selectNone());
 
         tabConfiguration.setContent(root);
 

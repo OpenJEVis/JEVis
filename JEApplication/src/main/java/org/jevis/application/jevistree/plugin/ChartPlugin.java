@@ -1174,5 +1174,13 @@ public class ChartPlugin implements TreePlugin {
         }
     }
 
-
+    public void selectNone() {
+        for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
+            ChartDataModel mdl = entry.getValue();
+            if (mdl.getSelected()) {
+                mdl.setSelected(false);
+            }
+        }
+        _tree.refresh();
+    }
 }

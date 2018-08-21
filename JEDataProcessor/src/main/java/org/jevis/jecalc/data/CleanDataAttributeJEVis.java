@@ -41,10 +41,10 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     //attributes
     private Period period;
     private Boolean isPeriodAligned;
-    private Boolean conversionDifferential;
+    private List<JEVisSample> conversionDifferential;
     private Integer periodOffset;
     private Boolean valueIsQuantity;
-    private Double multiplier;
+    private List<JEVisSample> multiplier;
     private Double offset;
     private GapStrategy gapStrategy;
     private Boolean enabled;
@@ -76,11 +76,11 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         logger.info("Period is {}", PeriodFormat.getDefault().print(period));
         isPeriodAligned = sampleHandler.getLastSample(calcObject, PERIOD_ALIGNMENT.getAttributeName(), false);
         enabled = sampleHandler.getLastSample(calcObject, ENABLED.getAttributeName(), false);
-        conversionDifferential = sampleHandler.getLastSample(calcObject, CONVERSION_DIFFERENTIAL.getAttributeName(), false);
+        conversionDifferential = sampleHandler.getAllSamples(calcObject, CONVERSION_DIFFERENTIAL.getAttributeName()); //false;
         Long periodOffsetLong = sampleHandler.getLastSample(calcObject, PERIOD_OFFSET.getAttributeName(), 0l);
         periodOffset = (int) (long) periodOffsetLong;
         valueIsQuantity = sampleHandler.getLastSample(calcObject, VALUE_QUANTITY.getAttributeName(), false);
-        multiplier = sampleHandler.getLastSample(calcObject, MULTIPLIER.getAttributeName(), 1.0);
+        multiplier = sampleHandler.getAllSamples(calcObject, MULTIPLIER.getAttributeName());
         limitsEnabled = sampleHandler.getLastSample(calcObject, LIMITS_ENABLED.getAttributeName(), false);
 
         gapFillingConfig = sampleHandler.getLastSample(calcObject, GAP_FILLING_CONFIG.getAttributeName(), "");
@@ -126,7 +126,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     }
 
     @Override
-    public Boolean getConversionDifferential() {
+    public List<JEVisSample> getConversionDifferential() {
         return conversionDifferential;
     }
 
@@ -207,7 +207,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     }
 
     @Override
-    public Double getMultiplier() {
+    public List<JEVisSample> getMultiplier() {
         return multiplier;
     }
 
