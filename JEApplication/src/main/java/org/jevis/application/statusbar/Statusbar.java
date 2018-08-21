@@ -55,7 +55,7 @@ public class Statusbar extends ToolBar {
     private String lastUsername = "";
     private String lastPassword = "";
 
-    private final int WAIT_TIME = 10000;//MSEC
+    private final int WAIT_TIME = 15000;//MSEC
     private final int RETRY_COUNT = 720;//count
 
     Label userName = new Label("");
@@ -144,6 +144,7 @@ public class Statusbar extends ToolBar {
                 try {
                     while (true) {
                         sleep(WAIT_TIME);
+                        System.gc();//we have some memory leak in javafx components, this will fix it for now.
                         if (_ds.isConnectionAlive()) {
                             Platform.runLater(new Runnable() {
                                 @Override
