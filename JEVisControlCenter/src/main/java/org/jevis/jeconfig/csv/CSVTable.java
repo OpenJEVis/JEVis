@@ -20,14 +20,13 @@
 package org.jevis.jeconfig.csv;
 
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.util.Callback;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -37,8 +36,6 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -78,20 +75,16 @@ public class CSVTable extends TableView<CSVLine> {
 //            column.setPrefWidth(widthProperty().doubleValue() / _parser.getColumnCount());
             final int rowID = i;
 
-            column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<CSVLine, String>, ObservableValue<String>>() {
+            column.setCellValueFactory(p -> {
+                if (p != null) {
+                    try {
+                        return header.getValueProperty(p.getValue());
+                    } catch (NullPointerException ex) {
 
-                @Override
-                public ObservableValue<String> call(TableColumn.CellDataFeatures<CSVLine, String> p) {
-                    if (p != null) {
-                        try {
-                            return header.getValueProperty(p.getValue());
-                        } catch (NullPointerException ex) {
-
-                        }
                     }
-
-                    return new SimpleObjectProperty<>("");
                 }
+
+                return new SimpleObjectProperty<>("");
             });
 
             column.setGraphic(header.getGraphic());
@@ -107,6 +100,28 @@ public class CSVTable extends TableView<CSVLine> {
             @Override
             protected Task<Void> createTask() {
                 return new Task<Void>() {
+                    @Override
+                    protected void succeeded() {
+                        super.succeeded();
+
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle(I18n.getInstance().getString("csv.import.dialog.success.header"));
+                        alert.setHeaderText(null);
+                        alert.setContentText(I18n.getInstance().getString("csv.import.dialog.success.message"));
+                        alert.showAndWait();
+                    }
+
+                    @Override
+                    protected void failed() {
+                        super.failed();
+
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle(I18n.getInstance().getString("csv.import.dialog.failed.title"));
+                        alert.setHeaderText(null);
+                        alert.setContentText(I18n.getInstance().getString("csv.import.dialog.failed.message"));
+                        alert.showAndWait();
+                    }
+
                     @Override
                     protected Void call() {
                         updateMessage(I18n.getInstance().getString("csv.progress.message"));
@@ -145,22 +160,23 @@ public class CSVTable extends TableView<CSVLine> {
                                         }
 
                                     } catch (Exception pe) {
-                                        System.out.println("error while building sample");
-                                        pe.printStackTrace();
+                                        //System.out.println("error while building sample");
+                                        //pe.printStackTrace();
                                     }
                                 }
                                 try {
-                                    System.out.println("Import " + _newSamples.size() + " sample into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
+                                    //System.out.println("Import " + _newSamples.size() + " sample into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
                                     header.getTarget().addSamples(_newSamples);
 
                                 } catch (JEVisException ex) {
-                                    System.out.println("error while import sample");
-                                    Logger.getLogger(CSVTable.class.getName()).log(Level.SEVERE, null, ex);
+                                    //System.out.println("error while import sample");
+                                    //Logger.getLogger(CSVTable.class.getName()).log(Level.SEVERE, null, ex);
                                 }
 
                             }
                         }
 
+                        succeeded();
                         return null;
                     }
                 };
