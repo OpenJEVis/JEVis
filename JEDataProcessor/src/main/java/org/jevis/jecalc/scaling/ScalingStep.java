@@ -31,24 +31,30 @@ public class ScalingStep implements ProcessStep {
     public void run(ResourceManager resourceManager) {
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
         List<CleanInterval> intervals = resourceManager.getIntervals();
-
+        List<JEVisSample> listMultipliers = calcAttribute.getMultiplier();
 
         StopWatch stopWatch = new Slf4JStopWatch("scaling");
 
-        for (JEVisSample multiplier : calcAttribute.getMultiplier()) {
+        for (JEVisSample multiplier : listMultipliers) {
 
             DateTime timeStampOfMultiplier = null;
+            DateTime nextTimeStampOfMultiplier = null;
             Double multiplierDouble = null;
             BigDecimal offset = new BigDecimal(calcAttribute.getOffset().toString());
             try {
                 timeStampOfMultiplier = multiplier.getTimestamp();
                 multiplierDouble = multiplier.getValueAsDouble();
+                try {
+                    nextTimeStampOfMultiplier = (listMultipliers.get(listMultipliers.indexOf(multiplier) + 1)).getTimestamp();
+                } catch (Exception e) {
+
+                }
             } catch (JEVisException e) {
                 logger.error("no timestamp for multiplier", e);
             }
             logger.info("scale with multiplier {} and offset {}", multiplierDouble, offset);
             for (CleanInterval currentInt : intervals) {
-                if (currentInt.getDate().isAfter(timeStampOfMultiplier)) {
+                if (currentInt.getDate().isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || currentInt.getDate().isBefore(nextTimeStampOfMultiplier))) {
                     BigDecimal multi = new BigDecimal(multiplierDouble.toString());
                     for (JEVisSample sample : currentInt.getTmpSamples()) {
                         try {

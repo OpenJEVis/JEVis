@@ -32,16 +32,10 @@ public class DifferentialStep implements ProcessStep {
     public void run(ResourceManager resourceManager) {
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
         List<CleanInterval> intervals = resourceManager.getIntervals();
+        List<JEVisSample> listConversionToDifferential = calcAttribute.getConversionDifferential();
+        StopWatch stopWatch = new Slf4JStopWatch("differential");
 
-        for (JEVisSample cd : calcAttribute.getConversionDifferential()) {
-
-            DateTime timeStampOfConversion = null;
-            try {
-                timeStampOfConversion = cd.getTimestamp();
-            } catch (JEVisException e) {
-                logger.error("no timestamp", e);
-            }
-            StopWatch stopWatch = new Slf4JStopWatch("differential");
+        if (listConversionToDifferential != null) {
 
             Double lastDiffVal = calcAttribute.getLastDiffValue();
             logger.info("use differential mode with starting value {}", lastDiffVal);
@@ -49,60 +43,80 @@ public class DifferentialStep implements ProcessStep {
             Boolean wasEmtpy = false;
             List<CleanInterval> emptyIntervals = new ArrayList<>();
             for (CleanInterval currentInt : intervals) {
-                if (currentInt.getDate().isAfter(timeStampOfConversion)) {
-                    if (!currentInt.getTmpSamples().isEmpty()) {
-                        for (JEVisSample curSample : currentInt.getTmpSamples()) {
-                            try {
-                                Double rawValue = curSample.getValueAsDouble();
+                for (JEVisSample cd : listConversionToDifferential) {
 
-                                //set the last diff value if its null (mostly if it is a fresh raw data row)
-                                if (lastDiffVal == null || rawValue == null) {
-                                    if (lastDiffVal == null) {
-                                        lastDiffVal = rawValue;
-                                        curSample.setValue(null);
-                                    }
-                                    continue;
-                                }
+                    DateTime timeStampOfConversion = null;
+                    DateTime nextTimeStampOfConversion = null;
+                    Boolean conversionToDifferential = false;
+                    try {
+                        timeStampOfConversion = cd.getTimestamp();
+                        if (cd.getValueAsString().equals("1") || cd.getValueAsBoolean()) //TODO find out whats wrong with the .getValueAsBoolean() function
+                            conversionToDifferential = true;
+                        try {
+                            nextTimeStampOfConversion = (listConversionToDifferential.get(listConversionToDifferential.indexOf(cd) + 1)).getTimestamp();
+                        } catch (Exception e) {
 
-                                Double cleanedVal = rawValue - lastDiffVal;
-                                curSample.setValue(cleanedVal);
-                                String note = curSample.getNote();
-                                note += ",diff";
-                                curSample.setNote(note);
-                                lastDiffVal = rawValue;
-
-                                if (wasEmtpy) {
-                                    curSample.setValue(cleanedVal / emptyIntervals.size());
-                                    note += ",interpolated-break";
-                                    curSample.setNote(note);
-                                    lastDiffVal = rawValue;
-                                    for (CleanInterval ci : emptyIntervals) {
-                                        for (CleanInterval i : intervals) {
-                                            if (i.getDate().equals(ci.getDate()) && i.getTmpSamples().isEmpty()) {
-                                                JEVisSample newSample = new VirtualSample(ci.getDate(), cleanedVal / emptyIntervals.size());
-                                                String n = curSample.getNote();
-                                                n += ",diff,interpolated-break";
-                                                newSample.setNote(n);
-                                                i.addTmpSample(newSample);
-                                            }
-                                        }
-                                    }
-                                    wasEmtpy = false;
-                                }
-
-                            } catch (JEVisException ex) {
-                                logger.error(null, ex);
-                            }
                         }
-                    } else {
-                        if (lastDiffVal != null) {
-                            wasEmtpy = true;
-                            emptyIntervals.add(currentInt);
+                    } catch (JEVisException e) {
+                        logger.error("no timestamp", e);
+                    }
+                    if (conversionToDifferential) {
+                        if (currentInt.getDate().isAfter(timeStampOfConversion) && ((nextTimeStampOfConversion == null) || currentInt.getDate().isBefore(nextTimeStampOfConversion))) {
+                            if (!currentInt.getTmpSamples().isEmpty()) {
+                                for (JEVisSample curSample : currentInt.getTmpSamples()) {
+                                    try {
+                                        Double rawValue = curSample.getValueAsDouble();
+
+                                        //set the last diff value if its null (mostly if it is a fresh raw data row)
+                                        if (lastDiffVal == null || rawValue == null) {
+                                            if (lastDiffVal == null) {
+                                                lastDiffVal = rawValue;
+                                                curSample.setValue(null);
+                                            }
+                                            continue;
+                                        }
+
+                                        Double cleanedVal = rawValue - lastDiffVal;
+                                        curSample.setValue(cleanedVal);
+                                        String note = curSample.getNote();
+                                        note += ",diff";
+                                        curSample.setNote(note);
+                                        lastDiffVal = rawValue;
+
+                                        if (wasEmtpy) {
+                                            curSample.setValue(cleanedVal / emptyIntervals.size());
+                                            note += ",interpolated-break";
+                                            curSample.setNote(note);
+                                            lastDiffVal = rawValue;
+                                            for (CleanInterval ci : emptyIntervals) {
+                                                for (CleanInterval i : intervals) {
+                                                    if (i.getDate().equals(ci.getDate()) && i.getTmpSamples().isEmpty()) {
+                                                        JEVisSample newSample = new VirtualSample(ci.getDate(), cleanedVal / emptyIntervals.size());
+                                                        String n = curSample.getNote();
+                                                        n += ",diff,interpolated-break";
+                                                        newSample.setNote(n);
+                                                        i.addTmpSample(newSample);
+                                                    }
+                                                }
+                                            }
+                                            wasEmtpy = false;
+                                        }
+
+                                    } catch (JEVisException ex) {
+                                        logger.error(null, ex);
+                                    }
+                                }
+                            } else {
+                                if (lastDiffVal != null) {
+                                    wasEmtpy = true;
+                                    emptyIntervals.add(currentInt);
+                                }
+                            }
                         }
                     }
                 }
             }
-            stopWatch.stop();
         }
+        stopWatch.stop();
     }
 }
