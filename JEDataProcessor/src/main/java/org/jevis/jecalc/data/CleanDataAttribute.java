@@ -28,7 +28,7 @@ public interface CleanDataAttribute {
 
     List<JEVisSample> getRawSamples();
 
-    Boolean getConversionDifferential();
+    List<JEVisSample> getConversionDifferential();
 
     Boolean getValueIsQuantity();
 
@@ -38,7 +38,7 @@ public interface CleanDataAttribute {
 
     Double getLastDiffValue();
 
-    Double getMultiplier();
+    List<JEVisSample> getMultiplier();
 
     Double getOffset();
 

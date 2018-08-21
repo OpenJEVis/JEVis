@@ -34,8 +34,8 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private int periodOffset;
     private Period periodAlignment;
     private boolean valueIsQuantity;
-    private boolean isConversionToDifferential;
-    private Double multiplier;
+    private List<JEVisSample> isConversionToDifferential;
+    private List<JEVisSample> multiplier;
     private Double offset;
     private GapStrategy gapStrategy;
 
@@ -91,7 +91,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     }
 
     @Override
-    public Boolean getConversionDifferential() {
+    public List<JEVisSample> getConversionDifferential() {
         return isConversionToDifferential;
     }
 
@@ -117,10 +117,10 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
             valueIsQuantity = valueIsQuantityAsString.equals("true");
 
             String isConversionToDifferentialAsString = prop.getProperty("Conversion_to_Differential");
-            isConversionToDifferential = isConversionToDifferentialAsString.equals("true");
+            //isConversionToDifferential = isConversionToDifferentialAsString.equals("true");
 
             String multiplierString = prop.getProperty("Multiplier");
-            multiplier = Double.parseDouble(multiplierString);
+            //multiplier = Double.parseDouble(multiplierString);
 
             String offsetString = prop.getProperty("Offset");
             offset = Double.parseDouble(offsetString);
@@ -157,7 +157,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     }
 
     @Override
-    public Double getMultiplier() {
+    public List<JEVisSample> getMultiplier() {
         return multiplier;
     }
 
