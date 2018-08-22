@@ -52,7 +52,8 @@ public class ToolBarView {
     private List<JEVisObject> listAnalyses = new ArrayList<>();
     private JEVisObject analysesDir;
     private ObservableList<String> observableListAnalyses = FXCollections.observableArrayList();
-    private ComboBox listAnalysesComboBox;
+    private ComboBox listAnalysesComboBoxHidden;
+
     private List<JsonAnalysisModel> listAnalysisModel;
     private List<JsonChartSettings> listChartsSettings;
     private BorderPane border;
@@ -73,12 +74,12 @@ public class ToolBarView {
         double iconSize = 20;
         Label labelComboBox = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));
 
-        listAnalysesComboBox = new ComboBox();
-        listAnalysesComboBox.setPrefWidth(300);
+        listAnalysesComboBoxHidden = new ComboBox();
+        listAnalysesComboBoxHidden.setPrefWidth(300);
         updateListAnalyses();
         getListAnalysis();
 
-        listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+        listAnalysesComboBoxHidden.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
                 this.nameCurrentAnalysis = newValue.toString();
                 setJEVisObjectForCurrentAnalysis(newValue.toString());
@@ -152,6 +153,7 @@ public class ToolBarView {
                     model.setCharts(dialog.getData().getCharts());
                     model.setSelectedData(dialog.getData().getSelectedData());
                     select(dialog.getLv().getSelectionModel().getSelectedItem());
+
                 }
             });
         });
@@ -173,7 +175,7 @@ public class ToolBarView {
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
 
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV);
+        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, save, delete, sep2, select, exportCSV);
         _initialized = true;
         return toolBar;
     }
@@ -200,41 +202,23 @@ public class ToolBarView {
         }
     }
 
-    public ComboBox getListAnalysesComboBox() {
-        return listAnalysesComboBox;
+    public ComboBox getListAnalysesComboBoxHidden() {
+        return listAnalysesComboBoxHidden;
     }
 
     private void changeSettings(ActionEvent event) {
         Map<String, ChartDataModel> dataModelHashMap = new HashMap<>();
         Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
-//
-//        if (model.getSelectedData() != null) {
-//            for (ChartDataModel mdl : model.getSelectedData()) {
-//                if (mdl.getSelected()) {
-//                    dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
-//                }
-//            }
-//        } else {
-//            model.setSelectedData(getChartDataModels());
-//
-            for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.getSelected()) {
-                    dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
-                }
+
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            if (mdl.getSelected()) {
+                dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
             }
-//        }
-//
-//        if (model.getCharts() != null) {
-//            for (ChartSettings settings : model.getCharts()) {
-//                chartSettingsHashMap.put(settings.getName(), settings);
-//            }
-//        } else {
-//            model.setCharts(getCharts());
-//
-            for (ChartSettings settings : model.getCharts()) {
-                chartSettingsHashMap.put(settings.getName(), settings);
-            }
-//        }
+        }
+
+        for (ChartSettings settings : model.getCharts()) {
+            chartSettingsHashMap.put(settings.getName(), settings);
+        }
 
         ChartSelectionDialog dia = new ChartSelectionDialog(ds, dataModelHashMap, chartSettingsHashMap);
 
@@ -255,7 +239,6 @@ public class ToolBarView {
 
             model.setCharts(chartSettings);
             model.setSelectedData(selectedData);
-            //Platform.runLater(() -> drawChart());
         }
     }
 
@@ -349,7 +332,7 @@ public class ToolBarView {
                             }
                             saveDataModel(model.getSelectedData(), model.getCharts());
                             updateListAnalyses();
-                            listAnalysesComboBox.getSelectionModel().select(nameCurrentAnalysis);
+                            listAnalysesComboBoxHidden.getSelectionModel().select(nameCurrentAnalysis);
                         } else {
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
                             dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
@@ -363,7 +346,7 @@ public class ToolBarView {
                                 if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
                                     saveDataModel(model.getSelectedData(), model.getCharts());
                                     updateListAnalyses();
-                                    listAnalysesComboBox.getSelectionModel().select(nameCurrentAnalysis);
+                                    listAnalysesComboBoxHidden.getSelectionModel().select(nameCurrentAnalysis);
                                 } else {
 
                                 }
@@ -393,7 +376,7 @@ public class ToolBarView {
 
                 updateListAnalyses();
                 getListAnalysis();
-                listAnalysesComboBox.getSelectionModel().selectFirst();
+                listAnalysesComboBoxHidden.getSelectionModel().selectFirst();
             }
         });
 
@@ -515,7 +498,8 @@ public class ToolBarView {
         for (JEVisObject obj : listAnalyses) {
             observableListAnalyses.add(obj.getName());
         }
-        listAnalysesComboBox.setItems(observableListAnalyses);
+        Collections.sort(observableListAnalyses, new AlphanumComparator());
+        listAnalysesComboBoxHidden.setItems(observableListAnalyses);
     }
 
     public void getListAnalysis() {
@@ -567,8 +551,17 @@ public class ToolBarView {
     }
 
     public void updateChart() {
+        DateTime currentStart = selectedStart;
+        DateTime currentEnd = selectedEnd;
         Set<ChartDataModel> selectedData = getChartDataModels();
         Set<ChartSettings> charts = getCharts();
+
+        for (ChartDataModel mdl : selectedData) {
+            if (mdl.getSelected()) {
+                mdl.setSelectedStart(currentStart);
+                mdl.setSelectedEnd(currentEnd);
+            }
+        }
 
         model.setCharts(charts);
         model.setSelectedData(selectedData);
@@ -682,11 +675,11 @@ public class ToolBarView {
             updateListAnalyses();
             getListAnalysis();
         }
-        listAnalysesComboBox.getSelectionModel().selectFirst();
+        listAnalysesComboBoxHidden.getSelectionModel().selectFirst();
     }
 
     public void select(String s) {
-        listAnalysesComboBox.getSelectionModel().select(s);
+        listAnalysesComboBoxHidden.getSelectionModel().select(s);
     }
 
     public void setModel(GraphDataModel model) {

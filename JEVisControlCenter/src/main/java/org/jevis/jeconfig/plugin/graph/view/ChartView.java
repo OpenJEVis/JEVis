@@ -69,7 +69,6 @@ public class ChartView implements Observer {
     private ScatterChart<Number, Number> scatterChart;
     private PieChart pieChart;
 
-    private VBox vbox;
     private Region areaChartRegion;
     private final TableView table;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -374,10 +373,6 @@ public class ChartView implements Observer {
         return areaChartRegion;
     }
 
-    public VBox getVbox() {
-        return vbox;
-    }
-
     public TableView getLegend() {
         return table;
     }
@@ -602,37 +597,79 @@ public class ChartView implements Observer {
                 areaChart = new AreaChart<>(dateAxis, numberAxis, series);
                 areaChart.applyCss();
                 setTableStandard();
+
+                lineChart = null;
+                barChart = null;
+                bubbleChart = null;
+                scatterChart = null;
+                pieChart = null;
                 break;
             case ("LINE"):
                 lineChart = new LineChart<>(dateAxis, numberAxis, series);
                 lineChart.applyCss();
                 setTableStandard();
+
+                areaChart = null;
+                barChart = null;
+                bubbleChart = null;
+                scatterChart = null;
+                pieChart = null;
                 break;
             case ("BAR"):
                 CategoryAxis catAxis = new CategoryAxis();
                 barChart = new BarChart<>(catAxis, numberAxis, series);
                 barChart.applyCss();
                 setTableStandard();
+
+                lineChart = null;
+                areaChart = null;
+                bubbleChart = null;
+                scatterChart = null;
+                pieChart = null;
                 break;
             case ("BUBBLE"):
                 bubbleChart = new BubbleChart<>(dateAxis, numberAxis, series);
                 bubbleChart.applyCss();
                 setTableStandard();
+
+                lineChart = null;
+                barChart = null;
+                areaChart = null;
+                scatterChart = null;
+                pieChart = null;
                 break;
             case ("SCATTER"):
                 scatterChart = new ScatterChart<>(dateAxis, numberAxis, series);
                 scatterChart.applyCss();
                 setTableStandard();
+
+                lineChart = null;
+                barChart = null;
+                bubbleChart = null;
+                areaChart = null;
+                pieChart = null;
                 break;
             case ("PIE"):
                 pieChart = new PieChart(series);
                 pieChart.applyCss();
                 disableTable();
+
+                lineChart = null;
+                barChart = null;
+                bubbleChart = null;
+                scatterChart = null;
+                areaChart = null;
                 break;
             default:
                 areaChart = new AreaChart<>(dateAxis, numberAxis, series);
                 areaChart.applyCss();
                 setTableStandard();
+
+                lineChart = null;
+                barChart = null;
+                bubbleChart = null;
+                scatterChart = null;
+                pieChart = null;
                 break;
         }
 
@@ -1012,7 +1049,6 @@ public class ChartView implements Observer {
                             getTable().layout();
 
                         } catch (Exception ex) {
-//                        Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }

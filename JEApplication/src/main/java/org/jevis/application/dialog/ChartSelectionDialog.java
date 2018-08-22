@@ -86,8 +86,8 @@ public class ChartSelectionDialog {
         stage.initStyle(StageStyle.UTILITY);
         stage.initOwner(owner);
 
-        //1150 for the columns
-        stage.setWidth(1190);
+        //1180 for the columns
+        stage.setWidth(1220);
         stage.setHeight(768);
         stage.setResizable(true);
 
@@ -118,8 +118,10 @@ public class ChartSelectionDialog {
 
         ok.setDefaultButton(true);
 
+        HBox.setHgrow(removeAllSelections, Priority.NEVER);
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setMargin(removeAllSelections, new Insets(10));
         HBox.setMargin(ok, new Insets(10));
         buttonBox.getChildren().setAll(spacer, removeAllSelections, ok);
         root.getChildren().setAll(headerNode, treePane, sep, buttonBox);
