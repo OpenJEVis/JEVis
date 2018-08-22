@@ -16,6 +16,7 @@ import jfxtras.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.json.JsonAnalysisModel;
@@ -27,10 +28,7 @@ import org.joda.time.DateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private String nameCurrentAnalysis;
@@ -365,12 +363,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     public void updateToolBarView() {
-
-
-        toolBarView.setCurrentAnalysis(this.currentAnalysis);
-        toolBarView.setListAnalyses(this.listAnalyses);
-        toolBarView.setListAnalysisModel(this.listAnalysisModel);
-        toolBarView.setNameCurrentAnalysis(this.nameCurrentAnalysis);
         toolBarView.setSelectedStart(this.selectedStart);
         toolBarView.setSelectedEnd(this.selectedEnd);
     }
@@ -412,6 +404,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         for (JEVisObject obj : listAnalyses) {
             observableListAnalyses.add(obj.getName());
         }
+        Collections.sort(observableListAnalyses, new AlphanumComparator());
         lv.setItems(observableListAnalyses);
     }
 

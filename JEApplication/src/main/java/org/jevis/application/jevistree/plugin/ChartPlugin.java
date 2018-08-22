@@ -366,19 +366,21 @@ public class ChartPlugin implements TreePlugin {
 
                                 tb.setOnAction(event -> {
                                     if (type == DATE_TYPE.START) {
+                                        LocalDate ld = dp.valueProperty().get();
+                                        DateTime newDateTimeStart = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
                                         for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
                                             ChartDataModel cdm = mdl.getValue();
                                             if (cdm.getSelected()) {
-                                                LocalDate ld = dp.valueProperty().get();
-                                                cdm.setSelectedStart(new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0));
+                                                cdm.setSelectedStart(newDateTimeStart);
                                             }
                                         }
                                     } else if (type == DATE_TYPE.END) {
+                                        LocalDate ld = dp.valueProperty().get();
+                                        DateTime newDateTimeEnd = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
                                         for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
                                             ChartDataModel cdm = mdl.getValue();
                                             if (cdm.getSelected()) {
-                                                LocalDate ld = dp.valueProperty().get();
-                                                cdm.setSelectedEnd(new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999));
+                                                cdm.setSelectedEnd(newDateTimeEnd);
                                             }
                                         }
                                     }
@@ -687,7 +689,7 @@ public class ChartPlugin implements TreePlugin {
 
     private TreeTableColumn<JEVisTreeRow, JEVisUnit> buildUnitColumn(JEVisTree tree, String columnName) {
         TreeTableColumn<JEVisTreeRow, JEVisUnit> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(60);
+        column.setPrefWidth(90);
         column.setEditable(true);
 
         column.setCellValueFactory(param -> {
@@ -708,21 +710,42 @@ public class ChartPlugin implements TreePlugin {
                         super.updateItem(item, empty);
                         if (!empty) {
 
-                            StackPane hbox = new StackPane();
+                            StackPane stackPane = new StackPane();
 
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox box = buildUnitBox(data);
 
-                                hbox.getChildren().setAll(box);
+                                ImageView imageMarkAll = new ImageView(imgMarkAll);
+                                imageMarkAll.fitHeightProperty().set(12);
+                                imageMarkAll.fitWidthProperty().set(12);
 
-                                StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
+                                Button tb = new Button("", imageMarkAll);
+
+                                tb.setTooltip(tpMarkAll);
+
+                                tb.setOnAction(event -> {
+                                    JEVisUnit u = parseUnit(box.getSelectionModel().getSelectedItem().toString());
+                                    for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
+                                        ChartDataModel cdm = mdl.getValue();
+                                        if (cdm.getSelected()) {
+                                            cdm.setUnit(u);
+                                        }
+                                    }
+
+                                    tree.refresh();
+                                });
+
+                                HBox hbox = new HBox();
+                                hbox.getChildren().addAll(box, tb);
+                                stackPane.getChildren().add(hbox);
+                                StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
                                 box.setDisable(!data.isSelectable());
                             }
 
                             setText(null);
-                            setGraphic(hbox);
+                            setGraphic(stackPane);
                         } else {
                             setText(null);
                             setGraphic(null);
@@ -781,6 +804,23 @@ public class ChartPlugin implements TreePlugin {
         }
         if (isMassUnit) for (MassUnit mu : MassUnit.values()) proNames.add(mu.toString());
 
+        ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
+
+        processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+            if (oldValue == null || newValue != oldValue) {
+                singleRow.setUnit(parseUnit(String.valueOf(newValue)));
+            }
+        });
+
+        if (selectedUnit != null)
+            processorBox.getSelectionModel().select(UnitManager.getInstance().formate(selectedUnit));
+        else processorBox.getSelectionModel().select(UnitManager.getInstance().formate(currentUnit));
+
+        return processorBox;
+    }
+
+    private JEVisUnit parseUnit(String unit) {
+        JEVisUnit result = null;
         Unit _kg = SI.KILOGRAM;
         Unit _t = NonSI.METRIC_TON;
 
@@ -811,59 +851,47 @@ public class ChartPlugin implements TreePlugin {
         final JEVisUnit MWh = new JEVisUnitImp(_MWh);
         final JEVisUnit GWh = new JEVisUnitImp(_GWh);
 
-        ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
-
-        processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-            if (oldValue == null || newValue != oldValue) {
-                final String finalNewValue = String.valueOf(newValue);
-                switch (finalNewValue) {
-                    case "kg":
-                        singleRow.setUnit(kg);
-                        break;
-                    case "t":
-                        singleRow.setUnit(t);
-                        break;
-                    case "W":
-                        singleRow.setUnit(W);
-                        break;
-                    case "kW":
-                        singleRow.setUnit(kW);
-                        break;
-                    case "MW":
-                        singleRow.setUnit(MW);
-                        break;
-                    case "GW":
-                        singleRow.setUnit(GW);
-                        break;
-                    case "Wh":
-                        singleRow.setUnit(Wh);
-                        break;
-                    case "kWh":
-                        singleRow.setUnit(kWh);
-                        break;
-                    case "MWh":
-                        singleRow.setUnit(MWh);
-                        break;
-                    case "GWh":
-                        singleRow.setUnit(GWh);
-                        break;
-                    case "m³":
-                        singleRow.setUnit(m3);
-                        break;
-                    case "l":
-                        singleRow.setUnit(l);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        if (selectedUnit != null)
-            processorBox.getSelectionModel().select(UnitManager.getInstance().formate(selectedUnit));
-        else processorBox.getSelectionModel().select(UnitManager.getInstance().formate(currentUnit));
-
-        return processorBox;
+        switch (unit) {
+            case "kg":
+                result = kg;
+                break;
+            case "t":
+                result = t;
+                break;
+            case "W":
+                result = W;
+                break;
+            case "kW":
+                result = kW;
+                break;
+            case "MW":
+                result = MW;
+                break;
+            case "GW":
+                result = GW;
+                break;
+            case "Wh":
+                result = Wh;
+                break;
+            case "kWh":
+                result = kWh;
+                break;
+            case "MWh":
+                result = MWh;
+                break;
+            case "GWh":
+                result = GWh;
+                break;
+            case "m³":
+                result = m3;
+                break;
+            case "l":
+                result = l;
+                break;
+            default:
+                break;
+        }
+        return result;
     }
 
     private enum EnergyUnit {
@@ -899,7 +927,6 @@ public class ChartPlugin implements TreePlugin {
     public void set_data(Map<String, ChartDataModel> _data) {
         this._data = _data;
         _tree.getColumns().clear();
-        charts.clear();
         _tree.getColumns().addAll(ColumnFactory.buildName());
         for (TreeTableColumn<JEVisTreeRow, Long> column : getColumns()) _tree.getColumns().add(column);
     }

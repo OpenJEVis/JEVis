@@ -27,11 +27,12 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ScrollBar;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -119,7 +120,7 @@ public class GraphPluginView implements Plugin, Observer {
                             }
 
                             toolBarView.select(dialog.getLv().getSelectionModel().getSelectedItem());
-                            if (toolBarView.getListAnalysesComboBox().getSelectionModel().getSelectedIndex() == dialog.getLv().getSelectionModel().getSelectedIndex()) {
+                            if (toolBarView.getListAnalysesComboBoxHidden().getSelectionModel().getSelectedIndex() == dialog.getLv().getSelectionModel().getSelectedIndex()) {
                                 Platform.runLater(() -> toolBarView.updateChart());
                             }
                         }
@@ -254,6 +255,7 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+
         if (dataModel.getSelectedData() != null) getChartsList();
         if (chartsList.size() == 1 || chartsList.isEmpty()) {
             if (chartsList.size() == 1) {
@@ -268,7 +270,6 @@ public class GraphPluginView implements Plugin, Observer {
             }
             border.setTop(chartView.getLegend());
             border.setCenter(chartView.getAreaChartRegion());
-            border.setBottom(chartView.getVbox());
         } else {
             if (border == null) {
                 border = new BorderPane();
@@ -277,17 +278,27 @@ public class GraphPluginView implements Plugin, Observer {
 
             vBox.getChildren().clear();
 
-            ScrollBar sb = new ScrollBar();
-            sb.setMin(0);
-            sb.orientationProperty().setValue(Orientation.VERTICAL);
-            sb.valueProperty().addListener((ov, old_val, new_val) -> vBox.setLayoutY(-new_val.doubleValue()));
+            ScrollPane sp = new ScrollPane();
+            sp.setFitToWidth(true);
+
+            sp.setContent(vBox);
 
             for (ChartView cv : listChartViews) {
                 BorderPane bp = new BorderPane();
+                //bp.setPrefHeight(300); TODO save chart size into chart settings
                 bp.setTop(cv.getLegend());
                 bp.setCenter(cv.getAreaChartRegion());
-                bp.setBottom(cv.getVbox());
+                bp.setBottom(null);
+                bp.setBorder(new Border(new BorderStroke(Color.DARKGRAY,
+                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(4, 4, 4, 4))));
+                DragResizerXY.makeResizable(bp);
+
                 vBox.getChildren().add(bp);
+
+                Separator sep = new Separator();
+                sep.setOrientation(Orientation.HORIZONTAL);
+                vBox.getChildren().add(sep);
+
                 List<ChartView> notActive = FXCollections.observableArrayList(listChartViews);
                 notActive.remove(cv);
                 ChartSettings.ChartType chartType = cv.getChartType();
@@ -344,17 +355,14 @@ public class GraphPluginView implements Plugin, Observer {
                         break;
                 }
             }
-            vBox.getChildren().add(sb);
             border.setTop(null);
+            border.setCenter(sp);
             border.setBottom(null);
-            border.setCenter(vBox);
-            border.setRight(sb);
+            //border.setRight(sb);
 //            border.setCenter(new Button("click me"));
 
 //            border.setCenter(lineChart);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-
-
         }
 
     }
