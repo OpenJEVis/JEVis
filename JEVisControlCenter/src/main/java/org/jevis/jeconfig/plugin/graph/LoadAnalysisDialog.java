@@ -286,7 +286,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 updateTimeFramePicker();
                 updateTimeFrame();
 
-                initialTimeFrame = true;
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
