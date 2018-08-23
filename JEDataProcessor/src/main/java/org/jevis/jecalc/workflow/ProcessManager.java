@@ -43,6 +43,8 @@ public class ProcessManager {
                 e.printStackTrace();
             }
         }
+        logger.info("---------------------------------------------");
+        logger.info("Finished: {}", resourceManager.getCalcAttribute().getName());
     }
 
     private void addFunctionalSteps(List<ProcessStep> processSteps, JEVisObject cleanObject) {

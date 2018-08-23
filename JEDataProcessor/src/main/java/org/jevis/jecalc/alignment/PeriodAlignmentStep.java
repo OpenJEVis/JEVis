@@ -92,7 +92,7 @@ public class PeriodAlignmentStep implements ProcessStep {
 
                 if (currentInterval.getDate().isAfter(timeStampOfConversion) && ((nextTimeStampOfConversion == null) || currentInterval.getDate().isBefore(nextTimeStampOfConversion))) {
 
-                    logger.info("align {},last {}, sum {}, avg {}", calcAttribute.getIsPeriodAligned(), last, sum, avg);
+                    //logger.info("align {},last {}, sum {}, avg {}", calcAttribute.getIsPeriodAligned(), last, sum, avg);
                     List<JEVisSample> currentRawSamples = currentInterval.getRawSamples();
                     if (currentRawSamples.isEmpty()) {
                         continue;
