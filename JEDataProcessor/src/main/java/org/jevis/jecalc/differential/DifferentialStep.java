@@ -91,7 +91,7 @@ public class DifferentialStep implements ProcessStep {
                                             for (CleanInterval ci : emptyIntervals) {
                                                 for (CleanInterval i : intervals) {
                                                     if (i.getDate().equals(ci.getDate()) && i.getTmpSamples().isEmpty()) {
-                                                        JEVisSample newSample = new VirtualSample(ci.getDate(), cleanedVal / emptyIntervals.size());
+                                                        JEVisSample newSample = new VirtualSample(ci.getDate(), cleanedVal / (emptyIntervals.size() + 1));
                                                         String n = curSample.getNote();
                                                         n += ",diff,interpolated-break";
                                                         newSample.setNote(n);
