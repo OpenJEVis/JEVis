@@ -19,7 +19,6 @@ import org.jevis.jecalc.gap.Gap.GapMode;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.PeriodFormat;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
@@ -73,7 +72,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         sampleHandler = new SampleHandler();
         //get the period from the value attribute slider
         period = sampleHandler.getInputSampleRate(calcObject, VALUE_ATTRIBUTE_NAME);
-        logger.info("Period is {}", PeriodFormat.getDefault().print(period));
+        //logger.info("Period is {}", PeriodFormat.getDefault().print(period));
         isPeriodAligned = sampleHandler.getLastSample(calcObject, PERIOD_ALIGNMENT.getAttributeName(), false);
         enabled = sampleHandler.getLastSample(calcObject, ENABLED.getAttributeName(), false);
         conversionDifferential = sampleHandler.getAllSamples(calcObject, CONVERSION_DIFFERENTIAL.getAttributeName()); //false;

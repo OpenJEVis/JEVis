@@ -73,21 +73,22 @@ public class PrepareStep implements ProcessStep {
         DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
         DateTime maxEndDate = calcAttribute.getMaxEndDate();
         if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
-            throw new IllegalStateException("Cant calculate the intervals with startdate " + datePattern.print(currentDate) + " and enddate " + datePattern.print(maxEndDate));
-        }
-        logger.info("Calc interval between startdate {} and enddate {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
-        while (currentDate.isBefore(maxEndDate)) {
-            DateTime startInterval = currentDate.minus(halfDuration);
-            DateTime endInterval = currentDate.plus(halfDuration);
-            Interval interval = new Interval(startInterval, endInterval);
+            logger.error("Cant calculate the intervals with startdate " + datePattern.print(currentDate) + " and enddate " + datePattern.print(maxEndDate));
+        } else {
+            logger.info("Calc interval between startdate {} and enddate {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
+            while (currentDate.isBefore(maxEndDate)) {
+                DateTime startInterval = currentDate.minus(halfDuration);
+                DateTime endInterval = currentDate.plus(halfDuration);
+                Interval interval = new Interval(startInterval, endInterval);
 
-            CleanInterval currentInterval = new CleanInterval(interval, currentDate);
-            cleanIntervals.add(currentInterval);
+                CleanInterval currentInterval = new CleanInterval(interval, currentDate);
+                cleanIntervals.add(currentInterval);
 
-            //calculate the next date
-            currentDate = currentDate.plus(periodAlignment);
+                //calculate the next date
+                currentDate = currentDate.plus(periodAlignment);
+            }
+            logger.info("{} intervals calculated", cleanIntervals.size());
         }
-        logger.info("{} intervals calculated", cleanIntervals.size());
         return cleanIntervals;
     }
 
