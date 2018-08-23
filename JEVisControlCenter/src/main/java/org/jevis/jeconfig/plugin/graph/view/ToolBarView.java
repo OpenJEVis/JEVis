@@ -28,7 +28,6 @@ import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.graph.DateHelper;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.plugin.graph.ToolBarController;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
@@ -143,12 +142,12 @@ public class ToolBarView {
                     }
                 } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
-                    if (dialog.getInitialTimeFrame()) {
-                        DateHelper dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
-                        dialog.setSelectedStart(dh.getDateTimeStartDate());
-                        dialog.setSelectedEnd(dh.getDateTimeEndDate());
-                        dialog.updateTimeFrame();
-                    }
+//                    if (dialog.getInitialTimeFrame()) {
+//                        DateHelper dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
+//                        dialog.setSelectedStart(dh.getDateTimeStartDate());
+//                        dialog.setSelectedEnd(dh.getDateTimeEndDate());
+//                        dialog.updateTimeFrame();
+//                    }
 
                     model.setCharts(dialog.getData().getCharts());
                     model.setSelectedData(dialog.getData().getSelectedData());
