@@ -36,13 +36,17 @@ public class ProcessManager {
     public void start() {
         logger.info("---------------------------------------------");
         logger.info("Current Clean Data Object: {}", resourceManager.getCalcAttribute().getName());
-        processSteps.stream().forEach((currentStep) -> {
+        for (ProcessStep ps : processSteps) {
             try {
-                currentStep.run(resourceManager);
+                ps.run(resourceManager);
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error in process step: " + ps.getClass().getName() + " for object: "
+                        + resourceManager.getCalcAttribute().getName() + ":"
+                        + resourceManager.getCalcAttribute().getObject().getID());
             }
-        });
+        }
+        logger.info("---------------------------------------------");
+        logger.info("Finished: {}", resourceManager.getCalcAttribute().getName());
     }
 
     private void addFunctionalSteps(List<ProcessStep> processSteps, JEVisObject cleanObject) {

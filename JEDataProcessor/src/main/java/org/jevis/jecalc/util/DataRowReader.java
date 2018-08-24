@@ -7,23 +7,22 @@ package org.jevis.jecalc.util;
 
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
-import org.jevis.jecalc.data.CleanDataAttributeOffline;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author broder
  */
 public class DataRowReader {
+    private static final Logger logger = LoggerFactory.getLogger(DataRowReader.class);
 
     public List<JEVisSample> getSamplesFromFile(String pathToInputFile) {
         List<JEVisSample> jevisSamples = new ArrayList<>();
@@ -42,10 +41,8 @@ public class DataRowReader {
                 jevisSamples.add(sample);
                 line = br.readLine();
             }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(CleanDataAttributeOffline.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(CleanDataAttributeOffline.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         return jevisSamples;
     }

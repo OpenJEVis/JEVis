@@ -19,12 +19,9 @@ import org.jevis.jecalc.gap.Gap.GapMode;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.PeriodFormat;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.*;
 
@@ -73,7 +70,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         sampleHandler = new SampleHandler();
         //get the period from the value attribute slider
         period = sampleHandler.getInputSampleRate(calcObject, VALUE_ATTRIBUTE_NAME);
-        logger.info("Period is {}", PeriodFormat.getDefault().print(period));
+        //logger.info("Period is {}", PeriodFormat.getDefault().print(period));
         isPeriodAligned = sampleHandler.getLastSample(calcObject, PERIOD_ALIGNMENT.getAttributeName(), false);
         enabled = sampleHandler.getLastSample(calcObject, ENABLED.getAttributeName(), false);
         conversionDifferential = sampleHandler.getAllSamples(calcObject, CONVERSION_DIFFERENTIAL.getAttributeName()); //false;
@@ -188,20 +185,27 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
             JEVisAttribute attribute = object.getAttribute(VALUE_ATTRIBUTE_NAME);
             if (attribute.hasSample()) {
                 DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
-                DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
-                DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
-                List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
-                Double firstRawValue = getRawSamples().get(0).getValueAsDouble();
-                for (int i = samples.size() - 1; i >= 0; i--) {
-                    Double valueAsDouble = samples.get(i).getValueAsDouble();
-                    if (valueAsDouble < firstRawValue) {
-                        lastValue = valueAsDouble;
-                        break;
-                    }
+                //DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
+                //DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
+                //List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
+                List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(timestampFromLastSample, timestampFromLastSample);
+
+                if (!samples.isEmpty()) {
+                    lastValue = samples.get(0).getValueAsDouble();
+                    //TODO this is working for period aligned stuff, other needs testing, old version was producing unexpected spikes in the values
                 }
+
+//                Double firstRawValue = samples.get(0).getValueAsDouble();
+//                for (int i = samples.size() - 1; i >= 0; i--) {
+//                    Double valueAsDouble = samples.get(i).getValueAsDouble();
+//                    if (valueAsDouble > firstRawValue) {
+//                        lastValue = valueAsDouble;
+//                        break;
+//                    }
+//                }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CleanDataAttributeJEVis.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         return lastValue;
     }
@@ -225,7 +229,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
                 lastValue = latestSample.getValueAsDouble();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CleanDataAttributeJEVis.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         return lastValue;
     }
