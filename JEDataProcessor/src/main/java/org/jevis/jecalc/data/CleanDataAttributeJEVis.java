@@ -22,8 +22,6 @@ import org.joda.time.Period;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.*;
 
@@ -200,7 +198,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CleanDataAttributeJEVis.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         return lastValue;
     }
@@ -224,7 +222,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
                 lastValue = latestSample.getValueAsDouble();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CleanDataAttributeJEVis.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         return lastValue;
     }
