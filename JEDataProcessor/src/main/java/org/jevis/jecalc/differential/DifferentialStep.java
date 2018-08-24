@@ -7,7 +7,6 @@ package org.jevis.jecalc.differential;
 
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.jecalc.data.CleanDataAttribute;
 import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
@@ -84,21 +83,22 @@ public class DifferentialStep implements ProcessStep {
                                         lastDiffVal = rawValue;
 
                                         if (wasEmtpy) {
-                                            curSample.setValue(cleanedVal / emptyIntervals.size());
-                                            note += ",interpolated-break";
-                                            curSample.setNote(note);
-                                            lastDiffVal = rawValue;
-                                            for (CleanInterval ci : emptyIntervals) {
-                                                for (CleanInterval i : intervals) {
-                                                    if (i.getDate().equals(ci.getDate()) && i.getTmpSamples().isEmpty()) {
-                                                        JEVisSample newSample = new VirtualSample(ci.getDate(), cleanedVal / emptyIntervals.size());
-                                                        String n = curSample.getNote();
-                                                        n += ",diff,interpolated-break";
-                                                        newSample.setNote(n);
-                                                        i.addTmpSample(newSample);
-                                                    }
-                                                }
-                                            }
+                                            emptyIntervals.add(currentInt);
+//                                            curSample.setValue(cleanedVal / (emptyIntervals.size() + 1));
+//                                            note += ",break-in-raw-data";
+//                                            curSample.setNote(note);
+//                                            lastDiffVal = rawValue;
+//                                            for (CleanInterval ci : emptyIntervals) {
+//                                                for (CleanInterval i : intervals) {
+//                                                    if (i.getDate().equals(ci.getDate()) && i.getTmpSamples().isEmpty()) {
+//                                                        JEVisSample newSample = new VirtualSample(ci.getDate(), cleanedVal / (emptyIntervals.size() + 1));
+//                                                        String n = curSample.getNote();
+//                                                        n += ",diff,break-in-raw-data";
+//                                                        newSample.setNote(n);
+//                                                        i.addTmpSample(newSample);
+//                                                    }
+//                                                }
+//                                            }
                                             wasEmtpy = false;
                                         }
 
@@ -116,6 +116,8 @@ public class DifferentialStep implements ProcessStep {
                     }
                 }
             }
+
+            intervals.removeAll(emptyIntervals);
         }
         stopWatch.stop();
     }

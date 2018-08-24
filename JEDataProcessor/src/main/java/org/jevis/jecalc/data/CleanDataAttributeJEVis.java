@@ -185,17 +185,24 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
             JEVisAttribute attribute = object.getAttribute(VALUE_ATTRIBUTE_NAME);
             if (attribute.hasSample()) {
                 DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
-                DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
-                DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
-                List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
-                Double firstRawValue = getRawSamples().get(0).getValueAsDouble();
-                for (int i = samples.size() - 1; i >= 0; i--) {
-                    Double valueAsDouble = samples.get(i).getValueAsDouble();
-                    if (valueAsDouble < firstRawValue) {
-                        lastValue = valueAsDouble;
-                        break;
-                    }
+                //DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
+                //DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
+                //List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
+                List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(timestampFromLastSample, timestampFromLastSample);
+
+                if (!samples.isEmpty()) {
+                    lastValue = samples.get(0).getValueAsDouble();
+                    //TODO this is working for period aligned stuff, other needs testing, old version was producing unexpected spikes in the values
                 }
+
+//                Double firstRawValue = samples.get(0).getValueAsDouble();
+//                for (int i = samples.size() - 1; i >= 0; i--) {
+//                    Double valueAsDouble = samples.get(i).getValueAsDouble();
+//                    if (valueAsDouble > firstRawValue) {
+//                        lastValue = valueAsDouble;
+//                        break;
+//                    }
+//                }
             }
         } catch (JEVisException ex) {
             logger.error(null, ex);
