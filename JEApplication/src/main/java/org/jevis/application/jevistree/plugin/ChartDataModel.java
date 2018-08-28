@@ -417,6 +417,8 @@ public class ChartDataModel {
     }
 
     public void setSelected(boolean selected) {
+
+        _somethingChanged = true;
         _selected = selected;
     }
 
@@ -510,6 +512,8 @@ public class ChartDataModel {
     }
 
     public void set_selectedCharts(List<String> _selectedCharts) {
+
+        _somethingChanged = true;
         this._selectedCharts = _selectedCharts;
     }
 

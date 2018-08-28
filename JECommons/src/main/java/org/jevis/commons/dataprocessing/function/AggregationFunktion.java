@@ -79,7 +79,7 @@ public class AggregationFunktion implements ProcessFunction {
                             break;
                         }
                     } catch (JEVisException ex) {
-                        System.out.println("JEVisExeption while going trou sample: " + ex.getMessage());
+                        System.out.println("JEVisException while going through sample: " + ex.getMessage());
                     }
                 }
                 boolean hasSamples = false;
