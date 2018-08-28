@@ -358,12 +358,14 @@ public class ChartDataModel {
                             factor = 1000d;
                             break;
                     }
+                    break;
                 case "t":
                     switch (inputUnit) {
                         case "kg":
                             factor = 1 / 1000d;
                             break;
                     }
+                    break;
                 default:
                     break;
             }
@@ -394,11 +396,11 @@ public class ChartDataModel {
     }
 
     public JEVisObject getDataProcessor() {
-        _somethingChanged = true;
         return _dataProcessorObject;
     }
 
     public void setDataProcessor(JEVisObject _dataProcessor) {
+        _somethingChanged = true;
         this._dataProcessorObject = _dataProcessor;
     }
 
@@ -479,9 +481,12 @@ public class ChartDataModel {
 
         if (_attribute == null) {
             try {
+                JEVisAttribute attribute = null;
                 if (getObject().getJEVisClassName().equals("Data") || getObject().getJEVisClassName().equals("Clean Data")) {
-                    JEVisAttribute values = getObject().getAttribute("Value");
-                    _attribute = values;
+                    if (_dataProcessorObject == null) attribute = getObject().getAttribute("Value");
+                    else attribute = getDataProcessor().getAttribute("Value");
+
+                    _attribute = attribute;
                 }
             } catch (Exception ex) {
                 Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
