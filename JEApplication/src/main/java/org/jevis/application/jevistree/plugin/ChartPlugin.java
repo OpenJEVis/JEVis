@@ -716,6 +716,22 @@ public class ChartPlugin implements TreePlugin {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox box = buildUnitBox(data);
 
+                                if (data.getUnit() != null && !data.getUnit().equals("")) {
+                                    box.getSelectionModel().select(UnitManager.getInstance().formate(data.getUnit()));
+                                } else {
+                                    try {
+                                        box.getSelectionModel().select(UnitManager.getInstance().formate(data.getAttribute().getDisplayUnit()));
+                                    } catch (JEVisException e) {
+                                        box.getSelectionModel().select(0);
+                                    }
+                                }
+
+                                box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+                                    if (oldValue == null || newValue != oldValue) {
+                                        commitEdit(parseUnit(String.valueOf(newValue)));
+                                    }
+                                });
+
                                 ImageView imageMarkAll = new ImageView(imgMarkAll);
                                 imageMarkAll.fitHeightProperty().set(12);
                                 imageMarkAll.fitWidthProperty().set(12);
@@ -805,16 +821,6 @@ public class ChartPlugin implements TreePlugin {
         if (isMassUnit) for (MassUnit mu : MassUnit.values()) proNames.add(mu.toString());
 
         ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
-
-        processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-            if (oldValue == null || newValue != oldValue) {
-                singleRow.setUnit(parseUnit(String.valueOf(newValue)));
-            }
-        });
-
-        if (selectedUnit != null)
-            processorBox.getSelectionModel().select(UnitManager.getInstance().formate(selectedUnit));
-        else processorBox.getSelectionModel().select(UnitManager.getInstance().formate(currentUnit));
 
         return processorBox;
     }

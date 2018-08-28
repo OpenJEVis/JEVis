@@ -22,6 +22,8 @@
         <module name="JEWebservice" />
         <module name="Notifier (1) (org.jevis.jenotifier.notifier)" />
         <module name="Notifier-EP" />
+        <module name="SandBox" />
+        <module name="SandBox2" />
         <module name="sFTPDataSource" />
         <module name="SOAPDataSource" />
         <module name="XMLParser" />
