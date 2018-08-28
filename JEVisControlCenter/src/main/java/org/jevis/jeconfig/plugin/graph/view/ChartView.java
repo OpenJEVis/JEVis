@@ -33,7 +33,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.dialog.NoteDialog;
-import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartSettings;
 import org.jevis.application.jevistree.plugin.TableEntry;
@@ -125,22 +124,6 @@ public class ChartView implements Observer {
         table.setItems(tableData);
 
         table.getColumns().addAll(name, colorCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
-    }
-
-    public ObservableList<String> getChartsList() {
-        List<String> tempList = new ArrayList<>();
-        for (ChartDataModel mdl : dataModel.getSelectedData()) {
-            if (mdl.getSelected()) {
-                for (String s : mdl.get_selectedCharts()) {
-                    if (!tempList.contains(s)) tempList.add(s);
-                }
-            }
-        }
-        AlphanumComparator ac = new AlphanumComparator();
-        tempList.sort(ac);
-
-        chartsList = FXCollections.observableArrayList(tempList);
-        return chartsList;
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn(String columnName) {
@@ -1031,7 +1014,7 @@ public class ChartView implements Observer {
                                 }
                             }
 
-                            NumberFormat nf = NumberFormat.getInstance(Locale.GERMANY);
+                            NumberFormat nf = NumberFormat.getInstance();
                             nf.setMinimumFractionDigits(2);
                             nf.setMaximumFractionDigits(2);
                             Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
