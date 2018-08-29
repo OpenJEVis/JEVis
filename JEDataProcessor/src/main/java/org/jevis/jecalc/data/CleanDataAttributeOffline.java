@@ -44,7 +44,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private Boolean limitsEnabled;
-    private Double counterOverflow;
+    private List<JEVisSample> counterOverflow;
 
     private JEVisObject object;
     private static final Logger logger = LoggerFactory.getLogger(CleanDataAttributeOffline.class);
@@ -217,7 +217,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     }
 
     @Override
-    public Double getCounterOverflow() {
+    public List<JEVisSample> getCounterOverflow() {
         return counterOverflow;
     }
 }
