@@ -212,6 +212,7 @@ public class ChartPlugin implements TreePlugin {
         addChart.setOnAction(event -> {
             if (!chartsList.contains(chartTitle)) {
                 chartsList.add(chartTitle);
+                charts.put(chartTitle, new ChartSettings(chartTitle));
 
                 TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
 
@@ -221,6 +222,7 @@ public class ChartPlugin implements TreePlugin {
                 for (String s : chartsList) if (s.contains(chartTitle)) counter++;
 
                 chartsList.add(chartTitle + " " + counter);
+                charts.put(chartTitle + " " + counter, new ChartSettings(chartTitle + " " + counter));
 
                 TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
 
