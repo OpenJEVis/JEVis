@@ -40,6 +40,7 @@ import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -141,7 +142,7 @@ public class PluginManager {
                 for (JEVisObject plugObj : pluginObjs) {
                     try {
                         for (Plugin plugin : plugins) {
-                            try{
+                            try {
                                 if (plugin.getClassName().equals(plugObj.getJEVisClassName())) {
                                     JEVisAttribute enabled = plugObj.getAttribute("Enable");
                                     if (enabled == null) {
@@ -154,11 +155,11 @@ public class PluginManager {
                                         }
                                     }
                                 }
-                            }catch(Exception ex){
+                            } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
                         }
-                    }catch (Exception ex) {
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -166,8 +167,14 @@ public class PluginManager {
 
             }
 
+            try {
+                Collections.swap(_plugins, 0, 1);
+            } catch (Exception e) {
+                //workaround to get graph plugin to first position
+            }
 
-        }catch (Exception ex) {
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
