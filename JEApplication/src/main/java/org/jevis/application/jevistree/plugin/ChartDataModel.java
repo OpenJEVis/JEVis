@@ -105,7 +105,7 @@ public class ChartDataModel {
                 if (getDataProcessor() != null) {
                     _dataProcessorObject = getDataProcessor();
                     _attribute = _dataProcessorObject.getAttribute("Value");
-                }
+                } else _attribute = _object.getAttribute("Value");
 
                 if (aggregate != null) {
                     Process input = new BasicProcess();
@@ -118,7 +118,6 @@ public class ChartDataModel {
                     aggregate.setSubProcesses(Arrays.asList(input));
                     samples.addAll(factorizeSamples(aggregate.getResult()));
                 } else {
-
                     samples.addAll(factorizeSamples(getAttribute().getSamples(getSelectedStart(), getSelectedEnd())));
                 }
 
@@ -478,7 +477,6 @@ public class ChartDataModel {
     }
 
     public JEVisAttribute getAttribute() {
-
         if (_attribute == null) {
             try {
                 JEVisAttribute attribute = null;
@@ -492,6 +490,7 @@ public class ChartDataModel {
                 Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+
         return _attribute;
     }
 

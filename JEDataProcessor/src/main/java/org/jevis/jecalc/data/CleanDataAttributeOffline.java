@@ -44,6 +44,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private Boolean limitsEnabled;
+    private Double counterOverflow;
 
     private JEVisObject object;
     private static final Logger logger = LoggerFactory.getLogger(CleanDataAttributeOffline.class);
@@ -122,6 +123,9 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
 
             String multiplierString = prop.getProperty("Multiplier");
             //multiplier = Double.parseDouble(multiplierString);
+
+            //String counterOverflowString = prop.getProperty("Counter Overflow");
+            //counterOverflow = Double.parseDouble(counterOverflowString);
 
             String offsetString = prop.getProperty("Offset");
             offset = Double.parseDouble(offsetString);
@@ -210,5 +214,10 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     @Override
     public JEVisObject getObject() {
         return object;
+    }
+
+    @Override
+    public Double getCounterOverflow() {
+        return counterOverflow;
     }
 }

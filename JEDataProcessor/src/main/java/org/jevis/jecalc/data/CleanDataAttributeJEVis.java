@@ -57,6 +57,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     private Boolean limitsEnabled;
     private String limitsConfiguration;
     private List<JsonLimitsConfig> jsonLimitsConfig;
+    private Double counterOverflow;
 
     public CleanDataAttributeJEVis(JEVisObject calcObject) {
         object = calcObject;
@@ -78,6 +79,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         periodOffset = (int) (long) periodOffsetLong;
         valueIsQuantity = sampleHandler.getLastSample(calcObject, VALUE_QUANTITY.getAttributeName(), false);
         multiplier = sampleHandler.getAllSamples(calcObject, MULTIPLIER.getAttributeName());
+        counterOverflow = sampleHandler.getLastSample(calcObject, COUNTEROVERFLOW.getAttributeName(), 0.0);
         limitsEnabled = sampleHandler.getLastSample(calcObject, LIMITS_ENABLED.getAttributeName(), false);
 
         gapFillingConfig = sampleHandler.getLastSample(calcObject, GAP_FILLING_CONFIG.getAttributeName(), "");
@@ -144,6 +146,11 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
 
     public JEVisObject getObject() {
         return object;
+    }
+
+    @Override
+    public Double getCounterOverflow() {
+        return counterOverflow;
     }
 
     @Override
@@ -251,6 +258,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         VALUE_QUANTITY("Value is a Quantity"),
         CONVERSION_DIFFERENTIAL("Conversion to Differential"),
         MULTIPLIER("Value Multiplier"),
+        COUNTEROVERFLOW("Counter Overflow"),
         OFFSET("Value Offset"),
         VALUE("Value"),
         GAP_FILLING("Gap Filling"),
