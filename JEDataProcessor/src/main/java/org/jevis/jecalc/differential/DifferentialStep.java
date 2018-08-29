@@ -32,6 +32,7 @@ public class DifferentialStep implements ProcessStep {
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> listConversionToDifferential = calcAttribute.getConversionDifferential();
+        Double counterOverflow = calcAttribute.getCounterOverflow();
         StopWatch stopWatch = new Slf4JStopWatch("differential");
 
         if (listConversionToDifferential != null) {
@@ -76,6 +77,9 @@ public class DifferentialStep implements ProcessStep {
                                         }
 
                                         Double cleanedVal = rawValue - lastDiffVal;
+                                        if (counterOverflow != null && counterOverflow != 0.0 && cleanedVal < 0) {
+                                            cleanedVal = (counterOverflow - lastDiffVal) + rawValue;
+                                        }
                                         curSample.setValue(cleanedVal);
                                         String note = curSample.getNote();
                                         note += ",diff";
