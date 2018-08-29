@@ -70,23 +70,19 @@ import java.util.prefs.Preferences;
  */
 public class JEConfig extends Application {
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.2");
-    private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
-
     /*
     TODO: Make the config into an singelton
      */
     final static Configuration _config = new Configuration();
-    private static Stage _primaryStage;
-
-    private static JEVisDataSource _mainDS;
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEConfig.class);
-
-
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.2");
     /**
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
+    private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
+    private static Stage _primaryStage;
+    private static JEVisDataSource _mainDS;
+    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEConfig.class);
 
     /**
      * Returns the last path the local user selected
@@ -95,28 +91,25 @@ public class JEConfig extends Application {
      * @deprecated Will be moved into the Configuration -> user settings
      */
     public static File getLastPath() {
-        if (getConfig().getLastPath() == null) {
-            if (!OsUtils.isWindows())
-                getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
-            else getConfig().setLastFile(new File("/"));
+        File result;
+
+        if (OsUtils.isWindows()) {//Pref is not working under windows 8+
+            result = new File("/");
+        } else {
+            result = new File(pref.get("lastPath", System.getProperty("user.home")));
         }
 
-        return getConfig().getLastPath();
-    }
 
-    @Override
-    public void init() throws Exception {
-        super.init();
-        BasicConfigurator.configure();//Load an default log4j config
-        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
-        Parameters parameters = getParameters();
-        _config.parseParameters(parameters);
-        I18n.getInstance().loadBundel(Locale.getDefault());
-        JEConfig.PROGRAMM_INFO.setName(I18n.getInstance().getString("appname"));
-        PROGRAMM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
-        PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
-        PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
-
+        if (result.canRead()) {
+            if (result.isFile()) {
+                System.out.println("Is folder: " + result.getParentFile().getAbsoluteFile());
+                return result.getParentFile();
+            } else {
+                return result;
+            }
+        } else {
+            return new File(System.getProperty("user.home"));
+        }
     }
 
     /**
@@ -184,6 +177,87 @@ public class JEConfig extends Application {
 
     public static Stage getStage() {
         return _primaryStage;
+    }
+
+    /**
+     * Return an common resource
+     *
+     * @param file
+     * @return
+     */
+    public static String getResource(String file) {
+        //        scene.getStylesheets().addAll(this.getClass().getResource("/org/jevis/jeconfig/css/main.css").toExternalForm());
+
+//        System.out.println("get Resouce: " + file);
+        return JEConfig.class.getResource("/styles/" + file).toExternalForm();
+//        return JEConfig.class.getResource("/org/jevis/jeconfig/css/" + file).toExternalForm();
+
+    }
+
+    /**
+     * Fet an image out of the common resources
+     *
+     * @param icon
+     * @return
+     */
+    public static Image getImage(String icon) {
+        try {
+//            System.out.println("getIcon: " + icon);
+            return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
+//            return new Image(JEConfig.class.getResourceAsStream("/org/jevis/jeconfig/image/" + icon));
+        } catch (Exception ex) {
+            System.out.println("Could not load icon: " + "/icons/" + icon);
+            return new Image(JEConfig.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
+        }
+    }
+
+    /**
+     * Get an imge in the given size from the common
+     *
+     * @param icon
+     * @param height
+     * @param width
+     * @return
+     */
+    public static ImageView getImage(String icon, double height, double width) {
+        ImageView image = new ImageView(JEConfig.getImage(icon));
+        image.fitHeightProperty().set(height);
+        image.fitWidthProperty().set(width);
+        return image;
+    }
+
+    /**
+     * Inform the user the some precess is working
+     *
+     * @param working
+     */
+    public static void loadNotification(final boolean working) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                if (working) {
+                    getStage().getScene().setCursor(Cursor.WAIT);
+                } else {
+                    getStage().getScene().setCursor(Cursor.DEFAULT);
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public void init() throws Exception {
+        super.init();
+        BasicConfigurator.configure();//Load an default log4j config
+        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
+        Parameters parameters = getParameters();
+        _config.parseParameters(parameters);
+        I18n.getInstance().loadBundel(Locale.getDefault());
+        JEConfig.PROGRAMM_INFO.setName(I18n.getInstance().getString("appname"));
+        PROGRAMM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
+        PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
+        PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+
     }
 
     /**
@@ -386,73 +460,6 @@ public class JEConfig extends Application {
 //        {
 //            return false;
 //        }
-    }
-
-
-    /**
-     * Return an common resource
-     *
-     * @param file
-     * @return
-     */
-    public static String getResource(String file) {
-        //        scene.getStylesheets().addAll(this.getClass().getResource("/org/jevis/jeconfig/css/main.css").toExternalForm());
-
-//        System.out.println("get Resouce: " + file);
-        return JEConfig.class.getResource("/styles/" + file).toExternalForm();
-//        return JEConfig.class.getResource("/org/jevis/jeconfig/css/" + file).toExternalForm();
-
-    }
-
-    /**
-     * Fet an image out of the common resources
-     *
-     * @param icon
-     * @return
-     */
-    public static Image getImage(String icon) {
-        try {
-//            System.out.println("getIcon: " + icon);
-            return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
-//            return new Image(JEConfig.class.getResourceAsStream("/org/jevis/jeconfig/image/" + icon));
-        } catch (Exception ex) {
-            System.out.println("Could not load icon: " + "/icons/" + icon);
-            return new Image(JEConfig.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
-        }
-    }
-
-    /**
-     * Get an imge in the given size from the common
-     *
-     * @param icon
-     * @param height
-     * @param width
-     * @return
-     */
-    public static ImageView getImage(String icon, double height, double width) {
-        ImageView image = new ImageView(JEConfig.getImage(icon));
-        image.fitHeightProperty().set(height);
-        image.fitWidthProperty().set(width);
-        return image;
-    }
-
-    /**
-     * Inform the user the some precess is working
-     *
-     * @param working
-     */
-    public static void loadNotification(final boolean working) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if (working) {
-                    getStage().getScene().setCursor(Cursor.WAIT);
-                } else {
-                    getStage().getScene().setCursor(Cursor.DEFAULT);
-                }
-            }
-        });
-
     }
 
 //    /**

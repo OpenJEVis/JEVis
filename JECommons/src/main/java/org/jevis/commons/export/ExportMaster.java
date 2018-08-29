@@ -9,6 +9,9 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 
 public class ExportMaster {
@@ -20,9 +23,11 @@ public class ExportMaster {
     List<Long> root = new ArrayList<>();
     List<Long> rootParents = new ArrayList<>();
 
-    Map<String,String> keymatching = new HashMap<>();
+    Map<String, String> keymatching = new HashMap<>();
 
     List<Integer> backlist = Arrays.asList(100, 101, 102, 103, 104, 105);
+    File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+
 
     public void ExportMaster(File outputFile) {
 
@@ -99,19 +104,38 @@ public class ExportMaster {
         validateObjects();
     }
 
-    public void export(File outputfile) {
+    public void export(File outputfile) throws IOException {
         //zip Files...
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        System.out.println("Export object count: " + metaObjects.size());
+        for (Map.Entry<String, MetaObject> mo : metaObjects.entrySet()) {
+            MetaObject metaObject = mo.getValue();
+//            File newFile = new File(tmpDir.getAbsolutePath() + File.pathSeparator + mo.getKey() + ".json");
+            File newFile = new File(outputfile.getAbsolutePath() + File.separatorChar + mo.getKey() + ".json");
+            System.out.println("write File: " + newFile);
+            try (Writer writer = new FileWriter(newFile)) {
+//                Gson gson = new GsonBuilder().create();
+                gson.toJson(mo.getValue(), writer);
+            }
+
+            //write Samples
+            if (mo.getValue().getMode() == MetaObject.Mode.ALL_DATA) {
+//                for(JsonAttribute att: metaObject.getObject().getAttributes()){
+//                    List<JsonSample> list =
+//                }
+
+
+            }
+
+
+        }
+
 
         for (String key : structure) {
             System.out.println("Rel: " + key);
         }
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-        for (Map.Entry<String, MetaObject> entry : metaObjects.entrySet()) {
-            String json = gson.toJson(entry.getValue());
-            System.out.println(json);
-        }
 
     }
 
@@ -126,6 +150,40 @@ public class ExportMaster {
             buildChildren(mo.getObject().getId() + "");
 
         });
+    }
+
+
+//    public void exportToFiles() throws IOException {
+//        try (Writer writer = new FileWriter("Output.json")) {
+//            Gson gson = new GsonBuilder().create();
+//            gson.toJson(users, writer);
+//        }
+//    }
+
+    public void importStruckture() {
+        //if TYPE.Uniqe
+        //JsonReader reader = new JsonReader(new FileReader(jsonFile));
+
+
+    }
+
+    private void zip() {
+//        String fileZip = "compressed.zip";
+//        byte[] buffer = new byte[1024];
+//        ZipInputStream zis = new ZipInputStream(new FileInputStream(fileZip));
+//        ZipEntry zipEntry = zis.getNextEntry();
+//        while(zipEntry != null){
+//            String fileName = zipEntry.getName();
+//            File newFile = new File("unzipTest/" + fileName);
+//            FileOutputStream fos = new FileOutputStream(newFile);
+//            int len;
+//            while ((len = zis.read(buffer)) > 0) {
+//                fos.write(buffer, 0, len);
+//            }
+//            fos.close();
+//            zipEntry = zis.getNextEntry();
+//        }
+//        zis.closeEntry();
     }
 
     public void buildChildren(String parentID) {
