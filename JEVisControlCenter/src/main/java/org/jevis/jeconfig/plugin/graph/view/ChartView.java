@@ -446,9 +446,8 @@ public class ChartView implements Observer {
                     series1Data = tl;
                 }
 
-                String dp_name = "";
-                if (singleRow.getDataProcessor() != null) dp_name = singleRow.getDataProcessor().getName();
-                String tableEntryName = singleRow.getObject().getName() + " (" + dp_name + ")";
+
+                String tableEntryName = singleRow.getObject().getName();
                 TableEntry tableEntry = new TableEntry(tableEntryName);
                 tableEntry.setColor(singleRow.getColor());
 
@@ -859,7 +858,7 @@ public class ChartView implements Observer {
                     }
                 });
 
-                //JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(lineChart);
                 break;
             case ("BAR"):
                 areaChartRegion = barChart;
