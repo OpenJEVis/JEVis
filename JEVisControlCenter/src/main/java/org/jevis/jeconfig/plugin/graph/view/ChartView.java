@@ -858,7 +858,7 @@ public class ChartView implements Observer {
                     }
                 });
 
-                //JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(areaChart);
+                JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(lineChart);
                 break;
             case ("BAR"):
                 areaChartRegion = barChart;
