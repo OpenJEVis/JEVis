@@ -436,7 +436,13 @@ public class ChartDataModel {
         if (_selectedStart != null) {
             return _selectedStart;
         } else if (getAttribute() != null) {
-            _selectedStart = getAttribute().getTimestampFromFirstSample();
+            DateTime dt = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), 1, 0, 0, 0, 0);
+            dt = dt.minusMonths(1);
+            DateTime timeStampFromFirstSample = getAttribute().getTimestampFromFirstSample();
+
+            if (timeStampFromFirstSample.isBefore(dt)) _selectedStart = dt;
+            else _selectedStart = timeStampFromFirstSample;
+
             return _selectedStart;
         } else {
             return null;
