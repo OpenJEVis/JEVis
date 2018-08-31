@@ -50,7 +50,7 @@
             <dependency>
                 <groupId>org.jevis.api</groupId>
                 <artifactId>jeapi</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
             </dependency>
 
             <dependency>
