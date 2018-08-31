@@ -75,6 +75,70 @@ public class UserRightManagerForWS {
         }
     }
 
+    /**
+     * @param rels
+     * @return
+     */
+    public List<JsonRelationship> filterRelationships(List<JsonRelationship> rels) {
+        //Sys Admin can read it all
+        if (isSysAdmin()) {
+            return rels;
+        }
+
+        List<JsonRelationship> list = new ArrayList<>();
+        List<Long> objectIDOFGroupOwenedObj = new LinkedList<>();
+
+
+        /**
+         * Get all Objects which are owed by one of groups this user is member of
+         */
+        for (JsonRelationship rel : rels) {
+            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && readGIDS.contains(rel.getTo())) {
+                objectIDOFGroupOwenedObj.add(rel.getFrom());
+//                list.add(rel);
+            }
+
+            /**
+             * Add the memberships also
+             */
+            if (rel.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ
+                    && rel.getType() <= JEVisConstants.ObjectRelationship.MEMBER_DELETE) {
+                if (readGIDS.contains(rel.getTo())
+                        || writeGIDS.contains(rel.getTo())
+                        || exeGIDS.contains(rel.getTo())
+                        || deleteGIDS.contains(rel.getTo())
+                        || createGIDS.contains(rel.getTo())) {
+                    list.add(rel);
+                }
+            }
+
+        }
+
+        /**
+         * Add all Public Objects
+         */
+        try {
+            for (JsonObject publicObj : ds.getObjectTable().getAllPublicObjects()) {
+                objectIDOFGroupOwenedObj.add(publicObj.getId());
+            }
+        } catch (JEVisException ex) {
+            ex.printStackTrace();
+        }
+
+
+        /**
+         *
+         */
+
+        for (JsonRelationship rel : rels) {
+            if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) || objectIDOFGroupOwenedObj.contains(rel.getTo())) {
+                list.add(rel);
+            }
+        }
+
+        return list;
+    }
+
     public List<JsonRelationship> filterReadRelationships(List<JsonRelationship> rels) {
         //Sys Admin can read it all
         if (isSysAdmin()) {
@@ -100,7 +164,6 @@ public class UserRightManagerForWS {
         } catch (JEVisException ex) {
             ex.printStackTrace();
         }
-
 
 
         for (JsonRelationship rel : rels) {
