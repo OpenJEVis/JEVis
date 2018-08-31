@@ -74,6 +74,24 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building"
+    },
+    {
+      "name": "Workday Beginning",
+      "primitiveType": 0,
+      "guiType": "Time",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building"
+    },
+    {
+      "name": "Workday End",
+      "primitiveType": 0,
+      "guiType": "Time",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building"
     }
   ]
 }
