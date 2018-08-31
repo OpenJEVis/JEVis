@@ -114,6 +114,9 @@ public class GraphPluginView implements Plugin, Observer {
 
                             if (dialog.getInitialTimeFrame()) {
                                 DateHelper dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
+                                dh.setStartTime(toolBarView.getWorkdayStart());
+                                dh.setEndTime(toolBarView.getWorkdayEnd());
+
                                 dialog.setSelectedStart(dh.getDateTimeStartDate());
                                 dialog.setSelectedEnd(dh.getDateTimeEndDate());
                                 dialog.updateTimeFrame();

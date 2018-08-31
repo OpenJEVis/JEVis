@@ -36,6 +36,7 @@ import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -64,6 +65,8 @@ public class ToolBarView {
     private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private final Logger logger = LogManager.getLogger(ToolBarView.class);
+    private LocalTime workdayStart;
+    private LocalTime workdayEnd;
 
     public ToolBar getToolbar(JEVisDataSource ds) {
         ToolBar toolBar = new ToolBar();
@@ -543,6 +546,24 @@ public class ToolBarView {
                         }
                     }
                 }
+                try {
+                    JEVisObject site = currentAnalysis.getParents().get(0).getParents().get(0);
+                    LocalTime start = null;
+                    LocalTime end = null;
+                    try {
+                        start = LocalTime.parse(site.getAttribute("Workday Beginning").getLatestSample().getValueAsString());
+                        end = LocalTime.parse(site.getAttribute("Workday Beginning").getLatestSample().getValueAsString());
+                    } catch (Exception e) {
+
+                    }
+
+                    if (workdayStart != null && workdayEnd != null) {
+                        workdayStart = start;
+                        workdayEnd = end;
+                    }
+                } catch (Exception e) {
+
+                }
             }
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis model", e);
@@ -711,5 +732,13 @@ public class ToolBarView {
 
     public void setSelectedEnd(DateTime selectedEnd) {
         this.selectedEnd = selectedEnd;
+    }
+
+    public LocalTime getWorkdayStart() {
+        return workdayStart;
+    }
+
+    public LocalTime getWorkdayEnd() {
+        return workdayEnd;
     }
 }
