@@ -44,10 +44,10 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private Boolean limitsEnabled;
-    private List<JEVisSample> counterOverflow;
+    private static final Logger logger = LoggerFactory.getLogger(CleanDataAttributeOffline.class);
 
     private JEVisObject object;
-    private static final Logger logger = LoggerFactory.getLogger(CleanDataAttributeOffline.class);
+    private List<JEVisSample> counterOverflow;
 
     public CleanDataAttributeOffline(String pathToInputFile, String pathToCleanConfigFile, String pathToOutput) {
         initProperties(pathToCleanConfigFile);

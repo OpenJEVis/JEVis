@@ -44,7 +44,6 @@ import java.time.ZoneId;
 import java.time.format.FormatStyle;
 
 /**
- *
  * @author Florian Simon
  */
 public class TimeEditor implements AttributeEditor {
