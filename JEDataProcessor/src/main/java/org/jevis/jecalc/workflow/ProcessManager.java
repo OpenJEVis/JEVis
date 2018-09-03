@@ -40,7 +40,9 @@ public class ProcessManager {
             try {
                 ps.run(resourceManager);
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error in process step: " + ps.getClass().getName() + " for object: "
+                        + resourceManager.getCalcAttribute().getName() + ":"
+                        + resourceManager.getCalcAttribute().getObject().getID());
             }
         }
         logger.info("---------------------------------------------");

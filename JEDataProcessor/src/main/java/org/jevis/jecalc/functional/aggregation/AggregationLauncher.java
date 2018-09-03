@@ -6,8 +6,6 @@
 //package org.jevis.jecalc.functional.aggregation;
 //
 //import java.util.List;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
 //import org.jevis.api.JEVisAttribute;
 //import org.jevis.api.JEVisClass;
 //import org.jevis.api.JEVisDataSource;
@@ -71,7 +69,7 @@
 //            JEVisAttribute attribute = aggObj.getAttribute("Value");
 //            sampleHandler.importData(aggregatedData, attribute);
 //        } catch (JEVisException ex) {
-//            Logger.getLogger(AggregationLauncher.class.getName()).log(Level.SEVERE, null, ex);
+//            logger.error(null, ex);
 //        }
 //    }
 //}

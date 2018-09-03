@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Creates empty interval classes from start date to end date
@@ -103,7 +102,7 @@ public class PrepareStep implements ProcessStep {
                 CleanInterval currentInterval = new CleanInterval(interval, startInterval);
                 cleanIntervals.add(currentInterval);
             } catch (JEVisException ex) {
-                java.util.logging.Logger.getLogger(PrepareStep.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(null, ex);
             }
         }
         logger.info("{} intervals calculated", cleanIntervals.size());

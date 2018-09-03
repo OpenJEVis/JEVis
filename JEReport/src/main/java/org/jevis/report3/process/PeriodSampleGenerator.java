@@ -134,6 +134,8 @@ public class PeriodSampleGenerator implements SampleGenerator {
             case YEARLY:
                 aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
                 break;
+            case NONE:
+                return samples;
             default:
                 return samples;
         }

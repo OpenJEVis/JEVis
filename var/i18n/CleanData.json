@@ -166,6 +166,19 @@
         "ru": "Value Offset",
         "en": "Value Offset"
       }
+    },
+    {
+      "type": "Counter Overflow",
+      "descriptions": {
+        "de": "Definiert einen Zählerwert, an dem der Zähler zurückgesetzt wurde.",
+        "ru": "Defines a counter value at which the counter was reset.",
+        "en": "Defines a counter value at which the counter was reset."
+      },
+      "names": {
+        "de": "Zähler Überlauf",
+        "ru": "Counter Overflow",
+        "en": "Counter Overflow"
+      }
     }
   ]
 }

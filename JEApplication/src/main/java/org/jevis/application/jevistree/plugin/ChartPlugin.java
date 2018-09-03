@@ -122,6 +122,15 @@ public class ChartPlugin implements TreePlugin {
         } else {
             ChartDataModel newData = new ChartDataModel();
             newData.setObject(row.getJEVisObject());
+            try {
+                for (JEVisObject obj : row.getJEVisObject().getChildren()) {
+                    if (obj.getJEVisClassName().equals("Clean Data"))
+                        newData.setDataProcessor(obj);
+                    break;
+                }
+            } catch (JEVisException e) {
+
+            }
             newData.setAttribute(row.getJEVisAttribute());
             _data.put(id, newData);
             return newData;
@@ -203,6 +212,7 @@ public class ChartPlugin implements TreePlugin {
         addChart.setOnAction(event -> {
             if (!chartsList.contains(chartTitle)) {
                 chartsList.add(chartTitle);
+                charts.put(chartTitle, new ChartSettings(chartTitle));
 
                 TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
 
@@ -212,6 +222,7 @@ public class ChartPlugin implements TreePlugin {
                 for (String s : chartsList) if (s.contains(chartTitle)) counter++;
 
                 chartsList.add(chartTitle + " " + counter);
+                charts.put(chartTitle + " " + counter, new ChartSettings(chartTitle + " " + counter));
 
                 TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
 
@@ -704,7 +715,6 @@ public class ChartPlugin implements TreePlugin {
 
                 TreeTableCell<JEVisTreeRow, JEVisUnit> cell = new TreeTableCell<JEVisTreeRow, JEVisUnit>() {
 
-
                     @Override
                     protected void updateItem(JEVisUnit item, boolean empty) {
                         super.updateItem(item, empty);
@@ -715,6 +725,20 @@ public class ChartPlugin implements TreePlugin {
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox box = buildUnitBox(data);
+
+                                if (data.getUnit() != null)
+                                    if (!data.getUnit().equals(Unit.ONE)) {
+                                        String selection = UnitManager.getInstance().formate(data.getUnit());
+                                        box.getSelectionModel().select(selection);
+                                    } else {
+                                        box.getSelectionModel().select(0);
+                                    }
+
+                                box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+                                    if (oldValue == null || newValue != oldValue) {
+                                        commitEdit(parseUnit(String.valueOf(newValue)));
+                                    }
+                                });
 
                                 ImageView imageMarkAll = new ImageView(imgMarkAll);
                                 imageMarkAll.fitHeightProperty().set(12);
@@ -764,8 +788,7 @@ public class ChartPlugin implements TreePlugin {
     }
 
     private ChoiceBox buildUnitBox(ChartDataModel singleRow) {
-        JEVisUnit selectedUnit = null;
-        if (singleRow.getUnit() != null) selectedUnit = singleRow.getUnit();
+
         List<String> proNames = new ArrayList<>();
 
         Boolean isEnergyUnit = false;
@@ -773,48 +796,52 @@ public class ChartPlugin implements TreePlugin {
         Boolean isMassUnit = false;
         JEVisUnit currentUnit = null;
         try {
-            if (singleRow.getDataProcessor() != null) {
+            if (singleRow.getDataProcessor() != null
+                    && singleRow.getDataProcessor().getAttribute("Value") != null
+                    && singleRow.getDataProcessor().getAttribute("Value").getDisplayUnit() != null)
                 currentUnit = singleRow.getDataProcessor().getAttribute("Value").getDisplayUnit();
-            } else {
-                currentUnit = singleRow.getObject().getAttribute("Value").getDisplayUnit();
+            else {
+                if (singleRow.getObject() != null
+                        && singleRow.getObject().getAttribute("Value") != null
+                        && singleRow.getObject().getAttribute("Value").getDisplayUnit() != null)
+                    currentUnit = singleRow.getObject().getAttribute("Value").getDisplayUnit();
             }
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (
+                JEVisException e) {
         }
 
-        for (EnergyUnit eu : EnergyUnit.values()) {
+        for (
+                EnergyUnit eu : EnergyUnit.values()) {
             if (eu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isEnergyUnit = true;
             }
 
         }
-        if (isEnergyUnit) for (EnergyUnit eu : EnergyUnit.values()) proNames.add(eu.toString());
+        if (isEnergyUnit) for (
+                EnergyUnit eu : EnergyUnit.values())
+            proNames.add(eu.toString());
 
-        for (VolumeUnit vu : VolumeUnit.values()) {
+        for (
+                VolumeUnit vu : VolumeUnit.values()) {
             if (vu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isVolumeUnit = true;
             }
         }
-        if (isVolumeUnit) for (VolumeUnit vu : VolumeUnit.values()) proNames.add(vu.toString());
+        if (isVolumeUnit) for (
+                VolumeUnit vu : VolumeUnit.values())
+            proNames.add(vu.toString());
 
-        for (MassUnit mu : MassUnit.values()) {
+        for (
+                MassUnit mu : MassUnit.values()) {
             if (mu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isMassUnit = true;
             }
         }
-        if (isMassUnit) for (MassUnit mu : MassUnit.values()) proNames.add(mu.toString());
+        if (isMassUnit) for (
+                MassUnit mu : MassUnit.values())
+            proNames.add(mu.toString());
 
         ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
-
-        processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-            if (oldValue == null || newValue != oldValue) {
-                singleRow.setUnit(parseUnit(String.valueOf(newValue)));
-            }
-        });
-
-        if (selectedUnit != null)
-            processorBox.getSelectionModel().select(UnitManager.getInstance().formate(selectedUnit));
-        else processorBox.getSelectionModel().select(UnitManager.getInstance().formate(currentUnit));
 
         return processorBox;
     }

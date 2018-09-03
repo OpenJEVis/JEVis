@@ -17,8 +17,6 @@ import org.joda.time.format.PeriodFormat;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author broder
@@ -54,7 +52,7 @@ public class AggregationJob {
             logger.debug("{} clean samples found for calculation", cleanSamples.size());
             return new AggregationJob(aggregationModus, inputSampleRate, cleanSamples, cleanData);
         } catch (JEVisException ex) {
-            Logger.getLogger(AggregationJob.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         return null;
     }

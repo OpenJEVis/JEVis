@@ -22,8 +22,6 @@ import org.joda.time.Period;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.*;
 
@@ -59,6 +57,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     private Boolean limitsEnabled;
     private String limitsConfiguration;
     private List<JsonLimitsConfig> jsonLimitsConfig;
+    private List<JEVisSample> counterOverflow;
 
     public CleanDataAttributeJEVis(JEVisObject calcObject) {
         object = calcObject;
@@ -80,6 +79,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         periodOffset = (int) (long) periodOffsetLong;
         valueIsQuantity = sampleHandler.getLastSample(calcObject, VALUE_QUANTITY.getAttributeName(), false);
         multiplier = sampleHandler.getAllSamples(calcObject, MULTIPLIER.getAttributeName());
+        counterOverflow = sampleHandler.getAllSamples(calcObject, COUNTEROVERFLOW.getAttributeName());
         limitsEnabled = sampleHandler.getLastSample(calcObject, LIMITS_ENABLED.getAttributeName(), false);
 
         gapFillingConfig = sampleHandler.getLastSample(calcObject, GAP_FILLING_CONFIG.getAttributeName(), "");
@@ -149,6 +149,11 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     }
 
     @Override
+    public List<JEVisSample> getCounterOverflow() {
+        return counterOverflow;
+    }
+
+    @Override
     public DateTime getFirstDate() {
         return firstDate;
     }
@@ -187,20 +192,27 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
             JEVisAttribute attribute = object.getAttribute(VALUE_ATTRIBUTE_NAME);
             if (attribute.hasSample()) {
                 DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
-                DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
-                DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
-                List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
-                Double firstRawValue = getRawSamples().get(0).getValueAsDouble();
-                for (int i = samples.size() - 1; i >= 0; i--) {
-                    Double valueAsDouble = samples.get(i).getValueAsDouble();
-                    if (valueAsDouble < firstRawValue) {
-                        lastValue = valueAsDouble;
-                        break;
-                    }
+                //DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
+                //DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
+                //List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
+                List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(timestampFromLastSample, timestampFromLastSample);
+
+                if (!samples.isEmpty()) {
+                    lastValue = samples.get(0).getValueAsDouble();
+                    //TODO this is working for period aligned stuff, other needs testing, old version was producing unexpected spikes in the values
                 }
+
+//                Double firstRawValue = samples.get(0).getValueAsDouble();
+//                for (int i = samples.size() - 1; i >= 0; i--) {
+//                    Double valueAsDouble = samples.get(i).getValueAsDouble();
+//                    if (valueAsDouble > firstRawValue) {
+//                        lastValue = valueAsDouble;
+//                        break;
+//                    }
+//                }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CleanDataAttributeJEVis.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         return lastValue;
     }
@@ -224,7 +236,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
                 lastValue = latestSample.getValueAsDouble();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CleanDataAttributeJEVis.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         return lastValue;
     }
@@ -246,6 +258,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         VALUE_QUANTITY("Value is a Quantity"),
         CONVERSION_DIFFERENTIAL("Conversion to Differential"),
         MULTIPLIER("Value Multiplier"),
+        COUNTEROVERFLOW("Counter Overflow"),
         OFFSET("Value Offset"),
         VALUE("Value"),
         GAP_FILLING("Gap Filling"),
