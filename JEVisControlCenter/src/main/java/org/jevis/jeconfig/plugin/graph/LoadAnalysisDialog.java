@@ -148,6 +148,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     //last day
                     case 1:
                         dh = new DateHelper(DateHelper.TransformType.LASTDAY);
+                        dh.setStartTime(toolBarView.getWorkdayStart());
+                        dh.setEndTime(toolBarView.getWorkdayEnd());
+
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
@@ -156,13 +159,20 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     //last 7 days
                     case 2:
                         dh = new DateHelper(DateHelper.TransformType.LAST7DAYS);
+                        dh.setStartTime(toolBarView.getWorkdayStart());
+                        dh.setEndTime(toolBarView.getWorkdayEnd());
+
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
                     //last 30 days
                     case 3:
                         dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
+                        dh.setStartTime(toolBarView.getWorkdayStart());
+                        dh.setEndTime(toolBarView.getWorkdayEnd());
+
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
@@ -171,6 +181,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     //last Week days
                     case 4:
                         dh = new DateHelper(DateHelper.TransformType.LASTWEEK);
+                        dh.setStartTime(toolBarView.getWorkdayStart());
+                        dh.setEndTime(toolBarView.getWorkdayEnd());
+
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
@@ -179,6 +192,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     case 5:
                         //last Month
                         dh = new DateHelper(DateHelper.TransformType.LASTMONTH);
+                        dh.setStartTime(toolBarView.getWorkdayStart());
+                        dh.setEndTime(toolBarView.getWorkdayEnd());
+
                         pickerDateStart.valueProperty().setValue(dh.getStartDate());
                         pickerDateEnd.valueProperty().setValue(dh.getEndDate());
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
@@ -194,9 +210,15 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (!newValue.equals(oldValue)) {
                 initialTimeFrame = false;
                 if (selectedStart != null) {
-                    selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedStart.getHourOfDay(), selectedStart.getMinuteOfHour(), selectedStart.getSecondOfMinute());
-                    updateTimeFrame();
                     DateHelper dh = new DateHelper(DateHelper.InputType.STARTDATE, newValue);
+                    dh.setStartTime(toolBarView.getWorkdayStart());
+                    dh.setEndTime(toolBarView.getWorkdayEnd());
+
+                    selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
+                            dh.getStartTime().getHour(), dh.getStartTime().getMinute(),
+                            dh.getStartTime().getSecond());
+                    updateTimeFrame();
+
                     if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
@@ -206,9 +228,15 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (!newValue.equals(oldValue)) {
                 initialTimeFrame = false;
                 if (selectedEnd != null) {
-                    selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), selectedEnd.getHourOfDay(), selectedEnd.getMinuteOfHour(), selectedEnd.getSecondOfMinute());
-                    updateTimeFrame();
                     DateHelper dh = new DateHelper(DateHelper.InputType.ENDDATE, newValue);
+                    dh.setStartTime(toolBarView.getWorkdayStart());
+                    dh.setEndTime(toolBarView.getWorkdayEnd());
+
+                    selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
+                            dh.getEndTime().getHour(), dh.getEndTime().getMinute(),
+                            dh.getEndTime().getSecond());
+                    updateTimeFrame();
+
                     if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
@@ -221,6 +249,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
                     updateTimeFrame();
                     DateHelper dh = new DateHelper(DateHelper.InputType.STARTTIME, newValue);
+                    dh.setStartTime(toolBarView.getWorkdayStart());
+                    dh.setEndTime(toolBarView.getWorkdayEnd());
+
                     if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
@@ -230,9 +261,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (!newValue.equals(oldValue)) {
                 initialTimeFrame = false;
                 if (selectedEnd != null) {
-                    selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
+                    selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 59, 999);
                     updateTimeFrame();
                     DateHelper dh = new DateHelper(DateHelper.InputType.ENDTIME, newValue);
+                    dh.setStartTime(toolBarView.getWorkdayStart());
+                    dh.setEndTime(toolBarView.getWorkdayEnd());
+
                     if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
@@ -273,8 +307,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 this.nameCurrentAnalysis = newValue;
                 setJEVisObjectForCurrentAnalysis(newValue);
 
-                selectedStart = DateTime.now().minusDays(7);
-                selectedEnd = new DateTime();
+                selectedStart = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                        toolBarView.getWorkdayStart().getHour(), toolBarView.getWorkdayStart().getMinute(), toolBarView.getWorkdayStart().getSecond());
+                selectedStart = selectedStart.minusDays(7);
+
+                selectedEnd = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                        toolBarView.getWorkdayEnd().getHour(), toolBarView.getWorkdayEnd().getMinute(), toolBarView.getWorkdayEnd().getSecond());
 
                 updateTimeFramePicker();
                 updateTimeFrame();

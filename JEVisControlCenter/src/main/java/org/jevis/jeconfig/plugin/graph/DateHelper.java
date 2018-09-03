@@ -6,8 +6,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class DateHelper {
-    final LocalTime startTime = LocalTime.of(0, 0, 0, 0);
-    final LocalTime endTime = LocalTime.of(23, 59, 59, 999);
+    private LocalTime startTime = LocalTime.of(0, 0, 0, 0);
+    private LocalTime endTime = LocalTime.of(23, 59, 59, 999);
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate checkDate;
@@ -38,6 +38,8 @@ public class DateHelper {
 
     public LocalDate getStartDate() {
         now = LocalDate.now();
+        if (startTime.isAfter(endTime)) now = now.minusDays(1);
+
         switch (type) {
             case CUSTOM:
                 break;
@@ -65,11 +67,14 @@ public class DateHelper {
     }
 
     public DateTime getDateTimeStartDate() {
-        return new DateTime(getStartDate().getYear(), getStartDate().getMonth().getValue(), getStartDate().getDayOfMonth(), 0, 0, 0, 0);
+        return new DateTime(getStartDate().getYear(), getStartDate().getMonth().getValue(), getStartDate().getDayOfMonth(),
+                getStartTime().getHour(), getStartTime().getMinute(), getStartTime().getSecond(), 0);
     }
 
     public LocalDate getEndDate() {
         now = LocalDate.now();
+        //if (startTime.isAfter(endTime)) now = now.minusDays(1);
+
         switch (type) {
             case CUSTOM:
                 break;
@@ -97,7 +102,8 @@ public class DateHelper {
     }
 
     public DateTime getDateTimeEndDate() {
-        return new DateTime(getEndDate().getYear(), getEndDate().getMonth().getValue(), getEndDate().getDayOfMonth(), 23, 59, 59, 999);
+        return new DateTime(getEndDate().getYear(), getEndDate().getMonth().getValue(), getEndDate().getDayOfMonth(),
+                getEndTime().getHour(), getEndTime().getMinute(), getEndTime().getSecond(), 999);
     }
 
     public void setType(TransformType type) {
@@ -150,6 +156,14 @@ public class DateHelper {
         }
 
         return userSet;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 
     public enum TransformType {CUSTOM, LASTDAY, LAST7DAYS, LAST30DAYS, LASTWEEK, LASTMONTH}

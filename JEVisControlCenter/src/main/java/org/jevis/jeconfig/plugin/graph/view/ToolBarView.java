@@ -36,6 +36,7 @@ import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -64,6 +65,8 @@ public class ToolBarView {
     private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private final Logger logger = LogManager.getLogger(ToolBarView.class);
+    private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
+    private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
 
     public ToolBar getToolbar(JEVisDataSource ds) {
         ToolBar toolBar = new ToolBar();
@@ -543,6 +546,33 @@ public class ToolBarView {
                         }
                     }
                 }
+                try {
+                    JEVisObject site = currentAnalysis.getParents().get(0).getParents().get(0);
+                    LocalTime start = null;
+                    LocalTime end = null;
+                    try {
+                        JEVisAttribute attStart = site.getAttribute("Workday Beginning");
+                        JEVisAttribute attEnd = site.getAttribute("Workday End");
+                        if (attStart.hasSample()) {
+                            String startStr = attStart.getLatestSample().getValueAsString();
+                            DateTime dtStart = DateTime.parse(startStr);
+                            start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
+                        }
+                        if (attEnd.hasSample()) {
+                            String endStr = attEnd.getLatestSample().getValueAsString();
+                            DateTime dtEnd = DateTime.parse(endStr);
+                            end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
+                        }
+                    } catch (Exception e) {
+                    }
+
+                    if (start != null && end != null) {
+                        workdayStart = start;
+                        workdayEnd = end;
+                    }
+                } catch (Exception e) {
+
+                }
             }
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis model", e);
@@ -711,5 +741,13 @@ public class ToolBarView {
 
     public void setSelectedEnd(DateTime selectedEnd) {
         this.selectedEnd = selectedEnd;
+    }
+
+    public LocalTime getWorkdayStart() {
+        return workdayStart;
+    }
+
+    public LocalTime getWorkdayEnd() {
+        return workdayEnd;
     }
 }
