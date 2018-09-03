@@ -19,23 +19,18 @@
  */
 package org.jevis.commons.driver;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisType;
+import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -181,7 +176,7 @@ public class JEVisImporter implements Importer {
                             lastTSTotal = s.getTimestamp();
                         }
                         if (lastTSForAtt == null || lastTSForAtt.isBefore(s.getTimestamp())) {
-                            lastTSForAtt = s.getTimestamp();;
+                            lastTSForAtt = s.getTimestamp();
                         }
 
                     }
@@ -193,7 +188,7 @@ public class JEVisImporter implements Importer {
                     Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Unexpected error while import: " + ex);
                 }
             }
-            return lastTSTotal;//TODO: do we have to converte the date with the timezone?
+            return lastTSTotal.withZone(_timezone);
 
         } catch (Exception ex) {
             Logger.getLogger(JEVisImporter.class.getName()).log(Level.ERROR, null, ex);
