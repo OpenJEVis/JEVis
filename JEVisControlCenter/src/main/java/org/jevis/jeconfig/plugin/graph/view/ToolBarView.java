@@ -65,8 +65,8 @@ public class ToolBarView {
     private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private final Logger logger = LogManager.getLogger(ToolBarView.class);
-    private LocalTime workdayStart;
-    private LocalTime workdayEnd;
+    private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
+    private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
 
     public ToolBar getToolbar(JEVisDataSource ds) {
         ToolBar toolBar = new ToolBar();
@@ -551,13 +551,22 @@ public class ToolBarView {
                     LocalTime start = null;
                     LocalTime end = null;
                     try {
-                        start = LocalTime.parse(site.getAttribute("Workday Beginning").getLatestSample().getValueAsString());
-                        end = LocalTime.parse(site.getAttribute("Workday Beginning").getLatestSample().getValueAsString());
+                        JEVisAttribute attStart = site.getAttribute("Workday Beginning");
+                        JEVisAttribute attEnd = site.getAttribute("Workday End");
+                        if (attStart.hasSample()) {
+                            String startStr = attStart.getLatestSample().getValueAsString();
+                            DateTime dtStart = DateTime.parse(startStr);
+                            start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
+                        }
+                        if (attEnd.hasSample()) {
+                            String endStr = attEnd.getLatestSample().getValueAsString();
+                            DateTime dtEnd = DateTime.parse(endStr);
+                            end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
+                        }
                     } catch (Exception e) {
-
                     }
 
-                    if (workdayStart != null && workdayEnd != null) {
+                    if (start != null && end != null) {
                         workdayStart = start;
                         workdayEnd = end;
                     }

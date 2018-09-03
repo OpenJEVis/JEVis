@@ -73,7 +73,7 @@ public class DateHelper {
 
     public LocalDate getEndDate() {
         now = LocalDate.now();
-        if (startTime.isAfter(endTime)) now = now.minusDays(1);
+        //if (startTime.isAfter(endTime)) now = now.minusDays(1);
 
         switch (type) {
             case CUSTOM:
