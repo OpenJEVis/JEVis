@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author broder
@@ -45,7 +43,7 @@ public class Aggregator {
             List<JEVisSample> aggregatedData = agg.getAggregatedData(ds, allSamples, Period.months(1), AggregationModus.average);
             System.out.println(aggregatedData.size());
         } catch (JEVisException ex) {
-            Logger.getLogger(Aggregator.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
     }
 
@@ -70,7 +68,7 @@ public class Aggregator {
         try {
             dataSource = aggregationJob.getCleanData().getDataSource();
         } catch (JEVisException ex) {
-            Logger.getLogger(Aggregator.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         List<JEVisSample> aggregatedData = getAggregatedData(dataSource, aggregationJob.getCleanSamples(), aggregationJob.getPeriod(), aggregationJob.getAggregationModus());
         logger.debug("{} result samples calculated", aggregatedData.size());

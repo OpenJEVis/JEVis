@@ -58,4 +58,5 @@ public interface CleanDataAttribute {
 
     JEVisObject getObject();
 
+    List<JEVisSample> getCounterOverflow();
 }
