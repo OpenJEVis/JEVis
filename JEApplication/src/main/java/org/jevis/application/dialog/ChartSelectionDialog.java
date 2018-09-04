@@ -198,7 +198,7 @@ public class ChartSelectionDialog {
             } catch (JEVisException e) {
 
             }
-            listUS.add(new UserSelection(UserSelection.SelectionType.Object, firstDataDir));
+            if (firstDataDir != null) listUS.add(new UserSelection(UserSelection.SelectionType.Object, firstDataDir));
             if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
         }
 
