@@ -32,7 +32,10 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.*;
@@ -138,7 +141,6 @@ public class ChartSelectionDialog {
                 if (data != null && !data.isEmpty()) {
                     bp.set_data(data);
                 }
-
             }
         }
 
@@ -186,6 +188,18 @@ public class ChartSelectionDialog {
             }
 
             if (!listUS.isEmpty()) _tree.openUserSelectionNoChildren(listUS);
+        } else {
+            List<UserSelection> listUS = new ArrayList<>();
+            JEVisObject firstDataDir = null;
+            try {
+                JEVisClass classDataDirectory = _ds.getJEVisClass("Data Directory");
+                List<JEVisObject> listDataDirectories = _ds.getObjects(classDataDirectory, false);
+                if (!listDataDirectories.isEmpty()) firstDataDir = listDataDirectories.get(0);
+            } catch (JEVisException e) {
+
+            }
+            listUS.add(new UserSelection(UserSelection.SelectionType.Object, firstDataDir));
+            if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
         }
 
         ok.setOnAction(event -> {
