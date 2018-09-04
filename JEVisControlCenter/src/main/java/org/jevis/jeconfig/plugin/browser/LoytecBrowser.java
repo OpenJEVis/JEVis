@@ -38,6 +38,7 @@ public class LoytecBrowser implements Plugin {
     private BorderPane contentPane = new BorderPane();
     private WebEngine webEngine;
     private ImageView icon = new ImageView();
+    private String tooltip = I18n.getInstance().getString("pluginmanager.loytecbrowser.tooltip");
 
     public LoytecBrowser(JEVisDataSource ds) {
         this.ds = ds;
@@ -167,6 +168,11 @@ public class LoytecBrowser implements Plugin {
     @Override
     public String getUUID() {
         return id.getValue();
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

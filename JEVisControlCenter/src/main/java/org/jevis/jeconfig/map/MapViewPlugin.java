@@ -54,6 +54,7 @@ public class MapViewPlugin implements Plugin {
     private TableView table;
     private ComboBox comboBox;
     private BooleanProperty firstStartProperty = new SimpleBooleanProperty(true);
+    private String tooltip = I18n.getInstance().getString("pluginmanager.mapview.tooltip");
 
     private Map<String, GPSRoute> routeData;
 
@@ -95,6 +96,11 @@ public class MapViewPlugin implements Plugin {
     @Override
     public String getUUID() {
         return id.get();
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

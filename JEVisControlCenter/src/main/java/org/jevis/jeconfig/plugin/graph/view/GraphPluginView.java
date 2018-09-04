@@ -47,6 +47,7 @@ import org.jevis.jeconfig.plugin.graph.DateHelper;
 import org.jevis.jeconfig.plugin.graph.GraphController;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
+import org.jevis.jeconfig.tool.I18n;
 
 import java.util.*;
 
@@ -71,6 +72,7 @@ public class GraphPluginView implements Plugin, Observer {
     private VBox vBox = new VBox();
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private final Logger logger = LogManager.getLogger(GraphPluginView.class);
+    private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
 
     @Override
     public String getClassName() {
@@ -150,6 +152,11 @@ public class GraphPluginView implements Plugin, Observer {
     @Override
     public String getUUID() {
         return id.get();
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

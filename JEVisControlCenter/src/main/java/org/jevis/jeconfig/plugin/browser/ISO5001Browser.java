@@ -47,6 +47,7 @@ public class ISO5001Browser implements Plugin {
     private WebEngine webEngine;
     private ImageView icon = new ImageView();
     private StringProperty urlProperty = new SimpleStringProperty();
+    private String tooltip = I18n.getInstance().getString("pluginmanager.iso50001.tooltip");
 
     @Override
     public String getClassName() {
@@ -181,6 +182,11 @@ public class ISO5001Browser implements Plugin {
     @Override
     public String getUUID() {
         return id.getValue();
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override
