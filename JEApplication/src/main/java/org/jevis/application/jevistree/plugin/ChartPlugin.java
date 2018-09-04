@@ -852,6 +852,7 @@ public class ChartPlugin implements TreePlugin {
         Unit _t = NonSI.METRIC_TON;
 
         Unit _l = NonSI.LITER;
+        Unit _l2 = NonSI.LITRE;
         Unit _m3 = SI.CUBIC_METRE;
 
         Unit _W = SI.WATT;
@@ -867,6 +868,7 @@ public class ChartPlugin implements TreePlugin {
         final JEVisUnit t = new JEVisUnitImp(_t);
 
         final JEVisUnit l = new JEVisUnitImp(_l);
+        final JEVisUnit l2 = new JEVisUnitImp(_l2);
         final JEVisUnit m3 = new JEVisUnitImp(_m3);
 
         final JEVisUnit W = new JEVisUnitImp(_W);
@@ -912,7 +914,7 @@ public class ChartPlugin implements TreePlugin {
             case "m³":
                 result = m3;
                 break;
-            case "l":
+            case "L":
                 result = l;
                 break;
             default:
@@ -930,7 +932,7 @@ public class ChartPlugin implements TreePlugin {
     }
 
     private enum VolumeUnit {
-        l("l"), m3("m³");
+        L("L"), m3("m³");
 
         private final String name;
 
