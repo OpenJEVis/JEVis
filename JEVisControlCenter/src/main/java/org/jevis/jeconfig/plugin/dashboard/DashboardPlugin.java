@@ -51,6 +51,7 @@ public class DashboardPlugin implements Plugin {
     private ObservableList<DataObject> objects = FXCollections.observableArrayList();
     private double orgTranslateX, orgTranslateY;
     private ToolBar toolBar;
+    private String tooltip = I18n.getInstance().getString("pluginmanager.dashboard.tooltip");
     SelectionModel selectionModel = new SelectionModel();
     //private final RubberBandSelection rubberBandSelection;
 
@@ -128,6 +129,11 @@ public class DashboardPlugin implements Plugin {
     @Override
     public String getUUID() {
         return "";
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

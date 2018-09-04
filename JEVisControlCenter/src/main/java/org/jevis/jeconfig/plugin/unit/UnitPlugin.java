@@ -36,6 +36,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  *
@@ -51,6 +52,7 @@ public class UnitPlugin implements Plugin {
     private UnitTree tree;
     private UnitEditor _editor;
     private ToolBar toolBar;
+    private String tooltip = I18n.getInstance().getString("pluginmanager.unit.tooltip");
 
     public UnitPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -87,6 +89,11 @@ public class UnitPlugin implements Plugin {
     @Override
     public String getUUID() {
         return id.get();
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

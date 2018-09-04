@@ -81,6 +81,7 @@ public class ObjectPlugin implements Plugin {
     private ObjectEditor _editor = new ObjectEditor();
     private final Logger logger = LogManager.getLogger(ObjectPlugin.class);
     private SimpleBooleanProperty loadingObjectProperty = new SimpleBooleanProperty();
+    private String tooltip = I18n.getInstance().getString("pluginmanager.object.tooltip");
 
     public ObjectPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -132,6 +133,11 @@ public class ObjectPlugin implements Plugin {
     @Override
     public String getUUID() {
         return id.get();
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

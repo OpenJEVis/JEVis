@@ -58,6 +58,32 @@
         "ru": "Year of Construction",
         "en": "Year of Construction"
       }
+    },
+    {
+      "type": "Workday Beginning",
+      "descriptions": {
+        "de": "Der Tagesbeginn am Standort",
+        "ru": "The workday at this site starts at this time",
+        "en": "The workday at this site starts at this time"
+      },
+      "names": {
+        "de": "Tagesbeginn",
+        "ru": "Workday Beginning",
+        "en": "Workday Beginning"
+      }
+    },
+    {
+      "type": "Workday End",
+      "descriptions": {
+        "de": "Ende des Tages am Standort",
+        "ru": "The workday at this site ends at this time",
+        "en": "The workday at this site ends at this time"
+      },
+      "names": {
+        "de": "Tagesende",
+        "ru": "Workday End",
+        "en": "Workday End"
+      }
     }
   ]
 }
