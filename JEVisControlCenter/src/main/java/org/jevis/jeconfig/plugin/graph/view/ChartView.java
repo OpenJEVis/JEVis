@@ -36,7 +36,6 @@ import org.jevis.application.dialog.NoteDialog;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartSettings;
 import org.jevis.application.jevistree.plugin.TableEntry;
-import org.jevis.commons.constants.JEDataProcessorConstants;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
@@ -100,7 +99,7 @@ public class ChartView implements Observer {
         TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
         note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
         note.setStyle("-fx-alignment: CENTER");
-        note.setPrefWidth(30);
+        note.setPrefWidth(15);
 
         TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
@@ -331,23 +330,25 @@ public class ChartView implements Observer {
         if (note != null) {
             HBox hbox = new HBox();
             double iconSize = 12;
-            if (note.contains("interpolated-break"))
+            Boolean changed = false;
+
+            if (note.contains("limit(Step1)")) {
+                hbox.getChildren().add(JEConfig.getImage("Warning-icon.png", iconSize, iconSize));
+                changed = true;
+            }
+            if (note.contains("gap(") || note.contains("limit(Default)") || note.contains("limit(Static)") || note.contains("limit(Average)")
+                    || note.contains("limit(Median)") || note.contains("limit(Interpolation)") || note.contains("limit(Min)") || note.contains("limit(Max)")) {
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+                changed = true;
+            }
+
+            if (hbox.getChildren().size() == 2) {
+                hbox.getChildren().clear();
                 hbox.getChildren().add(JEConfig.getImage("rodentia-icons_process-stop.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            output = hbox;
+                changed = true;
+            }
+
+            if (changed) output = hbox;
         }
         return output;
     }
@@ -500,9 +501,17 @@ public class ChartView implements Observer {
                             if (cType.equals("AREA") || cType.equals("LINE") || cType.equals("BUBBLE")
                                     || cType.equals("SCATTER")) {
                                 XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
-                                Rectangle rect = new Rectangle(0, 0);
-                                rect.setVisible(false);
-                                data.setNode(rect);
+
+                                Node note = formatNote(sample.getNote());
+                                if (note != null) {
+                                    note.setVisible(true);
+                                    data.setNode(note);
+                                } else {
+                                    Rectangle rect = new Rectangle(0, 0);
+                                    rect.setVisible(false);
+                                    data.setNode(rect);
+                                }
+
                                 series1Data.add(data);
                             } else if (cType.equals("BAR")) {
                                 DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
@@ -709,7 +718,7 @@ public class ChartView implements Observer {
             case ("AREA"):
                 areaChart.setTitle(title);
                 areaChart.setLegendVisible(false);
-                areaChart.setCreateSymbols(false);
+                areaChart.setCreateSymbols(true);
                 areaChart.layout();
 
                 areaChart.getXAxis().setAutoRanging(true);
@@ -726,7 +735,7 @@ public class ChartView implements Observer {
             case ("LINE"):
                 lineChart.setTitle(title);
                 lineChart.setLegendVisible(false);
-                lineChart.setCreateSymbols(false);
+                lineChart.setCreateSymbols(true);
                 lineChart.layout();
 
                 lineChart.getXAxis().setAutoRanging(true);

@@ -157,8 +157,10 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     public List<JsonGapFillingConfig> getGapFillingConfig() {
         if (jsonGapFillingConfig == null) {
             String gapFillingConfig = sampleHandler.getLastSample(getObject(), GAP_FILLING_CONFIG.getAttributeName(), "");
-            jsonGapFillingConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
-            }.getType());
+            if (gapFillingConfig != null && !gapFillingConfig.equals("")) {
+                jsonGapFillingConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
+                }.getType());
+            }
         }
         return jsonGapFillingConfig;
     }
@@ -167,8 +169,10 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     public List<JsonLimitsConfig> getLimitsConfig() {
         if (jsonLimitsConfig == null) {
             String limitsConfiguration = sampleHandler.getLastSample(getObject(), LIMITS_CONFIGURATION.getAttributeName(), "");
-            jsonLimitsConfig = new Gson().fromJson(limitsConfiguration, new TypeToken<List<JsonLimitsConfig>>() {
-            }.getType());
+            if (limitsConfiguration != null && !limitsConfiguration.equals("")) {
+                jsonLimitsConfig = new Gson().fromJson(limitsConfiguration, new TypeToken<List<JsonLimitsConfig>>() {
+                }.getType());
+            }
         }
         return jsonLimitsConfig;
     }
