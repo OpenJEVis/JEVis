@@ -197,6 +197,7 @@ public class FillGapStep implements ProcessStep {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), currenValue);
                         String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",gap(Interpolation)";
                         sample.setNote(note);
+                        currenValue += stepSize;
                         currentInterval.addTmpSample(sample);
                     }
                 } catch (JEVisException | ClassCastException ex) {
