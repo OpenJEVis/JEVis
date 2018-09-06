@@ -49,7 +49,7 @@ public class AggrigatorFunction implements ProcessFunction {
         List<List<JEVisSample>> allSamples = new ArrayList<>();
         for (Process task : mainTask.getSubProcesses()) {
             allSamples.add(task.getResult());
-            System.out.println("Add input result: " + allSamples.size());
+            //System.out.println("Add input result: " + allSamples.size());
         }
 
         List<DateTime> allTimestamps = getAllTimestamps(allSamples);
@@ -58,12 +58,12 @@ public class AggrigatorFunction implements ProcessFunction {
         }
         List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
 
-        System.out.println("intervals: " + intervals.size());
+        //System.out.println("intervals: " + intervals.size());
 
         int lastPos = 0;
         for (Interval interval : intervals) {
             List<JEVisSample> samplesInPeriod = new ArrayList<>();
-            System.out.println("interval: " + interval);
+            //System.out.println("interval: " + interval);
 
             for (List<JEVisSample> samples : allSamples) {
                 for (int i = lastPos; i < samples.size(); i++) {
@@ -76,7 +76,7 @@ public class AggrigatorFunction implements ProcessFunction {
                             break;
                         }
                     } catch (JEVisException ex) {
-                        System.out.println("JEVisExeption while going trou sample: " + ex.getMessage());
+                        Logger.getLogger(AggrigatorFunction.class.getName()).log(Level.SEVERE, "JEVisExeption while going through sample: " + ex.getMessage(), ex);
                     }
                 }
 
@@ -94,7 +94,7 @@ public class AggrigatorFunction implements ProcessFunction {
                 JEVisSample resultSum = new VirtualSample(interval.getStart(), sum, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
                 result.add(resultSum);
                 try {
-                    System.out.println("resultSum: " + resultSum.getTimestamp() + "  " + resultSum.getValueAsDouble());
+                    Logger.getLogger(AggrigatorFunction.class.getName()).log(Level.INFO, "resultSum: " + resultSum.getTimestamp() + "  " + resultSum.getValueAsDouble());
                 } catch (JEVisException ex) {
                     Logger.getLogger(AggrigatorFunction.class.getName()).log(Level.SEVERE, null, ex);
                 }

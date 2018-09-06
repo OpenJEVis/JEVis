@@ -438,6 +438,7 @@ public class ChartPlugin implements TreePlugin {
         List<String> aggList = new ArrayList<>();
 
         final String keyPreset = rb.getString("graph.interval.preset");
+        String keyHourly = rb.getString("graph.interval.hourly");
         String keyDaily = rb.getString("graph.interval.daily");
         String keyWeekly = rb.getString("graph.interval.weekly");
         String keyMonthly = rb.getString("graph.interval.monthly");
@@ -445,6 +446,7 @@ public class ChartPlugin implements TreePlugin {
 
 
         aggList.add(keyPreset);
+        aggList.add(keyHourly);
         aggList.add(keyDaily);
         aggList.add(keyWeekly);
         aggList.add(keyMonthly);
@@ -456,6 +458,9 @@ public class ChartPlugin implements TreePlugin {
         switch (data.getAggregation()) {
             case None:
                 aggrigate.valueProperty().setValue(keyPreset);
+                break;
+            case Hourly:
+                aggrigate.valueProperty().setValue(keyHourly);
                 break;
             case Daily:
                 aggrigate.valueProperty().setValue(keyDaily);
@@ -476,6 +481,8 @@ public class ChartPlugin implements TreePlugin {
 
             if (newValue.equals(keyPreset)) {
                 data.setAggregation(AGGREGATION.None);
+            } else if (newValue.equals(keyHourly)) {
+                data.setAggregation(AGGREGATION.Hourly);
             } else if (newValue.equals(keyDaily)) {
                 data.setAggregation(AGGREGATION.Daily);
             } else if (newValue.equals(keyWeekly)) {
@@ -966,7 +973,7 @@ public class ChartPlugin implements TreePlugin {
 
     public enum AGGREGATION {
 
-        None, Daily, Weekly, Monthly,
+        None, Hourly, Daily, Weekly, Monthly,
         Yearly
     }
 
