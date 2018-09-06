@@ -199,6 +199,7 @@ public class ChartPlugin implements TreePlugin {
 
     @Override
     public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns() {
+        getChartsList();
         List<TreeTableColumn<JEVisTreeRow, Long>> list = new ArrayList<>();
 
         TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn();
@@ -234,7 +235,6 @@ public class ChartPlugin implements TreePlugin {
 
         TreeTableColumn<JEVisTreeRow, Color> colorColumn = buildColorColumn(_tree, rb.getString("graph.table.color"));
 
-        getChartsList();
         List<TreeTableColumn> charts = new ArrayList<>();
         for (int i = 0; i < chartsList.size(); i++) {
 
@@ -664,7 +664,7 @@ public class ChartPlugin implements TreePlugin {
 
     }
 
-    public ObservableList<String> getChartsList() {
+    public void getChartsList() {
         List<String> tempList = new ArrayList<>();
 
         for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
@@ -676,31 +676,17 @@ public class ChartPlugin implements TreePlugin {
                 }
             }
         }
-        if (tempList.isEmpty()) {
-            tempList.add(chartTitle);
-        }
-
         if (charts.isEmpty()) {
-            for (String s : tempList) {
-                charts.put(s, new ChartSettings(s));
-            }
-        } else {
-            if (charts.size() == 1) {
-                for (Map.Entry<String, ChartSettings> settings : charts.entrySet()) {
-                    if (settings.getValue().getName().equals(chartTitle)) {
-                        charts.clear();
-                        for (String s : tempList)
-                            charts.put(s, new ChartSettings(s));
-                    }
-                }
+
+            if (tempList.isEmpty()) {
+                tempList.add(chartTitle);
+                charts.put(chartTitle, new ChartSettings(chartTitle));
             }
         }
 
         AlphanumComparator ac = new AlphanumComparator();
         tempList.sort(ac);
-
         chartsList = FXCollections.observableArrayList(tempList);
-        return chartsList;
     }
 
     private Map<String, ChartSettings> charts = new HashMap<>();
@@ -981,7 +967,8 @@ public class ChartPlugin implements TreePlugin {
         this.charts = charts;
     }
 
-    private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, Integer selectionColumnIndex) {
+    private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, Integer
+            selectionColumnIndex) {
 
         String columnName = chartsList.get(selectionColumnIndex);
 
@@ -997,11 +984,11 @@ public class ChartPlugin implements TreePlugin {
 
         VBox vbox = new VBox();
 
-        TextField tf = new TextField(columnName);
-        tf.setText(columnName);
-        tf.setEditable(true);
+        TextField textFieldChartName = new TextField(columnName);
+        textFieldChartName.setText(columnName);
+        textFieldChartName.setEditable(false);
 
-        tf.textProperty().addListener((observable, oldValue, newValue) -> {
+        textFieldChartName.textProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
                 for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
                     ChartDataModel mdl = entry.getValue();
@@ -1012,13 +999,15 @@ public class ChartPlugin implements TreePlugin {
                     }
                 }
                 for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
-                    ChartSettings set = chart.getValue();
-                    if (set.getName().contains(oldValue)) {
+                    if (chart.getValue().getName().contains(oldValue)) {
+                        ChartSettings set = chart.getValue();
+                        charts.remove(chart.getKey());
                         set.setName(newValue);
+                        charts.put(newValue, set);
+
                     }
                 }
                 chartsList.set(selectionColumnIndex, newValue);
-
             }
         });
 
@@ -1051,7 +1040,7 @@ public class ChartPlugin implements TreePlugin {
             if (oldValue == null || newValue != oldValue) {
                 for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
                     ChartSettings settings = chart.getValue();
-                    if (tf.getText().equals(settings.getName())) {
+                    if (textFieldChartName.getText().equals(settings.getName())) {
                         ChartSettings.ChartType type = parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
                         settings.setChartType(type);
                     }
@@ -1059,7 +1048,7 @@ public class ChartPlugin implements TreePlugin {
             }
         });
 
-        vbox.getChildren().addAll(tf, comboBoxChartType);
+        vbox.getChildren().addAll(textFieldChartName, comboBoxChartType);
 
         column.setGraphic(vbox);
         column.setText(null);
@@ -1082,6 +1071,7 @@ public class ChartPlugin implements TreePlugin {
                             if (!data.get_selectedCharts().contains(selectedChart)) {
 
                                 data.get_selectedCharts().add(selectedChart);
+                                textFieldChartName.setEditable(true);
                             }
                         } else {
                             data.get_selectedCharts().remove(selectedChart);
