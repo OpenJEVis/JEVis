@@ -148,7 +148,15 @@ public class ChartView implements Observer {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                         if (!empty && item != null) {
                             StackPane hbox = new StackPane();
-                            hbox.setBackground(new Background(new BackgroundFill(item.deriveColor(1, 1, 50, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
+//                            if (getChartType().equals(ChartSettings.ChartType.AREA)) {
+//                                hbox.setBackground(
+//                                        new Background(
+//                                                new BackgroundFill(item.deriveColor(1, 1, 50, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
+//                            } else {
+                            hbox.setBackground(
+                                    new Background(
+                                            new BackgroundFill(item, CornerRadii.EMPTY, Insets.EMPTY)));
+//                            }
 
                             setText(null);
                             setGraphic(hbox);
@@ -302,8 +310,8 @@ public class ChartView implements Observer {
 
                             String title = "";
                             title += singleRow.getObject().getName();
-                            if (singleRow.getDataProcessor() != null)
-                                title += " (" + singleRow.getDataProcessor().getName() + ")";
+//                            if (singleRow.getDataProcessor() != null)
+//                                title += " (" + singleRow.getDataProcessor().getName() + ")";
 
                             map.put(title, note);
                         }
@@ -676,18 +684,18 @@ public class ChartView implements Observer {
                 case ("AREA"):
                     node = areaChart.lookup(preIdent + ".chart-series-area-fill");
                     nodew = areaChart.lookup(preIdent + ".chart-series-area-line");
-                    node.setStyle("-fx-fill: linear-gradient(" + hexBrighter + "," + hexBrighter + ");"
+                    node.setStyle("-fx-fill: linear-gradient(" + hexColor + "," + hexBrighter + ");"
                             + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
                             + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
-                    nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+                    nodew.setStyle("-fx-stroke: " + currentColor + "; -fx-stroke-width: 2px; ");
                     break;
                 case ("LINE"):
                     node = lineChart.lookup(preIdent + ".chart-series-line");
-                    node.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+                    node.setStyle("-fx-stroke: " + currentColor + "; -fx-stroke-width: 2px; ");
                     break;
                 case ("BAR"):
                     node = barChart.lookup(preIdent + ".chart-bar");
-                    node.setStyle("-fx-bar-fill: " + hexColor + ";");
+                    node.setStyle("-fx-bar-fill: " + currentColor + ";");
                     break;
                 case ("BUBBLE"):
                     node = bubbleChart.lookup(preIdent + ".chart-series-area-fill");
@@ -695,19 +703,19 @@ public class ChartView implements Observer {
                     break;
                 case ("SCATTER"):
                     node = scatterChart.lookup(preIdent + ".chart-symbol");
-                    node.setStyle("-fx-background-color: " + hexColor + ";");
+                    node.setStyle("-fx-background-color: " + currentColor + ";");
                     break;
                 case ("PIE"):
                     node = pieChart.lookup(preIdent + ".chart-pie");
-                    node.setStyle("-fx-pie-color: " + hexColor + ";");
+                    node.setStyle("-fx-pie-color: " + currentColor + ";");
                     break;
                 default:
                     node = areaChart.lookup(preIdent + ".chart-series-area-fill");
                     nodew = areaChart.lookup(preIdent + ".chart-series-area-line");
-                    node.setStyle("-fx-fill: linear-gradient(" + hexBrighter + "," + hexBrighter + ");"
+                    node.setStyle("-fx-fill: linear-gradient(" + currentColor + "," + hexColor + ");"
                             + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
                             + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
-                    nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+                    nodew.setStyle("-fx-stroke: " + currentColor + "; -fx-stroke-width: 2px; ");
                     break;
             }
 
