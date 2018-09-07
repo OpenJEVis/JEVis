@@ -14,8 +14,6 @@
         <dependency>
             <groupId>org.jevis.commons</groupId>
             <artifactId>JECommons</artifactId>
-            <version>3.0</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
     <parent>
