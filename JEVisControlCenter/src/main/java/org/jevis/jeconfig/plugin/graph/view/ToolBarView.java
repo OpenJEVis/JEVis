@@ -290,8 +290,8 @@ public class ToolBarView {
 
     private void saveCurrentAnalysis() {
 
-        Dialog<ButtonType> saveAnalysis = new Dialog<>();
-        saveAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
+        Dialog<ButtonType> newAnalysis = new Dialog<>();
+        newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         TextField name = new TextField();
         if (nameCurrentAnalysis != null && nameCurrentAnalysis != "") name.setText(nameCurrentAnalysis);
@@ -315,10 +315,10 @@ public class ToolBarView {
         vbox.setSpacing(4);
         vbox.getChildren().addAll(newText, name);
 
-        saveAnalysis.getDialogPane().setContent(vbox);
-        saveAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
+        newAnalysis.getDialogPane().setContent(vbox);
+        newAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
 
-        saveAnalysis.showAndWait()
+        newAnalysis.showAndWait()
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
                         if (!observableListAnalyses.contains(nameCurrentAnalysis)) {
@@ -332,12 +332,8 @@ public class ToolBarView {
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
-                            DateTime start = selectedStart;
-                            DateTime end = selectedEnd;
                             saveDataModel(model.getSelectedData(), model.getCharts());
                             updateListAnalyses();
-                            selectedStart = start;
-                            selectedEnd = end;
                             listAnalysesComboBoxHidden.getSelectionModel().select(nameCurrentAnalysis);
                         } else {
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
@@ -350,12 +346,8 @@ public class ToolBarView {
 
                             dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
                                 if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                                    DateTime start = selectedStart;
-                                    DateTime end = selectedEnd;
                                     saveDataModel(model.getSelectedData(), model.getCharts());
                                     updateListAnalyses();
-                                    selectedStart = start;
-                                    selectedEnd = end;
                                     listAnalysesComboBoxHidden.getSelectionModel().select(nameCurrentAnalysis);
                                 } else {
 

@@ -49,6 +49,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private JEVisDataSource ds;
     private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private Boolean initialTimeFrame = true;
+    private DateTime lastSampleTimeStamp;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.data = data;
@@ -307,16 +308,26 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 this.nameCurrentAnalysis = newValue;
                 setJEVisObjectForCurrentAnalysis(newValue);
 
-                selectedStart = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        toolBarView.getWorkdayStart().getHour(), toolBarView.getWorkdayStart().getMinute(), toolBarView.getWorkdayStart().getSecond());
-                selectedStart = selectedStart.minusDays(7);
+                if (lastSampleTimeStamp != null) {
+                    selectedStart = new DateTime(lastSampleTimeStamp.getYear(), lastSampleTimeStamp.getMonthOfYear(), lastSampleTimeStamp.getDayOfMonth(),
+                            toolBarView.getWorkdayStart().getHour(), toolBarView.getWorkdayStart().getMinute(), toolBarView.getWorkdayStart().getSecond());
+                    selectedStart = selectedStart.minusDays(7);
 
-                selectedEnd = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        toolBarView.getWorkdayEnd().getHour(), toolBarView.getWorkdayEnd().getMinute(), toolBarView.getWorkdayEnd().getSecond());
+                    selectedEnd = new DateTime(lastSampleTimeStamp.getYear(), lastSampleTimeStamp.getMonthOfYear(), lastSampleTimeStamp.getDayOfMonth(),
+                            toolBarView.getWorkdayEnd().getHour(), toolBarView.getWorkdayEnd().getMinute(), toolBarView.getWorkdayEnd().getSecond());
+                } else {
+                    selectedStart = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                            toolBarView.getWorkdayStart().getHour(), toolBarView.getWorkdayStart().getMinute(), toolBarView.getWorkdayStart().getSecond());
+                    selectedStart = selectedStart.minusDays(7);
+
+                    selectedEnd = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                            toolBarView.getWorkdayEnd().getHour(), toolBarView.getWorkdayEnd().getMinute(), toolBarView.getWorkdayEnd().getSecond());
+                }
 
                 updateTimeFramePicker();
                 updateTimeFrame();
                 updateToolBarView();
+                toolBarView.getListAnalysis();
                 toolBarView.select(nameCurrentAnalysis);
 
                 getListAnalysis();
@@ -480,10 +491,35 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         }
                     }
                 }
+                getLastSampleTimestamp();
             }
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis model", e);
         }
+    }
+
+    private void getLastSampleTimestamp() {
+        DateTime current = new DateTime(2001, 1, 1, 0, 0, 0, 0);
+        for (JsonAnalysisModel mdl : listAnalysisModel) {
+            ChartDataModel newData = new ChartDataModel();
+            try {
+                Long id = Long.parseLong(mdl.getObject());
+                Long id_dp = null;
+                if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
+                JEVisObject obj = ds.getObject(id);
+                JEVisObject obj_dp = null;
+                if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
+                newData.setObject(obj);
+                newData.setDataProcessor(obj_dp);
+                newData.getAttribute();
+                DateTime latestSampleTS = newData.getAttribute().getLatestSample().getTimestamp();
+                if (latestSampleTS.isAfter(current)) current = latestSampleTS;
+            } catch (JEVisException e) {
+
+            }
+        }
+
+        if (!current.equals(new DateTime(2001, 1, 1, 0, 0, 0, 0))) lastSampleTimeStamp = current;
     }
 
     private ChartPlugin.AGGREGATION parseAggregation(String aggrigation) {
