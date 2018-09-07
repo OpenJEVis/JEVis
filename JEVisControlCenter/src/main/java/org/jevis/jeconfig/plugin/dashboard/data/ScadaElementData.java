@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.plugin.dashboard.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ScadaElementData {
 
     private Long objectID;
@@ -8,6 +11,7 @@ public class ScadaElementData {
     private String type;
     private double xPos;
     private double yPos;
+    private Map<String, String> options = new HashMap<>();
 
 
     public double getxPos() {
@@ -57,4 +61,14 @@ public class ScadaElementData {
     public void setBgColor(String bgColor) {
         this.bgColor = bgColor;
     }
+
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    public void setOptions(Map<String, String> options) {
+        this.options = options;
+    }
+
+
 }

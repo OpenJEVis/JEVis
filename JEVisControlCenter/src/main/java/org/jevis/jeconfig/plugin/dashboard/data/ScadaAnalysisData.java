@@ -33,4 +33,5 @@ public class ScadaAnalysisData {
         this.elements = elements;
     }
 
+
 }

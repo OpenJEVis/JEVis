@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -9,21 +9,18 @@
     <packaging>jar</packaging>
 
     <name>JEApplication</name>
-	
-	
+
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <additionalparam>-Xdoclint:none</additionalparam>
-    </properties>    
+    </properties>
 
     <parent>
         <groupId>org.jevis</groupId>
         <artifactId>JEVisCore</artifactId>
         <version>3.4</version>
     </parent>
-        
-        
-
 
 
     <dependencies>
@@ -48,8 +45,7 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>8.20.8</version>
-        </dependency>     
+        </dependency>
     </dependencies>
 
     <build>
@@ -73,7 +69,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

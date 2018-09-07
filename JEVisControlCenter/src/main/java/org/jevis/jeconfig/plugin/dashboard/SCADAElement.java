@@ -1,9 +1,12 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.application.jevistree.UserSelection;
 import org.jevis.jeconfig.plugin.dashboard.data.ScadaElementData;
 
 /**
@@ -11,6 +14,8 @@ import org.jevis.jeconfig.plugin.dashboard.data.ScadaElementData;
  */
 public interface SCADAElement {
 
+
+    ScadaElementData getData();
 
     void setData(ScadaElementData data);
 
@@ -26,5 +31,15 @@ public interface SCADAElement {
 
     void update();
 
+    UserSelection getUserSeclection();
 
+    double getRelativeXPos();
+
+    double getRelativeYPos();
+
+    void setParent(Pane parent);
+
+    BooleanProperty movableProperty();
+
+    void openConfig();
 }

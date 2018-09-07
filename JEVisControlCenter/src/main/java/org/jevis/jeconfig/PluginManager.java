@@ -34,7 +34,7 @@ import javafx.scene.layout.StackPane;
 import org.jevis.api.*;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO5001Browser;
-import org.jevis.jeconfig.plugin.dashboard.DashboardPlugin;
+import org.jevis.jeconfig.plugin.dashboard.SCADAPlugin;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.tool.I18n;
@@ -87,7 +87,7 @@ public class PluginManager {
         List<Plugin> plugins = new ArrayList<>();
 //        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
-        plugins.add(new DashboardPlugin(_ds));
+        plugins.add(new SCADAPlugin(_ds));
         plugins.add(new ISO5001Browser(_ds));
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
         plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
@@ -141,7 +141,7 @@ public class PluginManager {
                 for (JEVisObject plugObj : pluginObjs) {
                     try {
                         for (Plugin plugin : plugins) {
-                            try{
+                            try {
                                 if (plugin.getClassName().equals(plugObj.getJEVisClassName())) {
                                     JEVisAttribute enabled = plugObj.getAttribute("Enable");
                                     if (enabled == null) {
@@ -154,11 +154,11 @@ public class PluginManager {
                                         }
                                     }
                                 }
-                            }catch(Exception ex){
+                            } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
                         }
-                    }catch (Exception ex) {
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -167,7 +167,7 @@ public class PluginManager {
             }
 
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
