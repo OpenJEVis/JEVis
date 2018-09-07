@@ -124,13 +124,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         ObservableList<String> presetDateEntries = FXCollections.observableArrayList();
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
-        final String lastDay = I18n.getInstance().getString("plugin.graph.changedate.buttonlastday");
+        final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
         final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
+        final String lastDay = I18n.getInstance().getString("plugin.graph.changedate.buttonlastday");
         final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
         final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
 
-        presetDateEntries.addAll(custom, lastDay, last7Days, last30Days, lastWeek, lastMonth);
+        presetDateEntries.addAll(custom, today, last7Days, last30Days, lastDay, lastWeek, lastMonth);
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
         comboBoxPresetDates.getSelectionModel().select(3);
 
@@ -146,9 +147,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     //Custom
                     case 0:
                         break;
-                    //last day
+                    //today
                     case 1:
-                        dh = new DateHelper(DateHelper.TransformType.LASTDAY);
+                        dh = new DateHelper(DateHelper.TransformType.TODAY);
                         dh.setStartTime(toolBarView.getWorkdayStart());
                         dh.setEndTime(toolBarView.getWorkdayEnd());
 
@@ -179,8 +180,19 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
-                    //last Week days
+                    //last day
                     case 4:
+                        dh = new DateHelper(DateHelper.TransformType.LASTDAY);
+                        dh.setStartTime(toolBarView.getWorkdayStart());
+                        dh.setEndTime(toolBarView.getWorkdayEnd());
+
+                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
+                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
+                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        break;
+                    //last Week days
+                    case 5:
                         dh = new DateHelper(DateHelper.TransformType.LASTWEEK);
                         dh.setStartTime(toolBarView.getWorkdayStart());
                         dh.setEndTime(toolBarView.getWorkdayEnd());
@@ -190,7 +202,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
-                    case 5:
+                    case 6:
                         //last Month
                         dh = new DateHelper(DateHelper.TransformType.LASTMONTH);
                         dh.setStartTime(toolBarView.getWorkdayStart());
@@ -526,6 +538,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         switch (aggrigation) {
             case ("None"):
                 return ChartPlugin.AGGREGATION.None;
+            case ("Hourly"):
+                return ChartPlugin.AGGREGATION.Hourly;
             case ("Daily"):
                 return ChartPlugin.AGGREGATION.Daily;
             case ("Weekly"):
