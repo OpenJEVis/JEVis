@@ -46,7 +46,8 @@ public class FillGapStep implements ProcessStep {
         for (JEVisObject obj : calcAttribute.getObject().getParents()) {
             parentObject = obj;
         }
-        if (!calcAttribute.getIsPeriodAligned()) { //no gap filling when there is no alignment
+        if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getGapFillingEnabled() || calcAttribute.getGapFillingConfig().isEmpty()) {
+            //no gap filling when there is no alignment or disabled or no config
             return;
         }
         StopWatch stopWatch = new Slf4JStopWatch("gap_filling");
@@ -64,48 +65,50 @@ public class FillGapStep implements ProcessStep {
         if (Objects.nonNull(conf)) {
             if (!conf.isEmpty()) {
                 for (JsonGapFillingConfig c : conf) {
-                    logger.info("start filling with new Mode for " + c.getType());
                     List<Gap> newGaps = new ArrayList<>();
+                    logger.info("start filling with new Mode for " + c.getType());
+
                     for (Gap g : gaps) {
                         DateTime firstDate = g.getIntervals().get(0).getDate();
                         DateTime lastDate = g.getIntervals().get(g.getIntervals().size() - 1).getDate();
                         if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
                             newGaps.add(g);
                         }
-
-                        switch (c.getType()) {
-                            case GapFillingType.NONE:
-                                break;
-                            case GapFillingType.STATIC:
-                                fillStatic(newGaps);
-                                break;
-                            case GapFillingType.INTERPOLATION:
-                                fillInterpolation(newGaps);
-                                break;
-                            case GapFillingType.DEFAULT_VALUE:
-                                Double defaultValue = Double.valueOf(c.getDefaultvalue());
-                                fillDefault(newGaps, defaultValue);
-                                break;
-                            case GapFillingType.MINIMUM:
-                                fillMinimum(newGaps, c);
-                                break;
-                            case GapFillingType.MAXIMUM:
-                                fillMaximum(newGaps, c);
-                                break;
-                            case GapFillingType.MEDIAN:
-                                fillMedian(newGaps, c);
-                                break;
-                            case GapFillingType.AVERAGE:
-                                fillAverage(newGaps, c);
-                                break;
-                            default:
-                                break;
-                        }
+                    }
+                    switch (c.getType()) {
+                        case GapFillingType.NONE:
+                            break;
+                        case GapFillingType.STATIC:
+                            fillStatic(newGaps);
+                            break;
+                        case GapFillingType.INTERPOLATION:
+                            fillInterpolation(newGaps);
+                            break;
+                        case GapFillingType.DEFAULT_VALUE:
+                            Double defaultValue = Double.valueOf(c.getDefaultvalue());
+                            fillDefault(newGaps, defaultValue);
+                            break;
+                        case GapFillingType.MINIMUM:
+                            fillMinimum(newGaps, c);
+                            break;
+                        case GapFillingType.MAXIMUM:
+                            fillMaximum(newGaps, c);
+                            break;
+                        case GapFillingType.MEDIAN:
+                            fillMedian(newGaps, c);
+                            break;
+                        case GapFillingType.AVERAGE:
+                            fillAverage(newGaps, c);
+                            break;
+                        default:
+                            break;
                     }
                 }
+
             } else {
                 logger.error("Found gap but missing GapFillingConfig in Object: " + calcAttribute.getObject().getName() + " Id: " + calcAttribute.getObject().getID());
             }
+
         }
 
         stopWatch.stop();
@@ -190,14 +193,14 @@ public class FillGapStep implements ProcessStep {
             Double lastValue = currentGap.getLastValue();
             int size = currentGap.getIntervals().size() + 1; //if there is a gap of 2, then you have 3 steps
             Double stepSize = (lastValue - firstValue) / size;
-            Double currenValue = firstValue + stepSize;
+            Double currentValue = firstValue + stepSize;
             for (CleanInterval currentInterval : currentGap.getIntervals()) {
                 try {
                     for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), currenValue);
+                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentValue);
                         String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",gap(Interpolation)";
                         sample.setNote(note);
-                        currenValue += stepSize;
+                        currentValue += stepSize;
                         currentInterval.addTmpSample(sample);
                     }
                 } catch (JEVisException | ClassCastException ex) {

@@ -54,6 +54,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
 
     private Boolean limitsEnabled;
+    private Boolean gapFillingEnabled;
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private List<JEVisSample> counterOverflow;
     private Double lastDiffValue;
@@ -114,6 +115,13 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         if (limitsEnabled == null)
             limitsEnabled = sampleHandler.getLastSample(getObject(), LIMITS_ENABLED.getAttributeName(), false);
         return limitsEnabled;
+    }
+
+    @Override
+    public Boolean getGapFillingEnabled() {
+        if (gapFillingEnabled == null)
+            gapFillingEnabled = sampleHandler.getLastSample(getObject(), GAPFILLING_ENABLED.getAttributeName(), false);
+        return gapFillingEnabled;
     }
 
     public JEVisObject getObject() {
@@ -279,7 +287,8 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         GAP_FILLING("Gap Filling"),
         ENABLED("Enabled"),
         GAP_FILLING_CONFIG("Gap Filling Config"),
-        LIMITS_ENABLED("Limiting DataRow"),
+        LIMITS_ENABLED("Limits Enabled"),
+        GAPFILLING_ENABLED("GapFilling Enabled"),
         LIMITS_CONFIGURATION("Limits Configuration");
 
         private final String attributeName;

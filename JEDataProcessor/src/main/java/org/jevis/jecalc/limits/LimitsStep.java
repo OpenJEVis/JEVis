@@ -48,7 +48,7 @@ public class LimitsStep implements ProcessStep {
             parentObject = obj;
         }
         if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getLimitsEnabled() || calcAttribute.getLimitsConfig().isEmpty()) {
-            //no limits check when there is no alignment and disabled or no config
+            //no limits check when there is no alignment or disabled or no config
             return;
         }
         StopWatch stopWatch = new Slf4JStopWatch("limits_check");
@@ -104,35 +104,34 @@ public class LimitsStep implements ProcessStep {
                                     if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
                                         newLimitBreaks.add(lb);
                                     }
-
-                                    switch (c.getType()) {
-                                        case GapFillingType.NONE:
-                                            break;
-                                        case GapFillingType.STATIC:
-                                            fillStatic(newLimitBreaks);
-                                            break;
-                                        case GapFillingType.INTERPOLATION:
-                                            fillInterpolation(newLimitBreaks);
-                                            break;
-                                        case GapFillingType.DEFAULT_VALUE:
-                                            Double defaultValue = Double.valueOf(c.getDefaultvalue());
-                                            fillDefault(newLimitBreaks, defaultValue);
-                                            break;
-                                        case GapFillingType.MINIMUM:
-                                            fillMinimum(newLimitBreaks, c);
-                                            break;
-                                        case GapFillingType.MAXIMUM:
-                                            fillMaximum(newLimitBreaks, c);
-                                            break;
-                                        case GapFillingType.MEDIAN:
-                                            fillMedian(newLimitBreaks, c);
-                                            break;
-                                        case GapFillingType.AVERAGE:
-                                            fillAverage(newLimitBreaks, c);
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                }
+                                switch (c.getType()) {
+                                    case GapFillingType.NONE:
+                                        break;
+                                    case GapFillingType.STATIC:
+                                        fillStatic(newLimitBreaks);
+                                        break;
+                                    case GapFillingType.INTERPOLATION:
+                                        fillInterpolation(newLimitBreaks);
+                                        break;
+                                    case GapFillingType.DEFAULT_VALUE:
+                                        Double defaultValue = Double.valueOf(c.getDefaultvalue());
+                                        fillDefault(newLimitBreaks, defaultValue);
+                                        break;
+                                    case GapFillingType.MINIMUM:
+                                        fillMinimum(newLimitBreaks, c);
+                                        break;
+                                    case GapFillingType.MAXIMUM:
+                                        fillMaximum(newLimitBreaks, c);
+                                        break;
+                                    case GapFillingType.MEDIAN:
+                                        fillMedian(newLimitBreaks, c);
+                                        break;
+                                    case GapFillingType.AVERAGE:
+                                        fillAverage(newLimitBreaks, c);
+                                        break;
+                                    default:
+                                        break;
                                 }
                             }
                         }

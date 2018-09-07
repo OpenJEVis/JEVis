@@ -38,16 +38,16 @@
       }
     },
     {
-      "type": "Limiting DataRow",
+      "type": "Limits Enabled",
       "descriptions": {
         "de": "Aktiviert/Deaktiviert die Begrenzung der Datenreihe auf Min/Max-Werte, definiert in der Konfiguration",
         "ru": "Enables/Disables the limitation of the data series to min/max values, defined in the configuration",
         "en": "Enables/Disables the limitation of the data series to min/max values, defined in the configuration"
       },
       "names": {
-        "de": "Grenzüberwachung",
-        "ru": "Limit Control",
-        "en": "Limit Control"
+        "de": "Grenzwerte aktiv",
+        "ru": "Limits Enabled",
+        "en": "Limits Enabled"
       }
     },
     {
@@ -58,35 +58,35 @@
         "en": "Define the method for the gap filling"
       },
       "names": {
-        "de": "Grenzwertvorgabe",
+        "de": "Grenzwertkonfiguration",
         "ru": "Limit Configuration",
         "en": "Limit Configuration"
       }
     },
     {
-      "type": "Gap Filling",
+      "type": "GapFilling Enabled",
+      "descriptions": {
+        "de": "Aktiviert/Deaktiviert die Lückenbefüllung der Datenreihe, definiert in der Konfiguration",
+        "ru": "Enables/Disables the gap filling of the data series, defined in the configuration",
+        "en": "Enables/Disables the gap filling of the data series, defined in the configuration"
+      },
+      "names": {
+        "de": "Lückenbefüllung aktiv",
+        "ru": "Gap Filling enabled",
+        "en": "Gap Filling enabled"
+      }
+    },
+    {
+      "type": "Gap Filling Config",
       "descriptions": {
         "de": "Definiert die Methode zur Befüllung von Datenlücken",
         "ru": "Define the method for the filling of data gaps",
         "en": "Define the method for the filling of data gaps"
       },
       "names": {
-        "de": "Ersatzwertbildung",
-        "ru": "Replacement Values",
-        "en": "Replacement Values"
-      }
-    },
-    {
-      "type": "Gap Filling Config",
-      "descriptions": {
-        "de": "Definiert die Methode zur Ersatzwertbildung",
-        "ru": "Gap Filling description",
-        "en": "Define the method for the gap filling"
-      },
-      "names": {
-        "de": "Ersatzwert-Konfiguration",
-        "ru": "Replacement Configuration",
-        "en": "Replacement Configuration"
+        "de": "Lückenbefüllungskonfiguration",
+        "ru": "Gap filling configuration",
+        "en": "Gap filling configuration"
       }
     },
     {
