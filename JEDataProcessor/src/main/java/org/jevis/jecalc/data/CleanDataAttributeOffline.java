@@ -44,6 +44,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private Boolean limitsEnabled;
+    private Boolean gapFillingEnabled;
     private static final Logger logger = LoggerFactory.getLogger(CleanDataAttributeOffline.class);
 
     private JEVisObject object;
@@ -204,6 +205,11 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     @Override
     public Boolean getLimitsEnabled() {
         return limitsEnabled;
+    }
+
+    @Override
+    public Boolean getGapFillingEnabled() {
+        return gapFillingEnabled;
     }
 
     @Override

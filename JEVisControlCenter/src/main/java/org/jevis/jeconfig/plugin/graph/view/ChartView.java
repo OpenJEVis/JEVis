@@ -33,10 +33,10 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.dialog.NoteDialog;
+import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartSettings;
 import org.jevis.application.jevistree.plugin.TableEntry;
-import org.jevis.commons.constants.JEDataProcessorConstants;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
@@ -74,57 +74,7 @@ public class ChartView implements Observer {
     private final Logger logger = LogManager.getLogger(ChartView.class);
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
 
-    public ChartView(GraphDataModel dataModel) {
-        this.dataModel = dataModel;
-        dataModel.addObserver(this);
-
-        table = new TableView();
-        table.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
-//        table.setFixedCellSize(25);
-//        table.prefHeightProperty().bind(Bindings.size(table.getItems()).multiply(table.getFixedCellSize()).add(30));
-        TableColumn name = new TableColumn(I18n.getInstance().getString("plugin.graph.table.name"));
-        name.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
-
-//        TableColumn colorCol = new TableColumn("Color333");
-//        colorCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("color"));
-        TableColumn colorCol = buildColorColumn(I18n.getInstance().getString("plugin.graph.table.color"));
-
-        TableColumn value = new TableColumn(I18n.getInstance().getString("plugin.graph.table.value"));
-        value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
-        value.setStyle("-fx-alignment: CENTER-RIGHT");
-
-        TableColumn dateCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.date"));
-        dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
-        dateCol.setStyle("-fx-alignment: CENTER");
-
-        TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
-        note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
-        note.setStyle("-fx-alignment: CENTER");
-        note.setPrefWidth(30);
-
-        TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
-        minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
-        minCol.setStyle("-fx-alignment: CENTER-RIGHT");
-
-        TableColumn maxCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.max"));
-        maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
-        maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
-
-        TableColumn avgCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.avg"));
-        avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
-        avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
-
-        TableColumn sumCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.sum"));
-        sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
-        sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
-
-        final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-        TableEntry tableEntry = new TableEntry("empty");
-        tableData.add(tableEntry);
-        table.setItems(tableData);
-
-        table.getColumns().addAll(name, colorCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
-    }
+    private Number valueForDisplay;
 
     private TableColumn<TableEntry, Color> buildColorColumn(String columnName) {
         TableColumn<TableEntry, Color> column = new TableColumn(columnName);
@@ -149,7 +99,15 @@ public class ChartView implements Observer {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                         if (!empty && item != null) {
                             StackPane hbox = new StackPane();
-                            hbox.setBackground(new Background(new BackgroundFill(item.deriveColor(1, 1, 50, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
+//                            if (getChartType().equals(ChartSettings.ChartType.AREA)) {
+//                                hbox.setBackground(
+//                                        new Background(
+//                                                new BackgroundFill(item.deriveColor(1, 1, 50, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
+//                            } else {
+                            hbox.setBackground(
+                                    new Background(
+                                            new BackgroundFill(item, CornerRadii.EMPTY, Insets.EMPTY)));
+//                            }
 
                             setText(null);
                             setGraphic(hbox);
@@ -211,7 +169,74 @@ public class ChartView implements Observer {
     }
 
 
-    private double x;
+    public ChartView(GraphDataModel dataModel) {
+        this.dataModel = dataModel;
+        dataModel.addObserver(this);
+
+        table = new TableView();
+
+        table.sortPolicyProperty().set((Callback<TableView<TableEntry>, Boolean>) param -> {
+            AlphanumComparator ac = new AlphanumComparator();
+            Comparator<TableEntry> comparator = (t1, t2) -> ac.compare(t1.getName(), t2.getName());
+            FXCollections.sort(table.getItems(), comparator);
+            return true;
+        });
+
+        table.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
+//        table.setFixedCellSize(25);
+//        table.prefHeightProperty().bind(Bindings.size(table.getItems()).multiply(table.getFixedCellSize()).add(30));
+        TableColumn name = new TableColumn(I18n.getInstance().getString("plugin.graph.table.name"));
+        name.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
+        name.setSortable(false);
+
+//        TableColumn colorCol = new TableColumn("Color333");
+//        colorCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("color"));
+        TableColumn colorCol = buildColorColumn(I18n.getInstance().getString("plugin.graph.table.color"));
+        colorCol.setSortable(false);
+
+        TableColumn value = new TableColumn(I18n.getInstance().getString("plugin.graph.table.value"));
+        value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
+        value.setStyle("-fx-alignment: CENTER-RIGHT");
+        value.setSortable(false);
+
+        TableColumn dateCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.date"));
+        dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
+        dateCol.setStyle("-fx-alignment: CENTER");
+        dateCol.setSortable(false);
+
+        TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
+        note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
+        note.setStyle("-fx-alignment: CENTER");
+        note.setPrefWidth(15);
+        note.setSortable(false);
+
+        TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
+        minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
+        minCol.setStyle("-fx-alignment: CENTER-RIGHT");
+        minCol.setSortable(false);
+
+        TableColumn maxCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.max"));
+        maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
+        maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
+        maxCol.setSortable(false);
+
+        TableColumn avgCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.avg"));
+        avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
+        avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
+        avgCol.setSortable(false);
+
+        TableColumn sumCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.sum"));
+        sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
+        sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
+        sumCol.setSortable(false);
+
+        final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
+        TableEntry tableEntry = new TableEntry("empty");
+        tableData.add(tableEntry);
+        table.setItems(tableData);
+
+        table.getColumns().addAll(name, colorCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
+    }
 
     private void disableTable() {
         table.setVisible(false);
@@ -251,7 +276,7 @@ public class ChartView implements Observer {
                 x = scatterChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
                 break;
             case ("PIE"):
-                //x = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                //valueForDisplay = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getValueForDisplay();
                 break;
             default:
                 x = areaChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
@@ -277,7 +302,7 @@ public class ChartView implements Observer {
                     valueForDisplay = scatterChart.getXAxis().getValueForDisplay(x);
                     break;
                 case ("PIE"):
-                    //valueForDisplay = pieChart.getXAxis().getValueForDisplay(x);
+                    //valueForDisplay = pieChart.getXAxis().getValueForDisplay(valueForDisplay);
                     break;
                 default:
                     valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
@@ -303,8 +328,8 @@ public class ChartView implements Observer {
 
                             String title = "";
                             title += singleRow.getObject().getName();
-                            if (singleRow.getDataProcessor() != null)
-                                title += " (" + singleRow.getDataProcessor().getName() + ")";
+//                            if (singleRow.getDataProcessor() != null)
+//                                title += " (" + singleRow.getDataProcessor().getName() + ")";
 
                             map.put(title, note);
                         }
@@ -331,23 +356,25 @@ public class ChartView implements Observer {
         if (note != null) {
             HBox hbox = new HBox();
             double iconSize = 12;
-            if (note.contains("interpolated-break"))
+            Boolean changed = false;
+
+            if (note.contains("limit(Step1)")) {
+                hbox.getChildren().add(JEConfig.getImage("Warning-icon.png", iconSize, iconSize));
+                changed = true;
+            }
+            if (note.contains("gap(") || note.contains("limit(Default)") || note.contains("limit(Static)") || note.contains("limit(Average)")
+                    || note.contains("limit(Median)") || note.contains("limit(Interpolation)") || note.contains("limit(Min)") || note.contains("limit(Max)")) {
+                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
+                changed = true;
+            }
+
+            if (hbox.getChildren().size() == 2) {
+                hbox.getChildren().clear();
                 hbox.getChildren().add(JEConfig.getImage("rodentia-icons_process-stop.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.AVERAGE))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.DEFAULT_VALUE))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.INTERPOLATION))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.MAXIMUM))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.MINIMUM))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.MEDIAN))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            if (note.contains(JEDataProcessorConstants.GapFillingType.STATIC))
-                hbox.getChildren().add(JEConfig.getImage("rodentia-icons_dialog-warning.png", iconSize, iconSize));
-            output = hbox;
+                changed = true;
+            }
+
+            if (changed) output = hbox;
         }
         return output;
     }
@@ -420,6 +447,8 @@ public class ChartView implements Observer {
             if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
                 setChartName(chartName);
                 unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
+
                 title = I18n.getInstance().getString("plugin.graph.chart.title1");
 
                 hexColors.add(singleRow.getColor());
@@ -500,9 +529,17 @@ public class ChartView implements Observer {
                             if (cType.equals("AREA") || cType.equals("LINE") || cType.equals("BUBBLE")
                                     || cType.equals("SCATTER")) {
                                 XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
-                                Rectangle rect = new Rectangle(0, 0);
-                                rect.setVisible(false);
-                                data.setNode(rect);
+
+                                Node note = formatNote(sample.getNote());
+                                if (note != null) {
+                                    note.setVisible(true);
+                                    data.setNode(note);
+                                } else {
+                                    Rectangle rect = new Rectangle(0, 0);
+                                    rect.setVisible(false);
+                                    data.setNode(rect);
+                                }
+
                                 series1Data.add(data);
                             } else if (cType.equals("BAR")) {
                                 DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
@@ -552,6 +589,8 @@ public class ChartView implements Observer {
                 }
             }
         }
+
+        table.sort();
 
         if (cType.equals("PIE")) {
             Double whole = 0d;
@@ -658,7 +697,7 @@ public class ChartView implements Observer {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
             Color brighter = currentColor.deriveColor(1, 1, 50, 0.3);
-            String hexColor = toRGBCode(currentColor) + "55";
+            String hexColor = toRGBCode(currentColor);
             String hexBrighter = toRGBCode(brighter) + "55";
             String preIdent = ".default-color" + i;
             Node node = null;
@@ -667,7 +706,7 @@ public class ChartView implements Observer {
                 case ("AREA"):
                     node = areaChart.lookup(preIdent + ".chart-series-area-fill");
                     nodew = areaChart.lookup(preIdent + ".chart-series-area-line");
-                    node.setStyle("-fx-fill: linear-gradient(" + hexBrighter + "," + hexBrighter + ");"
+                    node.setStyle("-fx-fill: linear-gradient(" + hexColor + "," + hexBrighter + ");"
                             + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
                             + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
                     nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
@@ -695,7 +734,7 @@ public class ChartView implements Observer {
                 default:
                     node = areaChart.lookup(preIdent + ".chart-series-area-fill");
                     nodew = areaChart.lookup(preIdent + ".chart-series-area-line");
-                    node.setStyle("-fx-fill: linear-gradient(" + hexBrighter + "," + hexBrighter + ");"
+                    node.setStyle("-fx-fill: linear-gradient(" + hexColor + "," + hexColor + ");"
                             + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
                             + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
                     nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
@@ -709,7 +748,7 @@ public class ChartView implements Observer {
             case ("AREA"):
                 areaChart.setTitle(title);
                 areaChart.setLegendVisible(false);
-                areaChart.setCreateSymbols(false);
+                areaChart.setCreateSymbols(true);
                 areaChart.layout();
 
                 areaChart.getXAxis().setAutoRanging(true);
@@ -726,7 +765,7 @@ public class ChartView implements Observer {
             case ("LINE"):
                 lineChart.setTitle(title);
                 lineChart.setLegendVisible(false);
-                lineChart.setCreateSymbols(false);
+                lineChart.setCreateSymbols(true);
                 lineChart.layout();
 
                 lineChart.getXAxis().setAutoRanging(true);
@@ -935,15 +974,16 @@ public class ChartView implements Observer {
         }
     }
 
-    public void updateTablesSimultaneously(String chartName, ChartSettings.ChartType chartType, MouseEvent mouseEvent, Double x) {
-        updateTable(chartName, chartType, mouseEvent, x);
+    public void updateTablesSimultaneously(String chartName, ChartSettings.ChartType chartType, MouseEvent mouseEvent, Number valueForDisplay) {
+        updateTable(chartName, chartType, mouseEvent, valueForDisplay);
     }
 
     private void updateTable(String chartName, ChartSettings.ChartType chartType, MouseEvent
-            mouseEvent, Double x) {
+            mouseEvent, Number valueForDisplay) {
         Point2D mouseCoordinates = null;
         if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        if (x == null) {
+        Double x = null;
+        if (valueForDisplay == null) {
             switch (chartType.toString()) {
                 case ("AREA"):
                     x = getAreaChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
@@ -952,16 +992,16 @@ public class ChartView implements Observer {
                     x = getLineChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
                     break;
                 case ("BAR"):
-                    //x = getBarChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    //valueForDisplay = getBarChart().getXAxis().sceneToLocal(mouseCoordinates).getValueForDisplay();
                     break;
                 case ("BUBBLE"):
-                    //x = getBubbleChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    //valueForDisplay = getBubbleChart().getXAxis().sceneToLocal(mouseCoordinates).getValueForDisplay();
                     break;
                 case ("SCATTER"):
-                    //x = getScatterChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    //valueForDisplay = getScatterChart().getXAxis().sceneToLocal(mouseCoordinates).getValueForDisplay();
                     break;
                 case ("PIE"):
-                    //x = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+                    //valueForDisplay = pieChart.getXAxis().sceneToLocal(mouseCoordinates).getValueForDisplay();
                     break;
                 default:
                     x = getAreaChart().getXAxis().sceneToLocal(mouseCoordinates).getX();
@@ -969,8 +1009,6 @@ public class ChartView implements Observer {
             }
         }
         if (x != null) {
-            setX(x);
-            Number valueForDisplay = null;
             switch (chartType.toString()) {
                 case ("AREA"):
                     valueForDisplay = (Number) getAreaChart().getXAxis().getValueForDisplay(x);
@@ -979,63 +1017,65 @@ public class ChartView implements Observer {
                     valueForDisplay = getLineChart().getXAxis().getValueForDisplay(x);
                     break;
                 case ("BAR"):
-                    //valueForDisplay = getBarChart().getXAxis().getValueForDisplay(x);
+                    //valueForDisplay = getBarChart().getXAxis().getValueForDisplay(valueForDisplay);
                     break;
                 case ("BUBBLE"):
-                    //valueForDisplay = getBubbleChart().getXAxis().getValueForDisplay(x);
+                    //valueForDisplay = getBubbleChart().getXAxis().getValueForDisplay(valueForDisplay);
                     break;
                 case ("SCATTER"):
-                    //valueForDisplay = getScatterChart().getXAxis().getValueForDisplay(x);
+                    //valueForDisplay = getScatterChart().getXAxis().getValueForDisplay(valueForDisplay);
                     break;
                 case ("PIE"):
-                    //valueForDisplay = pieChart.getXAxis().getValueForDisplay(x);
+                    //valueForDisplay = pieChart.getXAxis().getValueForDisplay(valueForDisplay);
                     break;
                 default:
                     valueForDisplay = (Number) getAreaChart().getXAxis().getValueForDisplay(x);
                     break;
             }
-            if (valueForDisplay != null) {
-                getTableData().clear();
-                for (ChartDataModel singleRow : getDataModel().getSelectedData()) {
-                    if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
-                        try {
-                            Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                            Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+        }
+        if (valueForDisplay != null) {
+            setValueForDisplay(valueForDisplay);
+            getTableData().clear();
+            for (ChartDataModel singleRow : getDataModel().getSelectedData()) {
+                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                    try {
+                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
 
-                            Double nearest = higherKey;
-                            if (nearest == null) nearest = lowerKey;
+                        Double nearest = higherKey;
+                        if (nearest == null) nearest = lowerKey;
 
-                            if (lowerKey != null && higherKey != null) {
-                                Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
-                                Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
-                                if (lower < higher) {
-                                    nearest = lowerKey;
-                                }
+                        if (lowerKey != null && higherKey != null) {
+                            Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
+                            Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
+                            if (lower < higher) {
+                                nearest = lowerKey;
                             }
-
-                            NumberFormat nf = NumberFormat.getInstance();
-                            nf.setMinimumFractionDigits(2);
-                            nf.setMaximumFractionDigits(2);
-                            Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
-                            String note = singleRow.getSampleMap().get(nearest).getNote();
-                            Node formattedNote = formatNote(note);
-                            String formattedDouble = nf.format(valueAsDouble);
-                            TableEntry tableEntry = singleRow.getTableEntry();
-                            DateTime dateTime = new DateTime(Math.round(nearest));
-                            tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                            tableEntry.setNote(formattedNote);
-                            final String unit = UnitManager.getInstance().formate(singleRow.getUnit());
-                            tableEntry.setValue(formattedDouble + " " + unit);
-                            getTableData().add(tableEntry);
-
-                            getTable().layout();
-
-                        } catch (Exception ex) {
                         }
+
+                        NumberFormat nf = NumberFormat.getInstance();
+                        nf.setMinimumFractionDigits(2);
+                        nf.setMaximumFractionDigits(2);
+                        Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
+                        String note = singleRow.getSampleMap().get(nearest).getNote();
+                        Node formattedNote = formatNote(note);
+                        String formattedDouble = nf.format(valueAsDouble);
+                        TableEntry tableEntry = singleRow.getTableEntry();
+                        DateTime dateTime = new DateTime(Math.round(nearest));
+                        tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                        tableEntry.setNote(formattedNote);
+                        final String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                        tableEntry.setValue(formattedDouble + " " + unit);
+                        getTableData().add(tableEntry);
+
+                        getTable().layout();
+
+                    } catch (Exception ex) {
                     }
                 }
             }
         }
+        table.sort();
     }
 
     public TableView getTable() {
@@ -1070,12 +1110,12 @@ public class ChartView implements Observer {
         return dataModel;
     }
 
-    public double getX() {
-        return x;
+    public Number getValueForDisplay() {
+        return valueForDisplay;
     }
 
-    public void setX(double x) {
-        this.x = x;
+    public void setValueForDisplay(Number valueForDisplay) {
+        this.valueForDisplay = valueForDisplay;
     }
 
     public ChartSettings.ChartType getChartType() {

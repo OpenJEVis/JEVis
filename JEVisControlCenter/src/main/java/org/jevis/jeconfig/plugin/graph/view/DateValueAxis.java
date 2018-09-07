@@ -33,6 +33,7 @@ public class DateValueAxis extends ValueAxis<Long> {
      * We use these for auto ranging to pick a user friendly tick unit. (must be increasingly bigger)
      */
     private static final double[] TICK_UNIT_DEFAULTS = {
+            900000,         //
             3600000,       // 1 day
             7200000,      // 2 das
             14400000,      // 3 days
@@ -65,19 +66,20 @@ public class DateValueAxis extends ValueAxis<Long> {
      * These are matching date formatter strings
      */
     private static final String[] TICK_UNIT_FORMATTER_DEFAULTS = {
-            "yy-MM-dd HH:mm",     // 1 day
-            "yy-MM-dd HH:mm",     // 2 days
-            "yy-MM-dd HH:mm",     // 3 days
-            "yy-MM-dd",     // 4 days
-            "yy-MM-dd",     // 5 days
-            "yy-MM-dd",     // 6 days
-            "yy-MM-dd",     // 7 days
-            "yy-MM-dd",     // 8 days
-            "yy-MM-dd",     // 9 days
-            "yy-MM-dd",     // 10 days
-            "yy-MM-dd",     // 15 days
-            "yy-MM-dd",     // 20 days
-            "yy-MM-dd",     // 25 days
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm",     // 1 day
+            "yyyy-MM-dd HH:mm",     // 2 days
+            "yyyy-MM-dd HH:mm",     // 3 days
+            "yyyy-MM-dd",     // 4 days
+            "yyyy-MM-dd",     // 5 days
+            "yyyy-MM-dd",     // 6 days
+            "yyyy-MM-dd",     // 7 days
+            "yyyy-MM-dd",     // 8 days
+            "yyyy-MM-dd",     // 9 days
+            "yyyy-MM-dd",     // 10 days
+            "yyyy-MM-dd",     // 15 days
+            "yyyy-MM-dd",     // 20 days
+            "yyyy-MM-dd",     // 25 days
             "yyyy-MMM",     // 31 days ~ 1 month
             "yyyy-MMM",     // 41 days
             "yyyy-MMM",     // 51 days
@@ -812,7 +814,7 @@ public class DateValueAxis extends ValueAxis<Long> {
 
         private DateTimeStringConverter getFormatter(int rangeIndex) {
             if (rangeIndex < 0) {
-                return new DateTimeStringConverter("yy-MM-dd hh:mm");
+                return new DateTimeStringConverter("yyyy-MM-dd HH:mm");
             } else if (rangeIndex >= TICK_UNIT_FORMATTER_DEFAULTS.length) {
                 return new DateTimeStringConverter(TICK_UNIT_FORMATTER_DEFAULTS[TICK_UNIT_FORMATTER_DEFAULTS.length - 1]);
             } else {

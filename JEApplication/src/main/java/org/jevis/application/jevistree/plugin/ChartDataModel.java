@@ -72,6 +72,13 @@ public class ChartDataModel {
                 switch (aggregation) {
                     case None:
                         break;
+                    case Hourly:
+                        aggregate = new BasicProcess();
+                        aggregate.setJEVisDataSource(ds);
+                        aggregate.setID("Dynamic");
+                        aggregate.setFunction(new AggrigatorFunction());
+                        aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
+                        break;
                     case Daily:
                         aggregate = new BasicProcess();
                         aggregate.setJEVisDataSource(ds);

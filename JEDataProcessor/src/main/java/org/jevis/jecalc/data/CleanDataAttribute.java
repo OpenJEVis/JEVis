@@ -34,6 +34,8 @@ public interface CleanDataAttribute {
 
     Boolean getLimitsEnabled();
 
+    Boolean getGapFillingEnabled();
+
     Integer getPeriodOffset();
 
     Double getLastDiffValue();

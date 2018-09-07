@@ -121,7 +121,7 @@ public class GraphPluginView implements Plugin, Observer {
 
                                 dialog.setSelectedStart(dh.getDateTimeStartDate());
                                 dialog.setSelectedEnd(dh.getDateTimeEndDate());
-                                dialog.updateTimeFrame();
+                                //dialog.updateTimeFrame();
                             }
 
                             toolBarView.select(dialog.getLv().getSelectionModel().getSelectedItem());
@@ -247,15 +247,14 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public Node getContentNode() {
+
         if (dataModel.getSelectedData() != null) getChartsList();
 
         if (border == null) {
             border = new BorderPane();
             chartView.drawDefaultAreaChart();
             border.setCenter(chartView.getAreaChartRegion());
-//            border.setCenter(new Button("click me"));
 
-//            border.setCenter(lineChart);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
         }
 
@@ -317,7 +316,7 @@ public class GraphPluginView implements Plugin, Observer {
                         cv.getAreaChart().setOnMouseMoved(event -> {
                             cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
                             for (ChartView na : notActive) {
-                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
                             }
                         });
                         break;
@@ -325,7 +324,7 @@ public class GraphPluginView implements Plugin, Observer {
                         cv.getLineChart().setOnMouseMoved(event -> {
                             cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
                             for (ChartView na : notActive) {
-                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
                             }
                         });
                         break;
@@ -333,7 +332,7 @@ public class GraphPluginView implements Plugin, Observer {
 //                        cv.getBarChart().setOnMouseMoved(event -> {
 //                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
 //                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
 //                            }
 //                        });
                         break;
@@ -341,7 +340,7 @@ public class GraphPluginView implements Plugin, Observer {
 //                        cv.getBubbleChart().setOnMouseMoved(event -> {
 //                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
 //                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
 //                            }
 //                        });
                         break;
@@ -349,7 +348,7 @@ public class GraphPluginView implements Plugin, Observer {
 //                        cv.getScatterChart().setOnMouseMoved(event -> {
 //                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
 //                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
 //                            }
 //                        });
                         break;
@@ -357,7 +356,7 @@ public class GraphPluginView implements Plugin, Observer {
 //                        cv.getPieChart().setOnMouseMoved(event -> {
 //                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
 //                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getX());
+//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
 //                            }
 //                        });
                         break;

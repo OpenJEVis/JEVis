@@ -42,7 +42,6 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
-import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -91,35 +90,35 @@ public class LimitEditor implements AttributeEditor {
         });
 
 
-        ToggleSwitchPlus enableButton = new ToggleSwitchPlus();
+//        ToggleSwitchPlus enableButton = new ToggleSwitchPlus();
+//
+//        enableButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+//
+//
+//            if (!newValue) {
+//                _changed.setValue((_lastSample != null));
+//                delete = (_lastSample != null);
+//            }
+//
+//        });
 
-        enableButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+//        openConfig.visibleProperty().bind(enableButton.selectedProperty());
+//
+//        try {
+//            if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
+//                enableButton.setSelected(true);
+////                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
+//            } else {
+//                enableButton.setSelected(false);
+////                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+//            }
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
 
 
-            if (!newValue) {
-                _changed.setValue((_lastSample != null));
-                delete = (_lastSample != null);
-            }
-
-        });
-
-        openConfig.visibleProperty().bind(enableButton.selectedProperty());
-
-        try {
-            if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
-                enableButton.setSelected(true);
-//                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
-            } else {
-                enableButton.setSelected(false);
-//                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-
-        box.getChildren().addAll(enableButton, openConfig);
+        box.getChildren().addAll(openConfig);
     }
 
     @Override
@@ -282,25 +281,25 @@ public class LimitEditor implements AttributeEditor {
         gridPane.setMinWidth(435);
 
 
-        Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.name"));
+        //Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.name"));
         Label minLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.min"));
         Label maxLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.max"));
-        Label typeOfSubstituteLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.typeOfSubstituteValue"));
-        Label durationOverUnderRunLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.durationOverUnderRun"));
+        //Label typeOfSubstituteLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.typeOfSubstituteValue"));
+        //Label durationOverUnderRunLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.durationOverUnderRun"));
         Label defaultMinLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.defaultminvalue"));
         Label defaultMaxLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.defaultmaxvalue"));
-        Label referencePeriodLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.referenceperiod"));
-        Label referencePeriodCountLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.referenceperiodcount"));
-        Label boundTosSecificLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.boundto"));
+        //Label referencePeriodLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.referenceperiod"));
+        //Label referencePeriodCountLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.referenceperiodcount"));
+        //Label boundTosSecificLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.boundto"));
 
 
         JFXTextField nameField = new JFXTextField();
         JFXTextField minField = new JFXTextField();
         JFXTextField maxField = new JFXTextField();
-        JFXTextField durationOverUnderRunField = new JFXTextField();
-        JFXTextField defaultMinField = new JFXTextField();
-        JFXTextField defaultMaxField = new JFXTextField();
-        JFXTextField referencePeriodCountField = new JFXTextField();
+        //JFXTextField durationOverUnderRunField = new JFXTextField();
+        //JFXTextField defaultMinField = new JFXTextField();
+        //JFXTextField defaultMaxField = new JFXTextField();
+        //JFXTextField referencePeriodCountField = new JFXTextField();
 
 
         JFXComboBox typeBox = new JFXComboBox(optionsType);
@@ -317,14 +316,15 @@ public class LimitEditor implements AttributeEditor {
         /**
          * Text layout
          */
-        FXCollections.observableArrayList(typeBox, boundSpecificBox, referencePeriodBox, minField, referencePeriodCountField, maxField, durationOverUnderRunField, defaultMinField, defaultMinField, defaultMaxField)
+        //FXCollections.observableArrayList(typeBox, boundSpecificBox, referencePeriodBox, minField, referencePeriodCountField, maxField, durationOverUnderRunField, defaultMinField, defaultMinField, defaultMaxField)
+        FXCollections.observableArrayList(typeBox, boundSpecificBox, referencePeriodBox, minField, maxField)
                 .forEach(field -> {
                     GridPane.setHgrow(field, Priority.ALWAYS);
 //                    field.setPrefWidth(prefFieldWidth);
                     field.setMinWidth(prefFieldWidth);
                     field.setMaxWidth(prefFieldWidth);
                 });
-        FXCollections.observableArrayList(nameField, minField, maxField, durationOverUnderRunField, defaultMinField, defaultMaxField, referencePeriodCountField)
+        FXCollections.observableArrayList(nameField, minField, maxField)
                 .forEach(field -> field.setAlignment(Pos.CENTER_RIGHT));
 //        FXCollections.observableArrayList(typeBox,boundSpecificBox, _field_Min, _field_Max, _field_Duration_Over_Underrun, _field_Default_Min_Value, _field_Default_Min_Value,_field_Default_Max_Value,_field_Reference_Period_Count)
 //                .forEach(field -> field.setPrefWidth(150));
@@ -333,15 +333,15 @@ public class LimitEditor implements AttributeEditor {
         /**
          * Fill configuration values into gui elements
          */
-        try {
-            durationOverUnderRunField.setText((Long.parseLong(config.getDurationOverUnderRun()) / 1000) + ""); //msec -> sec
-        } catch (Exception ex) {
-        }
+//        try {
+//            durationOverUnderRunField.setText((Long.parseLong(config.getDurationOverUnderRun()) / 1000) + ""); //msec -> sec
+//        } catch (Exception ex) {
+//        }
         minField.setText(config.getMin());
         maxField.setText(config.getMax());
-        defaultMinField.setText(config.getDefaultMinValue());
-        defaultMaxField.setText(config.getDefaultMaxValue());
-        referencePeriodCountField.setText(config.getReferenceperiodcount());
+//        defaultMinField.setText(config.getDefaultMinValue());
+//        defaultMaxField.setText(config.getDefaultMaxValue());
+//        referencePeriodCountField.setText(config.getReferenceperiodcount());
 
 
         typeBox.getSelectionModel().select(
@@ -377,21 +377,21 @@ public class LimitEditor implements AttributeEditor {
         maxField.textProperty().addListener((observable, oldValue, newValue) -> {
             config.setMax(newValue);
         });
-        durationOverUnderRunField.textProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                config.setDurationOverUnderRun((Long.parseLong(newValue) * 1000l) + "");//sec -> msec
-            } catch (Exception ex) {
-            }
-        });
-        defaultMinField.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setDefaultMinValue(newValue);
-        });
-        defaultMaxField.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setDefaultMaxValue(newValue);
-        });
-        referencePeriodCountField.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setReferenceperiodcount(newValue);
-        });
+//        durationOverUnderRunField.textProperty().addListener((observable, oldValue, newValue) -> {
+//            try {
+//                config.setDurationOverUnderRun((Long.parseLong(newValue) * 1000l) + "");//sec -> msec
+//            } catch (Exception ex) {
+//            }
+//        });
+//        defaultMinField.textProperty().addListener((observable, oldValue, newValue) -> {
+//            config.setDefaultMinValue(newValue);
+//        });
+//        defaultMaxField.textProperty().addListener((observable, oldValue, newValue) -> {
+//            config.setDefaultMaxValue(newValue);
+//        });
+//        referencePeriodCountField.textProperty().addListener((observable, oldValue, newValue) -> {
+//            config.setReferenceperiodcount(newValue);
+//        });
 
 
         /**
@@ -407,35 +407,35 @@ public class LimitEditor implements AttributeEditor {
         gridPane.add(maxLabel, 0, row);
         gridPane.add(maxField, 1, row, 2, 1);
         row++;
-        gridPane.add(durationOverUnderRunLabel, 0, row);
-        gridPane.add(durationOverUnderRunField, 1, row, 2, 1);
-        row++;
-        gridPane.add(typeOfSubstituteLabel, 0, row);
-        gridPane.add(typeBox, 1, row, 2, 1);
+//        gridPane.add(durationOverUnderRunLabel, 0, row);
+//        gridPane.add(durationOverUnderRunField, 1, row, 2, 1);
+//        row++;
+//        gridPane.add(typeOfSubstituteLabel, 0, row);
+//        gridPane.add(typeBox, 1, row, 2, 1);
 
 //        System.out.println("Type: '" +config.getTypeOfSubstituteValue()+"' ?= '" +GapFillingType.MEDIAN +"' ="+ (config.getTypeOfSubstituteValue().equals(GapFillingType.MEDIAN)));
-        if (config.getTypeOfSubstituteValue() == null || config.getTypeOfSubstituteValue().equals(GapFillingType.NONE)) {
+//        if (config.getTypeOfSubstituteValue() == null || config.getTypeOfSubstituteValue().equals(GapFillingType.NONE)) {
 
-        } else if (config.getTypeOfSubstituteValue().equals(GapFillingType.DEFAULT_VALUE)) {
-            row++;
-            gridPane.add(defaultMinLabel, 0, row);
-            gridPane.add(defaultMinField, 1, row, 2, 1);
-            row++;
-            gridPane.add(defaultMaxLabel, 0, row);
-            gridPane.add(defaultMaxField, 1, row, 2, 1);
-        } else if (config.getTypeOfSubstituteValue().equals(GapFillingType.INTERPOLATION)
-                || config.getTypeOfSubstituteValue().equals(GapFillingType.AVERAGE)
-                || config.getTypeOfSubstituteValue().equals(GapFillingType.MEDIAN)) {
-            row++;
-            gridPane.add(referencePeriodLabel, 0, row);
-            gridPane.add(referencePeriodBox, 1, row, 2, 1);
-            row++;
-            gridPane.add(referencePeriodCountLabel, 0, row);
-            gridPane.add(referencePeriodCountField, 1, row, 2, 1);
-            row++;
-            gridPane.add(boundTosSecificLabel, 0, row);
-            gridPane.add(boundSpecificBox, 1, row, 2, 1);
-        }
+//        } else if (config.getTypeOfSubstituteValue().equals(GapFillingType.DEFAULT_VALUE)) {
+//            row++;
+//            gridPane.add(defaultMinLabel, 0, row);
+//            gridPane.add(defaultMinField, 1, row, 2, 1);
+//            row++;
+//            gridPane.add(defaultMaxLabel, 0, row);
+//            gridPane.add(defaultMaxField, 1, row, 2, 1);
+//        } else if (config.getTypeOfSubstituteValue().equals(GapFillingType.INTERPOLATION)
+//                || config.getTypeOfSubstituteValue().equals(GapFillingType.AVERAGE)
+//                || config.getTypeOfSubstituteValue().equals(GapFillingType.MEDIAN)) {
+//            row++;
+//            gridPane.add(referencePeriodLabel, 0, row);
+//            gridPane.add(referencePeriodBox, 1, row, 2, 1);
+//            row++;
+//            gridPane.add(referencePeriodCountLabel, 0, row);
+//            gridPane.add(referencePeriodCountField, 1, row, 2, 1);
+//            row++;
+//            gridPane.add(boundTosSecificLabel, 0, row);
+//            gridPane.add(boundSpecificBox, 1, row, 2, 1);
+//        }
 
 
         tab.setContent(gridPane);

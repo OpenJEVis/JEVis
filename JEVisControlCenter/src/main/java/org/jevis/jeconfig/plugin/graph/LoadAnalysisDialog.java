@@ -49,6 +49,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private JEVisDataSource ds;
     private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private Boolean initialTimeFrame = true;
+    private DateTime lastSampleTimeStamp;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.data = data;
@@ -123,13 +124,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         ObservableList<String> presetDateEntries = FXCollections.observableArrayList();
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
-        final String lastDay = I18n.getInstance().getString("plugin.graph.changedate.buttonlastday");
+        final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
         final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
+        final String lastDay = I18n.getInstance().getString("plugin.graph.changedate.buttonlastday");
         final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
         final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
 
-        presetDateEntries.addAll(custom, lastDay, last7Days, last30Days, lastWeek, lastMonth);
+        presetDateEntries.addAll(custom, today, last7Days, last30Days, lastDay, lastWeek, lastMonth);
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
         comboBoxPresetDates.getSelectionModel().select(3);
 
@@ -145,9 +147,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     //Custom
                     case 0:
                         break;
-                    //last day
+                    //today
                     case 1:
-                        dh = new DateHelper(DateHelper.TransformType.LASTDAY);
+                        dh = new DateHelper(DateHelper.TransformType.TODAY);
                         dh.setStartTime(toolBarView.getWorkdayStart());
                         dh.setEndTime(toolBarView.getWorkdayEnd());
 
@@ -178,8 +180,19 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
-                    //last Week days
+                    //last day
                     case 4:
+                        dh = new DateHelper(DateHelper.TransformType.LASTDAY);
+                        dh.setStartTime(toolBarView.getWorkdayStart());
+                        dh.setEndTime(toolBarView.getWorkdayEnd());
+
+                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
+                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
+                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        break;
+                    //last Week days
+                    case 5:
                         dh = new DateHelper(DateHelper.TransformType.LASTWEEK);
                         dh.setStartTime(toolBarView.getWorkdayStart());
                         dh.setEndTime(toolBarView.getWorkdayEnd());
@@ -189,7 +202,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         pickerTimeStart.valueProperty().setValue(dh.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
                         break;
-                    case 5:
+                    case 6:
                         //last Month
                         dh = new DateHelper(DateHelper.TransformType.LASTMONTH);
                         dh.setStartTime(toolBarView.getWorkdayStart());
@@ -307,16 +320,26 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 this.nameCurrentAnalysis = newValue;
                 setJEVisObjectForCurrentAnalysis(newValue);
 
-                selectedStart = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        toolBarView.getWorkdayStart().getHour(), toolBarView.getWorkdayStart().getMinute(), toolBarView.getWorkdayStart().getSecond());
-                selectedStart = selectedStart.minusDays(7);
+                if (lastSampleTimeStamp != null) {
+                    selectedStart = new DateTime(lastSampleTimeStamp.getYear(), lastSampleTimeStamp.getMonthOfYear(), lastSampleTimeStamp.getDayOfMonth(),
+                            toolBarView.getWorkdayStart().getHour(), toolBarView.getWorkdayStart().getMinute(), toolBarView.getWorkdayStart().getSecond());
+                    selectedStart = selectedStart.minusDays(7);
 
-                selectedEnd = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        toolBarView.getWorkdayEnd().getHour(), toolBarView.getWorkdayEnd().getMinute(), toolBarView.getWorkdayEnd().getSecond());
+                    selectedEnd = new DateTime(lastSampleTimeStamp.getYear(), lastSampleTimeStamp.getMonthOfYear(), lastSampleTimeStamp.getDayOfMonth(),
+                            toolBarView.getWorkdayEnd().getHour(), toolBarView.getWorkdayEnd().getMinute(), toolBarView.getWorkdayEnd().getSecond());
+                } else {
+                    selectedStart = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                            toolBarView.getWorkdayStart().getHour(), toolBarView.getWorkdayStart().getMinute(), toolBarView.getWorkdayStart().getSecond());
+                    selectedStart = selectedStart.minusDays(7);
+
+                    selectedEnd = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                            toolBarView.getWorkdayEnd().getHour(), toolBarView.getWorkdayEnd().getMinute(), toolBarView.getWorkdayEnd().getSecond());
+                }
 
                 updateTimeFramePicker();
                 updateTimeFrame();
                 updateToolBarView();
+                toolBarView.getListAnalysis();
                 toolBarView.select(nameCurrentAnalysis);
 
                 getListAnalysis();
@@ -480,16 +503,43 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         }
                     }
                 }
+                getLastSampleTimestamp();
             }
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis model", e);
         }
     }
 
+    private void getLastSampleTimestamp() {
+        DateTime current = new DateTime(2001, 1, 1, 0, 0, 0, 0);
+        for (JsonAnalysisModel mdl : listAnalysisModel) {
+            ChartDataModel newData = new ChartDataModel();
+            try {
+                Long id = Long.parseLong(mdl.getObject());
+                Long id_dp = null;
+                if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
+                JEVisObject obj = ds.getObject(id);
+                JEVisObject obj_dp = null;
+                if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
+                newData.setObject(obj);
+                newData.setDataProcessor(obj_dp);
+                newData.getAttribute();
+                DateTime latestSampleTS = newData.getAttribute().getLatestSample().getTimestamp();
+                if (latestSampleTS.isAfter(current)) current = latestSampleTS;
+            } catch (JEVisException e) {
+
+            }
+        }
+
+        if (!current.equals(new DateTime(2001, 1, 1, 0, 0, 0, 0))) lastSampleTimeStamp = current;
+    }
+
     private ChartPlugin.AGGREGATION parseAggregation(String aggrigation) {
         switch (aggrigation) {
             case ("None"):
                 return ChartPlugin.AGGREGATION.None;
+            case ("Hourly"):
+                return ChartPlugin.AGGREGATION.Hourly;
             case ("Daily"):
                 return ChartPlugin.AGGREGATION.Daily;
             case ("Weekly"):

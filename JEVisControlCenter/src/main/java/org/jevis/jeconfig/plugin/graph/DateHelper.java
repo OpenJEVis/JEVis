@@ -43,7 +43,7 @@ public class DateHelper {
         switch (type) {
             case CUSTOM:
                 break;
-            case LASTDAY:
+            case TODAY:
                 startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
                 break;
             case LAST7DAYS:
@@ -51,6 +51,9 @@ public class DateHelper {
                 break;
             case LAST30DAYS:
                 startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(30);
+                break;
+            case LASTDAY:
+                startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(1);
                 break;
             case LASTWEEK:
                 now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
@@ -78,7 +81,7 @@ public class DateHelper {
         switch (type) {
             case CUSTOM:
                 break;
-            case LASTDAY:
+            case TODAY:
                 endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
                 break;
             case LAST7DAYS:
@@ -86,6 +89,9 @@ public class DateHelper {
                 break;
             case LAST30DAYS:
                 endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
+                break;
+            case LASTDAY:
+                endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(1);
                 break;
             case LASTWEEK:
                 now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
@@ -166,7 +172,7 @@ public class DateHelper {
         this.endTime = endTime;
     }
 
-    public enum TransformType {CUSTOM, LASTDAY, LAST7DAYS, LAST30DAYS, LASTWEEK, LASTMONTH}
+    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, LASTDAY, LASTWEEK, LASTMONTH}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 }
