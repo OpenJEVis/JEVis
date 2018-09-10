@@ -147,7 +147,7 @@ public class JEVisImporter implements Importer {
                 JEVisAttribute value = entrySet.getValue();
                 okIDs += key + ",";
             }
-            Logger.getLogger(JEVisImporter.class.getName()).log(Level.INFO, "Vailed target configurations for: [" + okIDs + "]");
+            Logger.getLogger(JEVisImporter.class.getName()).log(Level.INFO, "Failed target configurations for: [" + okIDs + "]");
 
             //build the Samples per attribute so we can bulk import them
             Map<JEVisAttribute, List<JEVisSample>> toImportList = new HashMap<>();
@@ -159,7 +159,7 @@ public class JEVisImporter implements Importer {
                     }
 
                     if (s.getValue() == null) {
-                        Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Error: Value is emty");
+                        Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Error: Value is empty");
                         continue;
                     }
 

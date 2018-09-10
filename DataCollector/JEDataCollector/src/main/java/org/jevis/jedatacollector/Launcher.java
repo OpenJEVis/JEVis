@@ -14,7 +14,8 @@ import org.jevis.commons.driver.DataSource;
 import org.jevis.commons.driver.DataSourceFactory;
 import org.jevis.commons.driver.DriverHelper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author broder
@@ -63,125 +64,132 @@ public class Launcher extends AbstractCliApp {
         Logger.getLogger(
                 this.getClass().getName()).log(Level.INFO, "Number of Requests: " + dataSources.size());
 
-        Long startTime = System.currentTimeMillis();
+//        Long startTime = System.currentTimeMillis();
+//
+//        long maxNumberThreads = getNumberOfMaxThreads();
+//        int identifier = 1;
+//        ThreadHandler threadReqHandler = new ThreadHandler(dataSources);
+//        MDC.remove(Launcher.KEY);
+//        while (threadReqHandler.hasRequest()) {
+//            int activeCount = threadReqHandler.getNumberActiveRequests();
+//            if (activeCount < maxNumberThreads) {
+//                JEVisObject currentDataSourceJevis = threadReqHandler.getNextDataSource();
+//                initNewAppender("" + identifier, currentDataSourceJevis.getID() + "_" + currentDataSourceJevis.getName().replace(" ", "_") + ".log");
+//                MDC.put(Launcher.KEY, "" + identifier);
+        for (JEVisObject object : dataSources) {
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "----------------Execute DataSource " + object.getName() + "-----------------");
+            DataSource dataSource = DataSourceFactory.getDataSource(object);
 
-        long maxNumberThreads = getNumberOfMaxThreads();
-        int identifier = 1;
-        ThreadHandler threadReqHandler = new ThreadHandler(dataSources);
-        MDC.remove(Launcher.KEY);
-        while (threadReqHandler.hasRequest()) {
-            int activeCount = threadReqHandler.getNumberActiveRequests();
-            if (activeCount < maxNumberThreads) {
-                JEVisObject currentDataSourceJevis = threadReqHandler.getNextDataSource();
-                initNewAppender("" + identifier, currentDataSourceJevis.getID() + "_" + currentDataSourceJevis.getName().replace(" ", "_") + ".log");
-                MDC.put(Launcher.KEY, "" + identifier);
+            dataSource.initialize(object);
+            dataSource.run();
+        }
 
-                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "----------------Execute DataSource-----------------");
-                try {
-                    DataSource dataSource = DataSourceFactory.getDataSource(currentDataSourceJevis);
-                    dataSource.initialize(currentDataSourceJevis);
-                    Thread dataCollectionThread = new Thread(dataSource, currentDataSourceJevis.getName());
-                    long threadid = dataCollectionThread.getId();
-//                System.out.println("start equip:" + currentDataSourceJevis.getName() + "id." + threadid);
-                    threadReqHandler.addActiveThread(threadid);
-                    //start the data source in a new thread
-                    dataCollectionThread.start();
-                } catch (Exception ex) {
-                    Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ex.getMessage());
-                }
-                identifier++;
-                MDC.remove(Launcher.KEY);
-            } else {
-                try {
-                    boolean foundFinishedThread = false;
-                    List<Long> finishedThreads = new ArrayList<Long>();
-                    Set<Long> currentThreadIds = new HashSet<Long>();
-                    for (Thread t : Thread.getAllStackTraces().keySet()) {
-                        currentThreadIds.add(t.getId());
-//                        System.out.println("thread_id:" + t.getId());
-                    }
-                    for (Long id : threadReqHandler.getActiveThreads()) {
-                        if (!currentThreadIds.contains(id)) {
-                            finishedThreads.add(id);
-                            foundFinishedThread = true;
-                        }
-                    }
-                    if (foundFinishedThread) {
-                        for (Long id : finishedThreads) {
-//                            System.out.println("Remove equip id: " + id);
-                            threadReqHandler.removeActiveRequest(id);
-                        }
-                    } else {
-                        Thread.sleep(10000);
-//                        System.out.println("thread sleeps");
-                    }
-                } catch (InterruptedException ie) {
-                    Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
-                }
-            }
-        }
-        //if runtime reached, then remove all threads and end the programm
-        Long maxRuntime = getMaxRunTime() * 1000l;
 
-        while (threadReqHandler.getNumberActiveRequests() != 0) {
-            Long currentRuntime = startTime - System.currentTimeMillis();
-            if (currentRuntime > maxRuntime) {
-                List<Long> finishedThreads = new ArrayList<Long>();
-                List<Long> abortThreads = new ArrayList<Long>();
-                Map<Long, Thread> currentThreadIds = new HashMap<Long, Thread>();
-                for (Thread t : Thread.getAllStackTraces().keySet()) {
-                    currentThreadIds.put(t.getId(), t);
-                }
-                for (Long id : threadReqHandler.getActiveThreads()) {
-                    if (!currentThreadIds.containsKey(id)) {
-                        finishedThreads.add(id);
-                    } else {
-                        Thread curThread = currentThreadIds.get(id);
-                        curThread.interrupt();
-                        abortThreads.add(id);
-                    }
-                }
-                for (Long id : finishedThreads) {
-//                    System.out.println("Remove equip id: " + id);
-                    threadReqHandler.removeActiveRequest(id);
-                }
-                for (Long id : abortThreads) {
-//                    System.out.println("Abort equip id: " + id);
-                    threadReqHandler.removeActiveRequest(id);
-                }
-            }
-            try {
-                boolean foundFinishedThread = false;
-                List<Long> finishedThreads = new ArrayList<Long>();
-                Set<Long> currentThreadIds = new HashSet<Long>();
-                for (Thread t : Thread.getAllStackTraces().keySet()) {
-                    currentThreadIds.add(t.getId());
-//                    System.out.println("thread_id:" + t.getId());
-                }
-                for (Long id : threadReqHandler.getActiveThreads()) {
-                    if (!currentThreadIds.contains(id)) {
-                        finishedThreads.add(id);
-                        foundFinishedThread = true;
-                    }
-                }
-                if (foundFinishedThread) {
-                    for (Long id : finishedThreads) {
-//                        System.out.println("Remove equip id: " + id);
-                        threadReqHandler.removeActiveRequest(id);
-                    }
-                } else {
-                    Thread.sleep(10000);
-//                    System.out.println("thread sleeps");
-                }
-            } catch (InterruptedException ie) {
-                Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
-            }
-        }
-        try {
-            ds.disconnect();
-        } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
+//                try {
+//                    DataSource dataSource = DataSourceFactory.getDataSource(currentDataSourceJevis);
+//                    dataSource.initialize(currentDataSourceJevis);
+//                    Thread dataCollectionThread = new Thread(dataSource, currentDataSourceJevis.getName());
+//                    long threadid = dataCollectionThread.getId();
+////                System.out.println("start equip:" + currentDataSourceJevis.getName() + "id." + threadid);
+//                    threadReqHandler.addActiveThread(threadid);
+//                    //start the data source in a new thread
+//                    dataCollectionThread.start();
+//                } catch (Exception ex) {
+//                    Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ex.getMessage());
+//                }
+//                identifier++;
+//                MDC.remove(Launcher.KEY);
+//            } else {
+//                try {
+//                    boolean foundFinishedThread = false;
+//                    List<Long> finishedThreads = new ArrayList<Long>();
+//                    Set<Long> currentThreadIds = new HashSet<Long>();
+//                    for (Thread t : Thread.getAllStackTraces().keySet()) {
+//                        currentThreadIds.add(t.getId());
+////                        System.out.println("thread_id:" + t.getId());
+//                    }
+//                    for (Long id : threadReqHandler.getActiveThreads()) {
+//                        if (!currentThreadIds.contains(id)) {
+//                            finishedThreads.add(id);
+//                            foundFinishedThread = true;
+//                        }
+//                    }
+//                    if (foundFinishedThread) {
+//                        for (Long id : finishedThreads) {
+////                            System.out.println("Remove equip id: " + id);
+//                            threadReqHandler.removeActiveRequest(id);
+//                        }
+//                    } else {
+//                        Thread.sleep(10000);
+////                        System.out.println("thread sleeps");
+//                    }
+//                } catch (InterruptedException ie) {
+//                    Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
+//                }
+//            }
+//        }
+//        //if runtime reached, then remove all threads and end the programm
+//        Long maxRuntime = getMaxRunTime() * 1000l;
+//
+//        while (threadReqHandler.getNumberActiveRequests() != 0) {
+//            Long currentRuntime = startTime - System.currentTimeMillis();
+//            if (currentRuntime > maxRuntime) {
+//                List<Long> finishedThreads = new ArrayList<Long>();
+//                List<Long> abortThreads = new ArrayList<Long>();
+//                Map<Long, Thread> currentThreadIds = new HashMap<Long, Thread>();
+//                for (Thread t : Thread.getAllStackTraces().keySet()) {
+//                    currentThreadIds.put(t.getId(), t);
+//                }
+//                for (Long id : threadReqHandler.getActiveThreads()) {
+//                    if (!currentThreadIds.containsKey(id)) {
+//                        finishedThreads.add(id);
+//                    } else {
+//                        Thread curThread = currentThreadIds.get(id);
+//                        curThread.interrupt();
+//                        abortThreads.add(id);
+//                    }
+//                }
+//                for (Long id : finishedThreads) {
+////                    System.out.println("Remove equip id: " + id);
+//                    threadReqHandler.removeActiveRequest(id);
+//                }
+//                for (Long id : abortThreads) {
+////                    System.out.println("Abort equip id: " + id);
+//                    threadReqHandler.removeActiveRequest(id);
+//                }
+//            }
+//            try {
+//                boolean foundFinishedThread = false;
+//                List<Long> finishedThreads = new ArrayList<Long>();
+//                Set<Long> currentThreadIds = new HashSet<Long>();
+//                for (Thread t : Thread.getAllStackTraces().keySet()) {
+//                    currentThreadIds.add(t.getId());
+////                    System.out.println("thread_id:" + t.getId());
+//                }
+//                for (Long id : threadReqHandler.getActiveThreads()) {
+//                    if (!currentThreadIds.contains(id)) {
+//                        finishedThreads.add(id);
+//                        foundFinishedThread = true;
+//                    }
+//                }
+//                if (foundFinishedThread) {
+//                    for (Long id : finishedThreads) {
+////                        System.out.println("Remove equip id: " + id);
+//                        threadReqHandler.removeActiveRequest(id);
+//                    }
+//                } else {
+//                    Thread.sleep(10000);
+////                    System.out.println("thread sleeps");
+//                }
+//            } catch (InterruptedException ie) {
+//                Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
+//            }
+//        }
+//        try {
+//            ds.disconnect();
+//        } catch (JEVisException ex) {
+//            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
         Logger.getLogger(Launcher.class.getName()).log(Level.INFO, "---------------------finish------------------------");
 
     }
@@ -200,7 +208,7 @@ public class Launcher extends AbstractCliApp {
     protected void runSingle(Long id) {
         java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Single Mode");
 
-            List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
+        List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
 
         try {
             logger.info("Try adding Single Mode for ID " + id);
