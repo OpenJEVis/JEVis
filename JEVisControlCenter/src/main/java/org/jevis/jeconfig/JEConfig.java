@@ -70,7 +70,7 @@ import java.util.prefs.Preferences;
  */
 public class JEConfig extends Application {
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.2");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.3");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
     /*
