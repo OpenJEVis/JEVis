@@ -1,0 +1,22 @@
+{
+  "name": "Calendar Directory",
+  "description": "The class Calendar Directory represents a specific directory for the management of calendar relevant data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Custom Timeframe",
+      "end": "Calendar Directory",
+      "type": 3
+    },
+    {
+      "start": "Calendar Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Calendar Directory",
+      "end": "Building",
+      "type": 3
+    }
+  ]
+}

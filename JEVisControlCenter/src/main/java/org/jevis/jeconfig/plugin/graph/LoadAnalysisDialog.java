@@ -19,7 +19,9 @@ import org.jevis.api.*;
 import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
+import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.json.JsonAnalysisModel;
+import org.jevis.jeconfig.plugin.graph.data.CustomPeriodObject;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
@@ -30,6 +32,9 @@ import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.*;
 
+/**
+ * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
+ */
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private String nameCurrentAnalysis;
 
@@ -148,6 +153,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         presetDateEntries.addAll(custom, today, last7Days, last30Days, yesterday, lastWeek, lastMonth);
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
         comboBoxPresetDates.getSelectionModel().select(2);
+
+        ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
 
         if (!listAnalysisModel.isEmpty()) {
             updateTimeFramePicker();
@@ -315,7 +322,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         vbox_picker.getChildren().addAll(startText, startBox, endText, endBox);
         VBox vbox_buttons = new VBox();
         vbox_buttons.setSpacing(4);
-        vbox_buttons.getChildren().addAll(comboBoxPresetDates);
+        vbox_buttons.getChildren().addAll(comboBoxPresetDates, comboBoxCustomPeriods);
         vbox_buttons.setAlignment(Pos.BOTTOM_RIGHT);
         gp_date.add(vbox_picker, 0, 0);
         gp_date.add(vbox_buttons, 1, 0);
@@ -396,6 +403,82 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         this.getDialogPane().setContent(vbox);
 
+    }
+
+    private ComboBox<String> getCustomPeriodsComboBox() {
+
+        ObservableList<String> customPeriods = FXCollections.observableArrayList();
+        List<JEVisObject> listCalendarDirectories = null;
+        List<JEVisObject> listCustomPeriods = null;
+        List<CustomPeriodObject> listCustomPeriodObjects = null;
+
+        try {
+            try {
+                JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
+                listCalendarDirectories = ds.getObjects(calendarDirectoryClass, false);
+            } catch (JEVisException e) {
+                logger.error("Error: could not get calendar directories", e);
+            }
+            if (listCalendarDirectories.isEmpty()) {
+                List<JEVisObject> listBuildings = new ArrayList<>();
+                try {
+                    JEVisClass building = ds.getJEVisClass("Building");
+                    listBuildings = ds.getObjects(building, false);
+
+                    if (!listBuildings.isEmpty()) {
+                        JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
+                        JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
+                        calendarDirectory.commit();
+                    }
+                } catch (JEVisException e) {
+                    logger.error("Error: could not create new calendar directory", e);
+                }
+
+            }
+            try {
+                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
+            } catch (JEVisException e) {
+                logger.error("Error: could not get custom period", e);
+            }
+        } catch (Exception e) {
+        }
+
+        customPeriods.add("disabled");
+
+        for (JEVisObject obj : listCustomPeriods) {
+            if (obj != null) {
+                if (listCustomPeriodObjects == null) listCustomPeriodObjects = new ArrayList<>();
+                CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
+                listCustomPeriodObjects.add(cpo);
+                customPeriods.add(cpo.getObject().getName());
+            }
+        }
+
+        ComboBox tempBox = new ComboBox<>(customPeriods);
+        tempBox.getSelectionModel().select(0);
+
+        List<CustomPeriodObject> finalListCustomPeriodObjects = listCustomPeriodObjects;
+        tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue == null || newValue != oldValue) {
+                DateHelper dh = new DateHelper();
+                if (newValue.intValue() > 0) {
+                    for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
+                        if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
+                            dh = new DateHelper(cpo, DateHelper.TransformType.CUSTOM_PERIOD);
+                            dh.setStartTime(toolBarView.getWorkdayStart());
+                            dh.setEndTime(toolBarView.getWorkdayEnd());
+
+                            pickerDateStart.valueProperty().setValue(dh.getStartDate());
+                            pickerDateEnd.valueProperty().setValue(dh.getEndDate());
+                            pickerTimeStart.valueProperty().setValue(dh.getStartTime());
+                            pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        }
+                    }
+                }
+            }
+        });
+
+        return tempBox;
     }
 
     private void getCustomTimeframes() {

@@ -1,0 +1,197 @@
+{
+  "jevisclass": "Custom Period",
+  "names": {
+    "de": "Benutzerdefinierter Zeitraum",
+    "ru": "Custom Period",
+    "en": "Custom Period"
+  },
+  "descriptions": {
+    "de": "In benutzerdefinierten Zeiträumen werden besondere Zeiträume gespeichert.",
+    "ru": "Special periods are stored in user-defined periods.",
+    "en": "Special periods are stored in user-defined periods."
+  },
+  "types": [
+    {
+      "type": "Start Reference Point",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Anfangsbezugspunkt",
+        "ru": "Start Reference Point",
+        "en": "Start Reference Point"
+      }
+    },
+    {
+      "type": "Start Minus Years",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Anfang minus Jahre",
+        "ru": "Start Minus Years",
+        "en": "Start Minus Years"
+      }
+    },
+    {
+      "type": "Start Minus Months",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Anfang minus Monate",
+        "ru": "Start Minus Months",
+        "en": "Start Minus Months"
+      }
+    },
+    {
+      "type": "Start Minus Days",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Anfang minus Tage",
+        "ru": "Start Minus Days",
+        "en": "Start Minus Days"
+      }
+    },
+    {
+      "type": "Start Minus Hours",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Anfang minus Stunden",
+        "ru": "Start Minus Hours",
+        "en": "Start Minus Hours"
+      }
+    },
+    {
+      "type": "Start Minus Minutes",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Anfang minus Minuten",
+        "ru": "Start Minus Minutes",
+        "en": "Start Minus Minutes"
+      }
+    },
+    {
+      "type": "Start Reference Object",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Anfangsbezugsobjekt",
+        "ru": "Start Reference Object",
+        "en": "Start Reference Object"
+      }
+    },
+    {
+      "type": "End Reference Point",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Endbezugspunkt",
+        "ru": "End Reference Point",
+        "en": "End Reference Point"
+      }
+    },
+    {
+      "type": "End Minus Years",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Ende minus Jahre",
+        "ru": "End Minus Years",
+        "en": "End Minus Years"
+      }
+    },
+    {
+      "type": "End Minus Months",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Ende minus Monate",
+        "ru": "End Minus Months",
+        "en": "End Minus Months"
+      }
+    },
+    {
+      "type": "End Minus Days",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Ende minus Tage",
+        "ru": "End Minus Days",
+        "en": "End Minus Days"
+      }
+    },
+    {
+      "type": "End Minus Hours",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Ende minus Stunden",
+        "ru": "End Minus Hours",
+        "en": "End Minus Hours"
+      }
+    },
+    {
+      "type": "End Minus Minutes",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Ende minus Minuten",
+        "ru": "End Minus Minutes",
+        "en": "End Minus Minutes"
+      }
+    },
+    {
+      "type": "End Reference Object",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Endbezugsobjekt",
+        "ru": "End Reference Object",
+        "en": "End Reference Object"
+      }
+    }
+  ]
+}
