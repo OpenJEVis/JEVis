@@ -31,8 +31,8 @@ import java.time.format.FormatStyle;
 import java.util.*;
 
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
+    private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private String nameCurrentAnalysis;
-
     private GraphDataModel data = new GraphDataModel();
     private ToolBarView toolBarView;
     private JFXDatePicker pickerDateStart = new JFXDatePicker();
@@ -47,7 +47,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private DateTime selectedEnd = DateTime.now();
     private JEVisObject currentAnalysis;
     private JEVisDataSource ds;
-    private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private Boolean initialTimeFrame = true;
     private DateTime lastSampleTimeStamp;
 
@@ -540,8 +539,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 newData.getAttribute();
                 DateTime latestSampleTS = newData.getAttribute().getLatestSample().getTimestamp();
                 if (latestSampleTS.isAfter(current)) current = latestSampleTS;
-            } catch (JEVisException e) {
-
+            } catch (Exception e) {
+                logger.error(e);
             }
         }
 
