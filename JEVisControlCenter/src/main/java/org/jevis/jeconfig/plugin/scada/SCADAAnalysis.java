@@ -10,7 +10,6 @@ import org.jevis.jeconfig.plugin.scada.data.ScadaElementData;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +88,7 @@ public class SCADAAnalysis {
                 //png
                 InputStream in = new ByteArrayInputStream(bgFile.getBytes());
                 image2 = ImageIO.read(in);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

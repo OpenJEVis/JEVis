@@ -66,7 +66,6 @@ public class ToolBarView {
     private Boolean _initialized = false;
     private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
-    private final Logger logger = LogManager.getLogger(ToolBarView.class);
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
 

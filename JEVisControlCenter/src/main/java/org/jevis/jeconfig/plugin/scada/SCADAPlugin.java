@@ -207,6 +207,10 @@ public class SCADAPlugin implements Plugin {
         }
     }
 
+    @Override
+    public String getToolTip() {
+        return "";
+    }
 
     private void updateToolbar(ToolBar toolBar, final SCADAAnalysis analyses) {
         System.out.println("==Update Toolbar==");
@@ -347,15 +351,11 @@ public class SCADAPlugin implements Plugin {
             reloadActiveAnalyse();
         });
 
-//        unlockB.setOnAction(event -> {
-//
-//            analyses.getElements().forEach(element -> {
-//                element.movableProperty().setValue(unlockB.isSelected());
-//            });
-//        });
-        analyses.getElements().forEach(element -> {
-            element.movableProperty().bind(lockProperty.not());
-        });
+        if (analyses != null) {
+            analyses.getElements().forEach(element -> {
+                element.movableProperty().bind(lockProperty.not());
+            });
+        }
 
 
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -419,6 +419,28 @@ public class SCADAPlugin implements Plugin {
 
         });
 
+        delete.setOnAction(event -> {
+            try {
+                JEVisObject obj = analyses.getObject();
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle(I18n.getInstance().getString("plugin.dashboard.delete.title"));
+                String s = String.format(I18n.getInstance().getString("plugin.dashboard.delete.question"), obj.getName());
+                alert.setContentText(s);
+
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if ((result.isPresent()) && (result.get() == ButtonType.OK)) {
+                    obj.delete();
+                    viewArea.getChildren().clear();
+                    updateToolbar(toolBar, null);
+                }
+
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
         backgroundButton.setOnAction(event -> {
             File newBackground = fileChooser.showOpenDialog(JEConfig.getStage());
             if (newBackground != null) {
@@ -459,7 +481,7 @@ public class SCADAPlugin implements Plugin {
         listBGType.disableProperty().bind(lockProperty);
         save.disableProperty().bind(lockProperty);
 
-        if (analyses.getObject() == null) {
+        if (analyses != null && analyses.getObject() == null) {
             delete.disableProperty().setValue(true);
             lockProperty.setValue(false);
         } else {
