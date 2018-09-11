@@ -255,6 +255,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                         editor = new ReadablePasswordEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DATE_TIME.getId())) {
                                         editor = new DateTimeEditor2(att);
+                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_TIME.getId())) {
+                                        editor = new TimeEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.SCHEDULE.getId())) {
                                         editor = new ScheduleEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TIME_ZONE.getId())) {

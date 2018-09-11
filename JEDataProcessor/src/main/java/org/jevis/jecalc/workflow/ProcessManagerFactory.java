@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * @author broder
@@ -48,7 +47,7 @@ public class ProcessManagerFactory {
 //            jevisDataSource.getObject(7731l).getAttribute("Value").deleteAllSample();
 //            jevisDataSource.getObject(7730l).getAttribute("Value").deleteAllSample();
 //        } catch (JEVisException ex) {
-//            java.util.logging.Logger.getLogger(ProcessManagerFactory.class.getName()).log(Level.SEVERE, null, ex);
+//            logger.error(null, ex);
 //        }
         List<ProcessManager> processManagers = new ArrayList<>();
         //case jevis single
@@ -183,7 +182,7 @@ public class ProcessManagerFactory {
         try {
             jeVisClassName = functionalObject.getJEVisClassName();
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ProcessManagerFactory.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         if (jeVisClassName == null) {
             return null;
@@ -209,7 +208,7 @@ public class ProcessManagerFactory {
                 }
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ProcessManagerFactory.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
         return cleanObject;
     }
@@ -219,7 +218,7 @@ public class ProcessManagerFactory {
         try {
             jeVisClassName = processObject.getJEVisClassName();
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ProcessManagerFactory.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
 
         if (jeVisClassName == null) {
@@ -233,7 +232,7 @@ public class ProcessManagerFactory {
             try {
                 functionalClassName = processObject.getJEVisClass().getInheritance().getName();
             } catch (JEVisException ex) {
-                java.util.logging.Logger.getLogger(ProcessManagerFactory.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(null, ex);
             }
             if (functionalClassName != null && functionalClassName.equals("Functional Data")) {
                 return ProcessType.functional;
@@ -257,7 +256,7 @@ public class ProcessManagerFactory {
                 processManagers.add(getProcessManagerByFunctionalObject(child));
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ProcessManagerFactory.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
 
         return processManagers;

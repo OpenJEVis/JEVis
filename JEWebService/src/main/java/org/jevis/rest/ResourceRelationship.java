@@ -53,9 +53,9 @@ public class ResourceRelationship {
 
         SQLDataSource ds = null;
         try {
-            ds = new SQLDataSource(httpHeaders,request,url);
+            ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("ResourceRelationship", "getObject");
-            List<JsonRelationship> rels = ds.getUserManager().filterReadRelationships(ds.getRelationships());
+            List<JsonRelationship> rels = ds.getUserManager().filterRelationships(ds.getRelationships());
             ds.getProfiler().addEvent("ResourceRelationship", "done");
             return Response.ok(rels).build();
 
@@ -82,7 +82,7 @@ public class ResourceRelationship {
 
         SQLDataSource ds = null;
         try {
-            ds = new SQLDataSource(httpHeaders,request,url);
+            ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("ResourceRelationship", "post");
             JsonRelationship json = (new Gson()).fromJson(input, JsonRelationship.class);
             JsonObject fromObj = ds.getObject(json.getFrom());
@@ -123,7 +123,7 @@ public class ResourceRelationship {
 
         SQLDataSource ds = null;
         try {
-            ds = new SQLDataSource(httpHeaders,request,url);
+            ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("ResourceRelationship", "delete");
 
             if (from == -1 || to == -1 || type == -1) {
@@ -148,7 +148,7 @@ public class ResourceRelationship {
         } catch (Exception jex) {
             logger.catching(jex);
             return Response.serverError().build();
-        } finally {            
+        } finally {
             Config.CloseDS(ds);
         }
 

@@ -40,6 +40,8 @@ public interface Plugin {
 
     String getUUID();
 
+    String getToolTip();
+
     void setUUID(String id);
 
     StringProperty uuidProperty();

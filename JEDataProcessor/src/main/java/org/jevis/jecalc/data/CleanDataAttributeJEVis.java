@@ -19,12 +19,9 @@ import org.jevis.jecalc.gap.Gap.GapMode;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.PeriodFormat;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.*;
 
@@ -41,10 +38,10 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     //attributes
     private Period period;
     private Boolean isPeriodAligned;
-    private Boolean conversionDifferential;
+    private List<JEVisSample> conversionDifferential;
     private Integer periodOffset;
     private Boolean valueIsQuantity;
-    private Double multiplier;
+    private List<JEVisSample> multiplier;
     private Double offset;
     private GapStrategy gapStrategy;
     private Boolean enabled;
@@ -55,94 +52,76 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     private SampleHandler sampleHandler;
 
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
-    private String gapFillingConfig;
 
     private Boolean limitsEnabled;
-    private String limitsConfiguration;
+    private Boolean gapFillingEnabled;
     private List<JsonLimitsConfig> jsonLimitsConfig;
-
-    public CleanDataAttributeJEVis(JEVisObject calcObject) {
-        object = calcObject;
-    }
+    private List<JEVisSample> counterOverflow;
+    private Double lastDiffValue;
+    private Double lastCleanValue;
 
     public CleanDataAttributeJEVis(JEVisObject calcObject, ObjectHandler objectHandler) {
         object = calcObject;
         rawDataObject = objectHandler.getFirstParent(calcObject);
-        offset = 0.0;
-
         sampleHandler = new SampleHandler();
-        //get the period from the value attribute slider
-        period = sampleHandler.getInputSampleRate(calcObject, VALUE_ATTRIBUTE_NAME);
-        logger.info("Period is {}", PeriodFormat.getDefault().print(period));
-        isPeriodAligned = sampleHandler.getLastSample(calcObject, PERIOD_ALIGNMENT.getAttributeName(), false);
-        enabled = sampleHandler.getLastSample(calcObject, ENABLED.getAttributeName(), false);
-        conversionDifferential = sampleHandler.getLastSample(calcObject, CONVERSION_DIFFERENTIAL.getAttributeName(), false);
-        Long periodOffsetLong = sampleHandler.getLastSample(calcObject, PERIOD_OFFSET.getAttributeName(), 0l);
-        periodOffset = (int) (long) periodOffsetLong;
-        valueIsQuantity = sampleHandler.getLastSample(calcObject, VALUE_QUANTITY.getAttributeName(), false);
-        multiplier = sampleHandler.getLastSample(calcObject, MULTIPLIER.getAttributeName(), 1.0);
-        limitsEnabled = sampleHandler.getLastSample(calcObject, LIMITS_ENABLED.getAttributeName(), false);
-
-        gapFillingConfig = sampleHandler.getLastSample(calcObject, GAP_FILLING_CONFIG.getAttributeName(), "");
-        jsonGapFillingConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
-        }.getType());
-
-        limitsConfiguration = sampleHandler.getLastSample(calcObject, LIMITS_CONFIGURATION.getAttributeName(), "");
-        jsonLimitsConfig = new Gson().fromJson(limitsConfiguration, new TypeToken<List<JsonLimitsConfig>>() {
-        }.getType());
-
-        //first date is the lastdate of clean datarow + period or the year of the first sample of the raw data
-        DateTime timestampFromLastCleanSample = sampleHandler.getTimeStampFromLastSample(calcObject, VALUE_ATTRIBUTE_NAME);
-        if (timestampFromLastCleanSample != null) {
-            firstDate = timestampFromLastCleanSample.plus(period);
-        } else {
-            DateTime firstTimestampRaw = sampleHandler.getTimestampFromFirstSample(rawDataObject, VALUE_ATTRIBUTE_NAME);
-            if (firstTimestampRaw != null) {
-                firstDate = new DateTime(firstTimestampRaw.getYear(), firstTimestampRaw.getMonthOfYear(), firstTimestampRaw.getDayOfMonth(), 0, 0);
-            } else {
-                throw new RuntimeException("No raw values in clean data row");
-            }
-        }
-
-        lastDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(period);
-
-        String gapModeString = sampleHandler.getLastSample(calcObject, GAP_FILLING.getAttributeName(), GapMode.NONE.toString());
-        gapStrategy = new GapStrategy(gapModeString);
     }
 
     @Override
     public Boolean getEnabled() {
+        if (enabled == null)
+            enabled = sampleHandler.getLastSample(getObject(), ENABLED.getAttributeName(), false);
         return enabled;
     }
 
     @Override
     public Boolean getIsPeriodAligned() {
+        if (isPeriodAligned == null)
+            isPeriodAligned = sampleHandler.getLastSample(getObject(), PERIOD_ALIGNMENT.getAttributeName(), false);
         return isPeriodAligned;
     }
 
     @Override
     public Period getPeriodAlignment() {
+        if (period == null)
+            period = sampleHandler.getInputSampleRate(getObject(), VALUE_ATTRIBUTE_NAME);
         return period;
     }
 
     @Override
-    public Boolean getConversionDifferential() {
+    public List<JEVisSample> getConversionDifferential() {
+        if (conversionDifferential == null)
+            conversionDifferential = sampleHandler.getAllSamples(getObject(), CONVERSION_DIFFERENTIAL.getAttributeName()); //false;
         return conversionDifferential;
     }
 
     @Override
     public Integer getPeriodOffset() {
+        if (periodOffset == null) {
+            Long periodOffsetLong = sampleHandler.getLastSample(getObject(), PERIOD_OFFSET.getAttributeName(), 0L);
+            periodOffset = (int) (long) periodOffsetLong;
+        }
         return periodOffset;
     }
 
     @Override
     public Boolean getValueIsQuantity() {
+        if (valueIsQuantity == null)
+            valueIsQuantity = sampleHandler.getLastSample(getObject(), VALUE_QUANTITY.getAttributeName(), false);
         return valueIsQuantity;
     }
 
     @Override
     public Boolean getLimitsEnabled() {
+        if (limitsEnabled == null)
+            limitsEnabled = sampleHandler.getLastSample(getObject(), LIMITS_ENABLED.getAttributeName(), false);
         return limitsEnabled;
+    }
+
+    @Override
+    public Boolean getGapFillingEnabled() {
+        if (gapFillingEnabled == null)
+            gapFillingEnabled = sampleHandler.getLastSample(getObject(), GAPFILLING_ENABLED.getAttributeName(), false);
+        return gapFillingEnabled;
     }
 
     public JEVisObject getObject() {
@@ -150,88 +129,143 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     }
 
     @Override
+    public List<JEVisSample> getCounterOverflow() {
+        if (counterOverflow == null)
+            counterOverflow = sampleHandler.getAllSamples(getObject(), COUNTEROVERFLOW.getAttributeName());
+        return counterOverflow;
+    }
+
+    @Override
     public DateTime getFirstDate() {
+        if (firstDate == null) {
+            //first date is the lastdate of clean datarow + period or the year of the first sample of the raw data
+            DateTime timestampFromLastCleanSample = sampleHandler.getTimeStampFromLastSample(getObject(), VALUE_ATTRIBUTE_NAME);
+            if (timestampFromLastCleanSample != null) {
+                firstDate = timestampFromLastCleanSample.plus(getPeriodAlignment());
+            } else {
+                DateTime firstTimestampRaw = sampleHandler.getTimestampFromFirstSample(rawDataObject, VALUE_ATTRIBUTE_NAME);
+                if (firstTimestampRaw != null) {
+                    firstDate = new DateTime(firstTimestampRaw.getYear(), firstTimestampRaw.getMonthOfYear(), firstTimestampRaw.getDayOfMonth(), 0, 0);
+                } else {
+                    throw new RuntimeException("No raw values in clean data row");
+                }
+            }
+        }
         return firstDate;
     }
 
     @Override
     public DateTime getMaxEndDate() {
+        if (lastDate == null)
+            lastDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(period);
         return lastDate;
     }
 
     @Override
     public List<JsonGapFillingConfig> getGapFillingConfig() {
+        if (jsonGapFillingConfig == null) {
+            String gapFillingConfig = sampleHandler.getLastSample(getObject(), GAP_FILLING_CONFIG.getAttributeName(), "");
+            if (gapFillingConfig != null && !gapFillingConfig.equals("")) {
+                jsonGapFillingConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
+                }.getType());
+            }
+        }
         return jsonGapFillingConfig;
     }
 
     @Override
     public List<JsonLimitsConfig> getLimitsConfig() {
+        if (jsonLimitsConfig == null) {
+            String limitsConfiguration = sampleHandler.getLastSample(getObject(), LIMITS_CONFIGURATION.getAttributeName(), "");
+            if (limitsConfiguration != null && !limitsConfiguration.equals("")) {
+                jsonLimitsConfig = new Gson().fromJson(limitsConfiguration, new TypeToken<List<JsonLimitsConfig>>() {
+                }.getType());
+            }
+        }
         return jsonLimitsConfig;
     }
 
     @Override
     public List<JEVisSample> getRawSamples() {
-        if (rawSamples != null) {
-            return rawSamples;
-        } else {
-            rawSamples = sampleHandler.getSamplesInPeriod(rawDataObject, VALUE_ATTRIBUTE_NAME, firstDate.minus(period), lastDate);
-//            rawSamples = rawDataObject.getAttribute("Value").getSamples(timestampFromLastSample, new DateTime());
-            return rawSamples;
+        if (rawSamples == null) {
+            rawSamples = sampleHandler.getSamplesInPeriod(rawDataObject,
+                    VALUE_ATTRIBUTE_NAME,
+                    getFirstDate().minus(getPeriodAlignment()),
+                    getMaxEndDate());
         }
+        return rawSamples;
     }
 
     @Override
     public Double getLastDiffValue() {
-        Double lastValue = null;
-        try {
-            //if there are values in the clean data, then there should be a last value in the raw data
-            JEVisAttribute attribute = object.getAttribute(VALUE_ATTRIBUTE_NAME);
-            if (attribute.hasSample()) {
-                DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
-                DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
-                DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
-                List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
-                Double firstRawValue = getRawSamples().get(0).getValueAsDouble();
-                for (int i = samples.size() - 1; i >= 0; i--) {
-                    Double valueAsDouble = samples.get(i).getValueAsDouble();
-                    if (valueAsDouble < firstRawValue) {
-                        lastValue = valueAsDouble;
-                        break;
+        if (lastDiffValue == null) {
+            try {
+                //if there are values in the clean data, then there should be a last value in the raw data
+                JEVisAttribute attribute = getObject().getAttribute(VALUE_ATTRIBUTE_NAME);
+                if (attribute.hasSample()) {
+                    DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
+                    //DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
+                    //DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
+                    //List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
+                    List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(timestampFromLastSample, timestampFromLastSample);
+
+                    if (!samples.isEmpty()) {
+                        lastDiffValue = samples.get(0).getValueAsDouble();
+                        //TODO this is working for period aligned stuff, other needs testing, old version was producing unexpected spikes in the values
                     }
+
+//                Double firstRawValue = samples.get(0).getValueAsDouble();
+//                for (int i = samples.size() - 1; i >= 0; i--) {
+//                    Double valueAsDouble = samples.get(i).getValueAsDouble();
+//                    if (valueAsDouble > firstRawValue) {
+//                        lastValue = valueAsDouble;
+//                        break;
+//                    }
+//                }
                 }
+            } catch (JEVisException ex) {
+                logger.error(null, ex);
             }
-        } catch (JEVisException ex) {
-            Logger.getLogger(CleanDataAttributeJEVis.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return lastValue;
+        return lastDiffValue;
     }
 
     @Override
-    public Double getMultiplier() {
+    public List<JEVisSample> getMultiplier() {
+        if (multiplier == null)
+            multiplier = sampleHandler.getAllSamples(getObject(), MULTIPLIER.getAttributeName());
         return multiplier;
     }
 
     @Override
     public Double getOffset() {
+        if (offset == null) {
+            offset = sampleHandler.getLastSample(getObject(), OFFSET.getAttributeName(), 0.0);
+        }
         return offset;
     }
 
     @Override
     public Double getLastCleanValue() {
-        Double lastValue = null;
-        try {
-            JEVisSample latestSample = object.getAttribute("Value").getLatestSample();
-            if (latestSample != null) {
-                lastValue = latestSample.getValueAsDouble();
+        if (lastCleanValue == null) {
+            try {
+                JEVisSample latestSample = getObject().getAttribute("Value").getLatestSample();
+                if (latestSample != null) {
+                    lastCleanValue = latestSample.getValueAsDouble();
+                }
+            } catch (JEVisException ex) {
+                logger.error(null, ex);
             }
-        } catch (JEVisException ex) {
-            Logger.getLogger(CleanDataAttributeJEVis.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return lastValue;
+        return lastCleanValue;
     }
 
     @Override
     public GapStrategy getGapFillingMode() {
+        if (gapStrategy == null) {
+            String gapModeString = sampleHandler.getLastSample(getObject(), GAP_FILLING.getAttributeName(), GapMode.NONE.toString());
+            gapStrategy = new GapStrategy(gapModeString);
+        }
         return gapStrategy;
     }
 
@@ -247,12 +281,14 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
         VALUE_QUANTITY("Value is a Quantity"),
         CONVERSION_DIFFERENTIAL("Conversion to Differential"),
         MULTIPLIER("Value Multiplier"),
+        COUNTEROVERFLOW("Counter Overflow"),
         OFFSET("Value Offset"),
         VALUE("Value"),
         GAP_FILLING("Gap Filling"),
         ENABLED("Enabled"),
         GAP_FILLING_CONFIG("Gap Filling Config"),
-        LIMITS_ENABLED("Limiting DataRow"),
+        LIMITS_ENABLED("Limits Enabled"),
+        GAPFILLING_ENABLED("GapFilling Enabled"),
         LIMITS_CONFIGURATION("Limits Configuration");
 
         private final String attributeName;

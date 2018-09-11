@@ -122,6 +122,15 @@ public class ChartPlugin implements TreePlugin {
         } else {
             ChartDataModel newData = new ChartDataModel();
             newData.setObject(row.getJEVisObject());
+            try {
+                for (JEVisObject obj : row.getJEVisObject().getChildren()) {
+                    if (obj.getJEVisClassName().equals("Clean Data"))
+                        newData.setDataProcessor(obj);
+                    break;
+                }
+            } catch (JEVisException e) {
+
+            }
             newData.setAttribute(row.getJEVisAttribute());
             _data.put(id, newData);
             return newData;
@@ -190,6 +199,7 @@ public class ChartPlugin implements TreePlugin {
 
     @Override
     public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns() {
+        getChartsList();
         List<TreeTableColumn<JEVisTreeRow, Long>> list = new ArrayList<>();
 
         TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn();
@@ -203,6 +213,7 @@ public class ChartPlugin implements TreePlugin {
         addChart.setOnAction(event -> {
             if (!chartsList.contains(chartTitle)) {
                 chartsList.add(chartTitle);
+                charts.put(chartTitle, new ChartSettings(chartTitle));
 
                 TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
 
@@ -212,6 +223,7 @@ public class ChartPlugin implements TreePlugin {
                 for (String s : chartsList) if (s.contains(chartTitle)) counter++;
 
                 chartsList.add(chartTitle + " " + counter);
+                charts.put(chartTitle + " " + counter, new ChartSettings(chartTitle + " " + counter));
 
                 TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
 
@@ -223,7 +235,6 @@ public class ChartPlugin implements TreePlugin {
 
         TreeTableColumn<JEVisTreeRow, Color> colorColumn = buildColorColumn(_tree, rb.getString("graph.table.color"));
 
-        getChartsList();
         List<TreeTableColumn> charts = new ArrayList<>();
         for (int i = 0; i < chartsList.size(); i++) {
 
@@ -366,19 +377,21 @@ public class ChartPlugin implements TreePlugin {
 
                                 tb.setOnAction(event -> {
                                     if (type == DATE_TYPE.START) {
+                                        LocalDate ld = dp.valueProperty().get();
+                                        DateTime newDateTimeStart = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
                                         for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
                                             ChartDataModel cdm = mdl.getValue();
                                             if (cdm.getSelected()) {
-                                                LocalDate ld = dp.valueProperty().get();
-                                                cdm.setSelectedStart(new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0));
+                                                cdm.setSelectedStart(newDateTimeStart);
                                             }
                                         }
                                     } else if (type == DATE_TYPE.END) {
+                                        LocalDate ld = dp.valueProperty().get();
+                                        DateTime newDateTimeEnd = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
                                         for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
                                             ChartDataModel cdm = mdl.getValue();
                                             if (cdm.getSelected()) {
-                                                LocalDate ld = dp.valueProperty().get();
-                                                cdm.setSelectedEnd(new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999));
+                                                cdm.setSelectedEnd(newDateTimeEnd);
                                             }
                                         }
                                     }
@@ -425,6 +438,7 @@ public class ChartPlugin implements TreePlugin {
         List<String> aggList = new ArrayList<>();
 
         final String keyPreset = rb.getString("graph.interval.preset");
+        String keyHourly = rb.getString("graph.interval.hourly");
         String keyDaily = rb.getString("graph.interval.daily");
         String keyWeekly = rb.getString("graph.interval.weekly");
         String keyMonthly = rb.getString("graph.interval.monthly");
@@ -432,6 +446,7 @@ public class ChartPlugin implements TreePlugin {
 
 
         aggList.add(keyPreset);
+        aggList.add(keyHourly);
         aggList.add(keyDaily);
         aggList.add(keyWeekly);
         aggList.add(keyMonthly);
@@ -443,6 +458,9 @@ public class ChartPlugin implements TreePlugin {
         switch (data.getAggregation()) {
             case None:
                 aggrigate.valueProperty().setValue(keyPreset);
+                break;
+            case Hourly:
+                aggrigate.valueProperty().setValue(keyHourly);
                 break;
             case Daily:
                 aggrigate.valueProperty().setValue(keyDaily);
@@ -463,6 +481,8 @@ public class ChartPlugin implements TreePlugin {
 
             if (newValue.equals(keyPreset)) {
                 data.setAggregation(AGGREGATION.None);
+            } else if (newValue.equals(keyHourly)) {
+                data.setAggregation(AGGREGATION.Hourly);
             } else if (newValue.equals(keyDaily)) {
                 data.setAggregation(AGGREGATION.Daily);
             } else if (newValue.equals(keyWeekly)) {
@@ -644,7 +664,7 @@ public class ChartPlugin implements TreePlugin {
 
     }
 
-    public ObservableList<String> getChartsList() {
+    public void getChartsList() {
         List<String> tempList = new ArrayList<>();
 
         for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
@@ -656,38 +676,24 @@ public class ChartPlugin implements TreePlugin {
                 }
             }
         }
-        if (tempList.isEmpty()) {
-            tempList.add(chartTitle);
-        }
-
         if (charts.isEmpty()) {
-            for (String s : tempList) {
-                charts.put(s, new ChartSettings(s));
-            }
-        } else {
-            if (charts.size() == 1) {
-                for (Map.Entry<String, ChartSettings> settings : charts.entrySet()) {
-                    if (settings.getValue().getName().equals(chartTitle)) {
-                        charts.clear();
-                        for (String s : tempList)
-                            charts.put(s, new ChartSettings(s));
-                    }
-                }
+
+            if (tempList.isEmpty()) {
+                tempList.add(chartTitle);
+                charts.put(chartTitle, new ChartSettings(chartTitle));
             }
         }
 
         AlphanumComparator ac = new AlphanumComparator();
         tempList.sort(ac);
-
         chartsList = FXCollections.observableArrayList(tempList);
-        return chartsList;
     }
 
     private Map<String, ChartSettings> charts = new HashMap<>();
 
     private TreeTableColumn<JEVisTreeRow, JEVisUnit> buildUnitColumn(JEVisTree tree, String columnName) {
         TreeTableColumn<JEVisTreeRow, JEVisUnit> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(60);
+        column.setPrefWidth(90);
         column.setEditable(true);
 
         column.setCellValueFactory(param -> {
@@ -702,27 +708,61 @@ public class ChartPlugin implements TreePlugin {
 
                 TreeTableCell<JEVisTreeRow, JEVisUnit> cell = new TreeTableCell<JEVisTreeRow, JEVisUnit>() {
 
-
                     @Override
                     protected void updateItem(JEVisUnit item, boolean empty) {
                         super.updateItem(item, empty);
                         if (!empty) {
 
-                            StackPane hbox = new StackPane();
+                            StackPane stackPane = new StackPane();
 
                             if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox box = buildUnitBox(data);
 
-                                hbox.getChildren().setAll(box);
+                                if (data.getUnit() != null)
+                                    if (!data.getUnit().equals(Unit.ONE)) {
+                                        String selection = UnitManager.getInstance().formate(data.getUnit());
+                                        box.getSelectionModel().select(selection);
+                                    } else {
+                                        box.getSelectionModel().select(0);
+                                    }
 
-                                StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
+                                box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+                                    if (oldValue == null || newValue != oldValue) {
+                                        commitEdit(parseUnit(String.valueOf(newValue)));
+                                    }
+                                });
+
+                                ImageView imageMarkAll = new ImageView(imgMarkAll);
+                                imageMarkAll.fitHeightProperty().set(12);
+                                imageMarkAll.fitWidthProperty().set(12);
+
+                                Button tb = new Button("", imageMarkAll);
+
+                                tb.setTooltip(tpMarkAll);
+
+                                tb.setOnAction(event -> {
+                                    JEVisUnit u = parseUnit(box.getSelectionModel().getSelectedItem().toString());
+                                    for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
+                                        ChartDataModel cdm = mdl.getValue();
+                                        if (cdm.getSelected()) {
+                                            cdm.setUnit(u);
+                                        }
+                                    }
+
+                                    tree.refresh();
+                                });
+
+                                HBox hbox = new HBox();
+                                hbox.getChildren().addAll(box, tb);
+                                stackPane.getChildren().add(hbox);
+                                StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
                                 box.setDisable(!data.isSelectable());
                             }
 
                             setText(null);
-                            setGraphic(hbox);
+                            setGraphic(stackPane);
                         } else {
                             setText(null);
                             setGraphic(null);
@@ -741,8 +781,7 @@ public class ChartPlugin implements TreePlugin {
     }
 
     private ChoiceBox buildUnitBox(ChartDataModel singleRow) {
-        JEVisUnit selectedUnit = null;
-        if (singleRow.getUnit() != null) selectedUnit = singleRow.getUnit();
+
         List<String> proNames = new ArrayList<>();
 
         Boolean isEnergyUnit = false;
@@ -750,41 +789,63 @@ public class ChartPlugin implements TreePlugin {
         Boolean isMassUnit = false;
         JEVisUnit currentUnit = null;
         try {
-            if (singleRow.getDataProcessor() != null) {
+            if (singleRow.getDataProcessor() != null
+                    && singleRow.getDataProcessor().getAttribute("Value") != null
+                    && singleRow.getDataProcessor().getAttribute("Value").getDisplayUnit() != null)
                 currentUnit = singleRow.getDataProcessor().getAttribute("Value").getDisplayUnit();
-            } else {
-                currentUnit = singleRow.getObject().getAttribute("Value").getDisplayUnit();
+            else {
+                if (singleRow.getObject() != null
+                        && singleRow.getObject().getAttribute("Value") != null
+                        && singleRow.getObject().getAttribute("Value").getDisplayUnit() != null)
+                    currentUnit = singleRow.getObject().getAttribute("Value").getDisplayUnit();
             }
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (
+                JEVisException e) {
         }
 
-        for (EnergyUnit eu : EnergyUnit.values()) {
+        for (
+                EnergyUnit eu : EnergyUnit.values()) {
             if (eu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isEnergyUnit = true;
             }
 
         }
-        if (isEnergyUnit) for (EnergyUnit eu : EnergyUnit.values()) proNames.add(eu.toString());
+        if (isEnergyUnit) for (
+                EnergyUnit eu : EnergyUnit.values())
+            proNames.add(eu.toString());
 
-        for (VolumeUnit vu : VolumeUnit.values()) {
+        for (
+                VolumeUnit vu : VolumeUnit.values()) {
             if (vu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isVolumeUnit = true;
             }
         }
-        if (isVolumeUnit) for (VolumeUnit vu : VolumeUnit.values()) proNames.add(vu.toString());
+        if (isVolumeUnit) for (
+                VolumeUnit vu : VolumeUnit.values())
+            proNames.add(vu.toString());
 
-        for (MassUnit mu : MassUnit.values()) {
+        for (
+                MassUnit mu : MassUnit.values()) {
             if (mu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isMassUnit = true;
             }
         }
-        if (isMassUnit) for (MassUnit mu : MassUnit.values()) proNames.add(mu.toString());
+        if (isMassUnit) for (
+                MassUnit mu : MassUnit.values())
+            proNames.add(mu.toString());
 
+        ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
+
+        return processorBox;
+    }
+
+    private JEVisUnit parseUnit(String unit) {
+        JEVisUnit result = null;
         Unit _kg = SI.KILOGRAM;
         Unit _t = NonSI.METRIC_TON;
 
         Unit _l = NonSI.LITER;
+        Unit _l2 = NonSI.LITRE;
         Unit _m3 = SI.CUBIC_METRE;
 
         Unit _W = SI.WATT;
@@ -800,6 +861,7 @@ public class ChartPlugin implements TreePlugin {
         final JEVisUnit t = new JEVisUnitImp(_t);
 
         final JEVisUnit l = new JEVisUnitImp(_l);
+        final JEVisUnit l2 = new JEVisUnitImp(_l2);
         final JEVisUnit m3 = new JEVisUnitImp(_m3);
 
         final JEVisUnit W = new JEVisUnitImp(_W);
@@ -811,59 +873,47 @@ public class ChartPlugin implements TreePlugin {
         final JEVisUnit MWh = new JEVisUnitImp(_MWh);
         final JEVisUnit GWh = new JEVisUnitImp(_GWh);
 
-        ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
-
-        processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-            if (oldValue == null || newValue != oldValue) {
-                final String finalNewValue = String.valueOf(newValue);
-                switch (finalNewValue) {
-                    case "kg":
-                        singleRow.setUnit(kg);
-                        break;
-                    case "t":
-                        singleRow.setUnit(t);
-                        break;
-                    case "W":
-                        singleRow.setUnit(W);
-                        break;
-                    case "kW":
-                        singleRow.setUnit(kW);
-                        break;
-                    case "MW":
-                        singleRow.setUnit(MW);
-                        break;
-                    case "GW":
-                        singleRow.setUnit(GW);
-                        break;
-                    case "Wh":
-                        singleRow.setUnit(Wh);
-                        break;
-                    case "kWh":
-                        singleRow.setUnit(kWh);
-                        break;
-                    case "MWh":
-                        singleRow.setUnit(MWh);
-                        break;
-                    case "GWh":
-                        singleRow.setUnit(GWh);
-                        break;
-                    case "m³":
-                        singleRow.setUnit(m3);
-                        break;
-                    case "l":
-                        singleRow.setUnit(l);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        if (selectedUnit != null)
-            processorBox.getSelectionModel().select(UnitManager.getInstance().formate(selectedUnit));
-        else processorBox.getSelectionModel().select(UnitManager.getInstance().formate(currentUnit));
-
-        return processorBox;
+        switch (unit) {
+            case "kg":
+                result = kg;
+                break;
+            case "t":
+                result = t;
+                break;
+            case "W":
+                result = W;
+                break;
+            case "kW":
+                result = kW;
+                break;
+            case "MW":
+                result = MW;
+                break;
+            case "GW":
+                result = GW;
+                break;
+            case "Wh":
+                result = Wh;
+                break;
+            case "kWh":
+                result = kWh;
+                break;
+            case "MWh":
+                result = MWh;
+                break;
+            case "GWh":
+                result = GWh;
+                break;
+            case "m³":
+                result = m3;
+                break;
+            case "L":
+                result = l;
+                break;
+            default:
+                break;
+        }
+        return result;
     }
 
     private enum EnergyUnit {
@@ -875,7 +925,7 @@ public class ChartPlugin implements TreePlugin {
     }
 
     private enum VolumeUnit {
-        l("l"), m3("m³");
+        L("L"), m3("m³");
 
         private final String name;
 
@@ -899,7 +949,6 @@ public class ChartPlugin implements TreePlugin {
     public void set_data(Map<String, ChartDataModel> _data) {
         this._data = _data;
         _tree.getColumns().clear();
-        charts.clear();
         _tree.getColumns().addAll(ColumnFactory.buildName());
         for (TreeTableColumn<JEVisTreeRow, Long> column : getColumns()) _tree.getColumns().add(column);
     }
@@ -910,7 +959,7 @@ public class ChartPlugin implements TreePlugin {
 
     public enum AGGREGATION {
 
-        None, Daily, Weekly, Monthly,
+        None, Hourly, Daily, Weekly, Monthly,
         Yearly
     }
 
@@ -918,7 +967,8 @@ public class ChartPlugin implements TreePlugin {
         this.charts = charts;
     }
 
-    private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, Integer selectionColumnIndex) {
+    private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, Integer
+            selectionColumnIndex) {
 
         String columnName = chartsList.get(selectionColumnIndex);
 
@@ -934,11 +984,11 @@ public class ChartPlugin implements TreePlugin {
 
         VBox vbox = new VBox();
 
-        TextField tf = new TextField(columnName);
-        tf.setText(columnName);
-        tf.setEditable(true);
+        TextField textFieldChartName = new TextField(columnName);
+        textFieldChartName.setText(columnName);
+        textFieldChartName.setEditable(false);
 
-        tf.textProperty().addListener((observable, oldValue, newValue) -> {
+        textFieldChartName.textProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
                 for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
                     ChartDataModel mdl = entry.getValue();
@@ -949,13 +999,15 @@ public class ChartPlugin implements TreePlugin {
                     }
                 }
                 for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
-                    ChartSettings set = chart.getValue();
-                    if (set.getName().contains(oldValue)) {
+                    if (chart.getValue().getName().contains(oldValue)) {
+                        ChartSettings set = chart.getValue();
+                        charts.remove(chart.getKey());
                         set.setName(newValue);
+                        charts.put(newValue, set);
+
                     }
                 }
                 chartsList.set(selectionColumnIndex, newValue);
-
             }
         });
 
@@ -988,7 +1040,7 @@ public class ChartPlugin implements TreePlugin {
             if (oldValue == null || newValue != oldValue) {
                 for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
                     ChartSettings settings = chart.getValue();
-                    if (tf.getText().equals(settings.getName())) {
+                    if (textFieldChartName.getText().equals(settings.getName())) {
                         ChartSettings.ChartType type = parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
                         settings.setChartType(type);
                     }
@@ -996,7 +1048,7 @@ public class ChartPlugin implements TreePlugin {
             }
         });
 
-        vbox.getChildren().addAll(tf, comboBoxChartType);
+        vbox.getChildren().addAll(textFieldChartName, comboBoxChartType);
 
         column.setGraphic(vbox);
         column.setText(null);
@@ -1019,6 +1071,7 @@ public class ChartPlugin implements TreePlugin {
                             if (!data.get_selectedCharts().contains(selectedChart)) {
 
                                 data.get_selectedCharts().add(selectedChart);
+                                textFieldChartName.setEditable(true);
                             }
                         } else {
                             data.get_selectedCharts().remove(selectedChart);
@@ -1174,5 +1227,13 @@ public class ChartPlugin implements TreePlugin {
         }
     }
 
-
+    public void selectNone() {
+        for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
+            ChartDataModel mdl = entry.getValue();
+            if (mdl.getSelected()) {
+                mdl.setSelected(false);
+            }
+        }
+        _tree.refresh();
+    }
 }

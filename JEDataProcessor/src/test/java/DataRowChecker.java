@@ -6,11 +6,10 @@ import org.jevis.jecalc.util.DataRowReader;
 import org.jevis.jecalc.workflow.ProcessManager;
 import org.joda.time.DateTime;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -21,6 +20,7 @@ import java.util.logging.Logger;
  * @author broder
  */
 public class DataRowChecker {
+    private static final Logger logger = LoggerFactory.getLogger(DataRowChecker.class);
 
     public void validate(String pathToInputFile, String pathToCleanConfigFile, String pathToRealOutput, String pathToCorrectOutput) {
         this.run(pathToInputFile, pathToCleanConfigFile, pathToRealOutput);
@@ -42,7 +42,7 @@ public class DataRowChecker {
                 DateTime correctDateTime = correctSample.getTimestamp();
                 Assert.assertEquals("same timestamp", realDateTime, correctDateTime);
             } catch (JEVisException ex) {
-                Logger.getLogger(DataRowChecker.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(null, ex);
             }
         }
 

@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.4.0</version>
+    <version>3.4.3</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -250,7 +250,6 @@
         <dependency>
             <groupId>org.jevis.application</groupId>
             <artifactId>jeapplication</artifactId>
-            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>

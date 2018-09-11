@@ -28,17 +28,19 @@ public interface CleanDataAttribute {
 
     List<JEVisSample> getRawSamples();
 
-    Boolean getConversionDifferential();
+    List<JEVisSample> getConversionDifferential();
 
     Boolean getValueIsQuantity();
 
     Boolean getLimitsEnabled();
 
+    Boolean getGapFillingEnabled();
+
     Integer getPeriodOffset();
 
     Double getLastDiffValue();
 
-    Double getMultiplier();
+    List<JEVisSample> getMultiplier();
 
     Double getOffset();
 
@@ -58,4 +60,5 @@ public interface CleanDataAttribute {
 
     JEVisObject getObject();
 
+    List<JEVisSample> getCounterOverflow();
 }

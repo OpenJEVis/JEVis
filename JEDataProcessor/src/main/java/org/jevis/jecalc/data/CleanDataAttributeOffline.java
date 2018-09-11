@@ -15,14 +15,14 @@ import org.jevis.jecalc.util.DataRowReader;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.ISOPeriodFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author broder
@@ -34,8 +34,8 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private int periodOffset;
     private Period periodAlignment;
     private boolean valueIsQuantity;
-    private boolean isConversionToDifferential;
-    private Double multiplier;
+    private List<JEVisSample> isConversionToDifferential;
+    private List<JEVisSample> multiplier;
     private Double offset;
     private GapStrategy gapStrategy;
 
@@ -44,8 +44,11 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private Boolean limitsEnabled;
+    private Boolean gapFillingEnabled;
+    private static final Logger logger = LoggerFactory.getLogger(CleanDataAttributeOffline.class);
 
     private JEVisObject object;
+    private List<JEVisSample> counterOverflow;
 
     public CleanDataAttributeOffline(String pathToInputFile, String pathToCleanConfigFile, String pathToOutput) {
         initProperties(pathToCleanConfigFile);
@@ -57,7 +60,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
             int year = firstTimestamp.getYear();
             date = new DateTime(year, 1, 1, 0, 0);
         } catch (JEVisException ex) {
-            Logger.getLogger(CleanDataAttributeOffline.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
 
         this.pathToOutput = pathToOutput;
@@ -74,7 +77,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
             try {
                 return rawSample.get(rawSample.size() - 1).getTimestamp().plusSeconds(periodOffset).plus(periodAlignment);
             } catch (JEVisException ex) {
-                Logger.getLogger(CleanDataAttributeOffline.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(null, ex);
             }
         }
         return null;
@@ -91,7 +94,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     }
 
     @Override
-    public Boolean getConversionDifferential() {
+    public List<JEVisSample> getConversionDifferential() {
         return isConversionToDifferential;
     }
 
@@ -117,10 +120,13 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
             valueIsQuantity = valueIsQuantityAsString.equals("true");
 
             String isConversionToDifferentialAsString = prop.getProperty("Conversion_to_Differential");
-            isConversionToDifferential = isConversionToDifferentialAsString.equals("true");
+            //isConversionToDifferential = isConversionToDifferentialAsString.equals("true");
 
             String multiplierString = prop.getProperty("Multiplier");
-            multiplier = Double.parseDouble(multiplierString);
+            //multiplier = Double.parseDouble(multiplierString);
+
+            //String counterOverflowString = prop.getProperty("Counter Overflow");
+            //counterOverflow = Double.parseDouble(counterOverflowString);
 
             String offsetString = prop.getProperty("Offset");
             offset = Double.parseDouble(offsetString);
@@ -133,7 +139,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
 
 
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.error(null, ex);
         }
     }
 
@@ -157,7 +163,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     }
 
     @Override
-    public Double getMultiplier() {
+    public List<JEVisSample> getMultiplier() {
         return multiplier;
     }
 
@@ -202,6 +208,11 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     }
 
     @Override
+    public Boolean getGapFillingEnabled() {
+        return gapFillingEnabled;
+    }
+
+    @Override
     public String getName() {
         return "offline mode";
     }
@@ -209,5 +220,10 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     @Override
     public JEVisObject getObject() {
         return object;
+    }
+
+    @Override
+    public List<JEVisSample> getCounterOverflow() {
+        return counterOverflow;
     }
 }

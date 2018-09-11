@@ -19,23 +19,17 @@
  */
 package org.jevis.commons.driver;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jevis.api.*;
+import org.jevis.commons.DatabaseHelper;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisType;
-import org.jevis.commons.DatabaseHelper;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
 
 /**
  *
@@ -46,6 +40,36 @@ public class JEVisImporter implements Importer {
     private JEVisDataSource _client = null;
     private DateTimeZone _timezone;
 //    private DateTime _latestDateTime;
+
+    public static void main(String[] args) {
+        DateTime dateTime = new DateTime();
+        //System.out.println(dateTime.toString(DateTimeFormat.fullDateTime()));
+        DateTime convertTime = TimeConverter.convertTime(DateTimeZone.UTC, dateTime);
+        //System.out.println(convertTime.toString(DateTimeFormat.fullDateTime()));
+    }
+
+    @Override
+    public void initialize(JEVisObject dataSource) {
+        try {
+            _client = dataSource.getDataSource();
+            JEVisClass dataSourceClass = _client.getJEVisClass(DataCollectorTypes.DataSource.NAME);
+            JEVisType timezoneType = dataSourceClass.getType(DataCollectorTypes.DataSource.TIMEZONE);
+            String timezone = DatabaseHelper.getObjectAsString(dataSource, timezoneType);
+            _timezone = DateTimeZone.forID(timezone);
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(JEVisImporter.class.getName()).log(java.util.logging.Level.SEVERE, "Timezone setup in Importer failed", ex);
+        }
+    }
+
+    //    @Override
+//    public DateTime getLatestDatapoint() {
+//        String toString = _latestDateTime.toString(DateTimeFormat.forPattern("HH:mm:ss dd.MM.yyyy"));
+//        return _latestDateTime;
+//    }
+    @Override
+    public Object getLatestDatapoint() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     //TODO: support other attributes then "Value"
     @Override
@@ -70,7 +94,7 @@ public class JEVisImporter implements Importer {
                     }
 
 //                    Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Target Sample.getID: " + s.getOnlineID());
-                    System.out.println("Target Sample.getID: " + s.getOnlineID());
+                    //System.out.println("Target Sample.getID: " + s.getOnlineID());
                     if (targets.containsKey(s.getOnlineID())) {
                         continue;
                     }
@@ -123,7 +147,7 @@ public class JEVisImporter implements Importer {
                 JEVisAttribute value = entrySet.getValue();
                 okIDs += key + ",";
             }
-            Logger.getLogger(JEVisImporter.class.getName()).log(Level.INFO, "Vailed target configurations for: [" + okIDs + "]");
+            Logger.getLogger(JEVisImporter.class.getName()).log(Level.INFO, "Failed target configurations for: [" + okIDs + "]");
 
             //build the Samples per attribute so we can bulk import them
             Map<JEVisAttribute, List<JEVisSample>> toImportList = new HashMap<>();
@@ -135,7 +159,7 @@ public class JEVisImporter implements Importer {
                     }
 
                     if (s.getValue() == null) {
-                        Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Error: Value is emty");
+                        Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Error: Value is empty");
                         continue;
                     }
 
@@ -181,7 +205,7 @@ public class JEVisImporter implements Importer {
                             lastTSTotal = s.getTimestamp();
                         }
                         if (lastTSForAtt == null || lastTSForAtt.isBefore(s.getTimestamp())) {
-                            lastTSForAtt = s.getTimestamp();;
+                            lastTSForAtt = s.getTimestamp();
                         }
 
                     }
@@ -193,41 +217,11 @@ public class JEVisImporter implements Importer {
                     Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Unexpected error while import: " + ex);
                 }
             }
-            return lastTSTotal;//TODO: do we have to converte the date with the timezone?
+            return lastTSTotal.withZone(_timezone);
 
         } catch (Exception ex) {
             Logger.getLogger(JEVisImporter.class.getName()).log(Level.ERROR, null, ex);
         }
         return null;
-    }
-
-    @Override
-    public void initialize(JEVisObject dataSource) {
-        try {
-            _client = dataSource.getDataSource();
-            JEVisClass dataSourceClass = _client.getJEVisClass(DataCollectorTypes.DataSource.NAME);
-            JEVisType timezoneType = dataSourceClass.getType(DataCollectorTypes.DataSource.TIMEZONE);
-            String timezone = DatabaseHelper.getObjectAsString(dataSource, timezoneType);
-            _timezone = DateTimeZone.forID(timezone);
-        } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(JEVisImporter.class.getName()).log(java.util.logging.Level.SEVERE, "Timezone setup in Importer failed", ex);
-        }
-    }
-
-//    @Override
-//    public DateTime getLatestDatapoint() {
-//        String toString = _latestDateTime.toString(DateTimeFormat.forPattern("HH:mm:ss dd.MM.yyyy"));
-//        return _latestDateTime;
-//    }
-    @Override
-    public Object getLatestDatapoint() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public static void main(String[] args) {
-        DateTime dateTime = new DateTime();
-        System.out.println(dateTime.toString(DateTimeFormat.fullDateTime()));
-        DateTime convertTime = TimeConverter.convertTime(DateTimeZone.UTC, dateTime);
-        System.out.println(convertTime.toString(DateTimeFormat.fullDateTime()));
     }
 }

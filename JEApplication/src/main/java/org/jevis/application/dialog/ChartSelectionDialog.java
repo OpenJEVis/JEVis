@@ -32,7 +32,10 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.*;
@@ -86,8 +89,8 @@ public class ChartSelectionDialog {
         stage.initStyle(StageStyle.UTILITY);
         stage.initOwner(owner);
 
-        //1150 for the columns
-        stage.setWidth(1190);
+        //1180 for the columns
+        stage.setWidth(1220);
         stage.setHeight(768);
         stage.setResizable(true);
 
@@ -114,12 +117,16 @@ public class ChartSelectionDialog {
         HBox buttonBox = new HBox(10);
         Region spacer = new Region();
         Button ok = new Button(rb.getString("graph.selection.load"));
+        Button removeAllSelections = new Button(rb.getString("graph.selection.removeselections"));
+
         ok.setDefaultButton(true);
 
+        HBox.setHgrow(removeAllSelections, Priority.NEVER);
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setMargin(removeAllSelections, new Insets(10));
         HBox.setMargin(ok, new Insets(10));
-        buttonBox.getChildren().setAll(spacer, ok);
+        buttonBox.getChildren().setAll(spacer, removeAllSelections, ok);
         root.getChildren().setAll(headerNode, treePane, sep, buttonBox);
 
         VBox.setVgrow(treePane, Priority.ALWAYS);
@@ -134,9 +141,10 @@ public class ChartSelectionDialog {
                 if (data != null && !data.isEmpty()) {
                     bp.set_data(data);
                 }
-
             }
         }
+
+        removeAllSelections.setOnAction(event -> bp.selectNone());
 
         tabConfiguration.setContent(root);
 
@@ -180,6 +188,18 @@ public class ChartSelectionDialog {
             }
 
             if (!listUS.isEmpty()) _tree.openUserSelectionNoChildren(listUS);
+        } else {
+            List<UserSelection> listUS = new ArrayList<>();
+            JEVisObject firstDataDir = null;
+            try {
+                JEVisClass classDataDirectory = _ds.getJEVisClass("Data Directory");
+                List<JEVisObject> listDataDirectories = _ds.getObjects(classDataDirectory, false);
+                if (!listDataDirectories.isEmpty()) firstDataDir = listDataDirectories.get(0);
+            } catch (JEVisException e) {
+
+            }
+            if (firstDataDir != null) listUS.add(new UserSelection(UserSelection.SelectionType.Object, firstDataDir));
+            if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
         }
 
         ok.setOnAction(event -> {

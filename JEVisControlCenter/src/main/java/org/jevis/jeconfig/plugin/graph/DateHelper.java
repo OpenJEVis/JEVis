@@ -6,8 +6,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class DateHelper {
-    final LocalTime startTime = LocalTime.of(0, 0, 0, 0);
-    final LocalTime endTime = LocalTime.of(23, 59, 59, 999);
+    private LocalTime startTime = LocalTime.of(0, 0, 0, 0);
+    private LocalTime endTime = LocalTime.of(23, 59, 59, 999);
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate checkDate;
@@ -38,10 +38,12 @@ public class DateHelper {
 
     public LocalDate getStartDate() {
         now = LocalDate.now();
+        if (startTime.isAfter(endTime)) now = now.minusDays(1);
+
         switch (type) {
             case CUSTOM:
                 break;
-            case LASTDAY:
+            case TODAY:
                 startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
                 break;
             case LAST7DAYS:
@@ -49,6 +51,9 @@ public class DateHelper {
                 break;
             case LAST30DAYS:
                 startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(30);
+                break;
+            case LASTDAY:
+                startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(1);
                 break;
             case LASTWEEK:
                 now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
@@ -65,15 +70,18 @@ public class DateHelper {
     }
 
     public DateTime getDateTimeStartDate() {
-        return new DateTime(getStartDate().getYear(), getStartDate().getMonth().getValue(), getStartDate().getDayOfMonth(), 0, 0, 0, 0);
+        return new DateTime(getStartDate().getYear(), getStartDate().getMonth().getValue(), getStartDate().getDayOfMonth(),
+                getStartTime().getHour(), getStartTime().getMinute(), getStartTime().getSecond(), 0);
     }
 
     public LocalDate getEndDate() {
         now = LocalDate.now();
+        //if (startTime.isAfter(endTime)) now = now.minusDays(1);
+
         switch (type) {
             case CUSTOM:
                 break;
-            case LASTDAY:
+            case TODAY:
                 endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
                 break;
             case LAST7DAYS:
@@ -81,6 +89,9 @@ public class DateHelper {
                 break;
             case LAST30DAYS:
                 endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
+                break;
+            case LASTDAY:
+                endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(1);
                 break;
             case LASTWEEK:
                 now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
@@ -97,7 +108,8 @@ public class DateHelper {
     }
 
     public DateTime getDateTimeEndDate() {
-        return new DateTime(getEndDate().getYear(), getEndDate().getMonth().getValue(), getEndDate().getDayOfMonth(), 23, 59, 59, 999);
+        return new DateTime(getEndDate().getYear(), getEndDate().getMonth().getValue(), getEndDate().getDayOfMonth(),
+                getEndTime().getHour(), getEndTime().getMinute(), getEndTime().getSecond(), 999);
     }
 
     public void setType(TransformType type) {
@@ -152,7 +164,15 @@ public class DateHelper {
         return userSet;
     }
 
-    public enum TransformType {CUSTOM, LASTDAY, LAST7DAYS, LAST30DAYS, LASTWEEK, LASTMONTH}
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, LASTDAY, LASTWEEK, LASTMONTH}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 }

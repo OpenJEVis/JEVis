@@ -41,7 +41,6 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
-import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -90,34 +89,34 @@ public class GapFillingEditor implements AttributeEditor {
         });
 
 
-        ToggleSwitchPlus enableButton = new ToggleSwitchPlus();
-        enableButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-//                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
-                _changed.setValue((_lastSample != null));
-                delete = (_lastSample != null);
-            } else {
-//                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-            }
-        });
+//        ToggleSwitchPlus enableButton = new ToggleSwitchPlus();
+//        enableButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+//            if (newValue) {
+////                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
+//                _changed.setValue((_lastSample != null));
+//                delete = (_lastSample != null);
+//            } else {
+////                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+//            }
+//        });
+//
+//        openConfig.visibleProperty().bind(enableButton.selectedProperty());
+//
+//        try {
+//            if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
+//                enableButton.setSelected(true);
+////                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
+//            } else {
+//                enableButton.setSelected(false);
+////                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+//            }
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
 
-        openConfig.visibleProperty().bind(enableButton.selectedProperty());
 
-        try {
-            if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
-                enableButton.setSelected(true);
-//                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
-            } else {
-                enableButton.setSelected(false);
-//                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-
-        box.getChildren().addAll(enableButton, openConfig);
+        box.getChildren().addAll(openConfig);
 
     }
 
@@ -178,7 +177,7 @@ public class GapFillingEditor implements AttributeEditor {
         List<JsonGapFillingConfig> list = new ArrayList<>();
         JsonGapFillingConfig newConfig1 = new JsonGapFillingConfig();
         newConfig1.setType(GapFillingType.INTERPOLATION);
-        newConfig1.setBoundary("3600");
+        newConfig1.setBoundary("3600000");
 
 
         newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
@@ -186,10 +185,10 @@ public class GapFillingEditor implements AttributeEditor {
 
         JsonGapFillingConfig newConfig2 = new JsonGapFillingConfig();
         newConfig2.setType(GapFillingType.AVERAGE);
-        newConfig2.setBoundary("2592000");
+        newConfig2.setBoundary("2592000000");
         newConfig2.setBindtospecific(GapFillingBoundToSpecific.WEEKDAY);
-        newConfig2.setReferenceperiodcount("4");
-        newConfig2.setReferenceperiod(GapFillingReferencePeriod.WEEK);
+        newConfig2.setReferenceperiodcount("6");
+        newConfig2.setReferenceperiod(GapFillingReferencePeriod.MONTH);
 
         newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
         list.add(newConfig2);
@@ -283,7 +282,7 @@ public class GapFillingEditor implements AttributeEditor {
         gridPane.setVgap(5);
 
 
-        Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.name"));
+        //Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.name"));
         Label typeLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.type"));
         Label boundaryLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.boundary"));
         Label defaultValueLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.defaultvalue"));
@@ -371,13 +370,10 @@ public class GapFillingEditor implements AttributeEditor {
             row++;
             gridPane.add(defaultValueLabel, 0, row);
             gridPane.add(defaultValueText, 1, row);
-        } else if (config.getType().equals(GapFillingType.NONE)) {
-            //Noting to add
+        } else if (config.getType().equals(GapFillingType.NONE) || config.getType().equals(GapFillingType.STATIC)
+                || config.getType().equals(GapFillingType.INTERPOLATION)) {
+            //Nothing to add
         } else {
-            row++;
-            gridPane.add(defaultValueLabel, 0, row);
-            gridPane.add(defaultValueText, 1, row);
-
             row++;
             gridPane.add(referencePeriodLabel, 0, row);
             gridPane.add(referencePeriodBox, 1, row);

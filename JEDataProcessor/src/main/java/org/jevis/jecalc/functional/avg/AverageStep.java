@@ -19,8 +19,6 @@ import org.jevis.jecalc.workflow.ProcessStep;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author broder
@@ -47,7 +45,7 @@ public class AverageStep implements ProcessStep {
             JEVisAttribute attribute = functionalObject.getAttribute("Value");
             sampleHandler.importDataAndReplaceSorted(aggregatedData, attribute);
         } catch (JEVisException ex) {
-            Logger.getLogger(SummationStep.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(null, ex);
         }
     }
 

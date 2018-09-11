@@ -72,6 +72,13 @@ public class ChartDataModel {
                 switch (aggregation) {
                     case None:
                         break;
+                    case Hourly:
+                        aggregate = new BasicProcess();
+                        aggregate.setJEVisDataSource(ds);
+                        aggregate.setID("Dynamic");
+                        aggregate.setFunction(new AggrigatorFunction());
+                        aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
+                        break;
                     case Daily:
                         aggregate = new BasicProcess();
                         aggregate.setJEVisDataSource(ds);
@@ -105,7 +112,7 @@ public class ChartDataModel {
                 if (getDataProcessor() != null) {
                     _dataProcessorObject = getDataProcessor();
                     _attribute = _dataProcessorObject.getAttribute("Value");
-                }
+                } else _attribute = _object.getAttribute("Value");
 
                 if (aggregate != null) {
                     Process input = new BasicProcess();
@@ -118,7 +125,6 @@ public class ChartDataModel {
                     aggregate.setSubProcesses(Arrays.asList(input));
                     samples.addAll(factorizeSamples(aggregate.getResult()));
                 } else {
-
                     samples.addAll(factorizeSamples(getAttribute().getSamples(getSelectedStart(), getSelectedEnd())));
                 }
 
@@ -358,12 +364,14 @@ public class ChartDataModel {
                             factor = 1000d;
                             break;
                     }
+                    break;
                 case "t":
                     switch (inputUnit) {
                         case "kg":
                             factor = 1 / 1000d;
                             break;
                     }
+                    break;
                 default:
                     break;
             }
@@ -394,11 +402,11 @@ public class ChartDataModel {
     }
 
     public JEVisObject getDataProcessor() {
-        _somethingChanged = true;
         return _dataProcessorObject;
     }
 
     public void setDataProcessor(JEVisObject _dataProcessor) {
+        _somethingChanged = true;
         this._dataProcessorObject = _dataProcessor;
     }
 
@@ -417,6 +425,8 @@ public class ChartDataModel {
     }
 
     public void setSelected(boolean selected) {
+
+        _somethingChanged = true;
         _selected = selected;
     }
 
@@ -433,7 +443,13 @@ public class ChartDataModel {
         if (_selectedStart != null) {
             return _selectedStart;
         } else if (getAttribute() != null) {
-            _selectedStart = getAttribute().getTimestampFromFirstSample();
+            DateTime dt = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), 1, 0, 0, 0, 0);
+            dt = dt.minusMonths(1);
+            DateTime timeStampFromFirstSample = getAttribute().getTimestampFromFirstSample();
+
+            if (timeStampFromFirstSample.isBefore(dt)) _selectedStart = dt;
+            else _selectedStart = timeStampFromFirstSample;
+
             return _selectedStart;
         } else {
             return null;
@@ -474,17 +490,20 @@ public class ChartDataModel {
     }
 
     public JEVisAttribute getAttribute() {
-
         if (_attribute == null) {
             try {
+                JEVisAttribute attribute = null;
                 if (getObject().getJEVisClassName().equals("Data") || getObject().getJEVisClassName().equals("Clean Data")) {
-                    JEVisAttribute values = getObject().getAttribute("Value");
-                    _attribute = values;
+                    if (_dataProcessorObject == null) attribute = getObject().getAttribute("Value");
+                    else attribute = getDataProcessor().getAttribute("Value");
+
+                    _attribute = attribute;
                 }
             } catch (Exception ex) {
                 Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+
         return _attribute;
     }
 
@@ -510,6 +529,8 @@ public class ChartDataModel {
     }
 
     public void set_selectedCharts(List<String> _selectedCharts) {
+
+        _somethingChanged = true;
         this._selectedCharts = _selectedCharts;
     }
 

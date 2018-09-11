@@ -51,25 +51,25 @@
             <dependency>
                 <groupId>org.jevis.api</groupId>
                 <artifactId>jeapi</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
             </dependency>
 
             <dependency>
                 <groupId>org.jevis.commons</groupId>
                 <artifactId>JECommons</artifactId>
-                <version>3.0</version>
+                <version>3.2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.jevis</groupId>
                 <artifactId>JEAPI-WS</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.jevis.application</groupId>
                 <artifactId>jeapplication</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.2</version>
             </dependency>
 
             <dependency>

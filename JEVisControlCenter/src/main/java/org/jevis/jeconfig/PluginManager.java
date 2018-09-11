@@ -40,6 +40,7 @@ import org.jevis.jeconfig.plugin.scada.SCADAPlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -166,6 +167,12 @@ public class PluginManager {
 
             }
 
+            try {
+                Collections.swap(_plugins, 0, 1);
+            } catch (Exception e) {
+                //workaround to get graph plugin to first position
+            }
+
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -192,7 +199,7 @@ public class PluginManager {
             try {
                 Tab pluginTab = new Tab(plugin.getName());
                 pluginTab.setClosable(false);
-                pluginTab.setTooltip(new Tooltip(plugin.getUUID()));
+                pluginTab.setTooltip(new Tooltip(plugin.getToolTip()));
 //            pluginTab.setContent(plugin.getView().getNode());
                 pluginTab.setContent(plugin.getContentNode());
                 tabPane.getTabs().add(pluginTab);
