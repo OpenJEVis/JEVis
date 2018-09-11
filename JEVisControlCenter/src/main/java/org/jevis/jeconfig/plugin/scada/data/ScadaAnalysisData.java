@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard.data;
+package org.jevis.jeconfig.plugin.scada.data;
 
 import java.util.List;
 

@@ -27,6 +27,7 @@ import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
+import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.DateHelper;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
@@ -45,6 +46,7 @@ import java.util.*;
 public class ToolBarView {
 
     private final JEVisDataSource ds;
+    private final Logger logger = LogManager.getLogger(ToolBarView.class);
     private GraphDataModel model;
     private ToolBarController controller;
     private String nameCurrentAnalysis;
@@ -63,7 +65,14 @@ public class ToolBarView {
     private Boolean _initialized = false;
     private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
-    private final Logger logger = LogManager.getLogger(ToolBarView.class);
+
+    public ToolBarView(GraphDataModel model, JEVisDataSource ds, ChartView chartView, List<ChartView> listChartViews) {
+        this.model = model;
+        this.controller = new ToolBarController(this, model, ds);
+        this.ds = ds;
+        this.view = chartView;
+        this.listView = listChartViews;
+    }
 
     public ToolBar getToolbar(JEVisDataSource ds) {
         ToolBar toolBar = new ToolBar();
@@ -88,18 +97,21 @@ public class ToolBarView {
             }
         });
 
-        Button save = new Button("", JEConfig.getImage("save.gif", iconSize, iconSize));
+        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
         Tooltip saveTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.save"));
         save.setTooltip(saveTooltip);
 
-        Button loadNew = new Button("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        ToggleButton loadNew = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
         Tooltip loadNewTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.loadNew"));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadNew);
         loadNew.setTooltip(loadNewTooltip);
 
-        Button exportCSV = new Button("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
+        ToggleButton exportCSV = new ToggleButton("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
         Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
         exportCSV.setTooltip(exportCSVTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportCSV);
 
         exportCSV.setOnAction(action -> {
             GraphExport ge = new GraphExport(ds, model, nameCurrentAnalysis);
@@ -156,18 +168,20 @@ public class ToolBarView {
             });
         });
 
-        Button delete = new Button("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
+        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
         Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
         delete.setTooltip(deleteTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
         save.setDisable(false);
         delete.setDisable(false);
 
-        Button select = new Button("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        ToggleButton select = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
         Tooltip selectTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
         select.setTooltip(selectTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
 
         select.setOnAction(event -> changeSettings(event));
 
@@ -217,11 +231,11 @@ public class ToolBarView {
 //        } else {
 //            model.setSelectedData(getChartDataModels());
 //
-            for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.getSelected()) {
-                    dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
-                }
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            if (mdl.getSelected()) {
+                dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
             }
+        }
 //        }
 //
 //        if (model.getCharts() != null) {
@@ -231,9 +245,9 @@ public class ToolBarView {
 //        } else {
 //            model.setCharts(getCharts());
 //
-            for (ChartSettings settings : model.getCharts()) {
-                chartSettingsHashMap.put(settings.getName(), settings);
-            }
+        for (ChartSettings settings : model.getCharts()) {
+            chartSettingsHashMap.put(settings.getName(), settings);
+        }
 //        }
 
         ChartSelectionDialog dia = new ChartSelectionDialog(ds, dataModelHashMap, chartSettingsHashMap);
@@ -257,14 +271,6 @@ public class ToolBarView {
             model.setSelectedData(selectedData);
             //Platform.runLater(() -> drawChart());
         }
-    }
-
-    public ToolBarView(GraphDataModel model, JEVisDataSource ds, ChartView chartView, List<ChartView> listChartViews) {
-        this.model = model;
-        this.controller = new ToolBarController(this, model, ds);
-        this.ds = ds;
-        this.view = chartView;
-        this.listView = listChartViews;
     }
 
     public ObservableList<String> getChartsList() {
@@ -482,6 +488,10 @@ public class ToolBarView {
         return nameCurrentAnalysis;
     }
 
+    public void setNameCurrentAnalysis(String nameCurrentAnalysis) {
+        this.nameCurrentAnalysis = nameCurrentAnalysis;
+    }
+
     public void updateListAnalyses() {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
         try {
@@ -691,10 +701,6 @@ public class ToolBarView {
 
     public void setModel(GraphDataModel model) {
         this.model = model;
-    }
-
-    public void setNameCurrentAnalysis(String nameCurrentAnalysis) {
-        this.nameCurrentAnalysis = nameCurrentAnalysis;
     }
 
     public void setCurrentAnalysis(JEVisObject currentAnalysis) {

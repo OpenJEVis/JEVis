@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.plugin.dashboard;
+package org.jevis.jeconfig.plugin.scada;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -22,6 +22,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  * @author
@@ -79,6 +80,13 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
         this.content = content;
     }
 
+    public void relocateRelativ(double xPercent, double yPercent) {
+
+        double newX = (xPercent * this.parent.getWidth()) / 100;
+        double newY = (yPercent * this.parent.getHeight()) / 100;
+        this.relocate(newX, newY);
+    }
+
     private Cursor getMoveCursor() {
         if (cursor == null) {
             Platform.runLater(() -> {
@@ -129,11 +137,11 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
 
 
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem item1 = new MenuItem("Open Config");
+        MenuItem item1 = new MenuItem(I18n.getInstance().getString("plugin.scada.element.config.context.openconfig"));
         item1.setOnAction(event -> {
             scadaElement.openConfig();
         });
-        MenuItem item2 = new MenuItem("Remove");
+        MenuItem item2 = new MenuItem(I18n.getInstance().getString("plugin.scada.element.config.context.delete"));
         item2.setOnAction(event -> {
             //TODO: remove from plugin list
         });

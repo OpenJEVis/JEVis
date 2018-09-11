@@ -34,9 +34,9 @@ import javafx.scene.layout.StackPane;
 import org.jevis.api.*;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO5001Browser;
-import org.jevis.jeconfig.plugin.dashboard.SCADAPlugin;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
+import org.jevis.jeconfig.plugin.scada.SCADAPlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;

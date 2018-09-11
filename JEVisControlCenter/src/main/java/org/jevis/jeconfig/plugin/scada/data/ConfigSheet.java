@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard.data;
+package org.jevis.jeconfig.plugin.scada.data;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -24,7 +24,10 @@ public class ConfigSheet {
 
         PropertySheet propertySheet = new PropertySheet(list);
         propertySheet.setMode(PropertySheet.Mode.CATEGORY);
-        propertySheet.setPrefHeight(500);
+//        propertySheet.setPrefHeight(500);
+        propertySheet.setSearchBoxVisible(false);
+        propertySheet.setModeSwitcherVisible(false);
+
 
         return propertySheet;
     }

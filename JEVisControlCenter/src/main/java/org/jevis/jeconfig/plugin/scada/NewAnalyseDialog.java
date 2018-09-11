@@ -18,7 +18,7 @@
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.dashboard;
+package org.jevis.jeconfig.plugin.scada;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;

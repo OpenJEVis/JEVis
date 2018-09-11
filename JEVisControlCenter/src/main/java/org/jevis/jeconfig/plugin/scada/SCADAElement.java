@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard;
+package org.jevis.jeconfig.plugin.scada;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -7,7 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.application.jevistree.UserSelection;
-import org.jevis.jeconfig.plugin.dashboard.data.ScadaElementData;
+import org.jevis.jeconfig.plugin.scada.data.ScadaElementData;
 
 /**
  * The interface Scada element.

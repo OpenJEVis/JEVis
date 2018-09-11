@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard;
+package org.jevis.jeconfig.plugin.scada;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,7 +28,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.plugin.dashboard.data.ScadaAnalysisData;
+import org.jevis.jeconfig.plugin.scada.data.ScadaAnalysisData;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -210,7 +210,7 @@ public class SCADAPlugin implements Plugin {
 
     private void updateToolbar(ToolBar toolBar, final SCADAAnalysis analyses) {
         System.out.println("==Update Toolbar==");
-        Label analysisLabel = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));//TODO
+        Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
         ComboBox<JEVisObject> listAnalysesComboBox = new ComboBox();
         listAnalysesComboBox.setPrefWidth(300);
 
@@ -256,6 +256,41 @@ public class SCADAPlugin implements Plugin {
         ComboBox<SCADAAnalysis.BGMode> listBGType = new ComboBox();
         listBGType.setItems(FXCollections.observableArrayList(SCADAAnalysis.BGMode.values()));
 
+        Callback<ListView<SCADAAnalysis.BGMode>, ListCell<SCADAAnalysis.BGMode>> bgFactory = new Callback<ListView<SCADAAnalysis.BGMode>, ListCell<SCADAAnalysis.BGMode>>() {
+            @Override
+            public ListCell<SCADAAnalysis.BGMode> call(ListView<SCADAAnalysis.BGMode> param) {
+                final ListCell<SCADAAnalysis.BGMode> cell = new ListCell<SCADAAnalysis.BGMode>() {
+
+                    protected void updateItem(SCADAAnalysis.BGMode item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            String localname = "";
+                            switch (item) {
+                                case STRETCH_HEIGHT:
+                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_height");
+                                    break;
+                                case STRETCH_WIDTH:
+                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_width");
+                                    break;
+                                case STRETCH_BOTH:
+                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_both");
+                                    break;
+                                case ABSOLUTE:
+                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_none");
+                                    break;
+                            }
+                            setText(localname);
+                            setGraphic(null);
+                        }
+                    }
+                };
+
+                return cell;
+            }
+        };
+        listBGType.setCellFactory(bgFactory);
+        listBGType.setButtonCell(bgFactory.call(null));
+
         double iconSize = 20;
 
 //        HBox updateBox = new HBox();
@@ -265,7 +300,7 @@ public class SCADAPlugin implements Plugin {
 //        ToggleButton pause = new ToggleButton("", JEConfig.getImage("folders_explorer.png", iconSize, iconSize));
 //        GlobalToolBar.changeBackgroundOnHoverUsingBinding(pause);
 
-        ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("folders_explorer.png", iconSize, iconSize));
+        ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(treeButton);
 
         ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
@@ -286,7 +321,7 @@ public class SCADAPlugin implements Plugin {
         ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
 
-        ToggleButton newAnalyses = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
+        ToggleButton newAnalyses = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newAnalyses);
 
 
@@ -532,7 +567,7 @@ public class SCADAPlugin implements Plugin {
     @Override
     public String getClassName() {
         return "Dashboard Plugin";
-    }
+    }//TODO rename
 
     @Override
     public boolean supportsRequest(int cmdType) {
@@ -545,7 +580,7 @@ public class SCADAPlugin implements Plugin {
 
     @Override
     public String getName() {
-        return I18n.getInstance().getString("plugin.dashboard.title");
+        return I18n.getInstance().getString("plugin.scada.title");
     }
 
     @Override

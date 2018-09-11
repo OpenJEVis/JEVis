@@ -1,11 +1,11 @@
-package org.jevis.jeconfig.plugin.dashboard;
+package org.jevis.jeconfig.plugin.scada;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.scene.paint.Color;
 import org.jevis.api.*;
-import org.jevis.jeconfig.plugin.dashboard.data.ScadaAnalysisData;
-import org.jevis.jeconfig.plugin.dashboard.data.ScadaElementData;
+import org.jevis.jeconfig.plugin.scada.data.ScadaAnalysisData;
+import org.jevis.jeconfig.plugin.scada.data.ScadaElementData;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard;
+package org.jevis.jeconfig.plugin.scada;
 
 import javafx.scene.control.TreeTableColumn;
 import org.jevis.application.jevistree.JEVisTree;

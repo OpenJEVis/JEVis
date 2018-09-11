@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard;
+package org.jevis.jeconfig.plugin.scada;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -10,6 +10,7 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -18,9 +19,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.jevis.api.*;
 import org.jevis.application.jevistree.UserSelection;
+import org.jevis.application.resource.ResourceLoader;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.plugin.dashboard.data.ConfigSheet;
-import org.jevis.jeconfig.plugin.dashboard.data.ScadaElementData;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
+import org.jevis.jeconfig.plugin.scada.data.ScadaElementData;
+import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,9 +33,9 @@ import java.util.Optional;
 
 public class LabelElement extends MoveableNode implements SCADAElement {
 
-    private final static String SHOW_UNIT = "showUnit", SHOW_LABEL = "showLabel", LABEL_TEXT = "labelText", FONT_COLOR = "fontColor", FONT_SIZE = "fontSize", BG_COLOR = "bgColor", BG_OPANCITY = "bgOpacity";
+    private final static String XPOS = "xPos", YPOS = "yPos", SHOW_UNIT = "showUnit", SHOW_LABEL = "showLabel", LABEL_TEXT = "labelText", FONT_COLOR = "fontColor", FONT_SIZE = "fontSize", BG_COLOR = "bgColor", BG_OPANCITY = "bgOpacity";
     private final static String LOW_LIMIT_ENABLED = "lowLimitEnabled", UP_LIMIT_ENABLED = "upLimitEnabled", UPPER_LIMIT = "upLimit", LOW_LIMIT = "lowLimit", FONT_COLOR_UP_LIMIT = "fontColorUpLimit", BG_COLOR_UP_LIMIT = "bgColorUpLimit", FONT_COLOR_LOW_LIMIT = "fontColorLowLimit", BG_COLOR_LOW_LIMIT = "bgColorLowLimit";
-    private final static String GENERAL_GROUP = "General", UPPER_LIMIT_GROUP = "Upper Limit", LOWER_LIMIT_GROUP = "Lower Limit";
+    private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
 
 
     public static String TYPE = "LabelElement";
@@ -44,6 +49,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
     private HBox view = new HBox(8);
     private Label label = new Label();
     private Label text = new Label();
+    private ImageView warningImage = JEConfig.getImage("Warning-icon.png", 15, 15);
     private ScadaElementData data = new ScadaElementData();
     private SCADAAnalysis analysis;
 
@@ -58,26 +64,32 @@ public class LabelElement extends MoveableNode implements SCADAElement {
          * Default config
          * TODO: localize
          */
-        userConfig.put(SHOW_LABEL, new ConfigSheet.Property("Zeige Label", GENERAL_GROUP, true, "Help"));
-        userConfig.put(LABEL_TEXT, new ConfigSheet.Property("Zeige Label", GENERAL_GROUP, "", "label text, object+attribute name wen leer"));
-        userConfig.put(BG_OPANCITY, new ConfigSheet.Property("Transparents", GENERAL_GROUP, 0.5d, "Help"));
+        userConfig.put(SHOW_LABEL, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.showlabel"), GENERAL_GROUP, true, "Help"));
+        userConfig.put(LABEL_TEXT, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.labeltext"), GENERAL_GROUP, "", "label text, object+attribute name wen leer"));
+        userConfig.put(BG_OPANCITY, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.opacity"), GENERAL_GROUP, 0.5d, "Help"));
+        userConfig.put(SHOW_UNIT, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.showunit"), GENERAL_GROUP, true, "Help"));
 
-        userConfig.put(FONT_COLOR, new ConfigSheet.Property("Schriftfarbe", GENERAL_GROUP, Color.WHITE, "Help"));
-        userConfig.put(BG_COLOR, new ConfigSheet.Property("Hintergrundfarbe", GENERAL_GROUP, Color.BLACK, "Help"));
-        userConfig.put(FONT_SIZE, new ConfigSheet.Property("Schriftgroeße", GENERAL_GROUP, 16.0, "Help"));
-        userConfig.put(BG_OPANCITY, new ConfigSheet.Property("Transparents", GENERAL_GROUP, 0.5d, "Help"));
 
-        userConfig.put(UP_LIMIT_ENABLED, new ConfigSheet.Property("Aktiviere", UPPER_LIMIT_GROUP, false, "Help"));
-        userConfig.put(LOW_LIMIT_ENABLED, new ConfigSheet.Property("Aktiviere", LOWER_LIMIT_GROUP, false, "Help"));
+        userConfig.put(XPOS, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.xpos"), GENERAL_GROUP, 100, "Help"));
+        userConfig.put(YPOS, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.ypos"), GENERAL_GROUP, 100, "Help"));
 
-        userConfig.put(UPPER_LIMIT, new ConfigSheet.Property("Grensswert", UPPER_LIMIT_GROUP, 1000.99, "Help"));
-        userConfig.put(LOW_LIMIT, new ConfigSheet.Property("Grensswert", LOWER_LIMIT_GROUP, 1000.99, "Help"));
 
-        userConfig.put(FONT_COLOR_UP_LIMIT, new ConfigSheet.Property("Schriftfarbe", UPPER_LIMIT_GROUP, Color.RED, "Help"));
-        userConfig.put(FONT_COLOR_LOW_LIMIT, new ConfigSheet.Property("Schriftfarbe", LOWER_LIMIT_GROUP, Color.RED, "Help"));
+        userConfig.put(FONT_COLOR, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.fontcolor"), GENERAL_GROUP, Color.WHITE, "Help"));
+        userConfig.put(BG_COLOR, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.backgroundcolor"), GENERAL_GROUP, Color.BLACK, "Help"));
+        userConfig.put(FONT_SIZE, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.fontsize"), GENERAL_GROUP, 16.0, "Help"));
 
-        userConfig.put(BG_COLOR_UP_LIMIT, new ConfigSheet.Property("Hintergrundfarbe", UPPER_LIMIT_GROUP, Color.BLACK, "Help"));
-        userConfig.put(BG_COLOR_LOW_LIMIT, new ConfigSheet.Property("Hintergrundfarbe", LOWER_LIMIT_GROUP, Color.BLACK, "Help"));
+        userConfig.put(UP_LIMIT_ENABLED, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.upperlimit.enable"), UPPER_LIMIT_GROUP, false, "Help"));
+        userConfig.put(LOW_LIMIT_ENABLED, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.enable"), LOWER_LIMIT_GROUP, false, "Help"));
+
+        userConfig.put(UPPER_LIMIT, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.upperlimit.limitvalue"), UPPER_LIMIT_GROUP, 1000.99, "Help"));
+        userConfig.put(LOW_LIMIT, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"), LOWER_LIMIT_GROUP, 1000.99, "Help"));
+
+        userConfig.put(FONT_COLOR_UP_LIMIT, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.upperlimit.fontcolor"), UPPER_LIMIT_GROUP, Color.RED, "Help"));
+        userConfig.put(FONT_COLOR_LOW_LIMIT, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.fontcolor"), LOWER_LIMIT_GROUP, Color.RED, "Help"));
+
+        userConfig.put(BG_COLOR_UP_LIMIT, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.upperlimit.backgroundcolor"), UPPER_LIMIT_GROUP, Color.BLACK, "Help"));
+        userConfig.put(BG_COLOR_LOW_LIMIT, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.backgroundcolor"), LOWER_LIMIT_GROUP, Color.BLACK, "Help"));
+
 
     }
 
@@ -124,6 +136,9 @@ public class LabelElement extends MoveableNode implements SCADAElement {
             titleProperty.set(attribute.getName());
             xPositionProperty.setValue(data.getxPos());
             yPositionProperty.setValue(data.getyPos());
+
+            userConfig.get(XPOS).setObject(xPositionProperty.getValue());
+            userConfig.get(YPOS).setObject(yPositionProperty.getValue());
 
 
             data.getOptions().forEach((key, value) -> {
@@ -210,11 +225,14 @@ public class LabelElement extends MoveableNode implements SCADAElement {
     @Override
     public Node getGraphic() {
         System.out.println("Label.getGraphic()");
-        view.getChildren().clear();
-        view.getChildren().add(label);
-        view.getChildren().add(text);
-        view.setMinWidth(50);
-
+        warningImage.setPreserveRatio(true);
+        view.setMinWidth(20);
+//        view.getChildren().clear();
+//        view.getChildren().add(label);
+//        view.getChildren().add(text);
+//        view.getChildren().add(warningImage);
+//        warningImage.setPreserveRatio(true);
+//        warningImage.setVisible(false);
 
 //        view.setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 //        view.setStyle("-fx-background-color: " + options.get(BG_COLOR) + ";");//#00ff00;");
@@ -225,13 +243,14 @@ public class LabelElement extends MoveableNode implements SCADAElement {
 
     @Override
     public void update() {
-        System.out.println("Label.update()");
+        view.getChildren().clear();
+        view.getChildren().add(text);
+
+
         String value = "";
         JEVisSample lastSample = null;
+//        ((Pane) getParent()).setMinSize(5, 5);
 
-        /**
-         * TODO: maybe improve performance by initial the color once and not every update
-         */
         Color textColor = (Color) userConfig.get(FONT_COLOR).getObject();
         double opacity = (double) userConfig.get(BG_OPANCITY).getObject();
         Color bgColor = (Color) userConfig.get(BG_COLOR).getObject();
@@ -239,7 +258,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
         Color textColorLowLimit = (Color) userConfig.get(FONT_COLOR_LOW_LIMIT).getObject();
         Color bgColorUpLimit = (Color) userConfig.get(BG_COLOR_UP_LIMIT).getObject();
         Color bgColorLowLimit = (Color) userConfig.get(BG_COLOR_LOW_LIMIT).getObject();
-        boolean showUnit = (boolean) userConfig.get(SHOW_LABEL).getObject();
+        boolean showUnit = (boolean) userConfig.get(SHOW_UNIT).getObject();
         boolean upperLimitON = (boolean) userConfig.get(UP_LIMIT_ENABLED).getObject();
         boolean lowLimitON = (boolean) userConfig.get(LOW_LIMIT_ENABLED).getObject();
         double lowLimit = (double) userConfig.get(LOW_LIMIT).getObject();
@@ -247,16 +266,21 @@ public class LabelElement extends MoveableNode implements SCADAElement {
         boolean labelVisible = (boolean) userConfig.get(SHOW_LABEL).getObject();
         String labelText = (String) userConfig.get(LABEL_TEXT).getObject();
 
-        bgColor.deriveColor(0, 0, 0, opacity);
-        bgColorUpLimit.deriveColor(0, 0, 0, opacity);
-        bgColorLowLimit.deriveColor(0, 0, 0, opacity);
+        bgColor = bgColor.deriveColor(0, 0, 0, opacity);
+        bgColorUpLimit = bgColorUpLimit.deriveColor(0, 0, 0, opacity);
+        bgColorLowLimit = bgColorLowLimit.deriveColor(0, 0, 0, opacity);
+
+        System.out.println("Relocate: " + xPositionProperty.getValue() + " " + yPositionProperty.getValue());
+        relocateRelativ(xPositionProperty.getValue(), yPositionProperty.getValue());
 
 
         Font font = new Font((double) userConfig.get(FONT_SIZE).getObject());
         text.setFont(font);
         label.setFont(font);
 
-        label.setVisible(labelVisible);
+        if (labelVisible) {
+            view.getChildren().add(label);
+        }
         if (labelVisible && labelText.isEmpty()) {
             label.setText(attribute.getObject().getName() + "." + attribute.getName() + ":");
         } else {
@@ -297,18 +321,40 @@ public class LabelElement extends MoveableNode implements SCADAElement {
                     }
                 }
 
-            } catch (JEVisException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            /**
+             * Show an warning icon if the the attribute has an period and the lastSample is older then that
+             */
+
+
+            try {
+                System.out.println("imput rate: " + attribute.getInputSampleRate());
+                if (attribute.getInputSampleRate() != null &&
+                        attribute.getInputSampleRate().getMillis() > 1) {
+                    DateTime now = new DateTime();
+                    if (lastSample.getTimestamp().isBefore(now.minus(attribute.getInputSampleRate()))) {
+                        view.getChildren().add(warningImage);
+                        warningImage.minHeight(view.getHeight());
+                        warningImage.setFitHeight(view.getHeight());
+                    }
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
         try {
+            System.out.println("Show Unit: " + showUnit + " " + attribute.getDisplayUnit());
             if (showUnit && attribute.getDisplayUnit() != null) {
-                value += UnitManager.getInstance().formate(attribute.getDisplayUnit());
+                value += attribute.getDisplayUnit().getPrefix() + UnitManager.getInstance().formate(attribute.getDisplayUnit());
             }
         } catch (JEVisException e) {
             e.printStackTrace();
         }
+
 
         text.setTextFill(textColor);
         label.setTextFill(textColor);
@@ -316,6 +362,8 @@ public class LabelElement extends MoveableNode implements SCADAElement {
         view.setBackground(bg);
 
         this.text.setText(value);
+
+
     }
 
     @Override
@@ -339,57 +387,31 @@ public class LabelElement extends MoveableNode implements SCADAElement {
     @Override
     public void openConfig() {
         Dialog configDia = new Dialog();
-        configDia.setTitle("Config");
-        configDia.setHeaderText("Label Element Configuration");
+        configDia.setTitle(I18n.getInstance().getString("plugin.scada.element.config.title"));
+        configDia.setHeaderText(I18n.getInstance().getString("plugin.scada.element.config.header"));
 
 
         ConfigSheet ct = new ConfigSheet();
         configDia.getDialogPane().setContent(ct.getSheet(userConfig));
         configDia.resizableProperty().setValue(true);
         configDia.setHeight(500);
+        configDia.setWidth(500);
+        configDia.getDialogPane().setMinWidth(500);
+        configDia.setGraphic(ResourceLoader.getImage("1394482166_blueprint_tool.png", 50, 50));
 
+        ButtonType buttonTypeOk = new ButtonType(I18n.getInstance().getString("plugin.scada.element.config.ok"), ButtonBar.ButtonData.OK_DONE);
 
-        ButtonType buttonTypeOk = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
-        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         configDia.getDialogPane().getButtonTypes().add(buttonTypeOk);
 
         Optional<ButtonType> opt = configDia.showAndWait();
+
+        xPositionProperty.setValue((double) userConfig.get(XPOS).getObject());
+        yPositionProperty.setValue((double) userConfig.get(YPOS).getObject());
+
         update();
 
+
     }
-
-
-    /**
-     * Code sippet for later
-     */
-//    ObservableList<PropertySheet.Item> props = BeanPropertyUtils.getProperties(cData);
-//    PropertySheet sheet = new PropertySheet(props);
-
-
-    /**
-     * Code for later
-     */
-//        sheet.setPropertyEditorFactory(new DefaultPropertyEditorFactory() {
-//            @Override
-//            public PropertyEditor<?> call(Item item) {
-//                if (item.getType() == String.class) {
-//                    return new TextPropertyEditor(item);
-//                }
-//                if (item.getType() == Integer.class) {
-//                    return new IntegerPropertyEditor(item);
-//                }
-//                if (Number.class.isAssignableFrom(item.getType())) {
-//                    return new NumberPropertyEditor(item);
-//                }
-//                if (item.getType() == Boolean.class) {
-//                    return new ToggleSwitchEditor(item);
-//                }
-//                if (item.getType() == Theme.class) {
-//                    return new ThemePropertyEditor(item);
-//                }
-//                return super.call(item);
-//            }
-//        });
 
 
 }
