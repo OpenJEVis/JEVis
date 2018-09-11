@@ -15,170 +15,119 @@ public class CalculationViewController {
 
     @FXML
     public Button atan2;
-
     @FXML
     private Button buttonCeil;
-
     @FXML
     private Button buttonLog;
-
     @FXML
     private Button buttonDot;
-
     @FXML
     private Button buttonSeven;
-
     @FXML
     private Button buttonTwo;
-
     @FXML
     private Button buttonBracketOpen;
-
     @FXML
     private Button buttonThree;
-
     @FXML
     private Button buttonMultiply;
-
     @FXML
     private Button buttonAcos;
-
     @FXML
     private Button buttonNotEquals;
-
     @FXML
     private Button buttonRound;
-
     @FXML
     private TextField expressionField;
-
     @FXML
     private Button buttonZero;
-
     @FXML
     private Button buttonEquals;
-
     @FXML
     private Button buttonFour;
-
     @FXML
     private Button buttonDivide;
-
     @FXML
     private Button buttonAtan;
-
     @FXML
     private Button buttonGreater;
-
     @FXML
     private Button buttonClear;
-
     @FXML
     private Button buttonBracketClose;
-
     @FXML
     private Button buttonSqrt;
-
     @FXML
     private Button buttonE;
-
     @FXML
     private Button buttonRad;
-
     @FXML
     private Button buttonGreaterEquals;
-
     @FXML
     private Button buttonExp;
-
     @FXML
     private Button buttonPi;
-
     @FXML
     private Button buttonTan;
-
     @FXML
     private Button buttonSmaller;
-
     @FXML
     private Button buttonMod;
-
     @FXML
     private Button buttonOr;
-
+    @FXML
+    private Button buttonOutput;
     @FXML
     private Button buttonMinus;
-
     @FXML
     private Button buttonDeg;
-
     @FXML
     private Button buttonCos;
-
     @FXML
     private Button buttonFloor;
-
     @FXML
     private Button buttonAbs;
-
     @FXML
     private Button buttonSmallerEquals;
-
     @FXML
     private Button buttonEight;
-
     @FXML
     private Button buttonNine;
-
     @FXML
     private Button buttonFive;
-
     @FXML
     private Button buttonSix;
-
     @FXML
     private Button buttonMax;
-
     @FXML
     private Button buttonOne;
-
     @FXML
     private Button buttonBack;
-
     @FXML
     private Button buttonMin;
-
     @FXML
     private Button buttonAnd;
-
     @FXML
     private Button buttonPow;
-
     @FXML
     private Button buttonSin;
-
     @FXML
     private Button buttonAtan2;
-
     @FXML
     private ListView<?> listInputs;
-
     @FXML
     private Button buttonAsin;
-
     @FXML
     private FormelBox formelBox;
-
     @FXML
     private VariablesBox variablesBox;
-
     @FXML
     private Button buttonVerify;
 
     @FXML
     public void initialize() {
-
     }
+
 
     @FXML
     void onSeven(ActionEvent event) {
@@ -188,6 +137,11 @@ public class CalculationViewController {
     @FXML
     void onEight(ActionEvent event) {
         formelBox.addExpression("8");
+    }
+
+    @FXML
+    void onOutput(ActionEvent event) {
+        formelBox.setOnOutputAction();
     }
 
     @FXML
@@ -445,11 +399,14 @@ public class CalculationViewController {
 
 
     public void setData(JEVisObject obj) {
-
-
-//        formelBox.setExpression("#{Trafo11}+#{Trafo21}+#{Trafo31}+#{Trafo32}+#{Trafo41}+#{Trafo51}+#{Trafo52}");
+        System.out.println("setData: " + buttonOutput);
         formelBox.setCalculation(obj);
+
+
+        formelBox.setOutputButton(buttonOutput);
+
         variablesBox.bindVaribaleBox(formelBox, obj);
+
     }
 
     public String getFormel() {

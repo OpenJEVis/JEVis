@@ -477,7 +477,7 @@ public class TreeHelper {
 
                 DateTime now = new DateTime();
 
-                String inputName = CalculationNameFormater.formatInputVariable(us.getSelectedObject().getName());
+                String inputName = CalculationNameFormater.crateVarName(us.getSelectedObject());
 
                 JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
                 newInputObj.commit();
