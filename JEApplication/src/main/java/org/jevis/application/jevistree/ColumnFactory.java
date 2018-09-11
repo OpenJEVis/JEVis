@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -47,7 +47,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ColumnFactory {
@@ -91,87 +90,89 @@ public class ColumnFactory {
 
         });
 
+
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, String>, TreeTableCell<JEVisTreeRow, String>>() {
 
-            @Override
-            public TreeTableCell<JEVisTreeRow, String> call(TreeTableColumn<JEVisTreeRow, String> param) {
+                                  @Override
+                                  public TreeTableCell<JEVisTreeRow, String> call(TreeTableColumn<JEVisTreeRow, String> param) {
 
-                TreeTableCell<JEVisTreeRow, String> cell = new TreeTableCell<JEVisTreeRow, String>() {
+                                      TreeTableCell<JEVisTreeRow, String> cell = new TreeTableCell<JEVisTreeRow, String>() {
 
-                    @Override
-                    public void commitEdit(String newValue) {
-                        super.commitEdit(newValue);
+                                          @Override
+                                          public void commitEdit(String newValue) {
+                                              super.commitEdit(newValue);
 //                        getTreeTableRow().getItem().getColorProperty().setValue(newValue);
-                    }
+                                          }
 
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (!empty
-                                && getTreeTableRow() != null
-                                && getTreeTableRow().getTreeItem() != null
-                                && getTreeTableRow().getTreeItem().getValue() != null
-                                && getTreeTableRow().getTreeItem().getValue().getJEVisObject() != null) {
-                            HBox hbox = new HBox();//10
-                            Label nameLabel = new Label();
-                            Node icon = new Region();
+                                          @Override
+                                          protected void updateItem(String item, boolean empty) {
+                                              super.updateItem(item, empty);
+                                              if (!empty
+                                                      && getTreeTableRow() != null
+                                                      && getTreeTableRow().getTreeItem() != null
+                                                      && getTreeTableRow().getTreeItem().getValue() != null
+                                                      && getTreeTableRow().getTreeItem().getValue().getJEVisObject() != null) {
 
-                            JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
-                            JEVisObject obj = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
+                                                  HBox hbox = new HBox();//10
+                                                  Label nameLabel = new Label();
+                                                  Node icon = new Region();
 
-                            setContextMenu(new JEVisTreeContextMenu(obj, tree));
+                                                  JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
+                                                  JEVisObject obj = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
 
-                            hbox.setStyle("-fx-background-color: transparent;");
-                            nameLabel.setStyle("-fx-background-color: transparent;");
+                                                  setContextMenu(new JEVisTreeContextMenu(obj, tree));
 
-                            nameLabel.setText(item);
-                            nameLabel.setPadding(new Insets(0, 0, 0, 8));
+                                                  hbox.setStyle("-fx-background-color: transparent;");
+                                                  nameLabel.setStyle("-fx-background-color: transparent;");
 
-                            try {
-                                if (getTreeTableRow().getItem() != null) {
+                                                  nameLabel.setText(item);
+                                                  nameLabel.setPadding(new Insets(0, 0, 0, 8));
 
-                                    if (getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT) {
-                                        try {
-                                            if (getTreeTableRow().getItem().getJEVisObject().getJEVisClassName().equals("Link")) {
-                                                JEVisObject linkedObject = getTreeTableRow().getItem().getJEVisObject().getLinkedObject();
-                                                icon = getClassIcon(linkedObject.getJEVisClass(), 18, 18);
+                                                  try {
+                                                      if (getTreeTableRow().getItem() != null) {
 
-                                            } else {
-                                                icon = getClassIcon(getTreeTableRow().getItem().getJEVisObject().getJEVisClass(), 18, 18);
-                                            }
-                                        } catch (Exception ex) {
-                                            icon = ResourceLoader.getImage("1393615831_unknown2.png", 18, 18);
-                                        }
-                                    } else {//Attribute
+                                                          if (getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT) {
+                                                              try {
+                                                                  if (getTreeTableRow().getItem().getJEVisObject().getJEVisClassName().equals("Link")) {
+                                                                      JEVisObject linkedObject = getTreeTableRow().getItem().getJEVisObject().getLinkedObject();
+                                                                      icon = getClassIcon(linkedObject.getJEVisClass(), 18, 18);
 
-                                        HBox hbox2 = new HBox(10);
-                                        Region spacer = new Region();
-                                        spacer.setPrefWidth(12);
-                                        hbox2.getChildren().setAll(spacer, ResourceLoader.getImage("down_right-24.png", 10, 10));
-                                        icon = hbox2;
-                                    }
-                                }
+                                                                  } else {
+                                                                      icon = getClassIcon(getTreeTableRow().getItem().getJEVisObject().getJEVisClass(), 18, 18);
+                                                                  }
+                                                              } catch (Exception ex) {
+                                                                  icon = ResourceLoader.getImage("1393615831_unknown2.png", 18, 18);
+                                                              }
+                                                          } else {//Attribute
 
-                              
-                            } catch (Exception ex) {
-                                logger.catching(ex);
-                            }
+                                                              HBox hbox2 = new HBox(10);
+                                                              Region spacer = new Region();
+                                                              spacer.setPrefWidth(12);
+                                                              hbox2.getChildren().setAll(spacer, ResourceLoader.getImage("down_right-24.png", 10, 10));
+                                                              icon = hbox2;
+                                                          }
+                                                      }
 
-                            hbox.getChildren().setAll(icon, nameLabel);
-                            setText(null);
-                            setGraphic(hbox);
-                        } else {
-                            setText(null);
-                            setGraphic(null);
-                        }
 
-                    }
+                                                  } catch (Exception ex) {
+                                                      logger.catching(ex);
+                                                  }
 
-                };
+                                                  hbox.getChildren().setAll(icon, nameLabel);
+                                                  setText(null);
+                                                  setGraphic(hbox);
+                                              } else {
+                                                  setText(null);
+                                                  setGraphic(null);
+                                              }
 
-                return cell;
-            }
-        }
+                                          }
+
+                                      };
+
+                                      return cell;
+                                  }
+                              }
         );
 
         return column;
