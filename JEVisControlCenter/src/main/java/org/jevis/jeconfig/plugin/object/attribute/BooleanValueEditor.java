@@ -94,21 +94,13 @@ public class BooleanValueEditor implements AttributeEditor {
 
         JEVisSample lsample = _attribute.getLatestSample();
 
+
         if (lsample != null) {
             boolean selected = lsample.getValueAsBoolean();
             _field.setSelected(selected);
-            _field.selectedProperty().setValue(selected);
-//            _field.setSelected(selected);//TODO: get default Value
-            if (selected) {
-//                _field.setText(I18n.getInstance().getString("button.toggle.activate"));
-            } else {
-//                _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-            }
-
             _lastSample = lsample;
         } else {
             _field.setSelected(false);//TODO: get default Value
-//            _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
         }
 
         _field.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -116,26 +108,13 @@ public class BooleanValueEditor implements AttributeEditor {
             public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 try {
                     _newSample = _attribute.buildSample(new DateTime(), _field.isSelected());
-//                    if (t1) {
-//                        _field.setText(I18n.getInstance().getString("button.toggle.activate"));
-//                    } else {
-//                        _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-//                    }
                     _changed.setValue(true);
                 } catch (Exception ex) {
                     Logger.getLogger(BooleanValueEditor.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
-
-//        _field.setPrefWidth(65);
-//        editorNode.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
-//        _field.setId("attributelabel");
-
         logger.trace("end");
-//        Region spacer = new  Region();
-//        HBox.setHgrow(_field, Priority.NEVER);
-//        HBox.setHgrow(spacer, Priority.ALWAYS);
         editorNode.getChildren().addAll(_field);
 
     }

@@ -7,6 +7,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.controlsfx.control.ToggleSwitch;
 
+/**
+ * Advanced ToggleButton with an localized on/off text
+ */
 public class ToggleSwitchPlus extends GridPane {
 
     private Label labelOn = new Label(I18n.getInstance().getString("button.toggle.activate"));
@@ -16,13 +19,14 @@ public class ToggleSwitchPlus extends GridPane {
     public ToggleSwitchPlus() {
         super();
         setHgap(0);
+        labelOn.setVisible(false);
+        labelOff.setVisible(true);
+        selectedProperty().setValue(false);
 
         selectedProperty().addListener((observable, oldValue, newValue) -> {
             labelOn.setVisible(newValue);
             labelOff.setVisible(!newValue);
         });
-
-//        labelOff.setVisible(false);
 
         add(labelOn, 0, 0);
         add(labelOff, 0, 0);
@@ -43,7 +47,7 @@ public class ToggleSwitchPlus extends GridPane {
     }
 
     public final void setSelected(boolean value) {
-        button.setSelected(value);
+        button.selectedProperty().setValue(value);
     }
 
 }

@@ -282,7 +282,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                 } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_BOOLEAN.getId())) {
                                     editor = new BooleanValueEditor(att);
                                 } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BOOLEAN_BUTTON.getId())) {
-                                    editor = new BooleanButton(att);
+                                    editor = new BooleanValueEditor(att);
                                 }
                                 break;
                             case JEVisConstants.PrimitiveType.FILE:
