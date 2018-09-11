@@ -74,7 +74,8 @@ public class JEConfig extends Application {
     TODO: Make the config into an singelton
      */
     final static Configuration _config = new Configuration();
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.2");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.4");
+
     /**
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
@@ -98,6 +99,7 @@ public class JEConfig extends Application {
         } else {
             result = new File(pref.get("lastPath", System.getProperty("user.home")));
         }
+
 
 
         if (result.canRead()) {
