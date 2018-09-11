@@ -75,6 +75,7 @@ public class JEConfig extends Application {
      */
     final static Configuration _config = new Configuration();
     public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.4");
+
     /**
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
@@ -91,13 +92,26 @@ public class JEConfig extends Application {
      * @deprecated Will be moved into the Configuration -> user settings
      */
     public static File getLastPath() {
-        if (getConfig().getLastPath() == null) {
-            if (!OsUtils.isWindows())
-                getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
-            else getConfig().setLastFile(new File("/"));
+        File result;
+
+        if (OsUtils.isWindows()) {//Pref is not working under windows 8+
+            result = new File("/");
+        } else {
+            result = new File(pref.get("lastPath", System.getProperty("user.home")));
         }
 
-        return getConfig().getLastPath();
+
+
+        if (result.canRead()) {
+            if (result.isFile()) {
+                System.out.println("Is folder: " + result.getParentFile().getAbsoluteFile());
+                return result.getParentFile();
+            } else {
+                return result;
+            }
+        } else {
+            return new File(System.getProperty("user.home"));
+        }
     }
 
     /**

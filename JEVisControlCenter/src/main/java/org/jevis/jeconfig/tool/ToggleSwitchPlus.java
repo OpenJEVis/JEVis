@@ -2,10 +2,8 @@ package org.jevis.jeconfig.tool;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.HPos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import org.controlsfx.control.ToggleSwitch;
 
@@ -24,15 +22,15 @@ public class ToggleSwitchPlus extends GridPane {
             labelOff.setVisible(!newValue);
         });
 
-        labelOff.setVisible(false);
+//        labelOff.setVisible(false);
 
-        add(labelOn,0,0);
-        add(labelOff,0,0);
-        add(button,1,0);
+        add(labelOn, 0, 0);
+        add(labelOff, 0, 0);
+        add(button, 1, 0);
 
-        GridPane.setHgrow(labelOn,Priority.NEVER);
-        GridPane.setHgrow(labelOff,Priority.NEVER);
-        GridPane.setHalignment(button,HPos.LEFT);
+        GridPane.setHgrow(labelOn, Priority.NEVER);
+        GridPane.setHgrow(labelOff, Priority.NEVER);
+        GridPane.setHalignment(button, HPos.LEFT);
 
     }
 

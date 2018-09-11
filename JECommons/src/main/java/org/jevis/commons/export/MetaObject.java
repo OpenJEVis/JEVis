@@ -9,6 +9,7 @@ import java.util.List;
 public class MetaObject {
 
     JsonObject object;
+    private Mode mode = Mode.NONE;
 
     public MetaObject(JsonObject obj) {
         this.object = obj;
@@ -33,6 +34,15 @@ public class MetaObject {
             }
         }
         return keyList;
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+
+    enum Mode {
+        ALL_DATA, NONE
     }
 
 }

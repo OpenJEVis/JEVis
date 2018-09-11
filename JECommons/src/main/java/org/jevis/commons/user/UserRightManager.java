@@ -1,45 +1,41 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.user;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisUser;
 
 /**
- *
  * @author fs
  */
 public class UserRightManager {
 
+    private final JEVisUser user;
     private List<JEVisRelationship> permissions = new ArrayList<>();
     private Logger logger = LogManager.getLogger(UserRightManager.class);
-    private final JEVisUser user;
     private JEVisDataSource ds;
     private List<Long> readGIDS;
     private List<Long> createGIDS;
@@ -88,14 +84,14 @@ public class UserRightManager {
         return readGIDS;
     }
 
-    public void setObjects(List<JEVisObject> objs){
-        this.objects=objs;
+    public void setObjects(List<JEVisObject> objs) {
+        this.objects = objs;
     }
-    
-    public List<JEVisObject> getAllObjects(){
+
+    public List<JEVisObject> getAllObjects() {
         return objects;
     }
-    
+
     public List<Long> getAllObjectID(List<JEVisRelationship> rels) {
         List<Long> ids = new ArrayList<>();
         for (JEVisRelationship rel : rels) {
@@ -176,11 +172,19 @@ public class UserRightManager {
             deleteGIDS = new ArrayList<Long>();
             exeGIDS = new ArrayList<Long>();
 
+            System.out.println("UserID: " + user.getUserID());
             for (JEVisRelationship or : permissions) {
 
                 try {
+                    System.out.println("Type: " + or.getType());
+                    if (or.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ || or.getStartID() == user.getUserID()) {
+                        System.out.println("Membership: " + or);
+                    }
+
+
                     //from user to group
                     if (or.getStartID() == user.getUserID()) {
+
 
                         switch (or.getType()) {
                             case JEVisConstants.ObjectRelationship.MEMBER_READ:
@@ -212,9 +216,8 @@ public class UserRightManager {
     }
 
     /**
-     *
      * @param object Object to check the permission for
-     * @param type type of the membership(read,write,exe...)
+     * @param type   type of the membership(read,write,exe...)
      * @return
      */
     private boolean checkMebershipForType(long object, int type) {
