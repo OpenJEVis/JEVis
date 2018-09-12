@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +29,7 @@
     </dependencyManagement>
 
     <dependencies>
-        
+
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
@@ -40,12 +40,12 @@
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-grizzly2-http</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
         </dependency>
-       
+
         <!-- can replace com.fasterxml.jackson.jaxrs but does not work for me, he does not find the modul in the main
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
@@ -83,17 +83,14 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
-            <version>2.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -160,9 +157,8 @@
                     </archive>
                 </configuration>
             </plugin>
-            
-            
-            
+
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -189,8 +185,8 @@
                     <executable>${java.home}/bin/java</executable>
                 </configuration>
             </plugin>
-            
-            
+
+
             <!---Big jar build-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -221,7 +217,7 @@
                 </executions>
             </plugin>
         </plugins>
-        
+
     </build>
 
     <properties>
