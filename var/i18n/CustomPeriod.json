@@ -12,6 +12,19 @@
   },
   "types": [
     {
+      "type": "Visible",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Sichbar",
+        "ru": "Visible",
+        "en": "Visible"
+      }
+    },
+    {
       "type": "Start Reference Point",
       "descriptions": {
         "de": "",

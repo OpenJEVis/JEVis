@@ -16,6 +16,15 @@
   ],
   "types": [
     {
+      "name": "Visible",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Custom Period"
+    },
+    {
       "name": "Start Reference Point",
       "primitiveType": 0,
       "guiType": "String Enum",
@@ -35,6 +44,15 @@
     },
     {
       "name": "Start Months",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Custom Period"
+    },
+    {
+      "name": "Start Weeks",
       "primitiveType": 2,
       "guiType": "Number",
       "GUIPosition": 0,
@@ -79,6 +97,15 @@
       "jevisClass": "Custom Period"
     },
     {
+      "name": "Start Interval",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Custom Period"
+    },
+    {
       "name": "End Reference Point",
       "primitiveType": 0,
       "guiType": "String Enum",
@@ -98,6 +125,15 @@
     },
     {
       "name": "End Months",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Custom Period"
+    },
+    {
+      "name": "End Weeks",
       "primitiveType": 2,
       "guiType": "Number",
       "GUIPosition": 0,
@@ -136,6 +172,15 @@
       "name": "End Reference Object",
       "primitiveType": 0,
       "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Custom Period"
+    },
+    {
+      "name": "End Interval",
+      "primitiveType": 2,
+      "guiType": "Number",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,

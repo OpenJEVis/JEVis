@@ -17,21 +17,27 @@ public class CustomPeriodObject {
     private SampleHandler sampleHandler;
     private ObjectHandler objectHandler;
 
+    private Boolean visible;
+
     private String startReferencePoint;
-    private Long startMinusYears;
-    private Long startMinusMonths;
-    private Long startMinusDays;
-    private Long startMinusHours;
-    private Long startMinusMinutes;
+    private Long startYears;
+    private Long startMonths;
+    private Long startWeeks;
+    private Long startDays;
+    private Long startHours;
+    private Long startMinutes;
     private JEVisObject startReferenceObject;
+    private Long startInterval;
 
     private String endReferencePoint;
-    private Long endMinusYears;
-    private Long endMinusMonths;
-    private Long endMinusDays;
-    private Long endMinuasHours;
-    private Long endMinusMinutes;
+    private Long endYears;
+    private Long endMonths;
+    private Long endWeeks;
+    private Long endDays;
+    private Long endHours;
+    private Long endMinutes;
     private JEVisObject endReferenceObject;
+    private Long endInterval;
 
     public CustomPeriodObject(JEVisObject periodObject, ObjectHandler objectHandler) {
         this.object = periodObject;
@@ -44,124 +50,157 @@ public class CustomPeriodObject {
         return object;
     }
 
+    public ObjectHandler getObjectHandler() {
+        return objectHandler;
+    }
+
+    public Boolean isVisible() {
+        if (visible == null)
+            visible = sampleHandler.getLastSample(getObject(), VISIBILITY.getAttributeName(), false);
+        return visible;
+    }
+
     public String getStartReferencePoint() {
         if (startReferencePoint == null)
-            startReferencePoint = sampleHandler.getLastSample(getObject(), START_REFERENCE_POINT.getAttributeName(), null);
+            startReferencePoint = sampleHandler.getLastSample(getObject(), START_REFERENCE_POINT.getAttributeName(), "");
         return startReferencePoint;
     }
 
-    public Long getStartMinusYears() {
-        if (startMinusYears == null)
-            startMinusYears = sampleHandler.getLastSample(getObject(), START_MINUS_YEARS.getAttributeName(), 0L);
-        return startMinusYears;
+    public Long getStartYears() {
+        if (startYears == null)
+            startYears = sampleHandler.getLastSample(getObject(), START_YEARS.getAttributeName(), 0L);
+        return startYears;
     }
 
-    public Long getStartMinusMonths() {
-        if (startMinusMonths == null)
-            startMinusMonths = sampleHandler.getLastSample(getObject(), START_MINUS_MONTHS.getAttributeName(), 0L);
-        return startMinusMonths;
+    public Long getStartMonths() {
+        if (startMonths == null)
+            startMonths = sampleHandler.getLastSample(getObject(), START_MONTHS.getAttributeName(), 0L);
+        return startMonths;
     }
 
-    public Long getStartMinusDays() {
-        if (startMinusDays == null)
-            startMinusDays = sampleHandler.getLastSample(getObject(), START_MINUS_DAYS.getAttributeName(), 0L);
-        return startMinusDays;
+    public Long getStartWeeks() {
+        if (startWeeks == null)
+            startWeeks = sampleHandler.getLastSample(getObject(), START_WEEKS.getAttributeName(), 0L);
+        return startWeeks;
     }
 
-    public Long getStartMinusHours() {
-        if (startMinusHours == null)
-            startMinusHours = sampleHandler.getLastSample(getObject(), START_MINUS_HOURS.getAttributeName(), 0L);
-        return startMinusHours;
+    public Long getStartDays() {
+        if (startDays == null)
+            startDays = sampleHandler.getLastSample(getObject(), START_DAYS.getAttributeName(), 0L);
+        return startDays;
     }
 
-    public Long getStartMinusMinutes() {
-        if (startMinusMinutes == null)
-            startMinusMinutes = sampleHandler.getLastSample(getObject(), START_MINUS_MINUTES.getAttributeName(), 0L);
-        return startMinusMinutes;
+    public Long getStartHours() {
+        if (startHours == null)
+            startHours = sampleHandler.getLastSample(getObject(), START_HOURS.getAttributeName(), 0L);
+        return startHours;
+    }
+
+    public Long getStartMinutes() {
+        if (startMinutes == null)
+            startMinutes = sampleHandler.getLastSample(getObject(), START_MINUTES.getAttributeName(), 0L);
+        return startMinutes;
     }
 
     public JEVisObject getStartReferenceObject() {
         if (startReferenceObject == null) {
             try {
-                JEVisAttribute attStartReferenceObject = sampleHandler.getLastSample(getObject(), START_REFERENCE_OBJECT.getAttributeName(), null);
-                if (attStartReferenceObject != null) {
-                    TargetHelper th = new TargetHelper(getObject().getDataSource(), attStartReferenceObject);
-                    startReferenceObject = th.getObject();
-                }
-
+                JEVisAttribute att = getObject().getAttribute(START_REFERENCE_OBJECT.getAttributeName());
+                TargetHelper th = new TargetHelper(getObject().getDataSource(), att);
+                startReferenceObject = th.getObject();
             } catch (Exception e) {
             }
         }
         return startReferenceObject;
     }
 
+    public Long getStartInterval() {
+        if (startInterval == null)
+            startInterval = sampleHandler.getLastSample(getObject(), START_INTERVAL.getAttributeName(), 0L);
+        return startInterval;
+    }
+
     public String getEndReferencePoint() {
         if (endReferencePoint == null)
-            endReferencePoint = sampleHandler.getLastSample(getObject(), END_REFERENCE_POINT.getAttributeName(), null);
+            endReferencePoint = sampleHandler.getLastSample(getObject(), END_REFERENCE_POINT.getAttributeName(), "");
         return endReferencePoint;
     }
 
-    public Long getEndMinusYears() {
-        if (endMinusYears == null)
-            endMinusYears = sampleHandler.getLastSample(getObject(), END_MINUS_YEARS.getAttributeName(), 0L);
-        return endMinusYears;
+    public Long getEndYears() {
+        if (endYears == null)
+            endYears = sampleHandler.getLastSample(getObject(), END_YEARS.getAttributeName(), 0L);
+        return endYears;
     }
 
-    public Long getEndMinusMonths() {
-        if (endMinusMonths == null)
-            endMinusMonths = sampleHandler.getLastSample(getObject(), END_MINUS_MONTHS.getAttributeName(), 0L);
-        return endMinusMonths;
+    public Long getEndMonths() {
+        if (endMonths == null)
+            endMonths = sampleHandler.getLastSample(getObject(), END_MONTHS.getAttributeName(), 0L);
+        return endMonths;
     }
 
-    public Long getEndMinusDays() {
-        if (endMinusDays == null)
-            endMinusDays = sampleHandler.getLastSample(getObject(), END_MINUS_DAYS.getAttributeName(), 0L);
-        return endMinusDays;
+    public Long getEndWeeks() {
+        if (endWeeks == null)
+            endWeeks = sampleHandler.getLastSample(getObject(), END_WEEKS.getAttributeName(), 0L);
+        return endWeeks;
     }
 
-    public Long getEndMinuasHours() {
-        if (endMinuasHours == null)
-            endMinuasHours = sampleHandler.getLastSample(getObject(), END_MINUS_HOURS.getAttributeName(), 0L);
-        return endMinuasHours;
+    public Long getEndDays() {
+        if (endDays == null)
+            endDays = sampleHandler.getLastSample(getObject(), END_DAYS.getAttributeName(), 0L);
+        return endDays;
     }
 
-    public Long getEndMinusMinutes() {
-        if (endMinusMinutes == null)
-            endMinusMinutes = sampleHandler.getLastSample(getObject(), END_MINUS_MINUTES.getAttributeName(), 0L);
-        return endMinusMinutes;
+    public Long getEndHours() {
+        if (endHours == null)
+            endHours = sampleHandler.getLastSample(getObject(), END_HOURS.getAttributeName(), 0L);
+        return endHours;
+    }
+
+    public Long getEndMinutes() {
+        if (endMinutes == null)
+            endMinutes = sampleHandler.getLastSample(getObject(), END_MINUTES.getAttributeName(), 0L);
+        return endMinutes;
     }
 
     public JEVisObject getEndReferenceObject() {
         if (endReferenceObject == null) {
             try {
-                JEVisAttribute attStartReferenceObject = sampleHandler.getLastSample(getObject(), END_REFERENCE_OBJECT.getAttributeName(), null);
-                if (attStartReferenceObject != null) {
-                    TargetHelper th = new TargetHelper(getObject().getDataSource(), attStartReferenceObject);
-                    endReferenceObject = th.getObject();
-                }
-
+                JEVisAttribute att = getObject().getAttribute(END_REFERENCE_OBJECT.getAttributeName());
+                TargetHelper th = new TargetHelper(getObject().getDataSource(), att);
+                endReferenceObject = th.getObject();
             } catch (Exception e) {
             }
         }
         return endReferenceObject;
     }
 
+    public Long getEndInterval() {
+        if (endInterval == null)
+            endInterval = sampleHandler.getLastSample(getObject(), END_INTERVAL.getAttributeName(), 0L);
+        return endInterval;
+    }
+
     public enum AttributeName {
 
+        VISIBILITY("Visible"),
         START_REFERENCE_POINT("Start Reference Point"),
-        START_MINUS_YEARS("Start Minus Years"),
-        START_MINUS_MONTHS("Start Minus Months"),
-        START_MINUS_DAYS("Start Minus Days"),
-        START_MINUS_HOURS("Start Minus Hours"),
-        START_MINUS_MINUTES("Start Minus Minutes"),
+        START_YEARS("Start Years"),
+        START_MONTHS("Start Months"),
+        START_WEEKS("Start Weeks"),
+        START_DAYS("Start Days"),
+        START_HOURS("Start Hours"),
+        START_MINUTES("Start Minutes"),
         START_REFERENCE_OBJECT("Start Reference Object"),
+        START_INTERVAL("Start Interval"),
         END_REFERENCE_POINT("End Reference Point"),
-        END_MINUS_YEARS("End Minus Years"),
-        END_MINUS_MONTHS("End Minus Months"),
-        END_MINUS_DAYS("End Minus Days"),
-        END_MINUS_HOURS("End Minus Hours"),
-        END_MINUS_MINUTES("End Minus Minutes"),
-        END_REFERENCE_OBJECT("End Reference Object");
+        END_YEARS("End Years"),
+        END_MONTHS("End Months"),
+        END_WEEKS("End Weeks"),
+        END_DAYS("End Days"),
+        END_HOURS("End Hours"),
+        END_MINUTES("End Minutes"),
+        END_REFERENCE_OBJECT("End Reference Object"),
+        END_INTERVAL("End Interval");
 
         private final String attributeName;
 
