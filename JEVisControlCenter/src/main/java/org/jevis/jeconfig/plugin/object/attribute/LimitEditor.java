@@ -130,7 +130,7 @@ public class LimitEditor implements AttributeEditor {
 
     @Override
     public void commit() throws JEVisException {
-        logger.debug("StringValueEditor.commit(): '{}' {} {}", _attribute.getName(), hasChanged(), _newSample);
+        logger.debug("LimitEdior.commit(): '{}' {} {}", _attribute.getName(), hasChanged(), _newSample);
 
         if (hasChanged() && delete) {
             _attribute.deleteAllSample();

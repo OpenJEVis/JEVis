@@ -19,8 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
@@ -31,8 +29,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,13 +37,12 @@ import java.util.logging.Logger;
  */
 public class JEVisObjectWS implements JEVisObject {
 
+    private final EventListenerList listeners = new EventListenerList();
     private JEVisDataSourceWS ds;
     private List<JEVisObject> parents = null;
     private List<JEVisObject> children = null;
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisObjectWS.class);
     private JsonObject json;
-    private final EventListenerList listeners = new EventListenerList();
-    private Cache<String, List> attributeCache;
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
         this.ds = ds;
@@ -117,7 +112,6 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisObject> getChildren() throws JEVisException {
-//        if (children == null) {
         children = new ArrayList<>();
         for (JEVisRelationship rel : getRelationships()) {
             try {
@@ -128,7 +122,7 @@ public class JEVisObjectWS implements JEVisObject {
 
             }
         }
-//        }
+
         logger.trace("Child.size: {}", children.size());
         return children;
     }
@@ -161,32 +155,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisAttribute> getAttributes() {
-        //temp cache for attributes because a lot of clients call a obj.getAttribute(type) 
-        if (attributeCache == null) {
-            attributeCache = CacheBuilder.newBuilder()
-                    .expireAfterWrite(3, TimeUnit.SECONDS)
-                    .build();
-
-        }
-        try {
-            List<JEVisAttribute> list = attributeCache.get("egal", new Callable<List>() {
-                        @Override
-                        public List call() {
-                            return getAttributesWS();
-                        }
-                    }
-            );
-            if (list == null) {
-                return new ArrayList<>();
-            } else {
-                return list;
-            }
-
-        } catch (Exception ex) {
-            logger.error(ex);
-            return new ArrayList<>();
-        }
-
+        return getAttributesWS();
     }
 
     public List<JEVisAttribute> getAttributesWS() {
@@ -201,20 +170,6 @@ public class JEVisObjectWS implements JEVisObject {
                 return att;
             }
         }
-        /**
-         * Workaround, the webservice will not check for missing attributes, because of performance.
-         * We also dont use type.equals() because its does not check inherit types.
-         */
-//        for(JEVisType exitingType: getJEVisClass().getTypes()){
-//            if(exitingType.getName().equals(type.getName())){
-//                JsonAttribute att = new JsonAttribute();
-//                att.setType(type.getName());
-//                att.setPrimitiveType(type.getPrimitiveType());
-//                getAttributes().add(att);
-//                return new JEVisAttributeWS(ds,att,getID());
-//            }
-//        }
-
         return null;
     }
 

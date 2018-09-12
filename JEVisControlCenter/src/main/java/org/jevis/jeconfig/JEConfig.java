@@ -54,6 +54,7 @@ import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -99,7 +100,6 @@ public class JEConfig extends Application {
         } else {
             result = new File(pref.get("lastPath", System.getProperty("user.home")));
         }
-
 
 
         if (result.canRead()) {
@@ -291,7 +291,7 @@ public class JEConfig extends Application {
         Scene scene = new Scene(jeconfigRoot);
         primaryStage.setScene(scene);
 
-
+        Date start = new Date();
         final FXLogin login = new FXLogin(primaryStage, getParameters(), PROGRAMM_INFO);
 
         AnchorPane.setTopAnchor(jeconfigRoot, 0.0);
@@ -301,6 +301,7 @@ public class JEConfig extends Application {
 
         login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+
                 logger.debug("Start JEVis Control Center");
                 _mainDS = login.getDataSource();
 
@@ -386,8 +387,14 @@ public class JEConfig extends Application {
                     } catch (URISyntaxException ex) {
                         Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
                     }
-
+                    System.out.println("Time to start: " + ((new Date()).getTime() - start.getTime()));
                 });
+                Date startAllob = new Date();
+                try {
+                    _mainDS.getObjects();
+                    logger.error("Time to get all Objects: {}ms", ((new Date()).getTime() - startAllob.getTime()));
+                } catch (Exception ex) {
+                }
                 System.gc();
 
             } else {
