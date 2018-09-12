@@ -172,8 +172,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     case 1:
                         dateHelper.setType(DateHelper.TransformType.TODAY);
 
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndDate());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
                         pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
@@ -181,8 +181,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     case 2:
                         dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
 
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndDate());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
                         pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
@@ -190,8 +190,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     case 3:
                         dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
 
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndDate());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
                         pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
@@ -199,8 +199,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     case 4:
                         dateHelper.setType(DateHelper.TransformType.LASTDAY);
 
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndDate());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
                         pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
@@ -208,8 +208,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     case 5:
                         dateHelper.setType(DateHelper.TransformType.LASTWEEK);
 
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndDate());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
                         pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
@@ -217,8 +217,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         //last Month
                         dateHelper.setType(DateHelper.TransformType.LASTMONTH);
 
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndDate());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
                         pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
                         pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
@@ -459,8 +459,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                             dateHelper.setStartTime(toolBarView.getWorkdayStart());
                             dateHelper.setEndTime(toolBarView.getWorkdayEnd());
 
-                            pickerDateStart.valueProperty().setValue(dateHelper.getStartDate());
-                            pickerDateEnd.valueProperty().setValue(dateHelper.getEndDate());
+                            pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                            pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
                             pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
                             pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         }

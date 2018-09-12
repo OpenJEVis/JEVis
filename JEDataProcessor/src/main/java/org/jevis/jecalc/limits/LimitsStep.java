@@ -82,7 +82,7 @@ public class LimitsStep implements ProcessStep {
                         for (CleanInterval currentInterval : limitBreak.getIntervals()) {
                             try {
                                 for (JEVisSample smp : currentInterval.getRawSamples()) {
-                                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), smp.getValueAsDouble());
+                                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getValueAsDouble());
                                     String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Step1)";
                                     sample.setNote(note);
                                     currentInterval.addTmpSample(sample);
@@ -95,6 +95,7 @@ public class LimitsStep implements ProcessStep {
                 } else {
                     if (Objects.nonNull(confGaps)) {
                         if (!confGaps.isEmpty()) {
+                            List<LimitBreak> filledLimitBreaks = new ArrayList<>();
                             for (JsonGapFillingConfig c : confGaps) {
                                 logger.info("start filling with Mode for " + c.getType());
                                 List<LimitBreak> newLimitBreaks = new ArrayList<>();
@@ -102,7 +103,10 @@ public class LimitsStep implements ProcessStep {
                                     DateTime firstDate = lb.getIntervals().get(0).getDate();
                                     DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
                                     if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
-                                        newLimitBreaks.add(lb);
+                                        if (!filledLimitBreaks.contains(lb)) {
+                                            newLimitBreaks.add(lb);
+                                            filledLimitBreaks.add(lb);
+                                        }
                                     }
                                 }
                                 switch (c.getType()) {
@@ -196,7 +200,7 @@ public class LimitsStep implements ProcessStep {
                 try {
                     for (JEVisSample smp : currentInterval.getRawSamples()) {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Step1)";
+                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Static)";
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }

@@ -13,23 +13,40 @@ import java.util.List;
 public class DateHelper {
     private LocalTime startTime = LocalTime.of(0, 0, 0, 0);
     private LocalTime endTime = LocalTime.of(23, 59, 59, 999);
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private DateTime startDate;
+    private DateTime endDate;
     private LocalDate checkDate;
     private LocalTime checkTime;
     private TransformType type;
-    private LocalDate now;
+    private DateTime now;
     private InputType inputType;
     private Boolean userSet = true;
     private CustomPeriodObject customPeriodObject;
 
     public DateHelper(TransformType type) {
         this.type = type;
-        now = LocalDate.now();
+        now = DateTime.now();
     }
 
     public DateHelper() {
-        now = LocalDate.now();
+        now = DateTime.now();
+    }
+
+    private DateTime nowStartWithTime() {
+        if (startTime.isAfter(endTime)) {
+            DateTime now = DateTime.now();
+            return new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                    startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusDays(1);
+        } else {
+            return new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                    startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+        }
+    }
+
+    private DateTime nowEndWithTime() {
+        DateTime now = DateTime.now();
+        return new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                endTime.getHour(), endTime.getMinute(), endTime.getSecond());
     }
 
     public DateHelper(InputType inputType, LocalDate localDate) {
@@ -47,46 +64,47 @@ public class DateHelper {
         this.type = type;
     }
 
-    public LocalDate getStartDate() {
-        now = LocalDate.now();
+    public DateTime getStartDate() {
 
         switch (type) {
             case CUSTOM:
                 break;
             case TODAY:
                 if (startTime.isAfter(endTime)) now = now.minusDays(1);
-                startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond());
                 break;
             case LAST7DAYS:
                 if (startTime.isAfter(endTime)) now = now.minusDays(1);
-                startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(7);
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusDays(7);
                 break;
             case LAST30DAYS:
                 if (startTime.isAfter(endTime)) now = now.minusDays(1);
-                startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(30);
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusDays(30);
                 break;
             case LASTDAY:
                 if (startTime.isAfter(endTime)) now = now.minusDays(1);
-                startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(1);
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusDays(1);
                 break;
             case LASTWEEK:
                 if (startTime.isAfter(endTime)) now = now.minusDays(1);
-                now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
-                startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth());
+                now = now.minusDays(now.getDayOfWeek() - 1).minusWeeks(1);
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond());
                 break;
             case LASTMONTH:
-                now = now.minusDays(LocalDate.now().getDayOfMonth() - 1);
-                startDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusMonths(1);
+                now = now.minusDays(now.getDayOfMonth() - 1);
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusMonths(1);
                 break;
             case CUSTOM_PERIOD:
                 if (customPeriodObject.getStartReferencePoint() != null) {
-                    if (startTime.isAfter(endTime)) now = now.minusDays(1);
                     Long startYears = 0L;
                     Long startMonths = 0L;
                     Long startWeeks = 0L;
                     Long startDays = 0L;
+                    Long startHours = 0L;
+                    Long startMinutes = 0L;
                     switch (customPeriodObject.getStartReferencePoint()) {
                         case "NOW":
+                            startDate = DateTime.now();
                             break;
                         case "STARTTIMEDAY":
                             break;
@@ -97,25 +115,24 @@ public class DateHelper {
                                 DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
                                 dh.setStartTime(startTime);
                                 dh.setEndTime(endTime);
-                                dh.setStartDate(startDate);
-                                dh.setEndDate(endDate);
                                 if (cpo.getStartReferencePoint().contains("DAY")) {
 
                                     Long startInterval = customPeriodObject.getStartInterval();
                                     DateTime newDT = getDateTimeForDayPeriod(dh, startInterval);
 
-                                    now = LocalDate.of(newDT.getYear(), newDT.getMonthOfYear(), newDT.getDayOfMonth());
+                                    startDate = new DateTime(newDT.getYear(), newDT.getMonthOfYear(), newDT.getDayOfMonth(), newDT.getHourOfDay(), newDT.getMinuteOfHour(), newDT.getSecondOfMinute());
                                 }
                             } catch (Exception e) {
                             }
                             break;
                         case "CURRENT_WEEK":
-                            now = now.minusDays(now.getDayOfWeek().getValue());
+                            startDate = now.minusDays(now.getDayOfWeek());
                             break;
                         case "CURRENT_MONTH":
-                            now = now.minusDays(now.getDayOfMonth());
+                            startDate = now.minusDays(now.getDayOfMonth());
                             break;
                         case "CURRENT_DAY":
+                            startDate = DateTime.now();
                             break;
                         default:
                             break;
@@ -125,27 +142,38 @@ public class DateHelper {
                     startMonths = customPeriodObject.getStartMonths();
                     startWeeks = customPeriodObject.getStartWeeks();
                     startDays = customPeriodObject.getStartDays();
+                    startHours = customPeriodObject.getStartHours();
+                    startMinutes = customPeriodObject.getStartMinutes();
 
                     if (startYears < 0)
-                        startDate = now.minusYears(Math.abs(startYears));
+                        startDate = startDate.minusYears((int) Math.abs(startYears));
                     else if (startYears > 0)
-                        startDate = now.plusYears(Math.abs(startYears));
-                    else startDate = now;
+                        startDate = startDate.plusYears((int) Math.abs(startYears));
 
                     if (startMonths < 0)
-                        startDate = startDate.minusMonths(Math.abs(startMonths));
+                        startDate = startDate.minusMonths((int) Math.abs(startMonths));
                     else if (startMonths > 0)
-                        startDate = startDate.plusMonths(Math.abs(startMonths));
+                        startDate = startDate.plusMonths((int) Math.abs(startMonths));
 
                     if (startWeeks < 0)
-                        startDate = startDate.minusWeeks(Math.abs(startWeeks));
+                        startDate = startDate.minusWeeks((int) Math.abs(startWeeks));
                     else if (startWeeks > 0)
-                        startDate = startDate.plusWeeks(Math.abs(startWeeks));
+                        startDate = startDate.plusWeeks((int) Math.abs(startWeeks));
 
                     if (startDays < 0)
-                        startDate = startDate.minusDays(Math.abs(startDays));
+                        startDate = startDate.minusDays((int) Math.abs(startDays));
                     else if (startDays > 0)
-                        startDate = startDate.plusDays(Math.abs(startDays));
+                        startDate = startDate.plusDays((int) Math.abs(startDays));
+
+                    if (startHours < 0)
+                        startDate = startDate.minusHours((int) Math.abs(startHours));
+                    else if (startHours > 0)
+                        startDate = startDate.plusHours((int) Math.abs(startHours));
+
+                    if (startMinutes < 0)
+                        startDate = startDate.minusMinutes((int) Math.abs(startMinutes));
+                    else if (startMinutes > 0)
+                        startDate = startDate.plusMinutes((int) Math.abs(startMinutes));
                 }
                 break;
             default:
@@ -154,27 +182,21 @@ public class DateHelper {
         return startDate;
     }
 
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(DateTime startDate) {
         this.startDate = startDate;
-    }
-
-    public DateTime getDateTimeStartDate() {
-        return new DateTime(getStartDate().getYear(), getStartDate().getMonth().getValue(), getStartDate().getDayOfMonth(),
-                getStartTime().getHour(), getStartTime().getMinute(), getStartTime().getSecond(), 0);
     }
 
     private DateTime getDateTimeForDayPeriod(DateHelper dh, Long interval) {
         DateTime returnTimeStamp = null;
 
-        DateTime start = new DateTime(startDate.getYear(), startDate.getMonth().getValue(), startDate.getDayOfMonth(),
-                startTime.getHour(), startTime.getMinute(), startTime.getSecond(), 999);
-        DateTime end = new DateTime(now.getYear(), now.getMonth().getValue(), now.getDayOfMonth(),
-                endTime.getHour(), endTime.getMinute(), endTime.getSecond(), 999);
+        DateTime start = nowStartWithTime();
+        DateTime end = nowEndWithTime();
 
-        Long d = dh.getDateTimeEndDate().getMillis() - dh.getDateTimeStartDate().getMillis();
+        Long d = dh.getEndDate().getMillis() - dh.getStartDate().getMillis();
 
         if (d > 0) {
             List<DateTime> listTimeStamps = new ArrayList<>();
+            listTimeStamps.add(start);
             DateTime currentDateTime = start.plus(d);
             while (currentDateTime.isBefore(end)) {
                 listTimeStamps.add(currentDateTime);
@@ -182,28 +204,30 @@ public class DateHelper {
             }
 
             if (interval < 0) {
-                Integer index = listTimeStamps.size() - (int) Math.abs(interval);
-                returnTimeStamp = listTimeStamps.get(index);
+                Integer index = (int) Math.abs(interval);
+                for (int i = listTimeStamps.size() - 1; i >= 0; i--) {
+                    if (listTimeStamps.get(i).isBefore(DateTime.now())) return listTimeStamps.get(i - index);
+                }
             } else if (interval > 0) {
                 Integer index = (int) Math.abs(interval);
-                returnTimeStamp = listTimeStamps.get(index);
-            } else returnTimeStamp = listTimeStamps.get(listTimeStamps.size() - 1);
+                for (int i = listTimeStamps.size() - 1; i >= 0; i--) {
+                    if (listTimeStamps.get(i).isBefore(DateTime.now())) return listTimeStamps.get(i + index);
+                }
+            } else {
+                for (int i = listTimeStamps.size() - 1; i >= 0; i--) {
+                    if (listTimeStamps.get(i).isBefore(DateTime.now())) return listTimeStamps.get(i);
+                }
+            }
         }
 
         return returnTimeStamp;
-    }
-
-    public DateTime getDateTimeEndDate() {
-        return new DateTime(getEndDate().getYear(), getEndDate().getMonth().getValue(), getEndDate().getDayOfMonth(),
-                getEndTime().getHour(), getEndTime().getMinute(), getEndTime().getSecond(), 999);
     }
 
     public void setType(TransformType type) {
         this.type = type;
     }
 
-    public LocalDate getEndDate() {
-        now = LocalDate.now();
+    public DateTime getEndDate() {
         //if (startTime.isAfter(endTime)) now = now.minusDays(1);
 
         switch (type) {
@@ -222,12 +246,12 @@ public class DateHelper {
                 endDate = now.minusDays(1);
                 break;
             case LASTWEEK:
-                now = LocalDate.now().minusDays(LocalDate.now().getDayOfWeek().getValue() - 1).minusWeeks(1);
-                endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).plusDays(6);
+                now = now.minusDays(now.getDayOfWeek() - 1).minusWeeks(1);
+                endDate = new DateTime(now.getYear(), now.getDayOfMonth(), now.getDayOfMonth(), endTime.getHour(), endTime.getMinute(), endTime.getSecond()).plusDays(6);
                 break;
             case LASTMONTH:
-                now = now.minusDays(LocalDate.now().getDayOfMonth() - 1);
-                endDate = LocalDate.of(now.getYear(), now.getMonth(), now.getDayOfMonth()).minusDays(1);
+                now = now.minusDays(now.getDayOfMonth() - 1);
+                endDate = new DateTime(now.getYear(), now.getDayOfMonth(), now.getDayOfMonth(), endTime.getHour(), endTime.getMinute(), endTime.getSecond()).minusDays(1);
                 break;
             case CUSTOM_PERIOD:
                 if (customPeriodObject.getEndReferencePoint() != null) {
@@ -235,8 +259,11 @@ public class DateHelper {
                     Long endMonths = 0L;
                     Long endWeeks = 0L;
                     Long endDays = 0L;
+                    Long endHours = 0L;
+                    Long endMinutes = 0L;
                     switch (customPeriodObject.getEndReferencePoint()) {
                         case "NOW":
+                            endDate = DateTime.now();
                             break;
                         case "STARTTIMEDAY":
                             break;
@@ -252,18 +279,19 @@ public class DateHelper {
                                     Long endInterval = customPeriodObject.getEndInterval();
                                     DateTime newDT = getDateTimeForDayPeriod(dh, endInterval);
 
-                                    now = LocalDate.of(newDT.getYear(), newDT.getMonthOfYear(), newDT.getDayOfMonth());
+                                    endDate = new DateTime(newDT.getYear(), newDT.getMonthOfYear(), newDT.getDayOfMonth(), newDT.getHourOfDay(), newDT.getMinuteOfHour(), newDT.getSecondOfMinute());
                                 }
                             } catch (Exception e) {
                             }
                             break;
                         case "CURRENT_WEEK":
-                            now = now.minusDays(now.getDayOfWeek().getValue());
+                            endDate = now.minusDays(now.getDayOfWeek());
                             break;
                         case "CURRENT_MONTH":
-                            now = now.minusDays(now.getDayOfMonth());
+                            endDate = now.minusDays(now.getDayOfMonth());
                             break;
                         case "CURRENT_DAY":
+                            endDate = DateTime.now();
                             break;
                         default:
                             break;
@@ -272,27 +300,38 @@ public class DateHelper {
                     endMonths = customPeriodObject.getEndMonths();
                     endWeeks = customPeriodObject.getEndWeeks();
                     endDays = customPeriodObject.getEndDays();
+                    endHours = customPeriodObject.getEndHours();
+                    endMinutes = customPeriodObject.getEndMinutes();
 
                     if (endYears < 0)
-                        endDate = now.minusYears(Math.abs(endYears));
+                        endDate = endDate.minusYears((int) Math.abs(endYears));
                     else if (endYears > 0)
-                        endDate = now.plusYears(Math.abs(endYears));
-                    else endDate = now;
+                        endDate = endDate.plusYears((int) Math.abs(endYears));
 
                     if (endMonths < 0)
-                        endDate = endDate.minusMonths(Math.abs(endMonths));
+                        endDate = endDate.minusMonths((int) Math.abs(endMonths));
                     else if (endMonths > 0)
-                        endDate = endDate.plusMonths(Math.abs(endMonths));
+                        endDate = endDate.plusMonths((int) Math.abs(endMonths));
 
                     if (endWeeks < 0)
-                        endDate = endDate.minusWeeks(Math.abs(endWeeks));
+                        endDate = endDate.minusWeeks((int) Math.abs(endWeeks));
                     else if (endWeeks > 0)
-                        endDate = endDate.plusWeeks(Math.abs(endWeeks));
+                        endDate = endDate.plusWeeks((int) Math.abs(endWeeks));
 
                     if (endDays < 0)
-                        endDate = endDate.minusDays(Math.abs(endDays));
+                        endDate = endDate.minusDays((int) Math.abs(endDays));
                     else if (endDays > 0)
-                        endDate = endDate.plusDays(Math.abs(endDays));
+                        endDate = endDate.plusDays((int) Math.abs(endDays));
+
+                    if (endHours < 0)
+                        endDate = endDate.minusHours((int) Math.abs(endHours));
+                    else if (endHours > 0)
+                        endDate = endDate.plusHours((int) Math.abs(endHours));
+
+                    if (endMinutes < 0)
+                        endDate = endDate.minusMinutes((int) Math.abs(endMinutes));
+                    else if (endMinutes > 0)
+                        endDate = endDate.plusMinutes((int) Math.abs(endMinutes));
                 }
                 break;
             default:
@@ -301,62 +340,13 @@ public class DateHelper {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(DateTime endDate) {
         this.endDate = endDate;
     }
 
     public LocalTime getStartTime() {
-        if (!type.equals(TransformType.CUSTOM_PERIOD)) {
-            return startTime;
-        } else {
-            if (customPeriodObject.getStartReferencePoint() != null) {
-                Long startHours = 0L;
-                Long startMinutes = 0L;
-                switch (customPeriodObject.getStartReferencePoint()) {
-                    case "NOW":
-                        startTime = LocalTime.now();
-                        break;
-                    case "STARTTIMEDAY":
-                        break;
-                    case "WEEK":
-                        break;
-                    case "CUSTOM_PERIOD":
-                        try {
-                            CustomPeriodObject cpo = new CustomPeriodObject(customPeriodObject.getStartReferenceObject(),
-                                    customPeriodObject.getObjectHandler());
-                            DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
-                            dh.setStartTime(startTime);
-                            dh.setEndTime(endTime);
-                            if (cpo.getStartReferencePoint().contains("DAY")) {
-
-                                Long startInterval = customPeriodObject.getStartInterval();
-                                DateTime newDT = getDateTimeForDayPeriod(dh, startInterval);
-
-                                startTime = LocalTime.of(newDT.getHourOfDay(), newDT.getMinuteOfHour(), newDT.getSecondOfMinute());
-                            }
-                        } catch (Exception e) {
-                        }
-                        break;
-                    case "CURRENT_DAY":
-                        break;
-                    default:
-                        break;
-                }
-
-                startHours = customPeriodObject.getStartHours();
-                if (startHours < 0)
-                    startTime = startTime.minusHours(Math.abs(startHours));
-                else if (startHours > 0)
-                    startTime = startTime.plusHours(Math.abs(startHours));
-
-                startMinutes = customPeriodObject.getStartMinutes();
-                if (startMinutes < 0)
-                    startTime = startTime.minusMinutes(Math.abs(startMinutes));
-                else if (startMinutes > 0)
-                    startTime = startTime.plusMinutes(Math.abs(startMinutes));
-            }
-            return startTime;
-        }
+        DateTime start = getStartDate();
+        return LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour(), start.getSecondOfMinute());
     }
 
     public void setStartTime(LocalTime startTime) {
@@ -427,56 +417,8 @@ public class DateHelper {
     }
 
     public LocalTime getEndTime() {
-        if (!type.equals(TransformType.CUSTOM_PERIOD)) {
-            return endTime;
-        } else {
-            if (customPeriodObject.getEndReferencePoint() != null) {
-                Long endHours = 0L;
-                Long endMinutes = 0L;
-                switch (customPeriodObject.getEndReferencePoint()) {
-                    case "NOW":
-                        endTime = LocalTime.now();
-                        break;
-                    case "STARTTIMEDAY":
-                        break;
-                    case "CUSTOM_PERIOD":
-                        try {
-                            CustomPeriodObject cpo = new CustomPeriodObject(customPeriodObject.getEndReferenceObject(),
-                                    new ObjectHandler(customPeriodObject.getObject().getDataSource()));
-                            DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
-                            dh.setStartTime(startTime);
-                            dh.setEndTime(endTime);
-                            if (cpo.getEndReferencePoint().contains("DAY")) {
-
-                                Long endInterval = customPeriodObject.getEndInterval();
-                                DateTime newDT = getDateTimeForDayPeriod(dh, endInterval);
-
-                                endTime = LocalTime.of(newDT.getHourOfDay(), newDT.getMinuteOfHour(), newDT.getSecondOfMinute());
-                            }
-                        } catch (Exception e) {
-                        }
-                        break;
-                    case "WEEK":
-                        break;
-                    case "CURRENT_DAY":
-                        break;
-                    default:
-                        break;
-                }
-                endHours = customPeriodObject.getEndHours();
-                if (endHours < 0)
-                    endTime = endTime.minusHours(Math.abs(endHours));
-                else if (endHours > 0)
-                    endTime = endTime.plusHours(Math.abs(endHours));
-
-                endMinutes = customPeriodObject.getEndMinutes();
-                if (endMinutes < 0)
-                    endTime = endTime.minusMinutes(Math.abs(endMinutes));
-                else if (endMinutes > 0)
-                    endTime = endTime.plusMinutes(Math.abs(endMinutes));
-            }
-            return endTime;
-        }
+        DateTime end = getEndDate();
+        return LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour(), end.getSecondOfMinute());
     }
 
     public Boolean isCustom() {
@@ -489,6 +431,7 @@ public class DateHelper {
                     dh.setStartDate(getStartDate());
                     dh.setEndDate(getEndDate());
                     dh.setCheckDate(checkDate);
+                    if (customPeriodObject != null) dh.setCustomPeriodObject(customPeriodObject);
                     if (dh.getCheckDate().equals(dh.getStartDate())) {
                         userSet = false;
                         break;
@@ -503,6 +446,7 @@ public class DateHelper {
                     dh.setStartDate(getStartDate());
                     dh.setEndDate(getEndDate());
                     dh.setCheckDate(checkDate);
+                    if (customPeriodObject != null) dh.setCustomPeriodObject(customPeriodObject);
                     if (dh.getCheckDate().equals(dh.getEndDate())) {
                         userSet = false;
                         break;
@@ -546,5 +490,15 @@ public class DateHelper {
 
     public void setCheckDate(LocalDate checkDate) {
         this.checkDate = checkDate;
+    }
+
+    public LocalDate getStartAsLocalDate() {
+        DateTime start = getStartDate();
+        return LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth());
+    }
+
+    public LocalDate getEndAsLocalDate() {
+        DateTime end = getEndDate();
+        return LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth());
     }
 }

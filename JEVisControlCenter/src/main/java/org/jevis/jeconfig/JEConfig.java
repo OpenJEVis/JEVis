@@ -101,7 +101,6 @@ public class JEConfig extends Application {
         }
 
 
-
         if (result.canRead()) {
             if (result.isFile()) {
                 System.out.println("Is folder: " + result.getParentFile().getAbsoluteFile());
