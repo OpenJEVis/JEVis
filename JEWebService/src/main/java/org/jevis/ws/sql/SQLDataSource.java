@@ -59,6 +59,34 @@ public class SQLDataSource {
     private Profiler pf = new Profiler();
     private List<String> sqlLog = new ArrayList<>();
 
+    public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
+
+        try {
+            pf.setSQLList(sqlLog);
+            pf.addEvent(String.format("Methode: %s URL: %s ", request.getMethod(), url.getRequestUri()), "");
+            ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
+
+            dbConn = ConnectionFactory.getInstance().getConnection();
+
+            if (dbConn.isValid(2000)) {
+                pf.addEvent("DS", "Connection established");
+                lTable = new LoginTable(this);
+                jevisLogin(httpHeaders);
+                pf.addEvent("DS", "JEVis user login done");
+                oTable = new ObjectTable(this);
+                aTable = new AttributeTable(this);
+                sTable = new SampleTable(this);
+                rTable = new RelationshipTable(this);
+                um = new UserRightManagerForWS(this);
+                pf.addEvent("DS", "URM done loading");
+
+            }
+        } catch (SQLException se) {
+            throw new JEVisException("Database connection errror", 5438, se);
+        }
+
+    }
+
     public List<JsonClassRelationship> getClassRelationships() {
         List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());
         List<JsonClassRelationship> tempjcr = new ArrayList<>();
@@ -121,38 +149,6 @@ public class SQLDataSource {
         return new ArrayList<>(Config.getClassCache().values());
     }
 
-    public enum PRELOAD {
-        ALL_REL, ALL_CLASSES, ALL_OBJECT
-    }
-
-    public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
-
-        try {
-            pf.setSQLList(sqlLog);
-            pf.addEvent(String.format("Methode: %s URL: %s ", request.getMethod(), url.getRequestUri()), "");
-            ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
-
-            dbConn = ConnectionFactory.getInstance().getConnection();
-
-            if (dbConn.isValid(2000)) {
-                pf.addEvent("DS", "Connection established");
-                lTable = new LoginTable(this);
-                jevisLogin(httpHeaders);
-                pf.addEvent("DS", "JEVis user login done");
-                oTable = new ObjectTable(this);
-                aTable = new AttributeTable(this);
-                sTable = new SampleTable(this);
-                rTable = new RelationshipTable(this);
-                um = new UserRightManagerForWS(this);
-                pf.addEvent("DS", "URM done loading");
-
-            }
-        } catch (SQLException se) {
-            throw new JEVisException("Database connection errror", 5438, se);
-        }
-
-    }
-
     public Profiler getProfiler() {
         return pf;
     }
@@ -195,7 +191,6 @@ public class SQLDataSource {
     public SampleTable getSampleTable() {
         return sTable;
     }
-
 
     public AttributeTable getAttributeTable() {
         return aTable;
@@ -257,7 +252,7 @@ public class SQLDataSource {
         } else {
             throw new AuthenticationException("Authorization header is missing");
         }
-//        } 
+//        }
 //        catch (Exception ex) {
 //            ex.printStackTrace();
 //            throw new AuthenticationException("Authorization header incorrect", ex);
@@ -294,6 +289,45 @@ public class SQLDataSource {
             }
         }
         return list;
+
+    }
+
+    public JsonObject getObject(Long id, boolean children) throws JEVisException {
+        logger.debug("getObject: {}", id);
+        if (!allObjects.isEmpty()) {
+            for (JsonObject ob : allObjects) {
+                if (ob.getId() == id) {
+                    logger.debug("getObject- cache");
+                    return ob;
+                }
+            }
+        }
+        logger.debug("getObject- NON cache");
+        JsonObject ob = oTable.getObject(id);
+        if (ob != null) {
+            allObjects.add(ob);
+        }
+
+        if (children) {
+            ob.setObjects(new ArrayList<>());
+            getRelationshipTable().getAllForObject(ob.getId()).forEach(rel -> {
+                if (rel.getTo() == ob.getId() && rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
+                    try {
+                        JsonObject child = getObject(rel.getFrom(), false);
+                        if (getUserManager().canRead(child)) {
+                            ob.getObjects().add(child);
+                        }
+
+                    } catch (Exception ex) {
+
+                    }
+                }
+            });
+
+        }
+
+
+        return ob;
 
     }
 
@@ -348,7 +382,6 @@ public class SQLDataSource {
         return allObjects;
     }
 
-
     public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) {
         List<JsonRelationship> newRels = new ArrayList<>();
         for (JsonRelationship rel : rels) {
@@ -368,7 +401,6 @@ public class SQLDataSource {
     public JsonJEVisClass getJEVisClass(String name) {
         return Config.getClassCache().get(name);
     }
-
 
     public JEVisUserNew getCurrentUser() {
         if (user == null) {
@@ -430,7 +462,6 @@ public class SQLDataSource {
 
     }
 
-
     public boolean disconnect() throws JEVisException {
         if (dbConn != null) {
             try {
@@ -469,7 +500,7 @@ public class SQLDataSource {
 
             // because jevis will not create default attributes or manage the update of types
             // we check that all and only all types are there
-            if(jc.getTypes()!=null) {
+            if (jc.getTypes() != null) {
                 for (JsonType type : jc.getTypes()) {
                     boolean exists = false;
                     for (JsonAttribute att : atts) {
@@ -500,10 +531,10 @@ public class SQLDataSource {
                 return result;
 
             }
-            System.out.println("Emty Type list for class: "+jc.getName());
+            System.out.println("Emty Type list for class: " + jc.getName());
             return new ArrayList<>();
-        }catch (Exception ex){
-            System.out.println("================= Error in attribute: "+objectID);
+        } catch (Exception ex) {
+            System.out.println("================= Error in attribute: " + objectID);
             ex.printStackTrace();
             return new ArrayList<>();
         }
@@ -513,7 +544,6 @@ public class SQLDataSource {
         getAttributeTable().updateAttribute(objectID, att);
         return true;
     }
-
 
     public JsonObject buildObject(JsonObject obj, long parent) throws JEVisException {
         return getObjectTable().insertObject(obj.getName(), obj.getJevisClass(), parent, obj.getisPublic());
@@ -565,9 +595,13 @@ public class SQLDataSource {
         return getObjectTable().deleteObject(objectID);
     }
 
-
     public boolean deleteRelationship(Long fromObject, Long toObject, int type) {
         return getRelationshipTable().delete(fromObject, toObject, type);
+    }
+
+
+    public enum PRELOAD {
+        ALL_REL, ALL_CLASSES, ALL_OBJECT
     }
 
 

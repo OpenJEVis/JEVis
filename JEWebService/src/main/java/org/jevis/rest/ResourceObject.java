@@ -87,11 +87,13 @@ public class ResourceObject {
             ds.preload(SQLDataSource.PRELOAD.ALL_REL);
             List<JsonObject> returnList;
 
+
             if (root) {
                 returnList = ds.getRootObjects();
             } else {
                 returnList = ds.getUserManager().filterList(ds.getObjects());
             }
+
             if (!jclass.isEmpty()) {
                 returnList = ds.filterObjectByClass(returnList, jclass);
             }
@@ -316,6 +318,7 @@ public class ResourceObject {
             @Context Request request,
             @Context UriInfo url,
             @DefaultValue("false") @QueryParam("detail") boolean detailed,
+            @DefaultValue("false") @QueryParam("includeChildren") boolean includeChildren,
             @DefaultValue("-99999") @PathParam("id") long id) {
 
         SQLDataSource ds = null;
@@ -326,7 +329,7 @@ public class ResourceObject {
             if (id == -999) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing id path parameter").build();
             }
-            JsonObject existingObj = ds.getObject(id);
+            JsonObject existingObj = ds.getObject(id, includeChildren);
             if (existingObj != null || ds.getUserManager().canRead(existingObj)) {
                 ds.getProfiler().addEvent("ObjectResource", "done");
                 return Response.ok(existingObj).build();

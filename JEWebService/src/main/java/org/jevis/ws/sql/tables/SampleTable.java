@@ -101,7 +101,6 @@ public class SampleTable {
         int count = 0;
 
         try {
-            //SringBuilder is faster then a sql batch script
             StringBuilder build = new StringBuilder(sql);
 
             for (int i = 0; i < samples.size(); i++) {

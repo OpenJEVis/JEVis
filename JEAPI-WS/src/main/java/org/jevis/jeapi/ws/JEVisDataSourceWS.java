@@ -19,8 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
@@ -48,8 +46,20 @@ import java.util.logging.Logger;
  */
 public class JEVisDataSourceWS implements JEVisDataSource {
 
-    private String host = "http://localhost";
     private final int port = 8080;
+    final private JEVisInfo info = new JEVisInfo() {
+
+        @Override
+        public String getVersion() {
+            return "3.0.1";
+        }
+
+        @Override
+        public String getName() {
+            return "JEAPI-WS";
+        }
+    };
+    private String host = "http://localhost";
     private HTTPConnection con;
     private Gson gson = new Gson();
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisDataSourceWS.class);
@@ -57,7 +67,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private boolean fetchedAllClasses = false;
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
-
     //    private Cache<Integer, List> relationshipCache;
     private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
     private Map<String, JEVisClass> classCache = Collections.synchronizedMap(new HashMap<String, JEVisClass>());
@@ -74,19 +83,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     public JEVisDataSourceWS() {
     }
-
-    final private JEVisInfo info = new JEVisInfo() {
-
-        @Override
-        public String getVersion() {
-            return "3.0.1";
-        }
-
-        @Override
-        public String getName() {
-            return "JEAPI-WS";
-        }
-    };
 
     @Override
     public void init(List<JEVisOption> config) throws IllegalArgumentException {
@@ -197,6 +193,47 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return new ArrayList<>(objectCache.values());
 
     }
+
+//    public List<JEVisObject> getObjectsWS(List<Long> ids) {
+//        logger.trace("Get certain Objects");
+//        try {
+//            List<JEVisObject> objects = new ArrayList<>();
+//            String resource = HTTPConnection.API_PATH_V1
+//                    + REQUEST.OBJECTS.PATH
+//                    + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS + "false"
+//                    + "&" + REQUEST.OBJECTS.OPTIONS.ONLY_ROOT + "false"
+//                    + "&" + REQUEST.OBJECTS.OPTIONS.SPECIFIC_IDS;
+//            StringBuffer stringIDs = new StringBuffer();
+//            ids.forEach(id -> {
+//                stringIDs.append(id);
+//                if (!stringIDs.equals(ids.get(ids.size() - 1))) {
+//                    stringIDs.append(",");
+//                }
+//            });
+//            resource += stringIDs.toString();
+//
+//            StringBuffer response = con.getRequest(resource);
+//
+//            Type listType = new TypeToken<List<JsonObject>>() {
+//            }.getType();
+//            List<JsonObject> jsons = gson.fromJson(response.toString(), listType);
+//            logger.trace("JsonObject.count: {}", jsons.size());
+//            for (JsonObject obj : jsons) {
+//                logger.trace("New obj: " + obj);
+//                objects.add(new JEVisObjectWS(this, obj));
+//            }
+//
+//            return objects;
+//
+//        } catch (ProtocolException ex) {
+//            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+//            //TODO: throw excption?! so the other function can handel it?
+//            return new ArrayList<>();
+//        } catch (IOException ex) {
+//            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+//            return new ArrayList<>();
+//        }
+//    }
 
     public List<JEVisObject> getObjectsWS() {
         logger.trace("Get ALL Objects");
@@ -783,13 +820,24 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     public JEVisObject getObjectWS(Long id) {
         logger.debug("GetObject: {}", id);
-        String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "/" + id;
+        String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "/" + id
+                + "?"
+                + REQUEST.OBJECTS.OPTIONS.INCLUDE_CHILDREN + "true";
         try {
 
             StringBuffer response = con.getRequest(resource);
             JsonObject json = gson.fromJson(response.toString(), JsonObject.class);
 
             JEVisObject obj = new JEVisObjectWS(this, json);
+
+            if (json.getObjects() != null && !json.getObjects().isEmpty()) {
+                json.getObjects().forEach(child -> {
+                    JEVisObject childObj = new JEVisObjectWS(this, child);
+                    objectCache.put(childObj.getID(), childObj);
+                });
+
+            }
+
             return obj;
 
         } catch (ProtocolException ex) {
@@ -833,18 +881,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public List<JEVisClass> getJEVisClasses() {
         if (!classLoaded) {
-            //For now we allways cache all classes because there are quit static
-            Map<String, JEVisClass> map = Maps.uniqueIndex(getJEVisClassesWS(), new Function<JEVisClass, String>() {
-                @Override
-                public String apply(JEVisClass f) {
-                    try {
-                        return f.getName();
-                    } catch (Exception ex) {
-                        return "";
-                    }
+
+            getJEVisClassesWS().forEach(jclass -> {
+                try {
+                    classCache.put(jclass.getName(), jclass);
+                } catch (Exception ex) {
+
                 }
             });
-            classCache = map;
             classLoaded = true;
         }
 
