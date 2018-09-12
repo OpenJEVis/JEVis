@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -26,12 +26,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
-import org.controlsfx.control.ToggleSwitch;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
@@ -39,17 +36,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class BooleanValueEditor implements AttributeEditor {
 
-    public JEVisAttribute _attribute;
     private final HBox editorNode = new HBox();
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    public JEVisAttribute _attribute;
     private ToggleSwitchPlus _field;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
-    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private boolean _canRead = true;
     private org.apache.logging.log4j.Logger logger = LogManager.getLogger(BooleanValueEditor.class);
 
@@ -94,25 +90,17 @@ public class BooleanValueEditor implements AttributeEditor {
     }
 
     private void buildEditor() throws JEVisException {
-            _field = new ToggleSwitchPlus();
+        _field = new ToggleSwitchPlus();
 
         JEVisSample lsample = _attribute.getLatestSample();
+
 
         if (lsample != null) {
             boolean selected = lsample.getValueAsBoolean();
             _field.setSelected(selected);
-            _field.selectedProperty().setValue(selected);
-//            _field.setSelected(selected);//TODO: get default Value
-            if (selected) {
-//                _field.setText(I18n.getInstance().getString("button.toggle.activate"));
-            } else {
-//                _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-            }
-
             _lastSample = lsample;
         } else {
             _field.setSelected(false);//TODO: get default Value
-//            _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
         }
 
         _field.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -120,26 +108,13 @@ public class BooleanValueEditor implements AttributeEditor {
             public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                 try {
                     _newSample = _attribute.buildSample(new DateTime(), _field.isSelected());
-//                    if (t1) {
-//                        _field.setText(I18n.getInstance().getString("button.toggle.activate"));
-//                    } else {
-//                        _field.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-//                    }
                     _changed.setValue(true);
                 } catch (Exception ex) {
                     Logger.getLogger(BooleanValueEditor.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
-
-//        _field.setPrefWidth(65);
-//        editorNode.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
-//        _field.setId("attributelabel");
-
         logger.trace("end");
-//        Region spacer = new  Region();
-//        HBox.setHgrow(_field, Priority.NEVER);
-//        HBox.setHgrow(spacer, Priority.ALWAYS);
         editorNode.getChildren().addAll(_field);
 
     }

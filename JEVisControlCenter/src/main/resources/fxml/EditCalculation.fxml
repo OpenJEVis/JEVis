@@ -4,20 +4,23 @@
 <?import javafx.scene.layout.*?>
 <?import org.jevis.jeconfig.plugin.object.extension.calculation.FormelBox?>
 <?import org.jevis.jeconfig.plugin.object.extension.calculation.VariablesBox?>
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.171"
+            fx:controller="org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController">
     <children>
-        <VBox layoutX="115.0" layoutY="78.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox layoutX="115.0" layoutY="78.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <HBox>
                     <children>
                         <VBox spacing="10.0" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label text="Formel:" />
+                                <Label text="Formel:"/>
                                 <HBox spacing="10.0" HBox.hgrow="ALWAYS">
                                     <children>
                                         <ScrollPane fitToHeight="true" fitToWidth="true" HBox.hgrow="ALWAYS">
                                             <content>
-                                                <FormelBox fx:id="formelBox" maxHeight="200.0" />
+                                                <FormelBox fx:id="formelBox" maxHeight="200.0"/>
                                             </content>
                                         </ScrollPane>
                                     </children>
@@ -27,15 +30,27 @@
                                 <GridPane alignment="CENTER" hgap="5.0" vgap="5.0">
 
                                     <children>
-                                        <Button fx:id="buttonSeven" alignment="CENTER" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onSeven" text="7" GridPane.rowIndex="4" />
-                                        <Button fx:id="buttonEight" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" layoutX="29.0" layoutY="10.0" minWidth="60.0" mnemonicParsing="false" onAction="#onEight" text="8" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                        <Button fx:id="buttonNine" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" layoutX="147.0" layoutY="35.0" minWidth="60.0" mnemonicParsing="false" onAction="#onNine" text="9" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                        <Button fx:id="buttonFour" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onFour" text="4" GridPane.rowIndex="5" />
+                                        <Button fx:id="buttonSeven" alignment="CENTER" focusTraversable="false"
+                                                minWidth="60.0" mnemonicParsing="false" onAction="#onSeven" text="7"
+                                                GridPane.rowIndex="4"/>
+                                        <Button fx:id="buttonEight" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" layoutX="29.0" layoutY="10.0" minWidth="60.0"
+                                                mnemonicParsing="false" onAction="#onEight" text="8"
+                                                GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                                        <Button fx:id="buttonNine" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" layoutX="147.0" layoutY="35.0" minWidth="60.0"
+                                                mnemonicParsing="false" onAction="#onNine" text="9"
+                                                GridPane.columnIndex="2" GridPane.rowIndex="4"/>
+                                        <Button fx:id="buttonFour" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
+                                                onAction="#onFour" text="4" GridPane.rowIndex="5"/>
                                         <Button fx:id="buttonSix" alignment="CENTER" contentDisplay="CENTER"
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
                                                 onAction="#onSix" text="6" GridPane.columnIndex="2"
                                                 GridPane.rowIndex="5"/>
-                                        <Button fx:id="buttonFive" alignment="CENTER" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onFive" text="5" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <Button fx:id="buttonFive" alignment="CENTER" focusTraversable="false"
+                                                minWidth="60.0" mnemonicParsing="false" onAction="#onFive" text="5"
+                                                GridPane.columnIndex="1" GridPane.rowIndex="5"/>
                                         <Button fx:id="buttonThree" alignment="CENTER" focusTraversable="false"
                                                 minWidth="60.0" mnemonicParsing="false" onAction="#onThree"
                                                 onKeyTyped="#onThree" text="3" GridPane.columnIndex="2"
@@ -86,7 +101,10 @@
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
                                                 onAction="#onE" text="e" GridPane.columnIndex="6"
                                                 GridPane.rowIndex="4"/>
-                                        <Button fx:id="buttonBack" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onBack" text="&lt;---" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                        <Button fx:id="buttonBack" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
+                                                onAction="#onBack" text="&lt;---" GridPane.columnIndex="2"
+                                                GridPane.rowIndex="3"/>
                                         <Button fx:id="buttonPow" alignment="CENTER" contentDisplay="CENTER"
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
                                                 onAction="#onPow" text="pow" GridPane.columnIndex="5"
@@ -119,7 +137,9 @@
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
                                                 onAction="#onRound" text="round" GridPane.columnIndex="8"
                                                 GridPane.rowIndex="2"/>
-                                        <Button fx:id="buttonPlus" contentDisplay="CENTER" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onPlus" text="+" GridPane.columnIndex="5" GridPane.rowIndex="2" />
+                                        <Button fx:id="buttonPlus" contentDisplay="CENTER" focusTraversable="false"
+                                                minWidth="60.0" mnemonicParsing="false" onAction="#onPlus" text="+"
+                                                GridPane.columnIndex="5" GridPane.rowIndex="2"/>
                                         <Button fx:id="buttonExp" alignment="CENTER" contentDisplay="CENTER"
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
                                                 onAction="#onExp" text="exp" GridPane.columnIndex="8"
@@ -152,8 +172,13 @@
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
                                                 onAction="#onAtan" text="atan" GridPane.columnIndex="7"
                                                 GridPane.rowIndex="5"/>
-                                        <Button fx:id="buttonRad" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onRad" text="rad" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                                        <Region focusTraversable="false" maxWidth="50.0" minWidth="50.0" prefHeight="1.0" prefWidth="10.0" GridPane.columnIndex="3" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.vgrow="NEVER" />
+                                        <Button fx:id="buttonRad" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
+                                                onAction="#onRad" text="rad" GridPane.columnIndex="4"
+                                                GridPane.rowIndex="4"/>
+                                        <Region focusTraversable="false" maxWidth="50.0" minWidth="50.0"
+                                                prefHeight="1.0" prefWidth="10.0" GridPane.columnIndex="3"
+                                                GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.vgrow="NEVER"/>
                                         <Button fx:id="buttonSmaller" alignment="CENTER" contentDisplay="CENTER"
                                                 focusTraversable="false" maxHeight="60.0" minWidth="60.0"
                                                 mnemonicParsing="false" onAction="#onSmaller" text="&lt;"
@@ -166,48 +191,73 @@
                                                 focusTraversable="false" maxHeight="60.0" minWidth="60.0"
                                                 mnemonicParsing="false" onAction="#onGreater" text="&gt;"
                                                 GridPane.columnIndex="5" GridPane.rowIndex="6"/>
-                                        <Button fx:id="buttonEquals" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" maxHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onEquals" onContextMenuRequested="#onEquals" text="==" GridPane.columnIndex="6" GridPane.rowIndex="7" />
+                                        <Button fx:id="buttonEquals" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" maxHeight="60.0" minWidth="60.0"
+                                                mnemonicParsing="false" onAction="#onEquals"
+                                                onContextMenuRequested="#onEquals" text="==" GridPane.columnIndex="6"
+                                                GridPane.rowIndex="7"/>
 
-                                        <Button fx:id="buttonNotEquals" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" maxHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onNotEquals" text="!=" GridPane.columnIndex="7" GridPane.rowIndex="7" />
-                                        <Button fx:id="buttonSmallerEquals" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" maxHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onSmallerEquals" text="&lt;=" GridPane.columnIndex="4" GridPane.rowIndex="7" />
-                                        <Button fx:id="buttonAnd" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" maxHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onAnd" text="&amp;&amp;" GridPane.columnIndex="6" GridPane.rowIndex="6" />
-                                        <Button fx:id="buttonOr" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" maxHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onOr" text="||" GridPane.columnIndex="7" GridPane.rowIndex="6" />
-                                        <Button fx:id="buttonVerify" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onVerify" text="%plugin.object.calc.verify" textFill="#2d9024" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-                                        <Button fx:id="atan2" focusTraversable="false" minWidth="60.0" mnemonicParsing="false" onAction="#onAtan2" text="atan2" GridPane.columnIndex="8" GridPane.rowIndex="5" />
+                                        <Button fx:id="buttonNotEquals" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" maxHeight="60.0" minWidth="60.0"
+                                                mnemonicParsing="false" onAction="#onNotEquals" text="!="
+                                                GridPane.columnIndex="7" GridPane.rowIndex="7"/>
+                                        <Button fx:id="buttonSmallerEquals" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" maxHeight="60.0" minWidth="60.0"
+                                                mnemonicParsing="false" onAction="#onSmallerEquals" text="&lt;="
+                                                GridPane.columnIndex="4" GridPane.rowIndex="7"/>
+                                        <Button fx:id="buttonAnd" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" maxHeight="60.0" minWidth="60.0"
+                                                mnemonicParsing="false" onAction="#onAnd" text="&amp;&amp;"
+                                                GridPane.columnIndex="6" GridPane.rowIndex="6"/>
+                                        <Button fx:id="buttonOr" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" maxHeight="60.0" minWidth="60.0"
+                                                mnemonicParsing="false" onAction="#onOr" text="||"
+                                                GridPane.columnIndex="7" GridPane.rowIndex="6"/>
+                                        <Button fx:id="buttonVerify" alignment="CENTER" contentDisplay="CENTER"
+                                                focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
+                                                onAction="#onVerify" text="%plugin.object.calc.verify"
+                                                textFill="#2d9024" GridPane.columnSpan="2" GridPane.rowIndex="1"/>
+                                        <Button fx:id="atan2" focusTraversable="false" minWidth="60.0"
+                                                mnemonicParsing="false" onAction="#onAtan2" text="atan2"
+                                                GridPane.columnIndex="8" GridPane.rowIndex="5"/>
                                     </children>
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="NEVER" />
-                                        <ColumnConstraints hgrow="NEVER" />
-                                        <ColumnConstraints hgrow="NEVER" />
-                                        <ColumnConstraints />
-                                        <ColumnConstraints hgrow="NEVER" />
-                                        <ColumnConstraints hgrow="NEVER" />
-                                        <ColumnConstraints hgrow="NEVER" />
-                                        <ColumnConstraints hgrow="NEVER" />
-                                        <ColumnConstraints hgrow="NEVER" />
-                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                        <ColumnConstraints hgrow="NEVER"/>
+                                        <ColumnConstraints hgrow="NEVER"/>
+                                        <ColumnConstraints hgrow="NEVER"/>
+                                        <ColumnConstraints/>
+                                        <ColumnConstraints hgrow="NEVER"/>
+                                        <ColumnConstraints hgrow="NEVER"/>
+                                        <ColumnConstraints hgrow="NEVER"/>
+                                        <ColumnConstraints hgrow="NEVER"/>
+                                        <ColumnConstraints hgrow="NEVER"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                              <RowConstraints />
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
                                     </rowConstraints>
                                 </GridPane>
-                        <Label focusTraversable="false" text="%plugin.object.calc.variables" />
-                                  <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
-                                      <content>
-                                          <VariablesBox fx:id="variablesBox" />
-                                      </content>
-                                  </ScrollPane>
+                                <Label text="%plugin.object.calc.output"/>
+
+                                <Button fx:id="buttonOutput" mnemonicParsing="false" onAction="#onOutput"
+                                        text="TipTop"/>
+                                <Label focusTraversable="false" text="%plugin.object.calc.variables"/>
+                                <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <VariablesBox fx:id="variablesBox"/>
+                                    </content>
+                                </ScrollPane>
                             </children>
                         </VBox>
                     </children>

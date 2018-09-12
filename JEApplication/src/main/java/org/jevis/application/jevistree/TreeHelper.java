@@ -29,6 +29,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TreeItem;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,6 +48,7 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -254,11 +256,11 @@ public class TreeHelper {
 
     }
 
-    public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent,CopyObjectDialog.DefaultAction mode) {
+    public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent, CopyObjectDialog.DefaultAction mode) {
 
         LOGGER.trace("EventDrop");
         CopyObjectDialog dia = new CopyObjectDialog();
-        CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent,mode);
+        CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent, mode);
 
         if (re == CopyObjectDialog.Response.MOVE) {
             moveObject(dragObj, targetParent);
@@ -431,11 +433,26 @@ public class TreeHelper {
                 objects.add(us.getSelectedObject());
             }
 
-            ExportMaster em = new ExportMaster();
-            em.setObject(objects, true);
-            em.export(new File("/tmp/file.json"));
+            try {
+                ExportMaster em = new ExportMaster();
+                em.setObject(objects, true);
+                em.createTemplate(obj);
 
-            em.createTemplate(obj);
+
+                DirectoryChooser fileChooser = new DirectoryChooser();
+
+                fileChooser.setTitle("Open Resource File");
+//                fileChooser.getExtensionFilters().addAll();
+                File selectedFile = fileChooser.showDialog(null);
+                if (selectedFile != null) {
+                    em.export(selectedFile);
+                }
+
+            } catch (IOException io) {
+
+            }
+
+
         }
     }
 
@@ -460,7 +477,7 @@ public class TreeHelper {
 
                 DateTime now = new DateTime();
 
-                String inputName = CalculationNameFormater.formatInputVariable(us.getSelectedObject().getName());
+                String inputName = CalculationNameFormater.crateVarName(us.getSelectedObject());
 
                 JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
                 newInputObj.commit();
@@ -472,13 +489,12 @@ public class TreeHelper {
                 JEVisAttribute aInputData = newInputObj.getAttribute("Input Data");
 
 
-
-                TargetHelper th = new TargetHelper(aInputData.getDataSource(), us.getSelectedObject(),valueAttribute );
+                TargetHelper th = new TargetHelper(aInputData.getDataSource(), us.getSelectedObject(), valueAttribute);
                 if (th.isValid() && th.targetAccessable()) {
                     System.out.println("Target Is valid");
                     JEVisSample newTarget = aInputData.buildSample(now, th.getSourceString());
                     newTarget.commit();
-                }else{
+                } else {
                     System.out.println("Target is not valid");
                 }
 

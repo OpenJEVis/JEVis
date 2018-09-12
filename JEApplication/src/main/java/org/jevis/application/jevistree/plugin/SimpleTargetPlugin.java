@@ -30,23 +30,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author fs
  */
 public class SimpleTargetPlugin implements TreePlugin {
 
+    public static Logger LOGGER = LogManager.getLogger(SimpleTargetPlugin.class);
     private JEVisTree _tree;
-    private List<JEVisObject> _selected = new ArrayList<>();
     private List<UserSelection> _preselect = new ArrayList<>();
     private List<SimpleTargetPluginData> _data = new ArrayList<>();
     private boolean allowMultySelection = false;
     private BooleanProperty validProperty = new SimpleBooleanProperty(false);
-    public static Logger LOGGER = LogManager.getLogger(SimpleTargetPlugin.class);
-
-    public enum MODE {
-        OBJECT, ATTRIBUTE
-    }
-
     private MODE mode = MODE.OBJECT;
 
     @Override
@@ -97,6 +90,7 @@ public class SimpleTargetPlugin implements TreePlugin {
             }
         }
         SimpleTargetPluginData data = new SimpleTargetPluginData(row);
+        data.setSelected(false);
         _data.add(data);
         return data;
     }
@@ -168,6 +162,8 @@ public class SimpleTargetPlugin implements TreePlugin {
 
                                         @Override
                                         public void handle(ActionEvent event) {
+                                            SimpleTargetPluginData sdata = getData(getTreeTableRow().getItem());
+
                                             if (!allowMultySelection && box.isSelected()) {
                                                 unselectAllBut(getTreeTableRow().getItem());
                                                 commitEdit(box.isSelected());
@@ -192,7 +188,7 @@ public class SimpleTargetPlugin implements TreePlugin {
 
                                 }
                             } catch (Exception ex) {
-
+                                ex.printStackTrace();
                             }
 
                         } else {
@@ -236,23 +232,28 @@ public class SimpleTargetPlugin implements TreePlugin {
         return false;
     }
 
-    public void setUserSelection(List<UserSelection> list) {
-        _preselect = list;
-    }
-
     public List<UserSelection> getUserSelection() {
+        List<UserSelection> result = new ArrayList<>();
         for (SimpleTargetPluginData data : _data) {
             if (data.isSelected()) {
 //                _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
                 if (mode == MODE.OBJECT) {
-                    _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
+                    result.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
                 } else {
-                    _preselect.add(new UserSelection(UserSelection.SelectionType.Attribute, data.getAtt(), null, null));
+                    result.add(new UserSelection(UserSelection.SelectionType.Attribute, data.getAtt(), null, null));
                 }
             }
         }
 
-        return _preselect;
+        return result;
+    }
+
+    public void setUserSelection(List<UserSelection> list) {
+        _preselect = list;
+    }
+
+    public enum MODE {
+        OBJECT, ATTRIBUTE
     }
 
 }
