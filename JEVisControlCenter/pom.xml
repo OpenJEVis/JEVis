@@ -171,9 +171,9 @@
                     </jnlp>
 
                     <sign>
-                        <keystore>${project.parent.basedir}/etc/keystore.jks</keystore>
-                        <keypass>${key.password}</keypass>
-                        <storepass>${store.password}</storepass>
+                        <keystore>key.jks</keystore>
+                        <keypass></keypass>
+                        <storepass>strepass</storepass>
                         <alias>jevis</alias>
 
                         <keystoreConfig>
@@ -186,7 +186,7 @@
                     <pack200>
                         <enabled>false</enabled>
                     </pack200>
-                    <gzip>true</gzip>
+                    <gzip>false</gzip>
                     <outputJarVersions>true</outputJarVersions>
                     <verbose>true</verbose>
 

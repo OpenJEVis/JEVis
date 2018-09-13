@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <jnlp
     spec="1.0+"
-    codebase="http://$jevisserver/jevis/jeviscc"
-    href="$outputFile?nocache=true">
+    codebase="http://$jevisserver/jeviscc/$outputFile?nocache=true">
 
 <information>
 #if($project.name)
