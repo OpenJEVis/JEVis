@@ -171,9 +171,9 @@
                     </jnlp>
 
                     <sign>
-                        <keystore>${project.parent.basedir}/etc/keystore.jks</keystore>
-                        <keypass>${key.password}</keypass>
-                        <storepass>${store.password}</storepass>
+                        <keystore>key.jks</keystore>
+                        <keypass></keypass>
+                        <storepass>strepass</storepass>
                         <alias>jevis</alias>
 
                         <keystoreConfig>
@@ -186,7 +186,7 @@
                     <pack200>
                         <enabled>false</enabled>
                     </pack200>
-                    <gzip>true</gzip>
+                    <gzip>false</gzip>
                     <outputJarVersions>true</outputJarVersions>
                     <verbose>true</verbose>
 
@@ -267,13 +267,13 @@
         <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jfxtras-controls</artifactId>
-            <version>8.0-r5</version>
+            <version>8.0-r6</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.jfoenix</groupId>
             <artifactId>jfoenix</artifactId>
-            <version>1.9.0</version>
+            <version>8.0.7</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jeval</groupId>
