@@ -419,6 +419,12 @@ public class ChartView implements Observer {
 
     public void drawAreaChart(String chartName, ChartSettings.ChartType chartType) {
         tableData.clear();
+        areaChart = null;
+        lineChart = null;
+        barChart = null;
+        bubbleChart = null;
+        scatterChart = null;
+        pieChart = null;
 
         Set<ChartDataModel> selectedData = dataModel.getSelectedData();
 
@@ -618,79 +624,37 @@ public class ChartView implements Observer {
                 areaChart = new AreaChart<>(dateAxis, numberAxis, series);
                 areaChart.applyCss();
                 setTableStandard();
-
-                lineChart = null;
-                barChart = null;
-                bubbleChart = null;
-                scatterChart = null;
-                pieChart = null;
                 break;
             case ("LINE"):
                 lineChart = new LineChart<>(dateAxis, numberAxis, series);
                 lineChart.applyCss();
                 setTableStandard();
-
-                areaChart = null;
-                barChart = null;
-                bubbleChart = null;
-                scatterChart = null;
-                pieChart = null;
                 break;
             case ("BAR"):
                 CategoryAxis catAxis = new CategoryAxis();
                 barChart = new BarChart<>(catAxis, numberAxis, series);
                 barChart.applyCss();
                 setTableStandard();
-
-                lineChart = null;
-                areaChart = null;
-                bubbleChart = null;
-                scatterChart = null;
-                pieChart = null;
                 break;
             case ("BUBBLE"):
                 bubbleChart = new BubbleChart<>(dateAxis, numberAxis, series);
                 bubbleChart.applyCss();
                 setTableStandard();
-
-                lineChart = null;
-                barChart = null;
-                areaChart = null;
-                scatterChart = null;
-                pieChart = null;
                 break;
             case ("SCATTER"):
                 scatterChart = new ScatterChart<>(dateAxis, numberAxis, series);
                 scatterChart.applyCss();
                 setTableStandard();
-
-                lineChart = null;
-                barChart = null;
-                bubbleChart = null;
-                areaChart = null;
-                pieChart = null;
                 break;
             case ("PIE"):
                 pieChart = new PieChart(series);
                 pieChart.applyCss();
                 disableTable();
-
-                lineChart = null;
-                barChart = null;
-                bubbleChart = null;
-                scatterChart = null;
-                areaChart = null;
                 break;
             default:
                 areaChart = new AreaChart<>(dateAxis, numberAxis, series);
                 areaChart.applyCss();
                 setTableStandard();
-
-                lineChart = null;
-                barChart = null;
-                bubbleChart = null;
-                scatterChart = null;
-                pieChart = null;
                 break;
         }
 

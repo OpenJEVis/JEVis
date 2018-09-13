@@ -119,8 +119,8 @@ public class GraphPluginView implements Plugin, Observer {
                                 dh.setStartTime(toolBarView.getWorkdayStart());
                                 dh.setEndTime(toolBarView.getWorkdayEnd());
 
-                                dialog.setSelectedStart(dh.getDateTimeStartDate());
-                                dialog.setSelectedEnd(dh.getDateTimeEndDate());
+                                dialog.setSelectedStart(dh.getStartDate());
+                                dialog.setSelectedEnd(dh.getEndDate());
                                 //dialog.updateTimeFrame();
                             }
 
@@ -283,6 +283,7 @@ public class GraphPluginView implements Plugin, Observer {
             if (border == null) {
                 border = new BorderPane();
             }
+            listChartViews = null;
             listChartViews = toolBarView.getChartViews();
 
             vBox.getChildren().clear();

@@ -44,7 +44,7 @@ public class UserRightManager {
     private List<Long> writeGIDS;
     private List<JEVisObject> objects;
 
-    public UserRightManager(JEVisDataSource ds, JEVisUser user, List<JEVisRelationship> permissions) throws Exception {
+    public UserRightManager(JEVisDataSource ds, JEVisUser user, List<JEVisRelationship> permissions) {
         logger.trace("Init UserRightManager for user: [{}]{} {}", user.getUserID());
         this.user = user;
         this.ds = ds;

@@ -333,7 +333,7 @@ public class FillGapStep implements ProcessStep {
         final String gapFillingType = c.getType();
         switch (gapFillingType) {
             case GapFillingType.MINIMUM:
-                if (Objects.nonNull(listSamples)) {
+                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
                     Double minValue = listSamples.get(0).getValueAsDouble();
                     for (JEVisSample sample : listSamples) {
                         minValue = Math.min(minValue, sample.getValueAsDouble());
@@ -342,7 +342,7 @@ public class FillGapStep implements ProcessStep {
                 }
                 break;
             case GapFillingType.MAXIMUM:
-                if (Objects.nonNull(listSamples)) {
+                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
                     Double maxValue = listSamples.get(0).getValueAsDouble();
                     for (JEVisSample sample : listSamples) {
                         maxValue = Math.max(maxValue, sample.getValueAsDouble());
@@ -351,7 +351,7 @@ public class FillGapStep implements ProcessStep {
                 }
                 break;
             case GapFillingType.MEDIAN:
-                if (Objects.nonNull(listSamples)) {
+                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
                     Double medianValue = 0d;
                     List<Double> sortedArray = new ArrayList<>();
                     for (JEVisSample sample : listSamples) {
@@ -367,7 +367,7 @@ public class FillGapStep implements ProcessStep {
                 }
                 break;
             case GapFillingType.AVERAGE:
-                if (Objects.nonNull(listSamples)) {
+                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
                     Double averageValue = 0d;
                     for (JEVisSample sample : listSamples) {
                         averageValue += sample.getValueAsDouble();

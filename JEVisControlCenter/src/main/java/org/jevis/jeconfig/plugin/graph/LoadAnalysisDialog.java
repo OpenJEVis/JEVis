@@ -19,7 +19,9 @@ import org.jevis.api.*;
 import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
+import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.json.JsonAnalysisModel;
+import org.jevis.jeconfig.plugin.graph.data.CustomPeriodObject;
 import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
@@ -30,6 +32,9 @@ import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.*;
 
+/**
+ * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
+ */
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private String nameCurrentAnalysis;
@@ -49,6 +54,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private JEVisDataSource ds;
     private Boolean initialTimeFrame = true;
     private DateTime lastSampleTimeStamp;
+    private DateHelper dateHelper = new DateHelper();
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.data = data;
@@ -59,6 +65,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     private void initialize() {
+        if (toolBarView.getWorkdayStart() != null) dateHelper.setStartTime(toolBarView.getWorkdayStart());
+        if (toolBarView.getWorkdayEnd() != null) dateHelper.setEndTime(toolBarView.getWorkdayEnd());
 
         if (toolBarView.getWorkdayStart() != null && toolBarView.getWorkdayEnd() != null) {
             if (toolBarView.getWorkdayEnd().isAfter(toolBarView.getWorkdayStart())) {
@@ -148,82 +156,71 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
         comboBoxPresetDates.getSelectionModel().select(2);
 
+        ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
+
         if (!listAnalysisModel.isEmpty()) {
             updateTimeFramePicker();
         }
 
         comboBoxPresetDates.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                DateHelper dh = new DateHelper();
                 switch (newValue.intValue()) {
                     //Custom
                     case 0:
                         break;
                     //today
                     case 1:
-                        dh = new DateHelper(DateHelper.TransformType.TODAY);
-                        dh.setStartTime(toolBarView.getWorkdayStart());
-                        dh.setEndTime(toolBarView.getWorkdayEnd());
+                        dateHelper.setType(DateHelper.TransformType.TODAY);
 
-                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
-                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
+                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     //last 7 days
                     case 2:
-                        dh = new DateHelper(DateHelper.TransformType.LAST7DAYS);
-                        dh.setStartTime(toolBarView.getWorkdayStart());
-                        dh.setEndTime(toolBarView.getWorkdayEnd());
+                        dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
 
-                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
-                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
+                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     //last 30 days
                     case 3:
-                        dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
-                        dh.setStartTime(toolBarView.getWorkdayStart());
-                        dh.setEndTime(toolBarView.getWorkdayEnd());
+                        dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
 
-                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
-                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
+                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     //yesterday
                     case 4:
-                        dh = new DateHelper(DateHelper.TransformType.LASTDAY);
-                        dh.setStartTime(toolBarView.getWorkdayStart());
-                        dh.setEndTime(toolBarView.getWorkdayEnd());
+                        dateHelper.setType(DateHelper.TransformType.YESTERDAY);
 
-                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
-                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
+                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     //last Week days
                     case 5:
-                        dh = new DateHelper(DateHelper.TransformType.LASTWEEK);
-                        dh.setStartTime(toolBarView.getWorkdayStart());
-                        dh.setEndTime(toolBarView.getWorkdayEnd());
+                        dateHelper.setType(DateHelper.TransformType.LASTWEEK);
 
-                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
-                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
+                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     case 6:
                         //last Month
-                        dh = new DateHelper(DateHelper.TransformType.LASTMONTH);
-                        dh.setStartTime(toolBarView.getWorkdayStart());
-                        dh.setEndTime(toolBarView.getWorkdayEnd());
+                        dateHelper.setType(DateHelper.TransformType.LASTMONTH);
 
-                        pickerDateStart.valueProperty().setValue(dh.getStartDate());
-                        pickerDateEnd.valueProperty().setValue(dh.getEndDate());
-                        pickerTimeStart.valueProperty().setValue(dh.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dh.getEndTime());
+                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
+                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
+                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     default:
                         break;
@@ -234,37 +231,37 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         });
 
         pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
+            if (newValue != null && !newValue.equals(oldValue)) {
                 initialTimeFrame = false;
                 if (selectedStart != null) {
-                    DateHelper dh = new DateHelper(DateHelper.InputType.STARTDATE, newValue);
-                    dh.setStartTime(toolBarView.getWorkdayStart());
-                    dh.setEndTime(toolBarView.getWorkdayEnd());
+                    dateHelper.setInputType(DateHelper.InputType.STARTDATE);
+                    dateHelper.setCheckDate(newValue);
 
                     selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
-                            dh.getStartTime().getHour(), dh.getStartTime().getMinute(),
-                            dh.getStartTime().getSecond());
+                            dateHelper.getStartTime().getHour(), dateHelper.getStartTime().getMinute(),
+                            dateHelper.getStartTime().getSecond());
                     updateTimeFrame();
 
-                    if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
+                    if (dateHelper.isCustom())
+                        Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
         });
 
         pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
+            if (newValue != null && !newValue.equals(oldValue)) {
                 initialTimeFrame = false;
                 if (selectedEnd != null) {
-                    DateHelper dh = new DateHelper(DateHelper.InputType.ENDDATE, newValue);
-                    dh.setStartTime(toolBarView.getWorkdayStart());
-                    dh.setEndTime(toolBarView.getWorkdayEnd());
+                    dateHelper.setInputType(DateHelper.InputType.ENDDATE);
+                    dateHelper.setCheckDate(newValue);
 
                     selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
-                            dh.getEndTime().getHour(), dh.getEndTime().getMinute(),
-                            dh.getEndTime().getSecond());
+                            dateHelper.getEndTime().getHour(), dateHelper.getEndTime().getMinute(),
+                            dateHelper.getEndTime().getSecond());
                     updateTimeFrame();
 
-                    if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
+                    if (dateHelper.isCustom())
+                        Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
         });
@@ -275,11 +272,11 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 if (selectedStart != null) {
                     selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
                     updateTimeFrame();
-                    DateHelper dh = new DateHelper(DateHelper.InputType.STARTTIME, newValue);
-                    dh.setStartTime(toolBarView.getWorkdayStart());
-                    dh.setEndTime(toolBarView.getWorkdayEnd());
+                    dateHelper.setInputType(DateHelper.InputType.STARTTIME);
+                    dateHelper.setCheckTime(newValue);
 
-                    if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
+                    if (dateHelper.isCustom())
+                        Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
         });
@@ -290,11 +287,11 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 if (selectedEnd != null) {
                     selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 59, 999);
                     updateTimeFrame();
-                    DateHelper dh = new DateHelper(DateHelper.InputType.ENDTIME, newValue);
-                    dh.setStartTime(toolBarView.getWorkdayStart());
-                    dh.setEndTime(toolBarView.getWorkdayEnd());
+                    dateHelper.setInputType(DateHelper.InputType.ENDTIME);
+                    dateHelper.setCheckTime(newValue);
 
-                    if (dh.isCustom()) Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
+                    if (dateHelper.isCustom())
+                        Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
                 }
             }
         });
@@ -314,7 +311,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         vbox_picker.getChildren().addAll(startText, startBox, endText, endBox);
         VBox vbox_buttons = new VBox();
         vbox_buttons.setSpacing(4);
-        vbox_buttons.getChildren().addAll(comboBoxPresetDates);
+        Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
+        Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
+        vbox_buttons.getChildren().addAll(standardSelectionsLabel, comboBoxPresetDates, customSelectionsLabel, comboBoxCustomPeriods);
         vbox_buttons.setAlignment(Pos.BOTTOM_RIGHT);
         gp_date.add(vbox_picker, 0, 0);
         gp_date.add(vbox_buttons, 1, 0);
@@ -395,6 +394,84 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         this.getDialogPane().setContent(vbox);
 
+    }
+
+    private ComboBox<String> getCustomPeriodsComboBox() {
+
+        ObservableList<String> customPeriods = FXCollections.observableArrayList();
+        List<JEVisObject> listCalendarDirectories = null;
+        List<JEVisObject> listCustomPeriods = null;
+        List<CustomPeriodObject> listCustomPeriodObjects = null;
+
+        try {
+            try {
+                JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
+                listCalendarDirectories = ds.getObjects(calendarDirectoryClass, false);
+            } catch (JEVisException e) {
+                logger.error("Error: could not get calendar directories", e);
+            }
+            if (listCalendarDirectories.isEmpty()) {
+                List<JEVisObject> listBuildings = new ArrayList<>();
+                try {
+                    JEVisClass building = ds.getJEVisClass("Building");
+                    listBuildings = ds.getObjects(building, false);
+
+                    if (!listBuildings.isEmpty()) {
+                        JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
+                        JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
+                        calendarDirectory.commit();
+                    }
+                } catch (JEVisException e) {
+                    logger.error("Error: could not create new calendar directory", e);
+                }
+
+            }
+            try {
+                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
+            } catch (JEVisException e) {
+                logger.error("Error: could not get custom period", e);
+            }
+        } catch (Exception e) {
+        }
+
+        customPeriods.add("disabled");
+
+        for (JEVisObject obj : listCustomPeriods) {
+            if (obj != null) {
+                if (listCustomPeriodObjects == null) listCustomPeriodObjects = new ArrayList<>();
+                CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
+                if (cpo.isVisible()) {
+                    listCustomPeriodObjects.add(cpo);
+                    customPeriods.add(cpo.getObject().getName());
+                }
+            }
+        }
+
+        ComboBox tempBox = new ComboBox<>(customPeriods);
+        tempBox.getSelectionModel().select(0);
+
+        List<CustomPeriodObject> finalListCustomPeriodObjects = listCustomPeriodObjects;
+        tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue == null || newValue != oldValue) {
+                if (newValue.intValue() > 0) {
+                    for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
+                        if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
+                            dateHelper.setCustomPeriodObject(cpo);
+                            dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
+                            dateHelper.setStartTime(toolBarView.getWorkdayStart());
+                            dateHelper.setEndTime(toolBarView.getWorkdayEnd());
+
+                            pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                            pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
+                            pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
+                            pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
+                        }
+                    }
+                }
+            }
+        });
+
+        return tempBox;
     }
 
     private void getCustomTimeframes() {
