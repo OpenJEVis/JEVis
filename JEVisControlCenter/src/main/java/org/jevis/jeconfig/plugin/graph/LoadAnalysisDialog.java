@@ -434,7 +434,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         } catch (Exception e) {
         }
 
-        customPeriods.add("disabled");
+        customPeriods.add(I18n.getInstance().getString("plugin.graph.dialog.loadnew.none"));
 
         for (JEVisObject obj : listCustomPeriods) {
             if (obj != null) {
@@ -450,26 +450,31 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         ComboBox tempBox = new ComboBox<>(customPeriods);
         tempBox.getSelectionModel().select(0);
 
-        List<CustomPeriodObject> finalListCustomPeriodObjects = listCustomPeriodObjects;
-        tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue == null || newValue != oldValue) {
-                if (newValue.intValue() > 0) {
-                    for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
-                        if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
-                            dateHelper.setCustomPeriodObject(cpo);
-                            dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
-                            dateHelper.setStartTime(toolBarView.getWorkdayStart());
-                            dateHelper.setEndTime(toolBarView.getWorkdayEnd());
+        if (customPeriods.size() > 1) {
 
-                            pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
-                            pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
-                            pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
-                            pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
+            List<CustomPeriodObject> finalListCustomPeriodObjects = listCustomPeriodObjects;
+            tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+                if (oldValue == null || newValue != oldValue) {
+                    if (newValue.intValue() > 0) {
+                        for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
+                            if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
+                                dateHelper.setCustomPeriodObject(cpo);
+                                dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
+                                dateHelper.setStartTime(toolBarView.getWorkdayStart());
+                                dateHelper.setEndTime(toolBarView.getWorkdayEnd());
+
+                                pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
+                                pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
+                                pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
+                                pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            tempBox.setDisable(true);
+        }
 
         return tempBox;
     }
