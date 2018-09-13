@@ -75,7 +75,7 @@ public class JEConfig extends Application {
     TODO: Make the config into an singelton
      */
     final static Configuration _config = new Configuration();
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.4");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.5");
 
     /**
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
