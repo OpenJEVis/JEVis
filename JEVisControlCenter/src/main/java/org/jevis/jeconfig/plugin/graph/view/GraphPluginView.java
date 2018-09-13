@@ -283,6 +283,7 @@ public class GraphPluginView implements Plugin, Observer {
             if (border == null) {
                 border = new BorderPane();
             }
+            listChartViews = null;
             listChartViews = toolBarView.getChartViews();
 
             vBox.getChildren().clear();

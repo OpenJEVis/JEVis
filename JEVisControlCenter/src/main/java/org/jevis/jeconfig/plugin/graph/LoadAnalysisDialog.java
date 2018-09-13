@@ -197,7 +197,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         break;
                     //yesterday
                     case 4:
-                        dateHelper.setType(DateHelper.TransformType.LASTDAY);
+                        dateHelper.setType(DateHelper.TransformType.YESTERDAY);
 
                         pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
                         pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
@@ -311,7 +311,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         vbox_picker.getChildren().addAll(startText, startBox, endText, endBox);
         VBox vbox_buttons = new VBox();
         vbox_buttons.setSpacing(4);
-        vbox_buttons.getChildren().addAll(comboBoxPresetDates, comboBoxCustomPeriods);
+        Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
+        Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
+        vbox_buttons.getChildren().addAll(standardSelectionsLabel, comboBoxPresetDates, customSelectionsLabel, comboBoxCustomPeriods);
         vbox_buttons.setAlignment(Pos.BOTTOM_RIGHT);
         gp_date.add(vbox_picker, 0, 0);
         gp_date.add(vbox_buttons, 1, 0);

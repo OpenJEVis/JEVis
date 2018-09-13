@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DateHelper {
     private LocalTime startTime = LocalTime.of(0, 0, 0, 0);
@@ -62,6 +63,7 @@ public class DateHelper {
     public DateHelper(CustomPeriodObject cpo, TransformType type) {
         this.customPeriodObject = cpo;
         this.type = type;
+        this.now = DateTime.now();
     }
 
     public DateTime getStartDate() {
@@ -70,110 +72,138 @@ public class DateHelper {
             case CUSTOM:
                 break;
             case TODAY:
-                if (startTime.isAfter(endTime)) now = now.minusDays(1);
                 startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case LAST7DAYS:
-                if (startTime.isAfter(endTime)) now = now.minusDays(1);
-                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusDays(7);
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusDays(7);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case LAST30DAYS:
-                if (startTime.isAfter(endTime)) now = now.minusDays(1);
-                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusDays(30);
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusDays(30);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
-            case LASTDAY:
-                if (startTime.isAfter(endTime)) now = now.minusDays(1);
-                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusDays(1);
+            case YESTERDAY:
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusDays(1);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case LASTWEEK:
-                if (startTime.isAfter(endTime)) now = now.minusDays(1);
-                now = now.minusDays(now.getDayOfWeek() - 1).minusWeeks(1);
-                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusDays(now.getDayOfWeek() - 1).minusWeeks(1);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case LASTMONTH:
-                now = now.minusDays(now.getDayOfMonth() - 1);
-                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusMonths(1);
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusMonths(1).minusDays(now.getDayOfMonth() - 1);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case CUSTOM_PERIOD:
-                if (customPeriodObject.getStartReferencePoint() != null) {
-                    Long startYears = 0L;
-                    Long startMonths = 0L;
-                    Long startWeeks = 0L;
-                    Long startDays = 0L;
-                    Long startHours = 0L;
-                    Long startMinutes = 0L;
-                    switch (customPeriodObject.getStartReferencePoint()) {
-                        case "NOW":
-                            startDate = DateTime.now();
-                            break;
-                        case "STARTTIMEDAY":
-                            break;
-                        case "CUSTOM_PERIOD":
-                            try {
-                                CustomPeriodObject cpo = new CustomPeriodObject(customPeriodObject.getStartReferenceObject(),
-                                        new ObjectHandler(customPeriodObject.getObject().getDataSource()));
-                                DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
-                                dh.setStartTime(startTime);
-                                dh.setEndTime(endTime);
-                                if (cpo.getStartReferencePoint().contains("DAY")) {
+                if (Objects.nonNull(customPeriodObject)) {
+                    if (customPeriodObject.getStartReferencePoint() != null) {
+                        Long startYears = 0L;
+                        Long startMonths = 0L;
+                        Long startWeeks = 0L;
+                        Long startDays = 0L;
+                        Long startHours = 0L;
+                        Long startMinutes = 0L;
+                        switch (customPeriodObject.getStartReferencePoint()) {
+                            case "NOW":
+                                startDate = DateTime.now();
+                                break;
+                            case "STARTTIMEDAY":
+                                break;
+                            case "CUSTOM_PERIOD":
+                                try {
+                                    CustomPeriodObject cpo = new CustomPeriodObject(customPeriodObject.getStartReferenceObject(),
+                                            new ObjectHandler(customPeriodObject.getObject().getDataSource()));
+                                    DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
+                                    dh.setStartTime(startTime);
+                                    dh.setEndTime(endTime);
+                                    if (cpo.getStartReferencePoint().contains("DAY")) {
 
-                                    Long startInterval = customPeriodObject.getStartInterval();
-                                    DateTime newDT = getDateTimeForDayPeriod(dh, startInterval);
+                                        Long startInterval = customPeriodObject.getStartInterval();
+                                        DateTime newDT = getStartDateTimeForDayPeriod(dh, startInterval);
 
-                                    startDate = new DateTime(newDT.getYear(), newDT.getMonthOfYear(), newDT.getDayOfMonth(), newDT.getHourOfDay(), newDT.getMinuteOfHour(), newDT.getSecondOfMinute());
+                                        startDate = new DateTime(newDT.getYear(), newDT.getMonthOfYear(), newDT.getDayOfMonth(),
+                                                newDT.getHourOfDay(), newDT.getMinuteOfHour(), newDT.getSecondOfMinute());
+                                    }
+                                } catch (Exception e) {
                                 }
-                            } catch (Exception e) {
-                            }
-                            break;
-                        case "CURRENT_WEEK":
-                            startDate = now.minusDays(now.getDayOfWeek());
-                            break;
-                        case "CURRENT_MONTH":
-                            startDate = now.minusDays(now.getDayOfMonth());
-                            break;
-                        case "CURRENT_DAY":
-                            startDate = DateTime.now();
-                            break;
-                        default:
-                            break;
+                                break;
+                            case "CURRENT_WEEK":
+                                now = DateTime.now();
+                                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                        startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                                        .minusDays(now.getDayOfWeek());
+                                break;
+                            case "CURRENT_MONTH":
+                                now = DateTime.now();
+                                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                        startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                                        .minusDays(now.getDayOfMonth());
+                                break;
+                            case "CURRENT_DAY":
+                                now = DateTime.now();
+                                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                        startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+                                break;
+                            case "SPECIFIED_DATE":
+                                try {
+                                    startYears = customPeriodObject.getEndYears();
+                                    startMonths = customPeriodObject.getEndMonths();
+                                    startDays = customPeriodObject.getEndDays();
+                                    startHours = customPeriodObject.getEndHours();
+                                    startMinutes = customPeriodObject.getEndMinutes();
+                                    startDate = new DateTime(startYears.intValue(), startMonths.intValue(), startDays.intValue(),
+                                            startHours.intValue(), startMinutes.intValue(), 59);
+                                    return startDate;
+                                } catch (Exception e) {
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+
+                        startYears = customPeriodObject.getStartYears();
+                        startMonths = customPeriodObject.getStartMonths();
+                        startWeeks = customPeriodObject.getStartWeeks();
+                        startDays = customPeriodObject.getStartDays();
+                        startHours = customPeriodObject.getStartHours();
+                        startMinutes = customPeriodObject.getStartMinutes();
+
+                        if (startYears < 0)
+                            startDate = startDate.minusYears((int) Math.abs(startYears));
+                        else if (startYears > 0)
+                            startDate = startDate.plusYears((int) Math.abs(startYears));
+
+                        if (startMonths < 0)
+                            startDate = startDate.minusMonths((int) Math.abs(startMonths));
+                        else if (startMonths > 0)
+                            startDate = startDate.plusMonths((int) Math.abs(startMonths));
+
+                        if (startWeeks < 0)
+                            startDate = startDate.minusWeeks((int) Math.abs(startWeeks));
+                        else if (startWeeks > 0)
+                            startDate = startDate.plusWeeks((int) Math.abs(startWeeks));
+
+                        if (startDays < 0)
+                            startDate = startDate.minusDays((int) Math.abs(startDays));
+                        else if (startDays > 0)
+                            startDate = startDate.plusDays((int) Math.abs(startDays));
+
+                        if (startHours < 0)
+                            startDate = startDate.minusHours((int) Math.abs(startHours));
+                        else if (startHours > 0)
+                            startDate = startDate.plusHours((int) Math.abs(startHours));
+
+                        if (startMinutes < 0)
+                            startDate = startDate.minusMinutes((int) Math.abs(startMinutes));
+                        else if (startMinutes > 0)
+                            startDate = startDate.plusMinutes((int) Math.abs(startMinutes));
                     }
-
-                    startYears = customPeriodObject.getStartYears();
-                    startMonths = customPeriodObject.getStartMonths();
-                    startWeeks = customPeriodObject.getStartWeeks();
-                    startDays = customPeriodObject.getStartDays();
-                    startHours = customPeriodObject.getStartHours();
-                    startMinutes = customPeriodObject.getStartMinutes();
-
-                    if (startYears < 0)
-                        startDate = startDate.minusYears((int) Math.abs(startYears));
-                    else if (startYears > 0)
-                        startDate = startDate.plusYears((int) Math.abs(startYears));
-
-                    if (startMonths < 0)
-                        startDate = startDate.minusMonths((int) Math.abs(startMonths));
-                    else if (startMonths > 0)
-                        startDate = startDate.plusMonths((int) Math.abs(startMonths));
-
-                    if (startWeeks < 0)
-                        startDate = startDate.minusWeeks((int) Math.abs(startWeeks));
-                    else if (startWeeks > 0)
-                        startDate = startDate.plusWeeks((int) Math.abs(startWeeks));
-
-                    if (startDays < 0)
-                        startDate = startDate.minusDays((int) Math.abs(startDays));
-                    else if (startDays > 0)
-                        startDate = startDate.plusDays((int) Math.abs(startDays));
-
-                    if (startHours < 0)
-                        startDate = startDate.minusHours((int) Math.abs(startHours));
-                    else if (startHours > 0)
-                        startDate = startDate.plusHours((int) Math.abs(startHours));
-
-                    if (startMinutes < 0)
-                        startDate = startDate.minusMinutes((int) Math.abs(startMinutes));
-                    else if (startMinutes > 0)
-                        startDate = startDate.plusMinutes((int) Math.abs(startMinutes));
                 }
                 break;
             default:
@@ -186,7 +216,7 @@ public class DateHelper {
         this.startDate = startDate;
     }
 
-    private DateTime getDateTimeForDayPeriod(DateHelper dh, Long interval) {
+    private DateTime getStartDateTimeForDayPeriod(DateHelper dh, Long interval) {
         DateTime returnTimeStamp = null;
 
         DateTime start = nowStartWithTime();
@@ -210,8 +240,45 @@ public class DateHelper {
                 }
             } else if (interval > 0) {
                 Integer index = (int) Math.abs(interval);
+                for (int i = 0; i >= listTimeStamps.size() - 1; i++) {
+                    if (listTimeStamps.get(i + index).isAfter(DateTime.now())) return listTimeStamps.get(i + index);
+                }
+            } else {
                 for (int i = listTimeStamps.size() - 1; i >= 0; i--) {
-                    if (listTimeStamps.get(i).isBefore(DateTime.now())) return listTimeStamps.get(i + index);
+                    if (listTimeStamps.get(i).isBefore(DateTime.now())) return listTimeStamps.get(i);
+                }
+            }
+        }
+
+        return returnTimeStamp;
+    }
+
+    private DateTime getEndDateTimeForDayPeriod(DateHelper dh, Long interval) {
+        DateTime returnTimeStamp = null;
+
+        DateTime start = nowStartWithTime();
+        DateTime end = nowEndWithTime();
+
+        Long d = dh.getEndDate().getMillis() - dh.getStartDate().getMillis();
+
+        if (d > 0) {
+            List<DateTime> listTimeStamps = new ArrayList<>();
+            listTimeStamps.add(start);
+            DateTime currentDateTime = start.plus(d);
+            while (currentDateTime.isBefore(end)) {
+                listTimeStamps.add(currentDateTime);
+                currentDateTime = currentDateTime.plus(d);
+            }
+
+            if (interval < 0) {
+                Integer index = (int) Math.abs(interval);
+                for (int i = listTimeStamps.size() - 1; i >= 0; i--) {
+                    if (listTimeStamps.get(i - index).isBefore(DateTime.now())) return listTimeStamps.get(i - index);
+                }
+            } else if (interval > 0) {
+                Integer index = (int) Math.abs(interval);
+                for (int i = 0; i >= listTimeStamps.size() - 1; i++) {
+                    if (listTimeStamps.get(i + index).isAfter(DateTime.now())) return listTimeStamps.get(i + index);
                 }
             } else {
                 for (int i = listTimeStamps.size() - 1; i >= 0; i--) {
@@ -234,104 +301,143 @@ public class DateHelper {
             case CUSTOM:
                 break;
             case TODAY:
+                now = DateTime.now();
                 endDate = now;
                 break;
             case LAST7DAYS:
+                now = DateTime.now();
                 endDate = now;
                 break;
             case LAST30DAYS:
+                now = DateTime.now();
                 endDate = now;
                 break;
-            case LASTDAY:
-                endDate = now.minusDays(1);
+            case YESTERDAY:
+                now = DateTime.now();
+                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                        endTime.getHour(), endTime.getMinute(), endTime.getSecond())
+                        .minusDays(1);
                 break;
             case LASTWEEK:
-                now = now.minusDays(now.getDayOfWeek() - 1).minusWeeks(1);
-                endDate = new DateTime(now.getYear(), now.getDayOfMonth(), now.getDayOfMonth(), endTime.getHour(), endTime.getMinute(), endTime.getSecond()).plusDays(6);
+                now = DateTime.now();
+                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                        endTime.getHour(), endTime.getMinute(), endTime.getSecond())
+                        .minusDays(now.getDayOfWeek() - 1).minusWeeks(1)
+                        .plusDays(6);
                 break;
             case LASTMONTH:
-                now = now.minusDays(now.getDayOfMonth() - 1);
-                endDate = new DateTime(now.getYear(), now.getDayOfMonth(), now.getDayOfMonth(), endTime.getHour(), endTime.getMinute(), endTime.getSecond()).minusDays(1);
+                now = DateTime.now();
+                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                        endTime.getHour(), endTime.getMinute(), endTime.getSecond())
+                        .minusDays(now.getDayOfMonth() - 1)
+                        .minusDays(1);
                 break;
             case CUSTOM_PERIOD:
-                if (customPeriodObject.getEndReferencePoint() != null) {
-                    Long endYears = 0L;
-                    Long endMonths = 0L;
-                    Long endWeeks = 0L;
-                    Long endDays = 0L;
-                    Long endHours = 0L;
-                    Long endMinutes = 0L;
-                    switch (customPeriodObject.getEndReferencePoint()) {
-                        case "NOW":
-                            endDate = DateTime.now();
-                            break;
-                        case "STARTTIMEDAY":
-                            break;
-                        case "CUSTOM_PERIOD":
-                            try {
-                                CustomPeriodObject cpo = new CustomPeriodObject(customPeriodObject.getEndReferenceObject(),
-                                        new ObjectHandler(customPeriodObject.getObject().getDataSource()));
-                                DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
-                                dh.setStartTime(startTime);
-                                dh.setEndTime(endTime);
-                                if (cpo.getEndReferencePoint().contains("DAY")) {
+                if (Objects.nonNull(customPeriodObject)) {
+                    if (customPeriodObject.getEndReferencePoint() != null) {
+                        Long endYears = 0L;
+                        Long endMonths = 0L;
+                        Long endWeeks = 0L;
+                        Long endDays = 0L;
+                        Long endHours = 0L;
+                        Long endMinutes = 0L;
+                        switch (customPeriodObject.getEndReferencePoint()) {
+                            case "NOW":
+                                endDate = DateTime.now();
+                                break;
+                            case "STARTTIMEDAY":
+                                break;
+                            case "CUSTOM_PERIOD":
+                                try {
+                                    CustomPeriodObject cpo = new CustomPeriodObject(customPeriodObject.getEndReferenceObject(),
+                                            new ObjectHandler(customPeriodObject.getObject().getDataSource()));
+                                    DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
+                                    dh.setStartTime(startTime);
+                                    dh.setEndTime(endTime);
+                                    if (cpo.getEndReferencePoint().contains("DAY")) {
 
-                                    Long endInterval = customPeriodObject.getEndInterval();
-                                    DateTime newDT = getDateTimeForDayPeriod(dh, endInterval);
+                                        Long endInterval = customPeriodObject.getEndInterval();
+                                        DateTime newDT = getEndDateTimeForDayPeriod(dh, endInterval);
 
-                                    endDate = new DateTime(newDT.getYear(), newDT.getMonthOfYear(), newDT.getDayOfMonth(), newDT.getHourOfDay(), newDT.getMinuteOfHour(), newDT.getSecondOfMinute());
+                                        endDate = new DateTime(newDT.getYear(), newDT.getMonthOfYear(), newDT.getDayOfMonth(),
+                                                newDT.getHourOfDay(), newDT.getMinuteOfHour(), newDT.getSecondOfMinute());
+                                    }
+                                } catch (Exception e) {
                                 }
-                            } catch (Exception e) {
-                            }
-                            break;
-                        case "CURRENT_WEEK":
-                            endDate = now.minusDays(now.getDayOfWeek());
-                            break;
-                        case "CURRENT_MONTH":
-                            endDate = now.minusDays(now.getDayOfMonth());
-                            break;
-                        case "CURRENT_DAY":
-                            endDate = DateTime.now();
-                            break;
-                        default:
-                            break;
+                                break;
+                            case "CURRENT_WEEK":
+                                now = DateTime.now();
+                                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                        endTime.getHour(), endTime.getMinute(), endTime.getSecond());
+                                endDate = endDate.minusDays(now.getDayOfWeek());
+                                endDate = endDate.plusWeeks(1);
+                                break;
+                            case "CURRENT_MONTH":
+                                now = DateTime.now();
+                                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                        endTime.getHour(), endTime.getMinute(), endTime.getSecond());
+                                endDate = endDate.minusDays(now.getDayOfMonth() - 1);
+                                endDate = endDate.plusMonths(1);
+                                endDate = endDate.minusDays(1);
+                                break;
+                            case "CURRENT_DAY":
+                                now = DateTime.now();
+                                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                        endTime.getHour(), endTime.getMinute(), endTime.getSecond());
+                                break;
+                            case "SPECIFIED_DATE":
+                                try {
+                                    endYears = customPeriodObject.getEndYears();
+                                    endMonths = customPeriodObject.getEndMonths();
+                                    endDays = customPeriodObject.getEndDays();
+                                    endHours = customPeriodObject.getEndHours();
+                                    endMinutes = customPeriodObject.getEndMinutes();
+                                    endDate = new DateTime(endYears.intValue(), endMonths.intValue(), endDays.intValue(),
+                                            endHours.intValue(), endMinutes.intValue(), 59);
+                                    return endDate;
+                                } catch (Exception e) {
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        endYears = customPeriodObject.getEndYears();
+                        endMonths = customPeriodObject.getEndMonths();
+                        endWeeks = customPeriodObject.getEndWeeks();
+                        endDays = customPeriodObject.getEndDays();
+                        endHours = customPeriodObject.getEndHours();
+                        endMinutes = customPeriodObject.getEndMinutes();
+
+                        if (endYears < 0)
+                            endDate = endDate.minusYears((int) Math.abs(endYears));
+                        else if (endYears > 0)
+                            endDate = endDate.plusYears((int) Math.abs(endYears));
+
+                        if (endMonths < 0)
+                            endDate = endDate.minusMonths((int) Math.abs(endMonths));
+                        else if (endMonths > 0)
+                            endDate = endDate.plusMonths((int) Math.abs(endMonths));
+
+                        if (endWeeks < 0)
+                            endDate = endDate.minusWeeks((int) Math.abs(endWeeks));
+                        else if (endWeeks > 0)
+                            endDate = endDate.plusWeeks((int) Math.abs(endWeeks));
+
+                        if (endDays < 0)
+                            endDate = endDate.minusDays((int) Math.abs(endDays));
+                        else if (endDays > 0)
+                            endDate = endDate.plusDays((int) Math.abs(endDays));
+
+                        if (endHours < 0)
+                            endDate = endDate.minusHours((int) Math.abs(endHours));
+                        else if (endHours > 0)
+                            endDate = endDate.plusHours((int) Math.abs(endHours));
+
+                        if (endMinutes < 0)
+                            endDate = endDate.minusMinutes((int) Math.abs(endMinutes));
+                        else if (endMinutes > 0)
+                            endDate = endDate.plusMinutes((int) Math.abs(endMinutes));
                     }
-                    endYears = customPeriodObject.getEndYears();
-                    endMonths = customPeriodObject.getEndMonths();
-                    endWeeks = customPeriodObject.getEndWeeks();
-                    endDays = customPeriodObject.getEndDays();
-                    endHours = customPeriodObject.getEndHours();
-                    endMinutes = customPeriodObject.getEndMinutes();
-
-                    if (endYears < 0)
-                        endDate = endDate.minusYears((int) Math.abs(endYears));
-                    else if (endYears > 0)
-                        endDate = endDate.plusYears((int) Math.abs(endYears));
-
-                    if (endMonths < 0)
-                        endDate = endDate.minusMonths((int) Math.abs(endMonths));
-                    else if (endMonths > 0)
-                        endDate = endDate.plusMonths((int) Math.abs(endMonths));
-
-                    if (endWeeks < 0)
-                        endDate = endDate.minusWeeks((int) Math.abs(endWeeks));
-                    else if (endWeeks > 0)
-                        endDate = endDate.plusWeeks((int) Math.abs(endWeeks));
-
-                    if (endDays < 0)
-                        endDate = endDate.minusDays((int) Math.abs(endDays));
-                    else if (endDays > 0)
-                        endDate = endDate.plusDays((int) Math.abs(endDays));
-
-                    if (endHours < 0)
-                        endDate = endDate.minusHours((int) Math.abs(endHours));
-                    else if (endHours > 0)
-                        endDate = endDate.plusHours((int) Math.abs(endHours));
-
-                    if (endMinutes < 0)
-                        endDate = endDate.minusMinutes((int) Math.abs(endMinutes));
-                    else if (endMinutes > 0)
-                        endDate = endDate.plusMinutes((int) Math.abs(endMinutes));
                 }
                 break;
             default:
@@ -357,7 +463,7 @@ public class DateHelper {
         this.endTime = endTime;
     }
 
-    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, LASTDAY, LASTWEEK, LASTMONTH, CUSTOM_PERIOD}
+    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, LASTWEEK, LASTMONTH, CUSTOM_PERIOD}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 
