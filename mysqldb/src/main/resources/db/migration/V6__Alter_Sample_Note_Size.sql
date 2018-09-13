@@ -1,5 +1,5 @@
 LOCK TABLES `sample` WRITE;
 
-alter table sample modify value varchar(8192);
+alter table sample modify note varchar(254);
 
 UNLOCK TABLES;
