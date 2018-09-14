@@ -14,8 +14,6 @@ import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,6 @@ public class PeriodAlignmentStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) {
-        StopWatch stopWatch = new Slf4JStopWatch("align");
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
 
         List<JEVisSample> rawSamples = resourceManager.getRawSamples();
@@ -130,7 +127,6 @@ public class PeriodAlignmentStep implements ProcessStep {
                 }
             }
         }
-        stopWatch.stop();
     }
 
     private Double calcAvgSample(List<JEVisSample> currentRawSamples) {

@@ -351,10 +351,11 @@ public class ChartView implements Observer {
         }
     }
 
-    private Node formatNote(String note) {
+    private Node formatNote(String note, Color color) {
         Node output = null;
         if (note != null) {
             HBox hbox = new HBox();
+            hbox.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
             double iconSize = 12;
             Boolean changed = false;
 
@@ -536,12 +537,13 @@ public class ChartView implements Observer {
                                     || cType.equals("SCATTER")) {
                                 XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
 
-                                Node note = formatNote(sample.getNote());
-                                if (note != null) {
+                                Node note = formatNote(sample.getNote(), singleRow.getColor());
+                                if (note != null && getDataModel().getHideShowIcons()) {
                                     note.setVisible(true);
                                     data.setNode(note);
                                 } else {
                                     Rectangle rect = new Rectangle(0, 0);
+                                    rect.setFill(singleRow.getColor());
                                     rect.setVisible(false);
                                     data.setNode(rect);
                                 }
@@ -1003,8 +1005,9 @@ public class ChartView implements Observer {
             for (ChartDataModel singleRow : getDataModel().getSelectedData()) {
                 if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
                     try {
-                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+                        TreeMap<Double, JEVisSample> sampleTreeMap = singleRow.getSampleMap();
+                        Double higherKey = sampleTreeMap.higherKey(valueForDisplay.doubleValue());
+                        Double lowerKey = sampleTreeMap.lowerKey(valueForDisplay.doubleValue());
 
                         Double nearest = higherKey;
                         if (nearest == null) nearest = lowerKey;
@@ -1020,15 +1023,14 @@ public class ChartView implements Observer {
                         NumberFormat nf = NumberFormat.getInstance();
                         nf.setMinimumFractionDigits(2);
                         nf.setMaximumFractionDigits(2);
-                        Double valueAsDouble = singleRow.getSampleMap().get(nearest).getValueAsDouble();
-                        String note = singleRow.getSampleMap().get(nearest).getNote();
-                        Node formattedNote = formatNote(note);
+                        Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
+                        String note = sampleTreeMap.get(nearest).getNote();
+                        Node formattedNote = formatNote(note, singleRow.getColor());
                         String formattedDouble = nf.format(valueAsDouble);
                         TableEntry tableEntry = singleRow.getTableEntry();
-                        DateTime dateTime = new DateTime(Math.round(nearest));
-                        tableEntry.setDate(dateTime.toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                        tableEntry.setDate(new DateTime(Math.round(nearest)).toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                         tableEntry.setNote(formattedNote);
-                        final String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                        String unit = UnitManager.getInstance().formate(singleRow.getUnit());
                         tableEntry.setValue(formattedDouble + " " + unit);
                         getTableData().add(tableEntry);
 

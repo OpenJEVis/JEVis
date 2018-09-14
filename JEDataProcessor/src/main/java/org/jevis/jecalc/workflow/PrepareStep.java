@@ -17,8 +17,6 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +35,6 @@ public class PrepareStep implements ProcessStep {
     @Override
 
     public void run(ResourceManager resourceManager) {
-        StopWatch stopWatch = new Slf4JStopWatch("prepare");
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
 
         //get the raw samples for the cleaning
@@ -58,7 +55,6 @@ public class PrepareStep implements ProcessStep {
             resourceManager.setIntervals(cleanIntervals);
         }
 
-        stopWatch.stop();
     }
 
     private List<CleanInterval> getIntervals(CleanDataAttribute calcAttribute, Period periodAlignment) {

@@ -22,6 +22,7 @@ public class GraphDataModel extends Observable {
     List<GraphDataRow> dataRows = new ArrayList<>();
     Set<ChartDataModel> selectedRawData;
     Set<ChartSettings> charts;
+    private Boolean hideShowIcons = true;
 
     public Set<ChartDataModel> getSelectedData() {
         return selectedRawData;
@@ -39,5 +40,13 @@ public class GraphDataModel extends Observable {
 
     public void setCharts(Set<ChartSettings> charts) {
         this.charts = charts;
+    }
+
+    public Boolean getHideShowIcons() {
+        return hideShowIcons;
+    }
+
+    public void setHideShowIcons(Boolean hideShowIcons) {
+        this.hideShowIcons = hideShowIcons;
     }
 }
