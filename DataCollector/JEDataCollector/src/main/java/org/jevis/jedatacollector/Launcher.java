@@ -249,10 +249,11 @@ public class Launcher extends AbstractCliApp {
         dataSources = getEnabledDataSources(ds);
         excecuteDataSources(dataSources);
         try {
+            logger.error("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
             runServiceHelp();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Interrupted sleep: ", e);
         }
     }
 

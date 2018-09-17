@@ -19,13 +19,16 @@ public interface ProcessStep {
     default String getNote(CleanInterval currentInterval) {
         String note = "";
         try {
-            return note += currentInterval.getTmpSamples().get(0).getNote();
+            note += currentInterval.getTmpSamples().get(0).getNote();
         } catch (Exception e1) {
             try {
-                return note += currentInterval.getRawSamples().get(0).getNote();
+                note += currentInterval.getRawSamples().get(0).getNote();
             } catch (Exception e2) {
-                return "No Note";
             }
         }
+        if (note.equals("null")) {
+            note = "No Note";
+        }
+        return note;
     }
 }

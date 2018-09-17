@@ -45,7 +45,7 @@ public class LimitsStep implements ProcessStep {
         for (JEVisObject obj : calcAttribute.getObject().getParents()) {
             parentObject = obj;
         }
-        if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getLimitsEnabled() || calcAttribute.getLimitsConfig().isEmpty()) {
+        if (!calcAttribute.getIsPeriodAligned() && !calcAttribute.getLimitsEnabled() && !calcAttribute.getLimitsConfig().isEmpty()) {
             //no limits check when there is no alignment or disabled or no config
             return;
         }
@@ -160,8 +160,15 @@ public class LimitsStep implements ProcessStep {
         for (CleanInterval currentInterval : intervals) {
             for (JsonLimitsConfig lc : conf) {
                 for (JEVisSample sample : currentInterval.getTmpSamples()) {
-                    Double min = Double.parseDouble(lc.getMin());
-                    Double max = Double.parseDouble(lc.getMax());
+                    Double min;
+                    Double max;
+                    try {
+                        min = Double.parseDouble(lc.getMin());
+                        max = Double.parseDouble(lc.getMax());
+                    } catch (Exception e) {
+                        logger.error("Invalid Limit Configuration", e);
+                        return null;
+                    }
                     if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
                         if (currentLimitBreak == null) {
                             currentLimitBreak = new LimitBreakJEVis();
@@ -336,9 +343,9 @@ public class LimitsStep implements ProcessStep {
     private Double calcValueWithType(List<JEVisSample> listSamples, JsonGapFillingConfig c) throws
             JEVisException {
         final String typeOfSubstituteValue = c.getType();
-        switch (typeOfSubstituteValue) {
-            case GapFillingType.MEDIAN:
-                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+        if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+            switch (typeOfSubstituteValue) {
+                case GapFillingType.MEDIAN:
                     Double medianValue = 0d;
                     List<Double> sortedArray = new ArrayList<>();
                     for (JEVisSample sample : listSamples) {
@@ -347,22 +354,18 @@ public class LimitsStep implements ProcessStep {
                     Collections.sort(sortedArray);
                     medianValue = sortedArray.get(sortedArray.size() / 2);
                     return medianValue;
-                }
-                break;
-            case GapFillingType.AVERAGE:
-                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+                case GapFillingType.AVERAGE:
                     Double averageValue = 0d;
                     for (JEVisSample sample : listSamples) {
                         averageValue += sample.getValueAsDouble();
                     }
                     averageValue = averageValue / listSamples.size();
                     return averageValue;
-                }
-                break;
-            default:
-                break;
+                default:
+                    break;
+            }
         }
-        return Double.NaN;
+        return 0d;
     }
 
     private void fillMinimum(List<LimitBreak> breaks, JsonGapFillingConfig c) {
