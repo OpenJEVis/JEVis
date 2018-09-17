@@ -8,6 +8,8 @@ package org.jevis.jeconfig.plugin.graph.view;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -179,6 +181,7 @@ public class ToolBarView {
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
+        Separator sep3 = new Separator();
         save.setDisable(false);
         delete.setDisable(false);
 
@@ -187,13 +190,35 @@ public class ToolBarView {
         select.setTooltip(selectTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
 
+        ToggleButton disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
+        Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
+        disableIcons.setTooltip(disableIconsTooltip);
+        disableIcons.setSelected(true);
+        disableIcons.styleProperty().bind(
+                Bindings
+                        .when(disableIcons.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(disableIcons.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
         select.setOnAction(event -> changeSettings(event));
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
 
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, save, delete, sep2, select, exportCSV);
+        disableIcons.setOnAction(event -> hideShowIconsInGraph());
+
+        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, save, delete, sep2, select, exportCSV, sep3, disableIcons);
         _initialized = true;
         return toolBar;
+    }
+
+    private void hideShowIconsInGraph() {
+        model.setHideShowIcons(!model.getHideShowIcons());
+        updateChart();
     }
 
     public void updateTimeFrame() {
@@ -279,7 +304,7 @@ public class ToolBarView {
         List<ChartView> charts = new ArrayList<>();
 
         getChartsList();
-        for (String s : chartsList) {
+        chartsList.parallelStream().forEach(s -> {
             ChartView view = new ChartView(model);
             ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
             if (model.getCharts() != null && !model.getCharts().isEmpty()) {
@@ -289,7 +314,7 @@ public class ToolBarView {
             }
             view.drawAreaChart(s, type);
             charts.add(view);
-        }
+        });
 
         return charts;
     }

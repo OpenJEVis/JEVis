@@ -13,8 +13,6 @@ import org.jevis.jecalc.data.*;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +30,11 @@ public class ImportStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) {
-        StopWatch stopWatch = new Slf4JStopWatch("import");
         if (resourceManager.getCalcAttribute() instanceof CleanDataAttributeJEVis) {
             importintoJEVis(resourceManager);
         } else if (resourceManager.getCalcAttribute() instanceof CleanDataAttributeOffline) {
             writeIntoFile(resourceManager);
         }
-        stopWatch.stop();
     }
 
     private void importintoJEVis(ResourceManager resourceManager) {

@@ -42,10 +42,11 @@ public class ServiceMode {
 
         this.runProcesses();
         try {
+            logger.info("Entering Sleep mode for " + cycleTime + "ms.");
             Thread.sleep(cycleTime);
             runServiceHelp();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Interrupted sleep: ", e);
         }
     }
 
@@ -61,5 +62,6 @@ public class ServiceMode {
                 logger.debug(ex.getMessage(), ex);
             }
         });
+        logger.info("Cleaning finished.");
     }
 }

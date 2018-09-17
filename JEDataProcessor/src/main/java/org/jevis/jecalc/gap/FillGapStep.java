@@ -19,8 +19,6 @@ import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,11 +44,10 @@ public class FillGapStep implements ProcessStep {
         for (JEVisObject obj : calcAttribute.getObject().getParents()) {
             parentObject = obj;
         }
-        if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getGapFillingEnabled() || calcAttribute.getGapFillingConfig().isEmpty()) {
+        if (!calcAttribute.getIsPeriodAligned() && !calcAttribute.getGapFillingEnabled() && !calcAttribute.getGapFillingConfig().isEmpty()) {
             //no gap filling when there is no alignment or disabled or no config
             return;
         }
-        StopWatch stopWatch = new Slf4JStopWatch("gap_filling");
         List<CleanInterval> intervals = resourceManager.getIntervals();
 
         //identify gaps, gaps holds intervals
@@ -64,15 +61,18 @@ public class FillGapStep implements ProcessStep {
 
         if (Objects.nonNull(conf)) {
             if (!conf.isEmpty()) {
+                List<Gap> doneGaps = new ArrayList<>();
                 for (JsonGapFillingConfig c : conf) {
                     List<Gap> newGaps = new ArrayList<>();
-                    logger.info("start filling with new Mode for " + c.getType());
-
                     for (Gap g : gaps) {
-                        DateTime firstDate = g.getIntervals().get(0).getDate();
-                        DateTime lastDate = g.getIntervals().get(g.getIntervals().size() - 1).getDate();
-                        if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
-                            newGaps.add(g);
+                        if (!doneGaps.contains(g)) {
+                            DateTime firstDate = g.getIntervals().get(0).getDate();
+                            DateTime lastDate = g.getIntervals().get(g.getIntervals().size() - 1).getDate();
+                            if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
+                                newGaps.add(g);
+                                doneGaps.add(g);
+                                logger.info("start filling with new Mode for " + c.getType());
+                            }
                         }
                     }
                     switch (c.getType()) {
@@ -110,8 +110,6 @@ public class FillGapStep implements ProcessStep {
             }
 
         }
-
-        stopWatch.stop();
     }
 
     private Long defaultValue(String s) {
@@ -173,11 +171,8 @@ public class FillGapStep implements ProcessStep {
                 try {
                     JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
                     String note = "";
-                    try {
-                        note += currentInterval.getRawSamples().get(0).getNote();
-                    } catch (Exception e) {
-                    }
-                    note += "gap(static)";
+                    note += getNote(currentInterval);
+                    note += "gap(Static)";
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
@@ -192,19 +187,21 @@ public class FillGapStep implements ProcessStep {
             Double firstValue = currentGap.getFirstValue();
             Double lastValue = currentGap.getLastValue();
             int size = currentGap.getIntervals().size() + 1; //if there is a gap of 2, then you have 3 steps
-            Double stepSize = (lastValue - firstValue) / size;
-            Double currentValue = firstValue + stepSize;
-            for (CleanInterval currentInterval : currentGap.getIntervals()) {
-                try {
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
+            if (firstValue != null && lastValue != null) {
+                Double stepSize = (lastValue - firstValue) / size;
+                Double currentValue = firstValue + stepSize;
+                for (CleanInterval currentInterval : currentGap.getIntervals()) {
+                    try {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentValue);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",gap(Interpolation)";
+                        String note = "";
+                        note += getNote(currentInterval);
+                        note += ",gap(Interpolation)";
                         sample.setNote(note);
                         currentValue += stepSize;
                         currentInterval.addTmpSample(sample);
+                    } catch (JEVisException | ClassCastException ex) {
+                        logger.error(null, ex);
                     }
-                } catch (JEVisException | ClassCastException ex) {
-                    logger.error(null, ex);
                 }
             }
         }
@@ -214,12 +211,12 @@ public class FillGapStep implements ProcessStep {
         for (Gap currentGap : gaps) {
             for (CleanInterval currentInterval : currentGap.getIntervals()) {
                 try {
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",gap(Default)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",gap(Default)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }
@@ -234,12 +231,12 @@ public class FillGapStep implements ProcessStep {
             for (CleanInterval currentInterval : currentGap.getIntervals()) {
                 try {
                     Double value = getGapValue(currentInterval.getDate(), c);
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",gap(Minimum)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",gap(Minimum)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }
@@ -331,27 +328,22 @@ public class FillGapStep implements ProcessStep {
     private Double calcValueWithType(List<JEVisSample> listSamples, JsonGapFillingConfig c) throws
             JEVisException {
         final String gapFillingType = c.getType();
-        switch (gapFillingType) {
-            case GapFillingType.MINIMUM:
-                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+
+        if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+            switch (gapFillingType) {
+                case GapFillingType.MINIMUM:
                     Double minValue = listSamples.get(0).getValueAsDouble();
                     for (JEVisSample sample : listSamples) {
                         minValue = Math.min(minValue, sample.getValueAsDouble());
                     }
                     return minValue;
-                }
-                break;
-            case GapFillingType.MAXIMUM:
-                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+                case GapFillingType.MAXIMUM:
                     Double maxValue = listSamples.get(0).getValueAsDouble();
                     for (JEVisSample sample : listSamples) {
                         maxValue = Math.max(maxValue, sample.getValueAsDouble());
                     }
                     return maxValue;
-                }
-                break;
-            case GapFillingType.MEDIAN:
-                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+                case GapFillingType.MEDIAN:
                     Double medianValue = 0d;
                     List<Double> sortedArray = new ArrayList<>();
                     for (JEVisSample sample : listSamples) {
@@ -364,22 +356,18 @@ public class FillGapStep implements ProcessStep {
                     }
 
                     return medianValue;
-                }
-                break;
-            case GapFillingType.AVERAGE:
-                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+                case GapFillingType.AVERAGE:
                     Double averageValue = 0d;
                     for (JEVisSample sample : listSamples) {
                         averageValue += sample.getValueAsDouble();
                     }
                     averageValue = averageValue / listSamples.size();
                     return averageValue;
-                }
-                break;
-            default:
-                break;
+                default:
+                    break;
+            }
         }
-        return Double.NaN;
+        return 0d;
     }
 
     private void fillMaximum(List<Gap> gaps, JsonGapFillingConfig c) {
@@ -388,12 +376,12 @@ public class FillGapStep implements ProcessStep {
             for (CleanInterval currentInterval : currentGap.getIntervals()) {
                 try {
                     Double value = getGapValue(currentInterval.getDate(), c);
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",gap(Maximum)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",gap(Maximum)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }
@@ -406,12 +394,12 @@ public class FillGapStep implements ProcessStep {
             for (CleanInterval currentInterval : currentGap.getIntervals()) {
                 try {
                     Double value = getGapValue(currentInterval.getDate(), c);
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",gap(Median)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",gap(Median)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }
@@ -424,12 +412,12 @@ public class FillGapStep implements ProcessStep {
             for (CleanInterval currentInterval : currentGap.getIntervals()) {
                 try {
                     Double value = getGapValue(currentInterval.getDate(), c);
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",gap(Average)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",gap(Average)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }

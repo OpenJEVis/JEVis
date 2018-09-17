@@ -12,8 +12,6 @@ import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +30,6 @@ public class ScalingStep implements ProcessStep {
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> listMultipliers = calcAttribute.getMultiplier();
-
-        StopWatch stopWatch = new Slf4JStopWatch("scaling");
 
         for (JEVisSample multiplier : listMultipliers) {
 
@@ -78,7 +74,6 @@ public class ScalingStep implements ProcessStep {
 
             }
         }
-        stopWatch.stop();
     }
 
 }

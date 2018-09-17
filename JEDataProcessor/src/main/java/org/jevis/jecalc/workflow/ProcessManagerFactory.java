@@ -76,6 +76,8 @@ public class ProcessManagerFactory {
 //            return jevisDataSource.connect(con.getJevisUser(), con.getJevisPW());
             jevisDataSource = new JEVisDataSourceWS("http://" + con.getDb() + ":" + con.getPort());
             jevisDataSource.connect(con.getJevisUser(), con.getJevisPW());
+            //Start ObjectCache
+            jevisDataSource.getObjects();
         } catch (JEVisException ex) {
             logger.error("No Connection to database", ex);
         }

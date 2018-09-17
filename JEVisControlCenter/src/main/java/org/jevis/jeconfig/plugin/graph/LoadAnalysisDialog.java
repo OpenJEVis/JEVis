@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -171,128 +170,33 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     //today
                     case 1:
                         dateHelper.setType(DateHelper.TransformType.TODAY);
-
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
-                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     //last 7 days
                     case 2:
                         dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
-                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     //last 30 days
                     case 3:
                         dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
-                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     //yesterday
                     case 4:
                         dateHelper.setType(DateHelper.TransformType.YESTERDAY);
-
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
-                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     //last Week days
                     case 5:
                         dateHelper.setType(DateHelper.TransformType.LASTWEEK);
-
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
-                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     case 6:
                         //last Month
                         dateHelper.setType(DateHelper.TransformType.LASTMONTH);
-
-                        pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
-                        pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
-                        pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
-                        pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
                         break;
                     default:
                         break;
                 }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 updateTimeFrame();
                 updateToolBarView();
-            }
-        });
-
-        pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && !newValue.equals(oldValue)) {
-                initialTimeFrame = false;
-                if (selectedStart != null) {
-                    dateHelper.setInputType(DateHelper.InputType.STARTDATE);
-                    dateHelper.setCheckDate(newValue);
-
-                    selectedStart = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
-                            dateHelper.getStartTime().getHour(), dateHelper.getStartTime().getMinute(),
-                            dateHelper.getStartTime().getSecond());
-                    updateTimeFrame();
-
-                    if (dateHelper.isCustom())
-                        Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
-                }
-            }
-        });
-
-        pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && !newValue.equals(oldValue)) {
-                initialTimeFrame = false;
-                if (selectedEnd != null) {
-                    dateHelper.setInputType(DateHelper.InputType.ENDDATE);
-                    dateHelper.setCheckDate(newValue);
-
-                    selectedEnd = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
-                            dateHelper.getEndTime().getHour(), dateHelper.getEndTime().getMinute(),
-                            dateHelper.getEndTime().getSecond());
-                    updateTimeFrame();
-
-                    if (dateHelper.isCustom())
-                        Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
-                }
-            }
-        });
-
-        pickerTimeStart.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                initialTimeFrame = false;
-                if (selectedStart != null) {
-                    selectedStart = new DateTime(selectedStart.getYear(), selectedStart.getMonthOfYear(), selectedStart.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 0, 0);
-                    updateTimeFrame();
-                    dateHelper.setInputType(DateHelper.InputType.STARTTIME);
-                    dateHelper.setCheckTime(newValue);
-
-                    if (dateHelper.isCustom())
-                        Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
-                }
-            }
-        });
-
-        pickerTimeEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                initialTimeFrame = false;
-                if (selectedEnd != null) {
-                    selectedEnd = new DateTime(selectedEnd.getYear(), selectedEnd.getMonthOfYear(), selectedEnd.getDayOfMonth(), newValue.getHour(), newValue.getMinute(), 59, 999);
-                    updateTimeFrame();
-                    dateHelper.setInputType(DateHelper.InputType.ENDTIME);
-                    dateHelper.setCheckTime(newValue);
-
-                    if (dateHelper.isCustom())
-                        Platform.runLater(() -> comboBoxPresetDates.getSelectionModel().select(0));
-                }
             }
         });
 
@@ -463,10 +367,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                                 dateHelper.setStartTime(toolBarView.getWorkdayStart());
                                 dateHelper.setEndTime(toolBarView.getWorkdayEnd());
 
-                                pickerDateStart.valueProperty().setValue(dateHelper.getStartAsLocalDate());
-                                pickerDateEnd.valueProperty().setValue(dateHelper.getEndAsLocalDate());
-                                pickerTimeStart.valueProperty().setValue(dateHelper.getStartTime());
-                                pickerTimeEnd.valueProperty().setValue(dateHelper.getEndTime());
+                                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                             }
                         }
                     }
@@ -479,8 +380,13 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         return tempBox;
     }
 
-    private void getCustomTimeframes() {
-
+    private void setPicker(DateTime start, DateTime end) {
+        selectedStart = start;
+        selectedEnd = end;
+        pickerDateStart.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        pickerDateEnd.valueProperty().setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        pickerTimeStart.valueProperty().setValue(LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour(), start.getSecondOfMinute()));
+        pickerTimeEnd.valueProperty().setValue(LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour(), end.getSecondOfMinute()));
     }
 
     private void updateTimeFramePicker() {

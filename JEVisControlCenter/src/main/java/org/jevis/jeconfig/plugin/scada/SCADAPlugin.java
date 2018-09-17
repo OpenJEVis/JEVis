@@ -304,7 +304,7 @@ public class SCADAPlugin implements Plugin {
 //        ToggleButton pause = new ToggleButton("", JEConfig.getImage("folders_explorer.png", iconSize, iconSize));
 //        GlobalToolBar.changeBackgroundOnHoverUsingBinding(pause);
 
-        ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(treeButton);
 
         ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
@@ -376,7 +376,6 @@ public class SCADAPlugin implements Plugin {
         lockProperty.addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                System.out.println("locked: " + newValue);
 
                 if (newValue) {
                     unlockB.setGraphic(lockIcon);

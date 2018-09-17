@@ -12,8 +12,6 @@ import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,6 @@ public class DifferentialStep implements ProcessStep {
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> listConversionToDifferential = calcAttribute.getConversionDifferential();
         List<JEVisSample> listCounterOverflow = calcAttribute.getCounterOverflow();
-        StopWatch stopWatch = new Slf4JStopWatch("differential");
 
         if (listConversionToDifferential != null) {
 
@@ -97,21 +94,6 @@ public class DifferentialStep implements ProcessStep {
 
                                         if (wasEmtpy) {
                                             emptyIntervals.add(currentInt);
-//                                            curSample.setValue(cleanedVal / (emptyIntervals.size() + 1));
-//                                            note += ",break-in-raw-data";
-//                                            curSample.setNote(note);
-//                                            lastDiffVal = rawValue;
-//                                            for (CleanInterval ci : emptyIntervals) {
-//                                                for (CleanInterval i : intervals) {
-//                                                    if (i.getDate().equals(ci.getDate()) && i.getTmpSamples().isEmpty()) {
-//                                                        JEVisSample newSample = new VirtualSample(ci.getDate(), cleanedVal / (emptyIntervals.size() + 1));
-//                                                        String n = curSample.getNote();
-//                                                        n += ",diff,break-in-raw-data";
-//                                                        newSample.setNote(n);
-//                                                        i.addTmpSample(newSample);
-//                                                    }
-//                                                }
-//                                            }
                                             wasEmtpy = false;
                                         }
 
@@ -122,16 +104,19 @@ public class DifferentialStep implements ProcessStep {
                             } else {
                                 if (lastDiffVal != null) {
                                     wasEmtpy = true;
-                                    emptyIntervals.add(currentInt);
                                 }
                             }
                         }
                     }
                 }
             }
-
-            intervals.removeAll(emptyIntervals);
+            for (CleanInterval ci : intervals) {
+                for (CleanInterval ce : emptyIntervals) {
+                    if (ci.getDate().equals(ce.getDate())) {
+                        ci.getTmpSamples().clear();
+                    }
+                }
+            }
         }
-        stopWatch.stop();
     }
 }

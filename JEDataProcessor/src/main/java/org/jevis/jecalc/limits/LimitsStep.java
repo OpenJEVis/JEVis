@@ -20,8 +20,6 @@ import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,11 +45,10 @@ public class LimitsStep implements ProcessStep {
         for (JEVisObject obj : calcAttribute.getObject().getParents()) {
             parentObject = obj;
         }
-        if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getLimitsEnabled() || calcAttribute.getLimitsConfig().isEmpty()) {
+        if (!calcAttribute.getIsPeriodAligned() && !calcAttribute.getLimitsEnabled() && !calcAttribute.getLimitsConfig().isEmpty()) {
             //no limits check when there is no alignment or disabled or no config
             return;
         }
-        StopWatch stopWatch = new Slf4JStopWatch("limits_check");
         List<CleanInterval> intervals = resourceManager.getIntervals();
 
         List<JsonLimitsConfig> confLimitsStep1 = new ArrayList<>();
@@ -80,10 +77,13 @@ public class LimitsStep implements ProcessStep {
                     for (LimitBreak limitBreak : limitBreaksStep1) {
                         Double firstValue = limitBreak.getFirstValue();
                         for (CleanInterval currentInterval : limitBreak.getIntervals()) {
+                            logger.info("start marking strange Nodes");
                             try {
                                 for (JEVisSample smp : currentInterval.getRawSamples()) {
                                     JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getValueAsDouble());
-                                    String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Step1)";
+                                    String note = "";
+                                    note += getNote(currentInterval);
+                                    note += ",limit(Step1)";
                                     sample.setNote(note);
                                     currentInterval.addTmpSample(sample);
                                 }
@@ -97,9 +97,9 @@ public class LimitsStep implements ProcessStep {
                         if (!confGaps.isEmpty()) {
                             List<LimitBreak> filledLimitBreaks = new ArrayList<>();
                             for (JsonGapFillingConfig c : confGaps) {
-                                logger.info("start filling with Mode for " + c.getType());
                                 List<LimitBreak> newLimitBreaks = new ArrayList<>();
                                 for (LimitBreak lb : limitBreaksStep2) {
+                                    logger.info("start filling with Mode for " + c.getType());
                                     DateTime firstDate = lb.getIntervals().get(0).getDate();
                                     DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
                                     if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
@@ -143,7 +143,6 @@ public class LimitsStep implements ProcessStep {
                 }
             }
         }
-        stopWatch.stop();
     }
 
     private Long defaultValue(String s) {
@@ -161,8 +160,15 @@ public class LimitsStep implements ProcessStep {
         for (CleanInterval currentInterval : intervals) {
             for (JsonLimitsConfig lc : conf) {
                 for (JEVisSample sample : currentInterval.getTmpSamples()) {
-                    Double min = Double.parseDouble(lc.getMin());
-                    Double max = Double.parseDouble(lc.getMax());
+                    Double min;
+                    Double max;
+                    try {
+                        min = Double.parseDouble(lc.getMin());
+                        max = Double.parseDouble(lc.getMax());
+                    } catch (Exception e) {
+                        logger.error("Invalid Limit Configuration", e);
+                        return null;
+                    }
                     if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
                         if (currentLimitBreak == null) {
                             currentLimitBreak = new LimitBreakJEVis();
@@ -198,12 +204,12 @@ public class LimitsStep implements ProcessStep {
             Double firstValue = limitBreak.getFirstValue();
             for (CleanInterval currentInterval : limitBreak.getIntervals()) {
                 try {
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Static)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",limit(Static)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }
@@ -221,13 +227,13 @@ public class LimitsStep implements ProcessStep {
                 Double currenValue = firstValue + stepSize;
                 for (CleanInterval currentInterval : limitBreak.getIntervals()) {
                     try {
-                        for (JEVisSample smp : currentInterval.getRawSamples()) {
-                            JEVisSample sample = new VirtualSample(currentInterval.getDate(), currenValue);
-                            String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Interpolation)";
-                            sample.setNote(note);
-                            currenValue += stepSize;
-                            currentInterval.addTmpSample(sample);
-                        }
+                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), currenValue);
+                        String note = "";
+                        note += getNote(currentInterval);
+                        note += ",limit(Interpolation)";
+                        sample.setNote(note);
+                        currenValue += stepSize;
+                        currentInterval.addTmpSample(sample);
                     } catch (JEVisException | ClassCastException ex) {
                         logger.error(null, ex);
                     }
@@ -240,12 +246,12 @@ public class LimitsStep implements ProcessStep {
         for (LimitBreak limitBreak : breaks) {
             for (CleanInterval currentInterval : limitBreak.getIntervals()) {
                 try {
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), defaultValue);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Default)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), defaultValue);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",limit(Default)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }
@@ -337,9 +343,9 @@ public class LimitsStep implements ProcessStep {
     private Double calcValueWithType(List<JEVisSample> listSamples, JsonGapFillingConfig c) throws
             JEVisException {
         final String typeOfSubstituteValue = c.getType();
-        switch (typeOfSubstituteValue) {
-            case GapFillingType.MEDIAN:
-                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+        if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+            switch (typeOfSubstituteValue) {
+                case GapFillingType.MEDIAN:
                     Double medianValue = 0d;
                     List<Double> sortedArray = new ArrayList<>();
                     for (JEVisSample sample : listSamples) {
@@ -348,22 +354,18 @@ public class LimitsStep implements ProcessStep {
                     Collections.sort(sortedArray);
                     medianValue = sortedArray.get(sortedArray.size() / 2);
                     return medianValue;
-                }
-                break;
-            case GapFillingType.AVERAGE:
-                if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
+                case GapFillingType.AVERAGE:
                     Double averageValue = 0d;
                     for (JEVisSample sample : listSamples) {
                         averageValue += sample.getValueAsDouble();
                     }
                     averageValue = averageValue / listSamples.size();
                     return averageValue;
-                }
-                break;
-            default:
-                break;
+                default:
+                    break;
+            }
         }
-        return Double.NaN;
+        return 0d;
     }
 
     private void fillMinimum(List<LimitBreak> breaks, JsonGapFillingConfig c) {
@@ -372,12 +374,12 @@ public class LimitsStep implements ProcessStep {
             for (CleanInterval currentInterval : limitBreak.getIntervals()) {
                 try {
                     Double value = getLimitBreakValue(currentInterval.getDate(), c);
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Minimum)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",limit(Minimum)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }
@@ -391,12 +393,12 @@ public class LimitsStep implements ProcessStep {
             for (CleanInterval currentInterval : limitBreak.getIntervals()) {
                 try {
                     Double value = getLimitBreakValue(currentInterval.getDate(), c);
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Maximum)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",limit(Maximum)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }
@@ -409,12 +411,12 @@ public class LimitsStep implements ProcessStep {
             for (CleanInterval currentInterval : limitBreak.getIntervals()) {
                 try {
                     Double value = getLimitBreakValue(currentInterval.getDate(), c);
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Median)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",limit(Median)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }
@@ -427,12 +429,12 @@ public class LimitsStep implements ProcessStep {
             for (CleanInterval currentInterval : limitBreak.getIntervals()) {
                 try {
                     Double value = getLimitBreakValue(currentInterval.getDate(), c);
-                    for (JEVisSample smp : currentInterval.getRawSamples()) {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                        String note = currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getNote() + ",limit(Average)";
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
-                    }
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+                    note += ",limit(Average)";
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
                     logger.error(null, ex);
                 }

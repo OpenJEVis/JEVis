@@ -69,7 +69,6 @@ public class GraphPluginView implements Plugin, Observer {
     private boolean firstStart = true;
     private ToolBar toolBar;
     private LoadAnalysisDialog dialog;
-    private VBox vBox = new VBox();
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private final Logger logger = LogManager.getLogger(GraphPluginView.class);
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
@@ -213,23 +212,18 @@ public class GraphPluginView implements Plugin, Observer {
     @Override
     public void handleRequest(int cmdType) {
         try {
-            System.out.println("Command to ClassPlugin: " + cmdType);
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
-                    System.out.println("save");
                     break;
                 case Constants.Plugin.Command.DELTE:
                     break;
                 case Constants.Plugin.Command.EXPAND:
-                    System.out.println("Expand");
                     break;
                 case Constants.Plugin.Command.NEW:
                     break;
                 case Constants.Plugin.Command.RELOAD:
-                    System.out.println("reload");
                     break;
                 default:
-                    System.out.println("Unknows command ignore...");
             }
         } catch (Exception ex) {
         }
@@ -268,6 +262,7 @@ public class GraphPluginView implements Plugin, Observer {
         if (dataModel.getSelectedData() != null) getChartsList();
         if (chartsList.size() == 1 || chartsList.isEmpty()) {
             if (chartsList.size() == 1) {
+                chartView = new ChartView(dataModel);
                 String chartTitle = chartsList.get(0);
                 ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
                 if (dataModel.getCharts() != null && !dataModel.getCharts().isEmpty()) {
@@ -286,7 +281,7 @@ public class GraphPluginView implements Plugin, Observer {
             listChartViews = null;
             listChartViews = toolBarView.getChartViews();
 
-            vBox.getChildren().clear();
+            VBox vBox = new VBox();
 
             ScrollPane sp = new ScrollPane();
             sp.setFitToWidth(true);
