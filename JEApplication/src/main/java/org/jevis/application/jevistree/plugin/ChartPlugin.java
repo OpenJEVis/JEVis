@@ -23,6 +23,8 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
+import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.*;

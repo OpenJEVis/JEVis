@@ -20,11 +20,12 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.ChartSettings;
+import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.AlphanumComparator;
-import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
-import org.jevis.application.jevistree.plugin.ChartSettings;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -32,8 +33,6 @@ import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
-import org.jevis.jeconfig.plugin.graph.ToolBarController;
-import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -50,7 +49,6 @@ public class ToolBarView {
     private final JEVisDataSource ds;
     private final Logger logger = LogManager.getLogger(ToolBarView.class);
     private GraphDataModel model;
-    private ToolBarController controller;
     private String nameCurrentAnalysis;
     private JEVisObject currentAnalysis;
     private List<JEVisObject> listAnalyses = new ArrayList<>();
@@ -73,7 +71,6 @@ public class ToolBarView {
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, ChartView chartView, List<ChartView> listChartViews) {
         this.model = model;
-        this.controller = new ToolBarController(this, model, ds);
         this.ds = ds;
         this.view = chartView;
         this.listView = listChartViews;
@@ -304,6 +301,7 @@ public class ToolBarView {
         List<ChartView> charts = new ArrayList<>();
 
         getChartsList();
+
         chartsList.parallelStream().forEach(s -> {
             ChartView view = new ChartView(model);
             ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
@@ -313,7 +311,10 @@ public class ToolBarView {
                 }
             }
             view.drawAreaChart(s, type);
-            charts.add(view);
+
+            synchronized (charts) {
+                charts.add(view);
+            }
         });
 
         return charts;
@@ -444,6 +445,7 @@ public class ToolBarView {
                 JsonChartSettings set = new JsonChartSettings();
                 set.setName(cset.getName());
                 set.setChartType(cset.getChartType().toString());
+                set.setHeight(cset.getHeight().toString());
                 jsonChartSettings.add(set);
             }
 
@@ -687,6 +689,8 @@ public class ToolBarView {
                 ChartSettings newSettings = new ChartSettings("");
                 newSettings.setName(settings.getName());
                 newSettings.setChartType(parseChartType(settings.getChartType()));
+                if (settings.getHeight() != null)
+                    newSettings.setHeight(Double.parseDouble(settings.getHeight()));
                 chartSettingsHashMap.put(newSettings.getName(), newSettings);
             }
 

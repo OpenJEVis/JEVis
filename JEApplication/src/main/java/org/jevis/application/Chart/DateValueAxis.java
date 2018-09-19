@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.graph.view;
+package org.jevis.application.Chart;
 
 import com.sun.javafx.charts.ChartLayoutAnimator;
 import com.sun.javafx.css.converters.SizeConverter;

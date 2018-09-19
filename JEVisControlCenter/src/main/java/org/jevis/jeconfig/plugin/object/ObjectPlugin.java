@@ -620,7 +620,7 @@ public class ObjectPlugin implements Plugin {
 
                         } else {
                             ExceptionDialog errorDia = new ExceptionDialog();
-                            errorDia.show(JEConfig.getStage(), "Error", "Could not create user", "Could not create new user.", ex, JEConfig.PROGRAMM_INFO);
+                            errorDia.show(JEConfig.getStage(), "Error", "Could not create user", "Could not create new user.", ex, JEConfig.PROGRAM_INFO);
 
                         }
                     }

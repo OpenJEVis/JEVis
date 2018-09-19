@@ -1,7 +1,9 @@
-package org.jevis.application.jevistree.plugin;
+package org.jevis.application.Chart;
 
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.dataprocessing.BasicProcess;
 import org.jevis.commons.dataprocessing.BasicProcessOption;
 import org.jevis.commons.dataprocessing.Process;
@@ -37,6 +39,7 @@ public class ChartDataModel {
     private boolean _somethingChanged = true;
     private JEVisUnit _unit;
     private List<String> _selectedCharts = new ArrayList<>();
+    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ChartDataModel.class);
 
 
     public ChartDataModel() {
@@ -130,16 +133,21 @@ public class ChartDataModel {
 
             } catch (Exception ex) {
                 //TODO: exception handling
-                ex.printStackTrace();
+                logger.error("", ex);
             }
         }
+
+        System.gc();
 
         return samples;
     }
 
+    public void setSamples(List<JEVisSample> samples) {
+        this.samples = samples;
+    }
+
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {
         if (_unit != null) {
-            List<JEVisSample> outputList = new ArrayList<>();
             final String outputUnit = UnitManager.getInstance().formate(_unit);
             final String inputUnit = UnitManager.getInstance().formate(_attribute.getDisplayUnit());
             Double factor = 1.0;
@@ -150,22 +158,22 @@ public class ChartDataModel {
                             factor = 1000d / 1d;
                             break;
                         case "MW":
-                            factor = 1000000 / 1d;
+                            factor = 1000000d / 1d;
                             break;
                         case "GW":
-                            factor = 1000000000 / 1d;
+                            factor = 1000000000d / 1d;
                             break;
                         case "Wh":
-                            factor = 4 / 1d;
+                            factor = 4d / 1d;
                             break;
                         case "kWh":
                             factor = 4d / 1000d;
                             break;
                         case "MWh":
-                            factor = 4 / 1000000d;
+                            factor = 4d / 1000000d;
                             break;
                         case "GWh":
-                            factor = 4 / 1000000000d;
+                            factor = 4d / 1000000000d;
                             break;
                     }
                     break;
@@ -175,72 +183,72 @@ public class ChartDataModel {
                             factor = 1d / 1000;
                             break;
                         case "MW":
-                            factor = 1 / 1000d;
+                            factor = 1d / 1000d;
                             break;
                         case "GW":
-                            factor = 1 / 1000000d;
+                            factor = 1d / 1000000d;
                             break;
                         case "Wh":
-                            factor = 4000 / 1d;
+                            factor = 4000d / 1d;
                             break;
                         case "kWh":
                             factor = 4d / 1d;
                             break;
                         case "MWh":
-                            factor = 4 / 1000d;
+                            factor = 4d / 1000d;
                             break;
                         case "GWh":
-                            factor = 4 / 1000000d;
+                            factor = 4d / 1000000d;
                             break;
                     }
                     break;
                 case "MW":
                     switch (inputUnit) {
                         case "W":
-                            factor = 1 / 1000000d;
+                            factor = 1d / 1000000d;
                             break;
                         case "kW":
-                            factor = 1 / 1000d;
+                            factor = 1d / 1000d;
                             break;
                         case "GW":
                             factor = 1000d;
                             break;
                         case "Wh":
-                            factor = 4 / 1000000d;
+                            factor = 4d / 1000000d;
                             break;
                         case "kWh":
                             factor = 4d / 1000d;
                             break;
                         case "MWh":
-                            factor = 4 / 1d;
+                            factor = 4d / 1d;
                             break;
                         case "GWh":
-                            factor = 4000 / 1d;
+                            factor = 4000d / 1d;
                             break;
                     }
                     break;
                 case "GW":
                     switch (inputUnit) {
                         case "W":
-                            factor = 1 / 1000000000d;
+                            factor = 1d / 1000000000d;
                             break;
                         case "kW":
-                            factor = 1 / 1000000d;
+                            factor = 1d / 1000000d;
                             break;
                         case "MW":
-                            factor = 1 / 1000d;
+                            factor = 1d / 1000d;
                             break;
                         case "Wh":
-                            factor = 4 / 1000000000d;
+                            factor = 4d / 1000000000d;
                             break;
                         case "kWh":
                             factor = 4d / 1000000d;
                             break;
                         case "MWh":
-                            factor = 4 / 1000d;
+                            factor = 4d / 1000d;
                             break;
                         case "GWh":
-                            factor = 4 / 1d;
+                            factor = 4d / 1d;
                             break;
                     }
                     break;
@@ -272,63 +280,63 @@ public class ChartDataModel {
                 case "kWh":
                     switch (inputUnit) {
                         case "Wh":
-                            factor = 1 / 1000.0;
+                            factor = 1d / 1000d;
                             break;
                         case "MWh":
-                            factor = 1000.0;
+                            factor = 1000d;
                             break;
                         case "GWh":
-                            factor = 1000000.0;
+                            factor = 1000000d;
                             break;
                         case "W":
-                            factor = 1000.0 / 4.0;
+                            factor = 1000d / 4d;
                             break;
                         case "kW":
-                            factor = 1d / 4.0;
+                            factor = 1d / 4d;
                             break;
                         case "MW":
                             factor = 1d / 4000d;
                             break;
                         case "GW":
-                            factor = 1 / 4000000d;
+                            factor = 1d / 4000000d;
                             break;
                     }
                     break;
                 case "MWh":
                     switch (inputUnit) {
                         case "Wh":
-                            factor = 1 / 1000000d;
+                            factor = 1d / 1000000d;
                             break;
                         case "kWh":
-                            factor = 1 / 1000d;
+                            factor = 1d / 1000d;
                             break;
                         case "GWh":
                             factor = 1000d;
                             break;
                         case "W":
-                            factor = 1 / 4000000d;
+                            factor = 1d / 4000000d;
                             break;
                         case "kW":
-                            factor = 1 / 4000d;
+                            factor = 1d / 4000d;
                             break;
                         case "MW":
-                            factor = 1 / 4d;
+                            factor = 1d / 4d;
                             break;
                         case "GW":
-                            factor = 1000 / 4d;
+                            factor = 1000d / 4d;
                             break;
                     }
                     break;
                 case "GWh":
                     switch (inputUnit) {
                         case "Wh":
-                            factor = 1 / 1000000000d;
+                            factor = 1d / 1000000000d;
                             break;
                         case "kWh":
-                            factor = 1 / 1000000d;
+                            factor = 1d / 1000000d;
                             break;
                         case "MWh":
-                            factor = 1 / 1000d;
+                            factor = 1d / 1000d;
                             break;
                         case "W":
                             factor = 1d / 4000000000d;
@@ -337,10 +345,10 @@ public class ChartDataModel {
                             factor = 1d / 4000000d;
                             break;
                         case "MW":
-                            factor = 1 / 4000d;
+                            factor = 1d / 4000d;
                             break;
                         case "GW":
-                            factor = 1 / 4d;
+                            factor = 1d / 4d;
                             break;
                     }
                     break;
@@ -354,7 +362,7 @@ public class ChartDataModel {
                 case "m³":
                     switch (inputUnit) {
                         case "L":
-                            factor = 1 / 1000d;
+                            factor = 1d / 1000d;
                             break;
                     }
                     break;
@@ -368,7 +376,7 @@ public class ChartDataModel {
                 case "t":
                     switch (inputUnit) {
                         case "kg":
-                            factor = 1 / 1000d;
+                            factor = 1d / 1000d;
                             break;
                     }
                     break;
@@ -376,12 +384,21 @@ public class ChartDataModel {
                     break;
             }
 
-            for (JEVisSample sample : inputList) {
-                JEVisSample newSample = sample;
-                newSample.setValue(sample.getValueAsDouble() * factor);
-                outputList.add(newSample);
-            }
-            return outputList;
+            Double finalFactor = factor;
+            inputList.forEach(sample -> {
+                try {
+                    sample.setValue(sample.getValueAsDouble() * finalFactor);
+                } catch (Exception e) {
+                    try {
+                        logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue()
+                                + " of attribute: " + getAttribute().getName()
+                                + " of object: " + getObject().getName() + ":" + getObject().getID());
+                    } catch (Exception e1) {
+                    }
+                }
+            });
+
+            return inputList;
         } else return inputList;
     }
 
@@ -500,7 +517,7 @@ public class ChartDataModel {
                     _attribute = attribute;
                 }
             } catch (Exception ex) {
-                Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             }
         }
 

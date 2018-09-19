@@ -72,24 +72,6 @@ public class SampleEditor {
     private Process _dataProcessor;
     private List<JEVisObject> _dataProcessors = new ArrayList<>();
 
-    private enum AGGREGATION {
-
-        None, Daily, Weekly, Monthly,
-        Yearly
-    }
-
-    private AGGREGATION _mode = AGGREGATION.None;
-
-    //    final Label passL = new Label("New Password:");
-//    final Label confirmL = new Label("Comfirm Password:");
-//    final PasswordField pass = new PasswordField();
-//    final PasswordField comfirm = new PasswordField();
-    final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
-
-    List<JEVisSample> samples = new ArrayList<>();
-
-    private Response response = Response.CANCEL;
-
     /**
      * @param owner
      * @param attribute
@@ -305,7 +287,7 @@ public class SampleEditor {
             }
         });
 
-        //TODO: replace Workaround.., without it the first tab will be emty
+        //TODO: replace Workaround.., without it the first tab will be empty
 //        tabPane.getSelectionModel().selectLast();
 //        tabPane.getSelectionModel().selectFirst();
         Platform.runLater(new Runnable() {
@@ -320,6 +302,18 @@ public class SampleEditor {
 
         return response;
     }
+
+    private AGGREGATION _mode = AGGREGATION.None;
+
+    //    final Label passL = new Label("New Password:");
+//    final Label confirmL = new Label("Comfirm Password:");
+//    final PasswordField pass = new PasswordField();
+//    final PasswordField comfirm = new PasswordField();
+    final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
+
+    List<JEVisSample> samples = new ArrayList<>();
+
+    private Response response = Response.CANCEL;
 
     private Node buildProcessorBox(final JEVisObject parentObj) {
         List<String> proNames = new ArrayList<>();
@@ -373,46 +367,43 @@ public class SampleEditor {
                 } catch (JEVisException ex) {
                     Logger.getLogger(SampleTableExtension.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
             }
         });
-//
+
         List<String> aggList = new ArrayList<>();
-        //TODO: i18n
-        aggList.add("None");
-        aggList.add("Daily");
-        aggList.add("Weekly");
-        aggList.add("Monthly");
-        aggList.add("Yearly");
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.none"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.hourly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.daily"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.weekly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.monthly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.yearly"));
 
         ChoiceBox aggrigate = new ChoiceBox();
         aggrigate.setItems(FXCollections.observableArrayList(aggList));
         aggrigate.getSelectionModel().selectFirst();
-        aggrigate.valueProperty().addListener(new ChangeListener<String>() {
-
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                //TODO:replace this quick and dirty workaround
-
-                switch (newValue) {
-                    case "None":
+        aggrigate.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                switch (newValue.intValue()) {
+                    case 0:
                         _mode = AGGREGATION.None;
                         break;
-                    case "Daily":
+                    case 1:
+                        _mode = AGGREGATION.Hourly;
+                        break;
+                    case 2:
                         _mode = AGGREGATION.Daily;
                         break;
-                    case "Weekly":
+                    case 3:
                         _mode = AGGREGATION.Weekly;
                         break;
-                    case "Monthly":
+                    case 4:
                         _mode = AGGREGATION.Monthly;
                         break;
-                    case "Yearly":
+                    case 5:
                         _mode = AGGREGATION.Yearly;
                         break;
                 }
                 update();
-
             }
         });
 
@@ -448,15 +439,6 @@ public class SampleEditor {
         return grid;
     }
 
-    public enum Response {
-
-        YES, CANCEL
-    }
-
-    private void update() {
-        updateSamples(_attribute, _from, _until, extensions);
-    }
-
     /**
      * @param att
      * @param from
@@ -478,6 +460,13 @@ public class SampleEditor {
             Process aggrigate = null;
             if (_mode == AGGREGATION.None) {
 
+            } else if (_mode == AGGREGATION.Hourly) {
+                aggrigate = new BasicProcess();
+                aggrigate.setJEVisDataSource(att.getDataSource());
+                aggrigate.setID("Dynamic");
+                aggrigate.setFunction(new AggrigatorFunction());
+
+                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
             } else if (_mode == AGGREGATION.Daily) {
                 aggrigate = new BasicProcess();
                 aggrigate.setJEVisDataSource(att.getDataSource());
@@ -542,6 +531,21 @@ public class SampleEditor {
         } catch (JEVisException ex) {
             ex.printStackTrace();
         }
+    }
+
+    public enum Response {
+
+        YES, CANCEL
+    }
+
+    private void update() {
+        updateSamples(_attribute, _from, _until, extensions);
+    }
+
+    private enum AGGREGATION {
+
+        None, Hourly, Daily, Weekly, Monthly,
+        Yearly
     }
 
 }

@@ -88,9 +88,9 @@ public class DragResizerXY {
         if (draggableZoneY) {
             double mouseY = event.getY();
 
-            double newHeight = region.getMinHeight() + (mouseY - y);
+            double newHeight = region.getPrefHeight() + (mouseY - y);
 
-            region.setMinHeight(newHeight);
+            region.setPrefHeight(newHeight);
 
             y = mouseY;
         }
@@ -121,7 +121,7 @@ public class DragResizerXY {
         // setting a min height that is smaller than the current height will
         // have no effect
         if (!initMinHeight) {
-            region.setMinHeight(region.getHeight());
+            region.setPrefHeight(region.getHeight());
             initMinHeight = true;
         }
 

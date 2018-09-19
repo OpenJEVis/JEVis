@@ -9,9 +9,9 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
-import org.jevis.application.jevistree.plugin.ChartDataModel;
-import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 
 import java.util.HashSet;

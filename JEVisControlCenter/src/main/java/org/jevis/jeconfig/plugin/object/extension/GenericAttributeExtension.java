@@ -55,7 +55,7 @@ import org.jevis.jeconfig.tool.I18n;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
+import static org.jevis.jeconfig.JEConfig.PROGRAM_INFO;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -172,7 +172,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                 ExceptionDialog dia = new ExceptionDialog();
                 ExceptionDialog.Response re = dia.show(JEConfig.getStage(),
                         I18n.getInstance().getString("dialog.error.title"),
-                        I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAMM_INFO);
+                        I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAM_INFO);
                 if (re == ExceptionDialog.Response.CANCEL) {
                     return false;
                 }

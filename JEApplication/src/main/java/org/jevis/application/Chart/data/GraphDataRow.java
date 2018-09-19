@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.plugin.graph.data;
+package org.jevis.application.Chart.data;
 
 /**
  *

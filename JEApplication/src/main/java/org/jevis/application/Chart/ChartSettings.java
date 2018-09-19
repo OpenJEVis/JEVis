@@ -1,9 +1,10 @@
-package org.jevis.application.jevistree.plugin;
+package org.jevis.application.Chart;
 
 public class ChartSettings {
 
     private String name;
     private ChartType chartType;
+    private Double height;
 
     public ChartSettings(String name) {
         this.name = name;
@@ -18,6 +19,14 @@ public class ChartSettings {
         this.name = name;
     }
 
+    public Double getHeight() {
+        return height;
+    }
+
+    public void setHeight(Double height) {
+        this.height = height;
+    }
+
     public ChartType getChartType() {
         return chartType;
     }
@@ -27,6 +36,5 @@ public class ChartSettings {
     }
 
     public enum ChartType {AREA, LINE, BAR, BUBBLE, SCATTER, PIE}
-
 
 }

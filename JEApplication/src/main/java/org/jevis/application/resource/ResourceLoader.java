@@ -30,7 +30,6 @@ import javafx.scene.image.ImageView;
 public class ResourceLoader {
 
     public static String getResource(String file) {
-        System.out.println("get Resouce: " + file);
         return ResourceLoader.class.getResource("/styles/" + file).toExternalForm();
     }
 
@@ -38,7 +37,6 @@ public class ResourceLoader {
         try {
             return new Image(ResourceLoader.class.getResourceAsStream("/icons/" + icon));
         } catch (Exception ex) {
-            System.out.println("Could not load icon: " + "/icons/   " + icon + " :" + ex);
             return new Image(ResourceLoader.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
         }
     }

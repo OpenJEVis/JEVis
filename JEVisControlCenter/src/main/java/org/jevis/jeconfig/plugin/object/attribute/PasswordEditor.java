@@ -112,11 +112,9 @@ public class PasswordEditor implements AttributeEditor {
 
                             JEVisSample sample;
                             if (_attribute.hasSample()) {
-                                System.out.println("update existing sample");
                                 sample = _attribute.getLatestSample();
                                 sample.setValue(dia.getPassword());
                             } else {
-                                System.out.println("create new sample");
                                 sample = _attribute.buildSample(new DateTime(), dia.getPassword(), note);
 
                             }

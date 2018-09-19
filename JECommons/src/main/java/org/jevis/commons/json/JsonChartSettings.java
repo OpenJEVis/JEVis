@@ -34,6 +34,7 @@ public class JsonChartSettings {
 
     private String name;
     private String chartType;
+    private String height;
 
     public JsonChartSettings() {
     }
@@ -54,6 +55,15 @@ public class JsonChartSettings {
 
     public void setChartType(String chartType) {
         this.chartType = chartType;
+    }
+
+    @XmlElement(name = "height")
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
     }
 
     @Override

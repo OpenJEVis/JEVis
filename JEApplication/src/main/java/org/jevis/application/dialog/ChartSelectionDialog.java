@@ -36,12 +36,12 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.*;
-import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
-import org.jevis.application.jevistree.plugin.ChartSettings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
