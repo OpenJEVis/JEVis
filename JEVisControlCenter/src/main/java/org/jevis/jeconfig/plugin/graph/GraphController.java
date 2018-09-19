@@ -5,8 +5,8 @@
  */
 package org.jevis.jeconfig.plugin.graph;
 
+import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
-import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 
 /**
  *

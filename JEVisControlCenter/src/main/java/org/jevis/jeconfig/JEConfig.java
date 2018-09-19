@@ -75,7 +75,7 @@ public class JEConfig extends Application {
     TODO: Make the config into an singelton
      */
     final static Configuration _config = new Configuration();
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.5");
+    private final static org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEConfig.class);
 
     /**
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
@@ -84,7 +84,7 @@ public class JEConfig extends Application {
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEConfig.class);
+    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.4.5");
 
     /**
      * Returns the last path the local user selected
@@ -104,7 +104,7 @@ public class JEConfig extends Application {
 
         if (result.canRead()) {
             if (result.isFile()) {
-                System.out.println("Is folder: " + result.getParentFile().getAbsoluteFile());
+                logger.info("Is folder: " + result.getParentFile().getAbsoluteFile());
                 return result.getParentFile();
             } else {
                 return result;
@@ -208,7 +208,7 @@ public class JEConfig extends Application {
             return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
 //            return new Image(JEConfig.class.getResourceAsStream("/org/jevis/jeconfig/image/" + icon));
         } catch (Exception ex) {
-            System.out.println("Could not load icon: " + "/icons/" + icon);
+            logger.error("Could not load icon: " + "/icons/" + icon + ": ", ex);
             return new Image(JEConfig.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
         }
     }
@@ -255,10 +255,10 @@ public class JEConfig extends Application {
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
         I18n.getInstance().loadBundel(Locale.getDefault());
-        JEConfig.PROGRAMM_INFO.setName(I18n.getInstance().getString("appname"));
-        PROGRAMM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
-        PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
-        PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+        JEConfig.PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+        PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
+        PROGRAM_INFO.addLibrary(org.jevis.application.Info.INFO);
+        PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
     }
 
@@ -292,7 +292,7 @@ public class JEConfig extends Application {
         primaryStage.setScene(scene);
 
         Date start = new Date();
-        final FXLogin login = new FXLogin(primaryStage, getParameters(), PROGRAMM_INFO);
+        final FXLogin login = new FXLogin(primaryStage, getParameters(), PROGRAM_INFO);
 
         AnchorPane.setTopAnchor(jeconfigRoot, 0.0);
         AnchorPane.setRightAnchor(jeconfigRoot, 0.0);
@@ -318,16 +318,16 @@ public class JEConfig extends Application {
                     ex.printStackTrace();
                 }
 
-                PROGRAMM_INFO.setJEVisAPI(_mainDS.getInfo());
-                PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
-                PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
+                PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
+                PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+                PROGRAM_INFO.addLibrary(org.jevis.application.Info.INFO);
 
                 ExecutorService exe = Executors.newSingleThreadExecutor();
                 exe.submit(() -> {
                     try {
                         JEVisAttribute activities = getDataSource().getCurrentUser().getUserObject().getAttribute("Activities");
                         if (activities != null) {
-                            JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
+                            JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAM_INFO.getName() + " Version: " + PROGRAM_INFO.getVersion());
                             log.commit();
                         } else {
                             logger.warn("Missing activities attribute for user");
@@ -381,13 +381,12 @@ public class JEConfig extends Application {
 
                     jeconfigRoot.getChildren().setAll(border);
                     try {
-
                         WelcomePage welcome = new WelcomePage();
                         welcome.show(primaryStage, _config.getWelcomeURL());
                     } catch (URISyntaxException ex) {
                         Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    System.out.println("Time to start: " + ((new Date()).getTime() - start.getTime()));
+                    logger.info("Time to start: " + ((new Date()).getTime() - start.getTime()));
                 });
                 Date startAllob = new Date();
                 try {
@@ -420,13 +419,13 @@ public class JEConfig extends Application {
 
         primaryStage.onCloseRequestProperty().addListener((ov, t, t1) -> {
             try {
-                System.out.println("Disconnect");
+                logger.info("Disconnect");
                 try {
                     JEVisAttribute activities = _mainDS.getCurrentUser().getUserObject().getAttribute("Activities");
-                    JEVisSample log = activities.buildSample(new DateTime(), "Logout: " + PROGRAMM_INFO.getName() + " Version: " + PROGRAMM_INFO.getVersion());
+                    JEVisSample log = activities.buildSample(new DateTime(), "Logout: " + PROGRAM_INFO.getName() + " Version: " + PROGRAM_INFO.getVersion());
                     log.commit();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Could not write logout to activities log:", ex);
                 }
 
                 _mainDS.disconnect();
@@ -440,7 +439,7 @@ public class JEConfig extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle(PROGRAMM_INFO.getName());
+        primaryStage.setTitle(PROGRAM_INFO.getName());
         JavaVersionCheck checkVersion = new JavaVersionCheck();
         if (!checkVersion.isVersionOK()) {
             System.exit(1);

@@ -58,7 +58,7 @@ public class TreeHelper {
 
     public static Logger LOGGER = LogManager.getLogger(TreeHelper.class);
 
-    private static SaveResourceBundle bundel = new SaveResourceBundle(AppLocale.BUNDEL_ID, AppLocale.getInstance().getLocale());
+    private static SaveResourceBundle bundel = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
 
     /**
      * TODO: make it like the other function where the object is an parameter

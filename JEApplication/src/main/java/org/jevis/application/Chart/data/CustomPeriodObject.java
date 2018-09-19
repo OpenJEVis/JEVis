@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.graph.data;
+package org.jevis.application.Chart.data;
 
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
@@ -6,7 +6,7 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.object.plugin.TargetHelper;
 
-import static org.jevis.jeconfig.plugin.graph.data.CustomPeriodObject.AttributeName.*;
+import static org.jevis.application.Chart.data.CustomPeriodObject.AttributeName.*;
 
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>

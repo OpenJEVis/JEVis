@@ -8,7 +8,7 @@ import java.util.Locale;
 public class AppLocale {
 
 
-    public static String BUNDEL_ID = "jeapplication";
+    public static String BUNDLE_ID = "jeapplication";
     private static AppLocale appLocale;
     private Locale locale;
 

@@ -15,13 +15,13 @@ import jfxtras.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.data.CustomPeriodObject;
+import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.jevistree.AlphanumComparator;
-import org.jevis.application.jevistree.plugin.ChartDataModel;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.json.JsonAnalysisModel;
-import org.jevis.jeconfig.plugin.graph.data.CustomPeriodObject;
-import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -37,7 +37,7 @@ import java.util.*;
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private String nameCurrentAnalysis;
-    private GraphDataModel data = new GraphDataModel();
+    private GraphDataModel graphDataModel = new GraphDataModel();
     private ToolBarView toolBarView;
     private JFXDatePicker pickerDateStart = new JFXDatePicker();
     private JFXTimePicker pickerTimeStart = new JFXTimePicker();
@@ -56,7 +56,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private DateHelper dateHelper = new DateHelper();
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
-        this.data = data;
+        this.graphDataModel = data;
         this.ds = ds;
         this.toolBarView = toolBarView;
 
@@ -98,7 +98,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         super.updateItem(item, empty);
                         LocalDate min = null;
                         LocalDate max = null;
-                        for (ChartDataModel mdl : data.getSelectedData()) {
+                        for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
                             JEVisAttribute att = mdl.getAttribute();
 
                             LocalDate min_check = LocalDate.of(
@@ -404,8 +404,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     public void updateTimeFrame() {
-        if (data.getSelectedData() != null) {
-            for (ChartDataModel mdl : data.getSelectedData()) {
+        if (graphDataModel.getSelectedData() != null) {
+            for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
                 if (mdl.getSelected()) {
                     mdl.setSelectedStart(selectedStart);
                     mdl.setSelectedEnd(selectedEnd);
@@ -555,7 +555,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     public GraphDataModel getData() {
-        return data;
+        return graphDataModel;
     }
 
     private List<String> stringToList(String s) {

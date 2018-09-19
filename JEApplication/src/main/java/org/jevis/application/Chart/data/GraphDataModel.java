@@ -3,13 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.plugin.graph.data;
+package org.jevis.application.Chart.data;
 
-import org.jevis.application.jevistree.plugin.ChartDataModel;
-import org.jevis.application.jevistree.plugin.ChartSettings;
+import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.ChartSettings;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Set;
 
@@ -19,7 +17,6 @@ import java.util.Set;
  */
 public class GraphDataModel extends Observable {
 
-    List<GraphDataRow> dataRows = new ArrayList<>();
     Set<ChartDataModel> selectedRawData;
     Set<ChartSettings> charts;
     private Boolean hideShowIcons = true;

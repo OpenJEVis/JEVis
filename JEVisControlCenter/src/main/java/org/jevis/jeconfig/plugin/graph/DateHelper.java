@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.graph;
 
+import org.jevis.application.Chart.data.CustomPeriodObject;
 import org.jevis.commons.database.ObjectHandler;
-import org.jevis.jeconfig.plugin.graph.data.CustomPeriodObject;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 

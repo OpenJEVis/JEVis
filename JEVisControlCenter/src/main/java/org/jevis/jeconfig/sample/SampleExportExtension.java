@@ -64,7 +64,7 @@ public class SampleExportExtension implements SampleEditorExtension {
 
     public static String ICON = "1415654364_stock_export.png";
 
-    private final static String TITEL = "Export";
+    private final static String TITLE = "Export";
     private final BorderPane _view = new BorderPane();
     private JEVisAttribute _att;
     private boolean needSave = false;
@@ -93,11 +93,11 @@ public class SampleExportExtension implements SampleEditorExtension {
         } catch (FileNotFoundException ex) {
                         Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
                         ExceptionDialog errDia = new ExceptionDialog();
-                        errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAMM_INFO);
+                errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAM_INFO);
                     } catch (UnsupportedEncodingException ex) {
                         Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
                         ExceptionDialog errDia = new ExceptionDialog();
-                        errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAMM_INFO);
+                errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAM_INFO);
                     }
         }
 
@@ -388,7 +388,7 @@ public class SampleExportExtension implements SampleEditorExtension {
 
     @Override
     public String getTitel() {
-        return TITEL;
+        return TITLE;
     }
 
     @Override
