@@ -84,7 +84,7 @@
             <dependency>
                 <groupId>org.jevis.application</groupId>
                 <artifactId>jeapplication</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
             </dependency>
 
             <dependency>
