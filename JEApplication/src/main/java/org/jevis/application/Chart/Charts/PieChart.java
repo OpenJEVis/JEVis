@@ -20,8 +20,6 @@ import org.joda.time.Period;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class PieChart implements Chart {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
@@ -30,12 +28,13 @@ public class PieChart implements Chart {
     private String unit;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
-    private ObservableList<javafx.scene.chart.PieChart.Data> series = FXCollections.emptyObservableList();
+    private ObservableList<javafx.scene.chart.PieChart.Data> series = FXCollections.observableArrayList();
     private javafx.scene.chart.PieChart pieChart;
     private List<Color> hexColors = new ArrayList<>();
     private Number valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region pieChartRegion;
+    private Period period;
 
     public PieChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -48,7 +47,14 @@ public class PieChart implements Chart {
         List<Double> listSumsPiePieces = new ArrayList<>();
         List<String> listTableEntryNames = new ArrayList<>();
 
-        chartDataModels.parallelStream().forEach(singleRow -> {
+        if (chartDataModels != null && chartDataModels.size() > 0) {
+            unit = UnitManager.getInstance().formate(chartDataModels.get(0).getUnit());
+            if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
+            period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
+        }
+
+
+        chartDataModels.forEach(singleRow -> {
 
             Double sumPiePiece = 0d;
             for (JEVisSample sample : singleRow.getSamples()) {
@@ -58,14 +64,11 @@ public class PieChart implements Chart {
 
                 }
             }
-            Lock lock = new ReentrantLock();
-            lock.lock();
+
 
             listSumsPiePieces.add(sumPiePiece);
             listTableEntryNames.add(singleRow.getTitle());
             hexColors.add(singleRow.getColor());
-
-            lock.unlock();
 
         });
 
@@ -85,16 +88,13 @@ public class PieChart implements Chart {
 
         }
 
-        if (chartDataModels != null && chartDataModels.size() > 0) {
-            unit = UnitManager.getInstance().formate(chartDataModels.get(0).getUnit());
-            if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
-        }
-
         pieChart = new javafx.scene.chart.PieChart(series);
         pieChart.applyCss();
 
         applyColors();
 
+        pieChart.setTitle(chartName);
+        pieChart.setLegendVisible(false);
     }
 
 
@@ -131,7 +131,7 @@ public class PieChart implements Chart {
 
     @Override
     public Period getPeriod() {
-        return null;
+        return period;
     }
 
     @Override

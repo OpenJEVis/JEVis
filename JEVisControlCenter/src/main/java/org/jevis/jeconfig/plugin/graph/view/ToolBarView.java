@@ -302,7 +302,7 @@ public class ToolBarView {
 
         getChartsList();
 
-        chartsList.parallelStream().forEach(s -> {
+        chartsList.forEach(s -> {
             ChartView view = new ChartView(model);
             ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
             if (model.getCharts() != null && !model.getCharts().isEmpty()) {
@@ -312,9 +312,7 @@ public class ToolBarView {
             }
             view.drawAreaChart(s, type);
 
-            synchronized (charts) {
-                charts.add(view);
-            }
+            charts.add(view);
         });
 
         return charts;
