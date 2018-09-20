@@ -4,9 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.chart.Axis;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -18,7 +17,10 @@ import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.Chart.*;
+import org.jevis.application.Chart.BarChartSerie;
+import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.Note;
+import org.jevis.application.Chart.TableEntry;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.dialog.NoteDialog;
@@ -29,8 +31,6 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class BarChart implements Chart {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
@@ -39,12 +39,13 @@ public class BarChart implements Chart {
     private String unit;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
-    private ObservableList<XYChart.Series<Number, Number>> series = FXCollections.emptyObservableList();
-    private javafx.scene.chart.BarChart<Number, Number> barChart;
+    private ObservableList<javafx.scene.chart.BarChart.Series<String, Number>> series = FXCollections.observableArrayList();
+    private javafx.scene.chart.BarChart<String, Number> barChart;
     private List<Color> hexColors = new ArrayList<>();
     private Number valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region barChartRegion;
+    private Period period;
 
     public BarChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -54,16 +55,14 @@ public class BarChart implements Chart {
     }
 
     private void init() {
-        chartDataModels.parallelStream().forEach(singleRow -> {
+        chartDataModels.forEach(singleRow -> {
             try {
 
-                XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
+                BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
 
-                Lock lock = new ReentrantLock();
-                lock.lock();
+
                 hexColors.add(singleRow.getColor());
                 series.add(serie.getSerie());
-                lock.unlock();
 
             } catch (JEVisException e) {
                 e.printStackTrace();
@@ -73,16 +72,25 @@ public class BarChart implements Chart {
         if (chartDataModels != null && chartDataModels.size() > 0) {
             unit = UnitManager.getInstance().formate(chartDataModels.get(0).getUnit());
             if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
+            period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
         }
 
         NumberAxis numberAxis = new NumberAxis();
-        Axis dateAxis = new DateValueAxis();
+        CategoryAxis catAxis = new CategoryAxis();
 
-        barChart = new javafx.scene.chart.BarChart<>(dateAxis, numberAxis, series);
+        barChart = new javafx.scene.chart.BarChart<>(catAxis, numberAxis, series);
         barChart.applyCss();
 
         applyColors();
 
+        barChart.setTitle(chartName);
+        barChart.setLegendVisible(false);
+        barChart.getXAxis().setAutoRanging(true);
+        barChart.getXAxis().setLabel(rb.getString("plugin.graph.chart.dateaxis.title"));
+        barChart.getXAxis().setTickLabelRotation(-90);
+        barChart.getYAxis().setLabel(unit);
+
+        //initializeZoom();
     }
 
     @Override
@@ -92,16 +100,12 @@ public class BarChart implements Chart {
 
     @Override
     public Period getPeriod() {
-        return null;
+        return period;
     }
 
     @Override
     public void initializeZoom() {
         ChartPanManager panner = null;
-
-        barChart.setTitle(chartName);
-        barChart.setLegendVisible(false);
-        barChart.layout();
 
         barChart.getXAxis().setAutoRanging(true);
         barChart.getXAxis().setLabel(rb.getString("plugin.graph.chart.dateaxis.title"));
@@ -156,7 +160,8 @@ public class BarChart implements Chart {
             x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
 
             if (x != null) {
-                valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
+                valueForDisplay = Double.parseDouble(barChart.getXAxis().getValueForDisplay(x));
+                //valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
 
             }
             if (valueForDisplay != null) {
@@ -211,7 +216,8 @@ public class BarChart implements Chart {
         if (x != null) {
             Map<String, String> map = new HashMap<>();
             Number valueForDisplay = null;
-            valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
+            valueForDisplay = Double.parseDouble(barChart.getXAxis().getValueForDisplay(x));
+            //valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
             for (ChartDataModel singleRow : chartDataModels) {
                 if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
                     try {

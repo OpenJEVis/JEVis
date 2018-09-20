@@ -43,6 +43,7 @@ public class LineChart implements Chart {
     private Number valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region lineChartRegion;
+    private Period period;
 
     public LineChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -69,6 +70,7 @@ public class LineChart implements Chart {
         if (chartDataModels != null && chartDataModels.size() > 0) {
             unit = UnitManager.getInstance().formate(chartDataModels.get(0).getUnit());
             if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
+            period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
         }
 
         NumberAxis numberAxis = new NumberAxis();
@@ -98,7 +100,7 @@ public class LineChart implements Chart {
 
     @Override
     public Period getPeriod() {
-        return null;
+        return period;
     }
 
     @Override

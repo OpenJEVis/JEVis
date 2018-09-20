@@ -233,10 +233,12 @@ public class ChartView implements Observer {
             case ("AREA"):
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 setTableStandard();
+                addPeriodToValueColumn();
                 break;
             case ("LINE"):
                 chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 setTableStandard();
+                addPeriodToValueColumn();
                 break;
             case ("BAR"):
                 chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
@@ -260,10 +262,12 @@ public class ChartView implements Observer {
                 break;
         }
 
+        tableView.sort();
+    }
+
+    private void addPeriodToValueColumn() {
         TableColumn tc = (TableColumn) tableView.getColumns().get(2);
         tc.setText(tc.getText() + " [" + chart.getPeriod().toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale())) + "]");
-
-        tableView.sort();
     }
 
     public void updateTablesSimultaneously(MouseEvent mouseEvent, Number valueForDisplay) {
