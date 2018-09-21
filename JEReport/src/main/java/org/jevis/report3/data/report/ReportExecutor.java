@@ -106,7 +106,6 @@ public class ReportExecutor {
         }
 
         //write file into report
-        finisher.finishReport(report, property);
 
         try {
             //set report
@@ -116,7 +115,7 @@ public class ReportExecutor {
             String startDate = interval.getStart().toString(DateTimeFormat.forPattern("yyyyMMdd"));
             String endDate = interval.getEnd().toString(DateTimeFormat.forPattern("dd_MM_yyyy"));
             String reportName = reportObject.getName().replaceAll("\\s", "") + "_" + startDate;
-            JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xls", outputBytes);
+            JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
             JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);
             lastReportAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
 
@@ -133,12 +132,13 @@ public class ReportExecutor {
             //send notification
             JEVisObject notificationObject = property.getNotificationObject();
             sendNotification(notificationObject, fileForNotification);
+
+            finisher.finishReport(report, property);
         } catch (JEVisException ex) {
             java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     public boolean isPeriodicConditionReached(JEVisObject reportObject, SampleHandler samplesHandler) {

@@ -25,49 +25,49 @@ package org.jevis.jeconfig;
  */
 public interface Constants {
 
-    public interface Plugin {
+    interface Plugin {
 
-        public static String OBJECT = "OBJECT";
+        String OBJECT = "OBJECT";
 
-        public interface Command {
+        interface Command {
 
-            public static int SAVE = 0;
-            public static int DELTE = 1;
-            public static int NEW = 2;
-            public static int COPY = 3;
-            public static int PASE = 4;
-            public static int EXPAND = 5;
-            public static int COLLAPSE = 6;
-            public static int RELOAD = 7;
-            public static int ADD_TABLE = 8;
-            public static int EDIT_TABLE = 9;
-            public static int CREATE_WIZARD = 10;
-            public static int FIND_OBJECT = 11;
-            public static int RENAME = 12;
-            public static int PASTE = 12;
+            int SAVE = 0;
+            int DELTE = 1;
+            int NEW = 2;
+            int COPY = 3;
+            int PASTE = 4;
+            int EXPAND = 5;
+            int COLLAPSE = 6;
+            int RELOAD = 7;
+            int ADD_TABLE = 8;
+            int EDIT_TABLE = 9;
+            int CREATE_WIZARD = 10;
+            int FIND_OBJECT = 11;
+            int RENAME = 12;
+            int FIND_AGAIN = 13;
         }
     }
 
-    public interface Color {
+    interface Color {
 
-        public static String MID_BLUE = "#005782";
-        public static String MID_GREY = "#666666";
-        public static String LIGHT_BLUE = "#1a719c";
-        public static String LIGHT_BLUE2 = "#0E8CCC";
-        public static String LIGHT_GREY = "#efefef";
-        public static String LIGHT_GREY2 = "#f4f4f4";
+        String MID_BLUE = "#005782";
+        String MID_GREY = "#666666";
+        String LIGHT_BLUE = "#1a719c";
+        String LIGHT_BLUE2 = "#0E8CCC";
+        String LIGHT_GREY = "#efefef";
+        String LIGHT_GREY2 = "#f4f4f4";
 //public static String LIGHT_GREY2 = "#E2E2E2";
         //7f4f4f4
     }
 
-    public interface JEVisClass {
+    interface JEVisClass {
 
-        public static String GROUP = "Group";
-        public static String GROUP_DIRECTORY = "Group Directory";
-        public static String USER = "Users";
-        public static String ORGANIZATION = "Organization";
-        public static String SYSTEM = "System";
-        public static String ADMINISTRATION_DIRECTROY = "Administration Directory";
+        String GROUP = "Group";
+        String GROUP_DIRECTORY = "Group Directory";
+        String USER = "Users";
+        String ORGANIZATION = "Organization";
+        String SYSTEM = "System";
+        String ADMINISTRATION_DIRECTROY = "Administration Directory";
 
     }
 }

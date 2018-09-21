@@ -91,11 +91,12 @@ public class TopMenu extends MenuBar {
 
         // --- Menu Edit
         Menu menuEdit = new Menu(I18n.getInstance().getString("menu.edit"));
-        MenuItem copie = new MenuItem(I18n.getInstance().getString("menu.edit.copy"));
+        MenuItem copy = new MenuItem(I18n.getInstance().getString("menu.edit.copy"));
         MenuItem paste = new MenuItem(I18n.getInstance().getString("menu.edit.paste"));
         MenuItem delete = new MenuItem(I18n.getInstance().getString("menu.edit.delete"));
         MenuItem rename = new MenuItem(I18n.getInstance().getString("menu.edit.rename"));
         MenuItem findObject = new MenuItem(I18n.getInstance().getString("menu.edit.find"));
+        MenuItem findAgain = new MenuItem(I18n.getInstance().getString("menu.edit.findagain"));
 
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -104,7 +105,7 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        copie.setOnAction(new EventHandler<ActionEvent>() {
+        copy.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 activePlugin.handleRequest(Constants.Plugin.Command.COPY);
@@ -131,7 +132,15 @@ public class TopMenu extends MenuBar {
                 activePlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
             }
         });
-        menuEdit.getItems().addAll(copie, paste, delete, rename, findObject);
+
+        findAgain.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.FIND_AGAIN);
+            }
+        });
+
+        menuEdit.getItems().addAll(copy, paste, delete, rename, findObject, findAgain);
 
 //        menuEdit.getItems().addAll(copie, delete, rename);
         // --- Menu View

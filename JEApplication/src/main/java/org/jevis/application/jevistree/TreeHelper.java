@@ -29,6 +29,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TreeItem;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
@@ -45,6 +46,7 @@ import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.ObjectHelper;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -59,6 +61,8 @@ public class TreeHelper {
     public static Logger LOGGER = LogManager.getLogger(TreeHelper.class);
 
     private static SaveResourceBundle bundel = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
+    private static long lastSearchIndex = 0L;
+    private static String lastSearch = "";
 
     /**
      * TODO: make it like the other function where the object is an parameter
@@ -146,26 +150,72 @@ public class TreeHelper {
         }
     }
 
-    public static void EventOpenObject(JEVisTree tree) {
+    public static void EventOpenObject(JEVisTree tree, KeyCombination keyCombination) {
         try {
             JEVisDataSource ds = tree.getJEVisDataSource();
-            FindDialog dia = new FindDialog(ds);
-            FindDialog.Response respons = dia.show((Stage) tree.getScene().getWindow()
-                    , tree.getRB().getString("jevistree.dialog.find.title")
-                    , tree.getRB().getString("jevistree.dialog.find.message")
-                    , "");
 
-            if (respons == FindDialog.Response.YES) {
-                JEVisObject findObj = ds.getObject(Long.parseLong(dia.getResult()));
-                LOGGER.trace("Found Object: " + findObj);
-                if (findObj != null) {
-                    List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
-                    toOpen.add(findObj);
-                    LOGGER.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
+            if (keyCombination == null || keyCombination.equals(JEVisTreeFactory.findNode)) {
+                FindDialog dia = new FindDialog(ds);
+                FindDialog.Response response = dia.show((Stage) tree.getScene().getWindow()
+                        , tree.getRB().getString("jevistree.dialog.find.title")
+                        , tree.getRB().getString("jevistree.dialog.find.message")
+                        , "");
 
-                    TreeHelper.openPath(tree, toOpen, tree.getRoot(), findObj);
+                if (response == FindDialog.Response.YES) {
+                    try {
+                        JEVisObject findObj = ds.getObject(Long.parseLong(dia.getResult()));
+                        LOGGER.trace("Found Object: " + findObj);
+                        if (findObj != null) {
+                            List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
+                            toOpen.add(findObj);
+                            LOGGER.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
 
-                } else {
+                            TreeHelper.openPath(tree, toOpen, tree.getRoot(), findObj);
+
+                        }
+                    } catch (NumberFormatException nfe) {
+                        try {
+                            List<JEVisObject> allObjects = ds.getObjects();
+                            for (JEVisObject object : allObjects) {
+                                if (object.getName().contains(dia.getResult())) {
+                                    List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
+                                    toOpen.add(object);
+                                    LOGGER.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
+
+                                    TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                                    lastSearchIndex = allObjects.indexOf(object);
+                                    lastSearch = dia.getResult();
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle(tree.getRB().getString("jevistree.dialog.find.error.title"));
+                            alert.setHeaderText("");
+                            String s = tree.getRB().getString("jevistree.dialog.find.error.message");
+                            alert.setContentText(s);
+                            alert.show();
+                        }
+                    }
+
+                }
+            } else {
+                try {
+                    if (lastSearchIndex > 0 && !lastSearch.equals("")) {
+                        List<JEVisObject> allObjects = ds.getObjects();
+                        for (JEVisObject object : allObjects.subList((int) lastSearchIndex, allObjects.size() - 1)) {
+                            if (object.getName().contains(lastSearch)) {
+                                List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
+                                toOpen.add(object);
+                                LOGGER.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
+
+                                TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
+                                lastSearchIndex = allObjects.indexOf(object) + 1;
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle(tree.getRB().getString("jevistree.dialog.find.error.title"));
                     alert.setHeaderText("");
@@ -173,7 +223,6 @@ public class TreeHelper {
                     alert.setContentText(s);
                     alert.show();
                 }
-
             }
 
         } catch (Exception ex) {

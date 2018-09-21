@@ -313,9 +313,11 @@ public class ObjectPlugin implements Plugin {
                 return true;
             case Constants.Plugin.Command.FIND_OBJECT:
                 return true;
-            case Constants.Plugin.Command.PASE:
+            case Constants.Plugin.Command.PASTE:
                 return true;
             case Constants.Plugin.Command.COPY:
+                return true;
+            case Constants.Plugin.Command.FIND_AGAIN:
                 return true;
             default:
                 return false;
@@ -383,10 +385,12 @@ public class ObjectPlugin implements Plugin {
 //                    tree.fireEventCreateWizard(tree.getSelectedObject());
                     break;
                 case Constants.Plugin.Command.FIND_OBJECT:
-                    TreeHelper.EventOpenObject(tree);
+                    TreeHelper.EventOpenObject(tree, JEVisTreeFactory.findNode);
                     break;
-                case Constants.Plugin.Command.PASE:
-
+                case Constants.Plugin.Command.FIND_AGAIN:
+                    TreeHelper.EventOpenObject(tree, JEVisTreeFactory.findAgain);
+                    break;
+                case Constants.Plugin.Command.PASTE:
                     TreeHelper.EventDrop(tree, tree.getCopyObject(), parent.getValue().getJEVisObject(),CopyObjectDialog.DefaultAction.COPY);
                     break;
                 case Constants.Plugin.Command.COPY:

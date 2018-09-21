@@ -56,7 +56,6 @@ public class JEVisTree extends TreeTableView {
     private JEVisTreeRow dragItem;
     private SaveResourceBundle rb;
 
-
     public JEVisTree(JEVisDataSource ds) {
         super();
         this.ds = ds;

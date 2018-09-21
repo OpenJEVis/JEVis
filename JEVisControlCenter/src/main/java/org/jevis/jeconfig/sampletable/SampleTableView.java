@@ -5,8 +5,6 @@
  */
 package org.jevis.jeconfig.sampletable;
 
-import java.util.LinkedList;
-import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -19,8 +17,10 @@ import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
- *
  * @author Benjamin Reich
  */
 public class SampleTableView extends TableView {
@@ -28,7 +28,7 @@ public class SampleTableView extends TableView {
     private double _lastBarPositionV;
     private double _lastBarPositionH;
     private JEVisDataSource _ds;
-//    private TableView _table = new TableView();
+    //    private TableView _table = new TableView();
     private final ObservableList<TableSample> _data;
 
     public SampleTableView(List<JEVisSample> samples) {
@@ -41,20 +41,16 @@ public class SampleTableView extends TableView {
         setMinWidth(555d);//TODo: replace Dirty workaround
         setPrefHeight(200d);//TODo: replace Dirty workaround
         setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        
+
         build();
-        
+
         setItems(_data);
+
     }
 
     private void build() {
 
-        Callback<TableColumn, TableCell> cellFactory = new Callback<TableColumn, TableCell>() {
-            @Override
-            public TableCell call(TableColumn p) {
-                return new EditingCell();
-            }
-        };
+        Callback<TableColumn, TableCell> cellFactory = p -> new EditingCell();
 
         TableColumn dateCol = new TableColumn("Date");
 
@@ -71,57 +67,58 @@ public class SampleTableView extends TableView {
         valueCol.setMinWidth(100);
         valueCol.setCellValueFactory(
                 new PropertyValueFactory<TableSample, String>("value"));
+
         valueCol.setCellFactory(cellFactory);
 
-        valueCol.setEditable(
-                true);
+        valueCol.setEditable(true);
 
         TableColumn noteCol = new TableColumn("Note");
 
         noteCol.setMinWidth(200);
-        
+
         noteCol.setCellValueFactory(
                 new PropertyValueFactory<TableSample, String>("note"));
         noteCol.setCellFactory(cellFactory);
 
         noteCol.setEditable(true);
 
-        setItems(_data);
+        dateCol.setOnEditCommit(
+                new EventHandler<CellEditEvent<TableSample, String>>() {
+                    @Override
+                    public void handle(CellEditEvent<TableSample, String> t
+                    ) {
+                        t.getTableView().getItems().get(t.getTablePosition().getRow()).setDate(t.getNewValue());
+                    }
+                }
+        );
+        //Modifying the Value property
 
-        getColumns()
-                .addAll(dateCol, valueCol, noteCol);
+        valueCol.setOnEditCommit(
+                new EventHandler<CellEditEvent<TableSample, String>>() {
+                    @Override
+                    public void handle(CellEditEvent<TableSample, String> t
+                    ) {
+                        t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
+
+                    }
+                }
+        );
+        //Modifying the note property
+        noteCol.setOnEditCommit(
+                new EventHandler<CellEditEvent<TableSample, String>>() {
+                    @Override
+                    public void handle(CellEditEvent<TableSample, String> t
+                    ) {
+                        t.getTableView().getItems().get(t.getTablePosition().getRow()).setNote(t.getNewValue());
+                    }
+                }
+        );
+
+        setItems(_data);
 
         setEditable(true);
 
-        dateCol.setOnEditCommit(
-                new EventHandler<CellEditEvent<TableSample, String>>() {
-            @Override
-            public void handle(CellEditEvent<TableSample, String> t
-            ) {
-                ((TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setDate(t.getNewValue());
-            }
-        }
-        );
-        //Modifying the lastName property
-        valueCol.setOnEditCommit(
-                new EventHandler<CellEditEvent<TableSample, String>>() {
-            @Override
-            public void handle(CellEditEvent<TableSample, String> t
-            ) {
-                ((TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setValue(t.getNewValue());
-            }
-        }
-        );
-        //Modifying the primary email property
-        noteCol.setOnEditCommit(
-                new EventHandler<CellEditEvent<TableSample, String>>() {
-            @Override
-            public void handle(CellEditEvent<TableSample, String> t
-            ) {
-                ((TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setNote(t.getNewValue());
-            }
-        }
-        );
+        getColumns().addAll(dateCol, valueCol, noteCol);
     }
 
 }
