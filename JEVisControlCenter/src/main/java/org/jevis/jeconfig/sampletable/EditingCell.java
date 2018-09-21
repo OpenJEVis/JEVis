@@ -6,29 +6,37 @@
 package org.jevis.jeconfig.sampletable;
 
 /**
- *
  * @author br
  */
-import java.util.ArrayList;
-import java.util.List;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
+import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
+
+import javax.measure.unit.Unit;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author Graham Smith
  */
 public class EditingCell extends TableCell<TableSample, String> {
     private TextField textField;
+
     public EditingCell() {
     }
+
     @Override
     public void startEdit() {
         super.startEdit();
@@ -45,12 +53,14 @@ public class EditingCell extends TableCell<TableSample, String> {
             }
         });
     }
+
     @Override
     public void cancelEdit() {
         super.cancelEdit();
-        setText((String) getItem());
+        setText(getItem());
         setContentDisplay(ContentDisplay.TEXT_ONLY);
     }
+
     @Override
     public void updateItem(String item, boolean empty) {
         super.updateItem(item, empty);
@@ -70,6 +80,7 @@ public class EditingCell extends TableCell<TableSample, String> {
             }
         }
     }
+
     private void createTextField() {
         textField = new TextField(getString());
         textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
@@ -94,18 +105,84 @@ public class EditingCell extends TableCell<TableSample, String> {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (!newValue && textField != null) {
                     commitEdit(textField.getText());
+
+                    String value = textField.getText();
+                    TableRow<TableSample> row = getTableRow();
+                    JEVisSample sample = row.getItem().getSample();
+
+                    Dialog<ButtonType> dialogSaveValue = new Dialog<>();
+                    dialogSaveValue.setTitle(I18n.getInstance().getString("sampleeditor.sampletable.confirmationdialog.title"));
+                    dialogSaveValue.getDialogPane().setContentText(I18n.getInstance().getString("sampleeditor.sampletable.confirmationdialog.message"));
+                    final ButtonType overwrite_ok = new ButtonType(I18n.getInstance().getString("sampleeditor.sampletable.confirmationdialog.yes"), ButtonBar.ButtonData.OK_DONE);
+                    final ButtonType overwrite_cancel = new ButtonType(I18n.getInstance().getString("sampleeditor.sampletable.confirmationdialog.no"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                    dialogSaveValue.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
+
+                    Platform.runLater(() -> {
+                        dialogSaveValue.showAndWait().ifPresent(response -> {
+                            if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                                try {
+                                    DateTime ts = sample.getTimestamp();
+                                    String note = sample.getNote();
+                                    JEVisUnit unit = sample.getUnit();
+                                    JEVisAttribute att = sample.getAttribute();
+                                    JEVisSample newSample;
+
+                                    att.deleteSamplesBetween(sample.getTimestamp(), sample.getTimestamp());
+                                    JEVisUnit u = new JEVisUnitImp(Unit.ONE);
+
+                                    if (unit != null && !unit.equals(u)) {
+                                        try {
+                                            Long l = Long.parseLong(value);
+                                            newSample = att.buildSample(ts, l, note, unit);
+                                        } catch (Exception e1) {
+                                            try {
+                                                Double d = Double.parseDouble(value);
+                                                newSample = att.buildSample(ts, d, note, unit);
+                                            } catch (Exception e2) {
+                                                newSample = att.buildSample(ts, value, note);
+                                            }
+                                        }
+                                    } else {
+                                        try {
+                                            Long l = Long.parseLong(value);
+                                            newSample = att.buildSample(ts, l, note, unit);
+                                        } catch (Exception e1) {
+                                            try {
+                                                Double d = Double.parseDouble(value);
+                                                newSample = att.buildSample(ts, d, note, unit);
+                                            } catch (Exception e2) {
+                                                newSample = att.buildSample(ts, value, note);
+                                            }
+                                        }
+                                    }
+
+                                    if (newSample != null) {
+                                        newSample.commit();
+                                    }
+
+                                } catch (JEVisException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+
+                            }
+                        });
+                    });
                 }
             }
         });
     }
+
     private String getString() {
-        return getItem() == null ? "" : getItem().toString();
+        return getItem() == null ? "" : getItem();
     }
+
     /**
-     *
      * @param forward true gets the column to the right, false the column to the left of the current column
      * @return
      */
+
     private TableColumn<TableSample, ?> getNextColumn(boolean forward) {
         List<TableColumn<TableSample, ?>> columns = new ArrayList<>();
         for (TableColumn<TableSample, ?> column : getTableView().getColumns()) {
@@ -130,7 +207,7 @@ public class EditingCell extends TableCell<TableSample, String> {
         }
         return columns.get(nextIndex);
     }
-    
+
     private List<TableColumn<TableSample, ?>> getLeaves(TableColumn<TableSample, ?> root) {
         List<TableColumn<TableSample, ?>> columns = new ArrayList<>();
         if (root.getColumns().isEmpty()) {

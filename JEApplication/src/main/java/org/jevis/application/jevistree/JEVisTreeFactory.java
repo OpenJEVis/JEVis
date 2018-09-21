@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -33,23 +33,25 @@ import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.application.jevistree.plugin.MapPlugin;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEVisTreeFactory {
 
     public static Logger LOGGER = LogManager.getLogger(JEVisTreeFactory.class);
+    public final static KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
+    public final static KeyCombination findAgain = new KeyCodeCombination(KeyCode.F3);
+    private static KeyCombination lastCombination = null;
 
     public static void addDefaultKeys(JEVisTree tree) {
 
         final KeyCombination copyID = new KeyCodeCombination(KeyCode.F1);
         final KeyCombination copyObj = KeyCodeCombination.keyCombination("Ctrl+C");
+        final KeyCombination cutObj = KeyCodeCombination.keyCombination("Ctrl+X");
         final KeyCombination pasteObj = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
         final KeyCombination add = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
         final KeyCombination rename = new KeyCodeCombination(KeyCode.F2);
         final KeyCombination delete = new KeyCodeCombination(KeyCode.DELETE);
         final KeyCombination pageDown = new KeyCodeCombination(KeyCode.PAGE_DOWN);
-        final KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
 
         tree.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
 
@@ -60,18 +62,37 @@ public class JEVisTreeFactory {
                 final TreeItem<JEVisTreeRow> selectedObj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
 
                 if (findNode.match(t)) {
-                    TreeHelper.EventOpenObject(tree);
+                    TreeHelper.EventOpenObject(tree, findNode);
+                    lastCombination = findNode;
+                } else if (findAgain.match(t)) {
+                    if (lastCombination.equals(findNode) || lastCombination.equals(findAgain)) {
+                        TreeHelper.EventOpenObject(tree, findAgain);
+                        lastCombination = findAgain;
+                    }
                 } else if (add.match(t)) {
                     TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
+                    lastCombination = add;
                 } else if (delete.match(t)) {
                     TreeHelper.EventDelete(tree);
+                    lastCombination = delete;
                 } else if (copyObj.match(t)) {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject());
+                    lastCombination = copyObj;
+                } else if (cutObj.match(t)) {
+                    tree.setCopyObject(selectedObj.getValue().getJEVisObject());
+                    lastCombination = cutObj;
                 } else if (pasteObj.match(t)) {
-                    final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
-                    TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(),CopyObjectDialog.DefaultAction.COPY);
+                    if (lastCombination.equals(copyObj)) {
+                        final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
+                        TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
+                    } else if (lastCombination.equals(cutObj)) {
+                        final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
+                        TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
+                    }
+                    lastCombination = pasteObj;
                 } else if (rename.match(t)) {
                     TreeHelper.EventRename(tree, selectedObj.getValue().getJEVisObject());
+                    lastCombination = rename;
                 }
             }
         });
@@ -132,7 +153,7 @@ public class JEVisTreeFactory {
             LOGGER.trace("TreeEvent: {}", t.getCode());
 
             if (findNode.match(t)) {
-                TreeHelper.EventOpenObject(tree);
+                TreeHelper.EventOpenObject(tree, null);
             }
         });
 

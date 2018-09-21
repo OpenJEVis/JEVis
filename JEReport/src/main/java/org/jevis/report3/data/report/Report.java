@@ -37,7 +37,7 @@ public class Report {
         Context context = new Context(contextMap);
 
         try {
-            transformator.transfrom(template.getBytes(), context);
+            transformator.transform(template.getBytes(), context);
         } catch (IOException ex) {
             logger.error("error while transformation of the template", ex);
         }

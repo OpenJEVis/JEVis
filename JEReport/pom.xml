@@ -148,6 +148,11 @@
             <version>1.0.12</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.16</version>
+        </dependency>
+        <dependency>
             <groupId>org.jxls</groupId>
             <artifactId>jxls-jexcel</artifactId>
             <version>1.0.6</version>

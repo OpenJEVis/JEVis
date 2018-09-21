@@ -1,28 +1,25 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.jevistree;
 
-import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -30,29 +27,15 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -65,6 +48,10 @@ import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.tools.NumberSpinner;
+
+import java.math.BigDecimal;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Dialog to prompt the user about the copy/clone/move action
@@ -87,43 +74,10 @@ public class CopyObjectDialog {
     final RadioButton move = new RadioButton(rb.getString("jevistree.dialog.copy.move"));
     final RadioButton link = new RadioButton(rb.getString("jevistree.dialog.copy.link"));
     final RadioButton copy = new RadioButton(rb.getString("jevistree.dialog.copy.copy"));
-//    final RadioButton clone = new RadioButton("Clone");
+    //    final RadioButton clone = new RadioButton("Clone");
     final CheckBox recursion = new CheckBox(rb.getString("jevistree.dialog.copy.substructure"));
     final CheckBox includeSamples = new CheckBox(rb.getString("jevistree.dialog.copy.adddata"));
     final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
-
-    public static enum Response {
-
-        MOVE, LINK, CANCEL, COPY //,CLONE
-    };
-
-    public static enum DefaultAction {
-
-        MOVE, LINK, COPY
-    };
-
-    private Response response = Response.CANCEL;
-
-    public JEVisClass getCreateClass() {
-        return createClass;
-    }
-
-    public String getCreateName() {
-        return nameField.getText();
-    }
-
-    public boolean isRecursion() {
-        return recursion.isSelected();
-    }
-
-    public int getCreateCount() {
-
-        if (count.getNumber().intValue() > 0 && count.getNumber().intValue() < 500) {
-            return count.getNumber().intValue();
-        } else {
-            return 1;
-        }
-    }
 
     /**
      *
@@ -132,7 +86,7 @@ public class CopyObjectDialog {
      * @param newParent
      * @return
      */
-    public Response show(Stage owner, final JEVisObject object, final JEVisObject newParent,DefaultAction defaultAction) {
+    public Response show(Stage owner, final JEVisObject object, final JEVisObject newParent, DefaultAction defaultAction) {
 
         boolean linkOK = false;
         try {
@@ -439,30 +393,63 @@ public class CopyObjectDialog {
             }
         });
 
-        switch (defaultAction){
+        switch (defaultAction) {
             case COPY:
-                if(!copy.isDisable()){
+                if (!copy.isDisable()) {
                     copy.setSelected(true);
                 }
                 break;
             case MOVE:
-                if(!move.isDisable()) {
+                if (!move.isDisable()) {
                     move.setSelected(true);
                 }
                 break;
             case LINK:
-                if(!link.isDisable()) {
+                if (!link.isDisable()) {
                     link.setSelected(true);
                 }
                 break;
 
         }
 
-
+        stage.requestFocus();
         stage.sizeToScene();
         stage.showAndWait();
 
         return response;
+    }
+
+    public enum Response {
+
+        MOVE, LINK, CANCEL, COPY //,CLONE
+    }
+
+    private Response response = Response.CANCEL;
+
+    public JEVisClass getCreateClass() {
+        return createClass;
+    }
+
+    public String getCreateName() {
+        return nameField.getText();
+    }
+
+    public boolean isRecursion() {
+        return recursion.isSelected();
+    }
+
+    public int getCreateCount() {
+
+        if (count.getNumber().intValue() > 0 && count.getNumber().intValue() < 500) {
+            return count.getNumber().intValue();
+        } else {
+            return 1;
+        }
+    }
+
+    public enum DefaultAction {
+
+        MOVE, LINK, COPY
     }
 
     public boolean isIncludeData() {

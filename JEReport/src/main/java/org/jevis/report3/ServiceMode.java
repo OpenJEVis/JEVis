@@ -56,6 +56,7 @@ public class ServiceMode {
 
         this.runProcesses();
         try {
+            logger.info("finished all report objects, entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
             runServiceHelp();
         } catch (InterruptedException e) {
@@ -84,6 +85,9 @@ public class ServiceMode {
 
                 ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
                 executor.executeReport();
+
+                logger.info("---------------------------------------------------------------------");
+                logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
             } catch (Exception e) {
                 logger.error("Error while creating report", e);
                 e.printStackTrace();

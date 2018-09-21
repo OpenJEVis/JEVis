@@ -5,6 +5,10 @@
  */
 package org.jevis.report3;
 
+import org.artofsolving.jodconverter.OfficeDocumentConverter;
+import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
+import org.artofsolving.jodconverter.office.OfficeManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -14,9 +18,6 @@ import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.artofsolving.jodconverter.OfficeDocumentConverter;
-import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
-import org.artofsolving.jodconverter.office.OfficeManager;
 
 /**
  *
@@ -29,7 +30,7 @@ public class PdfConverter {
 
     public PdfConverter(String filePrefix, byte[] fileContent) {
         try {
-            Path xlsFilePath = Files.createTempFile(filePrefix, ".xls");
+            Path xlsFilePath = Files.createTempFile(filePrefix, ".xlsx");
             xlsFile = xlsFilePath.toFile();
             Files.write(xlsFilePath, fileContent);
             xlsFile.deleteOnExit();
