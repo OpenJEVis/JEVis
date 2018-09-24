@@ -200,6 +200,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         });
 
+        setupPickerListener();
+
         GridPane gp_date = new GridPane();
 
         HBox startBox = new HBox();
@@ -299,6 +301,45 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         this.getDialogPane().setContent(vbox);
 
     }
+
+    private void setupPickerListener() {
+        pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                LocalDate ld = pickerDateStart.valueProperty().getValue();
+                LocalTime lt = pickerTimeStart.valueProperty().getValue();
+                selectedStart = new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
+                        lt.getHour(), lt.getMinute(), lt.getSecond());
+            }
+        });
+
+        pickerTimeStart.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                LocalDate ld = pickerDateStart.valueProperty().getValue();
+                LocalTime lt = pickerTimeStart.valueProperty().getValue();
+                selectedStart = new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
+                        lt.getHour(), lt.getMinute(), lt.getSecond());
+            }
+        });
+
+        pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                LocalDate ld = pickerDateEnd.valueProperty().getValue();
+                LocalTime lt = pickerTimeEnd.valueProperty().getValue();
+                selectedEnd = new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
+                        lt.getHour(), lt.getMinute(), lt.getSecond());
+            }
+        });
+
+        pickerTimeEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                LocalDate ld = pickerDateEnd.valueProperty().getValue();
+                LocalTime lt = pickerTimeEnd.valueProperty().getValue();
+                selectedEnd = new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
+                        lt.getHour(), lt.getMinute(), lt.getSecond());
+            }
+        });
+    }
+
 
     private ComboBox<String> getCustomPeriodsComboBox() {
 
@@ -564,6 +605,20 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             for (String str : tempList) if (str.contains(", ")) str.replace(", ", "");
             return tempList;
         } else return new ArrayList<>();
+    }
+
+    public DateTime getCustomDateStart() {
+        LocalDate startDate = pickerDateStart.valueProperty().getValue();
+        LocalTime startTime = pickerTimeStart.valueProperty().getValue();
+        return new DateTime(startDate.getYear(), startDate.getMonth().getValue(), startDate.getDayOfMonth(),
+                startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+    }
+
+    public DateTime getCustomDateEnd() {
+        LocalDate endDate = pickerDateEnd.valueProperty().getValue();
+        LocalTime endTime = pickerTimeEnd.valueProperty().getValue();
+        return new DateTime(endDate.getYear(), endDate.getMonth().getValue(), endDate.getDayOfMonth(),
+                endTime.getHour(), endTime.getMinute(), endTime.getSecond());
     }
 
     public Boolean getInitialTimeFrame() {
