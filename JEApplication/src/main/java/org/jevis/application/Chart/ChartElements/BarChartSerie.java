@@ -74,7 +74,6 @@ public class BarChartSerie implements Serie {
                 sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
                 seriesData.add(data);
 
-
             } catch (JEVisException e) {
 
             }
