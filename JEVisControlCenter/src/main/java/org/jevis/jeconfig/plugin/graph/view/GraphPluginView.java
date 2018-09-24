@@ -364,7 +364,7 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals("AREA") || na.getChartType().equals("LINE"))
+                                    if (na.getChartType().equals(ChartSettings.ChartType.AREA) || na.getChartType().equals(ChartSettings.ChartType.LINE))
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                 });
                             });
@@ -373,7 +373,7 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals("AREA") || na.getChartType().equals("LINE"))
+                                    if (na.getChartType().equals(ChartSettings.ChartType.AREA) || na.getChartType().equals(ChartSettings.ChartType.LINE))
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                 });
                             });
