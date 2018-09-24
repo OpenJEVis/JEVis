@@ -327,11 +327,9 @@ public class GraphPluginView implements Plugin, Observer {
 
                     for (ChartSettings cset : dataModel.getCharts()) {
                         if (cset.getName().equals(cv.getChartName())) {
-                            if (cset.getHeight() != null)
-                                bp.setPrefHeight(cset.getHeight());
-                            else {
-                                bp.setPrefHeight(300);
-                            }
+
+                            bp.setPrefHeight(cset.getHeight());
+
                         }
                     }
 
@@ -366,7 +364,8 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                                    if (na.getChartType().equals("AREA") || na.getChartType().equals("LINE"))
+                                        na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                 });
                             });
                             break;
@@ -374,7 +373,8 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                                    if (na.getChartType().equals("AREA") || na.getChartType().equals("LINE"))
+                                        na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                 });
                             });
                             break;

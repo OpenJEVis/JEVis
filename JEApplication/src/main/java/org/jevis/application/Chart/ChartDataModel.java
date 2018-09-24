@@ -3,6 +3,7 @@ package org.jevis.application.Chart;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.application.Chart.ChartElements.TableEntry;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.dataprocessing.BasicProcess;
 import org.jevis.commons.dataprocessing.BasicProcessOption;

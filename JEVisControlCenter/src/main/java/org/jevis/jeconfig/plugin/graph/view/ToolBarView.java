@@ -442,7 +442,7 @@ public class ToolBarView {
                 jsonChartSettings.add(set);
             }
 
-            if (jsonDataModels.toString().length() < 4096 && jsonChartSettings.toString().length() < 4096) {
+            if (jsonDataModels.toString().length() < 8192 && jsonChartSettings.toString().length() < 8192) {
                 DateTime now = DateTime.now();
                 JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonDataModels.toString());
                 JEVisSample smp2 = charts.buildSample(now.toDateTimeISO(), jsonChartSettings.toString());
