@@ -6,7 +6,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.jevis.application.Chart.ChartDataModel;
-import org.jevis.application.Chart.TableEntry;
+import org.jevis.application.Chart.ChartElements.TableEntry;
+import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
@@ -55,6 +56,16 @@ public class ScatterChart implements Chart {
     @Override
     public void setValueForDisplay(Number valueForDisplay) {
 
+    }
+
+    @Override
+    public DateTime getStartDateTime() {
+        return null;
+    }
+
+    @Override
+    public DateTime getEndDateTime() {
+        return null;
     }
 
     @Override

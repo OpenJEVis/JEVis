@@ -1,4 +1,4 @@
-package org.jevis.application.Chart;
+package org.jevis.application.Chart.ChartElements;
 
 import com.sun.javafx.geom.BaseBounds;
 import com.sun.javafx.geom.transform.BaseTransform;

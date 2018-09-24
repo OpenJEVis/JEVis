@@ -38,6 +38,7 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -381,21 +382,21 @@ public class ChartPlugin implements TreePlugin {
                                     if (type == DATE_TYPE.START) {
                                         LocalDate ld = dp.valueProperty().get();
                                         DateTime newDateTimeStart = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
-                                        for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
+                                        _data.entrySet().parallelStream().forEach(mdl -> {
                                             ChartDataModel cdm = mdl.getValue();
                                             if (cdm.getSelected()) {
                                                 cdm.setSelectedStart(newDateTimeStart);
                                             }
-                                        }
+                                        });
                                     } else if (type == DATE_TYPE.END) {
                                         LocalDate ld = dp.valueProperty().get();
                                         DateTime newDateTimeEnd = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
-                                        for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
+                                        _data.entrySet().parallelStream().forEach(mdl -> {
                                             ChartDataModel cdm = mdl.getValue();
                                             if (cdm.getSelected()) {
                                                 cdm.setSelectedEnd(newDateTimeEnd);
                                             }
-                                        }
+                                        });
                                     }
                                     tree.refresh();
                                 });
@@ -745,12 +746,12 @@ public class ChartPlugin implements TreePlugin {
 
                                 tb.setOnAction(event -> {
                                     JEVisUnit u = parseUnit(box.getSelectionModel().getSelectedItem().toString());
-                                    for (Map.Entry<String, ChartDataModel> mdl : _data.entrySet()) {
+                                    _data.entrySet().parallelStream().forEach(mdl -> {
                                         ChartDataModel cdm = mdl.getValue();
                                         if (cdm.getSelected()) {
                                             cdm.setUnit(u);
                                         }
-                                    }
+                                    });
 
                                     tree.refresh();
                                 });
@@ -992,23 +993,24 @@ public class ChartPlugin implements TreePlugin {
 
         textFieldChartName.textProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
+                _data.entrySet().parallelStream().forEach(entry -> {
                     ChartDataModel mdl = entry.getValue();
                     if (mdl.getSelected()) {
                         if (mdl.get_selectedCharts().contains(oldValue)) {
                             mdl.get_selectedCharts().set(mdl.get_selectedCharts().indexOf(oldValue), newValue);
                         }
                     }
-                }
-                for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
+                });
+                charts.entrySet().parallelStream().forEach(chart -> {
                     if (chart.getValue().getName().contains(oldValue)) {
-                        ChartSettings set = chart.getValue();
                         charts.remove(chart.getKey());
+
+                        ChartSettings set = chart.getValue();
                         set.setName(newValue);
                         charts.put(newValue, set);
 
                     }
-                }
+                });
                 chartsList.set(selectionColumnIndex, newValue);
             }
         });
@@ -1021,15 +1023,15 @@ public class ChartPlugin implements TreePlugin {
                 if (columnName.equals(chartTitle)) {
                     comboBoxChartType.getSelectionModel().select(getlistNamesChartTypes().get(0));
                 } else {
-                    Boolean foundChart = false;
-                    for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
+                    final Boolean[] foundChart = {false};
+                    charts.entrySet().forEach(chart -> {
                         ChartSettings settings = chart.getValue();
                         if (settings.getName().equals(columnName)) {
                             comboBoxChartType.getSelectionModel().select(parseChartIndex(settings.getChartType()));
-                            foundChart = true;
+                            foundChart[0] = true;
                         }
-                    }
-                    if (!foundChart) comboBoxChartType.getSelectionModel().select(0);
+                    });
+                    if (!foundChart[0]) comboBoxChartType.getSelectionModel().select(0);
                 }
             }
         } else {
@@ -1040,13 +1042,13 @@ public class ChartPlugin implements TreePlugin {
 
         comboBoxChartType.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                for (Map.Entry<String, ChartSettings> chart : charts.entrySet()) {
+                charts.entrySet().parallelStream().forEach(chart -> {
                     ChartSettings settings = chart.getValue();
-                    if (textFieldChartName.getText().equals(settings.getName())) {
+                    if (settings.getName().equals(textFieldChartName.getText())) {
                         ChartSettings.ChartType type = parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
                         settings.setChartType(type);
                     }
-                }
+                });
             }
         });
 
@@ -1073,7 +1075,6 @@ public class ChartPlugin implements TreePlugin {
                             if (!data.get_selectedCharts().contains(selectedChart)) {
 
                                 data.get_selectedCharts().add(selectedChart);
-                                textFieldChartName.setEditable(true);
                             }
                         } else {
                             data.get_selectedCharts().remove(selectedChart);
@@ -1092,6 +1093,8 @@ public class ChartPlugin implements TreePlugin {
                                 hbox.getChildren().setAll(cbox);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                 cbox.setSelected(item);
+
+                                setTextFieldEditable(textFieldChartName, item);
 
                                 cbox.setOnAction(event -> {
                                     commitEdit(cbox.isSelected());
@@ -1132,6 +1135,20 @@ public class ChartPlugin implements TreePlugin {
                         } else {
                             setText(null);
                             setGraphic(null);
+                        }
+                    }
+
+                    private void setTextFieldEditable(TextField textFieldChartName, Boolean item) {
+                        if (item) {
+                            textFieldChartName.setEditable(true);
+                        } else {
+                            AtomicReference<Boolean> foundSelected = new AtomicReference<>(false);
+                            _data.entrySet().parallelStream().forEach(mdl -> {
+                                if (mdl.getValue().getSelected()) {
+                                    foundSelected.set(true);
+                                }
+                            });
+                            if (foundSelected.get()) textFieldChartName.setEditable(true);
                         }
                     }
                 };
@@ -1230,12 +1247,12 @@ public class ChartPlugin implements TreePlugin {
     }
 
     public void selectNone() {
-        for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
+        _data.entrySet().parallelStream().forEach(entry -> {
             ChartDataModel mdl = entry.getValue();
             if (mdl.getSelected()) {
                 mdl.setSelected(false);
             }
-        }
+        });
         _tree.refresh();
     }
 }

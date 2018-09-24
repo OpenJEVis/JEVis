@@ -11,10 +11,11 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.Chart.ChartDataModel;
-import org.jevis.application.Chart.TableEntry;
+import org.jevis.application.Chart.ChartElements.TableEntry;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.commons.unit.UnitManager;
+import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.text.NumberFormat;
@@ -97,6 +98,15 @@ public class PieChart implements Chart {
         pieChart.setLegendVisible(false);
     }
 
+    @Override
+    public DateTime getStartDateTime() {
+        return chartDataModels.get(0).getSelectedStart();
+    }
+
+    @Override
+    public DateTime getEndDateTime() {
+        return chartDataModels.get(0).getSelectedEnd();
+    }
 
     @Override
     public String getChartName() {

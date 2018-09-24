@@ -18,7 +18,11 @@ import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.Chart.*;
+import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.ChartElements.DateValueAxis;
+import org.jevis.application.Chart.ChartElements.Note;
+import org.jevis.application.Chart.ChartElements.TableEntry;
+import org.jevis.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.dialog.NoteDialog;
@@ -138,6 +142,16 @@ public class AreaChart implements Chart {
     @Override
     public Period getPeriod() {
         return period;
+    }
+
+    @Override
+    public DateTime getStartDateTime() {
+        return chartDataModels.get(0).getSelectedStart();
+    }
+
+    @Override
+    public DateTime getEndDateTime() {
+        return chartDataModels.get(0).getSelectedEnd();
     }
 
     @Override

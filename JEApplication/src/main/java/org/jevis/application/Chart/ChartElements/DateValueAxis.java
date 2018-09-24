@@ -1,4 +1,4 @@
-package org.jevis.application.Chart;
+package org.jevis.application.Chart.ChartElements;
 
 import com.sun.javafx.charts.ChartLayoutAnimator;
 import com.sun.javafx.css.converters.SizeConverter;
@@ -17,6 +17,7 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 import javafx.util.converter.DateTimeStringConverter;
 import javafx.util.converter.TimeStringConverter;
+import org.jevis.application.Chart.ReflectionUtils;
 
 import java.util.*;
 

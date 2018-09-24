@@ -4,7 +4,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import org.jevis.application.Chart.TableEntry;
+import org.jevis.application.Chart.ChartElements.TableEntry;
+import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 public interface Chart {
@@ -37,4 +38,8 @@ public interface Chart {
     ObservableList<TableEntry> getTableData();
 
     Period getPeriod();
+
+    DateTime getStartDateTime();
+
+    DateTime getEndDateTime();
 }

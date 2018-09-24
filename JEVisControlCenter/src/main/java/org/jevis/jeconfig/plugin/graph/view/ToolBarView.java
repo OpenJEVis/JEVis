@@ -128,48 +128,7 @@ public class ToolBarView {
             saveCurrentAnalysis();
         });
 
-        loadNew.setOnAction(event -> {
-            dialog = new LoadAnalysisDialog(ds, model, this);
-            dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
-            dialog.showAndWait().ifPresent(response -> {
-                if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                    ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null, null);
-
-                    if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
-
-                        Set<ChartDataModel> selectedData = new HashSet<>();
-                        for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getBp().getSelectedData().entrySet()) {
-                            ChartDataModel value = entrySet.getValue();
-                            if (value.getSelected()) {
-                                selectedData.add(value);
-                            }
-                        }
-
-                        Set<ChartSettings> chartSettings = new HashSet<>();
-                        for (Map.Entry<String, ChartSettings> entry : selectionDialog.getBp().getCharts().entrySet()) {
-                            chartSettings.add(entry.getValue());
-                        }
-
-                        model.setCharts(chartSettings);
-                        model.setSelectedData(selectedData);
-
-                    }
-                } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
-
-//                    if (dialog.getInitialTimeFrame()) {
-//                        DateHelper dh = new DateHelper(DateHelper.TransformType.LAST30DAYS);
-//                        dialog.setSelectedStart(dh.getDateTimeStartDate());
-//                        dialog.setSelectedEnd(dh.getDateTimeEndDate());
-//                        dialog.updateTimeFrame();
-//                    }
-
-                    model.setCharts(dialog.getData().getCharts());
-                    model.setSelectedData(dialog.getData().getSelectedData());
-                    select(dialog.getLv().getSelectionModel().getSelectedItem());
-
-                }
-            });
-        });
+        loadNew.setOnAction(event -> loadNewDialog());
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
         Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
@@ -211,6 +170,42 @@ public class ToolBarView {
         toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, save, delete, sep2, select, exportCSV, sep3, disableIcons);
         _initialized = true;
         return toolBar;
+    }
+
+    private void loadNewDialog() {
+        dialog = new LoadAnalysisDialog(ds, model, this);
+        dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
+        dialog.showAndWait().ifPresent(response -> {
+            if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null, null);
+
+                if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
+
+                    Set<ChartDataModel> selectedData = new HashSet<>();
+                    for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getBp().getSelectedData().entrySet()) {
+                        ChartDataModel value = entrySet.getValue();
+                        if (value.getSelected()) {
+                            selectedData.add(value);
+                        }
+                    }
+
+                    Set<ChartSettings> chartSettings = new HashSet<>();
+                    for (Map.Entry<String, ChartSettings> entry : selectionDialog.getBp().getCharts().entrySet()) {
+                        chartSettings.add(entry.getValue());
+                    }
+
+                    model.setCharts(chartSettings);
+                    model.setSelectedData(selectedData);
+
+                }
+            } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
+
+                model.setCharts(dialog.getData().getCharts());
+                model.setSelectedData(dialog.getData().getSelectedData());
+                select(dialog.getLv().getSelectionModel().getSelectedItem());
+
+            }
+        });
     }
 
     private void hideShowIconsInGraph() {
@@ -447,7 +442,7 @@ public class ToolBarView {
                 jsonChartSettings.add(set);
             }
 
-            if (jsonDataModels.toString().length() < 4096 && jsonChartSettings.toString().length() < 4096) {
+            if (jsonDataModels.toString().length() < 8192 && jsonChartSettings.toString().length() < 8192) {
                 DateTime now = DateTime.now();
                 JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonDataModels.toString());
                 JEVisSample smp2 = charts.buildSample(now.toDateTimeISO(), jsonChartSettings.toString());

@@ -16,20 +16,16 @@ import org.apache.logging.log4j.Logger;
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.application.Chart.BarChartSerie;
 import org.jevis.application.Chart.ChartDataModel;
-import org.jevis.application.Chart.Note;
-import org.jevis.application.Chart.TableEntry;
+import org.jevis.application.Chart.ChartElements.BarChartSerie;
+import org.jevis.application.Chart.ChartElements.TableEntry;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.dialog.NoteDialog;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 
-import java.text.NumberFormat;
 import java.util.*;
 
 public class BarChart implements Chart {
@@ -63,6 +59,7 @@ public class BarChart implements Chart {
 
                 hexColors.add(singleRow.getColor());
                 series.add(serie.getSerie());
+                tableData.add(serie.getTableEntry());
 
             } catch (JEVisException e) {
                 e.printStackTrace();
@@ -107,11 +104,6 @@ public class BarChart implements Chart {
     public void initializeZoom() {
         ChartPanManager panner = null;
 
-        barChart.getXAxis().setAutoRanging(true);
-        barChart.getXAxis().setLabel(rb.getString("plugin.graph.chart.dateaxis.title"));
-        barChart.getYAxis().setAutoRanging(true);
-        barChart.getYAxis().setLabel(unit);
-
         barChart.setOnMouseMoved(mouseEvent -> {
             updateTable(mouseEvent, null);
         });
@@ -146,65 +138,75 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public DateTime getStartDateTime() {
+        return chartDataModels.get(0).getSelectedStart();
+    }
+
+    @Override
+    public DateTime getEndDateTime() {
+        return chartDataModels.get(0).getSelectedEnd();
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
 
     @Override
     public void updateTable(MouseEvent mouseEvent, Number valueForDisplay) {
-        Point2D mouseCoordinates = null;
-        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        Double x = null;
-        if (valueForDisplay == null) {
-
-            x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-
-            if (x != null) {
-                valueForDisplay = Double.parseDouble(barChart.getXAxis().getValueForDisplay(x));
-                //valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
-
-            }
-            if (valueForDisplay != null) {
-                setValueForDisplay(valueForDisplay);
-                tableData = FXCollections.emptyObservableList();
-                Number finalValueForDisplay = valueForDisplay;
-                chartDataModels.parallelStream().forEach(singleRow -> {
-                    if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
-                        try {
-                            TreeMap<Double, JEVisSample> sampleTreeMap = singleRow.getSampleMap();
-                            Double higherKey = sampleTreeMap.higherKey(finalValueForDisplay.doubleValue());
-                            Double lowerKey = sampleTreeMap.lowerKey(finalValueForDisplay.doubleValue());
-
-                            Double nearest = higherKey;
-                            if (nearest == null) nearest = lowerKey;
-
-                            if (lowerKey != null && higherKey != null) {
-                                Double lower = Math.abs(lowerKey - finalValueForDisplay.doubleValue());
-                                Double higher = Math.abs(higherKey - finalValueForDisplay.doubleValue());
-                                if (lower < higher) {
-                                    nearest = lowerKey;
-                                }
-                            }
-
-                            NumberFormat nf = NumberFormat.getInstance();
-                            nf.setMinimumFractionDigits(2);
-                            nf.setMaximumFractionDigits(2);
-                            Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
-                            String note = sampleTreeMap.get(nearest).getNote();
-                            Note formattedNote = new Note(note, singleRow.getColor());
-                            String formattedDouble = nf.format(valueAsDouble);
-                            TableEntry tableEntry = singleRow.getTableEntry();
-                            tableEntry.setDate(new DateTime(Math.round(nearest)).toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                            tableEntry.setNote(formattedNote.getNote());
-                            String unit = UnitManager.getInstance().formate(singleRow.getUnit());
-                            tableEntry.setValue(formattedDouble + " " + unit);
-                            tableData.add(tableEntry);
-                        } catch (Exception ex) {
-                        }
-                    }
-                });
-            }
-        }
+//        Point2D mouseCoordinates = null;
+//        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+//        Double x = null;
+//        if (valueForDisplay == null) {
+//
+//            x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+//
+//            if (x != null) {
+//                valueForDisplay = Double.parseDouble(barChart.getXAxis().getValueForDisplay(x));
+//                //valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
+//
+//            }
+//            if (valueForDisplay != null) {
+//                setValueForDisplay(valueForDisplay);
+//                tableData = FXCollections.emptyObservableList();
+//                Number finalValueForDisplay = valueForDisplay;
+//                chartDataModels.parallelStream().forEach(singleRow -> {
+//                    if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+//                        try {
+//                            TreeMap<Double, JEVisSample> sampleTreeMap = singleRow.getSampleMap();
+//                            Double higherKey = sampleTreeMap.higherKey(finalValueForDisplay.doubleValue());
+//                            Double lowerKey = sampleTreeMap.lowerKey(finalValueForDisplay.doubleValue());
+//
+//                            Double nearest = higherKey;
+//                            if (nearest == null) nearest = lowerKey;
+//
+//                            if (lowerKey != null && higherKey != null) {
+//                                Double lower = Math.abs(lowerKey - finalValueForDisplay.doubleValue());
+//                                Double higher = Math.abs(higherKey - finalValueForDisplay.doubleValue());
+//                                if (lower < higher) {
+//                                    nearest = lowerKey;
+//                                }
+//                            }
+//
+//                            NumberFormat nf = NumberFormat.getInstance();
+//                            nf.setMinimumFractionDigits(2);
+//                            nf.setMaximumFractionDigits(2);
+//                            Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
+//                            String note = sampleTreeMap.get(nearest).getNote();
+//                            Note formattedNote = new Note(note, singleRow.getColor());
+//                            String formattedDouble = nf.format(valueAsDouble);
+//                            TableEntry tableEntry = singleRow.getTableEntry();
+//                            tableEntry.setDate(new DateTime(Math.round(nearest)).toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+//                            tableEntry.setNote(formattedNote.getNote());
+//                            String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+//                            tableEntry.setValue(formattedDouble + " " + unit);
+//                            tableData.add(tableEntry);
+//                        } catch (Exception ex) {
+//                        }
+//                    }
+//                });
+//            }
+//        }
     }
 
     @Override

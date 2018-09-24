@@ -21,13 +21,14 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.ChartElements.TableEntry;
 import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.Charts.*;
-import org.jevis.application.Chart.TableEntry;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 
 import java.util.*;
@@ -267,7 +268,18 @@ public class ChartView implements Observer {
 
     private void addPeriodToValueColumn() {
         TableColumn tc = (TableColumn) tableView.getColumns().get(2);
-        tc.setText(tc.getText() + " [" + chart.getPeriod().toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale())) + "]");
+        String period = chart.getPeriod().toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
+        tc.setText(tc.getText() + " [" + period + "]");
+        tc = (TableColumn) tableView.getColumns().get(5);
+        tc.setText(tc.getText() + " [" + period + "]");
+        tc = (TableColumn) tableView.getColumns().get(6);
+        tc.setText(tc.getText() + " [" + period + "]");
+        tc = (TableColumn) tableView.getColumns().get(7);
+        tc.setText(tc.getText() + " [" + period + "]");
+
+        String overall = new Period(chart.getStartDateTime(), chart.getEndDateTime()).toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
+        tc = (TableColumn) tableView.getColumns().get(8);
+        tc.setText(tc.getText() + " [" + overall + "]");
     }
 
     public void updateTablesSimultaneously(MouseEvent mouseEvent, Number valueForDisplay) {
