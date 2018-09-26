@@ -22,7 +22,6 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.UnitManager;
 
 import javax.measure.unit.Unit;
-import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.Iterator;
 import java.util.Locale;
@@ -151,10 +150,6 @@ public class UnitChooserPanel {
         String s = unit.toString();
         String s1 = Normalizer.normalize(s, Normalizer.Form.NFKD);
         String regex = Pattern.quote("[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
-
-        String s2 = new String(s1.replaceAll(regex, "").getBytes(StandardCharsets.US_ASCII), StandardCharsets.US_ASCII);
-        s2 = s2.replace("?", "");
-        return type + " (" + s2 + ")";
 
         return type + " (" + s1 + ")";
     }

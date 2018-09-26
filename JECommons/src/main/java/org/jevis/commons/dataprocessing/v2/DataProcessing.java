@@ -27,13 +27,12 @@ import org.jevis.commons.object.plugin.VirtualSumData;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @TODO: should this have an interface?!
  * @author Florian Simon
+ * @TODO: should this have an interface?!
  */
 public class DataProcessing {
     private static final Logger logger = LogManager.getLogger(DataProcessing.class);
@@ -273,42 +272,31 @@ public class DataProcessing {
         JEVisClass processorClass = processor.getDataSource().getJEVisClass(Function.JEVIS_CLASS);
 
         Function dp;
-        try {
-            dp = DataProcessorDriverManager.loadDriver(processor);
+        dp = DataProcessorDriverManager.loadDriver(processor);
 
-            logger.info("loadTasks.1: " + processor);
-            task.setDataProcessor(dp);
-            dp.setWorkflow(workflow);
+        logger.info("loadTasks.1: " + processor);
+        task.setDataProcessor(dp);
+        dp.setWorkflow(workflow);
 
-            logger.info("loadTasks.2: " + dp.getID() + "   Option: " + options.getKey() + "\n------\n");
+        logger.info("loadTasks.2: " + dp.getID() + "   Option: " + options.getKey() + "\n------\n");
 
-            if (Options.hasOption(dp.getID(), options)) {//error
-                dp.setOptions(Options.getFirstOption(dp.getID(), options));
-                logger.info("setOption to: " + dp.getID());
-            } else {
-                logger.warn("Option for DP not found");
-            }
-
-            logger.info("\n----\n");
-
-            List<Task> dependency = new ArrayList<>();
-            logger.info("Dp has Children: " + processor.getChildren(processorClass, true).size());
-            for (JEVisObject child : processor.getChildren(processorClass, true)) {
-                logger.info("Build dependency: " + child.getName());
-                dependency.add(BuildTask(task, child, options, workflow));
-            }
-            logger.info("add all depency to " + task.getDataProcessor().getID());
-            task.setDependency(dependency);
-
-        } catch (MalformedURLException ex) {
-            logger.fatal(ex);
-        } catch (ClassNotFoundException ex) {
-            logger.fatal(ex);
-        } catch (InstantiationException ex) {
-            logger.fatal(ex);
-        } catch (IllegalAccessException ex) {
-            logger.fatal(ex);
+        if (Options.hasOption(dp.getID(), options)) {//error
+            dp.setOptions(Options.getFirstOption(dp.getID(), options));
+            logger.info("setOption to: " + dp.getID());
+        } else {
+            logger.warn("Option for DP not found");
         }
+
+        logger.info("\n----\n");
+
+        List<Task> dependency = new ArrayList<>();
+        logger.info("Dp has Children: " + processor.getChildren(processorClass, true).size());
+        for (JEVisObject child : processor.getChildren(processorClass, true)) {
+            logger.info("Build dependency: " + child.getName());
+            dependency.add(BuildTask(task, child, options, workflow));
+        }
+        logger.info("add all depency to " + task.getDataProcessor().getID());
+        task.setDependency(dependency);
 
         return task;
     }

@@ -28,5 +28,5 @@ import org.jevis.commons.application.LibraryInfo;
  */
 public class Info {
 
-    public static LibraryInfo INFO = new LibraryInfo("JEApplication", "3.0.5");
+    public static LibraryInfo INFO = new LibraryInfo("JEApplication", "3.0.6");
 }

@@ -35,15 +35,14 @@ import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.UnitManager;
 
 import java.util.Locale;
 
 /**
- * @deprecated
  * @author Florian Simon <florian.simon@envidatec.com>
+ * @deprecated
  */
 public class UnitPanel extends GridPane {
     private static final Logger logger = LogManager.getLogger(UnitPanel.class);
@@ -136,16 +135,12 @@ public class UnitPanel extends GridPane {
             public void handle(ActionEvent event) {
 
                 SimpleTreeUnitChooser stc = new SimpleTreeUnitChooser();
-                try {
-                    if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {//TODO: replace tjis hardcode position
-                        _returnUnit.setFormula(stc.getUnit().getFormula());
-                        _returnUnit.setLabel(UnitManager.getInstance().formate(stc.getUnit()));
+                if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {//TODO: replace tjis hardcode position
+                    _returnUnit.setFormula(stc.getUnit().getFormula());
+                    _returnUnit.setLabel(UnitManager.getInstance().formate(stc.getUnit()));
 
-                        changeBaseUnit.setText(_returnUnit.toString());
-                        printExample(labelField, _returnUnit);
-                    }
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
+                    changeBaseUnit.setText(_returnUnit.toString());
+                    printExample(labelField, _returnUnit);
                 }
 
             }

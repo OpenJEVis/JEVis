@@ -38,7 +38,6 @@ import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.unit.SimpleTreeUnitChooser;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -129,21 +128,17 @@ public class UnitSelectUI {
             public void handle(ActionEvent event) {
 
                 SimpleTreeUnitChooser stc = new SimpleTreeUnitChooser();
-                try {
-                    if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
-                        logger.info("Unit selected: " + stc.getUnit().getFormula());
+                if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
+                    logger.info("Unit selected: " + stc.getUnit().getFormula());
 //                        JEVisUnit cloneUnit = cloneUnit(unitProperty.getValue());
 //                        cloneUnit.setFormula(stc.getUnit().getFormula());
 //                        unitProperty.setValue(cloneUnit);
-                        JEVisUnit newUnit = stc.getUnit();
-                        unitProperty.setValue(newUnit);
+                    JEVisUnit newUnit = stc.getUnit();
+                    unitProperty.setValue(newUnit);
 
 //                        unitProperty.getValue().setFormula(stc.getUnit().getFormula());
-                        changeBaseUnit.setText(unitProperty.getValue().getFormula());
-                        labelField.setText(UnitManager.getInstance().formate(unitProperty.getValue()));//proble: the unitChang event cone tow times
-                    }
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
+                    changeBaseUnit.setText(unitProperty.getValue().getFormula());
+                    labelField.setText(UnitManager.getInstance().formate(unitProperty.getValue()));//proble: the unitChang event cone tow times
                 }
 
             }

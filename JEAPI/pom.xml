@@ -4,7 +4,7 @@
 
     <groupId>org.jevis.api</groupId>
     <artifactId>jeapi</artifactId>
-    <version>3.0.4</version>
+    <version>3.0.5</version>
     <packaging>jar</packaging>
 
     <name>JEAPI</name>

@@ -38,12 +38,11 @@ import java.util.Map;
 
 /**
  * This virtual data can summarize multible inputes.
- *
+ * <p>
  * This is an prototype implementation of an virtual data object.
  *
- * @TODO: this will be an attribute driver if they exist
- *
  * @author Florian Simon
+ * @TODO: this will be an attribute driver if they exist
  */
 public class VirtualSumData {
     private static final Logger logger = LogManager.getLogger(VirtualSumData.class);
@@ -80,11 +79,7 @@ public class VirtualSumData {
 
         _inputs = new ArrayList<>();
         for (JsonInput in : json.getInputs()) {
-            try {
-                _inputs.add(new FormulaInput(ds, in));
-            } catch (JEVisException ex) {
-                logger.fatal(ex);
-            }
+            _inputs.add(new FormulaInput(ds, in));
         }
 
     }

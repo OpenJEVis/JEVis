@@ -7,7 +7,6 @@ package org.jevis.xmlparser;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.commons.driver.Converter;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.Result;
@@ -81,11 +80,7 @@ public class XMLParser {
                     DateTime dateTime = null;
                     Double value = null;
                     Long datapoint = null;
-                    try {
-                        parseNode(currentNode, mainAttributeNode);
-                    } catch (JEVisException ex) {
-                        logger.fatal(ex);
-                    }
+                    parseNode(currentNode, mainAttributeNode);
 
                     //parse the correct node
                     if (isCorrectNode) {
