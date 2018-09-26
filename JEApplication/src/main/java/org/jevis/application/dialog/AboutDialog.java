@@ -31,11 +31,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -164,7 +160,7 @@ public class AboutDialog {
             @Override
             public void handle(ActionEvent t) {
                 stage.close();
-//                System.out.println("h: " + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("h: " + stage.getHeight() + " w:" + stage.getWidth());
             }
         });
 

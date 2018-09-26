@@ -24,7 +24,7 @@ import java.util.Stack;
 class CalcJobFactory {
 
     private final Stack<JEVisObject> calcObjectStack = new Stack<>();
-    private final Logger logger = LogManager.getLogger(CalcJobFactory.class);
+    private static final Logger logger = LogManager.getLogger(CalcJobFactory.class);
 
     CalcJobFactory(List<JEVisObject> calcObjects) {
         calcObjectStack.addAll(calcObjects);
@@ -69,7 +69,7 @@ class CalcJobFactory {
                 }
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(CalcJobFactory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return outputAttributes;
     }
@@ -126,7 +126,7 @@ class CalcJobFactory {
                 calcObjects.add(calcObject);
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(CalcJobFactory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return calcObjects;
     }

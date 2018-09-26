@@ -531,10 +531,10 @@ public class SQLDataSource {
                 return result;
 
             }
-            System.out.println("Emty Type list for class: " + jc.getName());
+            logger.info("Emty Type list for class: " + jc.getName());
             return new ArrayList<>();
         } catch (Exception ex) {
-            System.out.println("================= Error in attribute: " + objectID);
+            logger.info("================= Error in attribute: " + objectID);
             ex.printStackTrace();
             return new ArrayList<>();
         }

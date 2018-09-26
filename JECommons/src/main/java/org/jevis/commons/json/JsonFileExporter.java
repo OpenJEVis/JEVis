@@ -7,18 +7,17 @@ package org.jevis.commons.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 
+import java.io.*;
+
 /**
- *
  * @author fs
  */
 public class JsonFileExporter {
+    private static final Logger logger = LogManager.getLogger(JsonFileExporter.class);
 
     public static void writeToFile(File file, JsonObject obj) {
 
@@ -33,7 +32,7 @@ public class JsonFileExporter {
             writer.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal(e);
         }
 
     }
@@ -49,10 +48,10 @@ public class JsonFileExporter {
             //convert the json string back to object
             JsonObject obj = gson.fromJson(br, JsonObject.class);
 
-            System.out.println(obj);
+            logger.info(obj);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal(e);
         }
 
         return null;

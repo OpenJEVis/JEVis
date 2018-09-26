@@ -5,6 +5,8 @@
  */
 package org.jevis.jecalc.scaling;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jecalc.data.CleanDataAttribute;
@@ -12,8 +14,6 @@ import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class ScalingStep implements ProcessStep {
 
-    private static final Logger logger = LoggerFactory.getLogger(ScalingStep.class);
+    private static final Logger logger = LogManager.getLogger(ScalingStep.class);
 
     @Override
     public void run(ResourceManager resourceManager) {
@@ -67,7 +67,7 @@ public class ScalingStep implements ProcessStep {
                                 sample.setNote(note);
                             }
                         } catch (JEVisException ex) {
-                            logger.error(null, ex);
+                            logger.error(ex);
                         }
                     }
                 }

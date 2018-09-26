@@ -96,7 +96,7 @@ public class SampleTable {
                 + "," + COLUMN_VALUE + "," + COLUMN_MANID + "," + COLUMN_NOTE + "," + COLUMN_INSERT_TIMESTAMP
                 + ") VALUES";
 
-//        System.out.println("SQL raw: "+sql);
+//        logger.info("SQL raw: "+sql);
         PreparedStatement ps = null;
         int count = 0;
 
@@ -169,7 +169,7 @@ public class SampleTable {
                 ps.setTimestamp(++p, new Timestamp(now));
 
             }
-//            System.out.println("SamplDB.putSample SQL: \n" + ps);
+//            logger.info("SamplDB.putSample SQL: \n" + ps);
             logger.error("SQL: {}", ps);
             _connection.addQuery("Sample.insert()", ps.toString());
             count = ps.executeUpdate();
@@ -220,7 +220,7 @@ public class SampleTable {
             ByteArrayInputStream bis = new ByteArrayInputStream(file.getBytes());
             ps.setBlob(6, bis);
 
-//            System.out.println("SamplDB.putSample SQL: \n" + ps);
+//            logger.info("SamplDB.putSample SQL: \n" + ps);
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Sample.setFile()", ps.toString());
             count = ps.executeUpdate();
@@ -450,7 +450,7 @@ public class SampleTable {
     }
 
     public List<JsonSample> getAll(long object, String att) throws SQLException, JEVisException {
-//        System.out.println("SampleTable.getAll");
+//        logger.info("SampleTable.getAll");
         List<JsonSample> samples = new ArrayList<>();
 
         String sql = "select * from " + TABLE

@@ -7,8 +7,8 @@ package org.jevis.jenotifier.notifier.AppPush;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jenotifier.notifier.Notification;
 import org.joda.time.DateTime;
@@ -18,10 +18,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- *
  * @author gf
  */
 public class PushNotification implements Notification {
+    //    public static final String SENT_TIME = "Sent Time";
+//    public static final String ENABLED = "Enabled";
+    public static final String BUNDLE_IDS = "Bundle IDs";
 
     private JEVisObject _jenoti;
     private List<String> _receivers;
@@ -40,9 +42,7 @@ public class PushNotification implements Notification {
     public static final String MESSAGE = "Message";
     public static final String RECIPIENTS = "Recipients";
     public static final String SUBJECT = "Subject";
-//    public static final String SENT_TIME = "Sent Time";
-//    public static final String ENABLED = "Enabled";
-    public static final String BUNDLE_IDS = "Bundle IDs";
+    private static final Logger logger = LogManager.getLogger(PushNotification.class);
 
     public PushNotification() {
     }
@@ -209,8 +209,8 @@ public class PushNotification implements Notification {
      * platform/{platform}. Else, return broadcast. If broadcast is false, then
      * return the push way according to the quantity of the receivers (one
      * receiver: single; more receivers: multi).
-     *     
-* This function is used to compare with the driver to get the right driver.
+     * <p>
+     * This function is used to compare with the driver to get the right driver.
      *
      * @return
      */
@@ -227,8 +227,8 @@ public class PushNotification implements Notification {
                 pw = "platform/" + getBroadcastPlatform().toLowerCase();//the old one: /coffee/push/platform/
             }
         } else {
-            Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, "The notification is not configured!!");
-//            System.out.println("The notification is not configured!!");
+            logger.info("The notification is not configured!!");
+//            logger.info("The notification is not configured!!");
         }
         return pw;
     }
@@ -260,8 +260,8 @@ public class PushNotification implements Notification {
                     if (!_receivers.contains(rec)) { // repetitive receivers sre not allowed
                         _receivers.add(rec);
                     } else {
-                        Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, "Repetitive Receivers: " + rec + " is not allowed");
-//                        System.out.println("Repetitive Receivers: " + rec + " is not allowed");
+                        logger.info("Repetitive Receivers: " + rec + " is not allowed");
+//                        logger.info("Repetitive Receivers: " + rec + " is not allowed");
                     }
                 }
             }
@@ -294,8 +294,8 @@ public class PushNotification implements Notification {
                     if (!_bundleIDs.contains(buID)) { // repetitive Bundle IDs sre not allowed
                         _bundleIDs.add(buID);
                     } else {
-                        Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, "Bundle IDs: " + buID + " is not allowed");
-//                        System.out.println("Repetitive Receivers: " + buID + " is not allowed");
+                        logger.info("Bundle IDs: " + buID + " is not allowed");
+//                        logger.info("Repetitive Receivers: " + buID + " is not allowed");
                     }
                 }
             }
@@ -375,8 +375,8 @@ public class PushNotification implements Notification {
                     if (!imports.contains(strs[i])) { // repetitive ID is not allowed
                         imports.add(strs[i]);
                     } else {
-                        Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, "Repetitive ID: " + strs[i] + " is not allowed");
-//                        System.out.println("Repetitive ID: " + strs[i] + " is not allowed");
+                        logger.info("Repetitive ID: " + strs[i] + " is not allowed");
+//                        logger.info("Repetitive ID: " + strs[i] + " is not allowed");
                     }
                 }
                 imports.addAll(Arrays.asList(strs));
@@ -407,7 +407,7 @@ public class PushNotification implements Notification {
     /**
      * To get the value of the attribute of a JEVisObject
      *
-     * @param obj the JEVis Object
+     * @param obj     the JEVis Object
      * @param attName the name of the attribute
      * @return the value of the attribute
      * @throws JEVisException
@@ -447,42 +447,42 @@ public class PushNotification implements Notification {
                 setReceivers(String.valueOf(getAttribute(notiObj, RECIPIENTS)));//the second parameter should one to one correspondance with the name in JEConfig
             } catch (IllegalArgumentException ex) {
                 setReceivers(null);
-                Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setSubject(String.valueOf(getAttribute(notiObj, SUBJECT)));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setMessage(String.valueOf(getAttribute(notiObj, MESSAGE)));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setBroadcast(Boolean.parseBoolean(String.valueOf(getAttribute(notiObj, BROADCAST))));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setBroadcastPlatform(String.valueOf(getAttribute(notiObj, BROADCAST_PLATFORM)));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 _enabled = Boolean.valueOf(String.valueOf(getAttribute(notiObj, ENABLED)));
             } catch (IllegalArgumentException ex) {
                 _enabled = false;
-                Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setBundleIDs(String.valueOf(getAttribute(notiObj, BUNDLE_IDS)));
             } catch (IllegalArgumentException ex) {
                 setBundleIDs(null);
-                Logger.getLogger(PushNotification.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
         } else {
-            Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, notiObj + " is not suitable for Push Notification");
+            logger.info(notiObj + " is not suitable for Push Notification");
         }
     }
 
@@ -531,7 +531,7 @@ public class PushNotification implements Notification {
         try {
             return notiObj.getJEVisClass().getName().equals(_type);
         } catch (JEVisException ex) {
-            Logger.getLogger(PushNotification.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         return false;
     }
@@ -546,10 +546,10 @@ public class PushNotification implements Notification {
                     sendDate.add(t.getTimestamp());
                 }
             } else {
-                Logger.getLogger(PushNotification.class.getName()).log(Level.INFO, "The attribute " + SENT_TIME + " of " + getJEVisObjectNoti().getID() + " does not exist.");
+                logger.info("The attribute " + SENT_TIME + " of " + getJEVisObjectNoti().getID() + " does not exist.");
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(PushNotification.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         return sendDate;
     }

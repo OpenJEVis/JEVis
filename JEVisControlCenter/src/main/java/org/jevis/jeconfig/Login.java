@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -21,6 +21,8 @@ package org.jevis.jeconfig;
 
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 
@@ -29,6 +31,7 @@ import org.jevis.api.JEVisException;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class Login {
+    private static final Logger logger = LogManager.getLogger(Login.class);
 
     public String usernameResult = null;
     public String passwordResult = null;
@@ -39,11 +42,11 @@ public class Login {
     final PasswordField txPassword = new PasswordField();
 
     public JEVisDataSource getDS() throws JEVisException {
-        System.out.println("getDS");
-        System.out.println("Connect as: " + txUserName.getText() + "/" + txPassword.getText());
+        logger.info("getDS");
+        logger.info("Connect as: " + txUserName.getText() + "/" + txPassword.getText());
         _ds.connect(txUserName.getText(), txPassword.getText());
 
-        System.out.println("Object: " + _ds.getObject(1l));
+        logger.info("Object: " + _ds.getObject(1l));
         return _ds;
     }
 
@@ -55,7 +58,7 @@ public class Login {
         this._ds = _ds;
     }
 
-    public void showLogin(boolean wasWrong) throws JEVisException {
+    public void showLogin(boolean wasWrong) {
 //        GridPane grid = new GridPane();
 //        grid.setHgap(10);
 //        grid.setVgap(10);

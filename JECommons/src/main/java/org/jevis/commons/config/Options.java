@@ -1,39 +1,43 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.config;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisOption;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.jevis.api.JEVisOption;
 
 /**
  *
  * @author Florian Simon
  */
 public class Options {
+    private static final Logger logger = LogManager.getLogger(Options.class);
 
     public static String toString(List<JEVisOption> options) {
-//        System.out.println("Options.toString: ");
+//        logger.info("Options.toString: ");
         String result = "";
         for (JEVisOption option : options) {
-//            System.out.println("option: " + option.getKey());
+//            logger.info("option: " + option.getKey());
             result += toString(option, 0);
         }
 
@@ -52,24 +56,20 @@ public class Options {
         prefix += "[" + opt.getKey() + "]='" + opt.getValue() + "'";
 
         if (opt.getOptions() != null && !opt.getOptions().isEmpty()) {
-//            System.out.println("options.toString: " + opt.getKey());
+//            logger.info("options.toString: " + opt.getKey());
             int newLevel = level + 1;
             for (JEVisOption child : opt.getOptions()) {
                 prefix += toString(child, newLevel);
             }
         }
-//        System.out.println("prefix: " + prefix);
+//        logger.info("prefix: " + prefix);
 
         return prefix;
 
     }
 
     public static boolean hasOption(String key, JEVisOption parentOption) {
-        if (getFirstOption(key, parentOption) != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return getFirstOption(key, parentOption) != null;
     }
 
     public static List<JEVisOption> getOptions(String searchKey, JEVisOption parentOption) {
@@ -77,18 +77,18 @@ public class Options {
     }
 
     private static List<JEVisOption> getOptions(String searchKey, JEVisOption parentOption, List<JEVisOption> foundOptions) {
-//        System.out.println("Has it Option: " + searchKey);
+//        logger.info("Has it Option: " + searchKey);
 
-//        System.out.println("Option parent: " + parentOption + "   children: " + parentOption.getOptions());
+//        logger.info("Option parent: " + parentOption + "   children: " + parentOption.getOptions());
         if (parentOption != null && parentOption.getOptions() != null) {
-//            System.out.println("o1");
+//            logger.info("o1");
             for (JEVisOption child : parentOption.getOptions()) {
 //                System.out.print("o2| child: " + child.getKey());
                 if (child.getKey().equalsIgnoreCase(searchKey)) {
                     foundOptions.add(child);
-//                    System.out.println(" =Found Option: " + child.getKey());
+//                    logger.info(" =Found Option: " + child.getKey());
                 } else {
-//                    System.out.println(" =NOT");
+//                    logger.info(" =NOT");
                 }
 
                 if (!child.getOptions().isEmpty()) {
@@ -96,7 +96,7 @@ public class Options {
                 }
             }
         } else {
-            System.out.println("WARING: Options are null");
+            logger.warn("WARNING: Options are null");
         }
         return foundOptions;
     }

@@ -1,23 +1,27 @@
 /**
  * Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI.
- *
+ * <p>
  * JEAPI is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jenotifier.notifier.SQL;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -25,19 +29,13 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 
 /**
  *
  * @author jb
  */
 public class SQLQuery {
+    private static final Logger logger = LogManager.getLogger(SQLQuery.class);
 
     private String _table;
     private String _sqlQuery;
@@ -79,13 +77,13 @@ public class SQLQuery {
             setTable(String.valueOf(getAttribute(obj, SQL_TABLE)));
         } catch (Exception ex) {
             setTable(null);
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
         try {
             setSqlQuery(String.valueOf(getAttribute(obj, SQL_QUERY)));
         } catch (Exception ex) {
             setSqlQuery(null);
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
         List<JEVisObject> children = obj.getChildren();
         if (children != null && !children.isEmpty()) {
@@ -101,24 +99,24 @@ public class SQLQuery {
                                     datapoint.setDataPointObject(dp);
                                     _datapoints.add(datapoint);
                                 } else {
-                                    Logger.getLogger(SQLQuery.class.getName()).log(Level.INFO, dp + "is null .");
+                                    logger.info(dp + "is null .");
                                 }
                             }
                         } else {
-                            Logger.getLogger(SQLQuery.class.getName()).log(Level.INFO, _datapoints + "is null or empty.");
+                            logger.info(_datapoints + "is null or empty.");
                         }
                     } else if (name.equalsIgnoreCase("Variable Directory")) {
                         List<JEVisObject> variables = child.getChildren();
                         setVariablesObject(variables);
                     } else {
-                        Logger.getLogger(SQLQuery.class.getName()).log(Level.INFO, child + "is illegal.");
+                        logger.info(child + "is illegal.");
                     }
                 } else {
-                    Logger.getLogger(SQLQuery.class.getName()).log(Level.INFO, child + "is null.");
+                    logger.info(child + "is null.");
                 }
             }
         } else {
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.INFO, children + "is null or empty .");
+            logger.info(children + "is null or empty .");
         }
 
     }
@@ -133,14 +131,14 @@ public class SQLQuery {
                     } else if (name.equalsIgnoreCase("Time Stamp")) {
                         setTimeStampObject(obj);
                     } else {
-                        Logger.getLogger(SQLQuery.class.getName()).log(Level.INFO, obj + "is illegal.");
+                        logger.info(obj + "is illegal.");
                     }
                 } else {
-                    Logger.getLogger(SQLQuery.class.getName()).log(Level.INFO, obj + "is null or empty .");
+                    logger.info(obj + "is null or empty .");
                 }
             }
         } else {
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.INFO, objs + "is null or empty .");
+            logger.info(objs + "is null or empty .");
         }
     }
 
@@ -152,26 +150,25 @@ public class SQLQuery {
      * exception will also be printed.
      *
      * @param obj
-     * @throws JEVisException
      */
-    public void setValueObject(JEVisObject obj) throws JEVisException {
+    public void setValueObject(JEVisObject obj) {
         try {
             setPositionValue(Long.valueOf(String.valueOf(getAttribute(obj, Position_Value))));
         } catch (Exception ex) {
             setPositionValue(null);
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
         try {
             setTypeValue(String.valueOf(getAttribute(obj, Type_Value)));
         } catch (Exception ex) {
             setTypeValue(null);
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
         try {
             setColumnValue(String.valueOf(getAttribute(obj, Column_Value)));
         } catch (Exception ex) {
             setColumnValue(null);
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
     }
 
@@ -183,26 +180,25 @@ public class SQLQuery {
      * exception will also be printed.
      *
      * @param obj
-     * @throws JEVisException
      */
-    public void setTimeStampObject(JEVisObject obj) throws JEVisException {
+    public void setTimeStampObject(JEVisObject obj) {
         try {
             setPositionTimeStamp(Long.valueOf(String.valueOf(getAttribute(obj, Position_TimeStamp))));
         } catch (Exception ex) {
             setPositionTimeStamp(null);
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
         try {
             setTypeTimeStamp(String.valueOf(getAttribute(obj, Type_TimeStamp)));
         } catch (Exception ex) {
             setTypeTimeStamp(null);
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
         try {
             setColumnTimeStamp(String.valueOf(getAttribute(obj, Column_TimeStamp)));
         } catch (Exception ex) {
             setColumnTimeStamp(null);
-            Logger.getLogger(SQLQuery.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
 
     }
@@ -276,11 +272,7 @@ public class SQLQuery {
      * @return
      */
     public boolean isValueConfigured() {
-        if (_columnValue != null && !_columnValue.isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
+        return _columnValue != null && !_columnValue.isEmpty();
     }
 
     /**
@@ -290,11 +282,7 @@ public class SQLQuery {
      * @return
      */
     public boolean isTimeStampConfigured() {
-        if (_columnTimeStamp != null && !_columnTimeStamp.isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
+        return _columnTimeStamp != null && !_columnTimeStamp.isEmpty();
     }
 
 //    /**
@@ -333,11 +321,12 @@ public class SQLQuery {
 //                }
 //            }
 //        } catch (JEVisException ex) {
-//            java.util.logging.Logger.getLogger(SQLNotification.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            logger.error(SQLNotification.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 //            string = null;
 //        }
 //        return string;
 //    }
+
     /**
      * Handle the given SQL Query. Replace myID, myTbale, myValue of name of
      * table, name of the columns, which storages value and timestamp.

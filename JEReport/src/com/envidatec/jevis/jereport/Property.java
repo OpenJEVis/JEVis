@@ -11,8 +11,8 @@ import envidatec.jevis.capi.nodes.RegTreeNode;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+
 
 /**
  *
@@ -59,16 +59,16 @@ public class Property {
 
 
         String startRecordDate = reportNode.getPropertyNode("Start record").getCurrentValue().getVal().toString();
-//        System.out.println("startrecoddate " + startRecordDate);
+//        logger.info("startrecoddate " + startRecordDate);
         //sollte in die setTimeSet methode
         JevCalendar startTimeStamp = setPropertyDate(startRecordDate);
         startRecord = startTimeStamp.clone();
         startRecord = setRightTimezone(startRecord);
-//        System.out.println("startrecod " + startRecord);
+//        logger.info("startrecod " + startRecord);
 
         endCreationDate = startTimeStamp.clone();
         endCreationDate.add(getScheduleAsInt(), period);
-//        System.out.println("ENDCREATIONDATE " + endCreationDate);
+//        logger.info("ENDCREATIONDATE " + endCreationDate);
         endCreationDate = setRightTimezone(endCreationDate);
 
         setTimeSet();
@@ -92,7 +92,7 @@ public class Property {
         _logger.log(Level.FINEST, "Period " + period);
         _logger.log(Level.FINEST, "StartRecordDate " + startRecordDate);
         _logger.log(Level.FINEST, "NextCreationData " + endCreationDate);
-//        System.out.println("PopertyEND");
+//        logger.info("PopertyEND");
     }
 
     private JevCalendar setPropertyDate(String date) {
@@ -102,8 +102,8 @@ public class Property {
 
         JevCalendar tempCal = new JevCalendar(Integer.parseInt(datearray[0]), Integer.parseInt(datearray[1]), Integer.parseInt(datearray[2]), Integer.parseInt(datearray[3]), Integer.parseInt(datearray[4]));
 
-//        System.out.println("TEMPCAL " + tempCal);
-//        System.out.println("zeitzone " + tempCal.getTimeZone().getDisplayName());
+//        logger.info("TEMPCAL " + tempCal);
+//        logger.info("zeitzone " + tempCal.getTimeZone().getDisplayName());
         return tempCal;
     }
 
@@ -111,16 +111,16 @@ public class Property {
         JevCalendar returnCal = new JevCalendar(new Date(tempCal.getTimeInMillis()
                 - Calendar.getInstance().getTimeZone().getOffset(tempCal.clone().getTimeInMillis())));
 //        JevCalendar tmpCal = new JevCalendar(Integer.parseInt(datearray[0]), Integer.parseInt(datearray[1]), Integer.parseInt(datearray[2]), Integer.parseInt(datearray[3]) - 2, Integer.parseInt(datearray[4]), TimeZone.getTimeZone(Locale.getDefault().getDisplayCountry()));
-//        System.out.println("returncal zeitzone " + returnCal.getTimeZone().getDisplayName());
+//        logger.info("returncal zeitzone " + returnCal.getTimeZone().getDisplayName());
         return returnCal;
     }
 
     private void setTimeSet() {
 
         timeSet = new TimeSet(startRecord, new JevCalendar(new Date(endCreationDate.getTimeInMillis() - 1)));
-        System.out.println("Date from " + timeSet.getFrom());
-        System.out.println("Date till " + timeSet.getUntil());
-//        System.out.println("Timezone " + timeSet.getFrom().getTimeZone().getDisplayName());
+        logger.info("Date from " + timeSet.getFrom());
+        logger.info("Date till " + timeSet.getUntil());
+//        logger.info("Timezone " + timeSet.getFrom().getTimeZone().getDisplayName());
     }
 
     //TODO getUntil muss um einen verringert werden?
@@ -131,8 +131,8 @@ public class Property {
         JevCalendar tempUntil = new JevCalendar(new Date(startRecord.getTimeInMillis() - 1));
         oldTimeSet = new TimeSet(tempCal, tempUntil);
 
-//        System.out.println("Date from OLD " + tempCal);
-//        System.out.println("Date till OLD " + tempUntil);
+//        logger.info("Date from OLD " + tempCal);
+//        logger.info("Date till OLD " + tempUntil);
     }
 
     private void setTimeSetOldOld(JevCalendar start) {
@@ -145,8 +145,8 @@ public class Property {
         JevCalendar tempTempUntil = new JevCalendar(new Date(tempUntil.getTimeInMillis() - 1));
         oldOldTimeSet = new TimeSet(tempCal, tempTempUntil);
 
-//        System.out.println("Date from OLDOLD " + tempCal);
-//        System.out.println("Date till OLDOLD " + tempUntil);
+//        logger.info("Date from OLDOLD " + tempCal);
+//        logger.info("Date till OLDOLD " + tempUntil);
     }
 
     private void setLastYearTimeSet(JevCalendar start) {
@@ -159,8 +159,8 @@ public class Property {
         tempUntil = setRightTimezone(tempUntil);
         JevCalendar tempTempUntil = new JevCalendar(new Date(tempUntil.getTimeInMillis() - 1));
         lastYearTimeSet = new TimeSet(tempCal, tempTempUntil);
-//        System.out.println("Date from LASTYEAR " + lastYearTimeSet.getFrom());
-//        System.out.println("Date till LASTYEAR " + lastYearTimeSet.getUntil());
+//        logger.info("Date from LASTYEAR " + lastYearTimeSet.getFrom());
+//        logger.info("Date till LASTYEAR " + lastYearTimeSet.getUntil());
     }
 
     public TimeSet getTimeSet() {
@@ -246,7 +246,7 @@ public class Property {
         tempUntil = setRightTimezone(tempUntil);
         JevCalendar tempTempUntil = new JevCalendar(new Date(tempUntil.getTimeInMillis() - 1));
         oldLastYearTimeSet = new TimeSet(tempCal, tempTempUntil);
-//        System.out.println("Date from OLDLASTYEAR " + oldLastYearTimeSet.getFrom());
-//        System.out.println("Date till OLDLASTYEAR " + oldLastYearTimeSet.getUntil());
+//        logger.info("Date from OLDLASTYEAR " + oldLastYearTimeSet.getFrom());
+//        logger.info("Date till OLDLASTYEAR " + oldLastYearTimeSet.getUntil());
     }
 }

@@ -19,6 +19,8 @@
  */
 package org.jevis.commons.dataprocessing.function;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
@@ -29,8 +31,6 @@ import org.joda.time.Interval;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.jevis.commons.dataprocessing.ProcessOptions.getAllTimestamps;
 
@@ -38,7 +38,7 @@ import static org.jevis.commons.dataprocessing.ProcessOptions.getAllTimestamps;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class AggregationFunktion implements ProcessFunction {
-
+    private static final Logger logger = LogManager.getLogger(AggregationFunktion.class);
     public static final String NAME = "Aggrigator";
     private final String mode;
     private static final String AVERAGE = "average";
@@ -72,14 +72,14 @@ public class AggregationFunktion implements ProcessFunction {
                 for (int i = lastPos; i < samples.size(); i++) {
                     try {
                         if (interval.contains(samples.get(i).getTimestamp().minusMillis(1))) {
-//                        System.out.println("add sample: " + samples.get(i));
+//                        logger.info("add sample: " + samples.get(i));
                             samplesInPeriod.add(samples.get(i));
                         } else if (samples.get(i).getTimestamp().isAfter(interval.getEnd())) {
                             lastPos = i;
                             break;
                         }
                     } catch (JEVisException ex) {
-                        System.out.println("JEVisException while going through sample: " + ex.getMessage());
+                        logger.fatal("JEVisException while going through sample: " + ex.getMessage());
                     }
                 }
                 boolean hasSamples = false;
@@ -99,7 +99,7 @@ public class AggregationFunktion implements ProcessFunction {
                         hasSamples = true;
                         if (unit == null) unit = sample.getUnit();
                     } catch (JEVisException ex) {
-                        Logger.getLogger(AggregationFunktion.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.fatal(ex);
                     }
                 }
 
@@ -116,7 +116,7 @@ public class AggregationFunktion implements ProcessFunction {
 
 
                 if (hasSamples) {
-                    JEVisSample resultSum = new VirtualSample(interval.getEnd(), sum, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
+                    JEVisSample resultSum = new VirtualSample(interval.getStart(), sum, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
                     result.add(resultSum);
                 }
             }

@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -39,6 +39,7 @@ import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
@@ -56,8 +57,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -65,7 +64,7 @@ import java.util.logging.Logger;
  */
 public class CSVColumnHeader {
 
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CSVColumnHeader.class);
+    private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
 
     private final VBox root = new VBox(5);
 
@@ -94,8 +93,8 @@ public class CSVColumnHeader {
 
     public double getValueAsDouble(String value) {
 //        DecimalFormat df = new DecimalFormat("#.#", symbols);
-//        System.out.println("org value: " + value);
-//        System.out.println("Seperator in use: " + symbols.getDecimalSeparator());
+//        logger.info("org value: " + value);
+//        logger.info("Seperator in use: " + symbols.getDecimalSeparator());
 //        String tmpValue = value;
 //
 //        if (getDecimalSeparator() == ',') {
@@ -105,7 +104,7 @@ public class CSVColumnHeader {
 //        }
 //        tmpValue = tmpValue.replaceAll(" ", "");
 //        tmpValue = tmpValue.trim();//some locales use the spaceas grouping
-//        System.out.println("Value after fix: " + tmpValue);
+//        logger.info("Value after fix: " + tmpValue);
 //
 //        Number number = df.parse(tmpValue);
 
@@ -135,7 +134,7 @@ public class CSVColumnHeader {
         Iterator it = _valuePropertys.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry) it.next();
-//            System.out.println(pairs.getKey() + " = " + pairs.getValue());
+//            logger.info(pairs.getKey() + " = " + pairs.getValue());
 
             SimpleObjectProperty prop = (SimpleObjectProperty) pairs.getValue();
             CSVCellGraphic graphic = _valueGraphic.get(pairs.getKey());
@@ -222,7 +221,7 @@ public class CSVColumnHeader {
     }
 
     public String getFormatedValue(String value) {
-//        System.out.println("get formatedt value: " + value);
+//        logger.info("get formatedt value: " + value);
         try {
 
             switch (currentMeaning) {
@@ -242,10 +241,10 @@ public class CSVColumnHeader {
 //
                     if (getTarget() != null && getTarget().getInputUnit() != null) {
                         JEVisUnit unit = getTarget().getInputUnit();
-                        System.out.println("Value with unit: " + df.format(getValueAsDouble(value)) + unit.getLabel());
+                        logger.info("Value with unit: " + df.format(getValueAsDouble(value)) + unit.getLabel());
                         return df.format(getValueAsDouble(value)) + unit.getLabel();
                     }
-//                    System.out.println("unit.formate: " + unit);
+//                    logger.info("unit.formate: " + unit);
 
 //                    return df.format(getValueAsDouble(value)) + unit;
                     return getValueAsDouble(value) + "";
@@ -253,9 +252,10 @@ public class CSVColumnHeader {
                     break;
                 case Ignore:
                     return value;
-//                    System.out.println("To Ignore");
+//                    logger.info("To Ignore");
             }
         } catch (Exception pe) {
+            logger.error(pe);
             return value;
         }
         return value;
@@ -346,7 +346,7 @@ public class CSVColumnHeader {
 //                    Number number = df.parse(tmpValue);
 //                    Double dValue = number.doubleValue();
 //
-//                    System.out.println("Value is valid: " + dValue);
+//                    logger.info("Value is valid: " + dValue);
 //                    return true;
                 case Text:
                     //TODO maybe check for .... if the attriute is from type string
@@ -497,8 +497,7 @@ public class CSVColumnHeader {
                     }
 
                 } catch (JEVisException ex) {
-                    Logger.getLogger(CSVColumnHeader.class
-                            .getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });
@@ -514,13 +513,13 @@ public class CSVColumnHeader {
 
             @Override
             public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1) {
-//                System.out.println("Seperator changed: " + t1);
+//                logger.info("Seperator changed: " + t1);
                 if (t1.equals(comma)) {
-//                    System.out.println("sep is now ,");
+//                    logger.info("sep is now ,");
                     _decimalSeparator = ',';
 
                 } else if (t1.equals(dot)) {
-//                    System.out.println("sep is now .");
+//                    logger.info("sep is now .");
                     _decimalSeparator = '.';
                 }
                 symbols.setDecimalSeparator(_decimalSeparator);
@@ -713,11 +712,11 @@ public class CSVColumnHeader {
 
         //Best formates are first in list
         String[] pattern = {
-            "yyyy-MM-dd'T'HH:mm:ssZ",
-            "yyyy-MM-dd HH:mm:ss Z",
-            "yyyy-MM-dd HH:mm:ss",
-            "dd-MM-yyyy HH:mm:ss Z",
-            "dd-MM-yyyy HH:mm:ss"
+                "yyyy-MM-dd'T'HH:mm:ssZ",
+                "yyyy-MM-dd HH:mm:ss Z",
+                "yyyy-MM-dd HH:mm:ss",
+                "dd-MM-yyyy HH:mm:ss Z",
+                "dd-MM-yyyy HH:mm:ss"
         };
 
         DateTime minDate = new DateTime(1980, 1, 1, 1, 0, 0, 0);
@@ -731,7 +730,7 @@ public class CSVColumnHeader {
                     return pattern[i];
                 }
             } catch (Exception ex) {
-                // Ignore
+                logger.fatal(ex);
             }
         }
 
@@ -781,12 +780,12 @@ public class CSVColumnHeader {
 
 //                SelectTargetDialog dia = new SelectTargetDialog();
 //                if (dia.show(JEConfig.getStage(), _table.getDataSource()) == SelectTargetDialog.Response.OK) {
-//                    System.out.println("OK");
+//                    logger.info("OK");
 //                    for (UserSelection selection : dia.getUserSelection()) {
 //                        button.setText(selection.getSelectedAttribute().getObject().getName() + "." + selection.getSelectedAttribute().getName());
 //                        _target = selection.getSelectedAttribute();
 //                        try {
-//                            System.out.println("Unit: " + _target.getDisplayUnit());
+//                            logger.info("Unit: " + _target.getDisplayUnit());
 //                            unitButton.setText(UnitFormat.getInstance().format(_target.getDisplayUnit()));
 //
 //                        } catch (JEVisException ex) {

@@ -4,35 +4,31 @@
  */
 package org.jevis.jenotifier.mode;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 import org.jevis.jenotifier.JENotifierHelper;
 import org.jevis.jenotifier.config.JENotifierConfig;
 import org.jevis.jenotifier.loader.NotifierLoader;
 import org.jevis.jenotifier.notifier.Notification;
 import org.jevis.jenotifier.notifier.NotificationDriver;
 
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 /**
- *
  * @author gf
  */
 public class SingleAll {
+    private static final Logger logger = LogManager.getLogger(SingleAll.class);
 
-//    private JENotifierConfig _config;
+    //    private JENotifierConfig _config;
     private int _maxThread;
-//    private List<JEVisObject> _notiObj;
+    //    private List<JEVisObject> _notiObj;
     private List<Long> _notiDriID;
     private JEVisDataSource _ds;
     private NotifierLoader _loader;
@@ -70,7 +66,7 @@ public class SingleAll {
     public void start() {
         try {
             _loader.loadingClass();
-//            System.out.println(_maxThread);
+//            logger.info(_maxThread);
             ExecutorService executor = Executors.newFixedThreadPool(_maxThread);
             //
             JEVisClass notification = _ds.getJEVisClass("Notification");
@@ -109,9 +105,9 @@ public class SingleAll {
             // Wait until all threads are finish
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         } catch (JEVisException ex) {
-            Logger.getLogger(SingleAll.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         } catch (InterruptedException ex) {
-            Logger.getLogger(SingleAll.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
 
     }

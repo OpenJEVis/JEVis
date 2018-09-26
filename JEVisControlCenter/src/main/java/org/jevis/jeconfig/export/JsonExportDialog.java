@@ -1,30 +1,25 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.export;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -36,24 +31,18 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.resource.ResourceLoader;
@@ -63,11 +52,16 @@ import org.jevis.commons.json.JsonObject;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  *
  * @author fs
  */
 public class JsonExportDialog {
+    private static final Logger logger = LogManager.getLogger(JsonExportDialog.class);
 
     public File tartetFile;
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
@@ -132,7 +126,7 @@ public class JsonExportDialog {
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
         header.setPadding(new Insets(10, 10, 10, 10));
 
-        Label topTitle = new Label(I18n.getInstance().getString("export.name.tooltip",obj.getName()));
+        Label topTitle = new Label(I18n.getInstance().getString("export.name.tooltip", obj.getName()));
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));
 
@@ -201,7 +195,7 @@ public class JsonExportDialog {
 
             @Override
             public void handle(ActionEvent event) {
-                System.out.println("");
+                logger.info("");
                 FileChooser fileChooser = new FileChooser();
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -227,13 +221,13 @@ public class JsonExportDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
 
                 boolean isChildren = allChildren.isSelected();
                 boolean isAattributes = attributes.isSelected();
                 boolean isSamples = false;
                 if (isAattributes) {
-                    isSamples = allSamples.isSelected();;
+                    isSamples = allSamples.isSelected();
                 }
 
                 tartetFile = new File(destinationF.getText());
@@ -242,7 +236,7 @@ public class JsonExportDialog {
                     JsonObject jobj = JsonFactory.buildObject(obj, isAattributes, isChildren, isSamples);
                     JsonFileExporter.writeToFile(tartetFile, jobj);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(JsonExportDialog.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
 
                 stage.close();

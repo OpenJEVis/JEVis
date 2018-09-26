@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -38,6 +38,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.application.dialog.DialogHeader;
 
 /**
@@ -45,21 +47,8 @@ import org.jevis.application.dialog.DialogHeader;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PasswordDialog {
-
+    private static final Logger logger = LogManager.getLogger(PasswordDialog.class);
     public static String ICON = "1415303685_lock-128.png";
-
-    public static enum Response {
-
-        YES, CANCEL
-    };
-
-    private Response response = Response.CANCEL;
-
-    final Label passL = new Label("New Password:");
-    final Label confirmL = new Label("Comfirm Password:");
-    final PasswordField pass = new PasswordField();
-    final PasswordField comfirm = new PasswordField();
-    final Button ok = new Button("OK");
 
     /**
      *
@@ -69,7 +58,7 @@ public class PasswordDialog {
      * @return
      */
     public Response show(Stage owner) {
-        System.out.println("Change password dialog");
+        logger.info("Change password dialog");
         final Stage stage = new Stage();
 
         stage.setTitle("Change Password");
@@ -123,7 +112,7 @@ public class PasswordDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 stage.close();
 //                isOK.setValue(true);
                 response = Response.YES;
@@ -158,9 +147,22 @@ public class PasswordDialog {
 
         pass.requestFocus();
         stage.showAndWait();
-        System.out.println("return " + response);
+        logger.info("return " + response);
 
         return response;
+    }
+
+    private Response response = Response.CANCEL;
+
+    final Label passL = new Label("New Password:");
+    final Label confirmL = new Label("Comfirm Password:");
+    final PasswordField pass = new PasswordField();
+    final PasswordField comfirm = new PasswordField();
+    final Button ok = new Button("OK");
+
+    public enum Response {
+
+        YES, CANCEL
     }
 
     public String getPassword() {

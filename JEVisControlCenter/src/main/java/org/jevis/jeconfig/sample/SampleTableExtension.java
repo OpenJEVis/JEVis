@@ -30,6 +30,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -42,13 +44,12 @@ import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SampleTableExtension implements SampleEditorExtension {
+    private static final Logger logger = LogManager.getLogger(SampleTableExtension.class);
 
     private final static String TITLE = "Editor";
     private final BorderPane _view = new BorderPane();
@@ -70,7 +71,7 @@ public class SampleTableExtension implements SampleEditorExtension {
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER);
 
-        final SampleTable table = new SampleTable(att,samples);
+        final SampleTable table = new SampleTable(att, samples);
 //        final org.jevis.jeconfig.sampletable.SampleTableView table = new org.jevis.jeconfig.sampletable.SampleTableView(samples);
         table.setPrefSize(1000, 1000);
 
@@ -85,12 +86,11 @@ public class SampleTableExtension implements SampleEditorExtension {
                     att.deleteAllSample();
                     setSamples(att, att.getAllSamples());
                     update();
-                    Logger.getLogger(SampleTableExtension.class.getName()).info("Deleted all Samples of Attribute " + att.getName() +
+                    logger.info("Deleted all Samples of Attribute " + att.getName() +
                             " of Object " + att.getObject().getName() + " of ID " + att.getObject().getID());
                 }
             } catch (Exception ex) {
-                //TODO: do something...
-                ex.printStackTrace();
+                logger.fatal(ex);
             }
         });
 
@@ -111,9 +111,9 @@ public class SampleTableExtension implements SampleEditorExtension {
                                         //TODO: the JEAPI cound use to have an delte funtion for an list of samples
                                         att.deleteSamplesBetween(tsample.getSample().getTimestamp(), tsample.getSample().getTimestamp());
                                     } catch (JEVisException ex) {
-                                        Logger.getLogger(SampleTableExtension.class.getName()).log(Level.SEVERE, null, ex);
+                                        logger.fatal(ex);
                                     }
-                                    Logger.getLogger(SampleTableExtension.class.getName()).info("Deleted Samples " + list.size());
+                                    logger.info("Deleted Samples " + list.size());
 
                                 }
 
@@ -126,8 +126,7 @@ public class SampleTableExtension implements SampleEditorExtension {
                         }
 
                     } catch (Exception ex) {
-                        //TODO: do something...
-                        ex.printStackTrace();
+                        logger.fatal(ex);
                     }
 
                 }
@@ -161,7 +160,7 @@ public class SampleTableExtension implements SampleEditorExtension {
                                 setSamples(att, DataProcessing.getSamples(att, startDate, endDate, ""));
                                 update();
 
-                                Logger.getLogger(SampleTableExtension.class.getName()).info("Deleted Samples between: " +
+                                logger.info("Deleted Samples between: " +
                                         startDate.toDateTimeISO() + " and " + endDate.toDateTimeISO());
                             }
                         }
@@ -178,8 +177,7 @@ public class SampleTableExtension implements SampleEditorExtension {
                 }
 
             } catch (Exception ex) {
-                //TODO: do something...
-                ex.printStackTrace();
+                logger.fatal(ex);
             }
 
                 }

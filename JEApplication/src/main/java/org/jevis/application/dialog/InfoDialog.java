@@ -50,13 +50,6 @@ public class InfoDialog {
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON = "1404337146_info.png";
 
-    public static enum Response {
-
-        OK
-    };
-
-    private Response response = Response.OK;
-
     /**
      *
      * @param owner
@@ -119,7 +112,7 @@ public class InfoDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 stage.close();
 //                isOK.setValue(true);
                 response = Response.OK;
@@ -130,6 +123,13 @@ public class InfoDialog {
         stage.showAndWait();
 
         return response;
+    }
+
+    private Response response = Response.OK;
+
+    public enum Response {
+
+        OK
     }
 
 }

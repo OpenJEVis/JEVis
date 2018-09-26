@@ -4,16 +4,17 @@
  */
 package org.jevis.commons.driver.inputHandler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *
  * @author Broder
  */
 public class FileInputHandler extends InputHandler {
+    private static final Logger logger = LogManager.getLogger(FileInputHandler.class);
 
     public FileInputHandler(File file, Charset charset) {
         super(file, charset);
@@ -22,7 +23,7 @@ public class FileInputHandler extends InputHandler {
     //input is file
     @Override
     public void convertInput() {
-        System.out.println("--Convert Array Input--");
+        logger.info("--Convert Array Input--");
         try {
             File file = (File) _rawInput;
             FileReader reader = null;
@@ -34,7 +35,7 @@ public class FileInputHandler extends InputHandler {
                 line = buffer.readLine();
             }
         } catch (IOException ex) {
-            Logger.getLogger(FileInputHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 }

@@ -5,13 +5,8 @@
  */
 package org.jevis.simplealarm;
 
-import java.io.File;
-import java.text.DecimalFormat;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
@@ -20,6 +15,10 @@ import org.jevis.simplealarm.limitalarm.ILimitAlarm;
 import org.jevis.simplealarm.limitalarm.StaticLimitAlarm;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import java.io.File;
+import java.text.DecimalFormat;
+import java.util.List;
 
 /**
  *
@@ -32,26 +31,26 @@ import org.joda.time.format.DateTimeFormatter;
  * @author fs
  */
 public class JEAlarm {
-
+    private static final Logger logger = LogManager.getLogger(JEAlarm.class);
     public static final DecimalFormat deci = new DecimalFormat("#.00");
     public static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss ZZZ");
     JEVisDataSource ds = null;
 
-    public static void main(String[] args) throws ParseException, ConfigurationException {
+    public JEAlarm() {
+        logger.info("JEAlarm version 2017-02-07");
+    }
+
+    public static void main(String[] args) {
 
         if (args.length < 1) {
-            System.out.println("Missing parameter for config file");
+            logger.info("Missing parameter for config file");
         }
         File file = new File(args[0]);
 
         if (!file.canRead()) {
-            System.out.println("Cannot read config file");
+            logger.info("Cannot read config file");
         }
 
-    }
-
-    public JEAlarm() {
-        Logger.getLogger(JEAlarm.class.getName()).log(Level.INFO, "JEAlarm version 2017-02-07");
     }
 
     //TODO: Overwrite
@@ -63,20 +62,20 @@ public class JEAlarm {
             dynamicAlarmClass = ds.getJEVisClass(DynamicLimitAlarm.ALARM_CLASS);
             staticAlarmClass = ds.getJEVisClass(StaticLimitAlarm.ALARM_CLASS);
         } catch (Exception ex) {
-            Logger.getLogger(JEAlarm.class.getName()).log(Level.SEVERE, "Dynamic and/or Static Limit Alarm Class not found or wrong", ex);
+            logger.error("Dynamic and/or Static Limit Alarm Class not found or wrong", ex);
         }
 
         List<JEVisObject> dynamicAlarmObjects = null;
         try {
             dynamicAlarmObjects = ds.getObjects(dynamicAlarmClass, true);
         } catch (Exception ex) {
-            Logger.getLogger(JEAlarm.class.getName()).log(Level.SEVERE, "Cant get Dynamic Alarm JEVis Object", ex);
+            logger.error("Cant get Dynamic Alarm JEVis Object", ex);
         }
         List<JEVisObject> staticAlarmObjects = null;
         try {
             staticAlarmObjects = ds.getObjects(staticAlarmClass, true);
         } catch (Exception ex) {
-            Logger.getLogger(JEAlarm.class.getName()).log(Level.SEVERE, "Cant get Static Alarm JEVis Object", ex);
+            logger.error("Cant get Static Alarm JEVis Object", ex);
         }
 
         showAlarmOverview(staticAlarmObjects);
@@ -85,12 +84,12 @@ public class JEAlarm {
         //Dynamic Alarms------TODO -> write logger -----------------------------------------
         for (JEVisObject alarm : dynamicAlarmObjects) {
             try {
-                System.out.println("\n\nCheck Alarm: [" + alarm.getID() + "]" + alarm.getName());
+                logger.info("\n\nCheck Alarm: [" + alarm.getID() + "]" + alarm.getName());
                 ILimitAlarm sAlarm = new DynamicLimitAlarm(alarm);
                 sAlarm.init();
                 sAlarm.checkAlarm();
             } catch (Exception ex) {
-                System.out.println("Error while creating Dynamic Alarm");
+                logger.error("Error while creating Dynamic Alarm");
                 ex.printStackTrace();
             }
 
@@ -99,12 +98,12 @@ public class JEAlarm {
         //Static Alarms-----------------------------------------------
         for (JEVisObject alarm : staticAlarmObjects) {
             try {
-                System.out.println("\n\nCheck Alarm: [" + alarm.getID() + "]" + alarm.getName());
+                logger.info("\n\nCheck Alarm: [" + alarm.getID() + "]" + alarm.getName());
                 ILimitAlarm sAlarm = new StaticLimitAlarm(alarm);
                 sAlarm.init();
                 sAlarm.checkAlarm();
             } catch (Exception ex) {
-                System.out.println("Error while processing Static Alarm");
+                logger.error("Error while processing Static Alarm");
                 ex.printStackTrace();
             }
         }
@@ -114,18 +113,18 @@ public class JEAlarm {
     //TODO sys.o.pri -> logger
     private void showAlarmOverview(List<JEVisObject> alarmObjects) {
 
-        System.out.println("Found " + alarmObjects.size() + " Dynamic Alarm Objects.");
+        logger.info("Found " + alarmObjects.size() + " Dynamic Alarm Objects.");
         for (JEVisObject alarm : alarmObjects) {
-            System.out.print("-> " + alarm.getID() + " " + alarm.getName());
+            logger.info("-> " + alarm.getID() + " " + alarm.getName());
             try {
                 JEVisObject parent = alarm.getParents().get(0);
-                System.out.print(" | " + parent.getID() + " " + parent.getName());
+                logger.info(" | " + parent.getID() + " " + parent.getName());
 
                 JEVisObject parentParent = parent.getParents().get(0);
-                System.out.print(" | " + parentParent.getID() + " " + parentParent.getName());
+                logger.info(" | " + parentParent.getID() + " " + parentParent.getName());
 
             } catch (Exception ex) {
-                System.out.println("");
+                logger.error(ex);
             }
         }
     }

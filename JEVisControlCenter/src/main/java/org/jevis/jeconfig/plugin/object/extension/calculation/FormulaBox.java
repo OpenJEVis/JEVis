@@ -8,6 +8,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import net.sourceforge.jeval.Evaluator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.dialog.SelectTargetDialog2;
 import org.jevis.application.jevistree.UserSelection;
@@ -20,8 +22,9 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FormelBox extends HBox {
+public class FormulaBox extends HBox {
 
+    private static final Logger logger = LogManager.getLogger(FormulaBox.class);
     //    TextArea textArea = new TextArea();
     TextArea textArea = new TextArea();
     Label errorArea = new Label();
@@ -29,7 +32,7 @@ public class FormelBox extends HBox {
     private JEVisObject calcObj;
     private Button outputButton;
 
-    public FormelBox() {
+    public FormulaBox() {
         super();
         setSpacing(5);
 
@@ -161,9 +164,9 @@ public class FormelBox extends HBox {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        System.out.println("Button.text: " + butttonOutput.getText());
+        logger.info("Button.text: " + butttonOutput.getText());
         outputButton.textProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Button text changed: " + oldValue + " new: " + newValue);
+            logger.info("Button text changed: " + oldValue + " new: " + newValue);
         });
     }
 

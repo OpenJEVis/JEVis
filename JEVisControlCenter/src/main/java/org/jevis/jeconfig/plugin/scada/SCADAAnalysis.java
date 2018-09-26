@@ -3,6 +3,8 @@ package org.jevis.jeconfig.plugin.scada;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jeconfig.plugin.scada.data.ScadaAnalysisData;
 import org.jevis.jeconfig.plugin.scada.data.ScadaElementData;
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SCADAAnalysis {
-
+    private static final Logger logger = LogManager.getLogger(SCADAAnalysis.class);
     private String title = "";
     private BufferedImage image2;
     private boolean fullScreenBackground = true;
@@ -52,7 +54,7 @@ public class SCADAAnalysis {
 
     //    public void load(JEVisObject analysisObj) throws JEVisException {
     public void load() throws JEVisException {
-        System.out.println("==SCADA Analysis.load()==");
+        logger.info("==SCADA Analysis.load()==");
         if (jevisObject == null) {
             return;
         }
@@ -69,7 +71,7 @@ public class SCADAAnalysis {
 
                 ScadaAnalysisData jsonData = gson.fromJson(dmSample.getValueAsString(), ScadaAnalysisData.class);
                 jsonData.getElements().forEach(scadaElementData -> {
-                    System.out.println("Add element: " + scadaElementData.getType());
+                    logger.info("Add element: " + scadaElementData.getType());
                     elements.add(getElement(scadaElementData));
                 });
             }
@@ -119,7 +121,7 @@ public class SCADAAnalysis {
 
     public BufferedImage getImage() {
         if (image2 == null) {
-            System.out.println("no Image set using fallback");
+            logger.info("no Image set using fallback");
             return new BufferedImage(1, 1, 1);
         }
         return image2;

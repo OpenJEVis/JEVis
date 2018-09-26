@@ -25,12 +25,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.stage.FileChooser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.AboutDialog;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.jeconfig.csv.CSVImportDialog;
-import org.jevis.jeconfig.plugin.object.attribute.PasswordEditor;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.joda.time.DateTime;
@@ -39,18 +40,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 /**
  * This class builds the top menu bar for the JEVis Control Center.
  *
- *
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class TopMenu extends MenuBar {
+    private static final Logger logger = LogManager.getLogger(TopMenu.class);
 
     private List<MenuItem> items = new ArrayList<>();
     private Plugin activePlugin;
@@ -175,7 +173,7 @@ public class TopMenu extends MenuBar {
                     sample.commit();
 
                 } catch (JEVisException ex) {
-                    Logger.getLogger(PasswordEditor.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
 
             }
@@ -260,6 +258,7 @@ public class TopMenu extends MenuBar {
         try {
             classImport.setDisable(!JEConfig.getDataSource().getCurrentUser().isSysAdmin());
         } catch (Exception ex) {
+            logger.fatal(ex);
             classImport.setDisable(true);
         }
 

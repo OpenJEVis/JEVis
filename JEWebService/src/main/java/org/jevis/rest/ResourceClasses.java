@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonJEVisClass;
 import org.jevis.ws.sql.JEVisClassHelper;
@@ -38,8 +39,6 @@ import java.io.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class handel all the JEVIsObjects related requests
@@ -49,7 +48,7 @@ import java.util.logging.Logger;
 @Path("/JEWebService/v1/classes")
 public class ResourceClasses {
 
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceClasses.class);
+    private static final Logger logger = LogManager.getLogger(ResourceClasses.class);
 
     /**
      * Returns an List of JEVisClasses as Json
@@ -246,7 +245,7 @@ public class ResourceClasses {
 
 
         } catch (JEVisException jex) {
-            Logger.getLogger(ResourceClasses.class.getName()).log(Level.SEVERE, null, jex);
+            logger.fatal(jex);
             return Response.serverError().build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();

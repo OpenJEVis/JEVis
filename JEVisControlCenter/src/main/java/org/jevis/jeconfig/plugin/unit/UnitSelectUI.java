@@ -36,8 +36,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.unit.SimpleTreeUnitChooser;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -45,8 +45,6 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonUnit;
 
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -56,7 +54,7 @@ public class UnitSelectUI {
     private final JEVisUnit originalUnit;
 
     private ObjectProperty<JEVisUnit> unitProperty = new SimpleObjectProperty<>();
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(UnitSelectUI.class);
+    private static final Logger logger = LogManager.getLogger(UnitSelectUI.class);
 
     final TextField labelField = new TextField();
     final Button changeBaseUnit = new Button();//new Button("Basic Unit");
@@ -92,7 +90,7 @@ public class UnitSelectUI {
         unitProperty.addListener(new ChangeListener<JEVisUnit>() {
             @Override
             public void changed(ObservableValue<? extends JEVisUnit> observable, JEVisUnit oldValue, JEVisUnit newValue) {
-                System.out.println("ffffffffffffffffffffffffff");
+                logger.info("ffffffffffffffffffffffffff");
             }
         });
 
@@ -100,7 +98,7 @@ public class UnitSelectUI {
 
             @Override
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                System.out.println("ssssssssssssssss");
+                logger.info("ssssssssssssssss");
 //                unitProperty.getValue().setPrefix(prefix);
                 JEVisUnit cloneUnit = UnitManager.cloneUnit(unitProperty.getValue());
                 cloneUnit.setPrefix(UnitManager.getInstance().getPrefix(t1, Locale.getDefault()));
@@ -114,7 +112,7 @@ public class UnitSelectUI {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 try {
-                    System.out.println("Label event: " + newValue);
+                    logger.info("Label event: " + newValue);
                     JEVisUnit cloneUnit = cloneUnit(unitProperty.getValue());
                     cloneUnit.setLabel(newValue);
                     unitProperty.setValue(cloneUnit);
@@ -130,21 +128,17 @@ public class UnitSelectUI {
             public void handle(ActionEvent event) {
 
                 SimpleTreeUnitChooser stc = new SimpleTreeUnitChooser();
-                try {
-                    if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
-                        System.out.println("Unit selected: " + stc.getUnit().getFormula());
+                if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
+                    logger.info("Unit selected: " + stc.getUnit().getFormula());
 //                        JEVisUnit cloneUnit = cloneUnit(unitProperty.getValue());
 //                        cloneUnit.setFormula(stc.getUnit().getFormula());
 //                        unitProperty.setValue(cloneUnit);
-                        JEVisUnit newUnit = stc.getUnit();
-                        unitProperty.setValue(newUnit);
+                    JEVisUnit newUnit = stc.getUnit();
+                    unitProperty.setValue(newUnit);
 
 //                        unitProperty.getValue().setFormula(stc.getUnit().getFormula());
-                        changeBaseUnit.setText(unitProperty.getValue().getFormula());
-                        labelField.setText(UnitManager.getInstance().formate(unitProperty.getValue()));//proble: the unitChang event cone tow times
-                    }
-                } catch (JEVisException ex) {
-                    Logger.getLogger(UnitSelectUI.class.getName()).log(Level.SEVERE, null, ex);
+                    changeBaseUnit.setText(unitProperty.getValue().getFormula());
+                    labelField.setText(UnitManager.getInstance().formate(unitProperty.getValue()));//proble: the unitChang event cone tow times
                 }
 
             }

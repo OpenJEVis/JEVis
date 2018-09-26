@@ -44,7 +44,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
     //    final JEVisObject _obj;
     private boolean _childLoaded = false;
     private final JEVisTree _tree;
-    public static Logger LOGGER = LogManager.getLogger(JEVisTreeItem.class);
+    public static Logger logger = LogManager.getLogger(JEVisTreeItem.class);
 
     /**
      * Constructor for the Root Item. This them will call getRoot from the
@@ -55,7 +55,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
      * @throws JEVisException
      */
     public JEVisTreeItem(JEVisTree tree, JEVisDataSource ds) throws JEVisException {
-//        LOGGER.trace("== init1 for root node==");
+//        logger.trace("== init1 for root node==");
         JEVisObject _obj = new JEVisRootObject(ds);
         JEVisTreeRow sobj = new JEVisTreeRow(_obj);
         setValue(sobj);
@@ -66,7 +66,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
     }
 
     public JEVisTreeItem(JEVisTree tree, JEVisObject obj) {
-//        LOGGER.trace("== init2 == {}", obj.getID());
+//        logger.trace("== init2 == {}", obj.getID());
         JEVisTreeRow sobj = new JEVisTreeRow(obj);
         setValue(sobj);
         _tree = tree;
@@ -90,25 +90,25 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                             getParent().getChildren().remove(JEVisTreeItem.this);
 
                             try {
-                                LOGGER.error("###Delete### Parent: {}", getParent().getValue().getJEVisObject().getName());
+                                logger.error("###Delete### Parent: {}", getParent().getValue().getJEVisObject().getName());
                                 for (JEVisObject child : getParent().getValue().getJEVisObject().getChildren()) {
-                                    LOGGER.error("###Delete### child In DB: {}", child.getName());
+                                    logger.error("###Delete### child In DB: {}", child.getName());
 
                                 }
                                 for (TreeItem<JEVisTreeRow> child : getParent().getChildren()) {
-                                    LOGGER.error("###Delete### child In Tree: {}", child.getValue().getJEVisObject().getName());
+                                    logger.error("###Delete### child In Tree: {}", child.getValue().getJEVisObject().getName());
 
                                 }
 
                             } catch (Exception ex) {
-                                LOGGER.catching(ex);
+                                logger.catching(ex);
                             }
 
                         }
                         break;
                     case OBJECT_NEW_CHILD:
                         JEVisObject ob = (JEVisObject) event.getSource();
-                        LOGGER.error("New Child Event: {}", ob.getID());
+                        logger.error("New Child Event: {}", ob.getID());
 
                         Platform.runLater(() -> {
                             setExpanded(false);
@@ -120,7 +120,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                         });
                         break;
                     case OBJECT_CHILD_DELETED:
-                        LOGGER.error("Delete Child Event: {}", getValue().getJEVisObject().getID());
+                        logger.error("Delete Child Event: {}", getValue().getJEVisObject().getID());
                         Platform.runLater(() -> {
                             setExpanded(false);
                             _childLoaded = false;
@@ -131,7 +131,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                         });
                         break;
                     case OBJECT_UPDATED:
-                        LOGGER.trace("New Update Event: {}", getValue().getJEVisObject().getID());
+                        logger.trace("New Update Event: {}", getValue().getJEVisObject().getID());
                         Platform.runLater(() -> {
 
                             _childLoaded = false;
@@ -148,7 +148,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
             });
 
         } catch (Exception ex) {
-            LOGGER.catching(ex);
+            logger.catching(ex);
         }
     }
 
@@ -183,7 +183,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 //                                super.getChildren().add(new JEVisTreeItem(_tree, child));
                             }
                         } catch (NullPointerException ex) {
-                            LOGGER.catching(ex);
+                            logger.catching(ex);
                         }
                     }
                     super.getChildren().addAll(treeItems);
@@ -191,16 +191,16 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                 }
 
             } catch (JEVisException ex) {
-                LOGGER.catching(ex);
+                logger.catching(ex);
             }
 
             FXCollections.sort(super.getChildren(), new Comparator<TreeItem<JEVisTreeRow>>() {
                 @Override
                 public int compare(TreeItem<JEVisTreeRow> o1, TreeItem<JEVisTreeRow> o2) {
-//                    LOGGER.trace("Compare: {} to: {}", o1.getValue().getID(), o2.getValue().getID());
+//                    logger.trace("Compare: {} to: {}", o1.getValue().getID(), o2.getValue().getID());
 
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-//                    LOGGER.trace("2");
+//                    logger.trace("2");
                         try {
                             boolean o1IsDir = ClassHelper.isDirectory(o1.getValue().getJEVisObject().getJEVisClass());
                             boolean o2IsDir = ClassHelper.isDirectory(o2.getValue().getJEVisObject().getJEVisClass());
@@ -216,26 +216,26 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                                 return ac.compare(o1.getValue().getJEVisObject().getName(), o2.getValue().getJEVisObject().getName());
                             }
                         } catch (JEVisException jex) {
-                            LOGGER.error(jex);
+                            logger.error(jex);
                         }
 
                     }
 
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-//                    LOGGER.trace("3");
+//                    logger.trace("3");
                         return -1;
                     }
 
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
-//                    LOGGER.trace("4");
+//                    logger.trace("4");
                         return 1;
                     }
 
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE && o2.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
-//                    LOGGER.trace("5");
+//                    logger.trace("5");
                         return o1.getValue().getJEVisAttribute().getName().compareTo(o2.getValue().getJEVisAttribute().getName());
                     }
-//                LOGGER.trace("6");
+//                logger.trace("6");
                     return 0;
                 }
             });

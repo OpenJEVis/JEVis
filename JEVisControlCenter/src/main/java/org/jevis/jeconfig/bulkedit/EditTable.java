@@ -5,28 +5,13 @@
  */
 package org.jevis.jeconfig.bulkedit;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -36,27 +21,22 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.Pair;
-import org.controlsfx.control.spreadsheet.GridBase;
-import org.controlsfx.control.spreadsheet.GridChange;
-import org.controlsfx.control.spreadsheet.SpreadsheetCell;
-import org.controlsfx.control.spreadsheet.SpreadsheetCellType;
-import org.controlsfx.control.spreadsheet.SpreadsheetColumn;
-import org.controlsfx.control.spreadsheet.SpreadsheetView;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.spreadsheet.*;
+import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.ImageConverter;
 
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
- *
  * @author Zeyd Bilal Calis
  */
 public class EditTable {
-
+    private static final Logger logger = LogManager.getLogger(EditTable.class);
     //declarations
     private Response response = Response.CANCEL;
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
@@ -81,16 +61,6 @@ public class EditTable {
 
     }
 
-    public static enum Type {
-
-        NEW, RENAME, EDIT
-    };
-
-    public static enum Response {
-
-        NO, YES, CANCEL
-    };
-
     private void addListChildren(JEVisObject parent, JEVisClass selectedClass) {
         try {
 
@@ -104,12 +74,8 @@ public class EditTable {
                 listChildren.add(parent.getChildren(selectedClass, false).get(i));
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
-    }
-
-    public ObservableList<JEVisObject> getListChildren() {
-        return listChildren;
     }
 
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
@@ -119,7 +85,7 @@ public class EditTable {
                 options = FXCollections.observableArrayList(parent.getAllowedChildrenClasses());
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         Callback<ListView<JEVisClass>, ListCell<JEVisClass>> cellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
@@ -143,7 +109,7 @@ public class EditTable {
                                 box.getChildren().setAll(icon, cName);
 
                             } catch (JEVisException ex) {
-                                Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.fatal(ex);
                             }
 
                             setGraphic(box);
@@ -173,7 +139,7 @@ public class EditTable {
                 new CreateNewEditTable(parent);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         BorderPane root = new BorderPane();
@@ -223,7 +189,7 @@ public class EditTable {
                         }
 
                     } catch (JEVisException ex) {
-                        Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.fatal(ex);
                     }
                 }
                 response = Response.YES;
@@ -260,7 +226,7 @@ public class EditTable {
                         root.setCenter(spv);
                     }
                 } catch (JEVisException ex) {
-                    Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });
@@ -285,6 +251,20 @@ public class EditTable {
         return response;
     }
 
+    public enum Type {
+
+        NEW, RENAME, EDIT
+    }
+
+    public ObservableList<JEVisObject> getListChildren() {
+        return listChildren;
+    }
+
+    public enum Response {
+
+        NO, YES, CANCEL
+    }
+
     public ObservableList<Pair<String, ArrayList<String>>> getPairList() {
         return pairList;
     }
@@ -304,7 +284,7 @@ public class EditTable {
                 //Spalten-Anzahl : Klassen Attribute(Types) und +2 ist fuer die Object ID,Objectname.
                 columnCount = selectedClass.getTypes().size() + 2;
             } catch (JEVisException ex) {
-                Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
             grid = new GridBase(rowCount, columnCount);
@@ -341,7 +321,7 @@ public class EditTable {
                 }
 
             } catch (JEVisException ex) {
-                Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNames);
 
@@ -366,7 +346,7 @@ public class EditTable {
                     listObjectAndSample.add(new Pair(listChildren.get(i), listSample));
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
             //sortiere die Liste! Die Reihenfolge genau wie Baumsreihenfolge
@@ -425,7 +405,7 @@ public class EditTable {
                 columnCount = colNames.length + typeSize;
 
             } catch (JEVisException ex) {
-                Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
             grid = new GridBase(rowCount, columnCount);
@@ -462,7 +442,7 @@ public class EditTable {
                     }
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
             columnHeaderNamesDataTable.addAll(colNames);
@@ -538,7 +518,7 @@ public class EditTable {
                     listObjectAndAttribute.add(new Pair(listChildren.get(i), listAttribute));
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
             //sortiere die Liste! Die Reihenfolge ist genau wie Baumsreihenfolge

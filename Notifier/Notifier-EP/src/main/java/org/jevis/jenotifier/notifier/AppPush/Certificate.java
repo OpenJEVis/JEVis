@@ -4,45 +4,41 @@
  */
 package org.jevis.jenotifier.notifier.AppPush;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.net.ssl.*;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 /**
- *
  * @author gf
  */
 public class Certificate {
+    private static final Logger logger = LogManager.getLogger(Certificate.class);
 
     /**
-     *
      * @throws Exception
      */
     static public void doTrustToCertificates() throws Exception {
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
 
-                public void checkServerTrusted(X509Certificate[] certs,
-                        String authType) throws CertificateException {
-                    return;
-                }
+                    public void checkServerTrusted(X509Certificate[] certs,
+                                                   String authType) {
+                        return;
+                    }
 
-                public void checkClientTrusted(X509Certificate[] certs,
-                        String authType) throws CertificateException {
-                    return;
+                    public void checkClientTrusted(X509Certificate[] certs,
+                                                   String authType) {
+                        return;
+                    }
                 }
-            }
         };
         SSLContext sc = SSLContext.getInstance("SSL");
         sc.init(null, trustAllCerts, new SecureRandom());
@@ -50,7 +46,7 @@ public class Certificate {
         HostnameVerifier hv = new HostnameVerifier() {
             public boolean verify(String urlHostName, SSLSession session) {
                 if (!urlHostName.equalsIgnoreCase(session.getPeerHost())) {
-                    System.out.println("Warning: URL host '"
+                    logger.info("Warning: URL host '"
                             + urlHostName + "' is different to SSLSession host '"
                             + session.getPeerHost() + "'.");
                 }

@@ -134,7 +134,7 @@ public class SCADASelectionDialog {
                     tree.reload();
                     tree.openUserSelection(stp.getUserSelection());
                     tree.setVisible(true);
-//                    System.out.println("Change mode: "+newValue);
+//                    logger.info("Change mode: "+newValue);
 //                    content.setVisible(false);
 //                    content.getChildren().removeAll();
 //

@@ -131,7 +131,7 @@ public class ConfirmDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 stage.close();
 //                isOK.setValue(true);
                 response = Response.YES;

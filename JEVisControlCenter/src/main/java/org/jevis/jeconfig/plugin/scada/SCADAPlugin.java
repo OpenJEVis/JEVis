@@ -22,6 +22,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.jevistree.UserSelection;
 import org.jevis.commons.JEVisFileImp;
@@ -45,6 +47,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class SCADAPlugin implements Plugin {
 
+    private static final Logger logger = LogManager.getLogger(SCADAPlugin.class);
     public final static String CLASS_SCADA_ANALYSIS = "SCADA Analysis";
     public final static String ATTRIBUTE_DATA_MODEL = "Data Model";
     public final static String ATTRIBUTE_BACKGROUND = "Background";
@@ -68,11 +71,11 @@ public class SCADAPlugin implements Plugin {
         this.activeAnalyse = new SCADAAnalysis(null);
 
         viewArea.setOnDragOver(event -> {
-            System.out.println("Drag over view");
+            logger.info("Drag over view");
             event.acceptTransferModes(TransferMode.ANY);
         });
         viewArea.setOnDragDropped(event -> {
-            System.out.println("Drag drop over view");
+            logger.info("Drag drop over view");
         });
 
     }
@@ -89,7 +92,7 @@ public class SCADAPlugin implements Plugin {
 
 
     private void loadAnalysisPane(SCADAAnalysis analysis) {
-        System.out.println("==Load Analysis==");
+        logger.info("==Load Analysis==");
         this.activeAnalyse = analysis;
         viewArea.getChildren().clear();
 
@@ -121,12 +124,12 @@ public class SCADAPlugin implements Plugin {
 
         Pane absoluteLayout = new Pane();
         ChangeListener<Number> sizeUpdate = (observable, oldValue, newValue) -> analysis.getElements().forEach(element -> {
-//            System.out.println("calculate element pos: " + element);
+//            logger.info("calculate element pos: " + element);
 
             double newX = (element.xPositionProperty().getValue() * viewArea.getWidth()) / 100;
             double newY = (element.yPositionProperty().getValue() * viewArea.getHeight()) / 100;
             element.getGraphic().relocate(newX, newY);
-//            System.out.println("new Rel pos: x: " + newX + " y: " + newY);
+//            logger.info("new Rel pos: x: " + newX + " y: " + newY);
         });
 
         //debug
@@ -149,9 +152,9 @@ public class SCADAPlugin implements Plugin {
         StackPane.setAlignment(absoluteLayout, Pos.TOP_LEFT);
 
         userSelection.getValue().clear();
-        System.out.println("Load Elements");
+        logger.info("Load Elements");
         analysis.getElements().forEach(element -> {
-            System.out.println("add Element tp pane: " + element);
+            logger.info("add Element tp pane: " + element);
             element.setParent(viewArea);
             Node elementGraphic = element.getGraphic();
 
@@ -183,7 +186,7 @@ public class SCADAPlugin implements Plugin {
         TimerTask updateTask = new TimerTask() {
             @Override
             public void run() {
-                System.out.println("--- Update--- ");
+                logger.info("--- Update--- ");
                 Platform.runLater(() -> {
                     lastUpdateLabel.setText("Update: " + (new DateTime()).toString());
                     updateUI(analysis);
@@ -213,7 +216,7 @@ public class SCADAPlugin implements Plugin {
     }
 
     private void updateToolbar(ToolBar toolBar, final SCADAAnalysis analyses) {
-        System.out.println("==Update Toolbar==");
+        logger.info("==Update Toolbar==");
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
         ComboBox<JEVisObject> listAnalysesComboBox = new ComboBox();
         listAnalysesComboBox.setPrefWidth(300);
@@ -484,7 +487,7 @@ public class SCADAPlugin implements Plugin {
             delete.disableProperty().setValue(true);
             lockProperty.setValue(false);
         } else {
-            System.out.println("is loaded analyses -> lock");
+            logger.info("is loaded analyses -> lock");
             lockProperty.setValue(true);
 //            unlockB.setSelected(false);
         }
@@ -524,7 +527,7 @@ public class SCADAPlugin implements Plugin {
     }
 
     private void save(SCADAAnalysis analyses) {
-        System.out.println("=SAVE==");
+        logger.info("=SAVE==");
 
         /** New analyses **/
         if (analyses.getObject() == null) {
@@ -552,7 +555,7 @@ public class SCADAPlugin implements Plugin {
         aData.setElements(new ArrayList<>());
 
         analyses.getElements().forEach(e -> {
-            System.out.println(" Add element: " + e.titleProperty().getValue());
+            logger.info(" Add element: " + e.titleProperty().getValue());
             aData.getElements().add(e.getData());
         });
 
@@ -560,7 +563,7 @@ public class SCADAPlugin implements Plugin {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         String json = gson.toJson(aData, ScadaAnalysisData.class);
-        System.out.println("json: \n" + json);
+        logger.info("json: \n" + json);
 
         try {
             JEVisSample sample = analyses.getObject().getAttribute(SCADAPlugin.ATTRIBUTE_DATA_MODEL).buildSample(new DateTime(), json);

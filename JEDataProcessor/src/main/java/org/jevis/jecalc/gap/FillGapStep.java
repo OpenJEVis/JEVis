@@ -5,6 +5,8 @@
  */
 package org.jevis.jecalc.gap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -19,8 +21,6 @@ import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,7 @@ import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingTyp
  */
 public class FillGapStep implements ProcessStep {
 
-    private static final Logger logger = LoggerFactory.getLogger(FillGapStep.class);
+    private static final Logger logger = LogManager.getLogger(FillGapStep.class);
     CleanDataAttribute calcAttribute;
     private JEVisObject parentObject;
 
@@ -146,7 +146,7 @@ public class FillGapStep implements ProcessStep {
                             lastValue = sample.getValueAsDouble();
                         }
                     } catch (JEVisException ex) {
-                        logger.error(null, ex);
+                        logger.error(ex);
                     }
                 }
             }
@@ -176,7 +176,7 @@ public class FillGapStep implements ProcessStep {
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
-                    logger.error(null, ex);
+                    logger.error(ex);
                 }
             }
         }
@@ -200,7 +200,7 @@ public class FillGapStep implements ProcessStep {
                         currentValue += stepSize;
                         currentInterval.addTmpSample(sample);
                     } catch (JEVisException | ClassCastException ex) {
-                        logger.error(null, ex);
+                        logger.error(ex);
                     }
                 }
             }
@@ -218,7 +218,7 @@ public class FillGapStep implements ProcessStep {
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
-                    logger.error(null, ex);
+                    logger.error(ex);
                 }
             }
         }
@@ -238,7 +238,7 @@ public class FillGapStep implements ProcessStep {
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
-                    logger.error(null, ex);
+                    logger.error(ex);
                 }
             }
         }
@@ -383,7 +383,7 @@ public class FillGapStep implements ProcessStep {
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
-                    logger.error(null, ex);
+                    logger.error(ex);
                 }
             }
         }
@@ -401,7 +401,7 @@ public class FillGapStep implements ProcessStep {
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
-                    logger.error(null, ex);
+                    logger.error(ex);
                 }
             }
         }
@@ -419,7 +419,7 @@ public class FillGapStep implements ProcessStep {
                     sample.setNote(note);
                     currentInterval.addTmpSample(sample);
                 } catch (JEVisException | ClassCastException ex) {
-                    logger.error(null, ex);
+                    logger.error(ex);
                 }
             }
         }

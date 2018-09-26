@@ -50,7 +50,7 @@ public class SampleRateNode extends GridPane {
     }
 
     private void buildNode(Period period) {
-//        System.out.println("new SampleRateNode: " + period.toString());
+//        logger.info("new SampleRateNode: " + period.toString());
 //        final Period newPeriod = period;
 
         sliderMonth.setMin(0);
@@ -136,7 +136,7 @@ public class SampleRateNode extends GridPane {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-//                System.out.println("actioN!!!!!!!!");
+//                logger.info("actioN!!!!!!!!");
                 sliderMonth.setDisable(!enable.isSelected());
                 sliderWeek.setDisable(!enable.isSelected());
                 sliderHours.setDisable(!enable.isSelected());

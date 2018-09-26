@@ -1,5 +1,8 @@
 package org.jevis.report3;
 
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -7,14 +10,12 @@ import org.jevis.api.JEVisObject;
 import org.jevis.report3.data.report.ReportAttributes;
 import org.jevis.report3.data.report.ReportExecutor;
 import org.jevis.report3.policy.ReportPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceMode {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceMode.class);
+    private static final Logger logger = LogManager.getLogger(ServiceMode.class);
     private Long cycleTime = 900000L;
     private JEVisDataSource _ds;
 
@@ -45,7 +46,7 @@ public class ServiceMode {
             throw new RuntimeException(e);
         }
         try {
-            System.out.println("Press CTRL^C to exit..");
+            logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -70,7 +71,7 @@ public class ServiceMode {
         reportObjects = _ds.getObjects(reportClass, true);
 
         //execute the report objects
-        logger.info("nr of reports {}", reportObjects.size());
+        logger.info("nr of reports " + reportObjects.size());
         for (JEVisObject reportObject : reportObjects) {
             try {
                 logger.info("---------------------------------------------------------------------");
@@ -80,7 +81,7 @@ public class ServiceMode {
                 Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
                 if (!reportEnabled) {
                     logger.info("Report is not enabled");
-                    continue;
+                    break;
                 }
 
                 ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
@@ -90,7 +91,6 @@ public class ServiceMode {
                 logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
             } catch (Exception e) {
                 logger.error("Error while creating report", e);
-                e.printStackTrace();
             }
         }
     }

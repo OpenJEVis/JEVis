@@ -63,7 +63,7 @@ public class TargetEditor implements AttributeEditor {
 
     @Override
     public boolean hasChanged() {
-//        System.out.println(_attribute.getName() + " changed: " + _hasChanged);
+//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
         return _changed.getValue();
     }
 

@@ -37,6 +37,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -47,13 +49,12 @@ import org.jevis.application.resource.ImageConverter;
 import org.jevis.application.resource.ResourceLoader;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author fs
  */
 public class NewAnalyseDialog {
+    private static final Logger logger = LogManager.getLogger(NewAnalyseDialog.class);
 
     public static String ICON = "1403104602_brick_add.png";
 
@@ -135,7 +136,7 @@ public class NewAnalyseDialog {
 
                                 //TODO: set canWrite
                             } catch (JEVisException ex) {
-                                Logger.getLogger(NewAnalyseDialog.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.fatal(ex);
                             }
 
                             setGraphic(box);

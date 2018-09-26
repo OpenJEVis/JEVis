@@ -11,6 +11,11 @@
       "start": "DWD Parser",
       "end": "Parser",
       "type": 0
+    },
+    {
+      "start": "DWD Parser",
+      "end": "FTP Channel",
+      "type": 3
     }
   ]
 }

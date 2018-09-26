@@ -15,8 +15,8 @@
 //import java.util.HashMap;
 //import java.util.List;
 //import java.util.Map;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
+//
+//
 //import org.joda.time.DateTime;
 //import org.joda.time.format.DateTimeFormat;
 //import org.jxls.common.Context;
@@ -152,7 +152,7 @@
 //            JxlsHelper.getInstance().processTemplate(input, output, context);
 //        } catch (IOException ex) {
 //            ex.printStackTrace();
-//            System.out.println(ex.getMessage());
+//            logger.info(ex.getMessage());
 //            Logger.getLogger(ReportTest.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //    }

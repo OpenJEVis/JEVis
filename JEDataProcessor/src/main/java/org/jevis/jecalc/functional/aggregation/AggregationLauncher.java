@@ -42,18 +42,18 @@
 //        JobCreator jobCr = new JobCreator();
 //        Aggregator aggr = new Aggregator();
 //        for (JEVisObject aggObj : objects) {
-//            System.out.println(aggObj.getID());
+//            logger.info(aggObj.getID());
 //            JEVisAttribute attribute = aggObj.getAttribute("Value");
 //            attribute.deleteAllSample();
 //            AggregationJob createAggregationJob = jobCr.createAggregationJob(aggObj, new DateTime(0));
 //            List<JEVisSample> aggregatedData = aggr.getAggregatedData(createAggregationJob);
 //            SampleHandler sampleHandler = new SampleHandler();
 //            Period inputSampleRate = attribute.getInputSampleRate();
-//            System.out.println(inputSampleRate.toString());
-//            System.out.println(attribute.getAllSamples().size());
+//            logger.info(inputSampleRate.toString());
+//            logger.info(attribute.getAllSamples().size());
 ////            aggObj.commit();
 ////            attribute.commit();
-//            System.out.println(attribute.getAllSamples().size());
+//            logger.info(attribute.getAllSamples().size());
 //            sampleHandler.importData(aggregatedData, attribute);
 //        }
 //    }
@@ -61,7 +61,7 @@
 //    public void execute(JEVisObject aggObj) {
 //        JobCreator jobCr = new JobCreator();
 //        Aggregator aggr = new Aggregator();
-//        System.out.println(aggObj.getID());
+//        logger.info(aggObj.getID());
 //        AggregationJob createAggregationJob = jobCr.createAggregationJob(aggObj, new DateTime(0));
 //        List<JEVisSample> aggregatedData = aggr.getAggregatedData(createAggregationJob);
 //        SampleHandler sampleHandler = new SampleHandler();

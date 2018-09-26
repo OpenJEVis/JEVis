@@ -160,16 +160,16 @@ public class CSVTable extends TableView<CSVLine> {
                                         }
 
                                     } catch (Exception pe) {
-                                        //System.out.println("error while building sample");
+                                        //logger.info("error while building sample");
                                         //pe.printStackTrace();
                                     }
                                 }
                                 try {
-                                    //System.out.println("Import " + _newSamples.size() + " sample into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
+                                    //logger.info("Import " + _newSamples.size() + " sample into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
                                     header.getTarget().addSamples(_newSamples);
 
                                 } catch (JEVisException ex) {
-                                    //System.out.println("error while import sample");
+                                    //logger.info("error while import sample");
                                     //Logger.getLogger(CSVTable.class.getName()).log(Level.SEVERE, null, ex);
                                 }
 

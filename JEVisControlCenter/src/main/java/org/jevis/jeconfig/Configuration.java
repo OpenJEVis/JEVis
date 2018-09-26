@@ -1,25 +1,27 @@
 /**
  * Copyright (C) 2014-2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig;
 
 import javafx.application.Application;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisOption;
 import org.jevis.application.ParameterHelper;
 import org.jevis.commons.config.OptionFactory;
@@ -39,6 +41,7 @@ import java.util.Locale;
  */
 public class Configuration {
 
+    private static final Logger logger = LogManager.getLogger(Configuration.class);
     public static final JEVisOption JECONFIG = OptionFactory.BuildOption(null, "jeconfig", "", "JEConfig option group");
     public static final JEVisOption URL_WELCOME = OptionFactory.BuildOption(JECONFIG, "welcomeurl", "", "URL of the welcome screen");
 
@@ -51,7 +54,7 @@ public class Configuration {
     private boolean _ssl = false;
     private boolean _showServer = false;
     private String _defaultServerURL = "jevis:jevistest@coffee-project.eu:13306/jevis";//"jevis:Taexu3Eesesieth3eid1@lthneo.kaust.edu.sa:3306/jevis";//user:password@server:3306/jevis";
-//    private final String _defaultServerURL = "user:password@server:3306/jevis";
+    //    private final String _defaultServerURL = "user:password@server:3306/jevis";
     private File lastPath = null;
     private File lastFile = null;
     private Locale appLoccale = Locale.getDefault();
@@ -68,20 +71,20 @@ public class Configuration {
         return new URI(_welcomeURL);
     }
 
-    public File getLastFile(){
+    public File getLastFile() {
         return lastFile;
     }
 
-    public File getLastPath(){
+    public void setLastFile(File file) {
+        this.lastFile = file;
+    }
+
+    public File getLastPath() {
         return lastPath;
     }
 
-    public void setLastPath(File path){
-        this.lastPath=path;
-    }
-
-    public void setLastFile(File file){
-        this.lastFile=file;
+    public void setLastPath(File path) {
+        this.lastPath = path;
     }
 
     /**
@@ -129,7 +132,7 @@ public class Configuration {
         configuration = ParameterHelper.ParseJEVisConfiguration(args);
         for (JEVisOption opt : configuration) {
             if (opt.equals(JECONFIG)) {
-                System.out.println("Found " + JECONFIG.getKey());
+                logger.info("Found " + JECONFIG.getKey());
                 options = opt;
             }
         }
@@ -149,22 +152,22 @@ public class Configuration {
             _welcomeURL = "http://openjevis.org/";
 
         }
-//        System.out.println("Welcome URL: " + _welcomeURL);
+//        logger.info("Welcome URL: " + _welcomeURL);
 
 //        for (Map.Entry<String, String> entry : args.getNamed().entrySet()) {
-//            System.out.println(entry.getKey() + " : " + entry.getValue());
+//            logger.info(entry.getKey() + " : " + entry.getValue());
 //        }
         if (args.getNamed().containsKey("loginbanner")) {
-//            System.out.println("LoginIcon: " + args.getNamed().get("loginbanner"));
+//            logger.info("LoginIcon: " + args.getNamed().get("loginbanner"));
             _loginIcon = args.getNamed().get("loginbanner");
         }
 
 //        if (args.getNamed().containsKey("welcomeurl")) {
-////            System.out.println("welcomeurl: " + args.getNamed().get("welcomeurl"));
+////            logger.info("welcomeurl: " + args.getNamed().get("welcomeurl"));
 //            _welcomeURL = args.getNamed().get("welcomeurl");
 //        }
         if (args.getNamed().containsKey("watermark")) {
-//            System.out.println("watermark: " + args.getNamed().get("watermark"));
+//            logger.info("watermark: " + args.getNamed().get("watermark"));
             _watermark = args.getNamed().get("watermark");
         }
 

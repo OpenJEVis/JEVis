@@ -72,7 +72,7 @@ public class JEVisUnitImp implements JEVisUnit {
             UnitManager.getInstance().getUnitWithPrefix(_unit, getPrefix());
             _unit.toString();
         } catch (Exception ex) {
-            System.out.println("Warning! Could not parse unit from json: '" + gson.toJson(json) + "' " + ex.getMessage());
+            logger.info("Warning! Could not parse unit from json: '" + gson.toJson(json) + "' " + ex.getMessage());
             _unit = Unit.ONE;
             _label = "Unknown";
             _prefix = Prefix.NONE;
@@ -89,7 +89,7 @@ public class JEVisUnitImp implements JEVisUnit {
      * @TODO example of an string
      */
     public JEVisUnitImp(String unit, String label, Prefix prefix) {
-//        System.out.println("new JEVisUnitImp2: " + unit + " - " + label + " - " + prefix);
+//        logger.info("new JEVisUnitImp2: " + unit + " - " + label + " - " + prefix);
         UnitFormula up = new UnitFormula(unit, label);
         _unit = up.getUnit();
         _label = label;
@@ -108,11 +108,11 @@ public class JEVisUnitImp implements JEVisUnit {
      * @param prefix
      */
     public JEVisUnitImp(Unit unit, String label, Prefix prefix) {
-//        System.out.println("new JEVisUnitImp1: " + unit + " - " + label + " - " + prefix);
+//        logger.info("new JEVisUnitImp1: " + unit + " - " + label + " - " + prefix);
         try {
             _unit = unit;
         } catch (Exception ex) {
-            System.out.println("Warning! Could not parse unit: '" + unit + "' " + ex.getMessage());
+            logger.info("Warning! Could not parse unit: '" + unit + "' " + ex.getMessage());
         }
         _label = label;
         _prefix = prefix;

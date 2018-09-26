@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -32,6 +32,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
@@ -46,6 +48,7 @@ import java.util.Map;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class MapSelectionDialog {
+    private static final Logger logger = LogManager.getLogger(MapSelectionDialog.class);
 
     public Response show(Stage owner) {
         _response = Response.CANCEL;
@@ -106,10 +109,10 @@ public class MapSelectionDialog {
                 tree.setUserSelectionEnded();
                 _response = Response.OK;
 
-                System.out.println("Results");
+                logger.info("Results");
                 for (TreePlugin plugin : tree.getPlugins()) {
                     if (plugin instanceof MapPlugin) {
-                        System.out.println("Found Mapchart plugin");
+                        logger.info("Found Mapchart plugin");
                         MapPlugin bp = (MapPlugin) plugin;
 
                         data = bp.getSelectedData();

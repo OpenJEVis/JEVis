@@ -26,14 +26,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -47,7 +46,7 @@ public class BooleanValueEditor implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private boolean _canRead = true;
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(BooleanValueEditor.class);
+    private static final Logger logger = LogManager.getLogger(BooleanValueEditor.class);
 
     public BooleanValueEditor(JEVisAttribute att) {
         _attribute = att;
@@ -66,7 +65,7 @@ public class BooleanValueEditor implements AttributeEditor {
 
     @Override
     public boolean hasChanged() {
-//        System.out.println(_attribute.getName() + " changed: " + _hasChanged);
+//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
         return _changed.getValue();
     }
 
@@ -110,7 +109,7 @@ public class BooleanValueEditor implements AttributeEditor {
                     _newSample = _attribute.buildSample(new DateTime(), _field.isSelected());
                     _changed.setValue(true);
                 } catch (Exception ex) {
-                    Logger.getLogger(BooleanValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });

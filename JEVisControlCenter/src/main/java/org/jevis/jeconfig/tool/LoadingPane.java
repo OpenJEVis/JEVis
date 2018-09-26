@@ -49,7 +49,7 @@ public class LoadingPane extends StackPane {
         //        Platform.runLater(new Runnable() {
         //            @Override
 //    public void run() {
-//        System.out.println("startLoading");
+//        logger.info("startLoading");
         processPane.setVisible(true);
         progress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
 //            }

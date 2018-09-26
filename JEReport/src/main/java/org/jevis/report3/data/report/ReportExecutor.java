@@ -6,6 +6,8 @@
 package org.jevis.report3.data.report;
 
 import com.google.inject.assistedinject.Assisted;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.database.SampleHandler;
@@ -28,24 +30,22 @@ import org.jevis.report3.data.service.ReportServiceProperty;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 /**
- *
  * @author broder
  */
 public class ReportExecutor {
 
     private final JEVisObject reportObject;
-    private static final Logger logger = LoggerFactory.getLogger(ReportExecutor.class);
+    private static final Logger logger = LogManager.getLogger(ReportExecutor.class);
     private final Precondition precondition;
     private final ContextBuilder contextBuilder;
     private final ReportLinkFactory reportLinkFactory;
@@ -64,56 +64,49 @@ public class ReportExecutor {
 
     public void executeReport() {
 
-        //init ReportProperty first?
-        //check if report date is reached
         if (!precondition.isPreconditionReached(reportObject)) {
             logger.info("Report date not reached");
             return;
         }
 
-        //build Report Links
         List<ReportData> reportLinks = reportLinkFactory.getReportLinks(reportObject);
         intervalCalculator.buildIntervals(reportObject);
 
-        //check if links contain data
-        boolean isDataAvailable = true;
         DateTime end = intervalCalculator.getInterval(IntervalCalculator.PeriodModus.CURRENT).getEnd();
 
-        for (ReportData curData : reportLinks) {
+        AtomicBoolean isDataAvailable = new AtomicBoolean(true);
+        logger.info("Creating report link stati.");
+        reportLinks.parallelStream().forEach(curData -> {
             ReportData.LinkStatus reportLinkStatus = curData.getReportLinkStatus(end);
             if (!reportLinkStatus.isSanityCheck()) {
                 logger.info(reportLinkStatus.getMessage());
-                isDataAvailable = false;
+                isDataAvailable.set(false);
             }
-        }
+        });
+        logger.info("Created report link stati.");
 
-        if (!isDataAvailable) {
+        if (!isDataAvailable.get()) {
             return;
         }
 
         contextBuilder.setIntervalCalculator(intervalCalculator);
+        logger.info("Initializing report properties.");
         ReportProperty property = new ReportProperty(reportObject);
+        logger.info("Initialized report properties. Building Context.");
         Map<String, Object> contextMap = contextBuilder.buildContext(reportLinks, property, intervalCalculator);
 
-        //initialize data
         Report report = new Report(property, contextMap);
 
         if (isPeriodicReport(reportObject) && !isPeriodicConditionReached(reportObject, new SampleHandler())) {
             logger.info("condition not reached");
-            //write file into report
             finisher.finishReport(report, property);
             return;
         }
 
-        //write file into report
-
         try {
-            //set report
             byte[] outputBytes = report.getReportFile();
-            String sendReportTimeString = new DateTime().toString(DateTimeFormat.forPattern("dd_MM_yyyy"));
             Interval interval = intervalCalculator.getInterval(IntervalCalculator.PeriodModus.CURRENT);
             String startDate = interval.getStart().toString(DateTimeFormat.forPattern("yyyyMMdd"));
-            String endDate = interval.getEnd().toString(DateTimeFormat.forPattern("dd_MM_yyyy"));
             String reportName = reportObject.getName().replaceAll("\\s", "") + "_" + startDate;
             JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
             JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);
@@ -122,22 +115,20 @@ public class ReportExecutor {
             JEVisFile fileForNotification = jeVisFileImp;
             if (property.getToPdf()) {
                 File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
-//                JEVisFile wholePdfFile = new JEVisFileImp(reportName + ".pdf", pdfFile);
                 PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
                 pdfFileSplitter.splitPDF();
                 File outFile = pdfFileSplitter.getOutputFile();
                 fileForNotification = new JEVisFileImp(reportName + ".pdf", outFile);
             }
 
-            //send notification
             JEVisObject notificationObject = property.getNotificationObject();
             sendNotification(notificationObject, fileForNotification);
 
             finisher.finishReport(report, property);
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 
@@ -164,33 +155,25 @@ public class ReportExecutor {
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, endRecord);
             for (JEVisSample sample : samplesInPeriod) {
                 String value = sample.getValueAsString();
-                boolean isFullfilled = eventOperator.isFullfilled(value, limit);
+                boolean isFullfilled = eventOperator.isFulfilled(value, limit);
                 if (isFullfilled) {
                     return true;
                 }
             }
 
-//            DateTime lastDate = samplesHandler.getTimeStampFromLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
-//            String newStartTimeString = lastDate.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
-//            reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(EventPrecondition.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return false;
     }
 
     private void sendNotification(JEVisObject notificationObject, JEVisFile jeVisFileImp) {
         try {
-            //        write data into the notifier
+
             ReportServiceProperty service = getReportService();
-            File notifierFile = service.getNotificationFile();//TODO get the report service and the notifier file
             JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
             attachmentAttribute.deleteAllSample();
             attachmentAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
-
-            /* This is from Thread stuff */
-            //Single single = new Single(notificationObject.getID(), service.getMailID(), reportObject.getDataSource(), notifierFile, ReportConfiguration.NOTIFICATION, ReportConfiguration.NOTIFICATION_DRIVER);
-            //single.start();
 
             JEVisObject notiObj = reportObject.getDataSource().getObject(notificationObject.getID());
             Notification nofi = new EmailNotification();
@@ -205,7 +188,7 @@ public class ReportExecutor {
             sn.run();
 
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 
@@ -231,29 +214,8 @@ public class ReportExecutor {
                 return true;
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return false;
     }
-
-//    private boolean checkDataAvailability(List<ReportData> reportLinks) {
-//        boolean dataAvailable = true;
-//        for (ReportData curData : reportLinks) {
-//            JEVisObject linkObject = curData.getLinkObject();
-//            try {
-//                if(linkObject.getAttribute("Optional") != null){
-//                    Boolean dataOptional = linkObject.getAttribute("Optional").getLatestSample().getValueAsBoolean();                   if (!dataOptional){
-//                        JEVisObject dataObject = curData.getDataObject();
-//                        dataObject.get
-//                    }
-//                }
-//            } catch (JEVisException ex) {
-//                java.util.logging.Logger.getLogger(ReportExecutor.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//            JEVisObject dataObject = curData.getDataObject();
-//            
-//        }
-//
-//        return dataAvailable;
-//    }
 }

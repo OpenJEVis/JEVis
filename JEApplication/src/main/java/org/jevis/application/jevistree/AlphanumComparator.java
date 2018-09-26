@@ -28,6 +28,9 @@ package org.jevis.application.jevistree;/*
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -42,13 +45,15 @@ import java.util.stream.Collectors;
  * Collections.sort(your list, new AlphanumComparator());
  */
 public class AlphanumComparator implements Comparator<String> {
+    private static final Logger logger = LogManager.getLogger(AlphanumComparator.class);
+
     /**
      * Shows an example of how the comparator works.
      * Feel free to delete this in your own code!
      */
     public static void main(String[] args) {
         List<String> values = Arrays.asList("dazzle2", "dazzle10", "dazzle1", "dazzle2.7", "dazzle2.10", "2", "10", "1", "EctoMorph6", "EctoMorph62", "EctoMorph7");
-        System.out.println(values.stream().sorted(new AlphanumComparator()).collect(Collectors.joining(" ")));
+        logger.info(values.stream().sorted(new AlphanumComparator()).collect(Collectors.joining(" ")));
     }
 
     private final boolean isDigit(char ch) {

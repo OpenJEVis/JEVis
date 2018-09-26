@@ -4,6 +4,14 @@
  */
 package org.jevis.commons.driver.inputHandler;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -15,81 +23,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 /**
- *
  * @author bf
  */
 public class InputStreamHandler extends InputHandler {
+    private static final Logger logger = LogManager.getLogger(InputStreamHandler.class);
 
     public InputStreamHandler(InputStream input, Charset charset) {
         super(input, charset);
     }
 
-    @Override
-    public void convertInput() {
-        try {
-
-            //byte[] buffer = new byte[1024];
-            //int len;
-//        try {
-//            while ((len = (InputStream) _rawInput.read(buffer)) > -1) {
-//                baos.write(buffer, 0, len);
-//            }
-//            baos.flush();
-//        } catch (IOException ex) {
-//            Logger.getLogger(this.getClass().getName()).log(Level.ERROR, ex.getMessage());
-//        }
-            byte[] bytes = IOUtils.toByteArray((InputStream)_rawInput);
-
-            InputStream zippedCopy = new ByteArrayInputStream(bytes);
-            InputStream unzipedCopy = new ByteArrayInputStream(bytes);
-            try {
-                boolean isZiped = false;
-                ZipInputStream zin = new ZipInputStream((InputStream) zippedCopy);
-                ZipEntry ze = null;
-                while ((ze = zin.getNextEntry()) != null) {
-                    isZiped = true;
-                    StringBuilder sb = new StringBuilder();
-                    String[] pathStream = getPathTokens(_filePattern);
-                    boolean match = false;
-
-                    if (containsTokens(_filePattern)) {
-                        DateTime folderTime = getFolderTime(ze.getName(), pathStream);
-                        String regExDateString = returnDateStringRegEx(_filePattern);
-                        boolean isLater = folderTime.isAfter(_lastReadout);
-                        if (isLater) {
-                            match = matchRegEx(regExDateString, _filePattern);
-                        }
-                    } else {
-                        match = matchRegEx(ze.getName(), _filePattern);
-                    }
-                    if (match) {
-                        List<String> tmp = new ArrayList<String>();
-                        for (int c = zin.read(); c != -1; c = zin.read()) {
-                            sb.append((char) c);
-                        }
-                        _inputStream.add(new ByteArrayInputStream(sb.toString().getBytes()));
-                    }
-                    zin.closeEntry();
-                }
-                IOUtils.closeQuietly(zin);
-                if (!isZiped) {
-                    _inputStream.add(new BufferedInputStream(unzipedCopy));
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(this.getClass().getName()).log(Level.ERROR, ex.getMessage());
-            }
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(InputStreamHandler.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
+    private static Boolean containsTokens(String path) {
+        return path.contains("${");
     }
 
     private static String returnDateStringRegEx(String nextToken) {
@@ -177,22 +123,73 @@ public class InputStreamHandler extends InputHandler {
         return compactDateString;
     }
 
+    @Override
+    public void convertInput() {
+        try {
+
+            //byte[] buffer = new byte[1024];
+            //int len;
+//        try {
+//            while ((len = (InputStream) _rawInput.read(buffer)) > -1) {
+//                baos.write(buffer, 0, len);
+//            }
+//            baos.flush();
+//        } catch (IOException ex) {
+//            Logger.getLogger(this.getClass().getName()).log(Level.ERROR, ex.getMessage());
+//        }
+            byte[] bytes = IOUtils.toByteArray((InputStream) _rawInput);
+
+            InputStream zippedCopy = new ByteArrayInputStream(bytes);
+            InputStream unzipedCopy = new ByteArrayInputStream(bytes);
+            try {
+                boolean isZiped = false;
+                ZipInputStream zin = new ZipInputStream(zippedCopy);
+                ZipEntry ze = null;
+                while ((ze = zin.getNextEntry()) != null) {
+                    isZiped = true;
+                    StringBuilder sb = new StringBuilder();
+                    String[] pathStream = getPathTokens(_filePattern);
+                    boolean match = false;
+
+                    if (containsTokens(_filePattern)) {
+                        DateTime folderTime = getFolderTime(ze.getName(), pathStream);
+                        String regExDateString = returnDateStringRegEx(_filePattern);
+                        boolean isLater = folderTime.isAfter(_lastReadout);
+                        if (isLater) {
+                            match = matchRegEx(regExDateString, _filePattern);
+                        }
+                    } else {
+                        match = matchRegEx(ze.getName(), _filePattern);
+                    }
+                    if (match) {
+                        List<String> tmp = new ArrayList<String>();
+                        for (int c = zin.read(); c != -1; c = zin.read()) {
+                            sb.append((char) c);
+                        }
+                        _inputStream.add(new ByteArrayInputStream(sb.toString().getBytes()));
+                    }
+                    zin.closeEntry();
+                }
+                IOUtils.closeQuietly(zin);
+                if (!isZiped) {
+                    _inputStream.add(new BufferedInputStream(unzipedCopy));
+                }
+            } catch (IOException ex) {
+                logger.error(ex);
+            }
+        } catch (IOException ex) {
+            logger.fatal(ex);
+        }
+    }
+
     private String[] getPathTokens(String filePath) {
 //        List<String> tokens = new ArrayList<String>();
         //        filePath.substring("\\$\\{","\\}");
         String[] tokens = StringUtils.split(filePath, "/");
 //         String[] tokens = filePath.trim().split("\\%");
 //        for (int i = 0; i < tokens.length; i++) {
-//            System.out.println(tokens[i]);
+//            logger.info(tokens[i]);
 //        }
         return tokens;
-    }
-
-    private static Boolean containsTokens(String path) {
-        if (path.contains("${")) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }

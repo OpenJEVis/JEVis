@@ -251,7 +251,7 @@ public class ClassPlugin implements Plugin {
                     tree.reload(null);
                     break;
                 default:
-                    System.out.println("Unknows command ignore...");
+                    logger.info("Unknows command ignore...");
             }
         } catch (Exception ex) {
             logger.error(ex);

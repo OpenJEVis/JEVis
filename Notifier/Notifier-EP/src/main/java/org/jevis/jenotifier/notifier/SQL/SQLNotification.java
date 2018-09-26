@@ -1,27 +1,28 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JENotifier-EP.
- *
+ * <p>
  * JENotifier-EP is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JENotifier-EP is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JENotifier-EP. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JENotifier-EP is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jenotifier.notifier.SQL;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jenotifier.notifier.Notification;
 import org.joda.time.DateTime;
@@ -37,6 +38,7 @@ import java.util.List;
  * @author jb
  */
 public class SQLNotification implements Notification {
+    private static final Logger logger = LogManager.getLogger(SQLNotification.class);
 
     private JEVisObject _jenoti;
     private List<DateTime> _sendTime;
@@ -95,33 +97,33 @@ public class SQLNotification implements Notification {
             try {
                 setHost(String.valueOf(getAttribute(notiObj, SQL_HOST)));
             } catch (Exception ex) {
-                Logger.getLogger(SQLNotification.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setPort(Long.valueOf(String.valueOf(getAttribute(notiObj, SQL_PORT))));
             } catch (Exception ex) {
-                Logger.getLogger(SQLNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setSchema(String.valueOf(getAttribute(notiObj, SQL_SCHEMA)));
             } catch (Exception ex) {
-                Logger.getLogger(SQLNotification.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setUsername(String.valueOf(getAttribute(notiObj, SQL_USER)));
             } catch (Exception ex) {
-                Logger.getLogger(SQLNotification.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setPassword(String.valueOf(getAttribute(notiObj, SQL_PASSWORD)));
             } catch (Exception ex) {
-                Logger.getLogger(SQLNotification.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 _enabled = Boolean.valueOf(String.valueOf(getAttribute(notiObj, ENABLED)));
             } catch (IllegalArgumentException ex) {
                 _enabled = false;
-                Logger.getLogger(SQLNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
 
             List<JEVisObject> querys = notiObj.getChildren();
@@ -135,15 +137,15 @@ public class SQLNotification implements Notification {
                             _querys = new ArrayList<SQLQuery>();
                             _querys.add(sqlquery);
                         } else {
-                            Logger.getLogger(SQLNotification.class.getName()).log(Level.INFO, child + "is illegal.");
+                            logger.info(child + "is illegal.");
                         }
                     } else {
-                        Logger.getLogger(SQLNotification.class.getName()).log(Level.INFO, child + "is null.");
+                        logger.info(child + "is null.");
                     }
 
                 }
             } else {
-                Logger.getLogger(SQLNotification.class.getName()).log(Level.INFO, _querys + "is null or empty.");
+                logger.info(_querys + "is null or empty.");
             }
         }
     }
@@ -194,10 +196,10 @@ public class SQLNotification implements Notification {
             Class.forName(driver);
             conn = DriverManager.getConnection(url, _username, _password);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SQLNotification.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
             conn = null;
         } catch (SQLException ex) {
-            java.util.logging.Logger.getLogger(SQLNotification.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.fatal(ex);
             conn = null;
         }
         return conn;
@@ -266,7 +268,7 @@ public class SQLNotification implements Notification {
         try {
             _ds = ds;
         } catch (Exception ex) {
-            Logger.getLogger(SQLNotification.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
     }
 
@@ -314,7 +316,7 @@ public class SQLNotification implements Notification {
      */
     public boolean isNotiConfigured() {
         boolean isconfigured;
-        isconfigured = (isDataOutputconfigured() && isSQLQuerysConfigured()) ;
+        isconfigured = (isDataOutputconfigured() && isSQLQuerysConfigured());
         return isconfigured;
     }
 
@@ -353,7 +355,7 @@ public class SQLNotification implements Notification {
         try {
             return notiObj.getJEVisClass().getName().equals(My_SQL) || notiObj.getJEVisClass().getName().equals(MS_SQL);
         } catch (JEVisException ex) {
-            Logger.getLogger(SQLNotification.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         return false;
     }
@@ -392,10 +394,10 @@ public class SQLNotification implements Notification {
                     sendDate.add(t.getTimestamp());
                 }
             } else {
-                Logger.getLogger(SQLNotification.class.getName()).log(Level.INFO, "The attribute " + SENT_TIME + " of " + getJEVisObjectNoti().getID() + " does not exist.");
+                logger.info("The attribute " + SENT_TIME + " of " + getJEVisObjectNoti().getID() + " does not exist.");
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SQLNotification.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         return sendDate;
     }
@@ -422,7 +424,7 @@ public class SQLNotification implements Notification {
      * @param sqltype
      */
     public void setSqltype(String sqltype) {
-//        Logger.getLogger(SQLNotification.class.getName()).log(Level.ERROR, "sqltype" + sqltype);
+//        logger.error("sqltype" + sqltype);
         if (sqltype != null && (sqltype.equalsIgnoreCase(MS_SQL) || sqltype.equalsIgnoreCase(My_SQL))) {
             _sqltype = sqltype;
         }

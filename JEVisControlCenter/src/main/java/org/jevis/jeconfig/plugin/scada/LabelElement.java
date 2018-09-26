@@ -17,6 +17,8 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.jevistree.UserSelection;
 import org.jevis.application.resource.ResourceLoader;
@@ -33,6 +35,7 @@ import java.util.Optional;
 
 public class LabelElement extends MoveableNode implements SCADAElement {
 
+    private static final Logger logger = LogManager.getLogger(LabelElement.class);
     private final static String XPOS = "xPos", YPOS = "yPos", SHOW_UNIT = "showUnit", SHOW_LABEL = "showLabel", LABEL_TEXT = "labelText", FONT_COLOR = "fontColor", FONT_SIZE = "fontSize", BG_COLOR = "bgColor", BG_OPANCITY = "bgOpacity";
     private final static String LOW_LIMIT_ENABLED = "lowLimitEnabled", UP_LIMIT_ENABLED = "upLimitEnabled", UPPER_LIMIT = "upLimit", LOW_LIMIT = "lowLimit", FONT_COLOR_UP_LIMIT = "fontColorUpLimit", BG_COLOR_UP_LIMIT = "bgColorUpLimit", FONT_COLOR_LOW_LIMIT = "fontColorLowLimit", BG_COLOR_LOW_LIMIT = "bgColorLowLimit";
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
@@ -115,7 +118,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
                     data.getOptions().put(key, config.getObject().toString());
                 }
             } catch (Exception ex) {
-                System.out.println("Error while settibg key: " + key);
+                logger.info("Error while settibg key: " + key);
             }
         });
 
@@ -191,7 +194,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
                             break;
                     }
                 } catch (Exception ex) {
-                    System.out.println("Error while setting Key: " + key + " value: '" + value + "'");
+                    logger.info("Error while setting Key: " + key + " value: '" + value + "'");
                 }
 
             });
@@ -224,7 +227,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
 
     @Override
     public Node getGraphic() {
-        System.out.println("Label.getGraphic()");
+        logger.info("Label.getGraphic()");
         warningImage.setPreserveRatio(true);
         view.setMinWidth(20);
 //        view.getChildren().clear();
@@ -270,7 +273,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
         bgColorUpLimit = bgColorUpLimit.deriveColor(0, 0, 0, opacity);
         bgColorLowLimit = bgColorLowLimit.deriveColor(0, 0, 0, opacity);
 
-        System.out.println("Relocate: " + xPositionProperty.getValue() + " " + yPositionProperty.getValue());
+        logger.info("Relocate: " + xPositionProperty.getValue() + " " + yPositionProperty.getValue());
         relocateRelativ(xPositionProperty.getValue(), yPositionProperty.getValue());
 
 
@@ -331,7 +334,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
 
 
             try {
-                System.out.println("imput rate: " + attribute.getInputSampleRate());
+                logger.info("imput rate: " + attribute.getInputSampleRate());
                 if (attribute.getInputSampleRate() != null &&
                         attribute.getInputSampleRate().getMillis() > 1) {
                     DateTime now = new DateTime();
@@ -347,7 +350,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
         }
 
         try {
-            System.out.println("Show Unit: " + showUnit + " " + attribute.getDisplayUnit());
+            logger.info("Show Unit: " + showUnit + " " + attribute.getDisplayUnit());
             if (showUnit && attribute.getDisplayUnit() != null) {
                 value += attribute.getDisplayUnit().getPrefix() + UnitManager.getInstance().formate(attribute.getDisplayUnit());
             }

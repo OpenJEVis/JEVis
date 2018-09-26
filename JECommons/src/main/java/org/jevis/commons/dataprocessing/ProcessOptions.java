@@ -1,43 +1,40 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.dataprocessing;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.config.Options;
-import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.PeriodFormat;
+
+import java.util.*;
 
 /**
  * This class contains various methods for manipulating ProcessOptions.
@@ -45,6 +42,7 @@ import org.joda.time.format.DateTimeFormatter;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ProcessOptions {
+    private static final Logger logger = LogManager.getLogger(ProcessOptions.class);
 
     public static String ROOT_OPTION_NAME = "Data Processing";
     public static String DEFAULT_OPTION_NAME = "Default";
@@ -107,7 +105,7 @@ public class ProcessOptions {
      *
      * @param task
      * @param key
-     * @param option
+     * @param options
      */
     private static void FindOptions(Process task, String key, List<ProcessOption> options) {
         for (ProcessOption option : task.getOptions()) {
@@ -150,10 +148,10 @@ public class ProcessOptions {
                 result[0] = DateTime.parse(GetLatestOption(task, TS_START, new BasicProcessOption(TS_START, "")).getValue(), DateTimeFormat.forPattern(TS_PATTERN));
 //                result[0] = DateTime.parse(task.getOptions().get(TS_START), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception e) {
-                System.out.println("error while parsing " + TS_START + " option");
+                logger.error("error while parsing " + TS_START + " option");
             }
         } else {
-            System.out.println("No " + TS_START + " option is missing");
+            logger.info("No " + TS_START + " option is missing");
         }
 
         if (ContainsOption(task, TS_END)) {
@@ -161,10 +159,10 @@ public class ProcessOptions {
                 result[1] = DateTime.parse(GetLatestOption(task, TS_END, new BasicProcessOption(TS_END, "")).getValue(), DateTimeFormat.forPattern(TS_PATTERN));
 //                result[1] = DateTime.parse(task.getOptions().get(TS_END), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception ex) {
-                System.out.println("error while parsing " + TS_END + " option");
+                logger.error("error while parsing " + TS_END + " option");
             }
         } else {
-            System.out.println("No " + TS_END + " option is missing");
+            logger.info("No " + TS_END + " option is missing");
         }
 
         return result;
@@ -174,24 +172,24 @@ public class ProcessOptions {
     /**
      * Return sthe first period matching the period, offset and target date
      *
-     * @param date target date to find the matching period
+     * @param date   target date to find the matching period
      * @param period period
      * @param offset start offset
      * @return
      */
     public static DateTime findFirstDuration(DateTime date, Period period, DateTime offset) {
-//        System.out.println("findFirstDuration: " + date + "   p: " + period);
+//        logger.info("findFirstDuration: " + date + "   p: " + period);
         DateTime startD = new DateTime();
         DateTime fistPeriod = offset;
-//        System.out.println("week: " + date.getWeekOfWeekyear());
+//        logger.info("week: " + date.getWeekOfWeekyear());
 //
         while (fistPeriod.isBefore(date) || fistPeriod.isEqual(date)) {
             fistPeriod = fistPeriod.plus(period);
         }
         fistPeriod = fistPeriod.minus(period);
 
-        System.out.println("finding date in: " + ((new DateTime()).getMillis() - startD.getMillis()) + "ms");
-        System.out.println("first offset date: offset:" + offset + "   for period: " + period + "   input date: " + date + "  fistPeriod: " + fistPeriod);
+        logger.info("finding date in: " + ((new DateTime()).getMillis() - startD.getMillis()) + "ms");
+        logger.info("first offset date: offset:" + offset + "   for period: " + period + "   input date: " + date + "  fistPeriod: " + fistPeriod);
         return fistPeriod;
     }
 
@@ -206,7 +204,6 @@ public class ProcessOptions {
     }
 
     /**
-     *
      * @param period
      * @param offset
      * @param firstSample
@@ -225,8 +222,8 @@ public class ProcessOptions {
         while (run) {
             startDate = startDate.plus(period);
             if (startDate.isAfter(lastSample)) {
-//                System.out.println("wtf: " + startDate.getMillis() + "     " + lastSample.getMillis());
-//                System.out.println("faild Interval: " + startDate + "   is after   " + lastSample);
+//                logger.info("wtf: " + startDate.getMillis() + "     " + lastSample.getMillis());
+//                logger.info("faild Interval: " + startDate + "   is after   " + lastSample);
                 run = false;
             } else {
                 result.add(new Interval(startDate, period));
@@ -234,7 +231,7 @@ public class ProcessOptions {
         }
 
         DateTime benchMarkEnd = new DateTime();
-        System.out.println("Time to create Intervals[" + result.size() + "]:  in " + (benchMarkEnd.getMillis() - benchMarkStart.getMillis()) + "ms");
+        logger.info("Time to create Intervals[" + result.size() + "]:  in " + (benchMarkEnd.getMillis() - benchMarkStart.getMillis()) + "ms");
         return result;
     }
 
@@ -254,7 +251,7 @@ public class ProcessOptions {
                         result.add(sample.getTimestamp());
                     }
                 } catch (JEVisException ex) {
-                    Logger.getLogger(AggrigatorFunction.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
 
@@ -276,26 +273,26 @@ public class ProcessOptions {
         Period period = Period.days(1);
         DateTime offset = new DateTime(2001, 01, 01, 00, 00, 00);
 
-        if (ContainsOption(task, PERIOD)) {
-            System.out.println("Error missing period option");
+        if (!ContainsOption(task, PERIOD)) {
+            logger.error("Error missing period option");
         }
-        if (ContainsOption(task, OFFSET)) {
-            System.out.println("Error missing offset option");
+        if (!ContainsOption(task, OFFSET)) {
+            logger.error("Error missing offset option");
             task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 00:00:00"));
         }
 
         for (ProcessOption option : task.getOptions()) {
             String key = option.getKey();
             String value = option.getValue();
-            System.out.println("key: " + key);
+            logger.info("key: " + key);
             switch (key) {
                 case PERIOD:
-                    System.out.println("period string: " + value);
+                    logger.info("period string: " + value);
                     period = Period.parse(value);
-                    System.out.println("pared period: " + period);
+                    logger.info("parsed period: " + period.toString(PeriodFormat.wordBased()));
                     break;
                 case OFFSET:
-                    //TODO check value formate
+                    //TODO check value formats
                     DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
                     offset = dtf.parseDateTime(value);
                     break;
@@ -331,11 +328,7 @@ public class ProcessOptions {
      */
     public static boolean HasDataProcess(JEVisAttribute attribute) {
         JEVisOption opt = GetProcessOptionRoot(attribute);
-        if (opt == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return opt != null;
     }
 
     /**
@@ -347,9 +340,9 @@ public class ProcessOptions {
     public static JEVisOption GetProcessOptionRoot(JEVisAttribute attribute) {
 
         if (attribute.getOptions() != null && !attribute.getOptions().isEmpty()) {
-            System.out.println("Optiones exists");
+            logger.info("Optiones exists");
             for (JEVisOption option : attribute.getOptions()) {
-                System.out.println("opt: " + option.getKey());
+                logger.info("opt: " + option.getKey());
                 if (option.getKey().equalsIgnoreCase(ROOT_OPTION_NAME)) {
 //                    JEVisOption dpOption = option.getOption(ROOT_OPTION_NAME);
 
@@ -388,7 +381,7 @@ public class ProcessOptions {
         List<JEVisOption> confDPs = new ArrayList<>();
         try {
             JEVisOption root = GetProcessOptionRoot(att);
-            System.out.println("root option: " + root.getKey());
+            logger.info("root option: " + root.getKey());
 
             JEVisOption dpChainRoot = Options.getFirstOption(PROSESS_CHAIN_OPTION_NAME, root);
 
@@ -397,7 +390,8 @@ public class ProcessOptions {
             }
         } catch (Exception ex) {
             //TODO implement an error handling
-            ex.printStackTrace();
+            logger.fatal(ex);
+
         }
 
         return confDPs;

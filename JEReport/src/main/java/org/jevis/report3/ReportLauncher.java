@@ -6,6 +6,8 @@
 package org.jevis.report3;
 
 import com.google.inject.Injector;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -16,8 +18,6 @@ import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.report3.data.report.ReportExecutor;
 import org.jevis.report3.policy.ReportPolicy;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
+
 
 /**
  *
@@ -34,7 +34,7 @@ import java.util.logging.Level;
  */
 public class ReportLauncher {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReportLauncher.class);
+    private static final Logger logger = LogManager.getLogger(ReportLauncher.class);
     public static JEVisDataSource jevisDataSource;
     private static Injector injector;
     private boolean singleMode;
@@ -72,7 +72,7 @@ public class ReportLauncher {
             singleMode = reportObjects.add(reportbject);
 
             //execute the report objects
-            logger.info("nr of reports {}", reportObjects.size());
+            logger.info("nr of reports " + reportObjects.size());
             for (JEVisObject reportObject : reportObjects) {
                 try {
                     logger.info("---------------------------------------------------------------------");
@@ -148,14 +148,14 @@ public class ReportLauncher {
                 curLine++;
             }
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(ReportLauncher.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("", ex);
         }
         System.exit(0);
     }
 
     private void createMapping(String mapping) {
         try {
-            System.out.println(mapping);
+            logger.info(mapping);
             JEVisObject object = jevisDataSource.getObject(7458l);
             JEVisClass jeVisClass = jevisDataSource.getJEVisClass("Data");
             JEVisObject buildObject = object.buildObject(mapping, jeVisClass);
@@ -165,7 +165,7 @@ public class ReportLauncher {
             buildObject1.getAttribute("Mapping Identifier").buildSample(new DateTime(), mapping).commit();
             buildObject1.getAttribute("Target").buildSample(new DateTime(), buildObject.getID()).commit();
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ReportLauncher.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
             ex.printStackTrace();
         }
     }

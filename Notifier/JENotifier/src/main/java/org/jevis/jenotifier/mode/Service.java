@@ -4,6 +4,10 @@
  */
 package org.jevis.jenotifier.mode;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.jenotifier.config.JENotifierConfig;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,15 +16,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.jenotifier.config.JENotifierConfig;
 
 /**
- *
  * @author gf
  */
 public class Service {
+    private static final Logger logger = LogManager.getLogger(Service.class);
 
     private JENotifierConfig _config;
     private List<Long> _notiID;
@@ -31,7 +32,7 @@ public class Service {
 //        connectDatabase();
     }
 
-//    private void connectDatabase() {
+    //    private void connectDatabase() {
 //        try {
 //            _ds = new JEVisDataSourceSQL(_config.getDBHost(), _config.getDBPort(), _config.getDBSchema(), _config.getDBUser(), _config.getDBPassword());
 //            _ds.connect(_config.getJEVisUserName(), _config.getJEVisUserPassword());
@@ -48,7 +49,7 @@ public class Service {
                 new Thread(new ServiceTask(socket)).start();
             }
         } catch (IOException ex) {
-            Logger.getLogger(Service.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -85,7 +86,7 @@ public class Service {
                                 _notiID = IDsHandler(temp);
                                 if (_notiID != null && !_notiID.isEmpty()) {
                                     _config.changeNotificationIDs(_notiID);
-//                                    System.out.println("fgh" + _config.getNotificationIDs().size());
+//                                    logger.info("fgh" + _config.getNotificationIDs().size());
                                     Single s = new Single(_config, writer);
                                     s.start();
                                     writer(writer, "If you wants to send more notifications,enter \"start\" and import ids again.");
@@ -112,16 +113,15 @@ public class Service {
                 reader.close();
                 socket.close();
             } catch (IOException ex) {
-                Logger.getLogger(Service.class.getName()).log(Level.ERROR, null, ex);
+                logger.fatal(ex);
             }
 //            catch (InterruptedException ex) {
-//                Logger.getLogger(Service.class.getName()).log(Level.ERROR, null, ex);
+//                logger.fatal(ex);
 //            }
 
         }
 
         /**
-         *
          * @param writer
          * @param str
          */
@@ -131,7 +131,6 @@ public class Service {
         }
 
         /**
-         *
          * @param str
          * @return
          */

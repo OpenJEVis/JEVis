@@ -4,23 +4,24 @@
  */
 package org.jevis.jenotifier.mode;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jenotifier.notifier.NotificationDriver;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author gf
  */
 public class DriverQueue {
+    private static final Logger logger = LogManager.getLogger(DriverQueue.class);
 
     private List<Class> _driverClass;
     private List<JEVisObject> _driverObjs;
-//    public static List<NotificationDriver> _emailDrivers = new ArrayList<>();
+    //    public static List<NotificationDriver> _emailDrivers = new ArrayList<>();
 //    public static List<NotificationDriver> _pushDrivers = new ArrayList<>();
     private List<NotificationDriver> _drivers;
 
@@ -37,6 +38,7 @@ public class DriverQueue {
 //    public List<NotificationDriver> getPushDrivers() {
 //        return _pushDrivers;
 //    }
+
     /**
      * To get the drivers, which are already initialized by jevis objects.
      *
@@ -69,11 +71,11 @@ public class DriverQueue {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(DriverQueue.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         } catch (InstantiationException ex) {
-            Logger.getLogger(DriverQueue.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         } catch (IllegalAccessException ex) {
-            Logger.getLogger(DriverQueue.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
     }
 }

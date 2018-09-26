@@ -5,6 +5,8 @@
  */
 package org.jevis.jecalc.functional.sum;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -14,9 +16,7 @@ import org.jevis.jecalc.data.CleanDataAttributeJEVis;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.functional.aggregation.AggregationJob;
 import org.jevis.jecalc.functional.aggregation.Aggregator;
-import org.jevis.jecalc.functional.avg.AverageStep;
 import org.jevis.jecalc.workflow.ProcessStep;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import java.util.List;
  * @author broder
  */
 public class SummationStep implements ProcessStep {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AverageStep.class);
+    private static final Logger logger = LogManager.getLogger(SummationStep.class);
     private final JEVisObject functionalObject;
 
     public SummationStep(JEVisObject functionalObject) {
@@ -44,7 +44,7 @@ public class SummationStep implements ProcessStep {
             JEVisAttribute attribute = functionalObject.getAttribute("Value");
             sampleHandler.importDataAndReplaceSorted(aggregatedData, attribute);
         } catch (JEVisException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
     }
 

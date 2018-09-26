@@ -5,21 +5,22 @@
  */
 package org.jevis.jeconfig.map;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.jevistree.plugin.MapPlugin;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
- *
  * @author broder
  */
 public class DataCalculator {
+    private static final Logger logger = LogManager.getLogger(DataCalculator.class);
 
     public List<GPSRoute> calcRoues(Set<MapPlugin.DataModel> routesRaw) {
         List<GPSRoute> routes = new ArrayList<>();
@@ -36,7 +37,7 @@ public class DataCalculator {
                 gpsRoute.setName(currentRoute.getObject().getParents().get(0).getName());
                 routes.add(gpsRoute);
             } catch (JEVisException ex) {
-                Logger.getLogger(MapViewPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
         return routes;
@@ -45,7 +46,7 @@ public class DataCalculator {
     private GPSRoute getGPSSamples(List<JEVisSample> latSamples, List<JEVisSample> longSamples) throws JEVisException {
         GPSRoute route = new GPSRoute();
         if (latSamples.size() != longSamples.size()) {
-            System.out.println("long and lat samplelist differ in length");
+            logger.info("long and last samplelist differ in length");
             return route;
         }
         List<GPSSample> gpsSamples = new ArrayList<>();
@@ -53,7 +54,7 @@ public class DataCalculator {
             DateTime timestamp = latSamples.get(i).getTimestamp();
             Double latValue = latSamples.get(i).getValueAsDouble();
             Double longValue = longSamples.get(i).getValueAsDouble();
-            GPSSample sample = new GPSSample(latValue,longValue,timestamp);
+            GPSSample sample = new GPSSample(latValue, longValue, timestamp);
             gpsSamples.add(sample);
         }
         route.setGpsSample(gpsSamples);

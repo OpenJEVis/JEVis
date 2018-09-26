@@ -1,40 +1,37 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.sample;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
@@ -42,11 +39,14 @@ import org.jevis.api.JEVisSample;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.List;
+
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class AttributeStatesExtension implements SampleEditorExtension {
+    private static final Logger logger = LogManager.getLogger(AttributeStatesExtension.class);
 
     private final static String TITEL = "Overview";
     private final BorderPane _view = new BorderPane();
@@ -204,7 +204,7 @@ public class AttributeStatesExtension implements SampleEditorExtension {
                         buildGui(_att, _att.getAllSamples());
                         _dataChanged = false;
                     } catch (JEVisException ex) {
-                        Logger.getLogger(AttributeStatesExtension.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.fatal(ex);
                     }
 
                 }
@@ -236,20 +236,20 @@ public class AttributeStatesExtension implements SampleEditorExtension {
 ////                        index = 0;
 ////                    }
 ////                    if (index.intValue() > 100) {
-////                        System.out.println(" is bigger 100");
+////                        logger.info(" is bigger 100");
 ////                    }
-//                    System.out.println("convert Major value: " + t.toString() + "=" + index);
+//                    logger.info("convert Major value: " + t.toString() + "=" + index);
 //                    return fmtDate.print(samples.get(index.intValue()).getTimestamp());
 ////                return fmtDate.print(new DateTime(t.longValue()));
 //                } catch (Exception ex) {
-//                    System.out.println("error");
+//                    logger.info("error");
 //                }
 //                return t.toString();
 //            }
 //
 //            @Override
 //            public Number fromString(String string) {
-//                System.out.println("from string: " + string);
+//                logger.info("from string: " + string);
 //                return 200;
 //            }
 //        });
@@ -265,14 +265,14 @@ public class AttributeStatesExtension implements SampleEditorExtension {
             public String toString(Number t) {
 
                 try {
-//                    System.out.println("number: " + t);
+//                    logger.info("number: " + t);
                     //TODO: replace this DIRTY workaround. For this i will come in the DevHell
                     //NOTE: the axis is % based, java 1.8 has an dateAxe use this if we migrate to it
                     int index = samples.size() / 100 * t.intValue();
                     return fmtDate.print(samples.get(index).getTimestamp());
 //                    return fmtDate.print(samples.get(t.intValue()).getTimestamp());
                 } catch (Exception ex) {
-                    System.out.println("error: " + ex);
+                    logger.error("error: " + ex);
                     return "";
                 }
 
@@ -280,7 +280,7 @@ public class AttributeStatesExtension implements SampleEditorExtension {
 
             @Override
             public Number fromString(String string) {
-                System.out.println("from string: " + string);
+                logger.info("from string: " + string);
                 return 200;
             }
         });
@@ -310,9 +310,9 @@ public class AttributeStatesExtension implements SampleEditorExtension {
 ////                }
 
 //                String datelabel = fmtDate.print(sample.getTimestamp());
-                series1.getData().add(new XYChart.Data((Number) pos, sample.getValueAsDouble()));
+                series1.getData().add(new XYChart.Data(pos, sample.getValueAsDouble()));
 
-//                System.out.println("pos1: " + pos + " sample=" + sample);
+//                logger.info("pos1: " + pos + " sample=" + sample);
                 if (yAxis.getLowerBound() > sample.getValueAsDouble()) {
                     yAxis.setLowerBound(sample.getValueAsDouble() * 0.9d);
                 }
@@ -320,7 +320,7 @@ public class AttributeStatesExtension implements SampleEditorExtension {
                 pos++;
 //                series1.getData().add(new XYChart.Data(pos + "", sample.getValueAsDouble()));
             } catch (Exception ex) {
-                Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
         yAxis.setLowerBound(10d);

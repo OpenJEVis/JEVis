@@ -42,8 +42,8 @@ public class GUIConstants {
     public static DisplayType TIME_ZONE = new DisplayType("Time Zone", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType GAP_FILLING_CONFIG = new DisplayType("Gap Filling Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LIMITS_CONFIG = new DisplayType("Limits Config", JEVisConstants.PrimitiveType.STRING);
-    
-    public static Logger LOGGER = LogManager.getLogger(GUIConstants.class);
+
+    public static Logger logger = LogManager.getLogger(GUIConstants.class);
 
     public static List<DisplayType> ALL = new ArrayList<DisplayType>() {
         {

@@ -1,38 +1,34 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.dataprocessing.v2;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisOption;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 
 /**
  *
  * @author Florian Simon
  */
 public class BasicDataWorkflow implements DataWorkflow {
+    private static final Logger logger = LogManager.getLogger(BasicDataWorkflow.class);
 
     private JEVisOption options;
     private JEVisObject workflowObject;
@@ -59,7 +55,7 @@ public class BasicDataWorkflow implements DataWorkflow {
 
     @Override
     public void setObject(JEVisObject object) {
-        System.out.println("!!!!!!BasicDataWorkflow.setObject: " + object.getName() + " id:" + object.getID());
+        logger.info("!!!!!!BasicDataWorkflow.setObject: " + object.getName() + " id:" + object.getID());
         this.workflowObject = object;
     }
 
@@ -73,7 +69,7 @@ public class BasicDataWorkflow implements DataWorkflow {
         try {
             return this.workflowObject.getAttribute(ATTRIBUTE_DESCRIPTION).getLatestSample().getValueAsString();
         } catch (JEVisException ex) {
-            Logger.getLogger(BasicDataWorkflow.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return "";
     }
@@ -91,23 +87,21 @@ public class BasicDataWorkflow implements DataWorkflow {
     @Override
     public Result getResult() {
         if (tasks == null) {
-            System.out.println("Task is null build new");
+            logger.info("Task is null build new");
             try {
-                System.out.println("Null?: " + this.workflowObject);
-                System.out.println("2: " + this.workflowObject.getDataSource());
+                logger.info("Null?: " + this.workflowObject);
+                logger.info("2: " + this.workflowObject.getDataSource());
                 JEVisClass processorClass = this.workflowObject.getDataSource().getJEVisClass(Function.JEVIS_CLASS);
-                System.out.println("first DP: " + processorClass.getName());
+                logger.info("first DP: " + processorClass.getName());
 
                 for (JEVisObject processor : this.workflowObject.getChildren(processorClass, true)) {
-                    System.out.println("whhhafirst DP: " + processor.getName());
+                    logger.info("whhhafirst DP: " + processor.getName());
                     //should have only one......
                     //TODO: more checks and exeption handling
                     this.tasks = DataProcessing.BuildTask(null, processor, options, this);
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(BasicDataWorkflow.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("hgggggggggggggg");
-                ex.printStackTrace();
+                logger.fatal(ex);
             }
 
         }

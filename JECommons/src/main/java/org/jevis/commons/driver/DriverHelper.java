@@ -5,6 +5,12 @@
  */
 package org.jevis.commons.driver;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+import org.jevis.commons.DatabaseHelper;
+import org.joda.time.DateTime;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -14,27 +20,13 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisType;
-import org.jevis.commons.DatabaseHelper;
-import org.joda.time.DateTime;
+import java.util.*;
 
 /**
- *
  * @author bf
  */
 public class DriverHelper {
+    private static final Logger logger = LogManager.getLogger(DriverHelper.class);
 
     private static String JEVIS_SOURCE = "jevis";
     private static String ROOT_FOLDER = null;
@@ -73,13 +65,13 @@ public class DriverHelper {
                 Class c = ByteClassLoader.loadDriver(file, driverProp.getClassName());
                 classes.put(driverProp.getJevisName(), c);
             } catch (JEVisException ex) {
-                Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             } catch (IOException ex) {
-                Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             } catch (ClassNotFoundException ex) {
-                Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
         return classes;
@@ -99,7 +91,7 @@ public class DriverHelper {
                                 driverProp.setFileSource(driverFolder + fileEntry.getName());
                             }
                         } catch (IOException ex) {
-                            Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.fatal(ex);
                         }
                     }
                 }
@@ -127,11 +119,11 @@ public class DriverHelper {
                     fos.close();
                     driverProp.setFileSource(fileSource);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 } catch (FileNotFoundException ex) {
-                    Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 } catch (IOException ex) {
-                    Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         }
@@ -144,12 +136,12 @@ public class DriverHelper {
                 try {
                     Class c = cl.loadClass(driverProp.getClassName());
                     classes.put(driverProp.getJevisName(), c);
-                    Logger.getLogger(DriverHelper.class.getName()).log(Level.INFO, String.format("Done loading driver: %s", c));
+                    logger.info(String.format("Done loading driver: %s", c));
                 } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, String.format("Fail loading driver: %s", driverProp.getClassName()), ex);
+                    logger.fatal(String.format("Fail loading driver: %s", driverProp.getClassName()), ex);
                 }
             } catch (MalformedURLException ex) {
-                Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
         return classes;
@@ -188,7 +180,7 @@ public class DriverHelper {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(DriverHelper.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return driverProperties;
     }

@@ -5,12 +5,12 @@
  */
 package org.jevis.jecalc.workflow;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jecalc.data.CleanDataAttribute;
 import org.jevis.jecalc.data.ResourceManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class ProcessManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProcessManager.class);
+    private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
     private List<ProcessStep> processSteps = new ArrayList<>();
 

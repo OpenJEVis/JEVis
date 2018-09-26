@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -22,24 +22,21 @@ package org.jevis.commons.drivermanagment;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import javax.imageio.ImageIO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.json.JsonFactory;
 import org.jevis.commons.json.JsonJEVisClass;
 import org.jevis.commons.json.JsonRelationship;
+
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Very basic JEVisClass exporter. The implemnetation will be replaced in the
@@ -48,6 +45,7 @@ import org.jevis.commons.json.JsonRelationship;
  * @author Florian Simon
  */
 public class ClassExporter {
+    private static final Logger logger = LogManager.getLogger(ClassExporter.class);
 
     public static final String DIR_CLASSES = "Classes";
     public static final String DIR_ICONS = "Icons";
@@ -62,22 +60,38 @@ public class ClassExporter {
                 files.addAll(filesForClass(jclass));
 
             } catch (JEVisException ex) {
-                Logger.getLogger(ClassExporter.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             } catch (IOException ex) {
-                Logger.getLogger(ClassExporter.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
         try {
             files.addAll(relationshipsfilesForClass(classes));
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassExporter.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         } catch (IOException ex) {
-            Logger.getLogger(ClassExporter.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         writeFile(targetFile, files);
 //        writeFile(targetFile, typeFiles);
 
+    }
+
+    public static void addToZipFile(File file, ZipOutputStream zos) throws IOException {
+
+        FileInputStream fis = new FileInputStream(file);
+        ZipEntry zipEntry = new ZipEntry(file.getParentFile().getName() + "/" + file.getName());
+        zos.putNextEntry(zipEntry);
+
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0) {
+            zos.write(bytes, 0, length);
+        }
+
+        zos.closeEntry();
+        fis.close();
     }
 
     private List<File> relationshipsfilesForClass(List<JEVisClass> jclasses) throws JEVisException, IOException {
@@ -120,7 +134,7 @@ public class ClassExporter {
 
         FileOutputStream outputStream;
         File temp = new File(tmpdir + "/" + DIR_RELATIONSHIPS + "/relationships.json");
-        System.out.println("File name: " + temp);
+        logger.info("File name: " + temp);
 
         outputStream = new FileOutputStream(temp);
         outputStream.write(jsonString.getBytes());
@@ -147,7 +161,7 @@ public class ClassExporter {
 
         FileOutputStream outputStream;
         File temp = new File(tmpdir + "/" + DIR_CLASSES + "/" + jclass.getName() + ".json");
-        System.out.println("File name: " + temp);
+        logger.info("File name: " + temp);
 
         outputStream = new FileOutputStream(temp);
         outputStream.write(s.getBytes());
@@ -184,25 +198,9 @@ public class ClassExporter {
             fos.close();
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.fatal(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal(e);
         }
-    }
-
-    public static void addToZipFile(File file, ZipOutputStream zos) throws FileNotFoundException, IOException {
-
-        FileInputStream fis = new FileInputStream(file);
-        ZipEntry zipEntry = new ZipEntry(file.getParentFile().getName() + "/" + file.getName());
-        zos.putNextEntry(zipEntry);
-
-        byte[] bytes = new byte[1024];
-        int length;
-        while ((length = fis.read(bytes)) >= 0) {
-            zos.write(bytes, 0, length);
-        }
-
-        zos.closeEntry();
-        fis.close();
     }
 }

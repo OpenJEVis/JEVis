@@ -255,7 +255,7 @@ public class LimitEditor implements AttributeEditor {
                     if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                            System.out.println("Commit: " + _newSample.getValueAsString());
+                            logger.info("Commit: " + _newSample.getValueAsString());
                             _changed.setValue(true);
 //                            commit();
                         } catch (JEVisException e) {
@@ -359,7 +359,7 @@ public class LimitEditor implements AttributeEditor {
          * Change Listeners
          */
         typeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Type Event: " + newValue);
+            logger.info("Type Event: " + newValue);
             config.setTypeOfSubstituteValue(newValue.toString());
             fillTab(tab, config);
         });
@@ -413,7 +413,7 @@ public class LimitEditor implements AttributeEditor {
 //        gridPane.add(typeOfSubstituteLabel, 0, row);
 //        gridPane.add(typeBox, 1, row, 2, 1);
 
-//        System.out.println("Type: '" +config.getTypeOfSubstituteValue()+"' ?= '" +GapFillingType.MEDIAN +"' ="+ (config.getTypeOfSubstituteValue().equals(GapFillingType.MEDIAN)));
+//        logger.info("Type: '" +config.getTypeOfSubstituteValue()+"' ?= '" +GapFillingType.MEDIAN +"' ="+ (config.getTypeOfSubstituteValue().equals(GapFillingType.MEDIAN)));
 //        if (config.getTypeOfSubstituteValue() == null || config.getTypeOfSubstituteValue().equals(GapFillingType.NONE)) {
 
 //        } else if (config.getTypeOfSubstituteValue().equals(GapFillingType.DEFAULT_VALUE)) {

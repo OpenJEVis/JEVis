@@ -58,9 +58,9 @@ import java.util.*;
  */
 public class TreeHelper {
 
-    public static Logger LOGGER = LogManager.getLogger(TreeHelper.class);
+    private static final Logger logger = LogManager.getLogger(TreeHelper.class);
 
-    private static SaveResourceBundle bundel = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
+    private static SaveResourceBundle bundle = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private static long lastSearchIndex = 0L;
     private static String lastSearch = "";
 
@@ -95,7 +95,7 @@ public class TreeHelper {
                     }
 
                 } catch (Exception ex) {
-                    LOGGER.catching(ex);
+                    logger.catching(ex);
                     CommonDialogs.showError(tree.getRB().getString("jevistree.dialog.delete.error.title"),
                             tree.getRB().getString("jevistree.dialog.delete.error.message"), null, ex);
                 }
@@ -107,11 +107,11 @@ public class TreeHelper {
     }
 
     public static void openPath(JEVisTree tree, List<JEVisObject> toOpen, TreeItem<JEVisTreeRow> root, JEVisObject target) {
-//        System.out.println("OpenPath: " + root.getValue().getID());
-//        LOGGER.trace("OpenPath: {}", target.getID());
+//        logger.info("OpenPath: " + root.getValue().getID());
+//        logger.trace("OpenPath: {}", target.getID());
         for (TreeItem<JEVisTreeRow> child : root.getChildren()) {
             for (JEVisObject findObj : toOpen) {
-//                LOGGER.trace("OpenPath2: toOpen: {} in: {}", findObj.getID(), child.getValue().getJEVisObject().getID());
+//                logger.trace("OpenPath2: toOpen: {} in: {}", findObj.getID(), child.getValue().getJEVisObject().getID());
                 if (findObj.getID().equals(child.getValue().getJEVisObject().getID())) {
                     child.expandedProperty().setValue(Boolean.TRUE);
                     openPath(tree, toOpen, child, target);
@@ -164,11 +164,11 @@ public class TreeHelper {
                 if (response == FindDialog.Response.YES) {
                     try {
                         JEVisObject findObj = ds.getObject(Long.parseLong(dia.getResult()));
-                        LOGGER.trace("Found Object: " + findObj);
+                        logger.trace("Found Object: " + findObj);
                         if (findObj != null) {
                             List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
                             toOpen.add(findObj);
-                            LOGGER.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
+                            logger.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
 
                             TreeHelper.openPath(tree, toOpen, tree.getRoot(), findObj);
 
@@ -180,7 +180,7 @@ public class TreeHelper {
                                 if (object.getName().contains(dia.getResult())) {
                                     List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
                                     toOpen.add(object);
-                                    LOGGER.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
+                                    logger.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
 
                                     TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
                                     lastSearchIndex = allObjects.indexOf(object);
@@ -207,7 +207,7 @@ public class TreeHelper {
                             if (object.getName().contains(lastSearch)) {
                                 List<JEVisObject> toOpen = ObjectHelper.getAllParents(object);
                                 toOpen.add(object);
-                                LOGGER.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
+                                logger.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
 
                                 TreeHelper.openPath(tree, toOpen, tree.getRoot(), object);
                                 lastSearchIndex = allObjects.indexOf(object) + 1;
@@ -250,9 +250,9 @@ public class TreeHelper {
 
 
         } catch (Exception ex) {
-            LOGGER.catching(ex);
-            CommonDialogs.showError(bundel.getString("jevistree.dialog.move.error.title"),
-                    bundel.getString("jevistree.dialog.move.error.message"), null, ex);
+            logger.catching(ex);
+            CommonDialogs.showError(bundle.getString("jevistree.dialog.move.error.title"),
+                    bundle.getString("jevistree.dialog.move.error.message"), null, ex);
         }
     }
 
@@ -261,9 +261,9 @@ public class TreeHelper {
             JEVisObject newLinkObj = targetParent.buildObject(linkName, targetParent.getDataSource().getJEVisClass(CommonClasses.LINK.NAME));
             CommonObjectTasks.createLink(newLinkObj, linkSrcObj);
         } catch (JEVisException ex) {
-            LOGGER.catching(ex);
+            logger.error(ex);
         } catch (Exception ex) {
-            LOGGER.catching(ex);
+            logger.fatal(ex);
         }
     }
 
@@ -276,7 +276,7 @@ public class TreeHelper {
 
 
     public static void EventRename(final JEVisTree tree, JEVisObject object) {
-        LOGGER.trace("EventRename");
+        logger.trace("EventRename");
 
         NewObjectDialog dia = new NewObjectDialog();
         if (object != null) {
@@ -295,11 +295,11 @@ public class TreeHelper {
                         }
 
                     } catch (JEVisException ex) {
-                        LOGGER.catching(ex);
+                        logger.catching(ex);
                     }
                 }
             } catch (JEVisException ex) {
-                LOGGER.catching(ex);
+                logger.catching(ex);
             }
         }
 
@@ -307,7 +307,7 @@ public class TreeHelper {
 
     public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent, CopyObjectDialog.DefaultAction mode) {
 
-        LOGGER.trace("EventDrop");
+        logger.trace("EventDrop");
         CopyObjectDialog dia = new CopyObjectDialog();
         CopyObjectDialog.Response re = dia.show((Stage) tree.getScene().getWindow(), dragObj, targetParent, mode);
 
@@ -324,13 +324,13 @@ public class TreeHelper {
     }
 
     public static void copyObjectUnder(JEVisObject toCopyObj, final JEVisObject newParent, String newName, boolean includeContent, boolean recursive) throws JEVisException {
-        LOGGER.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
+        logger.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
         newObject.commit();
 
         for (JEVisAttribute originalAtt : toCopyObj.getAttributes()) {
-            LOGGER.debug("Copy attribute: {}", originalAtt);
+            logger.debug("Copy attribute: {}", originalAtt);
             JEVisAttribute newAtt = newObject.getAttribute(originalAtt.getType());
             //Copy the basic attribute config
             newAtt.setDisplaySampleRate(originalAtt.getDisplaySampleRate());
@@ -341,16 +341,16 @@ public class TreeHelper {
             //if chosen copy the samples
             if (includeContent) {
                 if (originalAtt.hasSample()) {
-                    LOGGER.debug("Include samples");
+                    logger.debug("Include samples");
 
                     List<JEVisSample> newSamples = new ArrayList<>();
                     for (JEVisSample sample : originalAtt.getAllSamples()) {
                         if (!originalAtt.getName().equals("Value")) {
-                            System.out.println("Copy sample: " + originalAtt.getName() + " Value: " + sample.getValue() + "  TS: " + sample.getTimestamp());
+                            logger.info("Copy sample: " + originalAtt.getName() + " Value: " + sample.getValue() + "  TS: " + sample.getTimestamp());
                         }
                         newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValue(), sample.getNote()));
                     }
-                    LOGGER.debug("Add samples: {}", newSamples.size());
+                    logger.debug("Add samples: {}", newSamples.size());
                     newAtt.addSamples(newSamples);
                 }
             }
@@ -359,7 +359,7 @@ public class TreeHelper {
         //TODO: we need an recursive check to avoid an endless loop
         //Also copy the children if chosen
         if (recursive) {
-            LOGGER.debug("recursive is enabled");
+            logger.debug("recursive is enabled");
             for (JEVisObject otherChild : toCopyObj.getChildren()) {
                 copyObjectUnder(otherChild, newObject, otherChild.getName(), includeContent, recursive);
             }
@@ -369,7 +369,7 @@ public class TreeHelper {
 
     public static void copyObject(final JEVisObject toCopyObj, final JEVisObject newParent, String newName, boolean includeContent, boolean recursive) {
         try {
-            LOGGER.debug("-> Copy ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
+            logger.debug("-> Copy ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
             final ProgressForm pForm = new ProgressForm("Uploading..");
 
@@ -381,9 +381,9 @@ public class TreeHelper {
                         copyObjectUnder(toCopyObj, newParent, newName, includeContent, recursive);
 
                     } catch (Exception ex) {
-                        LOGGER.catching(ex);
-                        CommonDialogs.showError(bundel.getString("jevistree.dialog.copy.error.title"),
-                                bundel.getString("jevistree.dialog.copy.error.message"), null, ex);
+                        logger.catching(ex);
+                        CommonDialogs.showError(bundle.getString("jevistree.dialog.copy.error.title"),
+                                bundle.getString("jevistree.dialog.copy.error.message"), null, ex);
                         failed();
                     }
                     return null;
@@ -399,7 +399,7 @@ public class TreeHelper {
             upload.setOnCancelled(new EventHandler<WorkerStateEvent>() {
                 @Override
                 public void handle(WorkerStateEvent event) {
-                    LOGGER.error("Upload Cancel");
+                    logger.error("Upload Cancel");
                     pForm.getDialogStage().hide();
                 }
             });
@@ -407,7 +407,7 @@ public class TreeHelper {
             upload.setOnFailed(new EventHandler<WorkerStateEvent>() {
                 @Override
                 public void handle(WorkerStateEvent event) {
-                    LOGGER.error("Upload failed");
+                    logger.error("Upload failed");
                     pForm.getDialogStage().hide();
                 }
             });
@@ -418,9 +418,9 @@ public class TreeHelper {
             new Thread(upload).start();
 
         } catch (Exception ex) {
-            LOGGER.catching(ex);
-            CommonDialogs.showError(bundel.getString("jevistree.dialog.copy.error.title"),
-                    bundel.getString("jevistree.dialog.copy.error.message"), null, ex);
+            logger.catching(ex);
+            CommonDialogs.showError(bundle.getString("jevistree.dialog.copy.error.title"),
+                    bundle.getString("jevistree.dialog.copy.error.message"), null, ex);
         }
     }
 
@@ -435,7 +435,7 @@ public class TreeHelper {
 
         if (parent != null) {
             if (dia.show((Stage) tree.getScene().getWindow(), null, parent, false, NewObjectDialog.Type.NEW, null) == NewObjectDialog.Response.YES) {
-//                System.out.println("create new: " + dia.getCreateName() + " class: " + dia.getCreateClass() + " " + dia.getCreateCount() + " times");
+//                logger.info("create new: " + dia.getCreateName() + " class: " + dia.getCreateClass() + " " + dia.getCreateCount() + " times");
 
                 for (int i = 0; i < dia.getCreateCount(); i++) {
                     try {
@@ -448,7 +448,7 @@ public class TreeHelper {
                         newObject.commit();
 
                     } catch (JEVisException ex) {
-                        LOGGER.catching(ex);
+                        logger.catching(ex);
 
                         if (ex.getMessage().equals("Can not create User with this name. The User has to be unique on the System")) {
                             InfoDialog info = new InfoDialog();
@@ -507,7 +507,7 @@ public class TreeHelper {
 
 
     public static void createCalcInput(JEVisObject calcObject) throws JEVisException {
-        System.out.println("Event Create new Input");
+        logger.info("Event Create new Input");
         SelectTargetDialog2 dia = new SelectTargetDialog2();
         dia.allowMultySelect(true);
         List<UserSelection> userSeclection = new ArrayList<>();
@@ -540,11 +540,11 @@ public class TreeHelper {
 
                 TargetHelper th = new TargetHelper(aInputData.getDataSource(), us.getSelectedObject(), valueAttribute);
                 if (th.isValid() && th.targetAccessable()) {
-                    System.out.println("Target Is valid");
+                    logger.info("Target Is valid");
                     JEVisSample newTarget = aInputData.buildSample(now, th.getSourceString());
                     newTarget.commit();
                 } else {
-                    System.out.println("Target is not valid");
+                    logger.info("Target is not valid");
                 }
 
 

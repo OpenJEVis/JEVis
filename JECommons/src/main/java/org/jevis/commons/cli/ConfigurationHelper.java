@@ -19,19 +19,16 @@
  */
 package org.jevis.commons.cli;
 
-import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.BasicOption;
 import org.jevis.commons.config.XMLConfigFileReader;
+
+import java.io.File;
 
 /**
  * This class helps with common command line interface tasks
@@ -43,6 +40,7 @@ import org.jevis.commons.config.XMLConfigFileReader;
 public class ConfigurationHelper {
 
     public static String DATASOURCE_PREFIX = "jevis.datasource";
+    private static final Logger logger = LogManager.getLogger(ConfigurationHelper.class);
 
     /**
      * Will create a new ConfigurationHelper for the given argument[] arrays and
@@ -67,10 +65,10 @@ public class ConfigurationHelper {
                     XMLConfigFileReader reader = new XMLConfigFileReader(cFile);
 
                 } catch (ConfigurationException ex) {
-                    Logger.getLogger(ConfigurationHelper.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             } else {
-                System.out.println("Cant access configfile: " + fileName);
+                logger.info("Cant access config file: " + fileName);
             }
         }
 

@@ -14,12 +14,12 @@ import org.joda.time.Interval;
  */
 public interface IntervalCalculator {
 
-    public void buildIntervals(JEVisObject reportObject);
+    void buildIntervals(JEVisObject reportObject);
 
-    public Interval getInterval(PeriodModus periodModus);
+    Interval getInterval(PeriodModus periodModus);
 
-    public enum PeriodModus {
+    enum PeriodModus {
 
-        CURRENT, LAST;
+        CURRENT, LAST, ALL
     }
 }

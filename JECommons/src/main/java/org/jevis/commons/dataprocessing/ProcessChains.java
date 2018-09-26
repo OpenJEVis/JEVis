@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -21,21 +21,13 @@ package org.jevis.commons.dataprocessing;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.function.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
-import org.jevis.commons.dataprocessing.function.ConverterFunction;
-import org.jevis.commons.dataprocessing.function.CounterFunction;
-import org.jevis.commons.dataprocessing.function.ImpulsFunction;
-import org.jevis.commons.dataprocessing.function.InputFunction;
-import org.jevis.commons.dataprocessing.function.LimitCheckerFunction;
-import org.jevis.commons.dataprocessing.function.MathFunction;
-import org.jevis.commons.dataprocessing.function.NullFunction;
 
 /**
  * This class contains various methods for manipulating ProcessChains.
@@ -43,6 +35,7 @@ import org.jevis.commons.dataprocessing.function.NullFunction;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ProcessChains {
+    private static final Logger logger = LogManager.getLogger(ProcessChains.class);
 
     public static final String CLASS_PROCESS_CHAIN = "Process Chain";
     public static final String ATTRIBUTE_DATA = "Data";
@@ -81,7 +74,7 @@ public class ProcessChains {
     }
 
     public static Process BuildProcessChain(JEVisDataSource ds, String functionName, String id, Process parent) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        System.out.println("BuildTask(): " + ds + "    " + functionName + "  " + id);
+        logger.info("BuildTask(): " + ds + "    " + functionName + "  " + id);
         ProcessFunction newFunction = BuildFunction(functionName);
 
         if (newFunction != null) {
@@ -103,27 +96,24 @@ public class ProcessChains {
      *
      * @param name
      * @return
-     * @throws ClassNotFoundException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
      */
-    public static ProcessFunction BuildFunction(String name) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        //TODO: part of the driver loding logic
+    public static ProcessFunction BuildFunction(String name) {
+        //TODO: part of the driver loading logic
 
-        //hardcodedt workaround
+        //hardcoded workaround
         switch (name) {
-            case AggrigatorFunction.NAME:
-                return new AggrigatorFunction();
+            case AggregatorFunction.NAME:
+                return new AggregatorFunction();
             case ConverterFunction.NAME:
                 return new ConverterFunction();
             case CounterFunction.NAME:
                 return new CounterFunction();
-            case ImpulsFunction.NAME:
-                return new ImpulsFunction();
+            case ImpulseFunction.NAME:
+                return new ImpulseFunction();
             case LimitCheckerFunction.NAME:
-                return new ImpulsFunction();
+                return new ImpulseFunction();
             case MathFunction.NAME:
-                return new MathFunction();
+                return new MathFunction(name);
             case InputFunction.NAME:
                 return new InputFunction();
             default:
@@ -206,8 +196,8 @@ public class ProcessChains {
 //        ProcessChain aggFunction = new BasicProcessChain();
 //        aggFunction.setJEVisDataSource(ds);
 //        aggFunction.setID("Aggrigation Task");
-//        aggFunction.setFunction(new AggrigatorFunction());
-//        aggFunction.setOptions(getDefaultOptions(new AggrigatorFunction()));
+//        aggFunction.setFunction(new AggregatorFunction());
+//        aggFunction.setOptions(getDefaultOptions(new AggregatorFunction()));
 //        aggFunction.getSubTasks().add(inputProcess);
 //        inputProcess.setParent(aggFunction);
 //
@@ -244,15 +234,16 @@ public class ProcessChains {
     public static List<ProcessFunction> getAvailableFunctions(JEVisDataSource ds) {
         List<ProcessFunction> result = new ArrayList<>();
 
-        //TODO: fetch all avilable function driver from datasource
+        //TODO: fetch all available function driver from data source
         //Workaround, static adding of functions
-        result.add(new AggrigatorFunction());
+        result.add(new AggregatorFunction());
         result.add(new ConverterFunction());
         result.add(new CounterFunction());
-        result.add(new ImpulsFunction());
+        result.add(new ImpulseFunction());
         result.add(new InputFunction());
         result.add(new LimitCheckerFunction());
-        result.add(new MathFunction());
+        //todo default function?
+        result.add(new MathFunction("default"));
         result.add(new NullFunction());
 
         return result;
@@ -300,16 +291,16 @@ public class ProcessChains {
         switch (name) {
             case InputFunction.NAME:
                 return new InputFunction();
-            case AggrigatorFunction.NAME:
-                return new AggrigatorFunction();
+            case AggregatorFunction.NAME:
+                return new AggregatorFunction();
             case CounterFunction.NAME:
                 return new CounterFunction();
-            case ImpulsFunction.NAME:
-                return new ImpulsFunction();
+            case ImpulseFunction.NAME:
+                return new ImpulseFunction();
             case LimitCheckerFunction.NAME:
                 return new LimitCheckerFunction();
             case MathFunction.NAME:
-                return new MathFunction();
+                return new MathFunction(name);
             case NullFunction.NAME:
                 return new NullFunction();
             case ConverterFunction.NAME:

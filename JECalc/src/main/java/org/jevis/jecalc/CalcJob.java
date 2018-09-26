@@ -5,11 +5,8 @@
  */
 package org.jevis.jecalc;
 
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -19,13 +16,15 @@ import org.jevis.jecalc.calculation.Sample;
 import org.jevis.jecalc.calculation.SampleMerger;
 import org.joda.time.DateTime;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- *
  * @author broder
  */
 class CalcJob {
 
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CalcJobFactory.class);
+    private static final Logger logger = LogManager.getLogger(CalcJob.class);
     private final List<CalcInputObject> calcObjects;
     private final String expression;
     private final List<JEVisAttribute> outputs;
@@ -60,11 +59,11 @@ class CalcJob {
                 output.addSamples(calculateResult);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CalcJob.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
-    
-    long getCalcObjectID(){
+
+    long getCalcObjectID() {
         return calcObjID;
     }
 

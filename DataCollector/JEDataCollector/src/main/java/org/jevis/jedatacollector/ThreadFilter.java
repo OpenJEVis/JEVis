@@ -22,8 +22,8 @@ public class ThreadFilter extends Filter {
     @Override
     public int decide(LoggingEvent le) {
         String mdc = (String) le.getMDC(Launcher.KEY);
-//        System.out.println("MDC: " + mdc);
-//        System.out.println("key: " + _value);
+//        logger.info("MDC: " + mdc);
+//        logger.info("key: " + _value);
         if (mdc != null && mdc.equals(_value)) {
             return Filter.ACCEPT;
         } else {

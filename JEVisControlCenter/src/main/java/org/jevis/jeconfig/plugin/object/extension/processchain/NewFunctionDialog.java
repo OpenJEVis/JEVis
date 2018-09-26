@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -42,6 +42,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -51,14 +53,13 @@ import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
 import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author fs
  */
 public class NewFunctionDialog {
+    private static final Logger logger = LogManager.getLogger(NewFunctionDialog.class);
 
     public static String ICON = "1403104602_brick_add.png";
 
@@ -169,7 +170,7 @@ public class NewFunctionDialog {
                 );
 
             } catch (JEVisException ex) {
-                Logger.getLogger(NewFunctionDialog.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         } else if (type == Type.RENAME) {
             options.add(jclass);
@@ -196,7 +197,7 @@ public class NewFunctionDialog {
                                 box.getChildren().setAll(icon, cName);
 
                             } catch (JEVisException ex) {
-                                Logger.getLogger(NewFunctionDialog.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.fatal(ex);
                             }
 
                             setGraphic(box);
@@ -221,7 +222,7 @@ public class NewFunctionDialog {
                         fName.setText(newValue.getName());
                     }
                 } catch (JEVisException ex) {
-                    Logger.getLogger(NewFunctionDialog.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });
@@ -263,7 +264,7 @@ public class NewFunctionDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 stage.close();
 
                 createName = fName.getText();
@@ -307,7 +308,7 @@ public class NewFunctionDialog {
                 count.setDisable(false);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(NewFunctionDialog.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         if (type == Type.NEW) {

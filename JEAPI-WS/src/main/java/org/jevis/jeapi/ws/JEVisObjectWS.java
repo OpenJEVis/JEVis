@@ -21,6 +21,7 @@ package org.jevis.jeapi.ws;
 
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.ws.json.JsonObject;
 
@@ -29,19 +30,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author fs
  */
 public class JEVisObjectWS implements JEVisObject {
+    private static final Logger logger = LogManager.getLogger(JEVisObjectWS.class);
 
     private final EventListenerList listeners = new EventListenerList();
     private JEVisDataSourceWS ds;
     private List<JEVisObject> parents = null;
     private List<JEVisObject> children = null;
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisObjectWS.class);
     private JsonObject json;
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
@@ -387,7 +386,7 @@ public class JEVisObjectWS implements JEVisObject {
                 return getInheritanceClasses(hashSet, inheritance);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(JEVisObjectWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return hashSet;
     }

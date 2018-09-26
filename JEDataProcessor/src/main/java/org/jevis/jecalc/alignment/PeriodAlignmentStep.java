@@ -5,6 +5,8 @@
  */
 package org.jevis.jecalc.alignment;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -14,8 +16,6 @@ import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class PeriodAlignmentStep implements ProcessStep {
 
-    private static final Logger logger = LoggerFactory.getLogger(PeriodAlignmentStep.class);
+    private static final Logger logger = LogManager.getLogger(PeriodAlignmentStep.class);
 
     @Override
     public void run(ResourceManager resourceManager) {
@@ -122,7 +122,7 @@ public class PeriodAlignmentStep implements ProcessStep {
                             currentInterval.addTmpSample(sample);
                         }
                     } catch (JEVisException ex) {
-                        logger.error(null, ex);
+                        logger.error(ex);
                     }
                 }
             }
@@ -136,7 +136,7 @@ public class PeriodAlignmentStep implements ProcessStep {
                 Double valueAsDouble = sample.getValueAsDouble();
                 value += valueAsDouble;
             } catch (JEVisException ex) {
-                logger.error(null, ex);
+                logger.error(ex);
             }
         }
         Double avgValue = value / currentRawSamples.size();
@@ -150,7 +150,7 @@ public class PeriodAlignmentStep implements ProcessStep {
                 Double valueAsDouble = sample.getValueAsDouble();
                 value += valueAsDouble;
             } catch (JEVisException ex) {
-                logger.error(null, ex);
+                logger.error(ex);
             }
         }
         return value;

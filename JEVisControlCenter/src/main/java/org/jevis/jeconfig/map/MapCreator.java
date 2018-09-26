@@ -5,15 +5,8 @@
  */
 package org.jevis.jeconfig.map;
 
-import org.jevis.jeconfig.map.waypoint.SwingWaypointOverlayPainter;
 import org.jevis.jeconfig.map.waypoint.SwingWaypoint;
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.swing.event.MouseInputListener;
+import org.jevis.jeconfig.map.waypoint.SwingWaypointOverlayPainter;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.CenterMapListener;
@@ -26,6 +19,11 @@ import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
 import org.jxmapviewer.viewer.WaypointPainter;
+
+import javax.swing.event.MouseInputListener;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 /**
  *
@@ -142,7 +140,7 @@ public class MapCreator {
 //    private GPSRoute getGPSSamples(List<JEVisSample> latSamples, List<JEVisSample> longSamples) throws JEVisException {
 //        GPSRoute route = new GPSRoute();
 //        if (latSamples.size() != longSamples.size()) {
-//            System.out.println("long and lat samplelist differ in length");
+//            logger.info("long and lat samplelist differ in length");
 //            return route;
 //        }
 //        List<GPSSample> gpsSamples = new ArrayList<>();

@@ -33,11 +33,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -54,13 +50,6 @@ public class AddSharePermissonsDialog {
 
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON_QUESTION = "1400874302_question_blue.png";
-
-    public static enum Response {
-
-        YES, CANCEL, YES_ALL
-    };
-
-    private Response response = Response.CANCEL;
 
     public Response show(Stage owner, String title, String titleLong, String message) {
         final Stage stage = new Stage();
@@ -145,7 +134,7 @@ public class AddSharePermissonsDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 stage.close();
 //                isOK.setValue(true);
                 if (includeChildren.isSelected()) {
@@ -160,7 +149,7 @@ public class AddSharePermissonsDialog {
 //        okAll.setOnAction(new EventHandler<ActionEvent>() {
 //            @Override
 //            public void handle(ActionEvent t) {
-////                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+////                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
 //                stage.close();
 ////                isOK.setValue(true);
 //                response = Response.YES_ALL;
@@ -179,6 +168,13 @@ public class AddSharePermissonsDialog {
         stage.showAndWait();
 
         return response;
+    }
+
+    private Response response = Response.CANCEL;
+
+    public enum Response {
+
+        YES, CANCEL, YES_ALL
     }
 
 }

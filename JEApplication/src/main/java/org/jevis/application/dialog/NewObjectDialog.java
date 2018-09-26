@@ -39,6 +39,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -50,14 +52,12 @@ import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.tools.NumberSpinner;
 
 import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author fs
  */
 public class NewObjectDialog {
-
+    private static final Logger logger = LogManager.getLogger(NewObjectDialog.class);
     public static String ICON = "1403104602_brick_add.png";
 
     private int createCount = 1;
@@ -118,7 +118,7 @@ public class NewObjectDialog {
                 );
 
             } catch (JEVisException ex) {
-                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         } else if (type == Type.RENAME) {
             options.add(jclass);
@@ -146,7 +146,7 @@ public class NewObjectDialog {
                                 box.getChildren().setAll(icon, cName);
 
                             } catch (JEVisException ex) {
-                                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.fatal(ex);
                             }
 
                             setGraphic(box);
@@ -168,7 +168,7 @@ public class NewObjectDialog {
                     fName.setText(I18nWS.getInstance().getClassName(newValue.getName()));
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         });
 
@@ -218,7 +218,7 @@ public class NewObjectDialog {
                 count.setDisable(false);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         if (type == Type.NEW) {

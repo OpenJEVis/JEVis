@@ -1,8 +1,12 @@
 package org.jevis.jedatacollector;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.concurrent.TimeUnit;
 
 public class JEDataCollectorShutdownHookThread extends Thread {
+    private static final Logger logger = LogManager.getLogger(JEDataCollectorShutdownHookThread.class);
     public static final String THREAD_NAME = "JEDataCollector Shutdown Hook";
 
     public static final int GRACE_PERIOD = 0;
@@ -20,11 +24,11 @@ public class JEDataCollectorShutdownHookThread extends Thread {
 
     @Override
     public void run() {
-        System.out.println("Interrupting current Thread");
+        logger.info("Interrupting current Thread");
 
-        System.out.println("Waiting for thread to shut down... Grace period is " + GRACE_PERIOD + GRACE_PERIOD_TIME_UNIT);
+        logger.info("Waiting for thread to shut down... Grace period is " + GRACE_PERIOD + GRACE_PERIOD_TIME_UNIT);
         thread.interrupt();
 
-        System.out.println("Thread stopped.");
+        logger.info("Thread stopped.");
     }
 }

@@ -37,7 +37,7 @@ import org.jevis.application.jevistree.plugin.MapPlugin;
  */
 public class JEVisTreeFactory {
 
-    public static Logger LOGGER = LogManager.getLogger(JEVisTreeFactory.class);
+    private static final Logger logger = LogManager.getLogger(JEVisTreeFactory.class);
     public final static KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
     public final static KeyCombination findAgain = new KeyCodeCombination(KeyCode.F3);
     private static KeyCombination lastCombination = null;
@@ -57,7 +57,7 @@ public class JEVisTreeFactory {
 
             @Override
             public void handle(KeyEvent t) {
-                LOGGER.trace("TreeEvent: {}", t.getCode());
+                logger.trace("TreeEvent: {}", t.getCode());
 
                 final TreeItem<JEVisTreeRow> selectedObj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
 
@@ -131,7 +131,7 @@ public class JEVisTreeFactory {
     }
 
     public static JEVisTree buildDefaultMapTree(JEVisDataSource ds) {
-        System.out.println("build map tree");
+        logger.info("build map tree");
         JEVisTree tree = new JEVisTree(ds);
 
         ViewFilter filter = ViewFilterFactory.createMapFilter();
@@ -150,7 +150,7 @@ public class JEVisTreeFactory {
         final KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
 
         tree.addEventHandler(KeyEvent.KEY_PRESSED, t -> {
-            LOGGER.trace("TreeEvent: {}", t.getCode());
+            logger.trace("TreeEvent: {}", t.getCode());
 
             if (findNode.match(t)) {
                 TreeHelper.EventOpenObject(tree, null);

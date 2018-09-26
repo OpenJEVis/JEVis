@@ -5,6 +5,8 @@
  */
 package org.jevis.jecalc.workflow;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -24,8 +26,6 @@ import org.jevis.jecalc.gap.FillGapStep;
 import org.jevis.jecalc.limits.LimitsStep;
 import org.jevis.jecalc.save.ImportStep;
 import org.jevis.jecalc.scaling.ScalingStep;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class ProcessManagerFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProcessManagerFactory.class);
+    private static final Logger logger = LogManager.getLogger(ProcessManagerFactory.class);
     public static JEVisDataSource jevisDataSource;
 
     public static List<ProcessManager> getProcessManagerList() {
@@ -184,7 +184,7 @@ public class ProcessManagerFactory {
         try {
             jeVisClassName = functionalObject.getJEVisClassName();
         } catch (JEVisException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
         if (jeVisClassName == null) {
             return null;
@@ -210,7 +210,7 @@ public class ProcessManagerFactory {
                 }
             }
         } catch (JEVisException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
         return cleanObject;
     }
@@ -220,7 +220,7 @@ public class ProcessManagerFactory {
         try {
             jeVisClassName = processObject.getJEVisClassName();
         } catch (JEVisException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
 
         if (jeVisClassName == null) {
@@ -234,7 +234,7 @@ public class ProcessManagerFactory {
             try {
                 functionalClassName = processObject.getJEVisClass().getInheritance().getName();
             } catch (JEVisException ex) {
-                logger.error(null, ex);
+                logger.error(ex);
             }
             if (functionalClassName != null && functionalClassName.equals("Functional Data")) {
                 return ProcessType.functional;
@@ -258,7 +258,7 @@ public class ProcessManagerFactory {
                 processManagers.add(getProcessManagerByFunctionalObject(child));
             }
         } catch (JEVisException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
 
         return processManagers;

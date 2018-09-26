@@ -54,7 +54,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.ClassHelper;
 import org.jevis.jeconfig.plugin.classes.ClassTree;
-import org.jevis.jeconfig.plugin.classes.relationship.VaildParentEditor;
+import org.jevis.jeconfig.plugin.classes.relationship.ValidParentEditor;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
@@ -234,7 +234,7 @@ public class ClassEditor {
                 final TitledPane t1 = new TitledPane(I18n.getInstance().getString("plugin.classes.editor.tab.general"), cpGenerell);
                 t2 = new TitledPane(I18n.getInstance().getString("plugin.classes.editor.tab.types"), buildTypeNode());
 
-                VaildParentEditor redit = new VaildParentEditor();
+                ValidParentEditor redit = new ValidParentEditor();
                 redit.setJEVisClass(jclass);
 
                 final TitledPane t3 = new TitledPane(I18n.getInstance().getString("plugin.classes.editor.tab.valid_parents"), redit.getView());
@@ -361,7 +361,7 @@ public class ClassEditor {
                                                      try {
 //                                UnitSelectDialog usd = new UnitSelectDialog();
 //                                if (usd.show(JEConfig.getStage(), "Select Unit", _class.getDataSource()) == UnitSelectDialog.Response.YES) {
-//                                    System.out.println("OK");
+//                                    logger.info("OK");
 //                                    unitSelector.setText(usd.getUnit().toString());
 //                                    if (type.getUnit() != null && !type.getUnit().equals(usd.getUnit())) {
 //                                        //TODO reimplement unit
@@ -599,7 +599,7 @@ public class ClassEditor {
             JEVisType lastType = _class.getTypes().get(_class.getTypes().size() - 1);
 //                    newType.setPrimitiveType(ClassHelper.getIDforPrimitiveType(pTypeBox.getSelectionModel().getSelectedItem().toString()));
             newType.setGUIPosition(lastType.getGUIPosition() + 1);
-//            System.out.println("new pos for new Type: " + newType.getGUIPosition());
+//            logger.info("new pos for new Type: " + newType.getGUIPosition());
 
             t2.setContent(buildTypeNode());
 
@@ -610,11 +610,11 @@ public class ClassEditor {
 
     private void setUnitButton(Button button, JEVisType type) throws JEVisException {
         if (type.getUnit() != null) {
-//            System.out.println("editor.Unit: " + type.getUnit());
+//            logger.info("editor.Unit: " + type.getUnit());
             if (type.getUnit().equals(Unit.ONE)) {
 //                button.setText("None");
             } else {
-//                System.out.println(UnitManager.getInstance().formate(type.getUnit()));
+//                logger.info(UnitManager.getInstance().formate(type.getUnit()));
 //                button.setText(type.getUnit().toString());
 //                button.setText(UnitManager.getInstance().formate(type.getUnit()));
             }
@@ -701,14 +701,14 @@ public class ClassEditor {
 
     private ImageView getIcon(JEVisClass jclass) {
         try {
-//            System.out.println("getIcon for :" + jclass);
+//            logger.info("getIcon for :" + jclass);
             if (jclass.getIcon() == null) {
                 return JEConfig.getImage("1393615831_unknown2.png", 30, 30);
             }
 
             return ImageConverter.convertToImageView(jclass.getIcon(), 30, 30);
         } catch (Exception ex) {
-            System.out.println("Error while geeting class icon: " + ex);
+            logger.info("Error while geeting class icon: " + ex);
             ex.printStackTrace();
             return JEConfig.getImage("1393615831_unknown2.png", 30, 30);
         }

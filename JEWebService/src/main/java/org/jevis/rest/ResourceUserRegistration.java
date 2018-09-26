@@ -20,6 +20,8 @@
  */
 package org.jevis.rest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.ws.json.JsonUser;
 
@@ -31,15 +33,14 @@ import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * @deprecated TODO need an update to the new SQL Datasource
  * @author Florian Simon
+ * @deprecated TODO need an update to the new SQL Datasource
  */
 @Path("/JEWebService/v1/registration")
 public class ResourceUserRegistration {
+    private static final Logger logger = LogManager.getLogger(ResourceUserRegistration.class);
 
     @POST
     @Logged
@@ -113,7 +114,7 @@ public class ResourceUserRegistration {
      */
     private boolean hasAccess(HttpHeaders httpHeaders) {
         if (httpHeaders.getRequestHeader("registraionapikey") == null || httpHeaders.getRequestHeader("registraionapikey").isEmpty()) {
-            Logger.getLogger(ResourceUserRegistration.class.getName()).log(Level.SEVERE, "Missing registraionapikey header");
+            logger.fatal("Missing registraionapikey header");
             return false;
         }
         String auth = httpHeaders.getRequestHeader("registraionapikey").get(0);
@@ -136,7 +137,7 @@ public class ResourceUserRegistration {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                Logger.getLogger(ResourceUserRegistration.class.getName()).log(Level.SEVERE, "User allready exists: " + username);
+                logger.fatal("User allready exists: " + username);
                 return true;
             }
             return false;
@@ -157,7 +158,7 @@ public class ResourceUserRegistration {
             @Context HttpHeaders httpHeaders,
             @PathParam("name") String name
     ) {
-        Logger.getLogger(ResourceUserRegistration.class.getName()).log(Level.SEVERE, "GET User: " + name);
+        logger.fatal("GET User: " + name);
         if (!hasAccess(httpHeaders)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -166,7 +167,7 @@ public class ResourceUserRegistration {
 ////            ps = con.prepareStatement("select id from object where type=? and name=? limit 1");
 ////            ps.setString(1, "User");
 ////            ps.setString(2, name);
-////            System.out.println("Request: " + ps.toString());
+////            logger.info("Request: " + ps.toString());
 //
 //            if (name == null) {
 //                return Response.status(Response.Status.BAD_REQUEST).entity("name parameter is missing").build();

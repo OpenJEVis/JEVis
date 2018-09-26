@@ -5,15 +5,18 @@ package org.jevis.commons.driver.inputHandler;
  * and open the template in the editor.
  */
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
 /**
- *
  * @author Broder
  */
 public class ArrayInputHandler extends InputHandler {
+    private static final Logger logger = LogManager.getLogger(ArrayInputHandler.class);
 
     public ArrayInputHandler(Object[] input, Charset charset) {
         super(input, charset);
@@ -22,7 +25,7 @@ public class ArrayInputHandler extends InputHandler {
     //rawInput ist Object[]
     @Override
     public void convertInput() {
-        System.out.println("--Convert Array Input--");
+        logger.info("--Convert Array Input--");
         for (int i = 0; i < ((List) _rawInput).size(); i++) {
             StringBuilder builder = new StringBuilder();
             Object[] o = (Object[]) ((List) _rawInput).get(i);

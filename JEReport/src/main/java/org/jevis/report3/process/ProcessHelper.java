@@ -5,26 +5,24 @@
  */
 package org.jevis.report3.process;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+import org.jevis.report3.DateHelper;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
-import org.jevis.report3.DateHelper;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 /**
  *
  * @author broder
  */
 public class ProcessHelper {
+    private static final Logger logger = LogManager.getLogger(ProcessHelper.class);
 
     /**
      * Needed for list representations (e.g. period)
@@ -96,12 +94,12 @@ public class ProcessHelper {
             if (displayUnit != null) {
                 valueMap.put("unit", displayUnit.toString());
             } else {
-                Logger.getLogger(PeriodSampleGenerator.class.getName()).log(Level.WARN, "No display unit for attribute name: " + attribute.getName());
+                logger.warn("No display unit for attribute name: " + attribute.getName());
             }
             valueMap.put("value", value);
             valueMap.put("timestamp", timestamp);
         } catch (JEVisException ex) {
-            Logger.getLogger(ProcessHelper.class.getClass()).log(Level.WARN, "Cant collect samples for attribute: " + attribute.getName(), ex);
+            logger.warn("Cant collect samples for attribute: " + attribute.getName(), ex);
         }
         return valueMap;
 
@@ -127,7 +125,7 @@ public class ProcessHelper {
                     value = sample.getValue();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(PeriodSampleGenerator.class.getName()).log(Level.ERROR, null, ex);
+            logger.error("", ex);
         }
         return value;
     }

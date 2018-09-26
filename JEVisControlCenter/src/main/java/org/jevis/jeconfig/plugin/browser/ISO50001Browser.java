@@ -18,6 +18,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
@@ -35,11 +37,10 @@ import org.w3c.dom.html.HTMLSelectElement;
 import java.net.URI;
 
 /**
- *
  * @author fs
  */
-public class ISO5001Browser implements Plugin {
-
+public class ISO50001Browser implements Plugin {
+    private static final Logger logger = LogManager.getLogger(ISO50001Browser.class);
     private StringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.isobrowser"));
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
@@ -54,7 +55,7 @@ public class ISO5001Browser implements Plugin {
         return "ISO5001 Browser Plugin";
     }
 
-    public ISO5001Browser(JEVisDataSource ds) {
+    public ISO50001Browser(JEVisDataSource ds) {
         this.ds = ds;
         icon = JEConfig.getImage("if_50_2315874.png", 20, 20);
         try {
@@ -68,11 +69,11 @@ public class ISO5001Browser implements Plugin {
                 for (JEVisOption opt : ds.getConfiguration()) {
                     if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
                         URI jewebseriveURI = new URI(opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue());
-                        
+
                         urlProperty.setValue(
-                                 jewebseriveURI.getScheme()+"://"
-                                         + jewebseriveURI.getHost() + ":" + jewebseriveURI.getPort()
-                                +"/JEWebService/v1/login"
+                                jewebseriveURI.getScheme() + "://"
+                                        + jewebseriveURI.getHost() + ":" + jewebseriveURI.getPort()
+                                        + "/JEWebService/v1/login"
                         );
                     }
                 }
@@ -100,55 +101,55 @@ public class ISO5001Browser implements Plugin {
             });
 
             webEngine.documentProperty().addListener(new ChangeListener<Document>() {
-                @Override
-                public void changed(ObservableValue<? extends Document> observable, Document oldValue, Document doc) {
-                    if (doc != null && !logedIn.getValue()) {
+                                                         @Override
+                                                         public void changed(ObservableValue<? extends Document> observable, Document oldValue, Document doc) {
+                                                             if (doc != null && !logedIn.getValue()) {
 
-                        HTMLFormElement form = (HTMLFormElement) doc.getElementById("form-login");
+                                                                 HTMLFormElement form = (HTMLFormElement) doc.getElementById("form-login");
 
-                        NodeList nodes = form.getElementsByTagName("input");
-                        System.out.println("form: " + form);
-                        for (int i = 0; i < form.getElements().getLength(); i++) {
-                            try {
-                                org.w3c.dom.Node node = nodes.item(i);
-                                if (node != null) {
-                                    System.out.println("Node.name: " + "  - " + node);
-                                    HTMLInputElement input = (HTMLInputElement) node;
-                                    if (input.getId() != null) {
-                                        switch (input.getId()) {
-                                            case "input-username":
-                                                input.setValue(username);
-                                                break;
-                                            case "input-password":
-                                                input.setValue(password);
-                                                break;
-                                        }
+                                                                 NodeList nodes = form.getElementsByTagName("input");
+                                                                 logger.info("form: " + form);
+                                                                 for (int i = 0; i < form.getElements().getLength(); i++) {
+                                                                     try {
+                                                                         org.w3c.dom.Node node = nodes.item(i);
+                                                                         if (node != null) {
+                                                                             logger.info("Node.name: " + "  - " + node);
+                                                                             HTMLInputElement input = (HTMLInputElement) node;
+                                                                             if (input.getId() != null) {
+                                                                                 switch (input.getId()) {
+                                                                                     case "input-username":
+                                                                                         input.setValue(username);
+                                                                                         break;
+                                                                                     case "input-password":
+                                                                                         input.setValue(password);
+                                                                                         break;
+                                                                                 }
 
-                                    }
-                                }
+                                                                             }
+                                                                         }
 
-                            } catch (NullPointerException nex) {
-                                nex.printStackTrace();
-                            }
-                        }
+                                                                     } catch (NullPointerException nex) {
+                                                                         nex.printStackTrace();
+                                                                     }
+                                                                 }
 
-                        webEngine.executeScript("setLanguage(\"german\")");
-                        NodeList nodesSelect = form.getElementsByTagName("select");
-                        try {
-                            org.w3c.dom.Node node = nodesSelect.item(0);
-                            HTMLSelectElement select = (HTMLSelectElement) node;
-                            select.setSelectedIndex(1);
+                                                                 webEngine.executeScript("setLanguage(\"german\")");
+                                                                 NodeList nodesSelect = form.getElementsByTagName("select");
+                                                                 try {
+                                                                     org.w3c.dom.Node node = nodesSelect.item(0);
+                                                                     HTMLSelectElement select = (HTMLSelectElement) node;
+                                                                     select.setSelectedIndex(1);
 
-                        } catch (NullPointerException nex) {
-                            nex.printStackTrace();
-                        }
+                                                                 } catch (NullPointerException nex) {
+                                                                     nex.printStackTrace();
+                                                                 }
 
-                        logedIn.setValue(Boolean.TRUE);
-                        webEngine.executeScript("login()");
-                    }
+                                                                 logedIn.setValue(Boolean.TRUE);
+                                                                 webEngine.executeScript("login()");
+                                                             }
 
-                }
-            }
+                                                         }
+                                                     }
             );
 
         } catch (Exception ex) {

@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.jevis.jeconfig.plugin.object.extension.calculation.FormelBox?>
+<?import org.jevis.jeconfig.plugin.object.extension.calculation.FormulaBox?>
 <?import org.jevis.jeconfig.plugin.object.extension.calculation.VariablesBox?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
             minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.171"
@@ -20,7 +20,7 @@
                                     <children>
                                         <ScrollPane fitToHeight="true" fitToWidth="true" HBox.hgrow="ALWAYS">
                                             <content>
-                                                <FormelBox fx:id="formelBox" maxHeight="200.0"/>
+                                                <FormulaBox fx:id="formulaBox" maxHeight="200.0"/>
                                             </content>
                                         </ScrollPane>
                                     </children>

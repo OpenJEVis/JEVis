@@ -14,8 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import net.sf.jxls.exception.ParsePropertyException;
@@ -101,10 +101,10 @@ public class ReportGenerator {
                 reportFile = NodeManager.getInstance().createRegistryNode(FixedReg.XLS_REPORT_FILE.getID(), reportNode.getID(), FixedReg.XLS_REPORT_FILE.getDefaultName());
             }
 //            PropertyID testFile = FixedReg.XLS_REPORT_FILE;
-//            System.out.println("DefaultName "+testFile.getDefaultName());
-//            System.out.println("ID "+testFile.getID());
+//            logger.info("DefaultName "+testFile.getDefaultName());
+//            logger.info("ID "+testFile.getID());
 //            Class datatype = testFile.getDatatype();
-//            System.out.println("Datatype "+datatype.getName());
+//            logger.info("Datatype "+datatype.getName());
             reportFile.addNewValue(reportFileAsByte, new JevCalendar(), byte[].class);
         } catch (IOException ex) {
             _logger.throwing("ReportGenerator", "generateReport", ex);
@@ -162,11 +162,11 @@ public class ReportGenerator {
         JevCalendar staticStartRecord = startRecord.clone();
         staticStartRecord.add(property.getScheduleAsInt(), property.getPeriod());
 
-//        System.out.println("winterzeitoffset " + Calendar.getInstance().getTimeZone().getOffset(tmpStartRecord.clone().getTimeInMillis()));
-//        System.out.println("somemrzeitoffset " + Calendar.getInstance().getTimeZone().getOffset(JevCalendar.getInstance().getTimeInMillis()));
-//        System.out.println("rawoffset " + Calendar.getInstance().getTimeZone().getRawOffset());
-//        System.out.println("tmpStartRecord " + tmpStartRecord);
-//        System.out.println("StartRecord " + startRecord);
+//        logger.info("winterzeitoffset " + Calendar.getInstance().getTimeZone().getOffset(tmpStartRecord.clone().getTimeInMillis()));
+//        logger.info("somemrzeitoffset " + Calendar.getInstance().getTimeZone().getOffset(JevCalendar.getInstance().getTimeInMillis()));
+//        logger.info("rawoffset " + Calendar.getInstance().getTimeZone().getRawOffset());
+//        logger.info("tmpStartRecord " + tmpStartRecord);
+//        logger.info("StartRecord " + startRecord);
 
         if (property.isDynamic() & (dynamicStartRecord.before(new JevCalendar(TimeZone.getTimeZone("UTC"))) || dynamicStartRecord.equals(new JevCalendar(TimeZone.getTimeZone("UTC"))))) {
             reportNode.getPropertyNode("Start record").addNewValue(new JevCalendar(), dynamicStartRecord.toString());
@@ -187,24 +187,24 @@ public class ReportGenerator {
 //        return property;
 //    }
     private String convertToPdf(String destFileName) {
-//        System.out.println("FILEN " + destFileName);
+//        logger.info("FILEN " + destFileName);
         String tmpString = null;
-//        System.out.println("--bishier--");
+//        logger.info("--bishier--");
         DefaultOfficeManagerConfiguration defaultOfficeManagerConfiguration = new DefaultOfficeManagerConfiguration();
-//        System.out.println("--bishier--");
+//        logger.info("--bishier--");
         OfficeManager officeManager = defaultOfficeManagerConfiguration.buildOfficeManager();
 
         try {
-//            System.out.println("--bishier--");
+//            logger.info("--bishier--");
             officeManager.start();
-//            System.out.println("--bishier--");
+//            logger.info("--bishier--");
             OfficeDocumentConverter converter = new OfficeDocumentConverter(officeManager);
-//            System.out.println("--bishier--");
+//            logger.info("--bishier--");
             DocumentFormat format = new DocumentFormat();
-//            System.out.println("--bishier--");
+//            logger.info("--bishier--");
             tmpString = destFileName.replace(".xls", "tmp.pdf");
-//            System.out.println("DESTFILE " + destFileName);
-//            System.out.println("OUTPUTFILE " + tmpString);
+//            logger.info("DESTFILE " + destFileName);
+//            logger.info("OUTPUTFILE " + tmpString);
             File destfile = new File(destFileName);
             _logger.log(Level.FINEST, "absoluter pfad{0}", destfile.getAbsolutePath());
             _logger.log(Level.FINEST, "writeable {0}", destfile.canWrite());
@@ -332,7 +332,7 @@ public class ReportGenerator {
             beans.put(data.getIdentifier() + ".oldlastyeartimestamps", data.getTimestampOldLastYear().getall());
 
             beans.put(data.getIdentifier(), data);
-//            System.out.println("IDENT " + data.getIdentifier());
+//            logger.info("IDENT " + data.getIdentifier());
         }
         return beans;
     }

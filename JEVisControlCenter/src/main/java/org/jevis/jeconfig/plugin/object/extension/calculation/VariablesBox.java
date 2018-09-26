@@ -4,8 +4,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.application.jevistree.TreeHelper;
 import org.jevis.application.resource.ResourceLoader;
 
@@ -16,7 +18,7 @@ public class VariablesBox extends FlowPane {
 
 
     private List<JEVisObject> variables = new ArrayList<>();
-    private FormelBox expression;
+    private FormulaBox expression;
     private JEVisObject calcObject;
 
     public VariablesBox() {
@@ -27,7 +29,7 @@ public class VariablesBox extends FlowPane {
         setPrefWrapLength(200);
     }
 
-    public void bindVaribaleBox(FormelBox expression, JEVisObject obj){
+    public void bindVaribaleBox(FormulaBox expression, JEVisObject obj) {
         this.calcObject=obj;
         this.expression=expression;
         listVariables(calcObject);

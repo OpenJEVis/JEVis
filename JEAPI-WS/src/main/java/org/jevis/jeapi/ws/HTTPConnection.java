@@ -75,7 +75,7 @@ public class HTTPConnection {
     private void addAuth(HttpURLConnection conn, String username, String password) {
         String auth = new String(Base64.encodeBase64((username + ":" + password).getBytes()));
 
-//        System.out.println("Using auth: 'Authorization Basic " + auth);
+//        logger.info("Using auth: 'Authorization Basic " + auth);
         conn.setRequestProperty("Authorization", "Basic " + auth);
     }
 

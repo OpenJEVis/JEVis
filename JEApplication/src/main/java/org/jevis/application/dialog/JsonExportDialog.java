@@ -41,6 +41,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.commons.dimpex.DimpEX;
@@ -50,13 +52,12 @@ import org.jevis.commons.dimpex.DimpexObject;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author fs
  */
 public class JsonExportDialog {
+    private static final Logger logger = LogManager.getLogger(JsonExportDialog.class);
 
     public File tartetFile;
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
@@ -190,7 +191,7 @@ public class JsonExportDialog {
 
             @Override
             public void handle(ActionEvent event) {
-                System.out.println();
+                logger.info("");
                 FileChooser fileChooser = new FileChooser();
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -216,7 +217,7 @@ public class JsonExportDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
 
                 boolean isChildren = allChildren.isSelected();
                 boolean isAattributes = attributes.isSelected();
@@ -244,7 +245,7 @@ public class JsonExportDialog {
 //                    JsonObject jobj = JsonFactory.buildObject(obj, isAattributes, isChildren, isSamples);
 //                    JsonFileExporter.writeToFile(tartetFile, jobj);
                 } catch (Exception ex) {
-                    Logger.getLogger(JsonExportDialog.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
 
                 stage.close();

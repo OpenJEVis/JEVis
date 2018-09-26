@@ -20,19 +20,20 @@
  */
 package org.jevis.commons.json;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisException;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 @XmlRootElement
 public class JsonRelationship {
+    private static final Logger logger = LogManager.getLogger(JsonRelationship.class);
 
     private String from;
     private String to;
@@ -48,7 +49,7 @@ public class JsonRelationship {
             to = rel.getEnd().getName();
             type = rel.getType();
         } catch (JEVisException ex) {
-            Logger.getLogger(JsonRelationship.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
     }

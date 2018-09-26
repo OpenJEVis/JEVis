@@ -1,11 +1,14 @@
 package org.jevis.application.application;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class SaveResourceBundle {
-
+    private static final Logger logger = LogManager.getLogger(SaveResourceBundle.class);
     private final ResourceBundle rbFallback;
     private final Locale locale;
     private ResourceBundle rb;
@@ -35,7 +38,7 @@ public class SaveResourceBundle {
         try {
             return MessageFormat.format(bundle.getString(key), arguments);
         } catch (NullPointerException np) {
-            System.out.println("Missing translation [" + locale.getISO3Country() + "] Key: " + key);
+            logger.info("Missing translation [" + locale.getISO3Country() + "] Key: " + key);
             try {
                 return MessageFormat.format(rbFallback.getString(key), arguments);
             } catch (Exception ex) {

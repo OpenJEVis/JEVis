@@ -33,14 +33,14 @@ public class AbstractTimestamp {
         if (listOfTimestamps.size() > 0) {
             if (listOfTimestamps.get(0).getVal() instanceof String) {
                 for (JevSample s : listOfTimestamps) {
-//            System.out.println("CALENDAR " + new JevCalendar(new Date(s.getCal().getTimeInMillis() + Calendar.getInstance().getTimeZone().getOffset(s.getCal().getTimeInMillis()))).toString());
+//            logger.info("CALENDAR " + new JevCalendar(new Date(s.getCal().getTimeInMillis() + Calendar.getInstance().getTimeZone().getOffset(s.getCal().getTimeInMillis()))).toString());
                     Double cal = transformTimestampsToExcelTime(new JevCalendar(new Date(s.getCal().getTimeInMillis() + Calendar.getInstance().getTimeZone().getOffset(s.getCal().getTimeInMillis()))));
                     allTimestamps.add(cal);
                 }
 
             } else {
                 for (JevSample s : listOfTimestamps) {
-//            System.out.println("CALENDAR " + new JevCalendar(new Date(s.getCal().getTimeInMillis() + Calendar.getInstance().getTimeZone().getOffset(s.getCal().getTimeInMillis()))).toString());
+//            logger.info("CALENDAR " + new JevCalendar(new Date(s.getCal().getTimeInMillis() + Calendar.getInstance().getTimeZone().getOffset(s.getCal().getTimeInMillis()))).toString());
                     Double cal = transformTimestampsToExcelTime(new JevCalendar(new Date(s.getCal().getTimeInMillis() + Calendar.getInstance().getTimeZone().getOffset(s.getCal().getTimeInMillis()))));
                     allTimestamps.add(cal);
                     if (Double.parseDouble(

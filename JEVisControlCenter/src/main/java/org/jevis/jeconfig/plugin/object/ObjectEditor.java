@@ -108,7 +108,7 @@ public class ObjectEditor {
     }
 
     //    public void checkIfSaved(JEVisObject obj) {
-//        System.out.println("checkIfSaved: " + obj);
+//        logger.info("checkIfSaved: " + obj);
 //        if (_currentObject != null && !Objects.equals(obj.getID(), _currentObject.getID())) {
 //
 //            List<ObjectEditorExtension> needSave = new ArrayList<>();
@@ -116,11 +116,11 @@ public class ObjectEditor {
 //            _hasChanged = true;
 //            for (ObjectEditorExtension extension : installedExtensions) {
 //                if (extension.needSave()) {
-//                    System.out.println("extension need save: " + extension.getTitle());
+//                    logger.info("extension need save: " + extension.getTitle());
 //                    needSave.add(extension);
 //                }
 //            }
-//            System.out.println("needSave.size: " + needSave.size());
+//            logger.info("needSave.size: " + needSave.size());
 //
 //            commitAll();
 //            if (!needSave.isEmpty()) {

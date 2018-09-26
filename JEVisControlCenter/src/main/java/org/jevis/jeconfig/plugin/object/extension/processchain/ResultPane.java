@@ -5,10 +5,6 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -19,27 +15,28 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.ProcessChains;
 import org.jevis.commons.dataprocessing.ProcessFunction;
 import org.jevis.jeconfig.JEConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author Florian Simon
  */
 public class ResultPane extends Region {
+    private static final Logger logger = LogManager.getLogger(ResultPane.class);
 
     Button newB = new Button("", JEConfig.getImage("list-add.png", 12, 12));
     final ChoiceBox functionBox = new ChoiceBox();
 
     public ResultPane(Process task) {
-//        System.out.println("ResultPane: " + task.getFunction().getName());
+//        logger.info("ResultPane: " + task.getFunction().getName());
         GridPane layout = new GridPane();
         layout.setHgap(7);
         layout.setVgap(7);
@@ -144,11 +141,11 @@ public class ResultPane extends Region {
 
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                System.out.println("Select GUI Tpye: " + newValue);
+                logger.info("Select GUI Tpye: " + newValue);
                 try {
 
                 } catch (Exception ex) {
-                    Logger.getLogger(FunctionFooterPane.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });

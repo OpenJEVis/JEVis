@@ -1,42 +1,42 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.dataprocessing.v2;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisOption;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualAttribute;
 import org.jevis.commons.dataprocessing.VirtualSample;
-import org.jevis.commons.dataprocessing.function.ConverterFunction;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Florian Simon
  */
 public class TransformerProcessor implements Function {
+    private static final Logger logger = LogManager.getLogger(TransformerProcessor.class);
 
     public static final String METER_CONSTANT = "Meter Constant";
     public static final String OFFSET = "OFFSET";
@@ -58,20 +58,18 @@ public class TransformerProcessor implements Function {
 
     @Override
     public void setObject(JEVisObject object) {
-        System.out.println("SetObject: " + object.getName());
+        logger.info("SetObject: " + object.getName());
         this.dataProcessorObject = object;
     }
 
     @Override
     public Result getResult() {
-        Logger.getLogger(TransformerProcessor.class.getName()).log(Level.FINE, null, "TransformerProcessor.getResults()");
+        logger.trace("TransformerProcessor.getResults()");
         Result result = new BasicResult();
         List<JEVisSample> samples = new ArrayList<>();
 
         double m = 1;
         double b = 0;
-
-        System.out.println();
 
         m = DataProcessing.<Double>GetOptionValue(option, METER_CONSTANT, 1d);
         b = DataProcessing.<Double>GetOptionValue(option, OFFSET, 0d);
@@ -79,7 +77,7 @@ public class TransformerProcessor implements Function {
 //        if (Options.hasOption(METER_CONSTANT, option)) {
 //
 //            String mString = Options.getFirstOption(METER_CONSTANT, option).getValue();
-//            System.out.println("found Meter Constant: " + mString);
+//            logger.info("found Meter Constant: " + mString);
 //            try {
 //                m = Double.parseDouble(mString);
 //            } catch (Exception ex) {
@@ -87,7 +85,7 @@ public class TransformerProcessor implements Function {
 //            }
 //
 //        } else {
-//            System.out.println("No meter constat is set use default");
+//            logger.info("No meter constat is set use default");
 //
 //        }
 //
@@ -101,18 +99,18 @@ public class TransformerProcessor implements Function {
 //        } else {
 //
 //        }
-        System.out.println("Using M:" + m + "  B:" + b);
+        logger.info("Using M:" + m + "  B:" + b);
         for (JEVisSample sample : inputs.get(0).getSamples()) {
 
             try {
                 double sum = (sample.getValueAsDouble() * m) + b;
                 samples.add(new VirtualSample(sample.getTimestamp(), sum, dataProcessorObject.getDataSource(), new VirtualAttribute(null)));
             } catch (JEVisException ex) {
-                Logger.getLogger(ConverterFunction.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
 
-        System.out.println("sample.size: " + samples.size());
+        logger.info("sample.size: " + samples.size());
         result.setSamples(samples);
 
         return result;
@@ -120,8 +118,8 @@ public class TransformerProcessor implements Function {
 
     @Override
     public void setOptions(JEVisOption option) {
-        System.out.print("TransformerProcessor.setOptions: " + option);
-        System.out.println("  key: " + option.getKey());
+        logger.info("TransformerProcessor.setOptions: " + option);
+        logger.info("  key: " + option.getKey());
         this.option = option;
     }
 

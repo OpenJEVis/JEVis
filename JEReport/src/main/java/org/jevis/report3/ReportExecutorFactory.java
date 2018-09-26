@@ -7,8 +7,8 @@ package org.jevis.report3;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.report3.data.report.ReportExecutor;
@@ -18,6 +18,7 @@ import org.jevis.report3.data.report.ReportExecutor;
  * @author broder
  */
 public interface ReportExecutorFactory {
+    Logger logger = LogManager.getLogger(ReportExecutorFactory.class);
 
     static ReportExecutor getReportExecutor(JEVisObject reportObject) {
         //switch cases
@@ -34,7 +35,7 @@ public interface ReportExecutorFactory {
                 injector = Guice.createInjector(new ReportEventInjector());
                 break;
             default:
-                System.out.println("report object not supported");
+                logger.info("report object not supported");
         }
         if (injector == null) {
             return null;
@@ -44,9 +45,9 @@ public interface ReportExecutorFactory {
         return exe;
     }
 
-    public ReportExecutor create(JEVisObject obj);
+    ReportExecutor create(JEVisObject obj);
 
-    public enum ReportType {
+    enum ReportType {
 
         PERIODIC("Periodic Report"), SCHEDULED("Scheduled Report"), EVENT("Event Report");
         private final String className;
@@ -66,7 +67,7 @@ public interface ReportExecutorFactory {
                     return EVENT;
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(ReportExecutorFactory.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             }
             return null;
         }

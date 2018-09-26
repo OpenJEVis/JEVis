@@ -19,12 +19,7 @@
  */
 package org.jevis.commons.dataprocessing.v2;
 
-import java.lang.reflect.Field;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
 
 /**
@@ -33,7 +28,7 @@ import org.jevis.api.JEVisObject;
  */
 public class DataProcessorDriverManager {
 
-    public static Function loadDriver(JEVisObject obj) throws MalformedURLException, ClassNotFoundException, JEVisException, InstantiationException, IllegalAccessException {
+    public static Function loadDriver(JEVisObject obj) throws JEVisException {
         Function dp = null;
 
         //Workaround befor the driver loading is implementet
@@ -55,7 +50,7 @@ public class DataProcessorDriverManager {
         //        JEVisFile jarFile = obj.getAttribute(DataProcessorDriver.ATTRIBUTE_SOURCE_FILE).getLatestSample().getValueAsFile();
         //        boolean isEnabled = obj.getAttribute(DataProcessorDriver.ATTRIBUTE_ENABLED).getLatestSample().getValueAsBoolean();
         //
-        //        System.out.println("jarFile: " + jarFile.getFilename());
+        //        logger.info("jarFile: " + jarFile.getFilename());
         //
         ////        URL classUrl = new URL("file:///home/kent/eclipsews/SmallExample/bin/IndependentClass.class");
         //        URL classUrl = new URL("file://" + jarFile.getFilename());
@@ -63,7 +58,7 @@ public class DataProcessorDriverManager {
         //        URLClassLoader ucl = new URLClassLoader(classUrls);
         //        Class c = ucl.loadClass(driverClassName); // LINE 14
         //        for (Field f : c.getDeclaredFields()) {
-        //            System.out.println("Field name" + f.getName());
+        //            logger.info("Field name" + f.getName());
         //        }
         //
         //        return (DataProcessor) c.newInstance();

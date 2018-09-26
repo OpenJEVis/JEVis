@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class ClassHelper {
 
-    private static final Logger LOGGER = LogManager.getLogger(ClassHelper.class);
+    private static final Logger logger = LogManager.getLogger(ClassHelper.class);
 
     public static void updateTypesForHeirs(JEVisDataSource ds, String jclass) throws JEVisException {
         JEVisClass parentClass = ds.getJEVisClass(jclass);
@@ -47,7 +47,7 @@ public class ClassHelper {
 
                 //get all heirs form the parent add add/update the types to them
                 for (JEVisClass heir : parentClass.getHeirs()) {
-                    LOGGER.trace("Add Type: '{}' to {}", type.getName(), heir.getName());
+                    logger.trace("Add Type: '{}' to {}", type.getName(), heir.getName());
                     JEVisType childType = heir.getType(type.getName());
                     if (childType == null) {//add new
                         childType = heir.buildType(type.getName());
@@ -74,7 +74,7 @@ public class ClassHelper {
                             }
                         }
                         if (!parentHasType) {
-                            LOGGER.trace("Delete Type: {}", type.getName());
+                            logger.trace("Delete Type: {}", type.getName());
                             heir.deleteType(type.getName());
                         }
                     }
@@ -82,7 +82,7 @@ public class ClassHelper {
 
             }
         } else {
-            LOGGER.error("Why is the class null: {}", jclass);
+            logger.error("Why is the class null: {}", jclass);
         }
 
     }

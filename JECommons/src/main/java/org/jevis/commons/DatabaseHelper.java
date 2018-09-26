@@ -4,18 +4,11 @@
  */
 package org.jevis.commons;
 
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSelection;
-import org.jevis.api.JEVisType;
+import org.jevis.api.*;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /**
- *
  * @author bf
  */
 public class DatabaseHelper {
@@ -54,7 +47,6 @@ public class DatabaseHelper {
 
     public static boolean checkValidBooleanObject(JEVisObject jevisObject, JEVisType jevisType) throws JEVisException {
         boolean isValid = false;
-        for(JEVisAttribute att:jevisObject.getAttributes()){System.out.println("");System.out.println("att: "+att.getName());}
         if (jevisObject.getAttribute(jevisType).hasSample() && jevisObject.getAttribute(jevisType).getLatestSample() != null) {
             isValid = true;
         }
@@ -89,7 +81,7 @@ public class DatabaseHelper {
         return value;
     }
 
-    public static Long getObjectAsLong(JEVisObject jevisObject, JEVisType jevisType) throws JEVisException {
+    public static Long getObjectAsLong(JEVisObject jevisObject, JEVisType jevisType) {
         Long value = null;
         try {
             if (DatabaseHelper.checkValidNumberObject(jevisObject, jevisType)) {
@@ -101,7 +93,7 @@ public class DatabaseHelper {
         return value;
     }
 
-    public static JEVisFile getObjectAsFile(JEVisObject jevisObject, JEVisType jevisType) throws JEVisException {
+    public static JEVisFile getObjectAsFile(JEVisObject jevisObject, JEVisType jevisType) {
         JEVisFile value = null;
         try {
             if (DatabaseHelper.checkValidFileObject(jevisObject, jevisType)) {
@@ -113,7 +105,7 @@ public class DatabaseHelper {
         return value;
     }
 
-    public static DateTime getObjectAsDate(JEVisObject jevisObject, JEVisType jevisType, DateTimeFormatter timeFormat) throws JEVisException {
+    public static DateTime getObjectAsDate(JEVisObject jevisObject, JEVisType jevisType, DateTimeFormatter timeFormat) {
         DateTime datetime = null;
         try {
             if (DatabaseHelper.checkValidStringObject(jevisObject, jevisType)) {
@@ -125,7 +117,7 @@ public class DatabaseHelper {
         return datetime;
     }
 
-    public static JEVisSelection getObjectAsSelection(JEVisObject jevisObject, JEVisType jevisType) throws JEVisException {
+    public static JEVisSelection getObjectAsSelection(JEVisObject jevisObject, JEVisType jevisType) {
         JEVisSelection value = null;
         try {
             if (DatabaseHelper.checkValidSelectionObject(jevisObject, jevisType)) {
