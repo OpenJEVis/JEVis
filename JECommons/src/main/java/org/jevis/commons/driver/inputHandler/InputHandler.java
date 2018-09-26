@@ -4,32 +4,28 @@
  */
 package org.jevis.commons.driver.inputHandler;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
- *
  * @author Broder
  */
 public abstract class InputHandler implements Iterable<Object> {
-
+    private static final Logger logger = LogManager.getLogger(InputHandler.class);
     protected Object _rawInput;
     protected List<InputStream> _inputStream;
     protected String[] _csvInput;
@@ -83,7 +79,7 @@ public abstract class InputHandler implements Iterable<Object> {
 //                        stringInput.add(inputStreamString[i]);
 //                    }
                 } catch (IOException ex) {
-                    Logger.getLogger(InputHandler.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
             String[] inputArray = new String[stringInput.size()];
@@ -133,7 +129,7 @@ public abstract class InputHandler implements Iterable<Object> {
                         buffer.append(tmp);
                     }
                 } catch (IOException ex) {
-                    Logger.getLogger(InputHandler.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
             _stringOutput = buffer.toString();
@@ -151,11 +147,11 @@ public abstract class InputHandler implements Iterable<Object> {
                 DocumentBuilder builder = domFactory.newDocumentBuilder();
                 _document.add(builder.parse(new InputSource(new StringReader(stringInput))));
             } catch (ParserConfigurationException ex) {
-                Logger.getLogger(InputHandler.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             } catch (SAXException ex) {
-                Logger.getLogger(InputHandler.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             } catch (IOException ex) {
-                Logger.getLogger(InputHandler.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
         return _document;

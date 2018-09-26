@@ -22,6 +22,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.tool.I18n;
 
 /**
@@ -29,6 +31,7 @@ import org.jevis.jeconfig.tool.I18n;
  */
 public class MoveableNode extends StackPane {// implements SelectableNode {
 
+    private static final Logger logger = LogManager.getLogger(MoveableNode.class);
     public static BooleanProperty movableProperty = new SimpleBooleanProperty(true);
     public static BooleanProperty movingProperty = new SimpleBooleanProperty(false);
     public Pane parent;
@@ -47,7 +50,7 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
         if (parent == null) {
             return 0;
         }
-        System.out.println("relX: parentW: " + parent.widthProperty().getValue() + " this.X: " + getLayoutX());
+        logger.info("relX: parentW: " + parent.widthProperty().getValue() + " this.X: " + getLayoutX());
         return (100 / this.parent.widthProperty().getValue()) * this.getLayoutX();
     }
 
@@ -92,7 +95,7 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
             Platform.runLater(() -> {
                 Double width = new Double(this.getWidth());
                 Double height = new Double(this.getHeight());
-                System.out.println("Screenshot size: " + width + " " + height);
+                logger.info("Screenshot size: " + width + " " + height);
                 WritableImage image = new WritableImage(width.intValue(), height.intValue());
                 snapshot(new SnapshotParameters(), image);
                 cursor = new ImageCursor(image);
@@ -117,7 +120,7 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
 
 
         movableProperty.addListener((observable, oldValue, newValue) -> {
-            System.out.println("movableProperty in label: " + newValue);
+            logger.info("movableProperty in label: " + newValue);
             if (newValue) {
 //                this.setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 ddOverlay.setVisible(true);
@@ -157,9 +160,9 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
         });
         double keyStep = 20;
         head.setOnKeyPressed(event -> {
-            System.out.println("Key: " + event.getCharacter());
+            logger.info("Key: " + event.getCharacter());
             if (event.getCode().isArrowKey()) {
-                System.out.println("arrow key");
+                logger.info("arrow key");
                 relocate(getLayoutX() - keyStep, getLayoutY());
             }
         });
@@ -179,7 +182,7 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
         });
 
         ddOverlay.setOnDragDetected(event -> {
-            System.out.println("Drag Detect");
+            logger.info("Drag Detect");
             ddOverlay.startFullDrag();
             movingProperty.setValue(true);
 
@@ -187,11 +190,11 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
 
 
         ddOverlay.setOnDragDone(event -> {
-            System.out.println("Drag done");
+            logger.info("Drag done");
         });
 
         ddOverlay.setOnDragExited(event -> {
-            System.out.println("Drag exit");
+            logger.info("Drag exit");
         });
 
 

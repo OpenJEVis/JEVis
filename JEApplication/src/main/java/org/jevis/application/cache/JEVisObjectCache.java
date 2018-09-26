@@ -20,22 +20,14 @@
  */
 package org.jevis.application.cache;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisEvent;
-import org.jevis.api.JEVisEventListener;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisType;
 
 /**
  *
@@ -161,7 +153,7 @@ public class JEVisObjectCache implements JEVisObject, Cached {
     }
 
     @Override
-    public List<JEVisObject> getChildren(JEVisClass type, boolean inherit) throws JEVisException {
+    public List<JEVisObject> getChildren(JEVisClass type, boolean inherit) {
         try {
             List<JEVisClass> okclasses = new ArrayList<>();
             if (type != null) {
@@ -262,10 +254,10 @@ public class JEVisObjectCache implements JEVisObject, Cached {
     }
 
     @Override
-    public JEVisObject getLinkedObject() throws JEVisException {
+    public JEVisObject getLinkedObject() {
         try {
             for (JEVisRelationship rel : getRelationships(JEVisConstants.ObjectRelationship.LINK, JEVisConstants.Direction.FORWARD)) {
-//                System.out.println("return link object: " + rel.getEndObject());
+//                logger.info("return link object: " + rel.getEndObject());
                 return rel.getEndObject();
             }
         } catch (JEVisException ex) {
@@ -357,7 +349,7 @@ public class JEVisObjectCache implements JEVisObject, Cached {
     }
 
     @Override
-    public JEVisDataSource getDataSource() throws JEVisException {
+    public JEVisDataSource getDataSource() {
         return cache;
     }
 
@@ -367,7 +359,7 @@ public class JEVisObjectCache implements JEVisObject, Cached {
     }
 
     @Override
-    public void rollBack() throws JEVisException {
+    public void rollBack() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class CalcLauncher extends AbstractCliApp {
 
-    private final Logger logger = LogManager.getLogger(CalcLauncher.class);
+    private static final Logger logger = LogManager.getLogger(CalcLauncher.class);
     private final Command commands = new Command();
     private static final String APP_INFO = "JECalculation ver. 2018-07-11 - JEVis - Energy Monitring Software";
     private Benchmark bench;
@@ -32,9 +32,15 @@ public class CalcLauncher extends AbstractCliApp {
         super(args, APP_INFO);
     }
 
+    public static void main(String[] args) {
+        logger.info(APP_INFO);
+        CalcLauncher app = new CalcLauncher(args);
+        app.execute();
+    }
+
     @Override
     protected void runService(Integer cycle_time) {
-        java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, "JECalc: service mode not supported");
+        logger.info("JECalc: service mode started");
 
         if (cycle_time != null) {
             ServiceMode sm = new ServiceMode(ds, cycle_time);
@@ -45,12 +51,6 @@ public class CalcLauncher extends AbstractCliApp {
             sm.run();
         }
 
-    }
-
-    public static void main(String[] args) {
-        java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, APP_INFO);
-        CalcLauncher app = new CalcLauncher(args);
-        app.execute();
     }
 
     private void run(CalcJobFactory calcJobCreator) {
@@ -78,7 +78,7 @@ public class CalcLauncher extends AbstractCliApp {
 
     @Override
     protected void runSingle(Long id) {
-        java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Single Mode");
+        logger.info("Start Single Mode");
         try {
             List<JEVisObject> calcObjects = new ArrayList<>();
 
@@ -87,7 +87,7 @@ public class CalcLauncher extends AbstractCliApp {
             CalcJobFactory calcJobCreator = new CalcJobFactory(calcObjects);
             run(calcJobCreator);
         } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, "JECalc: Single mode failed", ex);
+            logger.error("JECalc: Single mode failed", ex);
         }
     }
 
@@ -98,7 +98,7 @@ public class CalcLauncher extends AbstractCliApp {
 
     @Override
     protected void runComplete() {
-        java.util.logging.Logger.getLogger(CalcLauncher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Complete Mode");
+        logger.info("Start Complete Mode");
         List<JEVisObject> jevisCalcObjects = getCalcObjects();
         logger.info("{} calc jobs found", jevisCalcObjects.size());
         List<JEVisObject> filterForEnabledCalcObjects = getEnabledCalcJobs(jevisCalcObjects);

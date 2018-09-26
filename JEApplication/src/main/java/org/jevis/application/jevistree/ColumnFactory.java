@@ -84,7 +84,7 @@ public class ColumnFactory {
                 }
 
             } catch (Exception ex) {
-                System.out.println("Error in Column Fatory: " + ex);
+                logger.info("Error in Column Fatory: " + ex);
                 return new ReadOnlyObjectWrapper<String>("Error");
             }
 
@@ -232,7 +232,7 @@ public class ColumnFactory {
                 }
 
             } catch (Exception ex) {
-                System.out.println("Error in Column Fatory: " + ex);
+                logger.info("Error in Column Fatory: " + ex);
                 return new ReadOnlyObjectWrapper<String>("Error");
             }
 
@@ -272,7 +272,7 @@ public class ColumnFactory {
                 }
 
             } catch (Exception ex) {
-                System.out.println("Error in Column Fatory: " + ex);
+                logger.info("Error in Column Fatory: " + ex);
                 return new ReadOnlyObjectWrapper<Long>(-1l);
             }
 

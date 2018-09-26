@@ -5,15 +5,18 @@
  */
 package org.jevis.simplealarm;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author fs
  */
 public class AlarmPeriod {
+    private static final Logger logger = LogManager.getLogger(AlarmPeriod.class);
 
     private DateTime alarmRaist;
     private List<Double> sollValues = new ArrayList<>();
@@ -31,7 +34,7 @@ public class AlarmPeriod {
             alarmRaist = date;
         }
         lastAlarm = date;
-        System.out.println("---Add to period: " + alarmRaist + "   new end: " + lastAlarm);
+        logger.info("---Add to period: " + alarmRaist + "   new end: " + lastAlarm);
     }
 
     public void setTolerance(Double tol) {

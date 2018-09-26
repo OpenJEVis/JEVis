@@ -7,6 +7,8 @@ package org.jevis.jecalc.data;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -19,7 +21,6 @@ import org.jevis.jecalc.gap.Gap.GapMode;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
 
     public static final String CLASS_NAME = "Clean Data";
     public static final String VALUE_ATTRIBUTE_NAME = "Value";
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CleanDataAttributeJEVis.class);
+    private static final Logger logger = LogManager.getLogger(CleanDataAttributeJEVis.class);
     private final JEVisObject object;
     private JEVisObject rawDataObject;
     //attributes
@@ -224,7 +225,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
 //                }
                 }
             } catch (JEVisException ex) {
-                logger.error(null, ex);
+                logger.error(ex);
             }
         }
         return lastDiffValue;
@@ -254,7 +255,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
                     lastCleanValue = latestSample.getValueAsDouble();
                 }
             } catch (JEVisException ex) {
-                logger.error(null, ex);
+                logger.error(ex);
             }
         }
         return lastCleanValue;

@@ -33,6 +33,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
@@ -52,8 +54,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This Dialog export JEVisSamples as csv files with different configurations.
@@ -61,6 +61,7 @@ import java.util.logging.Logger;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SampleExportExtension implements SampleEditorExtension {
+    private static final Logger logger = LogManager.getLogger(SampleExportExtension.class);
 
     public static String ICON = "1415654364_stock_export.png";
 
@@ -72,33 +73,33 @@ public class SampleExportExtension implements SampleEditorExtension {
     @Override
     public boolean sendOKAction() {
 
-        if(needSave){
+        if (needSave) {
             try {
-            if (doExport()) {
+                if (doExport()) {
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.success.header"));
-                alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
-                alert.showAndWait();
-                return true;
-            } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.failed.header"));
-                alert.setContentText(I18n.getInstance().getString("csv.export.dialog.failed.message"));
-                alert.showAndWait();
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.success.header"));
+                    alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
+                    alert.showAndWait();
+                    return true;
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setHeaderText(I18n.getInstance().getString("csv.export.dialog.failed.header"));
+                    alert.setContentText(I18n.getInstance().getString("csv.export.dialog.failed.message"));
+                    alert.showAndWait();
 
-                return false;
-            }
+                    return false;
+                }
 
-        } catch (FileNotFoundException ex) {
-                        Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
-                        ExceptionDialog errDia = new ExceptionDialog();
+            } catch (FileNotFoundException ex) {
+                logger.fatal(ex);
+                ExceptionDialog errDia = new ExceptionDialog();
                 errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAM_INFO);
-                    } catch (UnsupportedEncodingException ex) {
-                        Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
-                        ExceptionDialog errDia = new ExceptionDialog();
+            } catch (UnsupportedEncodingException ex) {
+                logger.fatal(ex);
+                ExceptionDialog errDia = new ExceptionDialog();
                 errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAM_INFO);
-                    }
+            }
         }
 
         return false;
@@ -118,7 +119,7 @@ public class SampleExportExtension implements SampleEditorExtension {
                         + " - " + dtfDateTime.print(samples.get(samples.size() - 1).getTimestamp())
                         + " " + timezone.print(samples.get(0).getTimestamp());
             } catch (JEVisException ex) {
-                Logger.getLogger(SampleExportExtension.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
 
@@ -227,12 +228,12 @@ public class SampleExportExtension implements SampleEditorExtension {
 
             @Override
             public void handle(KeyEvent t) {
-                System.out.println("key pressed");
+                logger.info("key pressed");
                 try {
                     DateTimeFormat.forPattern(fDateTimeFormat.getText());
                     updatePreview();
                 } catch (Exception ex) {
-                    System.out.println("invalied Formate");
+                    logger.error("invalid Format");
                 }
 
             }
@@ -242,12 +243,12 @@ public class SampleExportExtension implements SampleEditorExtension {
 
             @Override
             public void handle(KeyEvent t) {
-                System.out.println("update linesep");
+                logger.info("update linesep");
                 try {
                     DateTimeFormat.forPattern(fDateTimeFormat.getText());
                     updatePreview();
                 } catch (Exception ex) {
-                    System.out.println("invalied Formate");
+                    logger.error("invalid Format");
                 }
 
             }
@@ -257,12 +258,12 @@ public class SampleExportExtension implements SampleEditorExtension {
 
             @Override
             public void handle(KeyEvent t) {
-                System.out.println("update linesep");
+                logger.info("update linesep");
                 try {
                     DateTimeFormat.forPattern(fDateFormat.getText());
                     updatePreview();
                 } catch (Exception ex) {
-                    System.out.println("invalied Formate");
+                    logger.error("invalid Format");
                 }
 
             }
@@ -272,12 +273,12 @@ public class SampleExportExtension implements SampleEditorExtension {
 
             @Override
             public void handle(KeyEvent t) {
-                System.out.println("update linesep");
+                logger.info("update linesep");
                 try {
                     DateTimeFormat.forPattern(fTimeFormate.getText());
                     updatePreview();
                 } catch (Exception ex) {
-                    System.out.println("invalied Formate");
+                    logger.error("invalid Format");
 
                 }
 
@@ -297,7 +298,7 @@ public class SampleExportExtension implements SampleEditorExtension {
                 if (file != null) {
                     destinationFile = file;
                     fFile.setText(file.toString());
-                    needSave=true;
+                    needSave = true;
                 }
             }
         });
@@ -522,8 +523,7 @@ public class SampleExportExtension implements SampleEditorExtension {
                 sb.append(System.getProperty("line.separator"));
 
             } catch (JEVisException ex) {
-                Logger.getLogger(SampleExportExtension.class
-                        .getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
         }

@@ -4,27 +4,28 @@
  */
 package org.jevis.jenotifier.mode;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jenotifier.notifier.Notification;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author gf
  */
 public class NotificationQueue {
+    private static final Logger logger = LogManager.getLogger(NotificationQueue.class);
 
     private List<Class> _notiClass;
     private List<JEVisObject> _notiObjs;
-//    private static List<Notification> _emailNotis = new ArrayList<>();
+    //    private static List<Notification> _emailNotis = new ArrayList<>();
 //    private static List<Notification> _pushNotis = new ArrayList<>();
     private List<Notification> _notis;
 
-//////    private synchronized JEVisDataSource ds = new JEVisDataSourceSQL(null, null, null, null, null);
+    //////    private synchronized JEVisDataSource ds = new JEVisDataSourceSQL(null, null, null, null, null);
     public NotificationQueue(List<JEVisObject> notiObjs, List<Class> notiClass) {
         _notis = new ArrayList<>();
         _notiObjs = notiObjs;
@@ -48,6 +49,7 @@ public class NotificationQueue {
 //    public List<Notification> getPushNotification() {
 //        return _pushNotis;
 //    }
+
     /**
      * To get the notifications, which are already initialized by jevis objects.
      *
@@ -80,11 +82,11 @@ public class NotificationQueue {
                 }
             }
         } catch (InstantiationException ex) {
-            Logger.getLogger(NotificationQueue.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         } catch (IllegalAccessException ex) {
-            Logger.getLogger(NotificationQueue.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         } catch (JEVisException ex) {
-            Logger.getLogger(NotificationQueue.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
     }
 }

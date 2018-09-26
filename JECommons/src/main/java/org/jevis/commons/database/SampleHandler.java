@@ -19,20 +19,19 @@
  */
 package org.jevis.commons.database;
 
+import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *
  * @author broder
  */
 public class SampleHandler {
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(SampleHandler.class);
 
     //    private JEVisObject object;
 //    public SampleHandler(JEVisObject object) {
@@ -46,7 +45,7 @@ public class SampleHandler {
         try {
             period = object.getAttribute(attributeName).getInputSampleRate();
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return period;
     }
@@ -62,7 +61,7 @@ public class SampleHandler {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return lastBoolean;
     }
@@ -78,7 +77,7 @@ public class SampleHandler {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return lastValue;
     }
@@ -94,7 +93,7 @@ public class SampleHandler {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return lastString;
     }
@@ -110,7 +109,7 @@ public class SampleHandler {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return lastString;
     }
@@ -130,7 +129,7 @@ public class SampleHandler {
                 value = (T) lastSample.getValue();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return value;
     }
@@ -144,7 +143,7 @@ public class SampleHandler {
                 if (smp != null) lastDate = smp.getTimestamp();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return lastDate;
     }
@@ -163,9 +162,26 @@ public class SampleHandler {
 
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return firstDate;
+    }
+
+    public JEVisSample getFirstSample(JEVisObject object, String attributeName) {
+        JEVisSample firstSample = null;
+        try {
+            JEVisAttribute attribute = object.getAttribute(attributeName);
+            if (attribute != null) {
+                List<JEVisSample> sampleList = attribute.getAllSamples();
+                if (sampleList.size() > 0) {
+                    firstSample = sampleList.get(0);
+                }
+
+            }
+        } catch (JEVisException ex) {
+            logger.error(ex);
+        }
+        return firstSample;
     }
 
     public List<JEVisSample> getSamplesInPeriod(JEVisObject object, String attributeName, DateTime firstDate, DateTime lastDate) {
@@ -176,7 +192,7 @@ public class SampleHandler {
                 samples = attribute.getSamples(firstDate, lastDate);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return samples;
     }
@@ -186,7 +202,7 @@ public class SampleHandler {
             object.getAttribute(attribute).buildSample(new DateTime(), value).commit();
             object.commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 
@@ -198,7 +214,7 @@ public class SampleHandler {
                 samples = attribute.getAllSamples();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return samples;
     }
@@ -214,7 +230,7 @@ public class SampleHandler {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return lastObject;
     }
@@ -230,7 +246,7 @@ public class SampleHandler {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return lastObject;
     }
@@ -239,7 +255,7 @@ public class SampleHandler {
         try {
             attribute.addSamples(aggregatedData);
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 
@@ -253,7 +269,7 @@ public class SampleHandler {
             attribute.deleteSamplesBetween(from, to);
             attribute.addSamples(aggregatedData);
         } catch (JEVisException ex) {
-            Logger.getLogger(SampleHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 }

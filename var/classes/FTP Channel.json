@@ -9,6 +9,11 @@
       "type": 3
     },
     {
+      "start": "DWD Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
       "start": "FTP Channel",
       "end": "Channel",
       "type": 0

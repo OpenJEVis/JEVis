@@ -1,23 +1,26 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.csv;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -25,6 +28,7 @@ package org.jevis.jeconfig.csv;
  */
 public class CSVLine {
 
+    private static final Logger logger = LogManager.getLogger(CSVLine.class);
     private int _coloumCount = 0;
     private int rowCount = 0;
     private int line = -1;
@@ -55,15 +59,15 @@ public class CSVLine {
             String quotedString = String.format(" \" %s* \" ", otherThanQuote);
 
             _regex = String.format("(?x) " + // enable comments, ignore white spaces
-                    "%s                         " + // match a comma
-                    "(?=                       " + // start positive look ahead
-                    "  (                       " + //   start group 1
-                    "    %s*                   " + //     match 'otherThanQuote' zero or more times
-                    "    %s                    " + //     match 'quotedString'
-                    "  )*                      " + //   end group 1 and repeat it zero or more times
-                    "  %s*                     " + //   match 'otherThanQuote'
-                    "  $                       " + // match the end of the string
-                    ")                         ", // stop positive look ahead
+                            "%s                         " + // match a comma
+                            "(?=                       " + // start positive look ahead
+                            "  (                       " + //   start group 1
+                            "    %s*                   " + //     match 'otherThanQuote' zero or more times
+                            "    %s                    " + //     match 'quotedString'
+                            "  )*                      " + //   end group 1 and repeat it zero or more times
+                            "  %s*                     " + //   match 'otherThanQuote'
+                            "  $                       " + // match the end of the string
+                            ")                         ", // stop positive look ahead
                     _seperator, otherThanQuote, quotedString, otherThanQuote);
         } else {
             _regex = _seperator;
@@ -91,18 +95,18 @@ public class CSVLine {
                 return text;
         }
 //        if (_seperator.equals(".")) {
-//            System.out.println("is dot");
+//            logger.info("is dot");
 //            _seperator = ;
 //        }
     }
 
     private void parseLine() {
         try {
-//            System.out.println("split: " + data);
+//            logger.info("split: " + data);
 
             splitLine = data.split(_regex);
 
-//            System.out.println("----> " + Arrays.toString(splitLine));
+//            logger.info("----> " + Arrays.toString(splitLine));
             for (int i = 0; i < splitLine.length; i++) {
                 splitLine[i] = splitLine[i].replaceAll(_enclosed, "");
             }
@@ -112,7 +116,7 @@ public class CSVLine {
             }
 
         } catch (Exception ex) {
-            System.out.println("#");
+            logger.info("#");
 
         }
     }

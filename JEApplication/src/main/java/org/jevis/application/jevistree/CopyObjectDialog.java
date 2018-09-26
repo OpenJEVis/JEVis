@@ -41,6 +41,8 @@ import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -50,8 +52,6 @@ import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.tools.NumberSpinner;
 
 import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Dialog to prompt the user about the copy/clone/move action
@@ -59,6 +59,7 @@ import java.util.logging.Logger;
  * @author fs
  */
 public class CopyObjectDialog {
+    private static final Logger logger = LogManager.getLogger(CopyObjectDialog.class);
 
     public static String ICON = "1403555565_stock_folder-move.png";
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
@@ -80,7 +81,6 @@ public class CopyObjectDialog {
     final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
     /**
-     *
      * @param owner
      * @param object
      * @param newParent
@@ -115,7 +115,7 @@ public class CopyObjectDialog {
 //                return Response.CANCEL;
 //            }
         } catch (JEVisException ex) {
-            Logger.getLogger(CopyObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
             showError("Error", ex.getMessage(), ex.getCause().getMessage());
             return Response.CANCEL;
         }
@@ -214,7 +214,7 @@ public class CopyObjectDialog {
             public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1) {
 
                 if (t1 != null) {
-//                    System.out.println("new toggel: " + t1);
+//                    logger.info("new toggel: " + t1);
                     if (t1.equals(move)) {
 //                        infoText = String.format("Move '%s' into '%s'", object.getName(), newParent.getName());
                         ok.setDisable(false);
@@ -281,10 +281,10 @@ public class CopyObjectDialog {
         });
 
         try {
-//            System.out.println("-> Object: " + object.getJEVisClass());
-//            System.out.println("newParent: " + newParent.getJEVisClass());
-//            System.out.println("Is allowed under target: " + object.isAllowedUnder(newParent));
-//            System.out.println("");
+//            logger.info("-> Object: " + object.getJEVisClass());
+//            logger.info("newParent: " + newParent.getJEVisClass());
+//            logger.info("Is allowed under target: " + object.isAllowedUnder(newParent));
+//            logger.info("");
 
             link.setDisable(!linkOK);
 
@@ -309,7 +309,7 @@ public class CopyObjectDialog {
             }
 
         } catch (JEVisException ex) {
-            Logger.getLogger(CopyObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         HBox nameBox = new HBox(5);
@@ -475,10 +475,10 @@ public class CopyObjectDialog {
 
     public boolean parentCheck(JEVisObject obj, JEVisObject target) {
         try {
-//            System.out.println("parentCheck: " + obj.getName() + " -> " + target.getName());
+//            logger.info("parentCheck: " + obj.getName() + " -> " + target.getName());
             //Check if its the same object
             if (target.equals(obj)) {
-//                System.out.println("Error 1");
+//                logger.info("Error 1");
                 return false;
             }
 
@@ -489,7 +489,7 @@ public class CopyObjectDialog {
                     return false;
                 }
                 if (!parentCheck(obj, parent)) {
-//                    System.out.println("Error 3.2");
+//                    logger.info("Error 3.2");
                     return false;
                 }
 

@@ -4,6 +4,17 @@
  */
 package org.jevis.jenotifier.mode;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.jenotifier.JENotifierHelper;
+import org.jevis.jenotifier.config.JENotifierConfig;
+import org.jevis.jenotifier.loader.NotifierLoader;
+import org.jevis.jenotifier.notifier.Notification;
+import org.jevis.jenotifier.notifier.NotificationDriver;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -11,24 +22,14 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.jenotifier.config.JENotifierConfig;
-import org.jevis.jenotifier.loader.NotifierLoader;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.jenotifier.JENotifierHelper;
-import org.jevis.jenotifier.notifier.Notification;
-import org.jevis.jenotifier.notifier.NotificationDriver;
 
 /**
- *
  * @author gf
  */
 public class Single {
+    private static final Logger logger = LogManager.getLogger(Single.class);
 
-//    private JENotifierConfig _config;
+    //    private JENotifierConfig _config;
     private int _maxThread;
     private List<Long> _notiID;
     private List<Long> _notiDriID;
@@ -89,7 +90,7 @@ public class Single {
     public void start() {
         try {
             _loader.loadingClass();
-//            System.out.println(_maxThread);
+//            logger.info(_maxThread);
             ExecutorService executor = Executors.newFixedThreadPool(_maxThread);
 
             //
@@ -112,7 +113,7 @@ public class Single {
             nq.prepareNotification();
             List<Notification> notis = nq.getNotifications();
 
-//            System.out.println("+++++++++++++++++++++++++++++++++++++++");
+//            logger.info("+++++++++++++++++++++++++++++++++++++++");
             for (Notification id : notis) {
                 for (NotificationDriver notiDri : drivers) {
                     Runnable thr;
@@ -142,9 +143,9 @@ public class Single {
             // Wait until all threads are finish
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         } catch (InterruptedException ex) {
-            Logger.getLogger(Single.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         } catch (JEVisException ex) {
-            Logger.getLogger(Single.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
     }
 }

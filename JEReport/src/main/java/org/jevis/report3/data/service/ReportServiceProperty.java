@@ -5,22 +5,23 @@
  */
 package org.jevis.report3.data.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  *
  * @author broder
  */
 public class ReportServiceProperty {
-
+    private static final Logger logger = LogManager.getLogger(ReportServiceProperty.class);
     private JEVisFile notificationFile;
     private Long mailID;
 
@@ -30,7 +31,7 @@ public class ReportServiceProperty {
             notificationFile = notificationAttribute.getLatestSample().getValueAsFile();
             mailID = jevisobject.getAttribute(JEReportService.REPORT_MAIL_ID).getLatestSample().getValueAsLong();
         } catch (JEVisException ex) {
-            Logger.getLogger(ReportServiceProperty.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 
@@ -42,7 +43,7 @@ public class ReportServiceProperty {
             FileOutputStream fos = new FileOutputStream(tmpJar);
             fos.write(notificationFile.getBytes());
         } catch (IOException ex) {
-            Logger.getLogger(ReportServiceProperty.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return tmpJar;
     }

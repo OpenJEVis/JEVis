@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -21,6 +21,8 @@ package org.jevis.commons.object.plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -33,8 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This virtual data can summarize multible inputes.
@@ -46,11 +46,13 @@ import java.util.logging.Logger;
  * @author Florian Simon
  */
 public class VirtualSumData {
+    private static final Logger logger = LogManager.getLogger(VirtualSumData.class);
 
     public enum Operator {
 
         TIMES, DIVIDED, PLUS, MINUS, NONE
     }
+
     private Operator _operator;
     private String _version;
     private List<Input> _inputs;
@@ -68,20 +70,20 @@ public class VirtualSumData {
     }
 
     public void initData(JEVisDataSource ds, JsonVirtualCalc json) {
-        System.out.println("VirtualSumData");
-        System.out.println("json.getOperator(): " + json.getOperator());
+        logger.info("VirtualSumData");
+        logger.info("json.getOperator(): " + json.getOperator());
 
         _operator = json.getOperatorAsEnum();
-        System.out.println("Operator parsed: " + _operator.name());
+        logger.info("Operator parsed: " + _operator.name());
 
         _version = json.getVersion();
 
         _inputs = new ArrayList<>();
         for (JsonInput in : json.getInputs()) {
             try {
-                _inputs.add(new FomulaInput(ds, in));
+                _inputs.add(new FormulaInput(ds, in));
             } catch (JEVisException ex) {
-                Logger.getLogger(VirtualSumData.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
 
@@ -146,7 +148,7 @@ public class VirtualSumData {
             }
 
             for (String name : DataProcessing.GetConfiguredWorkflowNames(in.getAttribute())) {
-                System.out.println("has Workflow: " + name);
+                logger.info("has Workflow: " + name);
             }
 
 //            DataWorkflow dw = DataProcessing.GetConfiguredWorkflow(in.getAttribute(), in.getWorkflowID());
@@ -154,7 +156,7 @@ public class VirtualSumData {
         }
 
         Map<DateTime, Object> timestamps = getMergedTimeRange(imputSamples);
-//        System.out.println("Inputs: " + imputSamples.size());
+//        logger.info("Inputs: " + imputSamples.size());
 
         boolean firstLoop = true;
         for (Map.Entry<DateTime, Object> entrySet : timestamps.entrySet()) {
@@ -162,7 +164,7 @@ public class VirtualSumData {
             DateTime ts = entrySet.getKey();
 
             JEVisSample newSample = new VirtualSample(ts, 0d);
-//            System.out.println("--- " + ts + " ---");
+//            logger.info("--- " + ts + " ---");
 
             double newValue = 0;
 
@@ -192,7 +194,7 @@ public class VirtualSumData {
                         }
                         break;
                     case PLUS:
-//                        System.out.println("Input: " + insamples.getKey().getID() + " value: " + value);
+//                        logger.info("Input: " + insamples.getKey().getID() + " value: " + value);
                         //TODO unit handling
                         newValue = newValue + value;
 
@@ -206,7 +208,7 @@ public class VirtualSumData {
                 }
 
             }
-//            System.out.println(newValue);
+//            logger.info(newValue);
 
             newSample.setValue(newValue);
             response.add(newSample);

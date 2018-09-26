@@ -65,7 +65,7 @@ public class ClassContextMenu extends ContextMenu {
             }
         });
 
-//        System.out.println("Disable menu: " + !JEConfig.getCurrentUser().isSysAdmin());
+//        logger.info("Disable menu: " + !JEConfig.getCurrentUser().isSysAdmin());
         try {
             addMenu.setDisable(!_jclass.getDataSource().getCurrentUser().isSysAdmin());
         } catch (Exception ex) {
@@ -87,7 +87,7 @@ public class ClassContextMenu extends ContextMenu {
             }
         });
 
-//        System.out.println("Disable menu: " + !JEConfig.getCurrentUser().isSysAdmin());
+//        logger.info("Disable menu: " + !JEConfig.getCurrentUser().isSysAdmin());
         try {
             addMenu.setDisable(!JEConfig.getDataSource().getCurrentUser().isSysAdmin());
         } catch (Exception ex) {
@@ -115,7 +115,7 @@ public class ClassContextMenu extends ContextMenu {
 //                popup.show(_item.getGraphic(), 200d, 200d, Duration.seconds(1));
                 //TMP test
 
-//                System.out.println("expand all");
+//                logger.info("expand all");
 //                _item.expandAll(true);
             }
         });
@@ -131,7 +131,7 @@ public class ClassContextMenu extends ContextMenu {
 //                _tree.edit(_item);
                 //workaround
                 if (_tree instanceof ClassTree) {
-                    ((ClassTree) _tree).fireEventRename();
+                    _tree.fireEventRename();
                 }
 
             }

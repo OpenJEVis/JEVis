@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -29,6 +29,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.unit.UnitObject;
 import org.jevis.application.unit.UnitTree;
@@ -43,12 +45,12 @@ import org.jevis.jeconfig.tool.I18n;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class UnitPlugin implements Plugin {
-
+    private static final Logger logger = LogManager.getLogger(UnitPlugin.class);
     private StringProperty name = new SimpleStringProperty("*NO_NAME*");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane border;
-//    private ObjectTree tf;
+    //    private ObjectTree tf;
     private UnitTree tree;
     private UnitEditor _editor;
     private ToolBar toolBar;
@@ -61,9 +63,9 @@ public class UnitPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-       if(tree.getSelectionModel().getSelectedItem()==null){
-           tree.getSelectionModel().selectFirst();
-       }
+        if (tree.getSelectionModel().getSelectedItem() == null) {
+            tree.getSelectionModel().selectFirst();
+        }
     }
 
     @Override
@@ -117,14 +119,14 @@ public class UnitPlugin implements Plugin {
 
                 @Override
                 public void onChanged(ListChangeListener.Change<? extends TreeItem<UnitObject>> change) {
-                    System.out.println("user selected: ");
+                    logger.info("user selected: ");
                     for (TreeItem<UnitObject> object : change.getList()) {
-                        System.out.println(" - " + object.getValue().getUnit().toString());
+                        logger.info(" - " + object.getValue().getUnit().toString());
                     }
                     try {
                         _editor.setUnit(change.getList().get(0).getValue());
                     } catch (NullPointerException ne) {
-                        System.out.println("waring, nullpoint in unittree selection");
+                        logger.info("waring, nullpoint in unittree selection");
                     }
                 }
             });
@@ -218,14 +220,14 @@ public class UnitPlugin implements Plugin {
 //        try {
 //            switch (cmdType) {
 //                case Constants.Plugin.Command.SAVE:
-//                    System.out.println("save");
+//                    logger.info("save");
 //                    tree.fireSaveAttributes(false);
 //                    break;
 //                case Constants.Plugin.Command.DELTE:
 //                    tree.fireDelete(tree.getSelectedObject());
 //                    break;
 //                case Constants.Plugin.Command.EXPAND:
-//                    System.out.println("Expand");
+//                    logger.info("Expand");
 //                    break;
 //                case Constants.Plugin.Command.NEW:
 //                    tree.fireEventNew(tree.getSelectedObject());
@@ -234,7 +236,7 @@ public class UnitPlugin implements Plugin {
 //                    tree.reload();
 //                    break;
 //                default:
-//                    System.out.println("Unknows command ignore...");
+//                    logger.info("Unknows command ignore...");
 //            }
 //        } catch (Exception ex) {
 //        }

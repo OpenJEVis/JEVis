@@ -36,6 +36,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -58,8 +59,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 /**
@@ -75,7 +74,7 @@ public class JEConfig extends Application {
     TODO: Make the config into an singelton
      */
     final static Configuration _config = new Configuration();
-    private final static org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEConfig.class);
+    private static final Logger logger = LogManager.getLogger(JEConfig.class);
 
     /**
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
@@ -190,7 +189,7 @@ public class JEConfig extends Application {
     public static String getResource(String file) {
         //        scene.getStylesheets().addAll(this.getClass().getResource("/org/jevis/jeconfig/css/main.css").toExternalForm());
 
-//        System.out.println("get Resouce: " + file);
+//        logger.info("get Resouce: " + file);
         return JEConfig.class.getResource("/styles/" + file).toExternalForm();
 //        return JEConfig.class.getResource("/org/jevis/jeconfig/css/" + file).toExternalForm();
 
@@ -204,7 +203,7 @@ public class JEConfig extends Application {
      */
     public static Image getImage(String icon) {
         try {
-//            System.out.println("getIcon: " + icon);
+//            logger.info("getIcon: " + icon);
             return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
 //            return new Image(JEConfig.class.getResourceAsStream("/org/jevis/jeconfig/image/" + icon));
         } catch (Exception ex) {
@@ -384,7 +383,7 @@ public class JEConfig extends Application {
                         WelcomePage welcome = new WelcomePage();
                         welcome.show(primaryStage, _config.getWelcomeURL());
                     } catch (URISyntaxException ex) {
-                        Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.fatal(ex);
                     }
                     logger.info("Time to start: " + ((new Date()).getTime() - start.getTime()));
                 });
@@ -430,7 +429,7 @@ public class JEConfig extends Application {
 
                 _mainDS.disconnect();
             } catch (JEVisException ex) {
-                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         });
 

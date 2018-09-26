@@ -33,6 +33,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
@@ -41,8 +43,6 @@ import org.jevis.commons.config.CommonOptions;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Status bar with user and connection infos.
@@ -50,6 +50,7 @@ import java.util.logging.Logger;
  * @author Florian Simon
  */
 public class Statusbar extends ToolBar {
+    private static final Logger logger = LogManager.getLogger(Statusbar.class);
 
     private final int ICON_SIZE = 20;
     private final int WAIT_TIME = 10000;//MSEC
@@ -127,7 +128,7 @@ public class Statusbar extends ToolBar {
             lastName = _ds.getCurrentUser().getLastName();
             lastUsername = _ds.getCurrentUser().getAccountName();
         } catch (Exception ex) {
-//            Logger.getLogger(Statusbar.class.getName()).log(Level.SEVERE, "Cound not fetch Username", ex);
+            logger.fatal("Could not fetch Username", ex);
         }
 
         if (name.isEmpty() && lastName.isEmpty()) {
@@ -148,7 +149,7 @@ public class Statusbar extends ToolBar {
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
-//                                    System.out.println("still online");
+//                                    logger.info("still online");
                                     onlineInfo.setText("Online");
                                     onlineInfo.setTextFill(Color.BLACK);
                                     conBox.getChildren().setAll(connectIcon);
@@ -164,7 +165,7 @@ public class Statusbar extends ToolBar {
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
-//                                    System.out.println("whaa were are offline");
+//                                    logger.info("whaa were are offline");
                                     onlineInfo.setText("Offline");
                                     onlineInfo.setTextFill(Color.web("#D62748"));//red
                                     conBox.getChildren().setAll(notConnectIcon);
@@ -184,9 +185,9 @@ public class Statusbar extends ToolBar {
 
                     //TODO checlk is alive
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(Statusbar.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(Statusbar.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
 
             }
@@ -203,14 +204,14 @@ public class Statusbar extends ToolBar {
             public void run() {
                 try {
                     if (retryCount < RETRY_COUNT) {
-                        System.out.println("try Reconnect");
+                        logger.info("try Reconnect");
                         _ds.reconnect();
                         ++retryCount;
                     } else {
-                        System.out.println("No Connection Possible .. giving up");
+                        logger.error("No Connection Possible .. giving up");
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.fatal(ex);
                 }
             }
         };

@@ -5,19 +5,15 @@
  */
 package org.jevis.report3.data.attribute;
 
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import static org.apache.log4j.Logger.getLogger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+
+import java.security.InvalidParameterException;
+import java.util.*;
+
 import static org.jevis.report3.data.attribute.AttributeConfigurationFactory.ReportConfigurationName.Period;
 import static org.jevis.report3.data.attribute.AttributeConfigurationFactory.ReportConfigurationName.SpecificValue;
 import static org.jevis.report3.data.attribute.AttributeConfigurationFactory.ReportConfigurationType.SampleGenerator;
@@ -27,6 +23,7 @@ import static org.jevis.report3.data.attribute.AttributeConfigurationFactory.Rep
  * @author broder
  */
 public class AttributeConfigurationFactory {
+    private static final Logger logger = LogManager.getLogger(AttributeConfigurationFactory.class);
 
     /**
      * no duplicaed names possible
@@ -63,7 +60,7 @@ public class AttributeConfigurationFactory {
             }
             config = new AttributeConfiguration(configName, configType, attributeMap);
         } catch (JEVisException ex) {
-            getLogger(this.getClass()).log(Level.ERROR, "Error while parsing the attribute configuration with name:" + configObject.getName() + " and id " + configObject.getID(), ex);
+            logger.error("Error while parsing the attribute configuration with name:" + configObject.getName() + " and id " + configObject.getID(), ex);
             throw new InvalidParameterException("Error while parsing the attribute configuration with name:" + configObject.getName() + " and id " + configObject.getID());
         }
         return config;
@@ -105,7 +102,7 @@ public class AttributeConfigurationFactory {
     //declare the enum types
     public enum ReportConfigurationType {
 
-        SampleGenerator, SampleAdjuster;
+        SampleGenerator, SampleAdjuster
     }
 
     //declare the enum names
@@ -120,7 +117,7 @@ public class AttributeConfigurationFactory {
                 case ReportAttributeConfiguration.ReportAttributeSpecificValueConfiguration.NAME:
                     return SpecificValue;
                 default:
-                    Logger.getLogger(AttributeConfigurationFactory.class.getName()).log(Level.ERROR, value + " is no valid report attribute configuration");
+                    logger.error(value + " is no valid report attribute configuration");
                     throw new InvalidParameterException(value + " is no valid report attribute configuration");
             }
         }

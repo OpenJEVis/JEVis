@@ -28,13 +28,17 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Temporary solution of an global toolbar.
+ *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class GlobalToolBar {
 
+    private static final Logger logger = LogManager.getLogger(GlobalToolBar.class);
     private static final String STANDARD_BUTTON_STYLE = "-fx-background-color: transparent;-fx-background-insets: 0 0 0;";
     private static final String HOVERED_BUTTON_STYLE = "-fx-background-insets: 1 1 1;";
     private final PluginManager pm;
@@ -43,9 +47,24 @@ public class GlobalToolBar {
         this.pm = pm;
     }
 
+    public static void addEventHandler(PluginManager pm, ToggleButton button, final int command) {
+        button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                logger.info("send command  " + command);
+                pm.getSelectedPlugin().handleRequest(command);
+
+//                if (pm.getSelectedPlugin() instanceof ObjectPlugin) {
+//                    ((ObjectPlugin) pm.getSelectedPlugin()).handleRequest(command);
+//                }
+            }
+        });
+
+    }
+
     /**
-     * @TODO: replace with an plugin.getToolbar or so
      * @return
+     * @TODO: replace with an plugin.getToolbar or so
      */
     public ToolBar BuildResourceToolBar() {
         ToolBar toolBar = new ToolBar();
@@ -80,21 +99,6 @@ public class GlobalToolBar {
         toolBar.getItems().addAll(save, newB, delete, reload, sep1);//addTable, editTable);
 
         return toolBar;
-    }
-
-    public static void addEventHandler(PluginManager pm, ToggleButton button, final int command) {
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                System.out.println("send command  " + command);
-                pm.getSelectedPlugin().handleRequest(command);
-
-//                if (pm.getSelectedPlugin() instanceof ObjectPlugin) {
-//                    ((ObjectPlugin) pm.getSelectedPlugin()).handleRequest(command);
-//                }
-            }
-        });
-
     }
 
     public static void BuildEventhandler(Plugin plugin, ButtonBase button, final int command) {

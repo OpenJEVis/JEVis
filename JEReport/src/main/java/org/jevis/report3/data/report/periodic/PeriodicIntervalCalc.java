@@ -5,9 +5,8 @@
  */
 package org.jevis.report3.data.report.periodic;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.inject.Inject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.report3.DateHelper;
@@ -18,15 +17,21 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  *
  * @author broder
  */
 public class PeriodicIntervalCalc implements IntervalCalculator {
 
+    private static final Logger logger = LogManager.getLogger(PeriodicIntervalCalc.class);
     private static final Map<PeriodModus, Interval> intervalMap = new ConcurrentHashMap<>();
     private static boolean isInit = false;
     private final SampleHandler samplesHandler;
+    private JEVisObject reportObject = null;
 
     @Inject
     public PeriodicIntervalCalc(SampleHandler samplesHandler) {
@@ -47,6 +52,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
     }
 
     private void initializeIntervalMap(JEVisObject reportObject) {
+        this.reportObject = reportObject;
         String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", ReportProperty.ReportSchedule.DAILY.toString());
         ReportProperty.ReportSchedule schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
         String startRecordString = samplesHandler.getLastSampleAsString(reportObject, "Start Record");
@@ -57,6 +63,8 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             Interval interval = new Interval(startRecord, endRecord);
             intervalMap.put(modus, interval);
         }
+
+        logger.info("Initialized Interval Map. Created " + intervalMap.size() + " entries.");
     }
 
     private DateTime calcStartRecord(DateTime startRecord, ReportProperty.ReportSchedule schedule, PeriodModus modus) {
@@ -64,6 +72,9 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         switch (modus) {
             case LAST:
                 resultStartRecord = DateHelper.getPriorStartRecord(startRecord, schedule);
+                break;
+            case ALL:
+                resultStartRecord = samplesHandler.getTimestampFromFirstSample(reportObject, "Start Record");
                 break;
             default:
                 break;

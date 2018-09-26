@@ -19,6 +19,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -39,13 +41,12 @@ import javax.measure.unit.Unit;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ChartPlugin implements TreePlugin {
+    private static final Logger logger = LogManager.getLogger(ChartPlugin.class);
 
     private JEVisTree _tree;
 
@@ -72,9 +73,9 @@ public class ChartPlugin implements TreePlugin {
     private final String chartTitle = rb.getString("graph.title");
     private final String addChart = rb.getString("graph.table.addchart");
 
-    final Image img = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "list-add.png"));
-    final ImageView image = new ImageView(img);
-    final Image imgMarkAll = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
+    private final Image img = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "list-add.png"));
+    private final ImageView image = new ImageView(img);
+    private final Image imgMarkAll = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
 
     private final Color[] color_list = {
             Color.web("0xFFB300"),    // Vivid Yellow
@@ -573,7 +574,7 @@ public class ChartPlugin implements TreePlugin {
             }
 
         } catch (JEVisException ex) {
-            Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         ChoiceBox processorBox = new ChoiceBox();
@@ -598,7 +599,7 @@ public class ChartPlugin implements TreePlugin {
                 }
 
             } catch (Exception ex) {
-                Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
         });

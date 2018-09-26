@@ -19,15 +19,8 @@
  */
 package org.jevis.jeconfig.sample;
 
-import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -35,6 +28,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.sampletable.EditingCell;
@@ -42,10 +37,15 @@ import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SampleTable extends TableView {
+    private static final Logger logger = LogManager.getLogger(SampleTable.class);
 
     static final DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z");
     private JEVisAttribute attribute;
@@ -72,62 +72,6 @@ public class SampleTable extends TableView {
         setItems(data);
 
     }
-
-
-    public class TableSample {
-
-        private SimpleStringProperty date = new SimpleStringProperty("Error");
-        private SimpleDoubleProperty value = new SimpleDoubleProperty(0d);
-        private SimpleStringProperty note = new SimpleStringProperty("Error");
-
-        private JEVisSample _sample = null;
-
-
-        public TableSample(JEVisSample sample) {
-            try {
-                this.date = new SimpleStringProperty(fmtDate.print(sample.getTimestamp()));
-                this.value = new SimpleDoubleProperty(sample.getValueAsDouble());
-                this.note = new SimpleStringProperty(sample.getNote());
-                _sample = sample;
-            } catch (Exception ex) {
-            }
-        }
-
-        public JEVisSample getSample() {
-            return _sample;
-        }
-
-        public String getDate() {
-            return date.get();
-        }
-
-        public void setDate(String fName) {
-            date.set(fName);
-        }
-
-        public String getNote() {
-            return note.get();
-        }
-
-        public void setNote(String noteString) {
-            note.set(noteString);
-        }
-
-        public Double getValue() {
-            try {
-                return _sample.getValueAsDouble(_sample.getAttribute().getDisplayUnit());
-//            return value.get();
-            } catch (JEVisException ex) {
-                Logger.getLogger(SampleTable.class.getName()).log(Level.SEVERE, null, ex);
-                return value.get();
-            }
-        }
-
-        public void setValue(Double fName) {
-            value.set(fName);
-        }
-    }
-
 
     private void build() {
 
@@ -173,7 +117,7 @@ public class SampleTable extends TableView {
                     @Override
                     public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t
                     ) {
-                        ((org.jevis.jeconfig.sampletable.TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setDate(t.getNewValue());
+                        t.getTableView().getItems().get(t.getTablePosition().getRow()).setDate(t.getNewValue());
                     }
                 }
         );
@@ -186,7 +130,7 @@ public class SampleTable extends TableView {
                         try {
                             event.consume();
                             JEVisSample sample = ((org.jevis.jeconfig.sampletable.TableSample) event.getTableView().getItems().get(event.getTablePosition().getRow())).getSample();
-                            System.out.println("Sample: " + sample.getTimestamp());
+                            logger.info("Sample: " + sample.getTimestamp());
 
                             try {
 //                                loadWithAnimation();
@@ -203,12 +147,12 @@ public class SampleTable extends TableView {
                                     file.saveToFile(selectedFile);
                                 }
                             } catch (Exception ex) {
-                                ex.printStackTrace();
+                                logger.fatal(ex);
                             }
 
 
                         } catch (Exception ex) {
-                            ex.printStackTrace();
+                            logger.fatal(ex);
                         }
                     }
                 });
@@ -224,14 +168,14 @@ public class SampleTable extends TableView {
                         new EventHandler<TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String>>() {
                             @Override
                             public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t) {
-                                ((org.jevis.jeconfig.sampletable.TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setValue(t.getNewValue());
+                                t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
                             }
                         }
                 );
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.fatal(ex);
         }
 
 
@@ -240,9 +184,63 @@ public class SampleTable extends TableView {
                     @Override
                     public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t
                     ) {
-                        ((org.jevis.jeconfig.sampletable.TableSample) t.getTableView().getItems().get(t.getTablePosition().getRow())).setNote(t.getNewValue());
+                        t.getTableView().getItems().get(t.getTablePosition().getRow()).setNote(t.getNewValue());
                     }
                 }
         );
+    }
+
+    public class TableSample {
+
+        private SimpleStringProperty date = new SimpleStringProperty("Error");
+        private SimpleDoubleProperty value = new SimpleDoubleProperty(0d);
+        private SimpleStringProperty note = new SimpleStringProperty("Error");
+
+        private JEVisSample _sample = null;
+
+
+        public TableSample(JEVisSample sample) {
+            try {
+                this.date = new SimpleStringProperty(fmtDate.print(sample.getTimestamp()));
+                this.value = new SimpleDoubleProperty(sample.getValueAsDouble());
+                this.note = new SimpleStringProperty(sample.getNote());
+                _sample = sample;
+            } catch (Exception ex) {
+            }
+        }
+
+        public JEVisSample getSample() {
+            return _sample;
+        }
+
+        public String getDate() {
+            return date.get();
+        }
+
+        public void setDate(String fName) {
+            date.set(fName);
+        }
+
+        public String getNote() {
+            return note.get();
+        }
+
+        public void setNote(String noteString) {
+            note.set(noteString);
+        }
+
+        public Double getValue() {
+            try {
+                return _sample.getValueAsDouble(_sample.getAttribute().getDisplayUnit());
+//            return value.get();
+            } catch (JEVisException ex) {
+                logger.fatal(ex);
+                return value.get();
+            }
+        }
+
+        public void setValue(Double fName) {
+            value.set(fName);
+        }
     }
 }

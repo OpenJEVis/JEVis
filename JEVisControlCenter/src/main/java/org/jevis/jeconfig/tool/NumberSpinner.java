@@ -1,12 +1,8 @@
 package org.jevis.jeconfig.tool;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
 import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -19,7 +15,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
-import javax.swing.JSpinner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.swing.*;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 
 /**
  * JavaFX Control that behaves like a {@link JSpinner} known in Swing. The
@@ -31,6 +32,7 @@ import javax.swing.JSpinner;
  */
 public class NumberSpinner extends HBox {
 
+    private static final Logger logger = LogManager.getLogger(NumberSpinner.class);
     public static final String ARROW = "NumberSpinnerArrow";
     public static final String NUMBER_FIELD = "NumberField";
     public static final String NUMBER_SPINNER = "NumberSpinner";
@@ -189,11 +191,11 @@ public class NumberSpinner extends HBox {
 
     // debugging layout bounds
     public void dumpSizes() {
-        System.out.println("numberField (layout)=" + numberField.getLayoutBounds());
-        System.out.println("buttonInc (layout)=" + incrementButton.getLayoutBounds());
-        System.out.println("buttonDec (layout)=" + decrementButton.getLayoutBounds());
-        System.out.println("binding=" + buttonHeight.toString());
-        System.out.println("spacing=" + spacing.toString());
+        logger.info("numberField (layout)=" + numberField.getLayoutBounds());
+        logger.info("buttonInc (layout)=" + incrementButton.getLayoutBounds());
+        logger.info("buttonDec (layout)=" + decrementButton.getLayoutBounds());
+        logger.info("binding=" + buttonHeight.toString());
+        logger.info("spacing=" + spacing.toString());
     }
 
 }

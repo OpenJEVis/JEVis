@@ -4,8 +4,9 @@
  */
 package org.jevis.jenotifier.notifier.VIDA350;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jenotifier.notifier.Notification;
 import org.joda.time.DateTime;
@@ -14,13 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author gf
  */
 public class VIDA350Notification implements Notification {
+    private static final Logger logger = LogManager.getLogger(VIDA350Notification.class);
 
     private JEVisObject _jenoti;
-//    private List<String> _ip;
+    //    private List<String> _ip;
     private String _ip;
     private String _setTime;
     private String _instruction;
@@ -174,7 +175,7 @@ public class VIDA350Notification implements Notification {
     /**
      * To get the value of the attribute of a JevisObject
      *
-     * @param obj the JEVis Object
+     * @param obj     the JEVis Object
      * @param attName the name of the attribute
      * @return the value of the attribute
      * @throws JEVisException
@@ -214,31 +215,31 @@ public class VIDA350Notification implements Notification {
                 setIP(String.valueOf(getAttribute(notiObj, IP)));
             } catch (IllegalArgumentException ex) {
 
-                Logger.getLogger(VIDA350Notification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setInstruction(String.valueOf(getAttribute(notiObj, INSTRUCTION)));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(VIDA350Notification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setSetTime(String.valueOf(getAttribute(notiObj, SET_TIME)));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(VIDA350Notification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setPort(Integer.parseInt(String.valueOf(getAttribute(notiObj, PORT))));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(VIDA350Notification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 _enabled = Boolean.valueOf(String.valueOf(getAttribute(notiObj, ENABLED)));
             } catch (IllegalArgumentException ex) {
                 _enabled = false;
-                Logger.getLogger(VIDA350Notification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
         } else {
-            Logger.getLogger(VIDA350Notification.class.getName()).log(Level.INFO, notiObj + " is not suitable for Push Notification");
+            logger.info(notiObj + " is not suitable for Push Notification");
         }
     }
 
@@ -265,7 +266,6 @@ public class VIDA350Notification implements Notification {
     }
 
     /**
-     *
      * @return
      */
     public boolean isNotiConfigured() {
@@ -283,7 +283,7 @@ public class VIDA350Notification implements Notification {
         try {
             return notiObj.getJEVisClass().getName().equals(_type);
         } catch (JEVisException ex) {
-            Logger.getLogger(VIDA350Notification.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
         return false;
     }
@@ -298,10 +298,10 @@ public class VIDA350Notification implements Notification {
                     sendDate.add(t.getTimestamp());
                 }
             } else {
-                Logger.getLogger(VIDA350Notification.class.getName()).log(Level.INFO, "The attribute " + SENT_TIME + " of " + getJEVisObjectNoti().getID() + " does not exist.");
+                logger.info("The attribute " + SENT_TIME + " of " + getJEVisObjectNoti().getID() + " does not exist.");
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(VIDA350Notification.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
         return sendDate;
     }

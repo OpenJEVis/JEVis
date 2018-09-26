@@ -6,12 +6,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 
 
 public class CalculationViewController {
 
-    private final org.apache.logging.log4j.Logger log = LogManager.getLogger(CalculationViewController.class);
+    private static final Logger logger = LogManager.getLogger(CalculationViewController.class);
 
     @FXML
     public Button atan2;
@@ -118,7 +119,7 @@ public class CalculationViewController {
     @FXML
     private Button buttonAsin;
     @FXML
-    private FormelBox formelBox;
+    private FormulaBox formulaBox;
     @FXML
     private VariablesBox variablesBox;
     @FXML
@@ -131,120 +132,120 @@ public class CalculationViewController {
 
     @FXML
     void onSeven(ActionEvent event) {
-        formelBox.addExpression("7");
+        formulaBox.addExpression("7");
     }
 
     @FXML
     void onEight(ActionEvent event) {
-        formelBox.addExpression("8");
+        formulaBox.addExpression("8");
     }
 
     @FXML
     void onOutput(ActionEvent event) {
-        formelBox.setOnOutputAction();
+        formulaBox.setOnOutputAction();
     }
 
     @FXML
     void onNine(ActionEvent event) {
 
-        formelBox.addExpression("9");
+        formulaBox.addExpression("9");
     }
 
     @FXML
     void onFour(ActionEvent event) {
-        formelBox.addExpression("4");
+        formulaBox.addExpression("4");
     }
 
     @FXML
     void onSix(ActionEvent event) {
-        formelBox.addExpression("6");
+        formulaBox.addExpression("6");
     }
 
     @FXML
     void onFive(ActionEvent event) {
-        formelBox.addExpression("5");
+        formulaBox.addExpression("5");
     }
 
     @FXML
     void onThree(ActionEvent event) {
-        formelBox.addExpression("3");
+        formulaBox.addExpression("3");
     }
 
     @FXML
     void onTwo(ActionEvent event) {
-        formelBox.addExpression("2");
+        formulaBox.addExpression("2");
     }
 
     @FXML
     void onOne(ActionEvent event) {
-        formelBox.addExpression("1");
+        formulaBox.addExpression("1");
     }
 
     @FXML
     void onZero(ActionEvent event) {
-        formelBox.addExpression("0");
+        formulaBox.addExpression("0");
     }
 
     @FXML
     void onMod(ActionEvent event) {
-        formelBox.addExpression("");
+        formulaBox.addExpression("");
     }
 
     @FXML
     void onModulo(ActionEvent event) {
-        formelBox.addExpression("");
+        formulaBox.addExpression("");
     }
 
     @FXML
     void onDivide(ActionEvent event) {
 
-        formelBox.addExpression("/");
+        formulaBox.addExpression("/");
     }
 
     @FXML
     void onMultiply(ActionEvent event) {
 
-        formelBox.addExpression("*");
+        formulaBox.addExpression("*");
     }
 
     @FXML
     void onMinus(ActionEvent event) {
-        formelBox.addExpression("-");
+        formulaBox.addExpression("-");
     }
 
     @FXML
     void onPlus(ActionEvent event) {
-        formelBox.addExpression("+");
+        formulaBox.addExpression("+");
     }
 
     @FXML
     void onDot(ActionEvent event) {
-        formelBox.addExpression(".");
+        formulaBox.addExpression(".");
     }
 
     @FXML
     void onBracketOpen(ActionEvent event) {
-        formelBox.addExpression("(");
+        formulaBox.addExpression("(");
     }
 
     @FXML
     void onPi(ActionEvent event) {
-        formelBox.addExpression("#{Pi}");
+        formulaBox.addExpression("#{Pi}");
     }
 
     @FXML
     void onBracketClose(ActionEvent event) {
-        formelBox.addExpression(")");
+        formulaBox.addExpression(")");
     }
 
     @FXML
     void onE(ActionEvent event) {
-        formelBox.addExpression("#{E}");
+        formulaBox.addExpression("#{E}");
     }
 
     @FXML
     void onDeg(ActionEvent event) {
-        formelBox.addExpression("toDegrees()");//TODO
+        formulaBox.addExpression("toDegrees()");//TODO
     }
 
     @FXML
@@ -254,137 +255,137 @@ public class CalculationViewController {
 
     @FXML
     void onBack(ActionEvent event) {
-        formelBox.backspaceExpression();
+        formulaBox.backspaceExpression();
     }
 
     @FXML
     void onRad(ActionEvent event) {
-        formelBox.addExpression("toRadians()");//TODO
+        formulaBox.addExpression("toRadians()");//TODO
     }
 
     @FXML
     void onPow(ActionEvent event) {
-        formelBox.addExpression("pow()");
+        formulaBox.addExpression("pow()");
     }
 
     @FXML
     void onSqrt(ActionEvent event) {
-        formelBox.addExpression("sqrt()");
+        formulaBox.addExpression("sqrt()");
     }
 
     @FXML
     void onLog(ActionEvent event) {
-        formelBox.addExpression("log()");
+        formulaBox.addExpression("log()");
     }
 
     @FXML
     void onMin(ActionEvent event) {
-        formelBox.addExpression("min()");
+        formulaBox.addExpression("min()");
     }
 
     @FXML
     void onCeil(ActionEvent event) {
-        formelBox.addExpression("ceil()");
+        formulaBox.addExpression("ceil()");
     }
 
     @FXML
     void onAbs(ActionEvent event) {
-        formelBox.addExpression("abs()");
+        formulaBox.addExpression("abs()");
     }
 
     @FXML
     void onMax(ActionEvent event) {
-        formelBox.addExpression("max()");
+        formulaBox.addExpression("max()");
     }
 
     @FXML
     void onRound(ActionEvent event) {
-        formelBox.addExpression("round()");
+        formulaBox.addExpression("round()");
     }
 
     @FXML
     void onExp(ActionEvent event) {
-        formelBox.addExpression("exp()");
+        formulaBox.addExpression("exp()");
     }
 
     @FXML
     void onFloor(ActionEvent event) {
-        formelBox.addExpression("foor()");
+        formulaBox.addExpression("foor()");
     }
 
     @FXML
     void onSin(ActionEvent event) {
-        formelBox.addExpression("sin()");
+        formulaBox.addExpression("sin()");
     }
 
     @FXML
     void onCos(ActionEvent event) {
-        formelBox.addExpression("cos()");
+        formulaBox.addExpression("cos()");
     }
 
     @FXML
     void onTan(ActionEvent event) {
-        formelBox.addExpression("tan()");
+        formulaBox.addExpression("tan()");
     }
 
     @FXML
     void onAsin(ActionEvent event) {
-        formelBox.addExpression("asin()");
+        formulaBox.addExpression("asin()");
     }
 
     @FXML
     void onAcos(ActionEvent event) {
-        formelBox.addExpression("acos()");
+        formulaBox.addExpression("acos()");
     }
 
     @FXML
     void onAtan2(ActionEvent event) {
-        formelBox.addExpression("atan2()");
+        formulaBox.addExpression("atan2()");
     }
 
     @FXML
     void onAtan(ActionEvent event) {
-        formelBox.addExpression("atan()");
+        formulaBox.addExpression("atan()");
     }
 
     @FXML
     void onSmaller(ActionEvent event) {
-        formelBox.addExpression("<");
+        formulaBox.addExpression("<");
     }
 
     @FXML
     void onSmallerEquals(ActionEvent event) {
-        formelBox.addExpression("<=");
+        formulaBox.addExpression("<=");
     }
 
     @FXML
     void onGreaterEquals(ActionEvent event) {
-        formelBox.addExpression(">=");
+        formulaBox.addExpression(">=");
     }
 
     @FXML
     void onGreater(ActionEvent event) {
-        formelBox.addExpression(">");
+        formulaBox.addExpression(">");
     }
 
     @FXML
     void onEquals(ActionEvent event) {
-        formelBox.addExpression("==");
+        formulaBox.addExpression("==");
     }
 
     @FXML
     void onNotEquals(ActionEvent event) {
-        formelBox.addExpression("!=");
+        formulaBox.addExpression("!=");
     }
 
     @FXML
     void onOr(ActionEvent event) {
-        formelBox.addExpression("||");
+        formulaBox.addExpression("||");
     }
 
     @FXML
     void onAnd(ActionEvent event) {
-        formelBox.addExpression("&&");
+        formulaBox.addExpression("&&");
     }
 
     @FXML
@@ -394,23 +395,23 @@ public class CalculationViewController {
 
     @FXML
     void onVerify(ActionEvent event) {
-        formelBox.eval();
+        formulaBox.eval();
     }
 
 
     public void setData(JEVisObject obj) {
-        System.out.println("setData: " + buttonOutput);
-        formelBox.setCalculation(obj);
+        logger.info("setData: " + buttonOutput);
+        formulaBox.setCalculation(obj);
 
 
-        formelBox.setOutputButton(buttonOutput);
+        formulaBox.setOutputButton(buttonOutput);
 
-        variablesBox.bindVaribaleBox(formelBox, obj);
+        variablesBox.bindVaribaleBox(formulaBox, obj);
 
     }
 
     public String getFormel() {
-        return formelBox.getExpression();
+        return formulaBox.getExpression();
     }
 
 }

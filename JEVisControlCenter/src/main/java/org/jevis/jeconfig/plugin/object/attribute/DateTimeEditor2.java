@@ -128,7 +128,7 @@ public class DateTimeEditor2 implements AttributeEditor {
         pickerDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
             @Override
             public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
-                System.out.println("///// Value changed: " + newValue);
+                logger.info("///// Value changed: " + newValue);
                 if (!newValue.equals(oldValue)) {
                     _changed.setValue(Boolean.TRUE);
                 }

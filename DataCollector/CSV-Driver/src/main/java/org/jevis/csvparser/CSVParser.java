@@ -20,8 +20,9 @@
  */
 package org.jevis.csvparser;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.driver.Converter;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.Result;
@@ -39,7 +40,7 @@ import java.util.Map.Entry;
  * @author broder
  */
 public class CSVParser {
-
+    private static final Logger logger = LogManager.getLogger(CSVParser.class);
     private DateTimeZone timeZone;
     private String dpType;
     private String _quote;
@@ -85,7 +86,7 @@ public class CSVParser {
                 sb.append(',').append(' ');
             }
         }
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "MAP: " + sb.toString());
+        logger.info("MAP: " + sb.toString());
 
 
         for (DataPoint dp : _dataPoints) {
@@ -101,7 +102,7 @@ public class CSVParser {
         Integer result;
         result = columnMap.get(mapIdent);
         if (result == null) {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "FIND MAP failed: " + mapIdent);
+            logger.info("FIND MAP failed: " + mapIdent);
             mapIdent = mapIdent.replace("ä", "?");
             mapIdent = mapIdent.replace("Ä", "?");
             mapIdent = mapIdent.replace("ü", "?");
@@ -109,9 +110,9 @@ public class CSVParser {
             mapIdent = mapIdent.replace("ö", "?");
             mapIdent = mapIdent.replace("Ö", "?");
             mapIdent = mapIdent.replace("ß", "?");
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "FIND MAP replaced: " + mapIdent);
+            logger.info("FIND MAP replaced: " + mapIdent);
             result = columnMap.get(mapIdent);
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "FIND MAP result: " + result);
+            logger.info("FIND MAP result: " + result);
         }
         return result;
     }
@@ -204,13 +205,13 @@ public class CSVParser {
     }
 
     public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
-        Logger.getLogger(this.getClass().getName()).log(Level.ALL, "Start CSV parsing");
+        logger.info("Start CSV parsing");
         this.timeZone = timeZone;
         for (InputStream inputStream : inputList) {
 
             _converter.convertInput(inputStream, charset);
             String[] stringArrayInput = (String[]) _converter.getConvertedInput(String[].class);
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Total count of lines " + stringArrayInput.length);
+            logger.info("Total count of lines " + stringArrayInput.length);
             if (dpType != null && dpType.equals("ROW")) {
                 calculateColumns(stringArrayInput[_dpIndex]);
             }
@@ -232,9 +233,9 @@ public class CSVParser {
             }
 //        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Number of Results: " + _results.size());
             if (!_results.isEmpty()) {
-                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "LastResult (Date,Target,Value): " + _results.get(_results.size() - 1).getDate() + "," + _results.get(_results.size() - 1).getOnlineID() + "," + _results.get(_results.size() - 1).getValue());
+                logger.info("LastResult (Date,Target,Value): " + _results.get(_results.size() - 1).getDate() + "," + _results.get(_results.size() - 1).getOnlineID() + "," + _results.get(_results.size() - 1).getValue());
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.ERROR, "Cant parse or cant find any parsable data");
+                logger.error("Cant parse or cant find any parsable data");
             }
         }
 
@@ -254,7 +255,7 @@ public class CSVParser {
     private DateTime getDateTime(String[] line) {
 
         if (_dateFormat == null) {
-            Logger.getLogger(this.getClass().getName()).log(Level.ALL, "No Datetime found");
+            logger.info("No Datetime found");
             return new DateTime();
         }
         String input = "";
@@ -275,13 +276,13 @@ public class CSVParser {
             DateTime parsedDateTime = TimeConverter.parserDateTime(input, pattern, timeZone);
             return parsedDateTime;
         } catch (Exception ex) {
-            Logger.getLogger(this.getClass().getName()).log(Level.WARN, "Date not parsable: " + input);
-            Logger.getLogger(this.getClass().getName()).log(Level.WARN, "LINE not parsable: " + Arrays.toString(line));
-            Logger.getLogger(this.getClass().getName()).log(Level.WARN, "DateFormat: " + _dateFormat);
-            Logger.getLogger(this.getClass().getName()).log(Level.WARN, "DateIndex: " + _dateIndex);
-            Logger.getLogger(this.getClass().getName()).log(Level.WARN, "TimeFormat: " + _timeFormat);
-            Logger.getLogger(this.getClass().getName()).log(Level.WARN, "TimeIndex: " + _timeIndex);
-            Logger.getLogger(this.getClass().getName()).log(Level.WARN, "Exception: " + ex);
+            logger.warn("Date not parsable: " + input);
+            logger.warn("LINE not parsable: " + Arrays.toString(line));
+            logger.warn("DateFormat: " + _dateFormat);
+            logger.warn("DateIndex: " + _dateIndex);
+            logger.warn("TimeFormat: " + _timeFormat);
+            logger.warn("TimeIndex: " + _timeIndex);
+            logger.warn("Exception: " + ex);
             return null;
         }
 

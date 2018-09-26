@@ -1,29 +1,24 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.tool;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -46,18 +41,25 @@ import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.prefs.Preferences;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class WelcomePage {
+    private static final Logger logger = LogManager.getLogger(WelcomePage.class);
 
     private Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
     CheckBox remember = new CheckBox("Don't show this again");
     private boolean isLoading = true;
 
-    public WelcomePage(){
+    public WelcomePage() {
 
     }
 
@@ -158,7 +160,7 @@ public class WelcomePage {
             stage.showAndWait();
 
         } catch (MalformedURLException ex) {
-            Logger.getLogger(WelcomePage.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
 
         }
 

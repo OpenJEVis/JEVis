@@ -22,6 +22,8 @@ package org.jevis.commons.cli;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
@@ -30,13 +32,12 @@ import org.jevis.commons.datasource.DataSourceLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Artur Iablokov
  */
 public abstract class AbstractCliApp {
+    private static final Logger logger = LogManager.getLogger(AbstractCliApp.class);
 
     private static final String JEVIS_BRANCH = "jevis.";
     private static final String AUTH_BRANCH = "authentication.";
@@ -91,7 +92,7 @@ public abstract class AbstractCliApp {
         try {
             comm.parse(args);
         } catch (ParameterException e) {
-            e.printStackTrace();
+            logger.fatal(e);
             //show help if required params are missing
             e.usage();
             System.exit(1);
@@ -115,7 +116,7 @@ public abstract class AbstractCliApp {
                 optMap.putAll(ConfHelper.ParseJEVisConfiguration(settings.config, JEVIS_BRANCH, optMap));
                 optMap.putAll(ConfHelper.ParseJEVisConfiguration(settings.config, AUTH_BRANCH, optMap));
             } catch (ConfigurationException ex) {
-                Logger.getLogger(AbstractCliApp.class.getName()).log(Level.WARNING, "Configuration parsing failed. Сheck the configuration file", ex);
+                logger.warn("Configuration parsing failed. Сheck the configuration file", ex);
             }
 
             if (!settings.options.isEmpty()) {
@@ -127,7 +128,7 @@ public abstract class AbstractCliApp {
             try {
                 ds = dsl.getDataSource(optMap.get(DS));
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                Logger.getLogger(AbstractCliApp.class.getName()).log(Level.SEVERE, "JEVisDataSource not created. Сheck the configuration file data.", ex);
+                logger.fatal("JEVisDataSource not created. Сheck the configuration file data.", ex);
             }
 
             /**
@@ -151,7 +152,7 @@ public abstract class AbstractCliApp {
             try {
                 active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
             } catch (JEVisException ex) {
-                Logger.getLogger(AbstractCliApp.class.getName()).log(Level.SEVERE, "Could not connect! Check login and password.", ex);
+                logger.fatal("Could not connect! Check login and password.", ex);
             }
         }
     }
@@ -175,7 +176,7 @@ public abstract class AbstractCliApp {
      * EXAMPLE:
      *
      * @Override protected void handleAdditionalCommands() { if (nc) {{
-     * System.out.println("new command is true") }}
+     * logger.info("new command is true") }}
      */
     protected abstract void handleAdditionalCommands();
 

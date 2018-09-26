@@ -5,17 +5,17 @@
  */
 package org.jevis.jecalc.calculation;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
 
 /**
- *
  * @author broder
  */
 public class Sample {
+    private static final Logger logger = LogManager.getLogger(Sample.class);
 
     private DateTime date;
     private Double value;
@@ -26,7 +26,7 @@ public class Sample {
             this.date = currentSample.getTimestamp();
             this.value = currentSample.getValueAsDouble();
         } catch (JEVisException ex) {
-            Logger.getLogger(Sample.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         this.variable = variable;
     }
@@ -42,7 +42,6 @@ public class Sample {
     public String getVariable() {
         return variable;
     }
-    
-    
+
 
 }

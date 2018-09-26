@@ -1,65 +1,43 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.unit;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisUnit;
+
+import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.List;
-import javax.measure.unit.Unit;
-import org.apache.commons.lang3.StringUtils;
-import org.jevis.api.JEVisUnit;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class UnitFormula {
-
-    public static enum Function {
-
-        TIMES, DEVIDED, PLUS, MINUS, LABEL, NONE
-    }
-
-    public static enum Prefix {
-
-        NOTANUMBER, NUMBER, ZETTA, EXA, PETA, TERA, GIGA, MEGA, KILO, HECTO, DEKA, DECI, CENTI, MILLI, MICRO, NANOPICO, FEMTO, ATTO, ZEPTO, YOCTO
-    }
-
-    public static final String PUNCTUATION_START = "(";
-    public static final String PUNCTUATION_END = ")";
-
-    public static final String TIMES = "*";
-    public static final String DEVIDED = "/";
-    public static final String PLUS = "+";
-    public static final String MINUS = "-";
-    public static final String LABEL = "=";
-
-    private Function _function = Function.NONE;
-    private List<UnitFormula> _parts = new ArrayList<UnitFormula>();
-
-    private int _lastPart = 0;
-    private Unit _unit = Unit.ONE;
-    private String inputFormula = "";
+    private static final Logger logger = LogManager.getLogger(UnitFormula.class);
 
     public UnitFormula(String formula, String label) {
         inputFormula = formula;
-//        System.out.println("----------------------new Part: " + formula);
+//        logger.info("----------------------new Part: " + formula);
         if (isValid(formula)) {
             String folularWithoutPuncnation = formula;
             if (hasSubParts(formula)) {
@@ -67,53 +45,37 @@ public class UnitFormula {
                 int lastPart = 0;
                 for (int i = 0; i < countParts(formula); i++) {
                     int[] range = getNextSubPartRange(formula);
-//                    System.out.println("next Range: " + Arrays.toString(range));
+//                    logger.info("next Range: " + Arrays.toString(range));
                     UnitFormula upart = getNextSubPart(formula, range[0] + 1, range[1] - 1);
                     _parts.add(upart);
-//                    System.out.println("remove: " + upart.getInputFormula());
+//                    logger.info("remove: " + upart.getInputFormula());
                     folularWithoutPuncnation = StringUtils.replace(folularWithoutPuncnation, upart.getInputFormula(), upart.getUnit().toString());
                 }
 
             }
             if (parseFunction(folularWithoutPuncnation)) {
-//                System.out.println("Build complex unit: ");
+//                logger.info("Build complex unit: ");
                 _unit = buildUnit(folularWithoutPuncnation);
             } else {
-//                System.out.println("Build simple unitfrom: " + folularWithoutPuncnation);
+//                logger.info("Build simple unitfrom: " + folularWithoutPuncnation);
                 _unit = Unit.valueOf(folularWithoutPuncnation);
             }
 
         } else {
-//            System.out.println("Forma is not valid");
+//            logger.info("Forma is not valid");
         }
     }
 
-    public boolean hasPrefix() {
-        return false;
-    }
-
-    public List<UnitFormula> getParts() {
-        return _parts;
-    }
-
-    public Function getFunction() {
-        return _function;
-    }
-
-    public String getInputFormula() {
-        return inputFormula;
-    }
-
-//    private Unit buildFactorUnit(Factor factor, Unit unit2){
+    //    private Unit buildFactorUnit(Factor factor, Unit unit2){
 //        switch(factor){
-//            
+//
 //        }
-//        
+//
 //    }
     private Unit buildUnit(String formula) {
         String seperator = "\\" + TIMES + "\\" + DEVIDED + "\\" + MINUS + "\\" + PLUS;
         String[] parts = StringUtils.split(formula, seperator);
-//        System.out.println("parts: " + Arrays.toString(parts));
+//        logger.info("parts: " + Arrays.toString(parts));
         if (parts.length == 2) {
 
             boolean isNumber = false;
@@ -148,13 +110,63 @@ public class UnitFormula {
             } else if (formula.contains(PLUS)) {
 //                u1.times(u2);
             }
-            System.out.println("Building uning faild");
+            logger.info("Building uning faild");
             return Unit.ONE;
         } else {
-            System.out.println("Error part is not 2 long");
+            logger.info("Error part is not 2 long");
             return Unit.ONE;
         }
 
+    }
+
+    public static final String PUNCTUATION_START = "(";
+    public static final String PUNCTUATION_END = ")";
+
+    public static final String TIMES = "*";
+    public static final String DEVIDED = "/";
+    public static final String PLUS = "+";
+    public static final String MINUS = "-";
+    public static final String LABEL = "=";
+
+    private Function _function = Function.NONE;
+    private List<UnitFormula> _parts = new ArrayList<UnitFormula>();
+
+    private int _lastPart = 0;
+    private Unit _unit = Unit.ONE;
+    private String inputFormula = "";
+
+    public Unit getUnit() {
+//        logger.info("Parsed unit: " + _unit);
+        return _unit;
+    }
+
+    public boolean hasPrefix() {
+        return false;
+    }
+
+    public List<UnitFormula> getParts() {
+        return _parts;
+    }
+
+    public Function getFunction() {
+        return _function;
+    }
+
+    public String getInputFormula() {
+        return inputFormula;
+    }
+
+    private UnitFormula getNextSubPart(String formula, int from, int to) {
+//        logger.info("split: " + formula);
+//        int start = StringUtils.indexOf(formula, PUNCTUATION_START);//start?
+//        int end = getPartEnd(formula, _lastPart);
+
+//        logger.info("range: " + start + " " + end);
+        String subString = StringUtils.substring(formula, from, to);
+//        logger.info("substring: " + subString);
+        UnitFormula part = new UnitFormula(subString, null);
+
+        return part;
     }
 
     public static Prefix parsePrefix(String prefixString) {
@@ -174,9 +186,26 @@ public class UnitFormula {
         }
     }
 
-    public Unit getUnit() {
-//        System.out.println("Parsed unit: " + _unit);
-        return _unit;
+    private int getPartEnd(String formula, int start) {
+        int startCount = 0;
+        int endCount = 0;
+
+        for (int i = start; i < formula.length(); i++) {
+//            logger.info("is klamme: " + formula.charAt(i));
+            if (formula.charAt(i) == PUNCTUATION_START.charAt(0)) {
+                startCount++;
+            } else if (formula.charAt(i) == PUNCTUATION_END.charAt(0)) {
+                endCount++;
+            }
+
+//            logger.info("check: " + startCount + " " + endCount);
+            if (endCount == startCount) {
+//                logger.info("return i: " + i);
+                return i + 1;
+            }
+        }
+
+        return -1;
     }
 
     public String printUnit() {
@@ -193,17 +222,28 @@ public class UnitFormula {
 
     }
 
-    private UnitFormula getNextSubPart(String formula, int from, int to) {
-//        System.out.println("split: " + formula);
-//        int start = StringUtils.indexOf(formula, PUNCTUATION_START);//start?
-//        int end = getPartEnd(formula, _lastPart);
+    private boolean hasSubParts(String formula) {
 
-//        System.out.println("range: " + start + " " + end);
-        String subString = StringUtils.substring(formula, from, to);
-//        System.out.println("substring: " + subString);
-        UnitFormula part = new UnitFormula(subString, null);
+        if (StringUtils.contains(formula, PUNCTUATION_START) || StringUtils.contains(formula, PUNCTUATION_END)) {
+//            logger.info("hasPuctuation");
+            int counterStart = 0;
+            int counterEnd = 0;
+            for (int i = 0; i < formula.length(); i++) {
+                if (formula.charAt(i) == PUNCTUATION_START.charAt(0)) {
+                    counterStart++;
+                } else if (formula.charAt(i) == PUNCTUATION_END.charAt(0)) {
+                    counterEnd++;
+                }
+            }
+//            logger.info("count: " + counterStart + " " + counterEnd);
 
-        return part;
+            //Check if this is the outer punctuation of this formula
+            return counterStart != 1 || formula.charAt(0) == PUNCTUATION_START.charAt(0);
+
+        }
+
+//        logger.info("hasNOSubParts");
+        return false;
     }
 
     private int countParts(String formula) {
@@ -216,26 +256,29 @@ public class UnitFormula {
         return counterStart;
     }
 
-    private int getPartEnd(String formula, int start) {
-        int startCount = 0;
-        int endCount = 0;
-
-        for (int i = start; i < formula.length(); i++) {
-//            System.out.println("is klamme: " + formula.charAt(i));
-            if (formula.charAt(i) == PUNCTUATION_START.charAt(0)) {
-                startCount++;
-            } else if (formula.charAt(i) == PUNCTUATION_END.charAt(0)) {
-                endCount++;
+    private boolean isValid(String formula) {
+        if (StringUtils.contains(formula, PUNCTUATION_START) || StringUtils.contains(formula, PUNCTUATION_END)) {
+            int counterStart = 0;
+            int counterEnd = 0;
+            for (int i = 0; i < formula.length(); i++) {
+                if (formula.charAt(i) == PUNCTUATION_START.charAt(0)) {
+                    counterStart++;
+                } else if (formula.charAt(i) == PUNCTUATION_END.charAt(0)) {
+                    counterEnd++;
+                }
             }
 
-//            System.out.println("check: " + startCount + " " + endCount);
-            if (endCount == startCount) {
-//                System.out.println("return i: " + i);
-                return i + 1;
+//            logger.info("isValid: " + counterStart + " " + counterEnd);
+            if (counterStart != counterEnd) {
+                logger.info("Not Valied, uneave count of punctuation");
+
+                return false;
             }
+
         }
 
-        return -1;
+        return true;
+
     }
 
     private boolean parseFunction(String formula) {
@@ -257,59 +300,14 @@ public class UnitFormula {
 
     }
 
-    private boolean hasSubParts(String formula) {
+    public enum Function {
 
-        if (StringUtils.contains(formula, PUNCTUATION_START) || StringUtils.contains(formula, PUNCTUATION_END)) {
-//            System.out.println("hasPuctuation");
-            int counterStart = 0;
-            int counterEnd = 0;
-            for (int i = 0; i < formula.length(); i++) {
-                if (formula.charAt(i) == PUNCTUATION_START.charAt(0)) {
-                    counterStart++;
-                } else if (formula.charAt(i) == PUNCTUATION_END.charAt(0)) {
-                    counterEnd++;
-                }
-            }
-//            System.out.println("count: " + counterStart + " " + counterEnd);
-
-            //Check if this is the outer punctuation of this formula
-            if (counterStart == 1 && formula.charAt(0) != PUNCTUATION_START.charAt(0)) {
-//                System.out.println("hasSubParts.isstart");
-                return false;
-            } else {
-//                System.out.println("llllllllll");
-                return true;
-            }
-
-        }
-
-//        System.out.println("hasNOSubParts");
-        return false;
+        TIMES, DEVIDED, PLUS, MINUS, LABEL, NONE
     }
 
-    private boolean isValid(String formula) {
-        if (StringUtils.contains(formula, PUNCTUATION_START) || StringUtils.contains(formula, PUNCTUATION_END)) {
-            int counterStart = 0;
-            int counterEnd = 0;
-            for (int i = 0; i < formula.length(); i++) {
-                if (formula.charAt(i) == PUNCTUATION_START.charAt(0)) {
-                    counterStart++;
-                } else if (formula.charAt(i) == PUNCTUATION_END.charAt(0)) {
-                    counterEnd++;
-                }
-            }
+    public enum Prefix {
 
-//            System.out.println("isValid: " + counterStart + " " + counterEnd);
-            if (counterStart != counterEnd) {
-                System.out.println("Not Valied, uneave count of punctuation");
-
-                return false;
-            }
-
-        }
-
-        return true;
-
+        NOTANUMBER, NUMBER, ZETTA, EXA, PETA, TERA, GIGA, MEGA, KILO, HECTO, DEKA, DECI, CENTI, MILLI, MICRO, NANOPICO, FEMTO, ATTO, ZEPTO, YOCTO
     }
 
     public static String unitToString(JEVisUnit unit) {

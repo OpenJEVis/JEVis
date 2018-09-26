@@ -1,19 +1,19 @@
 package org.jevis.jecalc;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.utils.Benchmark;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceMode {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceMode.class);
+    private static final Logger logger = LogManager.getLogger(ServiceMode.class);
     private Integer cycleTime = 900000;
     private Benchmark bench;
     private JEVisDataSource ds;
@@ -40,7 +40,7 @@ public class ServiceMode {
             throw new RuntimeException(e);
         }
         try {
-            System.out.println("Press CTRL^C to exit..");
+            logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

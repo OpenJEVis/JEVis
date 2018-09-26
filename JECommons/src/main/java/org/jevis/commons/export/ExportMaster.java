@@ -2,6 +2,8 @@ package org.jevis.commons.export;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonFactory;
@@ -15,7 +17,7 @@ import java.io.Writer;
 import java.util.*;
 
 public class ExportMaster {
-
+    private static final Logger logger = LogManager.getLogger(ExportMaster.class);
 
     Map<String, MetaObject> metaObjects = new HashMap<>();
     Map<String, JsonRelationship> relationships = new HashMap<>();
@@ -34,7 +36,7 @@ public class ExportMaster {
     }
 
     private String getKey(JsonRelationship rel) {
-//        System.out.println("Rel: "+rel.getFrom() + ":" + rel.getTo());
+//        logger.info("Rel: "+rel.getFrom() + ":" + rel.getTo());
         return rel.getFrom() + ":" + rel.getTo();//rel.getType()+
     }
 
@@ -64,7 +66,7 @@ public class ExportMaster {
                     if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
                         if (!rootParents.contains(rel.getTo())) {
                             String key = getKey(rel);
-                            //                                System.out.println("add new Key:" +key);
+                            //                                logger.info("add new Key:" +key);
                             structure.add(key);
                         }
 
@@ -73,7 +75,7 @@ public class ExportMaster {
                 }
 
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.fatal(ex);
             }
         }
         return result;
@@ -88,7 +90,7 @@ public class ExportMaster {
                 }
 
             } catch (JEVisException ex) {
-                ex.printStackTrace();
+                logger.fatal(ex);
             }
         });
 
@@ -108,12 +110,12 @@ public class ExportMaster {
         //zip Files...
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        System.out.println("Export object count: " + metaObjects.size());
+        logger.info("Export object count: " + metaObjects.size());
         for (Map.Entry<String, MetaObject> mo : metaObjects.entrySet()) {
             MetaObject metaObject = mo.getValue();
 //            File newFile = new File(tmpDir.getAbsolutePath() + File.pathSeparator + mo.getKey() + ".json");
             File newFile = new File(outputfile.getAbsolutePath() + File.separatorChar + mo.getKey() + ".json");
-            System.out.println("write File: " + newFile);
+            logger.info("write File: " + newFile);
             try (Writer writer = new FileWriter(newFile)) {
 //                Gson gson = new GsonBuilder().create();
                 gson.toJson(mo.getValue(), writer);
@@ -133,7 +135,7 @@ public class ExportMaster {
 
 
         for (String key : structure) {
-            System.out.println("Rel: " + key);
+            logger.info("Rel: " + key);
         }
 
 
@@ -141,11 +143,11 @@ public class ExportMaster {
 
 
     public void createTemplate(JEVisObject parent) {
-        System.out.println("Create first level");
+        logger.info("Create first level");
         root.forEach(rootID -> {
 
             MetaObject mo = metaObjects.get(rootID.toString());
-            System.out.println("Build: " + mo.getObject().getName());
+            logger.info("Build: " + mo.getObject().getName());
 
             buildChildren(mo.getObject().getId() + "");
 
@@ -188,11 +190,11 @@ public class ExportMaster {
 
     public void buildChildren(String parentID) {
         structure.forEach(key -> {
-//            System.out.println("("+parentID+") ? "+key);
+//            logger.info("("+parentID+") ? "+key);
             String[] keys = key.split(":");
             if (keys[1].equals(parentID)) {
                 MetaObject mo = metaObjects.get(keys[0]);
-                System.out.println("--> Build child: " + mo.getObject().getName());
+                logger.info("--> Build child: " + mo.getObject().getName());
                 buildChildren(mo.getKey());
             }
 
@@ -201,39 +203,39 @@ public class ExportMaster {
 
 
     public boolean validateObjects() {
-        System.out.println("Validate");
+        logger.info("Validate");
 
-        System.out.println("=Root=");
-        root.forEach(root -> System.out.println(root.toString()));
+        logger.info("=Root=");
+        root.forEach(root -> logger.info(root.toString()));
 
-        System.out.println("Parents: ");
+        logger.info("Parents: ");
         for (String key : structure) {
-//            System.out.println("- key: "+key);
+//            logger.info("- key: "+key);
             try {
                 String[] keys = key.split(":");
                 if (metaObjects.containsKey(keys[0])) {
-//                    System.out.println("Key: " + keys[0] + " is OK");
+//                    logger.info("Key: " + keys[0] + " is OK");
                 } else {
-                    System.out.println("Key: " + keys[0] + " is NOK");
+                    logger.info("Key: " + keys[0] + " is NOK");
                 }
 
                 if (metaObjects.containsKey(keys[1])) {
-//                    System.out.println("Key: " + keys[1] + " is OK");
+//                    logger.info("Key: " + keys[1] + " is OK");
                 } else {
-                    System.out.println("Key: " + keys[1] + " is NOK");
+                    logger.info("Key: " + keys[1] + " is NOK");
                 }
             } catch (Exception ex) {
-                System.out.println("Key error: " + key);
-                ex.printStackTrace();
+                logger.info("Key error: " + key);
+                logger.fatal(ex);
             }
 
         }
 
 //        for(Map.Entry<String,MetaObject> entry:metaObjects.entrySet()){
 //            if(metaObjects.containsKey(String.valueOf(entry.getValue().getObject().getParent()))){
-//                System.out.println("Key: "+entry.getKey()+"  -> Valid Parent");
+//                logger.info("Key: "+entry.getKey()+"  -> Valid Parent");
 //            }else{
-//                System.out.println("Key: "+entry.getKey()+"  -> NOT Valid Parent");
+//                logger.info("Key: "+entry.getKey()+"  -> NOT Valid Parent");
 //            }
 //        }
 

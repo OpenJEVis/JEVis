@@ -4,35 +4,30 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
-import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
 import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class CalculationExtension implements ObjectEditorExtension {
 
     public static final String CALC_CLASS_NAME = "Calculation";
     private static final String TITLE = I18n.getInstance().getString("plugin.object.calc.title");
-    private final org.apache.logging.log4j.Logger log = LogManager.getLogger(CalculationExtension.class);
+    private static final Logger logger = LogManager.getLogger(CalculationExtension.class);
     private final BorderPane view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _enabledChanged = new SimpleBooleanProperty(false);
@@ -52,7 +47,7 @@ public class CalculationExtension implements ObjectEditorExtension {
         try {
             isCalcObject = obj.getJEVisClassName().equals(CALC_CLASS_NAME);
         } catch (JEVisException e) {
-            log.error("Could not get object type" + e.getLocalizedMessage());
+            logger.error("Could not get object type" + e.getLocalizedMessage());
         }
         return isCalcObject;
     }
@@ -88,14 +83,14 @@ public class CalculationExtension implements ObjectEditorExtension {
         //fxmlLoader.setController(new CalculationViewController());
         try {
             final Pane editConfigPane = fxmlLoader.load();
-            contol = fxmlLoader.<CalculationViewController>getController();
+            contol = fxmlLoader.getController();
             contol.setData(_obj);
 
             JEVisAttribute aExprsssion = _obj.getAttribute("Expression");
             JEVisSample lastValue = aExprsssion.getLatestSample();
 
             if (lastValue != null) {
-                System.out.println("LastSample: " + lastValue.getTimestamp() + " " + lastValue.getValueAsString());
+                logger.info("LastSample: " + lastValue.getTimestamp() + " " + lastValue.getValueAsString());
                 oldExpression = lastValue.getValueAsString();
             }
 
@@ -139,23 +134,23 @@ public class CalculationExtension implements ObjectEditorExtension {
                             }
                             _enabledChanged.setValue(true);
                         } catch (Exception ex) {
-                            Logger.getLogger(BooleanValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.fatal(ex);
                         }
                     }
                 });
 
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.fatal(ex);
             }
 
             Label label = new Label("Aktiviert:");
 
-            FlowPane flowPane = new FlowPane(Orientation.HORIZONTAL,8,12,label,enableButton);
+            FlowPane flowPane = new FlowPane(Orientation.HORIZONTAL, 8, 12, label, enableButton);
             VBox vbox = new VBox(8, flowPane, editConfigPane);
             ap.getChildren().addAll(vbox);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.fatal(e);
         }
 
 
@@ -198,7 +193,7 @@ public class CalculationExtension implements ObjectEditorExtension {
             }
             return true;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.fatal(ex);
         }
         return false;
     }

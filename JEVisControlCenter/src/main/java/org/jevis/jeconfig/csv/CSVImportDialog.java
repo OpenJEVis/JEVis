@@ -41,6 +41,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.resource.ResourceLoader;
@@ -51,13 +53,12 @@ import org.jevis.jeconfig.tool.NumberSpinner;
 import java.io.File;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class CSVImportDialog {
+    private static final Logger logger = LogManager.getLogger(CSVImportDialog.class);
 
     public static String ICON = "1403727005_gnome-mime-application-vnd.lotus-1-2-3.png";
 
@@ -207,7 +208,7 @@ public class CSVImportDialog {
     }
 
     private void updateTree() {
-//        System.out.println("UpdateTree");
+//        logger.info("UpdateTree");
         if (_csvFile != null) {
             Platform.runLater(() -> {
                 final CSVParser parser = parseCSV();
@@ -340,7 +341,7 @@ public class CSVImportDialog {
                         updateTree();
 
                     } catch (Exception ex) {
-                        System.out.println("Error while anylysing csv: " + ex);
+                        logger.info("Error while anylysing csv: " + ex);
                     }
                 }
 
@@ -354,7 +355,7 @@ public class CSVImportDialog {
 
                 FileChooser fileChooser = new FileChooser();
                 if (JEConfig.getLastPath() != null) {
-//                    System.out.println("Last Path: " + JEConfig.getLastPath().getParentFile());
+//                    logger.info("Last Path: " + JEConfig.getLastPath().getParentFile());
                     File file = JEConfig.getLastPath();
                     if (file.exists() && file.canRead()) {
                         fileChooser.setInitialDirectory(file);
@@ -371,7 +372,7 @@ public class CSVImportDialog {
                     Platform.runLater(() -> {
                         try {
                             JEConfig.setLastPath(file);
-                            System.out.println("file: " + file);
+                            logger.info("file: " + file);
 
                             fileNameL.setText(file.getName());// + System.getProperty("file.separator") + file.getName());
 
@@ -384,11 +385,11 @@ public class CSVImportDialog {
                             formats.getSelectionModel().select(Format.Custom.name());
                             updateTree();
                         } catch (Exception ex) {
-                            Logger.getLogger(CSVImportDialog.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.fatal(ex);
                         }
                     });
 //                        JEConfig.setLastPath(file);
-//                        System.out.println("file: " + file);
+//                        logger.info("file: " + file);
 //
 //                        fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
 //

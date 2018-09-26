@@ -71,7 +71,7 @@ public class FileEditor implements AttributeEditor {
 
     @Override
     public boolean hasChanged() {
-//        System.out.println(_attribute.getName() + " changed: " + _hasChanged);
+//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
         return _hasChanged;
     }
 
@@ -191,7 +191,7 @@ public class FileEditor implements AttributeEditor {
                             @Override
                             public void handle(WorkerStateEvent event) {
                                 pForm.getDialogStage().hide();
-                                System.out.println("Error while upload");
+                                logger.info("Error while upload");
                             }
                         });
 

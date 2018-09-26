@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -35,18 +35,17 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.relationship.RelationsManagment;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
 
@@ -56,8 +55,9 @@ import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class MemberExtension implements ObjectEditorExtension {
+    private static final Logger logger = LogManager.getLogger(MemberExtension.class);
 
-//    AnchorPane _view = new AnchorPane();
+    //    AnchorPane _view = new AnchorPane();
     BorderPane _view = new BorderPane();
     private JEVisObject _obj;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
@@ -81,11 +81,11 @@ public class MemberExtension implements ObjectEditorExtension {
      * @throws JEVisException
      */
     private void buildView(final JEVisObject obj) throws JEVisException {
-//        System.out.println("Build Member GUI for object: " + obj.getName());
+//        logger.info("Build Member GUI for object: " + obj.getName());
         //First load all users the that the API has the allready cached befor loading the relationhsips
         //TODO: this could be a bad is the system has a lot of users and the current user is the system user
         List<JEVisObject> allUsers = obj.getDataSource().getObjects(obj.getDataSource().getJEVisClass("User"), true);
-//        System.out.println("Total User count: " + allUsers.size());
+//        logger.info("Total User count: " + allUsers.size());
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 20, 20));
@@ -141,7 +141,7 @@ public class MemberExtension implements ObjectEditorExtension {
             for (JEVisRelationship rel : obj.getRelationships()) {
                 try {
                     if (rel == null || rel.getStartObject() == null || rel.getEndObject() == null) {
-                        System.out.println("Incorect relationship: " + rel);
+                        logger.info("Incorect relationship: " + rel);
                         continue;
                     }
                     if (rel.isType(MEMBER_CREATE)
@@ -156,23 +156,23 @@ public class MemberExtension implements ObjectEditorExtension {
                         members.get(rel.getOtherObject(obj)).add(rel);
                     }
                 } catch (Exception ex) {
-                    Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
 
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         JEVisClass userClass = null;
         try {
             userClass = obj.getDataSource().getJEVisClass("User");
         } catch (JEVisException ex) {
-            Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         boolean userCanEdit = obj.getDataSource().getCurrentUser().canWrite(obj.getID());
-        System.out.println("User is allowed to edit the object: " + obj.getID());
+        logger.info("User is allowed to edit the object: " + obj.getID());
 
         for (final Map.Entry<JEVisObject, List<JEVisRelationship>> member : members.entrySet()) {
             yAxis++;
@@ -183,7 +183,7 @@ public class MemberExtension implements ObjectEditorExtension {
                 try {
                     usericon = ImageConverter.convertToImageView(userClass.getIcon(), 17, 17);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
 
@@ -203,7 +203,7 @@ public class MemberExtension implements ObjectEditorExtension {
              */
             for (JEVisRelationship rel : member.getValue()) {
                 try {
-                    System.out.println("###### Check re: " + rel);
+                    logger.info("###### Check re: " + rel);
                     aRelationship = rel;//we need one of the relationship to test if we can delete all this relationships. Doesnt matter which one of this.
                     switch (rel.getType()) {
 
@@ -229,7 +229,7 @@ public class MemberExtension implements ObjectEditorExtension {
                             break;
                     }
                 } catch (Exception ex) {
-                    Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
 
@@ -259,7 +259,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
             //if the currentUser has a group which has delete right on the userObj he can delete it
             if (RelationsManagment.canDeleteMembership(aRelationship)) {
-                System.out.println("can delete Relationship");
+                logger.info("can delete Relationship");
                 remove.setDisable(false);
 
                 remove.setOnAction(new EventHandler<ActionEvent>() {
@@ -274,7 +274,7 @@ public class MemberExtension implements ObjectEditorExtension {
                                 try {
                                     buildView(_obj);
                                 } catch (JEVisException ex) {
-                                    Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+                                    logger.fatal(ex);
                                 }
 
                             }
@@ -283,7 +283,7 @@ public class MemberExtension implements ObjectEditorExtension {
                 });
 
             } else {
-                System.out.println("user has no remove ");
+                logger.info("user has no remove ");
                 remove.setDisable(true);
             }
 
@@ -337,7 +337,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
                     @Override
                     public void updateItem(JEVisObject item,
-                            boolean empty) {
+                                           boolean empty) {
                         super.updateItem(item, empty);
                         if (item != null && !empty) {
                             setText(item.getName());
@@ -363,10 +363,10 @@ public class MemberExtension implements ObjectEditorExtension {
             for (JEVisObject user : allUsers) {
 //                System.out.print("User in box: " + user.getName());
                 if (!members.containsKey(user)) {
-//                    System.out.println(" is not member yet");
+//                    logger.info(" is not member yet");
                     users.getItems().add(user);
                 } else {
-//                    System.out.println(" is allready member");
+//                    logger.info(" is allready member");
                 }
 
             }
@@ -374,7 +374,7 @@ public class MemberExtension implements ObjectEditorExtension {
             users.getSelectionModel().selectFirst();
 
         } catch (Exception ex) {
-            Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         newB.setGraphic(JEConfig.getImage("list-add.png", 17, 17));
@@ -391,14 +391,14 @@ public class MemberExtension implements ObjectEditorExtension {
                             try {
                                 buildView(_obj);
                             } catch (JEVisException ex) {
-                                Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.fatal(ex);
                             }
 
                         }
                     });
 
                 } catch (Exception ex) {
-                    Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });
@@ -414,7 +414,6 @@ public class MemberExtension implements ObjectEditorExtension {
     }
 
     /**
-     *
      * @param button
      * @param type
      * @param userObj
@@ -430,47 +429,47 @@ public class MemberExtension implements ObjectEditorExtension {
 
                 button.setOnAction(new EventHandler<ActionEvent>() {
 
-                    @Override
-                    public void handle(ActionEvent t) {
+                                       @Override
+                                       public void handle(ActionEvent t) {
 
-                        if (button.isSelected()) {
-                            try {
-                                JEVisRelationship newRel = userObj.buildRelationship(group, type, JEVisConstants.Direction.FORWARD);
-                                userObj.commit();//?
-                            } catch (JEVisException ex) {
-                                Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                                           if (button.isSelected()) {
+                                               try {
+                                                   JEVisRelationship newRel = userObj.buildRelationship(group, type, JEVisConstants.Direction.FORWARD);
+                                                   userObj.commit();//?
+                                               } catch (JEVisException ex) {
+                                                   logger.fatal(ex);
+                                               }
 
-                        } else {
-                            try {
-                                if (rel != null) {
-                                    rel.getStartObject().deleteRelationship(rel);
-                                }
-                            } catch (JEVisException ex) {
-                                Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
+                                           } else {
+                                               try {
+                                                   if (rel != null) {
+                                                       rel.getStartObject().deleteRelationship(rel);
+                                                   }
+                                               } catch (JEVisException ex) {
+                                                   logger.fatal(ex);
+                                               }
+                                           }
 
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    System.out.println("Rebuild GUI");
-                                    buildView(_obj);
-                                } catch (JEVisException ex) {
-                                    Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
-                                }
+                                           Platform.runLater(new Runnable() {
+                                               @Override
+                                               public void run() {
+                                                   try {
+                                                       logger.info("Rebuild GUI");
+                                                       buildView(_obj);
+                                                   } catch (JEVisException ex) {
+                                                       logger.fatal(ex);
+                                                   }
 
-                            }
-                        });
+                                               }
+                                           });
 
-                    }
-                }
+                                       }
+                                   }
                 );
             }
 
         } catch (Exception ex) {
-            Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
     }
@@ -487,7 +486,7 @@ public class MemberExtension implements ObjectEditorExtension {
                 }
 
             } catch (JEVisException ex) {
-                Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
     }
@@ -504,7 +503,7 @@ public class MemberExtension implements ObjectEditorExtension {
                 return true;
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         return false;
@@ -518,7 +517,7 @@ public class MemberExtension implements ObjectEditorExtension {
                 try {
                     buildView(_obj);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(MemberExtension.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
 
             }

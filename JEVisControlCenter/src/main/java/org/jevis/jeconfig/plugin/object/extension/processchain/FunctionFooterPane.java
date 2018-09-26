@@ -5,10 +5,6 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -21,16 +17,21 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.ProcessChains;
 import org.jevis.commons.dataprocessing.ProcessFunction;
 import org.jevis.jeconfig.JEConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author Florian Simon
  */
 public class FunctionFooterPane extends Region {
+    private static final Logger logger = LogManager.getLogger(FunctionFooterPane.class);
 
     private Node parent;
     private List<Node> children = new ArrayList<>();
@@ -77,11 +78,11 @@ public class FunctionFooterPane extends Region {
 
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                System.out.println("Select GUI Tpye: " + newValue);
+                logger.info("Select GUI Tpye: " + newValue);
                 try {
 
                 } catch (Exception ex) {
-                    Logger.getLogger(FunctionFooterPane.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });

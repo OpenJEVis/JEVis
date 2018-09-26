@@ -141,7 +141,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
          */
 
 //        if(!allValid){
-//            System.out.println("Show warning");
+//            logger.info("Show warning");
 //            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 //            alert.setTitle("Save Dialog");
 //            alert.setHeaderText("Invalid value");
@@ -244,7 +244,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
                                         editor = new StringEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
-                                        editor = new StringMultyLine(att);
+                                        editor = new StringMultiLine(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                                         editor = new DateEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_OBJECT.getId())) {

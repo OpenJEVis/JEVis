@@ -30,6 +30,8 @@ import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.input.*;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
@@ -38,13 +40,12 @@ import org.jevis.application.application.SaveResourceBundle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEVisTree extends TreeTableView {
+    private static final Logger logger = LogManager.getLogger(JEVisTree.class);
 
     private static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
     private ViewFilter _filter = ViewFilterFactory.createDefaultGraphFilter();
@@ -108,7 +109,7 @@ public class JEVisTree extends TreeTableView {
                     }
 
                     row.setOnDragDetected(event -> {
-                        System.out.println("setOnDragDetected: " + event.toString());
+                        logger.info("setOnDragDetected: " + event.toString());
 
                         Dragboard db = row.startDragAndDrop(TransferMode.ANY);
                         ClipboardContent content = new ClipboardContent();
@@ -123,29 +124,29 @@ public class JEVisTree extends TreeTableView {
                     row.addEventHandler(DragEvent.ANY, new EventHandler<DragEvent>() {
                         @Override
                         public void handle(DragEvent event) {
-                            System.out.println("AllDragEvents: " + event.toString());
+                            logger.info("AllDragEvents: " + event.toString());
                         }
                     });
 
                     row.setOnDragEntered(event -> {
 
-                        System.out.println("setOnDragEntered: " + event.toString());
+                        logger.info("setOnDragEntered: " + event.toString());
                     });
 
                     row.setOnDragDone(event -> {
-                        System.out.println("setOnDragDone: " + event.toString());
+                        logger.info("setOnDragDone: " + event.toString());
                     });
 
                     row.setOnDragDropped(event -> {
-                        System.out.println("setOnDragDropped: " + event.toString());
+                        logger.info("setOnDragDropped: " + event.toString());
                     });
 
                     row.setOnDragExited(event -> {
-                        System.out.println("setOnDragExited: " + event.toString());
+                        logger.info("setOnDragExited: " + event.toString());
                     });
 
                     row.setOnDragOver(event -> {
-                        System.out.println("setOnDragOver: " + event.toString());
+                        logger.info("setOnDragOver: " + event.toString());
                     });
 
 
@@ -161,8 +162,8 @@ public class JEVisTree extends TreeTableView {
 //                    row.setOnDragDetected(event -> {
 //                        try {
 //                            if (!row.isEmpty()) {
-//                                System.out.println("drag detect: " + row.getTreeItem().getValue().getID());
-//                                System.out.println("is not null");
+//                                logger.info("drag detect: " + row.getTreeItem().getValue().getID());
+//                                logger.info("is not null");
 //                                Dragboard db = row.startDragAndDrop(TransferMode.ANY);
 ////                            db.setDragView(row.snapshot(null, null));
 //                                try {
@@ -182,7 +183,7 @@ public class JEVisTree extends TreeTableView {
 //
 //                    row.setOnDragOver(event -> {
 //                        try {
-//                            System.out.println("drag over");
+//                            logger.info("drag over");
 //                            Dragboard db = event.getDragboard();
 //                            if (acceptable(db, row)) {
 //                                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
@@ -194,9 +195,9 @@ public class JEVisTree extends TreeTableView {
 //                    });
 //
 //                    row.setOnDragDropped(event -> {
-//                        System.out.println("drag dropped");
+//                        logger.info("drag dropped");
 //                        Dragboard db = event.getDragboard();
-//                        System.out.println("Dropped: " + row.getTreeItem().getValue().getID());
+//                        logger.info("Dropped: " + row.getTreeItem().getValue().getID());
 //                        if (acceptable(db, row)) {
 //                            int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
 ////                            TreeItem item = getTreeItem(index);
@@ -210,18 +211,17 @@ public class JEVisTree extends TreeTableView {
 //                        }
 //                    });
 //                    row.setOnDragEntered(event -> {
-//                        System.out.println("Drag enterd");
+//                        logger.info("Drag enterd");
 //                    });
 //                    row.setOnDragDone(event -> {
-//                        System.out.println("Drag done");
+//                        logger.info("Drag done");
 //                    });
 //                    return row;
 //                }
 //            });
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            Logger.getLogger(JEVisTree.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -247,7 +247,7 @@ public class JEVisTree extends TreeTableView {
     }
 
     public void openUserSelection(List<UserSelection> selection) {
-//        System.out.println("OpenUserselection: " + selection.size());
+//        logger.info("OpenUserselection: " + selection.size());
         for (UserSelection sel : selection) {
             List<JEVisObject> parents = new ArrayList<>();
             parents.add(sel.getSelectedObject());
@@ -302,7 +302,7 @@ public class JEVisTree extends TreeTableView {
                 findNodePath(parents, parent);
             }
         } catch (Exception ex) {
-            System.out.println("Error while searching parent: " + ex);
+            logger.fatal("Error while searching parent: " + ex);
         }
     }
 

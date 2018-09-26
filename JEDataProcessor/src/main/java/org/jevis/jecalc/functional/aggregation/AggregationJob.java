@@ -5,6 +5,8 @@
  */
 package org.jevis.jecalc.functional.aggregation;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -14,7 +16,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.PeriodFormat;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ import java.util.List;
  */
 public class AggregationJob {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AggregationJob.class);
+    private static final Logger logger = LogManager.getLogger(AggregationJob.class);
 
     private final AggregationModus aggregationModus;
     private final List<JEVisSample> cleanSamples;
@@ -52,7 +53,7 @@ public class AggregationJob {
             logger.debug("{} clean samples found for calculation", cleanSamples.size());
             return new AggregationJob(aggregationModus, inputSampleRate, cleanSamples, cleanData);
         } catch (JEVisException ex) {
-            logger.error(null, ex);
+            logger.fatal(ex);
         }
         return null;
     }

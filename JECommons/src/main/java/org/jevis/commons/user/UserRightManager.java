@@ -172,13 +172,13 @@ public class UserRightManager {
             deleteGIDS = new ArrayList<Long>();
             exeGIDS = new ArrayList<Long>();
 
-            System.out.println("UserID: " + user.getUserID());
+            logger.info("UserID: " + user.getUserID());
             for (JEVisRelationship or : permissions) {
 
                 try {
-                    System.out.println("Type: " + or.getType());
+                    logger.info("Type: " + or.getType());
                     if (or.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ || or.getStartID() == user.getUserID()) {
-                        System.out.println("Membership: " + or);
+                        logger.info("Membership: " + or);
                     }
 
 

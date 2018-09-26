@@ -5,10 +5,8 @@
  */
 package org.jevis.simplealarm.limitalarm;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -18,12 +16,15 @@ import org.jevis.simplealarm.PeriodService;
 import org.jevis.simplealarm.usageperiod.UsagePeriod;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author ai
  */
 public abstract class LimitAlarm implements ILimitAlarm {
-
+    private static final Logger logger = LogManager.getLogger(LimitAlarm.class);
     private final int SILENT = 1;
     private final int STANDBY = 2;
     public final static String SILENT_TIME = "Silent Time";
@@ -56,7 +57,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
             _status = alarmObj.getAttribute(STATUS);
             _enabled = isEnabled(alarmObj);
             for (JEVisAttribute att : alarmObj.getAttributes()) {
-                System.out.println("   Attribute: " + att);
+                logger.info("   Attribute: " + att);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -86,17 +87,17 @@ public abstract class LimitAlarm implements ILimitAlarm {
             try {
                 alarmLogs.add(logAtt.buildSample(alarm.getTime(), logVal));
             } catch (JEVisException ex) {
-                Logger.getLogger(LimitAlarm.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             }
         }
         try {
             logAtt.addSamples(alarmLogs);
         } catch (JEVisException ex) {
-            Logger.getLogger(LimitAlarm.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 
-    DateTime getLastUpdate() throws JEVisException {
+    DateTime getLastUpdate() {
 
         try {
             if (_status.hasSample()) {
@@ -130,7 +131,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
                     return OPERATOR.UNEQUALS;
             }
         } catch (Exception ex) {
-            Logger.getLogger(LimitAlarm.class.getName()).log(Level.SEVERE, "Error could not parse Operator");
+            logger.error("Error could not parse Operator");
         }
         return OPERATOR.SMALER;
     }
@@ -140,7 +141,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
             JEVisAttribute enabeldatt = alarmObj.getAttribute(ENABLED);
             if (enabeldatt.hasSample()) {
                 boolean value = enabeldatt.getLatestSample().getValueAsBoolean();
-//                System.out.println("ebalbed: " + value);
+//                logger.info("ebalbed: " + value);
                 return value;
             } else {
                 return false;
@@ -163,7 +164,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
     @SuppressWarnings("unused")
     private void printAlarms(List<AlarmData> alarms) {
         for (AlarmData alarm : alarms) {
-            System.out.println("Alarm: " + alarm.getMessage());
+            logger.info("Alarm: " + alarm.getMessage());
         }
     }
 

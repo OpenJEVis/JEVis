@@ -47,20 +47,20 @@ public class DataSourceLoader {
      * @throws IllegalAccessException
      */
     public JEVisDataSource getDataSource(JEVisOption config) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-//        System.out.println("Load DataSource: " + config.getKey() + "|" + config.getValue());
+//        logger.info("Load DataSource: " + config.getKey() + "|" + config.getValue());
         logger.trace("DSL config.size: {}", config.getOptions().size());
         if (config.getKey().equalsIgnoreCase(CommonOptions.DataSource.DataSource.getKey())) {
             logger.trace("#2 Has DataSource: {}", config.getOptions().size());
             if (config.hasOption(CommonOptions.DataSource.CONNECTION.getKey())) {
                 logger.trace("#2a SQL. why do i have this: ");
-//                System.out.println("detect connectionstrg, using org.jevis.api.sql.JEVisDataSourceSQL");
-                JEVisDataSource ds = JEVisDataSource.class.cast(Class.forName("org.jevis.api.sql.JEVisDataSourceSQL").newInstance());
+//                logger.info("detect connectionstrg, using org.jevis.api.sql.JEVisDataSourceSQL");
+                JEVisDataSource ds = (JEVisDataSource) Class.forName("org.jevis.api.sql.JEVisDataSourceSQL").newInstance();
                 return ds;
             } else if (config.hasOption(CommonOptions.DataSource.CLASS.getKey())) {
                 logger.trace("#2b DS for class: {}", config.getOption(CommonOptions.DataSource.CLASS.getKey()));
                 JEVisOption classOption = config.getOption(CommonOptions.DataSource.CLASS.getKey());
                 String className = classOption.getValue();
-                JEVisDataSource ds = JEVisDataSource.class.cast(Class.forName(className).newInstance());
+                JEVisDataSource ds = (JEVisDataSource) Class.forName(className).newInstance();
 //                config.completeWith(ds.getConfiguration());
 
                 return ds;
@@ -84,7 +84,7 @@ public class DataSourceLoader {
      * @throws IllegalAccessException
      */
     public JEVisDataSource getDataSource(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        JEVisDataSource ds = JEVisDataSource.class.cast(Class.forName(className).newInstance());
+        JEVisDataSource ds = (JEVisDataSource) Class.forName(className).newInstance();
         return ds;
     }
 

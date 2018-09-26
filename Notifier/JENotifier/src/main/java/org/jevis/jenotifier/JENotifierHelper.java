@@ -4,10 +4,9 @@
  */
 package org.jevis.jenotifier;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
@@ -15,11 +14,15 @@ import org.jevis.commons.config.BasicOption;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.jenotifier.config.JENotifierConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author gf
  */
 public class JENotifierHelper {
+    //    public static final String URL = "url";
+    public static final String MODE = "mode";
     //Command line Parameter
 
     public static final String DB_HOST = "dbHost";
@@ -29,10 +32,10 @@ public class JENotifierHelper {
     public static final String DB_SCHEMA = "dbSchema";
     public static final String JEVIS_USER_NAME = "jevisUsername";
     public static final String JEVIS_USER_PW = "jevisUserPW";
-//    public static final String URL = "url";
-    public static final String MODE = "mode";
-//    public static final String INTERVAL = "interval";
+    //    public static final String INTERVAL = "interval";
     public static final String NUMBER_THREAD = "numberThread";
+    //the explanation of the command line
+    public static final String DB_HOST_EXP = "The Host of Database";
     public static final String SERVICE_PORT = "ServicePort";
     public static final String NOTI_IDS = "notiIDs";
     public static final String NOTI_DRI_IDS = "notiDriverIDs";
@@ -41,18 +44,17 @@ public class JENotifierHelper {
     public static final String NAME_NOTI_CLASS = "nameOfNotiClass";
     public static final String NAME_Driver_CLASS = "nameOfDriverClass";
     public static final String DEBUG_LEVEL = "debugLevel";
-//the explanation of the command line
-    public static final String DB_HOST_EXP = "The Host of Database";
+    //    public static final String URL_EXP = "url";
+    public static final String MODE_EXP = "The running mode of JENotifier";
     public static final String DB_PORT_EXP = "The Port of Database";
     public static final String DB_USER_EXP = "The User of Database";
     public static final String DB_PASSWORD_EXP = "The Password of Database";
     public static final String DB_SCHEMA_EXP = "The Schema of Database";
     public static final String JEVIS_USER_NAME_EXP = "Jevis User Name";
     public static final String JEVIS_USER_PW_EXP = "Jevis User Password";
-//    public static final String URL_EXP = "url";
-    public static final String MODE_EXP = "The running mode of JENotifier";
-//    public static final String INTERVAL_EXP = "The Interval to send the Notifications";
+    //    public static final String INTERVAL_EXP = "The Interval to send the Notifications";
     public static final String NUMBER_THREAD_EXP = "The maxmum number of the Thread";
+    private static final Logger logger = LogManager.getLogger(JENotifierHelper.class);
     public static final String SERVICE_PORT_EXP = "The port of the Service: 5120";
     public static final String NOTI_IDS_EXP = "The IDs of Notifications in Database";
     public static final String NOTI_DRI_IDS_EXP = "The IDs of Notification Drivers in Database";
@@ -70,7 +72,7 @@ public class JENotifierHelper {
     public static JEVisDataSource getConnectedDatabase(JENotifierConfig con) {
         JEVisDataSource ds = null;
         try {
-            JEVisOption host = new BasicOption(CommonOptions.DataSource.DataSource.getKey(),con.getDBHost(),"");
+            JEVisOption host = new BasicOption(CommonOptions.DataSource.DataSource.getKey(), con.getDBHost(), "");
 
 
 //            ds = new JEVisDataSourceSQL(con.getDBHost(), con.getDBPort(), con.getDBSchema(), con.getDBUser(), con.getDBPassword());
@@ -79,7 +81,7 @@ public class JENotifierHelper {
 
             ds.connect(con.getJEVisUserName(), con.getJEVisUserPassword());
         } catch (JEVisException ex) {
-            Logger.getLogger(JENotifierHelper.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
         return ds;
     }
@@ -90,7 +92,7 @@ public class JENotifierHelper {
      * @param debugLevel
      */
     public static void initializeLogger(Level debugLevel) {
-        Logger.getRootLogger().setLevel(debugLevel);
+
     }
 
 //    private void initNewAppender(String NameForAppender, String Name4LogFile) {
@@ -107,6 +109,7 @@ public class JENotifierHelper {
 //        logger.setAdditivity(false);    //<--do not use default root logger
 //        logger.addAppender(appender);
 //}
+
     /**
      * To delete the Em space and En space in front and after the string.
      *

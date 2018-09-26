@@ -33,8 +33,7 @@ import java.util.List;
  * @author fs
  */
 public class SimpleTargetPlugin implements TreePlugin {
-
-    public static Logger LOGGER = LogManager.getLogger(SimpleTargetPlugin.class);
+    private static final Logger logger = LogManager.getLogger(SimpleTargetPlugin.class);
     private JEVisTree _tree;
     private List<UserSelection> _preselect = new ArrayList<>();
     private List<SimpleTargetPluginData> _data = new ArrayList<>();
@@ -109,7 +108,7 @@ public class SimpleTargetPlugin implements TreePlugin {
                 }
             });
 
-            System.out.println(data.getBox().isSelected());
+            logger.info(data.getBox().isSelected());
         }
     }
 
@@ -188,7 +187,7 @@ public class SimpleTargetPlugin implements TreePlugin {
 
                                 }
                             } catch (Exception ex) {
-                                ex.printStackTrace();
+                                logger.fatal(ex);
                             }
 
                         } else {

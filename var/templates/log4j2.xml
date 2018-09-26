@@ -1,25 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="error">
+<Configuration status="trace">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d{HH:mm:ss} %logger{1}.%M | %L] - %msg%n"/>
+            <!--<PatternLayout pattern="[%d{HH:mm:ss} %logger{1}.%M | %L] - %msg%n"/>-->
+            <PatternLayout pattern="[%logger{1}.%M|%L] - %msg%n"/>
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="org.jevis.api.sql" level="error" additivity="false">
+        <Logger name="org.jevis.api" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="org.jevis.application.sql" level="error" additivity="false">
+        <Logger name="org.jevis.application" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="org.jevis.jeconfig" level="error" additivity="false">
+        <Logger name="org.jevis.jeconfig" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="org.jevis.jeapi.ws" level="error" additivity="false">
+        <Logger name="org.jevis.jeapi" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Root level="error">
+        <Logger name="org.jevis.rest" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.sql" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.jedatacollector" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.report3" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.commons" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.csvparser" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.ftpdatasource" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.httpdatasource" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.sftpdatasource" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.soapdatasource" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.xmlparser" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.iso" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.jecalc" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.jenotifier" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.simplealarm" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jevis.ws" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <!--
+        <Root level="trace">
             <AppenderRef ref="Console"/>
         </Root>
+        -->
     </Loggers>
 </Configuration>

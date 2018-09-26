@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -29,6 +29,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
@@ -37,14 +39,13 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class StringMultyLine implements AttributeEditor {
+public class StringMultiLine implements AttributeEditor {
+    private static final Logger logger = LogManager.getLogger(StringMultiLine.class);
 
     private HBox box = new HBox();
     public JEVisAttribute _attribute;
@@ -54,13 +55,13 @@ public class StringMultyLine implements AttributeEditor {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private boolean _readOnly = true;
 
-    public StringMultyLine(JEVisAttribute att) {
+    public StringMultiLine(JEVisAttribute att) {
         _attribute = att;
     }
 
     @Override
     public boolean hasChanged() {
-//        System.out.println(_attribute.getName() + " changed: " + _hasChanged);
+//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
         return _changed.getValue();
     }
 
@@ -74,7 +75,7 @@ public class StringMultyLine implements AttributeEditor {
         _readOnly = canRead;
     }
 
-//    @Override
+    //    @Override
 //    public void setAttribute(JEVisAttribute att) {
 //        _attribute = att;
 //    }
@@ -130,7 +131,7 @@ public class StringMultyLine implements AttributeEditor {
                             _changed.setValue(false);
                         }
                     } catch (JEVisException ex) {
-                        Logger.getLogger(StringMultyLine.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.fatal(ex);
                     }
 
                 }
@@ -145,7 +146,7 @@ public class StringMultyLine implements AttributeEditor {
                     tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));
                     _field.setTooltip(tooltip);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(StringMultyLine.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
 
@@ -166,7 +167,7 @@ public class StringMultyLine implements AttributeEditor {
 
                 }
             } catch (Exception ex) {
-                Logger.getLogger(StringMultyLine.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
         }

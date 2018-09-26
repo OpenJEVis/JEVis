@@ -5,12 +5,10 @@ package org.jevis.report3.data.report.event;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.inject.Inject;
+
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -21,11 +19,16 @@ import org.jevis.report3.data.report.ReportConfiguration;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.util.List;
+
 /**
  *
  * @author broder
  */
 public class EventPrecondition implements Precondition {
+    private static final Logger logger = LogManager.getLogger(EventPrecondition.class);
 
     private final SampleHandler samplesHandler;
 
@@ -51,7 +54,7 @@ public class EventPrecondition implements Precondition {
 
             for (JEVisSample sample : samplesInPeriod) {
                 String value = sample.getValueAsString();
-                boolean isFullfilled = eventOperator.isFullfilled(value, limit);
+                boolean isFullfilled = eventOperator.isFulfilled(value, limit);
                 if (isFullfilled) {
                     return true;
                 }
@@ -62,7 +65,7 @@ public class EventPrecondition implements Precondition {
             reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
 
         } catch (JEVisException ex) {
-            Logger.getLogger(EventPrecondition.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return false;
     }
@@ -71,37 +74,37 @@ public class EventPrecondition implements Precondition {
 
         EQUAL("=") {
                     @Override
-                    public boolean isFullfilled(String value, String limit) {
+                    public boolean isFulfilled(String value, String limit) {
                         return compareTo(value, limit) == 0;
                     }
                 },
         GREATER(">") {
                     @Override
-                    public boolean isFullfilled(String value, String limit) {
+                    public boolean isFulfilled(String value, String limit) {
                         return compareTo(value, limit) > 0;
                     }
                 },
         GREATER_THAN(">=") {
                     @Override
-                    public boolean isFullfilled(String value, String limit) {
-                        return GREATER.isFullfilled(value, limit) || EQUAL.isFullfilled(value, limit);
+                    public boolean isFulfilled(String value, String limit) {
+                        return GREATER.isFulfilled(value, limit) || EQUAL.isFulfilled(value, limit);
                     }
                 },
         LOWER("<") {
                     @Override
-                    public boolean isFullfilled(String value, String limit) {
+                    public boolean isFulfilled(String value, String limit) {
                         return compareTo(value, limit) < 0;
                     }
                 },
         LOWER_THAN("<=") {
                     @Override
-                    public boolean isFullfilled(String value, String limit) {
-                        return LOWER.isFullfilled(value, limit) || EQUAL.isFullfilled(value, limit);
+                    public boolean isFulfilled(String value, String limit) {
+                        return LOWER.isFulfilled(value, limit) || EQUAL.isFulfilled(value, limit);
                     }
                 };
         private final String operator;
 
-        private EventOperator(String operator) {
+        EventOperator(String operator) {
             this.operator = operator;
         }
 
@@ -111,7 +114,7 @@ public class EventPrecondition implements Precondition {
                     return currentOperator;
                 }
             }
-            System.out.println("not a supported operator found");
+            logger.info("not a supported operator found");
             return null;
         }
 
@@ -119,7 +122,7 @@ public class EventPrecondition implements Precondition {
             return operator;
         }
 
-        public abstract boolean isFullfilled(String value, String limit);
+        public abstract boolean isFulfilled(String value, String limit);
 
         public int compareTo(String obj1, String obj2) {
             if (NumberUtils.isNumber(obj1) && NumberUtils.isNumber(obj2)) {

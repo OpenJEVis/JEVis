@@ -19,11 +19,12 @@
  */
 package org.jevis.commons.config;
 
+import org.jevis.api.JEVisOption;
+import org.jevis.commons.json.JsonOption;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.jevis.api.JEVisOption;
-import org.jevis.commons.json.JsonOption;
 
 /**
  * Basic implementation of the JEVisOption interface.
@@ -61,13 +62,13 @@ public class BasicOption implements JEVisOption {
 
     @Override
     public List<JEVisOption> getOptions() {
-//        System.out.println("-- BasicOption.getChildren: " + options.size());
+//        logger.info("-- BasicOption.getChildren: " + options.size());
         return options;
     }
 
     @Override
     public void addOption(JEVisOption option, boolean overwrite) {
-//        System.out.println("-- Add to " + key + "[" + this + "]   child: " + option.getKey() + "[" + option.getValue() + "]");
+//        logger.info("-- Add to " + key + "[" + this + "]   child: " + option.getKey() + "[" + option.getValue() + "]");
         if (!hasOption(option.getKey())) {
             options.add(option);
         } else if (overwrite) {
@@ -118,7 +119,7 @@ public class BasicOption implements JEVisOption {
 
     @Override
     public void setKey(String key) {
-//        System.out.println("--setKey: " + key);
+//        logger.info("--setKey: " + key);
         this.key = key;
     }
 
@@ -158,10 +159,7 @@ public class BasicOption implements JEVisOption {
             return false;
         }
         final BasicOption other = (BasicOption) obj;
-        if (!Objects.equals(this.key, other.key)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.key, other.key);
     }
 
 }

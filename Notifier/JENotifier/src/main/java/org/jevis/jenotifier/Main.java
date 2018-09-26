@@ -7,9 +7,11 @@ package org.jevis.jenotifier;
 //import org.apache.log4j.Appender;
 //import org.apache.log4j.FileAppender;
 //import org.apache.log4j.PatternLayout;
-import org.apache.log4j.Logger;
+
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 //import org.jevis.commons.cli.JEVisCommandLine;
 
 /**
@@ -18,19 +20,19 @@ import org.apache.log4j.Level;
  */
 public class Main {
 
-//    private Logger logger = Logger.getRootLogger();
+    private static final Logger logger = LogManager.getLogger(Main.class);
     public static void main(String[] args) {
         JENotifierOption option = new JENotifierOption();
 
         PropertyConfigurator.configure("log4j.properties");
 //        JENotifierHelper.initializeLogger(Level.FATAL);
 //        Appender appender = Logger.getRootLogger().getAppender("FILE");
-        Logger.getLogger(Main.class.getName()).log(Level.INFO, "-------Start JENotifier-------");
+        logger.info("-------Start JENotifier-------");
 //        Helper.initializeLogger(JEVisCommandLine.getInstance().getDebugLevel());
 
         option.runJENotifier(args);
 
-        Logger.getLogger(Main.class.getName()).log(Level.INFO, "-------End JENotifier-------");
+        logger.info("-------End JENotifier-------");
     }
 //    private void initNewAppender(String NameForAppender, String Name4LogFile) {
 ////        logger = Logger.getLogger(NameForAppender); //NOT DEFAULT BY "logger = Logger.getLogger(TestJob.class);"

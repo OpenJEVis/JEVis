@@ -17,6 +17,8 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 import javafx.util.converter.DateTimeStringConverter;
 import javafx.util.converter.TimeStringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.application.Chart.ReflectionUtils;
 
 import java.util.*;
@@ -29,6 +31,7 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class DateValueAxis extends ValueAxis<Long> {
+    private static final Logger logger = LogManager.getLogger(DateValueAxis.class);
 
     /**
      * We use these for auto ranging to pick a user friendly tick unit. (must be increasingly bigger)
@@ -183,7 +186,7 @@ public class DateValueAxis extends ValueAxis<Long> {
         GregorianCalendar calendar = new GregorianCalendar(1900, 0, 1); // year, month, day
         Date date = calendar.getTime();
         TimeStringConverter timeConverter = new TimeStringConverter("MM/dd/yyyy");
-        System.out.println("This is the date toString = " + timeConverter.toString(date));
+        logger.info("This is the date toString = " + timeConverter.toString(date));
 
         // What is 1 day converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
@@ -192,167 +195,167 @@ public class DateValueAxis extends ValueAxis<Long> {
         Date secondDate = calendar.getTime();
         long firstDateValue = date.getTime();
         long secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (1 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (1 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 2 days converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
         calendar.add(Calendar.DAY_OF_MONTH, 2);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (2 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (2 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 3 days converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
         calendar.add(Calendar.DAY_OF_MONTH, 3);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (3 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (3 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 4 days converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
         calendar.add(Calendar.DAY_OF_MONTH, 4);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (4 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (4 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 5 days converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
         calendar.add(Calendar.DAY_OF_MONTH, 5);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (5 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (5 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 6 days converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
         calendar.add(Calendar.DAY_OF_MONTH, 6);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (6 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (6 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 7 days converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
         calendar.add(Calendar.DAY_OF_MONTH, 7);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (7 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (7 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 8 days converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
         calendar.add(Calendar.DAY_OF_MONTH, 8);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (8 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (8 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 9 days converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
         calendar.add(Calendar.DAY_OF_MONTH, 9);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (9 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (9 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 10 days converted to long
         calendar = new GregorianCalendar(1900, 0, 1);
         calendar.add(Calendar.DAY_OF_MONTH, 10);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (10 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (10 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 15 days? With a long type
         calendar.add(Calendar.DAY_OF_MONTH, 15);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (15 days) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (15 days) - \t" + (secondDateValue - firstDateValue));
 
         // What is 20 days? With a long type
         calendar.add(Calendar.DAY_OF_MONTH, 20);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (20 days) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (20 days) - \t" + (secondDateValue - firstDateValue));
 
         // What is 25 days? With a long type
         calendar.add(Calendar.DAY_OF_MONTH, 25);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (25 days) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (25 days) - \t" + (secondDateValue - firstDateValue));
 
 
         // What is 1 mont converted to long
         calendar.add(Calendar.DAY_OF_MONTH, 31);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (31 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (31 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 41 days
         calendar.add(Calendar.DAY_OF_MONTH, 41);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (41 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (41 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 51 days
         calendar.add(Calendar.DAY_OF_MONTH, 51);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (51 day) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (51 day) - \t" + (secondDateValue - firstDateValue));
 
         // What is 62 days ( 2 monhts
         calendar.add(Calendar.DAY_OF_MONTH, 62);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (62 days - 2 months) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (62 days - 2 months) - \t" + (secondDateValue - firstDateValue));
 
         // What is 77 days ( 2 monhts and a half
         calendar.add(Calendar.DAY_OF_MONTH, 77);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (77 days - 2.5 month) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (77 days - 2.5 month) - \t" + (secondDateValue - firstDateValue));
 
         // What is 93 days ( 3 monhts
         calendar.add(Calendar.DAY_OF_MONTH, 93);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (93 days - 3 month) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (93 days - 3 month) - \t" + (secondDateValue - firstDateValue));
 
         // What is 108  ( 3 monhts and a half
         calendar.add(Calendar.DAY_OF_MONTH, 108);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (108 days - 3.5 month) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (108 days - 3.5 month) - \t" + (secondDateValue - firstDateValue));
 
         // What is 124  ( 4 monhts
         calendar.add(Calendar.DAY_OF_MONTH, 124);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (124 days - 4 month) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (124 days - 4 month) - \t" + (secondDateValue - firstDateValue));
 
         // What is 139  ( 4.5 monhts
         calendar.add(Calendar.DAY_OF_MONTH, 139);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (139 days - 4.5 month) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (139 days - 4.5 month) - \t" + (secondDateValue - firstDateValue));
 
         // What is 139  ( 5 monhts
         calendar.add(Calendar.DAY_OF_MONTH, 155);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (155 days - 5 month) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (155 days - 5 month) - \t" + (secondDateValue - firstDateValue));
 
         // What is 139  ( 5.5 monhts
         calendar.add(Calendar.DAY_OF_MONTH, 170);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (170 days - 5.5 month) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (170 days - 5.5 month) - \t" + (secondDateValue - firstDateValue));
 
         // What is 139  ( 6 monhts
         calendar.add(Calendar.DAY_OF_MONTH, 186);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (186 days - 6 month) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (186 days - 6 month) - \t" + (secondDateValue - firstDateValue));
 
         // What is 366 ( 1 year)
         calendar.add(Calendar.DAY_OF_MONTH, 366);
         secondDate = calendar.getTime();
         secondDateValue = secondDate.getTime();
-        System.out.println("This is the difference of value between the first and second date (366 days - 1 year) - \t" + (secondDateValue - firstDateValue));
+        logger.info("This is the difference of value between the first and second date (366 days - 1 year) - \t" + (secondDateValue - firstDateValue));
     }
 
     public final boolean isForceZeroInRange() {

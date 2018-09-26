@@ -29,13 +29,16 @@ public class TemplateTransformator {
 
         Transformer transformer = TransformerFactory.createTransformer(input, output);
         JxlsHelper jxlsHelper = JxlsHelper.getInstance();
+        jxlsHelper.setUseFastFormulaProcessor(false);
+
         jxlsHelper.processTemplate(context, transformer);
+
         //jxlsHelper.processTemplate(input, output, context);
 ////        Workbook workbook;
 ////        try {
 ////            workbook = Workbook.getWorkbook(input);
 ////            int numberOfSheets = workbook.getNumberOfSheets();
-////            System.out.println(numberOfSheets);
+////            logger.info(numberOfSheets);
 ////        } catch (BiffException ex) {
 ////            Logger.getLogger(TemplateTransformator.class.getName()).log(Level.SEVERE, null, ex);
 ////        }
@@ -44,11 +47,11 @@ public class TemplateTransformator {
 //        areaBuilder.setTransformer(transformer);
 //        List<Area> xlsAreaList = areaBuilder.build();
 //
-//        System.out.println(xlsAreaList.size() + " areas found");
+//        logger.info(xlsAreaList.size() + " areas found");
 //        for (Area xlsArea : xlsAreaList) {
 //            String cellName = xlsArea.getStartCellRef().getCellName();
 //            String sheetName = xlsArea.getStartCellRef().getSheetName();
-//            System.out.println(cellName + "," + sheetName);
+//            logger.info(cellName + "," + sheetName);
 //        }
 //        JxlsHelper.getInstance().processTemplate(context, transformer);
         outputBytes = output.toByteArray();

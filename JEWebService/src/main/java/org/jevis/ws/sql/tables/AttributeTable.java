@@ -68,7 +68,7 @@ public class AttributeTable {
 
     //TODO: try-catch-finally
     public void insert(JEVisType type, JEVisObject obj) {
-//        System.out.println("AttributeTable.insert");
+//        logger.info("AttributeTable.insert");
         String sql = "insert into " + TABLE
                 + " (" + COLUMN_OBJECT + "," + COLUMN_NAME
                 + "," + COLUMN_DISPLAY_UNIT + "," + COLUMN_INPUT_UNIT
@@ -120,7 +120,7 @@ public class AttributeTable {
 //                + " left join attribute a on (a.name=t.name and a.object=o.id)"
 //                + " left join sample s on(s.object=o.id and s.attribute=a.name and s.timestamp=a.maxts )"
 //                + " where o.id=?";
-//        System.out.println("Original SQL: " + sqlOrig);
+//        logger.info("Original SQL: " + sqlOrig);
 
         String sql = "select o.type,a.*,s.*"
                 + "FROM attribute a"
@@ -133,10 +133,10 @@ public class AttributeTable {
             PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
             ps.setLong(1, object);
 
-//            System.out.println("SQL: " + ps);
+//            logger.info("SQL: " + ps);
             logger.trace("SQL {}", ps);
             _connection.addQuery("Attribute.get(long)", ps.toString());
-            //System.out.println("SQL: " + ps);
+            //logger.info("SQL: " + ps);
             ResultSet rs = ps.executeQuery();
 
 

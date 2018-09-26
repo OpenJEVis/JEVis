@@ -1,26 +1,24 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.jevistree.plugin;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -28,14 +26,8 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -44,24 +36,38 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.application.dialog.DialogHeader;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.unit.SampleRateNode;
 import org.jevis.application.unit.UnitPanel;
-import org.joda.time.Period;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class AttributeSettingsDialog {
+    private static final Logger logger = LogManager.getLogger(AttributeSettingsDialog.class);
 
-    public static enum Response {
+    public void saveInDataSource() {
+//        logger.info("Save");
+        try {
+//            logger.info("Display unit: " + UnitManager.getInstance().formate(upDisplay.getSelectedUnit()));
+//            logger.info("Display sample rate: " + _displaySampleRate.getPeriod());
 
-        YES, CANCEL
-    };
+            _attribute.setDisplayUnit(upDisplay.getSelectedUnit());
+            _attribute.setDisplaySampleRate(_displaySampleRate.getPeriod());
+            _attribute.setInputUnit(upInput.getSelectedUnit());
+            _attribute.setInputSampleRate(_inputSampleRate.getPeriod());
+            _attribute.commit();
+
+        } catch (JEVisException ex) {
+            logger.fatal(ex);
+        }
+    }
 
     private Response response = Response.CANCEL;
     private JEVisAttribute _attribute;
@@ -198,21 +204,9 @@ public class AttributeSettingsDialog {
         return box;
     }
 
-    public void saveInDataSource() {
-//        System.out.println("Save");
-        try {
-//            System.out.println("Display unit: " + UnitManager.getInstance().formate(upDisplay.getSelectedUnit()));
-//            System.out.println("Display sample rate: " + _displaySampleRate.getPeriod());
+    public enum Response {
 
-            _attribute.setDisplayUnit(upDisplay.getSelectedUnit());
-            _attribute.setDisplaySampleRate(_displaySampleRate.getPeriod());
-            _attribute.setInputUnit(upInput.getSelectedUnit());
-            _attribute.setInputSampleRate(_inputSampleRate.getPeriod());
-            _attribute.commit();
-
-        } catch (JEVisException ex) {
-            Logger.getLogger(AttributeSettingsDialog.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        YES, CANCEL
     }
 
 }

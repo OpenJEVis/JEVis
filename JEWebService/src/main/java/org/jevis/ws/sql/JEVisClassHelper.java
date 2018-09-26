@@ -77,7 +77,7 @@ public class JEVisClassHelper {
 //                            clone.setInherited(true);
                             subClass.getTypes().add(clone);
                         } else {
-//                            System.out.println("Waring, redudant type in "+subClass.getName()+ ": "+type.getName());
+//                            logger.info("Waring, redudant type in "+subClass.getName()+ ": "+type.getName());
                         }
                     } catch (Exception ex) {
 //                        logger.warn(ex);

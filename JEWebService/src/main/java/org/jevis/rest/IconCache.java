@@ -45,7 +45,7 @@ public class IconCache {
                 .maximumSize(1000)
                 .expireAfterWrite(24, TimeUnit.HOURS)
                 .removalListener((RemovalListener<String, ClassIcon>) notification -> {
-//                        System.out.println("Remove cached icon for: " + notification.getKey() + " because: " + notification.getCause());
+//                        logger.info("Remove cached icon for: " + notification.getKey() + " because: " + notification.getCause());
                 })
                 .build(new CacheLoader<String, ClassIcon>() {
 
@@ -92,7 +92,7 @@ public class IconCache {
      */
     public ClassIcon getIcon(String className) throws ExecutionException {
 //        try {
-//        System.out.println("From Icon Cache: " + _cache.get(className));
+//        logger.info("From Icon Cache: " + _cache.get(className));
         return _cache.get(className);
 //            if (_cache.getIfPresent(className) != null) {
 //                return _cache.get(className);

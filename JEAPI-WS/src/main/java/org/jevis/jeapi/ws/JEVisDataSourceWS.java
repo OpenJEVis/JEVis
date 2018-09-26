@@ -24,6 +24,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.utils.Benchmark;
@@ -38,14 +39,12 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author fs
  */
 public class JEVisDataSourceWS implements JEVisDataSource {
-
+    private static final Logger logger = LogManager.getLogger(JEVisDataSourceWS.class);
     private final int port = 8080;
     final private JEVisInfo info = new JEVisInfo() {
 
@@ -62,7 +61,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private String host = "http://localhost";
     private HTTPConnection con;
     private Gson gson = new Gson();
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisDataSourceWS.class);
     private JEVisObject currentUser = null;
     private boolean fetchedAllClasses = false;
     private JEVisUser user;
@@ -111,10 +109,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return types;
 
         } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
             //TODO: throw excption?! so the other function can handel it?
         } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return new ArrayList<>();
     }
@@ -257,11 +255,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return objects;
 
         } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
             //TODO: throw excption?! so the other function can handel it?
             return new ArrayList<>();
         } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
             return new ArrayList<>();
         }
     }
@@ -332,7 +330,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error(ex);
         }
     }
 
@@ -366,11 +364,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return objects;
 
         } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
             //TODO: throw excption?! so the other function can handel it?
             return new ArrayList<>();
         } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
             return new ArrayList<>();
         }
 
@@ -409,7 +407,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 try {
                     attributes.add(new JEVisAttributeWS(this, att, objectID));
                 } catch (Exception ex) {
-                    Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error(ex);
                 }
             }
 
@@ -417,15 +415,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
 
         } catch (NullPointerException | JsonSyntaxException jex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.FINE, null, jex);
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.FINE, response.toString());
+            logger.error(jex);
+            logger.error(response.toString());
             return new ArrayList<>();
         } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
             //TODO: throw excption?! so the other function can handel it?
             return new ArrayList<>();
         } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
             return new ArrayList<>();
         }
     }
@@ -617,11 +615,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return samples;
 
         } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
             //TODO: throw excption?! so the other function can handel it?
             return new ArrayList<>();
         } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
             return new ArrayList<>();
         }
     }
@@ -679,9 +677,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return objs;
 
         } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return new ArrayList<>();
     }
@@ -711,7 +709,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 try {
                     objs.add(new JEVisObjectWS(this, jobj));
                 } catch (Exception ex) {
-
+                    logger.error(ex);
                 }
 
             }
@@ -719,9 +717,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return objs;
 
         } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return new ArrayList<>();
     }
@@ -754,7 +752,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         } catch (IOException ex) {
             logger.error("Error while fetching Object", ex);
         } catch (Exception ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return null;
     }
@@ -783,7 +781,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         } catch (IOException ex) {
             logger.error("Error while fetching Object", ex);
         } catch (Exception ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return null;
     }
@@ -871,9 +869,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return newClass;
 
         } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return null;
     }
@@ -916,9 +914,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return classes;
 
         } catch (ProtocolException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         } catch (IOException ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return new ArrayList<>();
     }
@@ -1021,7 +1019,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return jsons;
 
         } catch (Exception ex) {
-            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
             return new ArrayList<>();
         }
 

@@ -1,44 +1,43 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.dataprocessing.function;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.ProcessOption;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
-import org.jevis.commons.dataprocessing.ProcessFunction;
-import org.jevis.commons.dataprocessing.ProcessOptions;
+import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class InputFunction implements ProcessFunction {
+    private static final Logger logger = LogManager.getLogger(InputFunction.class);
 
     public final static String NAME = "Input";
     public final static String OBJECT_ID = "object-id";
@@ -70,34 +69,35 @@ public class InputFunction implements ProcessFunction {
                 try {
                     object = task.getJEVisDataSource().getObject(oid);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(InputFunction.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             } else if (task.getObject() != null) {
                 try {
                     object = task.getObject().getParents().get(0);//TODO make save
                 } catch (JEVisException ex) {
+                    logger.error(ex);
                 }
             }
 
             if (object != null && ProcessOptions.ContainsOption(task, ATTRIBUTE_ID)) {
 
                 try {
-                    System.out.println("Parent object: " + object);
+                    logger.info("Parent object: " + object);
 //                    long oid = Long.valueOf(task.getOptions().get(OBJECT_ID));
 //                    JEVisObject object = task.getJEVisDataSource().getObject(oid);
 
                     JEVisAttribute att = object.getAttribute(ProcessOptions.GetLatestOption(task, ATTRIBUTE_ID, new BasicProcessOption(ATTRIBUTE_ID, "")).getValue());
 
                     DateTime[] startEnd = ProcessOptions.getStartAndEnd(task);
-                    System.out.println("start: " + startEnd[0] + " end: " + startEnd[1]);
+                    logger.info("start: " + startEnd[0] + " end: " + startEnd[1]);
 
                     _result = att.getSamples(startEnd[0], startEnd[1]);
-                    System.out.println("Input result: " + _result.size());
+                    logger.info("Input result: " + _result.size());
                 } catch (JEVisException ex) {
-                    Logger.getLogger(InputFunction.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             } else {
-                System.out.println("Missing options " + OBJECT_ID + " and " + ATTRIBUTE_ID);
+                logger.warn("Missing options " + OBJECT_ID + " and " + ATTRIBUTE_ID);
             }
         }
         return _result;

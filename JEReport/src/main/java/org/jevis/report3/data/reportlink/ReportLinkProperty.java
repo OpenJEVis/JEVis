@@ -5,6 +5,8 @@
  */
 package org.jevis.report3.data.reportlink;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
@@ -28,13 +30,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * @author broder
  */
 public class ReportLinkProperty implements ReportData {
+    private static final Logger logger = LogManager.getLogger(ReportLinkProperty.class);
 
     private String templateVariableName;
     //    private JEVisObject linkObject;
@@ -141,7 +143,7 @@ public class ReportLinkProperty implements ReportData {
                 }
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ReportLinkProperty.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -157,16 +159,16 @@ public class ReportLinkProperty implements ReportData {
         return templateMap;
     }
 
-    Map<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
+    private Map<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
         Map<String, Object> linkMap = new HashMap<>();
         List<ReportAttributeProperty> attributeProperties = linkProperty.getAttributeProperties();
         attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
-        for (ReportAttributeProperty attributeProperty : attributeProperties) {
+        attributeProperties.parallelStream().forEach(attributeProperty -> {
             List<AttributeConfiguration> attributeConfigs = attributeProperty.getAttributeConfigurations();
             SampleGenerator sampleGenerator = sampleFactory.getSampleGenerator(attributeConfigs, intervalCalc);
             Map<String, Object> attributeMap = sampleGenerator.work(linkProperty, attributeProperty, property);
             addAttributeMapToLinkMap(linkMap, attributeMap);
-        }
+        });
         String objectName = linkProperty.getDataObject().getName();
         Map<String, Object> tmpMap = new HashMap<>();
         tmpMap.put("name", objectName);
@@ -177,7 +179,7 @@ public class ReportLinkProperty implements ReportData {
     //    public void setIntervalCalculator(IntervalCalculator intervalCalc) {
 //        this.intervalCalc = intervalCalc;
 //    }
-    void addAttributeMapToLinkMap(Map<String, Object> linkMap, Map<String, Object> attributeMap) {
+    private synchronized void addAttributeMapToLinkMap(Map<String, Object> linkMap, Map<String, Object> attributeMap) {
         linkMap.putAll(attributeMap);
     }
 
@@ -193,7 +195,7 @@ public class ReportLinkProperty implements ReportData {
                 optional = linkObject.getAttribute("Optional").getLatestSample().getValueAsBoolean();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ReportLinkProperty.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
 
         if (attributeProperties.isEmpty() || optional) {
@@ -219,7 +221,7 @@ public class ReportLinkProperty implements ReportData {
                         return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
                     }
                 } catch (JEVisException ex) {
-                    Logger.getLogger(ReportLinkProperty.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error(ex);
                 }
             }
         }

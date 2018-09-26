@@ -10,8 +10,8 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfCopy;
 import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,7 +25,7 @@ import java.nio.file.Path;
  */
 public class PdfFileSplitter {
 
-    private static final Logger logger = LoggerFactory.getLogger(PdfFileSplitter.class);
+    private static final Logger logger = LogManager.getLogger(PdfFileSplitter.class);
 
     private String outputPath;
     private String inputPath;

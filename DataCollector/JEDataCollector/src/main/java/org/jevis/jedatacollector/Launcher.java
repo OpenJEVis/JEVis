@@ -5,7 +5,8 @@
 package org.jevis.jedatacollector;
 
 import com.beust.jcommander.Parameter;
-import org.apache.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.cli.AbstractCliApp;
@@ -25,7 +26,7 @@ public class Launcher extends AbstractCliApp {
 
     public static final String APP_INFO = "JEDataCollector 2018-02-21";
     public static String KEY = "process-id";
-    private static Logger logger = Logger.getRootLogger();
+    private static final Logger logger = LogManager.getLogger(Launcher.class);
     private int cycleTime = 900000;
     private final Command commands = new Command();
 
@@ -34,15 +35,7 @@ public class Launcher extends AbstractCliApp {
      */
     public static void main(String[] args) {
 
-        try {
-            Appender appender = Logger.getRootLogger().getAppender("FILE");
-            appender.addFilter(new ThreadFilter("-1"));
-        } catch (Exception ex) {
-            logger.error("Error loading log Appender 'FILE'", ex);
-        }
-
-        MDC.put(Launcher.KEY, "-1");
-        Logger.getLogger(Launcher.class.getName()).log(Level.INFO, "-------Start JEDataCollector 2018-02-01-------");
+        logger.info("-------Start JEDataCollector 2018-02-01-------");
         Launcher app = new Launcher(args, APP_INFO);
         app.execute();
     }
@@ -61,8 +54,7 @@ public class Launcher extends AbstractCliApp {
      * @param dataSources
      */
     private void excecuteDataSources(List<JEVisObject> dataSources) {
-        Logger.getLogger(
-                this.getClass().getName()).log(Level.INFO, "Number of Requests: " + dataSources.size());
+        logger.info("Number of Requests: " + dataSources.size());
 
 //        Long startTime = System.currentTimeMillis();
 //
@@ -77,7 +69,7 @@ public class Launcher extends AbstractCliApp {
 //                initNewAppender("" + identifier, currentDataSourceJevis.getID() + "_" + currentDataSourceJevis.getName().replace(" ", "_") + ".log");
 //                MDC.put(Launcher.KEY, "" + identifier);
         for (JEVisObject object : dataSources) {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "----------------Execute DataSource " + object.getName() + "-----------------");
+            logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
             DataSource dataSource = DataSourceFactory.getDataSource(object);
 
             dataSource.initialize(object);
@@ -90,7 +82,7 @@ public class Launcher extends AbstractCliApp {
 //                    dataSource.initialize(currentDataSourceJevis);
 //                    Thread dataCollectionThread = new Thread(dataSource, currentDataSourceJevis.getName());
 //                    long threadid = dataCollectionThread.getId();
-////                System.out.println("start equip:" + currentDataSourceJevis.getName() + "id." + threadid);
+////                logger.info("start equip:" + currentDataSourceJevis.getName() + "id." + threadid);
 //                    threadReqHandler.addActiveThread(threadid);
 //                    //start the data source in a new thread
 //                    dataCollectionThread.start();
@@ -106,7 +98,7 @@ public class Launcher extends AbstractCliApp {
 //                    Set<Long> currentThreadIds = new HashSet<Long>();
 //                    for (Thread t : Thread.getAllStackTraces().keySet()) {
 //                        currentThreadIds.add(t.getId());
-////                        System.out.println("thread_id:" + t.getId());
+////                        logger.info("thread_id:" + t.getId());
 //                    }
 //                    for (Long id : threadReqHandler.getActiveThreads()) {
 //                        if (!currentThreadIds.contains(id)) {
@@ -116,12 +108,12 @@ public class Launcher extends AbstractCliApp {
 //                    }
 //                    if (foundFinishedThread) {
 //                        for (Long id : finishedThreads) {
-////                            System.out.println("Remove equip id: " + id);
+////                            logger.info("Remove equip id: " + id);
 //                            threadReqHandler.removeActiveRequest(id);
 //                        }
 //                    } else {
 //                        Thread.sleep(10000);
-////                        System.out.println("thread sleeps");
+////                        logger.info("thread sleeps");
 //                    }
 //                } catch (InterruptedException ie) {
 //                    Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
@@ -150,11 +142,11 @@ public class Launcher extends AbstractCliApp {
 //                    }
 //                }
 //                for (Long id : finishedThreads) {
-////                    System.out.println("Remove equip id: " + id);
+////                    logger.info("Remove equip id: " + id);
 //                    threadReqHandler.removeActiveRequest(id);
 //                }
 //                for (Long id : abortThreads) {
-////                    System.out.println("Abort equip id: " + id);
+////                    logger.info("Abort equip id: " + id);
 //                    threadReqHandler.removeActiveRequest(id);
 //                }
 //            }
@@ -164,7 +156,7 @@ public class Launcher extends AbstractCliApp {
 //                Set<Long> currentThreadIds = new HashSet<Long>();
 //                for (Thread t : Thread.getAllStackTraces().keySet()) {
 //                    currentThreadIds.add(t.getId());
-////                    System.out.println("thread_id:" + t.getId());
+////                    logger.info("thread_id:" + t.getId());
 //                }
 //                for (Long id : threadReqHandler.getActiveThreads()) {
 //                    if (!currentThreadIds.contains(id)) {
@@ -174,12 +166,12 @@ public class Launcher extends AbstractCliApp {
 //                }
 //                if (foundFinishedThread) {
 //                    for (Long id : finishedThreads) {
-////                        System.out.println("Remove equip id: " + id);
+////                        logger.info("Remove equip id: " + id);
 //                        threadReqHandler.removeActiveRequest(id);
 //                    }
 //                } else {
 //                    Thread.sleep(10000);
-////                    System.out.println("thread sleeps");
+////                    logger.info("thread sleeps");
 //                }
 //            } catch (InterruptedException ie) {
 //                Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
@@ -188,9 +180,9 @@ public class Launcher extends AbstractCliApp {
 //        try {
 //            ds.disconnect();
 //        } catch (JEVisException ex) {
-//            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            logger.error(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 //        }
-        Logger.getLogger(Launcher.class.getName()).log(Level.INFO, "---------------------finish------------------------");
+        logger.info("---------------------finish------------------------");
 
     }
 
@@ -206,7 +198,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runSingle(Long id) {
-        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Single Mode");
+        logger.info("Start Single Mode");
 
         List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
 
@@ -216,12 +208,12 @@ public class Launcher extends AbstractCliApp {
 
             excecuteDataSources(dataSources);
         } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 
     protected void runService(Integer cycle_time) {
-        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Service Mode");
+        logger.info("Start Service Mode");
 
         Thread service = new Thread(() -> runServiceHelp());
         Runtime.getRuntime().addShutdownHook(
@@ -237,7 +229,7 @@ public class Launcher extends AbstractCliApp {
             throw new RuntimeException(e);
         }
         try {
-            System.out.println("Press CTRL^C to exit..");
+            logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -249,7 +241,7 @@ public class Launcher extends AbstractCliApp {
         dataSources = getEnabledDataSources(ds);
         excecuteDataSources(dataSources);
         try {
-            logger.error("Entering sleep mode for " + cycleTime + " ms.");
+            logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
             runServiceHelp();
         } catch (InterruptedException e) {
@@ -259,7 +251,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runComplete() {
-        java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "Start Compete Mode");
+        logger.info("Start Compete Mode");
         List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
         dataSources = getEnabledDataSources(ds);
         excecuteDataSources(dataSources);
@@ -280,7 +272,7 @@ public class Launcher extends AbstractCliApp {
                 return (int) (long) dataCollector.get(0).getAttribute(numberThreadsType).getLatestSample().getValueAsLong();
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return 1;
     }
@@ -294,23 +286,11 @@ public class Launcher extends AbstractCliApp {
                 return dataCollector.get(0).getAttribute(runTimeType).getLatestSample().getValueAsLong();
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return 3600l;
     }
 
-    private void initNewAppender(String NameForAppender, String Name4LogFile) {
-        FileAppender appender = new FileAppender();
-        appender.setLayout(new PatternLayout("[%d{yyyy-MM--dd HH:mm:ss}][%c{2}]: %-10m%n"));
-        appender.setFile(Name4LogFile);
-        appender.setAppend(true);
-        appender.setImmediateFlush(true);
-        appender.activateOptions();
-        appender.setName(NameForAppender);
-        appender.addFilter(new ThreadFilter(NameForAppender));
-        logger.setAdditivity(false);    //<--do not use default root logger
-        logger.addAppender(appender);
-    }
 
     private List<JEVisObject> getEnabledDataSources(JEVisDataSource client) {
         List<JEVisObject> enabledDataSources = new ArrayList<JEVisObject>();
@@ -325,11 +305,11 @@ public class Launcher extends AbstractCliApp {
                         enabledDataSources.add(dataSource);
                     }
                 } catch (Exception ex) {
-                    java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, "DataSource failed while checking enabled status:", ex);
+                    logger.error("DataSource failed while checking enabled status:", ex);
                 }
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return enabledDataSources;
     }

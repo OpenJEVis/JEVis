@@ -19,14 +19,15 @@
  */
 package org.jevis.commons.cli;
 
-import java.io.File;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.BiConsumer;
 import org.apache.commons.configuration.ConfigurationException;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.OptionFactory;
 import org.jevis.commons.config.XMLConfigFileReader;
+
+import java.io.File;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.BiConsumer;
 
 /**
  *
@@ -40,7 +41,7 @@ public class ConfHelper {
 
         XMLConfigFileReader config = new XMLConfigFileReader(file);
         Map<String, String> conf = config.getValues(prefix);
-        //conf.forEach((k, v) -> System.out.println("Key: " + k + " Value: " + v));
+        //conf.forEach((k, v) -> logger.info("Key: " + k + " Value: " + v));
         return ParseJEVisConfiguration(conf, options);
     }
 

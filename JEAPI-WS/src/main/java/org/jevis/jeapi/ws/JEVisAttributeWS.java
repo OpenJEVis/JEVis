@@ -356,7 +356,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public void setDisplaySampleRate(Period period) {
-        System.out.println("setDisplaySampleRate: " + period.toString());
+        logger.info("setDisplaySampleRate: " + period.toString());
         json.setDisplaySampleRate(period.toString());
     }
 

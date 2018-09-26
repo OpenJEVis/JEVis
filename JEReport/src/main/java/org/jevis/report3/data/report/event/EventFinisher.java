@@ -6,6 +6,8 @@ package org.jevis.report3.data.report.event;
  * and open the template in the editor.
  */
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
@@ -14,14 +16,14 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
  * @author broder
  */
 public class EventFinisher implements Finisher {
+    private static final Logger logger = LogManager.getLogger(EventFinisher.class);
 
     private final SampleHandler samplesHandler;
 
@@ -42,7 +44,7 @@ public class EventFinisher implements Finisher {
             String newStartTimeString = lastDate.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
             reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(EventFinisher.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
 
     }

@@ -19,9 +19,6 @@
  */
 package org.jevis.application.unit;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Locale;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -31,12 +28,15 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.util.Callback;
-import javax.measure.unit.Unit;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
+
+import javax.measure.unit.Unit;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Locale;
 
 /**
  * TreeView to display JEVIsUnits in JEConfig
@@ -135,20 +135,35 @@ public class UnitTree extends TreeView<UnitObject> {
         _dragObj = obj;
     }
 
+    public static void sortList(ObservableList<TreeItem<UnitObject>> list) {
+        Comparator<TreeItem<UnitObject>> sort = new Comparator<TreeItem<UnitObject>>() {
+
+            @Override
+            public int compare(TreeItem<UnitObject> o1, TreeItem<UnitObject> o2) {
+//                logger.info("Compare: \n " + o1 + " with\n " + o2);
+                return o1.getValue().getName().compareTo(o2.getValue().getName());
+
+            }
+        };
+
+        FXCollections.sort(list, sort);
+
+    }
+
+    public TreeItem<UnitObject> getObjectTreeItem(UnitObject object) {
+        return buildItem(object);
+    }
+
     public UnitGraphic getObjectGraphic(UnitObject object) {
         if (_graphicCache.containsKey(object.toString())) {
             return _graphicCache.get(object.toString());
         }
 
-//        System.out.println("grahic does not exist create for: " + object);
+//        logger.info("grahic does not exist create for: " + object);
         UnitGraphic graph = new UnitGraphic(object, this);
         _graphicCache.put(object.toString(), graph);
 
         return graph;
-    }
-
-    public TreeItem<UnitObject> getObjectTreeItem(UnitObject object) {
-        return buildItem(object);
     }
 
     public TreeItem<UnitObject> buildItem(UnitObject object) {
@@ -157,72 +172,11 @@ public class UnitTree extends TreeView<UnitObject> {
             return _itemCache.get(object.toString());
         }
 
-//        System.out.println("buildItem: " + object);
+//        logger.info("buildItem: " + object);
         final TreeItem<UnitObject> newItem = new UnitItem(object, this);
         _itemCache.put(object.toString(), newItem);
 
         return newItem;
-    }
-
-    public void addChildrenList(TreeItem<UnitObject> item, ObservableList<TreeItem<UnitObject>> list) {
-//        System.out.println("addChildrenList: " + item);
-//        List<JEVisUnit> usedAdditionalUnits = new ArrayList<>();
-        _itemChildren.put(item, list);
-
-        if (item.getValue().getType() == UnitObject.Type.FakeRoot) {
-            for (JEVisUnit child : UnitManager.getInstance().getQuantitiesJunit()) {
-//                System.out.println("---add quanti: " + child);
-                UnitObject quant = new UnitObject(UnitObject.Type.Quntity, child, UnitManager.getInstance().getQuantitiesName(child, Locale.ENGLISH));
-                TreeItem<UnitObject> newItem = buildItem(quant);
-                list.add(newItem);
-            }
-            //Quantity for all the rest Unit with are not comatible to anyting
-            UnitObject custom = new UnitObject(UnitObject.Type.Quntity, new JEVisUnitImp(Unit.ONE), "Custom");
-            TreeItem<UnitObject> customItem = buildItem(custom);
-            list.add(customItem);
-
-        } else if (item.getValue().getType() == UnitObject.Type.Quntity) {
-            if (item.getValue().getID().equals("Custom")) {
-                for (JEVisUnit child : UnitManager.getInstance().getCustomUnits()) {
-                    UnitObject customUnit = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());
-                    TreeItem<UnitObject> newItem = buildItem(customUnit);
-                    list.add(newItem);
-                }
-            } else {
-                for (JEVisUnit child : UnitManager.getInstance().getCompatibleSIUnit(item.getValue().getUnit())) {
-//                System.out.println("------add SI Unit childList: " + child);
-                    UnitObject quant = new UnitObject(UnitObject.Type.SIUnit, child, item.getValue().getID() + child.toString());
-                    TreeItem<UnitObject> newItem = buildItem(quant);
-                    list.add(newItem);
-                }
-
-                for (JEVisUnit child : UnitManager.getInstance().getCompatibleNonSIUnit(item.getValue().getUnit())) {
-//                System.out.println("------add NonSI Unit childList: " + child);
-                    UnitObject quant = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());
-                    TreeItem<UnitObject> newItem = buildItem(quant);
-                    list.add(newItem);
-                }
-
-                //TODO add addional Units from Datasource
-                for (JEVisUnit child : UnitManager.getInstance().getCompatibleAdditionalUnit(item.getValue().getUnit())) {
-//                    System.out.println("------add Additonal Unit childList: " + child);
-                    UnitObject quant = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());
-                    TreeItem<UnitObject> newItem = buildItem(quant);
-                    list.add(newItem);
-
-                }
-            }
-        } else if (item.getValue().getType() == UnitObject.Type.NonSIUnit || item.getValue().getType() == UnitObject.Type.SIUnit) {
-//            for (JEVisUnit child : getLabels(item.getValue().getUnit())) {
-////                System.out.println("----------add labels Unit childList: " + child);
-//                UnitObject quant = new UnitObject(UnitObject.Type.AltSymbol, child, item.getValue().getID() + child.toString());
-//                TreeItem<UnitObject> newItem = buildItem(quant);
-//                list.add(newItem);
-//
-//            }
-        }
-
-        sortList(list);
     }
 
     public ObservableList<TreeItem<UnitObject>> getChildrenList(TreeItem<UnitObject> item) {
@@ -270,7 +224,68 @@ public class UnitTree extends TreeView<UnitObject> {
         }
     }
 
-    public void fireSaveAttributes(boolean ask) throws JEVisException {
+    public void addChildrenList(TreeItem<UnitObject> item, ObservableList<TreeItem<UnitObject>> list) {
+//        logger.info("addChildrenList: " + item);
+//        List<JEVisUnit> usedAdditionalUnits = new ArrayList<>();
+        _itemChildren.put(item, list);
+
+        if (item.getValue().getType() == UnitObject.Type.FakeRoot) {
+            for (JEVisUnit child : UnitManager.getInstance().getQuantitiesJunit()) {
+//                logger.info("---add quanti: " + child);
+                UnitObject quant = new UnitObject(UnitObject.Type.Quntity, child, UnitManager.getInstance().getQuantitiesName(child, Locale.ENGLISH));
+                TreeItem<UnitObject> newItem = buildItem(quant);
+                list.add(newItem);
+            }
+            //Quantity for all the rest Unit with are not comatible to anyting
+            UnitObject custom = new UnitObject(UnitObject.Type.Quntity, new JEVisUnitImp(Unit.ONE), "Custom");
+            TreeItem<UnitObject> customItem = buildItem(custom);
+            list.add(customItem);
+
+        } else if (item.getValue().getType() == UnitObject.Type.Quntity) {
+            if (item.getValue().getID().equals("Custom")) {
+                for (JEVisUnit child : UnitManager.getInstance().getCustomUnits()) {
+                    UnitObject customUnit = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());
+                    TreeItem<UnitObject> newItem = buildItem(customUnit);
+                    list.add(newItem);
+                }
+            } else {
+                for (JEVisUnit child : UnitManager.getInstance().getCompatibleSIUnit(item.getValue().getUnit())) {
+//                logger.info("------add SI Unit childList: " + child);
+                    UnitObject quant = new UnitObject(UnitObject.Type.SIUnit, child, item.getValue().getID() + child.toString());
+                    TreeItem<UnitObject> newItem = buildItem(quant);
+                    list.add(newItem);
+                }
+
+                for (JEVisUnit child : UnitManager.getInstance().getCompatibleNonSIUnit(item.getValue().getUnit())) {
+//                logger.info("------add NonSI Unit childList: " + child);
+                    UnitObject quant = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());
+                    TreeItem<UnitObject> newItem = buildItem(quant);
+                    list.add(newItem);
+                }
+
+                //TODO add addional Units from Datasource
+                for (JEVisUnit child : UnitManager.getInstance().getCompatibleAdditionalUnit(item.getValue().getUnit())) {
+//                    logger.info("------add Additonal Unit childList: " + child);
+                    UnitObject quant = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());
+                    TreeItem<UnitObject> newItem = buildItem(quant);
+                    list.add(newItem);
+
+                }
+            }
+        } else if (item.getValue().getType() == UnitObject.Type.NonSIUnit || item.getValue().getType() == UnitObject.Type.SIUnit) {
+//            for (JEVisUnit child : getLabels(item.getValue().getUnit())) {
+////                logger.info("----------add labels Unit childList: " + child);
+//                UnitObject quant = new UnitObject(UnitObject.Type.AltSymbol, child, item.getValue().getID() + child.toString());
+//                TreeItem<UnitObject> newItem = buildItem(quant);
+//                list.add(newItem);
+//
+//            }
+        }
+
+        sortList(list);
+    }
+
+    public void fireSaveAttributes(boolean ask) {
 
 //        if (ask) {
 //            _editor.checkIfSaved(null);
@@ -279,13 +294,17 @@ public class UnitTree extends TreeView<UnitObject> {
 //        }
     }
 
+    public UnitObject getSelectedObject() {
+        return getSelectionModel().getSelectedItem().getValue();
+    }
+
     public void fireDelete(Unit obj) {
 //        ConfirmDialog dia = new ConfirmDialog();
 //        String question = "Do you want to delete the Class \"" + obj.getName() + "\" ?";
 //
 //        if (dia.show(JEConfig.getStage(), "Delete Object", "Delete Object?", question) == ConfirmDialog.Response.YES) {
 //            try {
-//                System.out.println("User want to delete: " + obj.getName());
+//                logger.info("User want to delete: " + obj.getName());
 //
 //                obj.delete();
 //                getObjectTreeItem(obj).getParent().getChildren().remove(getObjectTreeItem(obj));
@@ -299,10 +318,6 @@ public class UnitTree extends TreeView<UnitObject> {
 //        }
     }
 
-    public UnitObject getSelectedObject() {
-        return getSelectionModel().getSelectedItem().getValue();
-    }
-
     public void fireEventNew(final Unit parent) {
 
 //        NewObjectDialog dia = new NewObjectDialog();
@@ -311,7 +326,7 @@ public class UnitTree extends TreeView<UnitObject> {
 //
 //        if (parent != null) {
 //            if (dia.show(JEConfig.getStage(), null, parent, false, NewObjectDialog.Type.NEW, null) == NewObjectDialog.Response.YES) {
-//                System.out.println("create new: " + dia.getCreateName() + " class: " + dia.getCreateClass() + " " + dia.getCreateCount() + " times");
+//                logger.info("create new: " + dia.getCreateName() + " class: " + dia.getCreateClass() + " " + dia.getCreateCount() + " times");
 //
 //                for (int i = 0; i < dia.getCreateCount(); i++) {
 //                    try {
@@ -348,21 +363,6 @@ public class UnitTree extends TreeView<UnitObject> {
 //        }
     }
 
-    public static void sortList(ObservableList<TreeItem<UnitObject>> list) {
-        Comparator<TreeItem<UnitObject>> sort = new Comparator<TreeItem<UnitObject>>() {
-
-            @Override
-            public int compare(TreeItem<UnitObject> o1, TreeItem<UnitObject> o2) {
-//                System.out.println("Compare: \n " + o1 + " with\n " + o2);
-                return o1.getValue().getName().compareTo(o2.getValue().getName());
-
-            }
-        };
-
-        FXCollections.sort(list, sort);
-
-    }
-
     /**
      *
      */
@@ -383,7 +383,7 @@ public class UnitTree extends TreeView<UnitObject> {
 //
 //                    @Override
 //                    public void handle(MouseEvent e) {
-//                        System.out.println("Drag Source: " + obj.toString());
+//                        logger.info("Drag Source: " + obj.toString());
 //                        ClipboardContent content = new ClipboardContent();
 ////                        content.putString(obj.getName());
 //                        Dragboard dragBoard = startDragAndDrop(TransferMode.ANY);
@@ -398,7 +398,7 @@ public class UnitTree extends TreeView<UnitObject> {
 //                setOnDragDone(new EventHandler<DragEvent>() {
 //                    @Override
 //                    public void handle(DragEvent dragEvent) {
-//                        System.out.println("Drag done on " + obj.toString());
+//                        logger.info("Drag done on " + obj.toString());
 //                        dragEvent.consume();
 //                    }
 //                });
@@ -407,7 +407,7 @@ public class UnitTree extends TreeView<UnitObject> {
 //                setOnDragOver(new EventHandler<DragEvent>() {
 //                    @Override
 //                    public void handle(DragEvent dragEvent) {
-//                        System.out.println("Drag Over: " + obj.toString());
+//                        logger.info("Drag Over: " + obj.toString());
 //
 //                        try {
 //                            if (getDragItem().isAllowedUnder(obj)) {
@@ -430,8 +430,8 @@ public class UnitTree extends TreeView<UnitObject> {
 //                setOnDragDropped(new EventHandler<DragEvent>() {
 //                    @Override
 //                    public void handle(final DragEvent dragEvent) {
-//                        System.out.println("\nDrag dropped on " + obj.getName());
-//                        System.out.println("To Drag: " + getDragItem().getName());
+//                        logger.info("\nDrag dropped on " + obj.getName());
+//                        logger.info("To Drag: " + getDragItem().getName());
 //                        dragEvent.consume();//to disable the drag cursor
 //
 //                        Platform.runLater(new Runnable() {

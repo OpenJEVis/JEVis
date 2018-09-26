@@ -4,8 +4,9 @@
  */
 package org.jevis.jenotifier.notifier.Email;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jenotifier.notifier.Notification;
 import org.joda.time.DateTime;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
  * @author gf
  */
 public class EmailNotification implements Notification {
+    private static final Logger logger = LogManager.getLogger(EmailNotification.class);
 
     private JEVisObject _jenoti;
     private List<String> _receivers;
@@ -242,8 +244,8 @@ public class EmailNotification implements Notification {
                     if (!_receivers.contains(rec)) { // repetitive receivers is not allowed
                         _receivers.add(rec);
                     } else {
-                        Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, "Repetitive Receivers: " + rec + " is not allowed");
-//                        System.out.println("Repetitive Receivers: " + rec + " is not allowed");
+                        logger.info("Repetitive Receivers: " + rec + " is not allowed");
+//                        logger.info("Repetitive Receivers: " + rec + " is not allowed");
                     }
                 }
             }
@@ -283,8 +285,8 @@ public class EmailNotification implements Notification {
                     if (!_carbonCopys.contains(rec)) { // repetitive cc is not allowed
                         _carbonCopys.add(rec);
                     } else {
-                        Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, "Repetitive CC: " + rec + " is not allowed");
-//                        System.out.println("Repetitive CC: " + rec + " is not allowed");
+                        logger.info("Repetitive CC: " + rec + " is not allowed");
+//                        logger.info("Repetitive CC: " + rec + " is not allowed");
                     }
                 }
             }
@@ -324,8 +326,8 @@ public class EmailNotification implements Notification {
                     if (!_blindCarbonCopys.contains(rec)) {
                         _blindCarbonCopys.add(rec);
                     } else {
-                        Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, "Repetitive BCC: " + rec + " is not allowed");
-//                        System.out.println("Repetitive BCC: " + rec + " is not allowed");
+                        logger.info("Repetitive BCC: " + rec + " is not allowed");
+//                        logger.info("Repetitive BCC: " + rec + " is not allowed");
                     }
                 }
             }
@@ -371,8 +373,8 @@ public class EmailNotification implements Notification {
                 } else {
 // newFile.createNewFile();
 // _allAttachmentsAsFile.add(newFile);
-                    Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, "There is no file under this path: " + atch);
-//                    System.out.println("There is no file under this path: " + atch);
+                    logger.info("There is no file under this path: " + atch);
+//                    logger.info("There is no file under this path: " + atch);
                 }
             }
         }
@@ -400,12 +402,12 @@ public class EmailNotification implements Notification {
                         } else {
 // newFile.createNewFile();
 // _allAttachmentsAsFile.add(newFile);
-                            Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, "There is no file under this path: " + atch);
-//                            System.out.println("There is no file under this path: " + atch);
+                            logger.info("There is no file under this path: " + atch);
+//                            logger.info("There is no file under this path: " + atch);
                         }
                     } else {
-                        Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, "Repetitive address: " + atch + " is not allowed");
-//                        System.out.println("Repetitive address: " + atch + " is not allowed");
+                        logger.info("Repetitive address: " + atch + " is not allowed");
+//                        logger.info("Repetitive address: " + atch + " is not allowed");
                     }
                 }
             }
@@ -430,9 +432,9 @@ public class EmailNotification implements Notification {
                 }
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(EmailNotification.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         } catch (IOException ex) {
-            Logger.getLogger(EmailNotification.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -515,8 +517,8 @@ public class EmailNotification implements Notification {
             }
         } else {
             isEmail = false;
-            Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, emailAddresses + " is illegal.");
-//            System.out.println(emailAddresses + " is illegal.");
+            logger.info(emailAddresses + " is illegal.");
+//            logger.info(emailAddresses + " is illegal.");
         }
         return isEmail;
     }
@@ -570,8 +572,8 @@ public class EmailNotification implements Notification {
                     if (!address.contains(strs[i])) { // repetitive address is not allowed
                         address.add(strs[i]);
                     } else {
-                        Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, "Repetitive address: " + strs[i] + " is not allowed");
-//                        System.out.println("Repetitive address: " + strs[i] + " is not allowed");
+                        logger.info("Repetitive address: " + strs[i] + " is not allowed");
+//                        logger.info("Repetitive address: " + strs[i] + " is not allowed");
                     }
                 }
             } else {
@@ -654,33 +656,33 @@ public class EmailNotification implements Notification {
                 setReceivers(String.valueOf(getAttribute(notiObj, RECIPIENTS)));//the second parameter should one to one correspondance with the name in JEConfig
             } catch (IllegalArgumentException ex) {
                 setReceivers(null);
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.ERROR, ex);
+                logger.fatal(ex);
             }
             try {
                 setCarbonCopys(String.valueOf(getAttribute(notiObj, CARBON_COPYS)));
             } catch (IllegalArgumentException ex) {
                 setCarbonCopys(null);
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setBlindCarbonCopys(String.valueOf(getAttribute(notiObj, BLIND_CARBON_COPYS)));
             } catch (IllegalArgumentException ex) {
                 setBlindCarbonCopys(null);
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setSubject(String.valueOf(getAttribute(notiObj, SUBJECT)));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setMessage(String.valueOf(getAttribute(notiObj, MESSAGE)));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             JEVisFile file = null;
             try {
-//                System.out.println(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
+//                logger.info(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
 //                setAttachments(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
 
                 do {
@@ -689,29 +691,29 @@ public class EmailNotification implements Notification {
 
 
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
 
             try {
                 setAttachmentsAsFile(file);
             } catch (IllegalArgumentException ex) {
                 setAttachments(null);
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
 
             try {
                 setIsHTML(Boolean.valueOf(String.valueOf(getAttribute(notiObj, HTML_EMAIL))));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 _enabled = Boolean.valueOf(String.valueOf(getAttribute(notiObj, ENABLED)));
             } catch (IllegalArgumentException ex) {
                 _enabled = false;
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
         } else {
-            Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, notiObj + " is not suitable for Email Notification");
+            logger.info(notiObj + " is not suitable for Email Notification");
         }
     }
 
@@ -732,36 +734,36 @@ public class EmailNotification implements Notification {
                 setReceivers(String.valueOf(getAttribute(notiObj, RECIPIENTS)));//the second parameter should one to one correspondance with the name in JEConfig
             } catch (IllegalArgumentException ex) {
                 setReceivers(null);
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.ERROR, ex);
+                logger.fatal(ex);
             }
             try {
                 setCarbonCopys(String.valueOf(getAttribute(notiObj, CARBON_COPYS)));
             } catch (IllegalArgumentException ex) {
                 setCarbonCopys(null);
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setBlindCarbonCopys(String.valueOf(getAttribute(notiObj, BLIND_CARBON_COPYS)));
             } catch (IllegalArgumentException ex) {
                 setBlindCarbonCopys(null);
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setSubject(String.valueOf(getAttribute(notiObj, SUBJECT)));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 setMessage(String.valueOf(getAttribute(notiObj, MESSAGE)));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
 
             try {
-//                System.out.println(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
+//                logger.info(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
 //                setAttachments(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
 
-                System.out.println("notiObj: " + notiObj.getName() + " Attachment: " + !ATTACHMENTS.isEmpty());
+                logger.info("notiObj: " + notiObj.getName() + " Attachment: " + !ATTACHMENTS.isEmpty());
 
 //                do {
 //                    file = getJEVisFile(notiObj, ATTACHMENTS); //TODO this workaround needs to be fixed
@@ -769,29 +771,29 @@ public class EmailNotification implements Notification {
 
 
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
 
             try {
                 setAttachmentsAsFile(file);
             } catch (IllegalArgumentException ex) {
                 setAttachments(null);
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
 
             try {
                 setIsHTML(Boolean.valueOf(String.valueOf(getAttribute(notiObj, HTML_EMAIL))));
             } catch (IllegalArgumentException ex) {
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             try {
                 _enabled = Boolean.valueOf(String.valueOf(getAttribute(notiObj, ENABLED)));
             } catch (IllegalArgumentException ex) {
                 _enabled = false;
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
         } else {
-            Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, notiObj + " is not suitable for Email Notification");
+            logger.info(notiObj + " is not suitable for Email Notification");
         }
     }
 
@@ -837,10 +839,10 @@ public class EmailNotification implements Notification {
      */
     public boolean isConfigurationObject(JEVisObject notiObj) {
         try {
-//            System.out.println(notiObj.getJEVisClass().getName().equals(_type));
+//            logger.info(notiObj.getJEVisClass().getName().equals(_type));
             return notiObj.getJEVisClass().getName().equals(_type);
         } catch (JEVisException ex) {
-            Logger.getLogger(EmailNotification.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
         return false;
     }
@@ -855,10 +857,10 @@ public class EmailNotification implements Notification {
                     sendDate.add(t.getTimestamp());
                 }
             } else {
-                Logger.getLogger(EmailNotification.class.getName()).log(Level.INFO, "The attribute " + SENT_TIME + " of " + getJEVisObjectNoti().getID() + " does not exist.");
+                logger.info("The attribute " + SENT_TIME + " of " + getJEVisObjectNoti().getID() + " does not exist.");
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(EmailNotification.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
         return sendDate;
     }

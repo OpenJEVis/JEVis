@@ -20,9 +20,9 @@ import java.sql.SQLException;
  * Main class.
  */
 public class Main {
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static final String VERSION = "JEWebService Version 2018-02-20";
-    private static final Logger LOGGER = LogManager.getLogger(Main.class);
 
     /**
      * Main method.
@@ -30,7 +30,7 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) throws SQLException {
-        LOGGER.info("Start - {}", VERSION);
+        logger.info("Start - {}", VERSION);
         //read Config
         File configfile;
 
@@ -41,19 +41,19 @@ public class Main {
             //default workaround
             configfile = new File("config.xml");
             if (!configfile.exists()) {
-                System.out.println("No config file try: using ../config.xml");
+                logger.info("No config file try: using ../config.xml");
                 configfile = new File("../config.xml");
             } else {
-                System.out.println("No config file: try using config.xml");
+                logger.info("No config file: try using config.xml");
             }
         }
         Config.readConfigurationFile(configfile);
 
         //Test Connection parameter
         for (String para : args) {
-            System.out.println("para: " + para);
+            logger.info("para: " + para);
             if (para.equalsIgnoreCase("-test")) {
-                System.out.println("DBHost: " + Config.getDBHost()
+                logger.info("DBHost: " + Config.getDBHost()
                         + "\nDBPort: " + Config.getDBPort()
                         + "\nDBSchema: " + Config.getSchema()
                         + "\nDBUSer: " + Config.getDBUser()
@@ -62,9 +62,9 @@ public class Main {
 
                 Connection dbConn = ConnectionFactory.getInstance().getConnection();
                 if (dbConn.isValid(2000)) {
-                    System.out.println("Database Connection is working");
+                    logger.info("Database Connection is working");
                 } else {
-                    System.out.println("Database Connection is NOT working");
+                    logger.info("Database Connection is NOT working");
                 }
             }
         }
@@ -103,7 +103,7 @@ public class Main {
             throw new RuntimeException(e);
         }
         try {
-            System.out.println("Press CTRL^C to exit..");
+            logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

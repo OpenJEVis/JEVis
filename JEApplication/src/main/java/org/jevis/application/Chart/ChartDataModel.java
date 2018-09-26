@@ -2,6 +2,7 @@ package org.jevis.application.Chart;
 
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.Chart.ChartElements.TableEntry;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
@@ -9,7 +10,7 @@ import org.jevis.commons.dataprocessing.BasicProcess;
 import org.jevis.commons.dataprocessing.BasicProcessOption;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.ProcessOptions;
-import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
+import org.jevis.commons.dataprocessing.function.AggregatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
@@ -19,11 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ChartDataModel {
-
+    private static final Logger logger = LogManager.getLogger(ChartDataModel.class);
 
     private TableEntry tableEntry;
     private String _title;
@@ -40,7 +39,6 @@ public class ChartDataModel {
     private boolean _somethingChanged = true;
     private JEVisUnit _unit;
     private List<String> _selectedCharts = new ArrayList<>();
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ChartDataModel.class);
 
 
     public ChartDataModel() {
@@ -54,7 +52,7 @@ public class ChartDataModel {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ChartPlugin.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return _unit;
     }
@@ -80,35 +78,35 @@ public class ChartDataModel {
                         aggregate = new BasicProcess();
                         aggregate.setJEVisDataSource(ds);
                         aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggrigatorFunction());
+                        aggregate.setFunction(new AggregatorFunction());
                         aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
                         break;
                     case Daily:
                         aggregate = new BasicProcess();
                         aggregate.setJEVisDataSource(ds);
                         aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggrigatorFunction());
+                        aggregate.setFunction(new AggregatorFunction());
                         aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
                         break;
                     case Monthly:
                         aggregate = new BasicProcess();
                         aggregate.setJEVisDataSource(ds);
                         aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggrigatorFunction());
+                        aggregate.setFunction(new AggregatorFunction());
                         aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
                         break;
                     case Weekly:
                         aggregate = new BasicProcess();
                         aggregate.setJEVisDataSource(ds);
                         aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggrigatorFunction());
+                        aggregate.setFunction(new AggregatorFunction());
                         aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
                         break;
                     case Yearly:
                         aggregate = new BasicProcess();
                         aggregate.setJEVisDataSource(ds);
                         aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggrigatorFunction());
+                        aggregate.setFunction(new AggregatorFunction());
                         aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
                         break;
                 }
@@ -395,6 +393,7 @@ public class ChartDataModel {
                                 + " of attribute: " + getAttribute().getName()
                                 + " of object: " + getObject().getName() + ":" + getObject().getID());
                     } catch (Exception e1) {
+                        logger.fatal(e1);
                     }
                 }
             });
@@ -461,11 +460,12 @@ public class ChartDataModel {
         if (_selectedStart != null) {
             return _selectedStart;
         } else if (getAttribute() != null) {
-            DateTime dt = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), 1, 0, 0, 0, 0);
-            dt = dt.minusMonths(1);
+            DateTime dt = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(), 0, 0, 0, 0);
+            dt = dt.minusDays(7);
             DateTime timeStampFromFirstSample = getAttribute().getTimestampFromFirstSample();
 
-            if (timeStampFromFirstSample.isBefore(dt)) _selectedStart = dt;
+            if (timeStampFromFirstSample == null) _selectedStart = dt;
+            else if (timeStampFromFirstSample.isBefore(dt)) _selectedStart = dt;
             else _selectedStart = timeStampFromFirstSample;
 
             return _selectedStart;
@@ -485,7 +485,9 @@ public class ChartDataModel {
         if (_selectedEnd != null) {
             return _selectedEnd;
         } else if (getAttribute() != null) {
-            _selectedEnd = getAttribute().getTimestampFromLastSample();
+            DateTime timeStampFromLastSample = getAttribute().getTimestampFromLastSample();
+            if (timeStampFromLastSample == null) _selectedEnd = DateTime.now();
+            else _selectedEnd = timeStampFromLastSample;
             return _selectedEnd;
         } else {
             return null;
@@ -518,7 +520,7 @@ public class ChartDataModel {
                     _attribute = attribute;
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.fatal(ex);
             }
         }
 

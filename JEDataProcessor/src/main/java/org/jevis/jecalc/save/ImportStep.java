@@ -5,6 +5,8 @@
  */
 package org.jevis.jecalc.save;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -13,8 +15,6 @@ import org.jevis.jecalc.data.*;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class ImportStep implements ProcessStep {
 
-    private static final Logger logger = LoggerFactory.getLogger(ImportStep.class);
+    private static final Logger logger = LogManager.getLogger(ImportStep.class);
 
     @Override
     public void run(ResourceManager resourceManager) {
@@ -44,7 +44,7 @@ public class ImportStep implements ProcessStep {
         try {
             attribute = cleanObject.getAttribute(CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME);
         } catch (JEVisException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
         if (attribute == null) {
             return;
@@ -66,11 +66,11 @@ public class ImportStep implements ProcessStep {
                             JEVisSample sampleSql = attribute.buildSample(timestamp, rawValue, sample.getNote());
                             cleanSamples.add(sampleSql);
                         } catch (JEVisException ex) {
-                            logger.error(null, ex);
+                            logger.error(ex);
                         }
                     }
                 } catch (JEVisException ex) {
-                    logger.error(null, ex);
+                    logger.error(ex);
                 }
             }
         }
@@ -98,7 +98,7 @@ public class ImportStep implements ProcessStep {
                 }
             }
         } catch (IOException | JEVisException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
     }
 }

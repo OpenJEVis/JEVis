@@ -1,54 +1,47 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.cache;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import javax.imageio.ImageIO;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisClassRelationship;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisEvent;
-import org.jevis.api.JEVisEventListener;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisType;
 
 /**
- * @deprecated 
  * @author fs
+ * @deprecated
  */
 public class JEVisClassCache implements JEVisClass, Cached {
+    private static final Logger logger = LogManager.getLogger(JEVisClassCache.class);
 
     private JEVisDataSourceCache cache;
     private JEVisClass otherClass;
     private BufferedImage image;
-    private final Logger logger = LogManager.getLogger(JEVisClassCache.class);
     private List<JEVisType> types;
     private BufferedImage icon = null;
     private List<JEVisClassRelationship> relationships;
@@ -80,8 +73,7 @@ public class JEVisClassCache implements JEVisClass, Cached {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    
-    
+
     @Override
     public String getName() throws JEVisException {
         return otherClass.getName();
@@ -95,7 +87,7 @@ public class JEVisClassCache implements JEVisClass, Cached {
     @Override
     public BufferedImage getIcon() throws JEVisException {
         if (icon == null) {
-            
+
             icon = otherClass.getIcon();
             if (icon == null) {
                 //fallback
@@ -123,9 +115,9 @@ public class JEVisClassCache implements JEVisClass, Cached {
         otherClass.setIcon(icon);
         try {
             setIcon(ImageIO.read(icon));
-//            System.out.println("set icon from file: " + _icon.getWidth());
+//            logger.info("set icon from file: " + _icon.getWidth());
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(JEVisClassCache.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -386,7 +378,7 @@ public class JEVisClassCache implements JEVisClass, Cached {
     }
 
     @Override
-    public JEVisDataSource getDataSource() throws JEVisException {
+    public JEVisDataSource getDataSource() {
         return cache;
     }
 
@@ -399,7 +391,7 @@ public class JEVisClassCache implements JEVisClass, Cached {
     }
 
     @Override
-    public void rollBack() throws JEVisException {
+    public void rollBack() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

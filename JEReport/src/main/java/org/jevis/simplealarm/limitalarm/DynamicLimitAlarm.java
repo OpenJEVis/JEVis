@@ -5,26 +5,20 @@
  */
 package org.jevis.simplealarm.limitalarm;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 import org.jevis.simplealarm.AlarmData;
 import org.jevis.simplealarm.AlarmPeriod;
 import org.joda.time.DateTime;
 
+import java.util.*;
+
 /**
- *
  * @author fs
  */
 public class DynamicLimitAlarm extends LimitAlarm {
-
+    private static final Logger logger = LogManager.getLogger(DynamicLimitAlarm.class);
     public final static String TOLERANCE = "Tolerance";
     public static String ALARM_CLASS = "Dynamic Limit Alarm";
     public static String COMPERATOR_DR = "Limit Data";
@@ -46,7 +40,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
 
     /**
      * Returns the most valid offset value for the given timestamp.
-     *
+     * <p>
      * This version simply returns latest value but maybe later we want to have
      * want to use the history function
      *
@@ -67,7 +61,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
     }
 
     @Override
-    public void checkAlarm() throws JEVisException {
+    public void checkAlarm() {
 
     }
 
@@ -81,12 +75,12 @@ public class DynamicLimitAlarm extends LimitAlarm {
      */
     public List<AlarmPeriod> makeAlarmReport(DateTime from, DateTime until) throws JEVisException {
         if (!_enabled) {
-            System.out.println("Alarm " + alarmObj.getName() + " is disabled");
+            logger.info("Alarm " + alarmObj.getName() + " is disabled");
             return new ArrayList<>();
         }
 
         DateTime lastUpdate = getLastUpdate();
-        System.out.println("Last Update: " + lastUpdate);
+        logger.info("Last Update: " + lastUpdate);
         Map<DateTime, JEVisSample> leftSamples = getLeftSamples(alarmObj, "Value", from, until);
         Map<DateTime, JEVisSample> rightSamples = getRightSamples(alarmObj, "Value", leftSamples);
         List<JEVisSample> offsets = getOffsets(_offset);
@@ -104,7 +98,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
         List<AlarmPeriod> alarmPeriods = new ArrayList<>();
 
         for (Map.Entry<DateTime, JEVisSample> entry : leftSamples.entrySet()) {
-            System.out.println("Date: " + entry.getKey());
+            logger.info("Date: " + entry.getKey());
         }
 
         for (Map.Entry<DateTime, JEVisSample> entry : leftSamples.entrySet()) {
@@ -136,7 +130,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
 
                 JEVisUnit unit = valueSoll.getUnit();
                 boolean alarmRaised = false;
-//                System.out.println("Date: " + key + "  Ist: [" + valueSoll.getValueAsDouble() + "]    Soll: [" + valueWithOffset + "]");
+//                logger.info("Date: " + key + "  Ist: [" + valueSoll.getValueAsDouble() + "]    Soll: [" + valueWithOffset + "]");
 
                 switch (opeator) {
                     case SMALER:
@@ -147,7 +141,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
                     case BIGGER:
                         if (valueSoll.getValueAsDouble() > valueWithOffset) {
                             alarmRaised = true;
-                            System.out.println("----Alarm at: " + key);
+                            logger.info("----Alarm at: " + key);
                         }
                         break;
                     case EQUALS:
@@ -177,7 +171,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
 
             } catch (Exception ex) {
                 ex.printStackTrace();
-//                System.out.println("cannot compare samples: " + ex);
+//                logger.info("cannot compare samples: " + ex);
             }
 
         }
@@ -186,7 +180,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
     }
 
     private Map<DateTime, JEVisSample> getRightSamples(JEVisObject alarm, String attribute, Map<DateTime, JEVisSample> leftSamples) throws JEVisException {
-        System.out.println("getRightSamples");
+        logger.info("getRightSamples");
         DateTime firstTS = null;
         DateTime lastTs = null;
         for (Map.Entry<DateTime, JEVisSample> entry : leftSamples.entrySet()) {
@@ -202,14 +196,14 @@ public class DynamicLimitAlarm extends LimitAlarm {
 
         if (firstTS != null) {
             JEVisAttribute att = alarm.getAttribute(COMPERATOR_DR);
-            System.out.println("Refferrenz Data Point: " + att);
+            logger.info("Refferrenz Data Point: " + att);
             Long id = att.getLatestSample().getValueAsLong();
-            System.out.println("ID: " + id);
+            logger.info("ID: " + id);
             JEVisObject rightObj = alarm.getDataSource().getObject(id);
-            System.out.println("rightObj: " + rightObj);
+            logger.info("rightObj: " + rightObj);
 
             JEVisAttribute valueAtt = rightObj.getAttribute(attribute);
-            System.out.println("valueAtt: " + valueAtt);
+            logger.info("valueAtt: " + valueAtt);
             List<JEVisSample> samples = valueAtt.getSamples(firstTS, lastTs);
             return listToMap(samples);
         } else {
@@ -219,14 +213,14 @@ public class DynamicLimitAlarm extends LimitAlarm {
     }
 
     private Map<DateTime, JEVisSample> getLeftSamples(JEVisObject alarm, String attribute, DateTime from, DateTime until) throws JEVisException {
-        System.out.println("getLeftSamples");
+        logger.info("getLeftSamples");
         JEVisObject dataPoint = alarm.getParents().get(0);//not save
-//        System.out.println("Data Object: " + dataPoint);
+//        logger.info("Data Object: " + dataPoint);
 
         JEVisAttribute att = dataPoint.getAttribute(attribute);
-//        System.out.println("Attribute: " + att);
+//        logger.info("Attribute: " + att);
         List<JEVisSample> samples = att.getSamples(from, until);
-        System.out.println("Samples to check: " + samples.size());
+        logger.info("Samples to check: " + samples.size());
         return listToMap(samples);
     }
 
@@ -236,7 +230,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
             try {
                 map.put(sample.getTimestamp(), sample);
             } catch (Exception ex) {
-                System.out.println("Waring, Cannot read sample");
+                logger.info("Waring, Cannot read sample");
             }
         }
         return map;

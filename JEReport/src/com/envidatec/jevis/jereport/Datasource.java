@@ -11,8 +11,8 @@ import envidatec.jevis.capi.data.TimeSet;
 import envidatec.jevis.capi.nodes.NodeManager;
 import envidatec.jevis.capi.nodes.RegTreeNode;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+
 
 /**
  * Diese Klasse hält die verschiedenen möglichen Funktionen!
@@ -62,22 +62,22 @@ public class Datasource {
 
         timeSet = property.getTimeSet();
 
-//        System.out.println("CURRENT VAL" + r.getCurrentValue());
+//        logger.info("CURRENT VAL" + r.getCurrentValue());
         //überprüfen, ob datenreihe auch wirklich die entsprechenden Werte enthält(also zB monatswerte usw)
         identifier = identi;
 
 
-//        System.out.println("Time from " + time.getFrom().toString());
-//        System.out.println("Time to " + time.getUntil());
-//        System.out.println("Nodeid " + r.getID());
+//        logger.info("Time from " + time.getFrom().toString());
+//        logger.info("Time to " + time.getUntil());
+//        logger.info("Nodeid " + r.getID());
 
         siMap = NodeManager.getInstance().registryDataRequest(r, timeSet);
-//        System.out.println("--SAMPLELIST--SIMAP- " + siMap.size());
+//        logger.info("--SAMPLELIST--SIMAP- " + siMap.size());
 //        map = NodeManager.getInstance().registryDataRequest(r, time);
         map = r.getDisplayUnit().convertFromSIMap(siMap);
-//        System.out.println("--SAMPLELIST--Map-- " + map.size());
+//        logger.info("--SAMPLELIST--Map-- " + map.size());
         sampleList = map.getListOfSamples();
-//        System.out.println("--SAMPLELIST--SITE-- " + sampleList.size());
+//        logger.info("--SAMPLELIST--SITE-- " + sampleList.size());
         siOldMap = NodeManager.getInstance().registryDataRequest(r, property.getOldTimeSet());
         oldMap = r.getDisplayUnit().convertFromSIMap(siOldMap);
 
@@ -121,8 +121,8 @@ public class Datasource {
             JevCalendar until = new JevCalendar(new Date(set.getUntil().getTimeInMillis() + 1000000000
                     - Calendar.getInstance().getTimeZone().getOffset(set.getUntil().clone().getTimeInMillis())));
             TimeSet newSet = new TimeSet(from, until);
-//            System.out.println("TimeSet Kennzahl von " + newSet.getFrom());
-//            System.out.println("TimeSet Kennzahl bis " + newSet.getUntil());
+//            logger.info("TimeSet Kennzahl von " + newSet.getFrom());
+//            logger.info("TimeSet Kennzahl bis " + newSet.getUntil());
             siMap = NodeManager.getInstance().registryDataRequest(node, newSet);
             map = NodeManager.getInstance().registryDataRequest(node, newSet);
 //        map = NodeManager.getInstance().registryDataRequest(r, time);

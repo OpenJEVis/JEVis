@@ -5,10 +5,8 @@
  */
 package org.jevis.report3.process;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -16,13 +14,16 @@ import org.jevis.api.JEVisSample;
 import org.jevis.report3.data.attribute.ReportAttributeProperty;
 import org.jevis.report3.data.report.ReportProperty;
 import org.jevis.report3.data.reportlink.ReportLinkProperty;
-import org.joda.time.Interval;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author broder
  */
 public class LastSampleGenerator implements SampleGenerator {
+    private static final Logger logger = LogManager.getLogger(LastSampleGenerator.class);
 
     @Override
     public Map<String, Object> work(ReportLinkProperty linkData, ReportAttributeProperty attributeData, ReportProperty property) {
@@ -36,7 +37,7 @@ public class LastSampleGenerator implements SampleGenerator {
                 resultMap = ProcessHelper.getAttributeSample(latestSample, attr, property.getTimeZone());
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(LastSampleGenerator.class.getName()).log(Level.ERROR, "Cant collect samples for attribute: " + attributeData.getAttributeName(), ex);
+            logger.error("Cant collect samples for attribute: " + attributeData.getAttributeName(), ex);
         }
         return resultMap;
     }

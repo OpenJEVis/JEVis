@@ -5,21 +5,18 @@
  */
 package org.jevis.commons.database;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisType;
 
 /**
- *
  * @author broder
  */
 public class ClassHandler {
 
+    private static final Logger logger = LogManager.getLogger(ClassHandler.class);
     private final JEVisDataSource dataSource;
 
     public ClassHandler(JEVisDataSource dataSource) {
@@ -32,20 +29,20 @@ public class ClassHandler {
             jeVisClass.setName(periodicReport);
             jeVisClass.commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
     public void printClass(String report) {
         try {
             JEVisClass jeVisClass = dataSource.getJEVisClass(report);
-            System.out.println(jeVisClass.getName());
+            logger.info(jeVisClass.getName());
             for (JEVisType attribute : jeVisClass.getTypes()) {
-                System.out.println(attribute.getName());
+                logger.info(attribute.getName());
             }
             jeVisClass.commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -54,7 +51,7 @@ public class ClassHandler {
             dataSource.buildClass(className);
 
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -66,7 +63,7 @@ public class ClassHandler {
             jeVisChildClass.commit();
 
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -80,7 +77,7 @@ public class ClassHandler {
             }
             jeVisClass.commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -90,7 +87,7 @@ public class ClassHandler {
             jeVisClass.buildType(typeName).setPrimitiveType(primitivType);
             jeVisClass.commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -100,7 +97,7 @@ public class ClassHandler {
             jeVisClass.buildType(typeName);
             jeVisClass.commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -110,7 +107,7 @@ public class ClassHandler {
             jeVisClass.setIcon(new File(iconPath));
             jeVisClass.commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -122,7 +119,7 @@ public class ClassHandler {
             jeVisChildClass.commit();
 
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -134,7 +131,7 @@ public class ClassHandler {
             type.commit();
             jeVisClass.commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 }

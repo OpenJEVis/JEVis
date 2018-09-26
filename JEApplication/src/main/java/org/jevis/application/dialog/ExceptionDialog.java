@@ -1,33 +1,25 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.dialog;
 
-import java.awt.Desktop;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -52,8 +44,17 @@ import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.commons.application.ApplicationInfo;
+
+import java.awt.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  *
@@ -61,22 +62,12 @@ import org.jevis.commons.application.ApplicationInfo;
  */
 public class ExceptionDialog {
 
+    private static final Logger logger = LogManager.getLogger(ExceptionDialog.class);
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON_WARNING = "1401136217_exclamation-diamond_red.png";
 
     private static String MAIL_TO = "info@envidatec.com";
     private static String MAIL_SUBJECT = "Error Report";
-
-    public static enum Response {
-
-        RETRY, CANCEL
-    };
-
-    private Response response = Response.CANCEL;
-
-    public Response show(Stage owner, String title, String titleLong, Exception ex, ApplicationInfo info) {
-        return show(owner, title, titleLong, ex.toString(), ex, info);
-    }
 
     public Response show(Stage owner, String title, String titleLong, String message, final Exception ex, final ApplicationInfo info) {
         final Stage stage = new Stage();
@@ -157,7 +148,7 @@ public class ExceptionDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 stage.close();
 //                isOK.setValue(true);
                 response = Response.CANCEL;
@@ -209,6 +200,47 @@ public class ExceptionDialog {
         stage.showAndWait();
 
         return response;
+    }
+
+    private Response response = Response.CANCEL;
+
+    public Response show(Stage owner, String title, String titleLong, Exception ex, ApplicationInfo info) {
+        return show(owner, title, titleLong, ex.toString(), ex, info);
+    }
+
+    private void report(String message) {
+        String uri = String.format("mailto:%s?subject=%s&body=%s", MAIL_TO, MAIL_SUBJECT, message);
+
+        uri = uri.replaceAll(" ", "%20");
+        uri = uri.replaceAll("\t", "%20");
+        uri = uri.replaceAll("\n", "%0D%0A");
+
+        logger.info("Send :\n" + uri);
+        try {
+//            URI open = new URI(uri);
+
+            if (Desktop.isDesktopSupported()) {
+                logger.info("Desktop is supportet");
+                Desktop.getDesktop().mail(new URI(uri));
+            } else {
+                //TODO: maybe disable send button if not suppotret at all
+                logger.info("Desktop is not Supportet");
+                if (System.getProperty("os.name").equals("Linux")) {
+                    logger.info("is limux using xdg-open");
+                    Runtime.getRuntime().exec("xdg-open " + uri);
+                } else if (System.getProperty("os.name").equals("Windows")) {
+                    Runtime.getRuntime().exec(uri);//TODo check if this is right
+                } else {
+                    //TODO: implement MAC and show also messeage to user
+                    logger.info("Cannot send");
+                }
+            }
+
+            //does not work an linux
+            //
+        } catch (Exception ex1) {
+            logger.fatal(ex1);
+        }
     }
 
     private void showDetails(Stage owner, final Exception ex, final ApplicationInfo pInfo) {
@@ -307,39 +339,9 @@ public class ExceptionDialog {
         return sw.toString();
     }
 
-    private void report(String message) {
-        String uri = String.format("mailto:%s?subject=%s&body=%s", MAIL_TO, MAIL_SUBJECT, message);
+    public enum Response {
 
-        uri = uri.replaceAll(" ", "%20");
-        uri = uri.replaceAll("\t", "%20");
-        uri = uri.replaceAll("\n", "%0D%0A");
-
-        System.out.println("Send :\n" + uri);
-        try {
-//            URI open = new URI(uri);
-
-            if (Desktop.isDesktopSupported()) {
-                System.out.println("Desktop is supportet");
-                Desktop.getDesktop().mail(new URI(uri));
-            } else {
-                //TODO: maybe disable send button if not suppotret at all
-                System.out.println("Desktop is not Supportet");
-                if (System.getProperty("os.name").equals("Linux")) {
-                    System.out.println("is limux using xdg-open");
-                    Runtime.getRuntime().exec("xdg-open " + uri);
-                } else if (System.getProperty("os.name").equals("Windows")) {
-                    Runtime.getRuntime().exec(uri);//TODo check if this is right
-                } else {
-                    //TODO: implement MAC and show also messeage to user
-                    System.out.println("Cannot send");
-                }
-            }
-
-            //does not work an linux
-            //
-        } catch (Exception ex1) {
-            Logger.getLogger(ExceptionDialog.class.getName()).log(Level.SEVERE, null, ex1);
-        }
+        RETRY, CANCEL
     }
 
     private String getMessage(final ApplicationInfo info, final Exception ex) {

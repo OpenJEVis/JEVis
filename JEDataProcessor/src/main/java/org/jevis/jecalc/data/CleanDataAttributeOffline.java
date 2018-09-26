@@ -5,6 +5,8 @@
  */
 package org.jevis.jecalc.data;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -15,8 +17,6 @@ import org.jevis.jecalc.util.DataRowReader;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.ISOPeriodFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private Boolean limitsEnabled;
     private Boolean gapFillingEnabled;
-    private static final Logger logger = LoggerFactory.getLogger(CleanDataAttributeOffline.class);
+    private static final Logger logger = LogManager.getLogger(CleanDataAttributeOffline.class);
 
     private JEVisObject object;
     private List<JEVisSample> counterOverflow;
@@ -60,7 +60,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
             int year = firstTimestamp.getYear();
             date = new DateTime(year, 1, 1, 0, 0);
         } catch (JEVisException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
 
         this.pathToOutput = pathToOutput;
@@ -77,7 +77,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
             try {
                 return rawSample.get(rawSample.size() - 1).getTimestamp().plusSeconds(periodOffset).plus(periodAlignment);
             } catch (JEVisException ex) {
-                logger.error(null, ex);
+                logger.error(ex);
             }
         }
         return null;
@@ -139,7 +139,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
 
 
         } catch (IOException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
     }
 

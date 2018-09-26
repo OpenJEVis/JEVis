@@ -36,11 +36,13 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.dialog.DialogHeader;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
+import org.jevis.commons.dataprocessing.function.AggregatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
@@ -51,8 +53,6 @@ import org.joda.time.Period;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * GUI Dialog to configure attributes and there sample.
@@ -61,7 +61,7 @@ import java.util.logging.Logger;
  * @TODO: rename it to Attribute editor or something?!
  */
 public class SampleEditor {
-
+    private static final Logger logger = LogManager.getLogger(SampleEditor.class);
     public static String ICON = "1415314386_Graph.png";
     private boolean _dataChanged = false;
     private SampleEditorExtension _visibleExtension = null;
@@ -188,7 +188,7 @@ public class SampleEditor {
         for (SampleEditorExtension ex : extensions) {
 //            _dataChanged
 //            if (fistEx) {
-//                System.out.println("is first");
+//                logger.info("is first");
 //                ex.setSamples(attribute, samples);
 //                ex.update();
 //                fistEx = false;
@@ -243,7 +243,7 @@ public class SampleEditor {
 
             @Override
             public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
-//                System.out.println("tabPane.getSelectionModel(): " + t1.getText());
+//                logger.info("tabPane.getSelectionModel(): " + t1.getText());
 
                 for (SampleEditorExtension ex : extensions) {
                     if (ex.getTitel().equals(t1.getText())) {
@@ -333,7 +333,7 @@ public class SampleEditor {
             }
 
         } catch (Exception ex) {
-            Logger.getLogger(SampleTableExtension.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
 
         ChoiceBox processorBox = new ChoiceBox();
@@ -365,7 +365,7 @@ public class SampleEditor {
                     }
 
                 } catch (JEVisException ex) {
-                    Logger.getLogger(SampleTableExtension.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });
@@ -464,36 +464,36 @@ public class SampleEditor {
                 aggrigate = new BasicProcess();
                 aggrigate.setJEVisDataSource(att.getDataSource());
                 aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggrigatorFunction());
+                aggrigate.setFunction(new AggregatorFunction());
 
                 aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
             } else if (_mode == AGGREGATION.Daily) {
                 aggrigate = new BasicProcess();
                 aggrigate.setJEVisDataSource(att.getDataSource());
                 aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggrigatorFunction());
+                aggrigate.setFunction(new AggregatorFunction());
 
                 aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
             } else if (_mode == AGGREGATION.Monthly) {
                 aggrigate = new BasicProcess();
                 aggrigate.setJEVisDataSource(att.getDataSource());
                 aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggrigatorFunction());
+                aggrigate.setFunction(new AggregatorFunction());
                 aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
 //                aggrigate.addOption(Options.PERIOD, Period.months(1).toString());
             } else if (_mode == AGGREGATION.Weekly) {
                 aggrigate = new BasicProcess();
                 aggrigate.setJEVisDataSource(att.getDataSource());
                 aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggrigatorFunction());
+                aggrigate.setFunction(new AggregatorFunction());
                 aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
 //                aggrigate.addOption(Options.PERIOD, Period.weeks(1).toString());
             } else if (_mode == AGGREGATION.Yearly) {
-                System.out.println("year.....  " + Period.years(1).toString());
+                logger.info("year.....  " + Period.years(1).toString());
                 aggrigate = new BasicProcess();
                 aggrigate.setJEVisDataSource(att.getDataSource());
                 aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggrigatorFunction());
+                aggrigate.setFunction(new AggregatorFunction());
                 aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
 //                aggrigate.addOption(Options.PERIOD, Period.years(1).toString());
             }

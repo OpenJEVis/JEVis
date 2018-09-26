@@ -1,28 +1,25 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.unit;
 
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -32,27 +29,26 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.UnitManager;
 
+import java.util.Locale;
+
 /**
- * @deprecated 
+ * @deprecated
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class UnitPanel extends GridPane {
+    private static final Logger logger = LogManager.getLogger(UnitPanel.class);
 
     private final JEVisUnit _returnUnit;
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(UnitPanel.class);
 
     public UnitPanel(JEVisDataSource ds, JEVisUnit unit, boolean showRemember) {
         super();
@@ -149,7 +145,7 @@ public class UnitPanel extends GridPane {
                         printExample(labelField, _returnUnit);
                     }
                 } catch (JEVisException ex) {
-                    Logger.getLogger(UnitPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
 
             }

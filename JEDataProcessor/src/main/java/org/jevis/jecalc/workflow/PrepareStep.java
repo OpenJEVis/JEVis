@@ -5,6 +5,8 @@
  */
 package org.jevis.jecalc.workflow;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jecalc.data.CleanDataAttribute;
@@ -17,8 +19,6 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class PrepareStep implements ProcessStep {
 
-    private static final Logger logger = LoggerFactory.getLogger(PrepareStep.class);
+    private static final Logger logger = LogManager.getLogger(PrepareStep.class);
 
     @Override
 
@@ -98,7 +98,7 @@ public class PrepareStep implements ProcessStep {
                 CleanInterval currentInterval = new CleanInterval(interval, startInterval);
                 cleanIntervals.add(currentInterval);
             } catch (JEVisException ex) {
-                logger.error(null, ex);
+                logger.fatal(ex);
             }
         }
         logger.info("{} intervals calculated", cleanIntervals.size());

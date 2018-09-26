@@ -38,7 +38,7 @@ public class OptionTreeItem extends TreeItem<JEVisOption> {
         isLeaf = value.getOptions().isEmpty();
 
         for (JEVisOption opt : value.getOptions()) {
-//            System.out.println("--addChild: " + opt.getKey());
+//            logger.info("--addChild: " + opt.getKey());
             OptionTreeItem item = new OptionTreeItem(opt);
             item.setExpanded(true);
             super.getChildren().add(item);
@@ -58,7 +58,7 @@ public class OptionTreeItem extends TreeItem<JEVisOption> {
 
 //    @Override
 //    public ObservableList<TreeItem<JEVisOption>> getChildren() {
-//        System.out.println("-");
+//        logger.info("-");
 //
 //
 //        return super.getChildren(); //To change body of generated methods, choose Tools | Templates.

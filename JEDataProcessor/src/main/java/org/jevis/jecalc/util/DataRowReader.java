@@ -5,12 +5,12 @@
  */
 package org.jevis.jecalc.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -22,7 +22,7 @@ import java.util.List;
  * @author broder
  */
 public class DataRowReader {
-    private static final Logger logger = LoggerFactory.getLogger(DataRowReader.class);
+    private static final Logger logger = LogManager.getLogger(DataRowReader.class);
 
     public List<JEVisSample> getSamplesFromFile(String pathToInputFile) {
         List<JEVisSample> jevisSamples = new ArrayList<>();
@@ -42,7 +42,7 @@ public class DataRowReader {
                 line = br.readLine();
             }
         } catch (IOException ex) {
-            logger.error(null, ex);
+            logger.error(ex);
         }
         return jevisSamples;
     }

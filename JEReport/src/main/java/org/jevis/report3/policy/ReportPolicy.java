@@ -5,19 +5,19 @@
  */
 package org.jevis.report3.policy;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.report3.data.report.ReportAttributes;
-import org.jevis.report3.data.report.ReportProperty;
-import org.joda.time.DateTime;
 
 /**
  *
  * @author broder
  */
 public class ReportPolicy {
+    private static final Logger logger = LogManager.getLogger(ReportPolicy.class);
 
 //    public Boolean isReportDateReached(ReportProperty dataHandler) {
 //        DateTime reportDate = dataHandler.getEndRecord();
@@ -39,7 +39,7 @@ public class ReportPolicy {
             }
 
         } catch (JEVisException ex) {
-            Logger.getLogger(ReportPolicy.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
         return false;
     }

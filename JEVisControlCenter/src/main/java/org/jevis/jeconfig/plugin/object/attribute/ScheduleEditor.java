@@ -22,6 +22,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.RangeSlider;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
@@ -29,12 +31,11 @@ import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
 
 /**
- * @deprecated This class is work in prozess
- *
  * @author Benjamin Reich
+ * @deprecated This class is work in prozess
  */
 public class ScheduleEditor implements AttributeEditor {
-
+    private static final Logger logger = LogManager.getLogger(ScheduleEditor.class);
     GridPane _editor = new GridPane();
 
     public JEVisAttribute _attribute;
@@ -100,7 +101,6 @@ public class ScheduleEditor implements AttributeEditor {
     }
 
     /**
-     *
      * @param sun
      * @param sat
      * @param fri
@@ -122,9 +122,9 @@ public class ScheduleEditor implements AttributeEditor {
         mask[25] = tues;
         mask[24] = mon;
 
-//        System.out.println("StartTime: " + startTime + "    - Endtime: " + endTime + "\n");
+//        logger.info("StartTime: " + startTime + "    - Endtime: " + endTime + "\n");
         for (int i = startTime; i < endTime; i++) {
-            System.out.println("[" + i + "]=1");
+            logger.info("[" + i + "]=1");
             mask[i] = 1;
         }
 
@@ -132,20 +132,20 @@ public class ScheduleEditor implements AttributeEditor {
 //        for (int i = 0; i <= mask.length - 1; i++) {
 //            System.out.print(mask[i]);
 //        }
-//        System.out.println("");
+//        logger.info("");
         int result = 0;
         for (int i = 0; i < 31; i++) {
             int bit_wert = (int) Math.pow(2, i);
             result = result + bit_wert * mask[i];
         }
 
-        System.out.println("Restult for " + _attribute.getName() + ": " + result);
+        logger.info("Restult for " + _attribute.getName() + ": " + result);
         return result;
 
     }
 
     private void buildGUI() {
-//        System.out.println("build gui Schedule");
+//        logger.info("build gui Schedule");
 
         BooleanProperty block = new SimpleBooleanProperty(false);
 
@@ -258,7 +258,7 @@ public class ScheduleEditor implements AttributeEditor {
             if (!oldValue.equals(newValue)) {
                 if (!block.getValue()) {
                     //block.setValue(true);
-//                    System.out.println("hight new value; " + newValue);
+//                    logger.info("hight new value; " + newValue);
                     highValueTextField.setText(stringConverter.toString(newValue));
                     //block.setValue(false);
                 }
@@ -315,7 +315,7 @@ public class ScheduleEditor implements AttributeEditor {
         _editor.add(highValueTextField, 3, 1);
 
 //        _editor.getChildren().addAll(lowValueTextField, label1, highValueTextField, sl);
-//        System.out.println("start fun");
+//        logger.info("start fun");
         //Load settings ind JEVisDB
         try {
 
@@ -334,15 +334,15 @@ public class ScheduleEditor implements AttributeEditor {
                 _oldValue = bitMask;
             }
 
-//            System.out.println("times value: " + _times);
-//            System.out.println("_days value: " + _days);
+//            logger.info("times value: " + _times);
+//            logger.info("_days value: " + _days);
             if (hasSample) {
                 int startHour = getStartTime();
                 int endHour = getEndTime();
 
                 lowValueTextField.setText("" + (startHour));
                 highValueTextField.setText("" + (endHour));
-//                System.out.println("time: " + startHour + " - " + endHour);
+//                logger.info("time: " + startHour + " - " + endHour);
 
                 monday.setSelected(isDayInPeriod(1));
                 tuesday.setSelected(isDayInPeriod(2));
@@ -361,7 +361,6 @@ public class ScheduleEditor implements AttributeEditor {
     }
 
     /**
-     *
      * @param rs
      * @param mon
      * @param tu
@@ -376,9 +375,9 @@ public class ScheduleEditor implements AttributeEditor {
         EventHandler handler = new EventHandler() {
             @Override
             public void handle(Event event) {
-//                System.out.println("EventSource: " + event.getSource().toString());
-//                System.out.println("mon: " + mon.isSelected());
-//                System.out.println("rs: " + rs.getLowValue() + " - " + rs.getHighValue());
+//                logger.info("EventSource: " + event.getSource().toString());
+//                logger.info("mon: " + mon.isSelected());
+//                logger.info("rs: " + rs.getLowValue() + " - " + rs.getHighValue());
 
                 int sunB = sun.isSelected() ? 1 : 0;
                 int satB = sat.isSelected() ? 1 : 0;
@@ -389,7 +388,7 @@ public class ScheduleEditor implements AttributeEditor {
                 int monB = mon.isSelected() ? 1 : 0;
 
                 int map = buildBitmap(sunB, satB, friB, tuB, webB, thuB, monB, (int) rs.getLowValue(), (int) rs.getHighValue());
-//                System.out.println("Result: " + map);
+//                logger.info("Result: " + map);
                 _newValue = map;
                 hasChangedProperty.setValue(true);
             }
@@ -413,7 +412,7 @@ public class ScheduleEditor implements AttributeEditor {
 
     @Override
     public void commit() throws JEVisException {
-        System.out.println("save new value: " + _newValue);
+        logger.info("save new value: " + _newValue);
         if (hasChanged()) {
             JEVisSample newSample = _attribute.buildSample(new DateTime(), _newValue);
             newSample.commit();

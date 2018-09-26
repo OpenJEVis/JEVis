@@ -5,9 +5,8 @@
  */
 package org.jevis.report3.context;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.report3.data.attribute.AttributeConfiguration;
 import org.jevis.report3.data.attribute.AttributeConfigurationFactory;
@@ -18,11 +17,14 @@ import org.jevis.report3.process.PeriodSampleGenerator;
 import org.jevis.report3.process.SampleGenerator;
 import org.joda.time.Interval;
 
+import java.util.List;
+
 /**
  *
  * @author broder
  */
 public class SampleFactory {
+    private static final Logger logger = LogManager.getLogger(SampleFactory.class);
 
     public SampleFactory() {
     }
@@ -34,7 +36,7 @@ public class SampleFactory {
         for (AttributeConfiguration config : configurations) {
             if (config.getConfigType().equals(AttributeConfigurationFactory.ReportConfigurationType.SampleGenerator)) {
                 if (validSampleGenerator) {
-                    System.out.println(" 2 sample generators");
+                    logger.info("valid sample generators");
                 } else {
                     validSampleGenerator = true;
                     sampleGenerator = getSampleGenerator(config, intervalCalc);
@@ -62,7 +64,7 @@ public class SampleFactory {
                     IntervalCalculator.PeriodModus modus = IntervalCalculator.PeriodModus.valueOf(modusName.toUpperCase());
                     interval = intervalCalc.getInterval(modus);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(SampleFactory.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error(ex);
                 }
                 sampleGenerator = new PeriodSampleGenerator(interval);
             }

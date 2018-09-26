@@ -36,6 +36,11 @@
       "start": "Report Directory",
       "end": "Building",
       "type": 3
+    },
+    {
+      "start": "Alarm Directory",
+      "end": "Building",
+      "type": 3
     }
   ],
   "types": [

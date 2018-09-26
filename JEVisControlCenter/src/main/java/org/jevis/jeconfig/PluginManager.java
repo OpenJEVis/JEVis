@@ -31,9 +31,11 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jeconfig.map.MapViewPlugin;
-import org.jevis.jeconfig.plugin.browser.ISO5001Browser;
+import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.scada.SCADAPlugin;
@@ -50,6 +52,7 @@ import java.util.List;
  */
 public class PluginManager {
 
+    private static final Logger logger = LogManager.getLogger(PluginManager.class);
     private List<Plugin> _plugins = new ArrayList<>();
     private JEVisDataSource _ds;
     private boolean _watermark = true;
@@ -89,7 +92,7 @@ public class PluginManager {
 //        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
         plugins.add(new SCADAPlugin(_ds));
-        plugins.add(new ISO5001Browser(_ds));
+        plugins.add(new ISO50001Browser(_ds));
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
         plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
         plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.map.title")));
@@ -120,19 +123,19 @@ public class PluginManager {
 
             List<JEVisObject> servicesDir = _ds.getObjects(servicesClass, false);
             if (servicesDir == null || servicesDir.isEmpty()) {
-                System.out.println("Warning missing ServicesDirectory");
+                logger.info("Warning missing ServicesDirectory");
                 return;
             }
 
             List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
             if (controlCenterObj == null || controlCenterObj.isEmpty()) {
-                System.out.println("Warning missing ControlCenter");
+                logger.info("Warning missing ControlCenter");
                 return;
             }
 
             List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
             if (pluginObjs == null || pluginObjs.isEmpty()) {
-                System.out.println("Warning No Plugins installed");
+                logger.info("Warning No Plugins installed");
                 return;
             }
 

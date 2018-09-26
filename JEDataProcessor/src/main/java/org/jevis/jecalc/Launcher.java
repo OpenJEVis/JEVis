@@ -5,10 +5,10 @@
  */
 package org.jevis.jecalc;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jecalc.workflow.ProcessManager;
 import org.jevis.jecalc.workflow.ProcessManagerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class Launcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(Launcher.class);
+    private static final Logger logger = LogManager.getLogger(Launcher.class);
     private int cycleTime = 1800000;
 
     public static void main(String[] args) {

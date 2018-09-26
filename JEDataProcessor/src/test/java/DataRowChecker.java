@@ -1,3 +1,5 @@
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jecalc.data.CleanDataAttribute;
@@ -6,8 +8,6 @@ import org.jevis.jecalc.util.DataRowReader;
 import org.jevis.jecalc.workflow.ProcessManager;
 import org.joda.time.DateTime;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 /*
@@ -20,7 +20,7 @@ import java.util.List;
  * @author broder
  */
 public class DataRowChecker {
-    private static final Logger logger = LoggerFactory.getLogger(DataRowChecker.class);
+    private static final Logger logger = LogManager.getLogger(DataRowChecker.class);
 
     public void validate(String pathToInputFile, String pathToCleanConfigFile, String pathToRealOutput, String pathToCorrectOutput) {
         this.run(pathToInputFile, pathToCleanConfigFile, pathToRealOutput);
@@ -42,7 +42,7 @@ public class DataRowChecker {
                 DateTime correctDateTime = correctSample.getTimestamp();
                 Assert.assertEquals("same timestamp", realDateTime, correctDateTime);
             } catch (JEVisException ex) {
-                logger.error(null, ex);
+                logger.error(ex);
             }
         }
 

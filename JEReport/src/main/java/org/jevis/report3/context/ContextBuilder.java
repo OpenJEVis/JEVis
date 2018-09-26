@@ -5,10 +5,8 @@
  */
 package org.jevis.report3.context;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.inject.Inject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.report3.data.attribute.AttributeConfiguration;
 import org.jevis.report3.data.attribute.ReportAttributeProperty;
 import org.jevis.report3.data.report.IntervalCalculator;
@@ -17,12 +15,17 @@ import org.jevis.report3.data.reportlink.ReportData;
 import org.jevis.report3.data.reportlink.ReportLinkProperty;
 import org.jevis.report3.process.SampleGenerator;
 
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- *
  * @author broder
  */
 public class ContextBuilder {
 
+    private static final Logger logger = LogManager.getLogger(ContextBuilder.class);
     private final SampleFactory sampleFactory;
     private IntervalCalculator intervalCalc;
 
@@ -58,12 +61,16 @@ public class ContextBuilder {
 
     public Map<String, Object> buildContext(List<ReportData> reportLinkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
         Map<String, Object> templateMap = new HashMap<>();
-        for (ReportData linkProperty : reportLinkProperty) {
-            templateMap.putAll(linkProperty.getReportMap(property,intervalCalc));
-//            Map<String, Object> reportLinkMap = getMapFromReportLink(linkProperty, property);
-//            templateMap.put(linkProperty.getTemplateVariableName(), reportLinkMap);
-        }
+        reportLinkProperty.parallelStream().forEach(linkProperty -> {
+            addToTemplateMap(linkProperty.getReportMap(property, intervalCalc), templateMap);
+        });
+        logger.info("Built Context for " + templateMap.size() + " contexts.");
         return templateMap;
     }
+
+    private synchronized void addToTemplateMap(Map<String, Object> reportMap, Map<String, Object> templateMap) {
+        templateMap.putAll(reportMap);
+    }
+
 
 }

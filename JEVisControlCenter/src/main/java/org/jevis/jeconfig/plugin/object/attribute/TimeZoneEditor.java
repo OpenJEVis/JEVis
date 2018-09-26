@@ -17,20 +17,20 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *
  * @author br
  */
 public class TimeZoneEditor implements AttributeEditor {
+    private static final Logger logger = LogManager.getLogger(TimeZoneEditor.class);
 
     private final JEVisAttribute _attribute;
     private final HBox _editor = new HBox(5);
@@ -101,7 +101,7 @@ public class TimeZoneEditor implements AttributeEditor {
                 }
 
             } catch (JEVisException ex) {
-                Logger.getLogger(TimeZoneEditor.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         } else {
             try {
@@ -109,7 +109,7 @@ public class TimeZoneEditor implements AttributeEditor {
                 _newSample = _attribute.buildSample(new DateTime(), "UTC");
                 _changed.setValue(Boolean.TRUE);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.fatal(ex);
             }
         }
 
@@ -125,7 +125,7 @@ public class TimeZoneEditor implements AttributeEditor {
                 _newSample = _attribute.buildSample(new DateTime(), newValue);
                 _changed.setValue(Boolean.TRUE);
             } catch (JEVisException ex) {
-                Logger.getLogger(TimeZoneEditor.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         });
         _editor.getChildren().addAll(picker);
