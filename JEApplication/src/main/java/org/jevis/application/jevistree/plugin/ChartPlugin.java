@@ -1002,16 +1002,11 @@ public class ChartPlugin implements TreePlugin {
                         }
                     }
                 });
-                charts.entrySet().parallelStream().forEach(chart -> {
-                    if (chart.getValue().getName().contains(oldValue)) {
-                        charts.remove(chart.getKey());
+                ChartSettings set = charts.remove(oldValue);
+                set.setName(newValue);
 
-                        ChartSettings set = chart.getValue();
-                        set.setName(newValue);
-                        charts.put(newValue, set);
+                charts.put(newValue, set);
 
-                    }
-                });
                 chartsList.set(selectionColumnIndex, newValue);
             }
         });
