@@ -36,7 +36,7 @@ import java.util.List;
 public class NullFunction implements ProcessFunction {
     private static final Logger logger = LogManager.getLogger(NullFunction.class);
 
-    public static final String NAME = "null";
+    public static final String NAME = "Null Function";
 
     @Override
     public void resetResult() {

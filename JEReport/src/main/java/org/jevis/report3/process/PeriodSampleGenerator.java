@@ -61,13 +61,17 @@ public class PeriodSampleGenerator implements SampleGenerator {
         try {
             attribute = dataObject.getAttribute(attributeData.getAttributeName());
         } catch (JEVisException ex) {
-            logger.error("", ex);
+            logger.error(ex);
         }
 
         List<JEVisSample> samples = generateSamples(attribute, interval);
+        logger.debug("Generated " + samples.size() + " samples.");
 
         List<JEVisSample> aggregatedSamples = getAggregatedSamples(periodConfiguration, linkData, attributeData, samples);
+        logger.debug("Generated " + aggregatedSamples.size() + " aggregated samples.");
+
         Map<String, Object> sampleMap = ProcessHelper.getAttributeSamples(aggregatedSamples, attribute, property.getTimeZone());
+        logger.debug("Created sample map with " + sampleMap.size() + " entries.");
 
         return sampleMap;
     }
@@ -83,8 +87,9 @@ public class PeriodSampleGenerator implements SampleGenerator {
         String modeName = null;
         try {
             modeName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
+            logger.info("Mode name: " + modeName);
         } catch (JEVisException ex) {
-            logger.error("", ex);
+            logger.error(ex);
         }
 
         if (modeName == null) {
@@ -93,27 +98,32 @@ public class PeriodSampleGenerator implements SampleGenerator {
 
         BasicProcess aggregate = new BasicProcess();
         aggregate.setJEVisDataSource(ReportLauncher.getDataSource());
-        aggregate.setID("Dynamic");
 
-        AggregationModus mode = AggregationModus.get(modeName.toUpperCase());
+        AggregationMode mode = AggregationMode.get(modeName.toUpperCase());
         switch (mode) {
             case MIN:
                 aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.MIN.toString());
                 break;
             case MAX:
                 aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.MAX.toString());
                 break;
             case MEDIAN:
                 aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.MEDIAN.toString());
                 break;
             case AVERAGE:
                 aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.AVERAGE.toString());
                 break;
             case TOTAL:
                 aggregate.setFunction(new AggregatorFunction());
+                aggregate.setID(AggregationMode.TOTAL.toString());
                 break;
             default:
                 aggregate.setFunction(new NullFunction());
+                aggregate.setID("Null");
                 break;
         }
 
@@ -138,10 +148,8 @@ public class PeriodSampleGenerator implements SampleGenerator {
                 aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
                 break;
             case NONE:
-                aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.ZERO.toString()));
                 break;
             default:
-                aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.ZERO.toString()));
                 break;
         }
 
@@ -166,17 +174,17 @@ public class PeriodSampleGenerator implements SampleGenerator {
         }
     }
 
-    private enum AggregationModus {
+    private enum AggregationMode {
 
         TOTAL, AVERAGE, MIN, MAX, MEDIAN;
 
-        public static AggregationModus get(String modusName) {
-            String[] modusArray = modusName.split("_");
-            String modus = TOTAL.name();
-            if (modusArray.length == 2) {
-                modus = modusArray[1];
+        public static AggregationMode get(String modeName) {
+            String[] modeArray = modeName.split("_");
+            String mode = TOTAL.name();
+            if (modeArray.length == 2) {
+                mode = modeArray[1];
             }
-            return valueOf(modus);
+            return valueOf(mode);
         }
     }
 }

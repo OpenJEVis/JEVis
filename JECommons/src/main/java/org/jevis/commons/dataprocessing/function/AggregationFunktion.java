@@ -57,6 +57,7 @@ public class AggregationFunktion implements ProcessFunction {
         List<List<JEVisSample>> allSamples = new ArrayList<>();
         for (Process task : mainTask.getSubProcesses()) {
             allSamples.add(task.getResult());
+
         }
 
         List<DateTime> allTimestamps = getAllTimestamps(allSamples);
@@ -65,9 +66,11 @@ public class AggregationFunktion implements ProcessFunction {
         }
         List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
 
+
         int lastPos = 0;
         for (Interval interval : intervals) {
             List<JEVisSample> samplesInPeriod = new ArrayList<>();
+
             for (List<JEVisSample> samples : allSamples) {
                 for (int i = lastPos; i < samples.size(); i++) {
                     try {

@@ -19,6 +19,8 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author broder
@@ -62,14 +64,19 @@ public class ContextBuilder {
     public Map<String, Object> buildContext(List<ReportData> reportLinkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
         Map<String, Object> templateMap = new HashMap<>();
         reportLinkProperty.parallelStream().forEach(linkProperty -> {
+
             addToTemplateMap(linkProperty.getReportMap(property, intervalCalc), templateMap);
+
         });
-        logger.info("Built Context for " + templateMap.size() + " contexts.");
+        logger.info("Built Context for " + templateMap.size() + " report links.");
         return templateMap;
     }
 
-    private synchronized void addToTemplateMap(Map<String, Object> reportMap, Map<String, Object> templateMap) {
+    private void addToTemplateMap(Map<String, Object> reportMap, Map<String, Object> templateMap) {
+        Lock lock = new ReentrantLock();
+        lock.lock();
         templateMap.putAll(reportMap);
+        lock.unlock();
     }
 
 

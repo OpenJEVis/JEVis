@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -162,25 +164,26 @@ public class ReportLinkProperty implements ReportData {
     private Map<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
         Map<String, Object> linkMap = new HashMap<>();
         List<ReportAttributeProperty> attributeProperties = linkProperty.getAttributeProperties();
-        attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
+        //attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
         attributeProperties.parallelStream().forEach(attributeProperty -> {
             List<AttributeConfiguration> attributeConfigs = attributeProperty.getAttributeConfigurations();
             SampleGenerator sampleGenerator = sampleFactory.getSampleGenerator(attributeConfigs, intervalCalc);
             Map<String, Object> attributeMap = sampleGenerator.work(linkProperty, attributeProperty, property);
             addAttributeMapToLinkMap(linkMap, attributeMap);
+            logger.debug("added link map " + linkMap.entrySet() + " to attribute map");
         });
-        String objectName = linkProperty.getDataObject().getName();
-        Map<String, Object> tmpMap = new HashMap<>();
-        tmpMap.put("name", objectName);
-        addAttributeMapToLinkMap(linkMap, tmpMap);
+
         return linkMap;
     }
 
     //    public void setIntervalCalculator(IntervalCalculator intervalCalc) {
 //        this.intervalCalc = intervalCalc;
 //    }
-    private synchronized void addAttributeMapToLinkMap(Map<String, Object> linkMap, Map<String, Object> attributeMap) {
+    private void addAttributeMapToLinkMap(Map<String, Object> linkMap, Map<String, Object> attributeMap) {
+        Lock lock = new ReentrantLock();
+        lock.lock();
         linkMap.putAll(attributeMap);
+        lock.unlock();
     }
 
     //    @Override
