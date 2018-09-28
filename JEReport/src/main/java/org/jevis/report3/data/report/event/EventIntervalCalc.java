@@ -36,7 +36,7 @@ public class EventIntervalCalc implements IntervalCalculator {
     }
 
     @Override
-    public Interval getInterval(PeriodModus modus) {
+    public Interval getInterval(PeriodMode modus) {
         return interval;
     }
 

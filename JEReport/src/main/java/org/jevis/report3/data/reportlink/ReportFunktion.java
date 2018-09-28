@@ -39,7 +39,7 @@
 //
 //    @Override
 //    public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
-//        IntervalCalculator.PeriodModus modus = IntervalCalculator.PeriodModus.valueOf(modusName.toUpperCase());
+//        IntervalCalculator.PeriodMode modus = IntervalCalculator.PeriodMode.valueOf(modusName.toUpperCase());
 //        Interval interval = intervalCalc.getInterval(modus);
 //        
 //        

@@ -16,9 +16,9 @@ public interface IntervalCalculator {
 
     void buildIntervals(JEVisObject reportObject);
 
-    Interval getInterval(PeriodModus periodModus);
+    Interval getInterval(PeriodMode periodModus);
 
-    enum PeriodModus {
+    enum PeriodMode {
 
         CURRENT, LAST, ALL
     }
