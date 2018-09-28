@@ -26,9 +26,9 @@ import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -56,6 +56,7 @@ public class MathFunction implements ProcessFunction {
 
     @Override
     public List<JEVisSample> getResult(Process mainTask) {
+        logger.info("get Result for " + mainTask.getID() + " with function " + mode);
         List<JEVisSample> result = new ArrayList<>();
 
         List<JEVisSample> allSamples = new ArrayList<>();
@@ -64,19 +65,19 @@ public class MathFunction implements ProcessFunction {
         }
 
         Boolean hasSamples = null;
-        BigDecimal value = BigDecimal.ZERO;
-        BigDecimal min = BigDecimal.valueOf(Double.MAX_VALUE);
-        BigDecimal max = BigDecimal.valueOf(Double.MIN_VALUE);
-        List<BigDecimal> listMedian = new ArrayList<>();
+        Double value = 0d;
+        Double min = Double.MAX_VALUE;
+        Double max = Double.MIN_VALUE;
+        List<Double> listMedian = new ArrayList<>();
         JEVisUnit unit = null;
         DateTime dateTime = null;
 
         for (JEVisSample smp : allSamples) {
             try {
-                BigDecimal currentValue = BigDecimal.valueOf(smp.getValueAsDouble());
-                value.add(currentValue);
-                min = BigDecimal.valueOf(Math.min(min.doubleValue(), currentValue.doubleValue()));
-                max = BigDecimal.valueOf(Math.max(max.doubleValue(), currentValue.doubleValue()));
+                Double currentValue = smp.getValueAsDouble();
+                value += currentValue;
+                min = Math.min(min, currentValue);
+                max = Math.max(max, currentValue);
                 listMedian.add(currentValue);
                 if (hasSamples == null) hasSamples = true;
                 if (unit == null) unit = smp.getUnit();
@@ -88,7 +89,7 @@ public class MathFunction implements ProcessFunction {
 
         if (hasSamples) {
             if (mode.equals(AVERAGE)) {
-                value = value.divide(BigDecimal.valueOf(allSamples.size()));
+                value = value / (double) allSamples.size();
             } else if (mode.equals(MIN)) {
                 value = min;
             } else if (mode.equals(MAX)) {
@@ -100,8 +101,8 @@ public class MathFunction implements ProcessFunction {
             }
         }
 
-        result.add(new VirtualSample(dateTime, value.doubleValue(), unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null)));
-
+        result.add(new VirtualSample(dateTime, value, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null)));
+        logger.info("Result is: " + dateTime + " : " + value + " " + UnitManager.getInstance().formate(unit));
 
         return result;
 

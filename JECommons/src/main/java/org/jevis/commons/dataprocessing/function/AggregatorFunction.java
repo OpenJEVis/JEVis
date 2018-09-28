@@ -29,14 +29,12 @@ import org.jevis.commons.dataprocessing.*;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.jevis.commons.dataprocessing.ProcessOptions.getAllTimestamps;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class AggregatorFunction implements ProcessFunction {
@@ -45,6 +43,7 @@ public class AggregatorFunction implements ProcessFunction {
 
     @Override
     public List<JEVisSample> getResult(Process mainTask) {
+
         List<JEVisSample> result = new ArrayList<>();
 
         List<List<JEVisSample>> allSamples = new ArrayList<>();
@@ -69,7 +68,7 @@ public class AggregatorFunction implements ProcessFunction {
             for (List<JEVisSample> samples : allSamples) {
                 for (int i = lastPos; i < samples.size(); i++) {
                     try {
-                        if (interval.contains(samples.get(i).getTimestamp())) {
+                        if (interval.contains(samples.get(i).getTimestamp().minusMillis(1))) {
                             //logger.info("add sample: " + samples.get(i));
                             samplesInPeriod.add(samples.get(i));
                         } else if (samples.get(i).getTimestamp().isAfter(interval.getEnd())) {
@@ -81,23 +80,22 @@ public class AggregatorFunction implements ProcessFunction {
                     }
                 }
 
-                BigDecimal sum = BigDecimal.ZERO;
+                boolean hasSamples = false;
+                Double sum = 0d;
                 JEVisUnit unit = null;
                 for (JEVisSample sample : samplesInPeriod) {
                     try {
-                        sum.add(BigDecimal.valueOf(sample.getValueAsDouble()));
+                        sum += sample.getValueAsDouble();
+                        hasSamples = true;
                         if (unit == null) unit = sample.getUnit();
                     } catch (JEVisException ex) {
                         logger.fatal(ex);
                     }
                 }
 
-                JEVisSample resultSum = new VirtualSample(interval.getStart(), sum.doubleValue(), unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
-                result.add(resultSum);
-                try {
-                    logger.info("resultSum: " + resultSum.getTimestamp() + "  " + resultSum.getValueAsDouble());
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
+                if (hasSamples) {
+                    JEVisSample resultSum = new VirtualSample(interval.getStart(), sum, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
+                    result.add(resultSum);
                 }
             }
 

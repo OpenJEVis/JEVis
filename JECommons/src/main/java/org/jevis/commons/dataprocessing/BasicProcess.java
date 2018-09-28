@@ -25,7 +25,6 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.function.NullFunction;
-import org.jevis.commons.utils.Benchmark;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,6 +135,8 @@ public class BasicProcess implements Process {
             return _result;
         }
 
+        logger.info("Begin task " + getID());
+
         if (!isDone) {
             if (getSubProcesses().isEmpty()) {
 //            logger.info("[" + _id + "]  No more sub tasks!");
@@ -147,14 +148,14 @@ public class BasicProcess implements Process {
 //            logger.info("[" + _id + "] All subtask are done!");
             }
             isDone = true;
+            logger.info(getID() + " task is done");
 
         }
 
-        Benchmark bench = new Benchmark();
         _result = getFunction().getResult(this);
+
         logger.info("[" + _id + "] [" + _processor.getName() + "]  Result size: " + _result.size());
 
-        bench.printBechmark(" Task " + getID());
         return _result;
 
     }

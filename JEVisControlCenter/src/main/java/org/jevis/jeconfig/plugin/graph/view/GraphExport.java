@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.plugin.graph.view;
 
 import javafx.stage.FileChooser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -20,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class GraphExport {
+    private static final Logger logger = LogManager.getLogger(GraphExport.class);
     private final GraphDataModel model;
     private final JEVisDataSource ds;
     private boolean needSave = false;
@@ -158,8 +161,15 @@ public class GraphExport {
         List<List<String>> listDateColumns = new ArrayList<>();
         for (String s : charts) {
             List<String> dateColumn = new ArrayList<>();
-            Boolean firstSet = true;
+            DateTime currentStart = null;
+            DateTime currentEnd = null;
+            boolean firstSet = true;
             for (ChartDataModel mdl : model.getSelectedData()) {
+                if (currentStart == null) currentStart = mdl.getSelectedStart();
+                else mdl.setSelectedStart(currentStart);
+                if (currentEnd == null) currentEnd = mdl.getSelectedEnd();
+                else mdl.setSelectedEnd(currentEnd);
+
                 if (firstSet && mdl.get_selectedCharts().contains(s)) {
                     for (JEVisSample sample : mdl.getSamples()) {
                         dateColumn.add(standard.print(sample.getTimestamp()));
@@ -187,6 +197,7 @@ public class GraphExport {
             for (String s : charts) {
                 int chartsIndex = charts.indexOf(s);
                 boolean hasValues = i < listDateColumns.get(chartsIndex).size();
+
                 if (hasValues) {
                     str += listDateColumns.get(chartsIndex).get(i) + ";";
                 } else {
@@ -197,7 +208,8 @@ public class GraphExport {
                     String objName = mdl.getObject().getName();
                     if (mdl.get_selectedCharts().contains(s)) {
                         if (hasValues) {
-                            str += listMaps.get(chartsIndex).get(objName).get(i).getValueAsDouble() + ";";
+                            Double value = listMaps.get(chartsIndex).get(objName).get(i).getValueAsDouble();
+                            str += value + ";";
                         } else {
                             str += ";";
                         }
