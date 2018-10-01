@@ -76,8 +76,7 @@ public class PeriodSampleGenerator implements SampleGenerator {
 
     private List<JEVisSample> generateSamples(JEVisAttribute attribute, Interval interval) {
         //calc the sample list
-        List<JEVisSample> samples = attribute.getSamples(interval.getStart(), interval.getEnd());
-        return samples;
+        return attribute.getSamples(interval.getStart(), interval.getEnd());
     }
 
     private List<JEVisSample> getAggregatedSamples(AttributeConfiguration periodConfiguration, ReportLinkProperty linkData, ReportAttributeProperty attributeData, List<JEVisSample> samples) {
@@ -146,6 +145,18 @@ public class PeriodSampleGenerator implements SampleGenerator {
                 aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
                 break;
             case NONE:
+                try {
+                    Period p = linkData.getDataObject().getAttribute(attributeData.getAttributeName()).getInputSampleRate();
+                    aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, p.toString()));
+                } catch (JEVisException e) {
+                    try {
+                        Period p = linkData.getDataObject().getAttribute(attributeData.getAttributeName()).getDisplaySampleRate();
+                        aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, p.toString()));
+                    } catch (JEVisException e1) {
+                        logger.fatal(e);
+                        return samples;
+                    }
+                }
                 break;
             default:
                 break;

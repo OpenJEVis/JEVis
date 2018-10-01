@@ -60,9 +60,10 @@ public class SampleFactory {
             case Period: {
                 Interval interval = null;
                 try {
-                    String modusName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD).getLatestSample().getValueAsString();
-                    IntervalCalculator.PeriodModus modus = IntervalCalculator.PeriodModus.valueOf(modusName.toUpperCase());
-                    interval = intervalCalc.getInterval(modus);
+                    String modeName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD).getLatestSample().getValueAsString();
+                    IntervalCalculator.PeriodMode mode = IntervalCalculator.PeriodMode.valueOf(modeName.toUpperCase());
+                    interval = intervalCalc.getInterval(mode);
+                    logger.info("interval: " + interval);
                 } catch (JEVisException ex) {
                     logger.error(ex);
                 }

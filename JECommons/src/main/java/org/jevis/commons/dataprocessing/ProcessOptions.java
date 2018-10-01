@@ -26,6 +26,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.config.Options;
+import org.jevis.commons.utils.JEVisDates;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -52,7 +53,6 @@ public class ProcessOptions {
     public static final String OFFSET = "offset";
     public static final String TS_START = "date-start";
     public static final String TS_END = "date-end";
-    public static final String TS_PATTERN = "yyyy-MM-dd hh:mm:ssZ";
 
     public static List<ProcessOption> ToProcessOption(Process process, JEVisOption option) {
         List<ProcessOption> pOptions = new ArrayList<>();
@@ -60,7 +60,7 @@ public class ProcessOptions {
         for (JEVisOption jOpt : option.getOptions()) {
             ProcessOption po = new BasicProcessOption(jOpt.getKey(), jOpt.getValue());
 
-            //Problem: JEVisOptions are herahic and the Processoption are flat but the Process him self has an herachie
+            //Problem: JEVisOptions are hierarchic and the Processoption are flat but the Process him self has an hierarchy
             //match option to the right process
             //? replace ProcessOption with JEVisOption
             pOptions.add(po);
@@ -118,8 +118,8 @@ public class ProcessOptions {
     public static void setStartEnd(Process task, DateTime from, DateTime until, boolean overwrite, boolean childrenToo) {
 
         if (ContainsOption(task, TS_START) || overwrite) {
-            task.getOptions().add(new BasicProcessOption(TS_START, DateTimeFormat.forPattern(TS_PATTERN).print(from)));
-            task.getOptions().add(new BasicProcessOption(TS_END, DateTimeFormat.forPattern(TS_PATTERN).print(until)));
+            task.getOptions().add(new BasicProcessOption(TS_START, JEVisDates.DEFAULT_DATE_FORMAT.print(from)));
+            task.getOptions().add(new BasicProcessOption(TS_END, JEVisDates.DEFAULT_DATE_FORMAT.print(until)));
         }
 
         if (childrenToo) {
@@ -145,7 +145,7 @@ public class ProcessOptions {
 
         if (ContainsOption(task, TS_START)) {
             try {
-                result[0] = DateTime.parse(GetLatestOption(task, TS_START, new BasicProcessOption(TS_START, "")).getValue(), DateTimeFormat.forPattern(TS_PATTERN));
+                result[0] = DateTime.parse(GetLatestOption(task, TS_START, new BasicProcessOption(TS_START, "")).getValue(), JEVisDates.DEFAULT_DATE_FORMAT);
 //                result[0] = DateTime.parse(task.getOptions().get(TS_START), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception e) {
                 logger.error("error while parsing " + TS_START + " option");
@@ -156,7 +156,7 @@ public class ProcessOptions {
 
         if (ContainsOption(task, TS_END)) {
             try {
-                result[1] = DateTime.parse(GetLatestOption(task, TS_END, new BasicProcessOption(TS_END, "")).getValue(), DateTimeFormat.forPattern(TS_PATTERN));
+                result[1] = DateTime.parse(GetLatestOption(task, TS_END, new BasicProcessOption(TS_END, "")).getValue(), JEVisDates.DEFAULT_DATE_FORMAT);
 //                result[1] = DateTime.parse(task.getOptions().get(TS_END), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception ex) {
                 logger.error("error while parsing " + TS_END + " option");

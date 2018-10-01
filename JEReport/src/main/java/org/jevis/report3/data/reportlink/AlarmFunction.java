@@ -68,7 +68,7 @@ public class AlarmFunction implements ReportData {
     @Override
     public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
         Map<String, Object> funktionMap = new HashMap<>();
-        Interval interval = intervalCalc.getInterval(IntervalCalculator.PeriodModus.CURRENT);
+        Interval interval = intervalCalc.getInterval(IntervalCalculator.PeriodMode.CURRENT);
         DateTime start = interval.getStart();
         DateTime end = interval.getEnd();
 

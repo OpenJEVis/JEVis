@@ -72,7 +72,7 @@ public class ReportExecutor {
         List<ReportData> reportLinks = reportLinkFactory.getReportLinks(reportObject);
         intervalCalculator.buildIntervals(reportObject);
 
-        DateTime end = intervalCalculator.getInterval(IntervalCalculator.PeriodModus.CURRENT).getEnd();
+        DateTime end = intervalCalculator.getInterval(IntervalCalculator.PeriodMode.CURRENT).getEnd();
 
         AtomicBoolean isDataAvailable = new AtomicBoolean(true);
         logger.info("Creating report link stati.");
@@ -105,7 +105,7 @@ public class ReportExecutor {
 
         try {
             byte[] outputBytes = report.getReportFile();
-            Interval interval = intervalCalculator.getInterval(IntervalCalculator.PeriodModus.CURRENT);
+            Interval interval = intervalCalculator.getInterval(IntervalCalculator.PeriodMode.CURRENT);
             String startDate = interval.getStart().toString(DateTimeFormat.forPattern("yyyyMMdd"));
             String reportName = reportObject.getName().replaceAll("\\s", "") + "_" + startDate;
             JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
@@ -114,11 +114,16 @@ public class ReportExecutor {
 
             JEVisFile fileForNotification = jeVisFileImp;
             if (property.getToPdf()) {
-                File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
-                PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
-                pdfFileSplitter.splitPDF();
-                File outFile = pdfFileSplitter.getOutputFile();
-                fileForNotification = new JEVisFileImp(reportName + ".pdf", outFile);
+
+                try {
+                    File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
+                    PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
+                    pdfFileSplitter.splitPDF();
+                    File outFile = pdfFileSplitter.getOutputFile();
+                    fileForNotification = new JEVisFileImp(reportName + ".pdf", outFile);
+                } catch (Exception e) {
+                    logger.error("Could not initialize pdf converter. " + e);
+                }
             }
 
             JEVisObject notificationObject = property.getNotificationObject();
@@ -131,6 +136,7 @@ public class ReportExecutor {
             logger.error(ex);
         }
     }
+
 
     public boolean isPeriodicConditionReached(JEVisObject reportObject, SampleHandler samplesHandler) {
 
