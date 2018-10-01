@@ -21,7 +21,6 @@ package org.jevis.jeconfig.sample;
 
 import javafx.application.Platform;
 import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import org.jevis.api.JEVisAttribute;
@@ -50,9 +49,8 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
     private void buildGui(JEVisAttribute obj, List<JEVisSample> samples) {
 
-        ScrollPane scroll = new ScrollPane();
-        scroll.setStyle("-fx-background-color: transparent");
-        scroll.setMaxSize(10000, 10000);
+        BorderPane bp = new BorderPane();
+        bp.setStyle("-fx-background-color: transparent");
 
         ChartDataModel chartDataModel = new ChartDataModel();
 
@@ -75,8 +73,8 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
         LineChart lc = new LineChart(chartDataModelList, false, "");
 
-        scroll.setContent(lc.getRegion());
-        _view.setCenter(scroll);
+        bp.setCenter(lc.getRegion());
+        _view.setCenter(bp);
     }
 
     @Override

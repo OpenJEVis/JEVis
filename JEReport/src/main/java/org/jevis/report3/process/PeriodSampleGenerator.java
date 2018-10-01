@@ -12,9 +12,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.BasicProcess;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
-import org.jevis.commons.dataprocessing.ProcessOptions;
+import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.function.AggregatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.commons.dataprocessing.function.MathFunction;
@@ -162,29 +160,5 @@ public class PeriodSampleGenerator implements SampleGenerator {
         aggregate.setSubProcesses(Collections.singletonList(input));
 
         return aggregate.getResult();
-    }
-
-    private enum AggregationPeriod {
-
-        NONE, HOURLY, DAILY, MONTHLY, WEEKLY, QUARTERLY, YEARLY;
-
-        public static AggregationPeriod get(String modusName) {
-            String period = modusName.split("_")[0];
-            return valueOf(period);
-        }
-    }
-
-    private enum AggregationMode {
-
-        TOTAL, AVERAGE, MIN, MAX, MEDIAN;
-
-        public static AggregationMode get(String modeName) {
-            String[] modeArray = modeName.split("_");
-            String mode = TOTAL.name();
-            if (modeArray.length == 2) {
-                mode = modeArray[1];
-            }
-            return valueOf(mode);
-        }
     }
 }
