@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartElements.TableEntry;
-import org.jevis.application.Chart.ChartSettings;
+import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.Charts.*;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.jevistree.AlphanumComparator;
@@ -194,7 +194,7 @@ public class ChartView implements Observer {
         tableView.prefHeightProperty().bind(Bindings.size(tableView.getItems()).multiply(tableView.getFixedCellSize()).add(30));
     }
 
-    private ChartSettings.ChartType chartType = ChartSettings.ChartType.AREA;
+    private ChartType chartType = ChartType.AREA;
     private String chartName = "";
 
     public Region getChartRegion() {
@@ -209,7 +209,7 @@ public class ChartView implements Observer {
         return tableView;
     }
 
-    public void drawAreaChart(String chartName, ChartSettings.ChartType chartType) {
+    public void drawAreaChart(String chartName, ChartType chartType) {
 
         chart = null;
 
@@ -296,7 +296,7 @@ public class ChartView implements Observer {
         return chart.getValueForDisplay();
     }
 
-    public ChartSettings.ChartType getChartType() {
+    public ChartType getChartType() {
         return chartType;
     }
 

@@ -89,7 +89,7 @@ public class SampleTable extends TableView {
                 new PropertyValueFactory<org.jevis.jeconfig.sampletable.TableSample, String>("date"));
         dateCol.setCellFactory(cellFactory);
 
-        dateCol.setEditable(false);
+        dateCol.setEditable(true);
 
         TableColumn valueCol = new TableColumn("Value");
 

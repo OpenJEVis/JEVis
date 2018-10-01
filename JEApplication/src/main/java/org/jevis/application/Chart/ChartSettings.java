@@ -1,5 +1,7 @@
 package org.jevis.application.Chart;
 
+import static org.jevis.application.Chart.ChartType.AREA;
+
 public class ChartSettings {
 
     private String name;
@@ -8,7 +10,7 @@ public class ChartSettings {
 
     public ChartSettings(String name) {
         this.name = name;
-        this.chartType = ChartType.AREA;
+        this.chartType = AREA;
     }
 
     public String getName() {
@@ -34,7 +36,4 @@ public class ChartSettings {
     public void setChartType(ChartType chartType) {
         this.chartType = chartType;
     }
-
-    public enum ChartType {AREA, LINE, BAR, BUBBLE, SCATTER, PIE}
-
 }

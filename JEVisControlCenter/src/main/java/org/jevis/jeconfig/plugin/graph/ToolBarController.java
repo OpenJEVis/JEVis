@@ -9,17 +9,11 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 /**
- *
  * @author broder
  */
 public class ToolBarController implements EventHandler {
@@ -38,19 +32,13 @@ public class ToolBarController implements EventHandler {
     @Override
     public void handle(Event event) {
         if (selectionDialog == null) {
-            selectionDialog = new ChartSelectionDialog(ds, null, null);
+            selectionDialog = new ChartSelectionDialog(ds, model);
         }
 
         if (selectionDialog.show(new Stage()) == ChartSelectionDialog.Response.OK) {
 
-            Set<ChartDataModel> selectedData = new HashSet<>();
-            for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
-                ChartDataModel value = entrySet.getValue();
-                if (value.getSelected()) {
-                    selectedData.add(value);
-                }
-            }
-            model.setSelectedData(selectedData);
+            model.setCharts(selectionDialog.getBp().getData().getCharts());
+            model.setSelectedData(selectionDialog.getBp().getData().getSelectedData());
         }
     }
 

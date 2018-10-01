@@ -371,13 +371,13 @@ public class SampleEditor {
         });
 
         List<String> aggList = new ArrayList<>();
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.none"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.hourly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.daily"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.weekly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.monthly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.quarterly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.yearly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.none"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.hourly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.daily"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.weekly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.monthly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.quarterly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.yearly"));
 
         ChoiceBox aggregate = new ChoiceBox();
         aggregate.setItems(FXCollections.observableArrayList(aggList));

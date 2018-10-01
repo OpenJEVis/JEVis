@@ -34,8 +34,8 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
+import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.AlphanumComparator;
@@ -45,7 +45,9 @@ import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.tool.I18n;
 
-import java.util.*;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -181,25 +183,12 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     private void newAnalysis() {
-        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null, null);
+        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel);
 
         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
-            Set<ChartDataModel> selectedData = new HashSet<>();
-            for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getBp().getSelectedData().entrySet()) {
-                ChartDataModel value = entrySet.getValue();
-                if (value.getSelected()) {
-                    selectedData.add(value);
-                }
-            }
-
-            Set<ChartSettings> chartSettings = new HashSet<>();
-            for (Map.Entry<String, ChartSettings> entry : selectionDialog.getBp().getCharts().entrySet()) {
-                chartSettings.add(entry.getValue());
-            }
-
-            dataModel.setCharts(chartSettings);
-            dataModel.setSelectedData(selectedData);
+            dataModel.setCharts(selectionDialog.getBp().getData().getCharts());
+            dataModel.setSelectedData(selectionDialog.getBp().getData().getSelectedData());
         }
     }
 
@@ -265,7 +254,7 @@ public class GraphPluginView implements Plugin, Observer {
     @Override
     public Node getContentNode() {
 
-        if (dataModel.getSelectedData() != null) getChartsList();
+        if (dataModel.getSelectedData() != null) chartsList = dataModel.getChartsList();
 
         if (border == null) {
             border = new BorderPane();
@@ -285,14 +274,14 @@ public class GraphPluginView implements Plugin, Observer {
     public void update(Observable o, Object arg) {
 
         if (dataModel.getSelectedData() != null) {
-            getChartsList();
+            chartsList = dataModel.getChartsList();
 
             if (chartsList.size() == 1 || chartsList.isEmpty()) {
                 if (chartsList.size() == 1) {
                     chartView = null;
                     chartView = new ChartView(dataModel);
                     String chartTitle = chartsList.get(0);
-                    ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
+                    ChartType type = ChartType.AREA;
                     if (dataModel.getCharts() != null && !dataModel.getCharts().isEmpty()) {
                         for (ChartSettings set : dataModel.getCharts()) {
                             if (set.getName().equals(chartTitle)) type = set.getChartType();
@@ -357,14 +346,14 @@ public class GraphPluginView implements Plugin, Observer {
 
                     List<ChartView> notActive = FXCollections.observableArrayList(listChartViews);
                     notActive.remove(cv);
-                    ChartSettings.ChartType chartType = cv.getChartType();
+                    ChartType chartType = cv.getChartType();
 
                     switch (chartType.toString()) {
                         case ("AREA"):
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals(ChartSettings.ChartType.AREA) || na.getChartType().equals(ChartSettings.ChartType.LINE))
+                                    if (na.getChartType().equals(ChartType.AREA) || na.getChartType().equals(ChartType.LINE))
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                 });
                             });
@@ -373,7 +362,7 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals(ChartSettings.ChartType.AREA) || na.getChartType().equals(ChartSettings.ChartType.LINE))
+                                    if (na.getChartType().equals(ChartType.AREA) || na.getChartType().equals(ChartType.LINE))
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                 });
                             });
@@ -431,21 +420,5 @@ public class GraphPluginView implements Plugin, Observer {
             }
         }
         System.gc();
-    }
-
-    private void getChartsList() {
-        List<String> tempList = new ArrayList<>();
-        for (ChartDataModel mdl : dataModel.getSelectedData()) {
-            if (mdl.getSelected()) {
-                for (String s : mdl.get_selectedCharts()) {
-                    if (!tempList.contains(s)) tempList.add(s);
-                }
-            }
-        }
-
-        AlphanumComparator ac = new AlphanumComparator();
-        tempList.sort(ac);
-
-        chartsList = FXCollections.observableArrayList(tempList);
     }
 }

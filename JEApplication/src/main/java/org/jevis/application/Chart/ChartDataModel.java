@@ -5,19 +5,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.Chart.ChartElements.TableEntry;
-import org.jevis.application.jevistree.plugin.ChartPlugin;
-import org.jevis.commons.dataprocessing.BasicProcess;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
-import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.ProcessOptions;
-import org.jevis.commons.dataprocessing.function.AggregatorFunction;
-import org.jevis.commons.dataprocessing.function.InputFunction;
+import org.jevis.commons.dataprocessing.AggregationMode;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -32,7 +26,7 @@ public class ChartDataModel {
     private JEVisAttribute _attribute;
     private Color _color = Color.LIGHTBLUE;
     private boolean _selected = false;
-    private ChartPlugin.AGGREGATION aggregation = ChartPlugin.AGGREGATION.None;
+    private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private JEVisObject _dataProcessorObject = null;
     private List<JEVisSample> samples = new ArrayList<>();
     private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<>();
@@ -67,68 +61,26 @@ public class ChartDataModel {
         if (_somethingChanged) {
             _somethingChanged = false;
             samples = new ArrayList<>();
-
             try {
-                JEVisDataSource ds = _object.getDataSource();
-                Process aggregate = null;
-                switch (aggregation) {
-                    case None:
-                        break;
-                    case Hourly:
-                        aggregate = new BasicProcess();
-                        aggregate.setJEVisDataSource(ds);
-                        aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggregatorFunction());
-                        aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
-                        break;
-                    case Daily:
-                        aggregate = new BasicProcess();
-                        aggregate.setJEVisDataSource(ds);
-                        aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggregatorFunction());
-                        aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
-                        break;
-                    case Monthly:
-                        aggregate = new BasicProcess();
-                        aggregate.setJEVisDataSource(ds);
-                        aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggregatorFunction());
-                        aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
-                        break;
-                    case Weekly:
-                        aggregate = new BasicProcess();
-                        aggregate.setJEVisDataSource(ds);
-                        aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggregatorFunction());
-                        aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
-                        break;
-                    case Yearly:
-                        aggregate = new BasicProcess();
-                        aggregate.setJEVisDataSource(ds);
-                        aggregate.setID("Dynamic");
-                        aggregate.setFunction(new AggregatorFunction());
-                        aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
-                        break;
-                }
 
                 if (getDataProcessor() != null) {
                     _dataProcessorObject = getDataProcessor();
                     _attribute = _dataProcessorObject.getAttribute("Value");
                 } else _attribute = _object.getAttribute("Value");
 
-                if (aggregate != null) {
-                    Process input = new BasicProcess();
-                    input.setJEVisDataSource(ds);
-                    input.setID("Dynamic Input");
-                    input.setFunction(new InputFunction());
 
-                    input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, _attribute.getName()));
-                    input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, _attribute.getObject().getID() + ""));
-                    aggregate.setSubProcesses(Arrays.asList(input));
-                    samples.addAll(factorizeSamples(aggregate.getResult()));
-                } else {
-                    samples.addAll(factorizeSamples(getAttribute().getSamples(getSelectedStart(), getSelectedEnd())));
-                }
+                SampleGenerator sg;
+                if (aggregationPeriod.equals(AggregationPeriod.NONE))
+                    sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
+                            getSelectedEnd(), AggregationMode.NONE, aggregationPeriod);
+                else
+                    sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
+                            getSelectedEnd(), AggregationMode.TOTAL, aggregationPeriod);
+
+                samples = sg.generateSamples();
+                samples = sg.getAggregatedSamples(samples);
+                samples.addAll(factorizeSamples(samples));
+
 
             } catch (Exception ex) {
                 //TODO: exception handling
@@ -427,13 +379,13 @@ public class ChartDataModel {
         this._dataProcessorObject = _dataProcessor;
     }
 
-    public ChartPlugin.AGGREGATION getAggregation() {
-        return aggregation;
+    public AggregationPeriod getAggregationPeriod() {
+        return aggregationPeriod;
     }
 
-    public void setAggregation(ChartPlugin.AGGREGATION aggregation) {
+    public void setAggregationPeriod(AggregationPeriod aggregationPeriod) {
         _somethingChanged = true;
-        this.aggregation = aggregation;
+        this.aggregationPeriod = aggregationPeriod;
     }
 
     public boolean getSelected() {
