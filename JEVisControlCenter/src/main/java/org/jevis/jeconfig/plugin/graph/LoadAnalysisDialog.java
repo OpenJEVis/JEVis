@@ -18,6 +18,7 @@ import org.jevis.api.*;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.data.CustomPeriodObject;
 import org.jevis.application.Chart.data.GraphDataModel;
+import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
@@ -27,10 +28,7 @@ import org.joda.time.DateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
@@ -475,7 +473,39 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     public void updateListAnalyses() {
+        List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
+        try {
+            JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
+            listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
+        } catch (JEVisException e) {
+            logger.error("Error: could not get analyses directories", e);
+        }
+        if (listAnalysesDirectories.isEmpty()) {
+            List<JEVisObject> listBuildings = new ArrayList<>();
+            try {
+                JEVisClass building = ds.getJEVisClass("Building");
+                listBuildings = ds.getObjects(building, false);
 
+                if (!listBuildings.isEmpty()) {
+                    JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
+                    JEVisObject analysesDir = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.graph.analysesdir.defaultname"), analysesDirectory);
+                    analysesDir.commit();
+                }
+            } catch (JEVisException e) {
+                logger.error("Error: could not create new analyses directory", e);
+            }
+
+        }
+        try {
+            listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
+        } catch (JEVisException e) {
+            logger.error("Error: could not get analysis", e);
+        }
+        observableListAnalyses.clear();
+        for (JEVisObject obj : listAnalyses) {
+            observableListAnalyses.add(obj.getName());
+        }
+        Collections.sort(observableListAnalyses, new AlphanumComparator());
         lv.setItems(observableListAnalyses);
     }
 
