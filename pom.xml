@@ -72,7 +72,7 @@
             <dependency>
                 <groupId>org.jevis.commons</groupId>
                 <artifactId>JECommons</artifactId>
-                <version>3.4</version>
+                <version>3.5</version>
             </dependency>
 
             <dependency>
@@ -84,7 +84,7 @@
             <dependency>
                 <groupId>org.jevis.application</groupId>
                 <artifactId>jeapplication</artifactId>
-                <version>3.0.6</version>
+                <version>3.0.7</version>
             </dependency>
 
             <dependency>
