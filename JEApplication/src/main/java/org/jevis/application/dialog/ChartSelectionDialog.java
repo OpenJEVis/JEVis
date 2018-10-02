@@ -37,16 +37,17 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.Chart.ChartDataModel;
-import org.jevis.application.Chart.ChartSettings;
+import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
-import org.jevis.application.jevistree.*;
+import org.jevis.application.jevistree.JEVisTree;
+import org.jevis.application.jevistree.JEVisTreeFactory;
+import org.jevis.application.jevistree.TreePlugin;
+import org.jevis.application.jevistree.UserSelection;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -59,18 +60,16 @@ public class ChartSelectionDialog {
 
     private final JEVisDataSource _ds;
     private final String ICON = "1404313956_evolution-tasks.png";
-    private Map<String, ChartDataModel> data = new HashMap<>();
-    private Map<String, ChartSettings> charts = new HashMap<>();
+    private GraphDataModel data;
     private Stage stage;
     private boolean init = true;
     private JEVisTree _tree;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private ChartPlugin bp = null;
 
-    public ChartSelectionDialog(JEVisDataSource ds, Map<String, ChartDataModel> data, Map<String, ChartSettings> charts) {
+    public ChartSelectionDialog(JEVisDataSource ds, GraphDataModel data) {
         this._ds = ds;
         this.data = data;
-        this.charts = charts;
     }
 
     public Response show(Stage owner) {
@@ -136,9 +135,7 @@ public class ChartSelectionDialog {
         for (TreePlugin plugin : tree.getPlugins()) {
             if (plugin instanceof ChartPlugin) {
                 bp = (ChartPlugin) plugin;
-                if (charts != null && !charts.isEmpty())
-                    bp.setCharts(charts);
-                if (data != null && !data.isEmpty()) {
+                if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
                     bp.set_data(data);
                 }
             }
@@ -156,7 +153,7 @@ public class ChartSelectionDialog {
 
         TabPane tabPaneCharts = new TabPane();
 
-        getChartsList();
+        chartsList = data.getChartsList();
         for (String s : chartsList) {
             tabPaneCharts.getTabs().add(getChartTab(s));
         }
@@ -178,12 +175,11 @@ public class ChartSelectionDialog {
         Scene scene = new Scene(tabpane);
         stage.setScene(scene);
 
-        if (data != null && !data.isEmpty()) {
+        if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
             List<UserSelection> listUS = new ArrayList<>();
-            for (Map.Entry<String, ChartDataModel> entry : data.entrySet()) {
-                ChartDataModel mdl = entry.getValue();
-                if (mdl.getSelected())
-                    listUS.add(new UserSelection(UserSelection.SelectionType.Object, mdl.getObject()));
+            for (ChartDataModel cdm : data.getSelectedData()) {
+                if (cdm.getSelected())
+                    listUS.add(new UserSelection(UserSelection.SelectionType.Object, cdm.getObject()));
 
             }
 
@@ -206,7 +202,7 @@ public class ChartSelectionDialog {
             tree.setUserSelectionEnded();
             _response = Response.OK;
 
-            stage.hide();
+            stage.close();
         });
 
         stage.showAndWait();
@@ -249,26 +245,6 @@ public class ChartSelectionDialog {
         return newTab;
     }
 
-    public ObservableList<String> getChartsList() {
-        List<String> tempList = new ArrayList<>();
-        if (data != null && !data.isEmpty()) {
-            for (Map.Entry<String, ChartDataModel> entry : data.entrySet()) {
-                ChartDataModel mdl = entry.getValue();
-                if (mdl.getSelected()) {
-                    for (String s : mdl.get_selectedCharts()) {
-                        if (!tempList.contains(s) && s != null) tempList.add(s);
-                    }
-                }
-            }
-        }
-
-        AlphanumComparator ac = new AlphanumComparator();
-        tempList.sort(ac);
-
-        chartsList = FXCollections.observableArrayList(tempList);
-
-        return chartsList;
-    }
 
     public JEVisTree getTree() {
         if (!init) {
@@ -285,11 +261,11 @@ public class ChartSelectionDialog {
         OK, CANCEL
     }
 
-    public Map<String, ChartDataModel> getSelectedData() {
+    public GraphDataModel getSelectedData() {
         return data;
     }
 
-    public void setData(Map<String, ChartDataModel> data) {
+    public void setData(GraphDataModel data) {
         this.data = data;
     }
 

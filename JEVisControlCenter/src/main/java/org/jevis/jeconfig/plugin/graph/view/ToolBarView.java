@@ -22,10 +22,11 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
+import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.AlphanumComparator;
-import org.jevis.application.jevistree.plugin.ChartPlugin;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -177,25 +178,12 @@ public class ToolBarView {
         dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
         dialog.showAndWait().ifPresent(response -> {
             if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, null, null);
+                ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, model);
 
                 if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
-                    Set<ChartDataModel> selectedData = new HashSet<>();
-                    for (Map.Entry<String, ChartDataModel> entrySet : selectionDialog.getBp().getSelectedData().entrySet()) {
-                        ChartDataModel value = entrySet.getValue();
-                        if (value.getSelected()) {
-                            selectedData.add(value);
-                        }
-                    }
-
-                    Set<ChartSettings> chartSettings = new HashSet<>();
-                    for (Map.Entry<String, ChartSettings> entry : selectionDialog.getBp().getCharts().entrySet()) {
-                        chartSettings.add(entry.getValue());
-                    }
-
-                    model.setCharts(chartSettings);
-                    model.setSelectedData(selectedData);
+                    model.setCharts(selectionDialog.getBp().getData().getCharts());
+                    model.setSelectedData(selectionDialog.getBp().getData().getSelectedData());
 
                 }
             } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
@@ -240,66 +228,24 @@ public class ToolBarView {
     }
 
     private void changeSettings(ActionEvent event) {
-        Map<String, ChartDataModel> dataModelHashMap = new HashMap<>();
-        Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
 
-        for (ChartDataModel mdl : model.getSelectedData()) {
-            if (mdl.getSelected()) {
-                dataModelHashMap.put(mdl.getObject().getID().toString(), mdl);
-            }
-        }
-
-        for (ChartSettings settings : model.getCharts()) {
-            chartSettingsHashMap.put(settings.getName(), settings);
-        }
-
-        ChartSelectionDialog dia = new ChartSelectionDialog(ds, dataModelHashMap, chartSettingsHashMap);
+        ChartSelectionDialog dia = new ChartSelectionDialog(ds, model);
 
         if (dia.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
-            Set<ChartDataModel> selectedData = new HashSet<>();
-            for (Map.Entry<String, ChartDataModel> entrySet : dia.getBp().getSelectedData().entrySet()) {
-                ChartDataModel value = entrySet.getValue();
-                if (value.getSelected()) {
-                    selectedData.add(value);
-                }
-            }
-
-            Set<ChartSettings> chartSettings = new HashSet<>();
-            for (Map.Entry<String, ChartSettings> entry : dia.getBp().getCharts().entrySet()) {
-                chartSettings.add(entry.getValue());
-            }
-
-            model.setCharts(chartSettings);
-            model.setSelectedData(selectedData);
+            model.setCharts(dia.getBp().getData().getCharts());
+            model.setSelectedData(dia.getBp().getData().getSelectedData());
         }
-    }
-
-    public ObservableList<String> getChartsList() {
-        List<String> tempList = new ArrayList<>();
-        for (ChartDataModel mdl : model.getSelectedData()) {
-            if (mdl.getSelected()) {
-                for (String s : mdl.get_selectedCharts()) {
-                    if (!tempList.contains(s)) tempList.add(s);
-                }
-            }
-        }
-
-        AlphanumComparator ac = new AlphanumComparator();
-        tempList.sort(ac);
-
-        chartsList = FXCollections.observableArrayList(tempList);
-        return chartsList;
     }
 
     public List<ChartView> getChartViews() {
         List<ChartView> charts = new ArrayList<>();
 
-        getChartsList();
+        chartsList = model.getChartsList();
 
         chartsList.forEach(s -> {
             ChartView view = new ChartView(model);
-            ChartSettings.ChartType type = ChartSettings.ChartType.AREA;
+            ChartType type = ChartType.AREA;
             if (model.getCharts() != null && !model.getCharts().isEmpty()) {
                 for (ChartSettings set : model.getCharts()) {
                     if (set.getName().equals(s)) type = set.getChartType();
@@ -423,7 +369,7 @@ public class ToolBarView {
                     json.setObject(mdl.getObject().getID().toString());
                     if (mdl.getDataProcessor() != null)
                         json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
-                    json.setAggregation(mdl.getAggregation().toString());
+                    json.setAggregation(mdl.getAggregationPeriod().toString());
                     json.setSelectedStart(mdl.getSelectedStart().toString());
                     json.setSelectedEnd(mdl.getSelectedEnd().toString());
                     json.setUnit(mdl.getUnit().toJSON());
@@ -652,7 +598,7 @@ public class ToolBarView {
                 newData.setTitle(mdl.getName());
                 if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
                 newData.getAttribute();
-                newData.setAggregation(parseAggregation(mdl.getAggregation()));
+                newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
                 newData.setSelected(selected);
                 newData.set_somethingChanged(true);
                 newData.getSamples();
@@ -681,7 +627,7 @@ public class ToolBarView {
             for (JsonChartSettings settings : listChartsSettings) {
                 ChartSettings newSettings = new ChartSettings("");
                 newSettings.setName(settings.getName());
-                newSettings.setChartType(parseChartType(settings.getChartType()));
+                newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
                 if (settings.getHeight() != null)
                     newSettings.setHeight(Double.parseDouble(settings.getHeight()));
                 chartSettingsHashMap.put(newSettings.getName(), newSettings);
@@ -693,42 +639,6 @@ public class ToolBarView {
             }
         }
         return chartSettings;
-    }
-
-    private ChartSettings.ChartType parseChartType(String chartType) {
-        switch (chartType) {
-            case ("AREA"):
-                return ChartSettings.ChartType.AREA;
-            case ("LINE"):
-                return ChartSettings.ChartType.LINE;
-            case ("BAR"):
-                return ChartSettings.ChartType.BAR;
-            case ("BUBBLE"):
-                return ChartSettings.ChartType.BUBBLE;
-            case ("SCATTER"):
-                return ChartSettings.ChartType.SCATTER;
-            case ("PIE"):
-                return ChartSettings.ChartType.PIE;
-            default:
-                return ChartSettings.ChartType.AREA;
-        }
-    }
-
-    private ChartPlugin.AGGREGATION parseAggregation(String aggrigation) {
-        switch (aggrigation) {
-            case ("None"):
-                return ChartPlugin.AGGREGATION.None;
-            case ("Daily"):
-                return ChartPlugin.AGGREGATION.Daily;
-            case ("Weekly"):
-                return ChartPlugin.AGGREGATION.Weekly;
-            case ("Monthly"):
-                return ChartPlugin.AGGREGATION.Monthly;
-            case ("Yearly"):
-                return ChartPlugin.AGGREGATION.Yearly;
-            default:
-                return ChartPlugin.AGGREGATION.None;
-        }
     }
 
     public void selectFirst() {

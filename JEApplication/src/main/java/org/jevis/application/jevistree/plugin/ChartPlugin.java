@@ -27,19 +27,28 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
+import org.jevis.application.Chart.ChartType;
+import org.jevis.application.Chart.ChartUnits.ChartUnits;
+import org.jevis.application.Chart.ChartUnits.EnergyUnit;
+import org.jevis.application.Chart.ChartUnits.MassUnit;
+import org.jevis.application.Chart.ChartUnits.VolumeUnit;
+import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
-import org.jevis.application.jevistree.*;
+import org.jevis.application.jevistree.ColumnFactory;
+import org.jevis.application.jevistree.JEVisTree;
+import org.jevis.application.jevistree.JEVisTreeRow;
+import org.jevis.application.jevistree.TreePlugin;
 import org.jevis.application.tools.DisabledItemsComboBox;
-import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -50,10 +59,10 @@ public class ChartPlugin implements TreePlugin {
 
     private JEVisTree _tree;
 
-    private Map<String, ChartDataModel> _data = new HashMap<>();
+    private final List<ChartType> listChartTypes = Arrays.asList(ChartType.values());
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
-    private final List<ChartSettings.ChartType> listChartTypes = Arrays.asList(ChartSettings.ChartType.values());
+    private final Tooltip tpMarkAll = new Tooltip(rb.getString("plugin.graph.dialog.changesettings.tooltip.forall"));
 
     private enum DATE_TYPE {
 
@@ -104,13 +113,7 @@ public class ChartPlugin implements TreePlugin {
 
     @Override
     public void selectionFinished() {
-        for (Map.Entry<String, ChartDataModel> entrySet : _data.entrySet()) {
-            String key = entrySet.getKey();
-            ChartDataModel value = entrySet.getValue();
-            if (value.getSelected()) {
-            }
 
-        }
 
     }
 
@@ -119,9 +122,11 @@ public class ChartPlugin implements TreePlugin {
         return null;
     }
 
+    private GraphDataModel _data = new GraphDataModel();
+
     private ChartDataModel getData(JEVisTreeRow row) {
-        String id = row.getID();
-        if (_data.containsKey(id)) {
+        Long id = Long.parseLong(row.getID());
+        if (_data != null && _data.getSelectedData() != null && _data.containsId(id)) {
             return _data.get(id);
         } else {
             ChartDataModel newData = new ChartDataModel();
@@ -136,12 +141,12 @@ public class ChartPlugin implements TreePlugin {
 
             }
             newData.setAttribute(row.getJEVisAttribute());
-            _data.put(id, newData);
+
+            _data.getSelectedData().add(newData);
+
             return newData;
         }
     }
-
-    final Tooltip tpMarkAll = new Tooltip(rb.getString("plugin.graph.dialog.changesettings.tooltip.forall"));
 
     private DatePicker buildDatePicker(ChartDataModel data, DATE_TYPE type) {
 
@@ -203,7 +208,9 @@ public class ChartPlugin implements TreePlugin {
 
     @Override
     public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns() {
-        getChartsList();
+        if (_data != null) {
+            chartsList = _data.getChartsList();
+        }
         List<TreeTableColumn<JEVisTreeRow, Long>> list = new ArrayList<>();
 
         TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn();
@@ -217,7 +224,7 @@ public class ChartPlugin implements TreePlugin {
         addChart.setOnAction(event -> {
             if (!chartsList.contains(chartTitle)) {
                 chartsList.add(chartTitle);
-                charts.put(chartTitle, new ChartSettings(chartTitle));
+                _data.getCharts().add(new ChartSettings(chartTitle));
 
                 TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
 
@@ -227,7 +234,7 @@ public class ChartPlugin implements TreePlugin {
                 for (String s : chartsList) if (s.contains(chartTitle)) counter++;
 
                 chartsList.add(chartTitle + " " + counter);
-                charts.put(chartTitle + " " + counter, new ChartSettings(chartTitle + " " + counter));
+                _data.getCharts().add(new ChartSettings(chartTitle + " " + counter));
 
                 TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, chartsList.size() - 1);
 
@@ -247,7 +254,7 @@ public class ChartPlugin implements TreePlugin {
             charts.add(selectColumn);
         }
 
-        TreeTableColumn<JEVisTreeRow, AGGREGATION> aggregationColumn = buildAggregationColumn(_tree, rb.getString("graph.table.interval"));
+        TreeTableColumn<JEVisTreeRow, AggregationPeriod> aggregationColumn = buildAggregationColumn(_tree, rb.getString("graph.table.interval"));
         TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn = buildDataPorcessorColumn(_tree, rb.getString("graph.table.cleaning"));
         TreeTableColumn<JEVisTreeRow, DateTime> startDateColumn = buildDateColumn(_tree, rb.getString("graph.table.startdate"), DATE_TYPE.START);
         TreeTableColumn<JEVisTreeRow, DateTime> endDateColumn = buildDateColumn(_tree, rb.getString("graph.table.enddate"), DATE_TYPE.END);
@@ -257,6 +264,7 @@ public class ChartPlugin implements TreePlugin {
         column.getColumns().addAll(colorColumn, aggregationColumn, dataProcessorColumn, startDateColumn, endDateColumn, unitColumn);
 
         list.add(column);
+
 
         return list;
     }
@@ -383,19 +391,17 @@ public class ChartPlugin implements TreePlugin {
                                     if (type == DATE_TYPE.START) {
                                         LocalDate ld = dp.valueProperty().get();
                                         DateTime newDateTimeStart = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
-                                        _data.entrySet().parallelStream().forEach(mdl -> {
-                                            ChartDataModel cdm = mdl.getValue();
-                                            if (cdm.getSelected()) {
-                                                cdm.setSelectedStart(newDateTimeStart);
+                                        _data.getSelectedData().parallelStream().forEach(mdl -> {
+                                            if (mdl.getSelected()) {
+                                                mdl.setSelectedStart(newDateTimeStart);
                                             }
                                         });
                                     } else if (type == DATE_TYPE.END) {
                                         LocalDate ld = dp.valueProperty().get();
                                         DateTime newDateTimeEnd = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
-                                        _data.entrySet().parallelStream().forEach(mdl -> {
-                                            ChartDataModel cdm = mdl.getValue();
-                                            if (cdm.getSelected()) {
-                                                cdm.setSelectedEnd(newDateTimeEnd);
+                                        _data.getSelectedData().parallelStream().forEach(mdl -> {
+                                            if (mdl.getSelected()) {
+                                                mdl.setSelectedEnd(newDateTimeEnd);
                                             }
                                         });
                                     }
@@ -446,6 +452,7 @@ public class ChartPlugin implements TreePlugin {
         String keyDaily = rb.getString("graph.interval.daily");
         String keyWeekly = rb.getString("graph.interval.weekly");
         String keyMonthly = rb.getString("graph.interval.monthly");
+        String keyQuarterly = rb.getString("graph.interval.quarterly");
         String keyYearly = rb.getString("graph.interval.yearly");
 
 
@@ -454,79 +461,85 @@ public class ChartPlugin implements TreePlugin {
         aggList.add(keyDaily);
         aggList.add(keyWeekly);
         aggList.add(keyMonthly);
+        aggList.add(keyQuarterly);
         aggList.add(keyYearly);
 
-        ChoiceBox aggrigate = new ChoiceBox();
-        aggrigate.setItems(FXCollections.observableArrayList(aggList));
-        aggrigate.getSelectionModel().selectFirst();
-        switch (data.getAggregation()) {
-            case None:
-                aggrigate.valueProperty().setValue(keyPreset);
+        ChoiceBox aggregate = new ChoiceBox();
+        aggregate.setItems(FXCollections.observableArrayList(aggList));
+        aggregate.getSelectionModel().selectFirst();
+        switch (data.getAggregationPeriod()) {
+            case NONE:
+                aggregate.valueProperty().setValue(keyPreset);
                 break;
-            case Hourly:
-                aggrigate.valueProperty().setValue(keyHourly);
+            case HOURLY:
+                aggregate.valueProperty().setValue(keyHourly);
                 break;
-            case Daily:
-                aggrigate.valueProperty().setValue(keyDaily);
+            case DAILY:
+                aggregate.valueProperty().setValue(keyDaily);
                 break;
-            case Weekly:
-                aggrigate.valueProperty().setValue(keyWeekly);
+            case WEEKLY:
+                aggregate.valueProperty().setValue(keyWeekly);
                 break;
-            case Monthly:
-                aggrigate.valueProperty().setValue(keyMonthly);
+            case MONTHLY:
+                aggregate.valueProperty().setValue(keyMonthly);
                 break;
-            case Yearly:
-                aggrigate.valueProperty().setValue(keyYearly);
+            case QUARTERLY:
+                aggregate.valueProperty().setValue(keyQuarterly);
+                break;
+            case YEARLY:
+                aggregate.valueProperty().setValue(keyYearly);
                 break;
         }
 
-        aggrigate.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+        aggregate.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
             //TODO:replace this quick and dirty workaround
 
             if (newValue.equals(keyPreset)) {
-                data.setAggregation(AGGREGATION.None);
+                data.setAggregationPeriod(AggregationPeriod.NONE);
             } else if (newValue.equals(keyHourly)) {
-                data.setAggregation(AGGREGATION.Hourly);
+                data.setAggregationPeriod(AggregationPeriod.HOURLY);
             } else if (newValue.equals(keyDaily)) {
-                data.setAggregation(AGGREGATION.Daily);
+                data.setAggregationPeriod(AggregationPeriod.DAILY);
             } else if (newValue.equals(keyWeekly)) {
-                data.setAggregation(AGGREGATION.Weekly);
+                data.setAggregationPeriod(AggregationPeriod.WEEKLY);
             } else if (newValue.equals(keyMonthly)) {
-                data.setAggregation(AGGREGATION.Monthly);
+                data.setAggregationPeriod(AggregationPeriod.MONTHLY);
+            } else if (newValue.equals(keyQuarterly)) {
+                data.setAggregationPeriod(AggregationPeriod.QUARTERLY);
             } else if (newValue.equals(keyYearly)) {
-                data.setAggregation(AGGREGATION.Yearly);
+                data.setAggregationPeriod(AggregationPeriod.YEARLY);
             }
 
 
         });
 
-        return aggrigate;
+        return aggregate;
     }
 
-    private TreeTableColumn<JEVisTreeRow, AGGREGATION> buildAggregationColumn(JEVisTree tree, String columnName) {
-        TreeTableColumn<JEVisTreeRow, AGGREGATION> column = new TreeTableColumn(columnName);
+    private TreeTableColumn<JEVisTreeRow, AggregationPeriod> buildAggregationColumn(JEVisTree tree, String columnName) {
+        TreeTableColumn<JEVisTreeRow, AggregationPeriod> column = new TreeTableColumn(columnName);
         column.setPrefWidth(100);
         column.setCellValueFactory(param -> {
 
             ChartDataModel data = getData(param.getValue().getValue());
 
-            return new ReadOnlyObjectWrapper<>(data.getAggregation());
+            return new ReadOnlyObjectWrapper<>(data.getAggregationPeriod());
         });
 
-        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, AGGREGATION>, TreeTableCell<JEVisTreeRow, AGGREGATION>>() {
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, AggregationPeriod>, TreeTableCell<JEVisTreeRow, AggregationPeriod>>() {
 
             @Override
-            public TreeTableCell<JEVisTreeRow, AGGREGATION> call(TreeTableColumn<JEVisTreeRow, AGGREGATION> param) {
+            public TreeTableCell<JEVisTreeRow, AggregationPeriod> call(TreeTableColumn<JEVisTreeRow, AggregationPeriod> param) {
 
-                TreeTableCell<JEVisTreeRow, AGGREGATION> cell = new TreeTableCell<JEVisTreeRow, AGGREGATION>() {
+                TreeTableCell<JEVisTreeRow, AggregationPeriod> cell = new TreeTableCell<JEVisTreeRow, AggregationPeriod>() {
 
                     @Override
-                    public void commitEdit(AGGREGATION newValue) {
+                    public void commitEdit(AggregationPeriod newValue) {
                         super.commitEdit(newValue);
                     }
 
                     @Override
-                    protected void updateItem(AGGREGATION item, boolean empty) {
+                    protected void updateItem(AggregationPeriod item, boolean empty) {
                         super.updateItem(item, empty);
                         if (!empty) {
                             StackPane hbox = new StackPane();
@@ -668,33 +681,6 @@ public class ChartPlugin implements TreePlugin {
 
     }
 
-    public void getChartsList() {
-        List<String> tempList = new ArrayList<>();
-
-        for (Map.Entry<String, ChartDataModel> entry : _data.entrySet()) {
-            ChartDataModel mdl = entry.getValue();
-            if (mdl.getSelected()) {
-                for (String s : mdl.get_selectedCharts()) {
-                    if (!tempList.contains(s))
-                        tempList.add(s);
-                }
-            }
-        }
-        if (charts.isEmpty()) {
-
-            if (tempList.isEmpty()) {
-                tempList.add(chartTitle);
-                charts.put(chartTitle, new ChartSettings(chartTitle));
-            }
-        }
-
-        AlphanumComparator ac = new AlphanumComparator();
-        tempList.sort(ac);
-        chartsList = FXCollections.observableArrayList(tempList);
-    }
-
-    private Map<String, ChartSettings> charts = new HashMap<>();
-
     private TreeTableColumn<JEVisTreeRow, JEVisUnit> buildUnitColumn(JEVisTree tree, String columnName) {
         TreeTableColumn<JEVisTreeRow, JEVisUnit> column = new TreeTableColumn(columnName);
         column.setPrefWidth(90);
@@ -733,7 +719,7 @@ public class ChartPlugin implements TreePlugin {
 
                                 box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
                                     if (oldValue == null || newValue != oldValue) {
-                                        commitEdit(parseUnit(String.valueOf(newValue)));
+                                        commitEdit(ChartUnits.parseUnit(String.valueOf(newValue)));
                                     }
                                 });
 
@@ -746,11 +732,10 @@ public class ChartPlugin implements TreePlugin {
                                 tb.setTooltip(tpMarkAll);
 
                                 tb.setOnAction(event -> {
-                                    JEVisUnit u = parseUnit(box.getSelectionModel().getSelectedItem().toString());
-                                    _data.entrySet().parallelStream().forEach(mdl -> {
-                                        ChartDataModel cdm = mdl.getValue();
-                                        if (cdm.getSelected()) {
-                                            cdm.setUnit(u);
+                                    JEVisUnit u = ChartUnits.parseUnit(box.getSelectionModel().getSelectedItem().toString());
+                                    _data.getSelectedData().parallelStream().forEach(mdl -> {
+                                        if (mdl.getSelected()) {
+                                            mdl.setUnit(u);
                                         }
                                     });
 
@@ -843,132 +828,19 @@ public class ChartPlugin implements TreePlugin {
         return processorBox;
     }
 
-    private JEVisUnit parseUnit(String unit) {
-        JEVisUnit result = null;
-        Unit _kg = SI.KILOGRAM;
-        Unit _t = NonSI.METRIC_TON;
 
-        Unit _l = NonSI.LITER;
-        Unit _l2 = NonSI.LITRE;
-        Unit _m3 = SI.CUBIC_METRE;
-
-        Unit _W = SI.WATT;
-        Unit _kW = SI.KILO(SI.WATT);
-        Unit _MW = SI.MEGA(SI.WATT);
-        Unit _GW = SI.GIGA(SI.WATT);
-        Unit _Wh = SI.WATT.times(NonSI.HOUR);
-        Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
-        Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
-        Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
-
-        final JEVisUnit kg = new JEVisUnitImp(_kg);
-        final JEVisUnit t = new JEVisUnitImp(_t);
-
-        final JEVisUnit l = new JEVisUnitImp(_l);
-        final JEVisUnit l2 = new JEVisUnitImp(_l2);
-        final JEVisUnit m3 = new JEVisUnitImp(_m3);
-
-        final JEVisUnit W = new JEVisUnitImp(_W);
-        final JEVisUnit kW = new JEVisUnitImp(_kW);
-        final JEVisUnit MW = new JEVisUnitImp(_MW);
-        final JEVisUnit GW = new JEVisUnitImp(_GW);
-        final JEVisUnit Wh = new JEVisUnitImp(_Wh);
-        final JEVisUnit kWh = new JEVisUnitImp(_kWh);
-        final JEVisUnit MWh = new JEVisUnitImp(_MWh);
-        final JEVisUnit GWh = new JEVisUnitImp(_GWh);
-
-        switch (unit) {
-            case "kg":
-                result = kg;
-                break;
-            case "t":
-                result = t;
-                break;
-            case "W":
-                result = W;
-                break;
-            case "kW":
-                result = kW;
-                break;
-            case "MW":
-                result = MW;
-                break;
-            case "GW":
-                result = GW;
-                break;
-            case "Wh":
-                result = Wh;
-                break;
-            case "kWh":
-                result = kWh;
-                break;
-            case "MWh":
-                result = MWh;
-                break;
-            case "GWh":
-                result = GWh;
-                break;
-            case "m³":
-                result = m3;
-                break;
-            case "L":
-                result = l;
-                break;
-            default:
-                break;
-        }
-        return result;
-    }
-
-    private enum EnergyUnit {
-        W, kW, MW, GW, Wh, kWh, MWh, GWh
-    }
-
-    private enum MassUnit {
-        kg, t
-    }
-
-    private enum VolumeUnit {
-        L("L"), m3("m³");
-
-        private final String name;
-
-        VolumeUnit(String s) {
-            this.name = s;
-        }
-
-        @Override
-        public String toString() {
-            return this.name;
-        }
-    }
-
-    public Map<String, ChartDataModel> getSelectedData() {
+    public GraphDataModel getData() {
         return _data;
     }
 
     private final List<String> disabledItems = Arrays.asList(rb.getString("plugin.graph.charttype.scatter.name"),
             rb.getString("plugin.graph.charttype.bubble.name"));
 
-    public void set_data(Map<String, ChartDataModel> _data) {
+    public void set_data(GraphDataModel _data) {
         this._data = _data;
         _tree.getColumns().clear();
         _tree.getColumns().addAll(ColumnFactory.buildName());
         for (TreeTableColumn<JEVisTreeRow, Long> column : getColumns()) _tree.getColumns().add(column);
-    }
-
-    public Map<String, ChartSettings> getCharts() {
-        return charts;
-    }
-
-    public enum AGGREGATION {
-
-        None, Hourly, Daily, Weekly, Monthly,
-        Yearly
-    }
-
-    public void setCharts(Map<String, ChartSettings> charts) {
-        this.charts = charts;
     }
 
     private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, Integer
@@ -994,55 +866,59 @@ public class ChartPlugin implements TreePlugin {
 
         textFieldChartName.textProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                _data.entrySet().parallelStream().forEach(entry -> {
-                    ChartDataModel mdl = entry.getValue();
+                _data.getSelectedData().parallelStream().forEach(mdl -> {
                     if (mdl.getSelected()) {
                         if (mdl.get_selectedCharts().contains(oldValue)) {
                             mdl.get_selectedCharts().set(mdl.get_selectedCharts().indexOf(oldValue), newValue);
                         }
                     }
                 });
-                ChartSettings set = charts.remove(oldValue);
-                set.setName(newValue);
+                AtomicReference<ChartSettings> set = new AtomicReference<>();
 
-                charts.put(newValue, set);
+                _data.getCharts().parallelStream().forEach(chartSettings -> {
+                    if (chartSettings.getName().equals(oldValue)) {
+                        set.set(chartSettings);
+                    }
+                });
+                _data.getCharts().remove(set);
+                set.get().setName(newValue);
+
+                _data.getCharts().add(set.get());
 
                 chartsList.set(selectionColumnIndex, newValue);
             }
         });
 
-        DisabledItemsComboBox<String> comboBoxChartType = new DisabledItemsComboBox(getlistNamesChartTypes());
+        DisabledItemsComboBox<String> comboBoxChartType = new DisabledItemsComboBox(ChartType.getlistNamesChartTypes());
         comboBoxChartType.setDisabledItems(disabledItems);
 
-        if (charts != null && !charts.isEmpty()) {
+        if (_data.getCharts() != null && !_data.getCharts().isEmpty()) {
             if (columnName != null) {
                 if (columnName.equals(chartTitle)) {
-                    comboBoxChartType.getSelectionModel().select(getlistNamesChartTypes().get(0));
+                    comboBoxChartType.getSelectionModel().select(ChartType.getlistNamesChartTypes().get(0));
                 } else {
-                    final Boolean[] foundChart = {false};
-                    charts.entrySet().forEach(chart -> {
-                        ChartSettings settings = chart.getValue();
-                        if (settings.getName().equals(columnName)) {
-                            comboBoxChartType.getSelectionModel().select(parseChartIndex(settings.getChartType()));
-                            foundChart[0] = true;
+                    final AtomicReference<Boolean> foundChart = new AtomicReference<>(false);
+                    _data.getCharts().forEach(chart -> {
+                        if (chart.getName().equals(columnName)) {
+                            comboBoxChartType.getSelectionModel().select(ChartType.parseChartIndex(chart.getChartType()));
+                            foundChart.set(true);
                         }
                     });
-                    if (!foundChart[0]) comboBoxChartType.getSelectionModel().select(0);
+                    if (!foundChart.get()) comboBoxChartType.getSelectionModel().select(0);
                 }
             }
         } else {
             comboBoxChartType.getSelectionModel().select(0);
-            if (columnName != null) charts.put(columnName, new ChartSettings(chartTitle));
-            else charts.put(chartTitle, new ChartSettings(chartTitle));
+            if (columnName != null) _data.getCharts().add(new ChartSettings(chartTitle));
+            else _data.getCharts().add(new ChartSettings(chartTitle));
         }
 
         comboBoxChartType.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                charts.entrySet().parallelStream().forEach(chart -> {
-                    ChartSettings settings = chart.getValue();
-                    if (settings.getName().equals(textFieldChartName.getText())) {
-                        ChartSettings.ChartType type = parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
-                        settings.setChartType(type);
+                _data.getCharts().parallelStream().forEach(chart -> {
+                    if (chart.getName().equals(textFieldChartName.getText())) {
+                        ChartType type = ChartType.parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
+                        chart.setChartType(type);
                     }
                 });
             }
@@ -1139,8 +1015,8 @@ public class ChartPlugin implements TreePlugin {
                             textFieldChartName.setEditable(true);
                         } else {
                             AtomicReference<Boolean> foundSelected = new AtomicReference<>(false);
-                            _data.entrySet().parallelStream().forEach(mdl -> {
-                                if (mdl.getValue().getSelected()) {
+                            _data.getSelectedData().parallelStream().forEach(mdl -> {
+                                if (mdl.getSelected()) {
                                     foundSelected.set(true);
                                 }
                             });
@@ -1155,96 +1031,9 @@ public class ChartPlugin implements TreePlugin {
         return column;
     }
 
-    private ObservableList<String> getlistNamesChartTypes() {
-        List<String> tempList = new ArrayList<>();
-        for (ChartSettings.ChartType ct : listChartTypes) {
-            switch (ct.toString()) {
-                case ("AREA"):
-                    tempList.add(rb.getString("plugin.graph.charttype.area.name"));
-                    break;
-                case ("LINE"):
-                    tempList.add(rb.getString("plugin.graph.charttype.line.name"));
-                    break;
-                case ("BAR"):
-                    tempList.add(rb.getString("plugin.graph.charttype.bar.name"));
-                    break;
-                case ("BUBBLE"):
-                    tempList.add(rb.getString("plugin.graph.charttype.bubble.name"));
-                    break;
-                case ("SCATTER"):
-                    tempList.add(rb.getString("plugin.graph.charttype.scatter.name"));
-                    break;
-                case ("PIE"):
-                    tempList.add(rb.getString("plugin.graph.charttype.pie.name"));
-                    break;
-                default:
-                    break;
-            }
-        }
-        return FXCollections.observableArrayList(tempList);
-    }
-
-    private ChartSettings.ChartType parseChartType(Integer chartTypeIndex) {
-        switch (chartTypeIndex) {
-            case (0):
-                return ChartSettings.ChartType.AREA;
-            case (1):
-                return ChartSettings.ChartType.LINE;
-            case (2):
-                return ChartSettings.ChartType.BAR;
-            case (3):
-                return ChartSettings.ChartType.BUBBLE;
-            case (4):
-                return ChartSettings.ChartType.SCATTER;
-            case (5):
-                return ChartSettings.ChartType.PIE;
-            default:
-                return ChartSettings.ChartType.AREA;
-        }
-    }
-
-    private ChartSettings.ChartType parseChartType(String chartType) {
-        switch (chartType) {
-            case ("AREA"):
-                return ChartSettings.ChartType.AREA;
-            case ("LINE"):
-                return ChartSettings.ChartType.LINE;
-            case ("BAR"):
-                return ChartSettings.ChartType.BAR;
-            case ("BUBBLE"):
-                return ChartSettings.ChartType.BUBBLE;
-            case ("SCATTER"):
-                return ChartSettings.ChartType.SCATTER;
-            case ("PIE"):
-                return ChartSettings.ChartType.PIE;
-            default:
-                return ChartSettings.ChartType.AREA;
-        }
-    }
-
-    private Integer parseChartIndex(ChartSettings.ChartType chartType) {
-
-        switch (chartType.toString()) {
-            case ("AREA"):
-                return 0;
-            case ("LINE"):
-                return 1;
-            case ("BAR"):
-                return 2;
-            case ("BUBBLE"):
-                return 3;
-            case ("SCATTER"):
-                return 4;
-            case ("PIE"):
-                return 5;
-            default:
-                return 0;
-        }
-    }
 
     public void selectNone() {
-        _data.entrySet().parallelStream().forEach(entry -> {
-            ChartDataModel mdl = entry.getValue();
+        _data.getSelectedData().parallelStream().forEach(mdl -> {
             if (mdl.getSelected()) {
                 mdl.setSelected(false);
             }

@@ -42,17 +42,17 @@ import org.jevis.api.*;
 import org.jevis.application.dialog.DialogHeader;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.function.AggregatorFunction;
-import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.datepicker.DatePicker;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.joda.time.Period;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * GUI Dialog to configure attributes and there sample.
@@ -71,6 +71,8 @@ public class SampleEditor {
     private JEVisAttribute _attribute;
     private Process _dataProcessor;
     private List<JEVisObject> _dataProcessors = new ArrayList<>();
+
+    private AggregationPeriod _period = AggregationPeriod.NONE;
 
     /**
      * @param owner
@@ -201,7 +203,7 @@ public class SampleEditor {
 
         }
         _visibleExtension = extensions.get(0);
-        updateSamples(attribute, _from, _until, extensions);
+        updateSamples(_from, _until);
 
         final TabPane tabPane = new TabPane();
 //        tabPane.setMaxWidth(2000);
@@ -262,7 +264,7 @@ public class SampleEditor {
                 DateTime from = new DateTime(t1.getTime());
                 _from = from;
 //                _visibleExtension.setSamples(attribute, attribute.getSamples(_from, _until));
-                updateSamples(attribute, _from, _until, extensions);
+                updateSamples(_from, _until);
             }
         });
 
@@ -273,7 +275,7 @@ public class SampleEditor {
                 DateTime until = new DateTime(t1.getTime());
                 _until = until;
 //                _visibleExtension.setSamples(attribute, attribute.getSamples(_from, _until));
-                updateSamples(attribute, _from, _until, extensions);
+                updateSamples(_from, _until);
             }
         });
 
@@ -302,8 +304,6 @@ public class SampleEditor {
 
         return response;
     }
-
-    private AGGREGATION _mode = AGGREGATION.None;
 
     //    final Label passL = new Label("New Password:");
 //    final Label confirmL = new Label("Comfirm Password:");
@@ -371,36 +371,40 @@ public class SampleEditor {
         });
 
         List<String> aggList = new ArrayList<>();
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.none"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.hourly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.daily"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.weekly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.monthly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregation.yearly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.none"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.hourly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.daily"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.weekly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.monthly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.quarterly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.yearly"));
 
-        ChoiceBox aggrigate = new ChoiceBox();
-        aggrigate.setItems(FXCollections.observableArrayList(aggList));
-        aggrigate.getSelectionModel().selectFirst();
-        aggrigate.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+        ChoiceBox aggregate = new ChoiceBox();
+        aggregate.setItems(FXCollections.observableArrayList(aggList));
+        aggregate.getSelectionModel().selectFirst();
+        aggregate.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 switch (newValue.intValue()) {
                     case 0:
-                        _mode = AGGREGATION.None;
+                        _period = AggregationPeriod.NONE;
                         break;
                     case 1:
-                        _mode = AGGREGATION.Hourly;
+                        _period = AggregationPeriod.HOURLY;
                         break;
                     case 2:
-                        _mode = AGGREGATION.Daily;
+                        _period = AggregationPeriod.DAILY;
                         break;
                     case 3:
-                        _mode = AGGREGATION.Weekly;
+                        _period = AggregationPeriod.WEEKLY;
                         break;
                     case 4:
-                        _mode = AGGREGATION.Monthly;
+                        _period = AggregationPeriod.MONTHLY;
                         break;
                     case 5:
-                        _mode = AGGREGATION.Yearly;
+                        _period = AggregationPeriod.QUARTERLY;
+                        break;
+                    case 6:
+                        _period = AggregationPeriod.YEARLY;
                         break;
                 }
                 update();
@@ -408,7 +412,7 @@ public class SampleEditor {
         });
 
         processorBox.setMinWidth(150);
-        aggrigate.setMinWidth(150);
+        aggregate.setMinWidth(150);
 //        aggrigate.prefWidthProperty().bind(processorBox.prefWidthProperty());
 //        aggrigate.prefHeightProperty()
 //        Bindings.add(aggrigate.prefWidthProperty(), processorBox.prefWidthProperty());
@@ -434,102 +438,39 @@ public class SampleEditor {
         grid.add(aggregation, 0, 2, 1, 1); // column=1 row=0
 
 //        grid.add(hbox, 1, 1, 1, 1); // column=1 row=0
-        grid.add(aggrigate, 1, 2, 1, 1); // column=1 row=0
+        grid.add(aggregate, 1, 2, 1, 1); // column=1 row=0
 
         return grid;
     }
 
     /**
-     * @param att
      * @param from
      * @param until
-     * @param extensions
      */
-    private void updateSamples(final JEVisAttribute att, final DateTime from, final DateTime until, List<SampleEditorExtension> extensions) {
+    private void updateSamples(final DateTime from, final DateTime until) {
         try {
             samples.clear();
 
             _from = from;
             _until = until;
 
-            if (_dataProcessor != null) {
-                ProcessOptions.setStartEnd(_dataProcessor, _from, _until, true, true);
-                _dataProcessor.restResult();
-            }
+            SampleGenerator sg;
+            if (_period.equals(AggregationPeriod.NONE))
+                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, AggregationMode.NONE, _period);
+            else
+                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, AggregationMode.TOTAL, _period);
 
-            Process aggrigate = null;
-            if (_mode == AGGREGATION.None) {
-
-            } else if (_mode == AGGREGATION.Hourly) {
-                aggrigate = new BasicProcess();
-                aggrigate.setJEVisDataSource(att.getDataSource());
-                aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggregatorFunction());
-
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
-            } else if (_mode == AGGREGATION.Daily) {
-                aggrigate = new BasicProcess();
-                aggrigate.setJEVisDataSource(att.getDataSource());
-                aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggregatorFunction());
-
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
-            } else if (_mode == AGGREGATION.Monthly) {
-                aggrigate = new BasicProcess();
-                aggrigate.setJEVisDataSource(att.getDataSource());
-                aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggregatorFunction());
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
-//                aggrigate.addOption(Options.PERIOD, Period.months(1).toString());
-            } else if (_mode == AGGREGATION.Weekly) {
-                aggrigate = new BasicProcess();
-                aggrigate.setJEVisDataSource(att.getDataSource());
-                aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggregatorFunction());
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
-//                aggrigate.addOption(Options.PERIOD, Period.weeks(1).toString());
-            } else if (_mode == AGGREGATION.Yearly) {
-                logger.info("year.....  " + Period.years(1).toString());
-                aggrigate = new BasicProcess();
-                aggrigate.setJEVisDataSource(att.getDataSource());
-                aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggregatorFunction());
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
-//                aggrigate.addOption(Options.PERIOD, Period.years(1).toString());
-            }
-
-            if (_dataProcessor == null) {
-                if (aggrigate != null) {
-                    Process input = new BasicProcess();
-                    input.setJEVisDataSource(att.getDataSource());
-                    input.setID("Dynamic Input");
-                    input.setFunction(new InputFunction());
-
-                    input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, _attribute.getName()));
-                    input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, _attribute.getObject().getID() + ""));
-//                    input.getOptions().put(InputFunction.ATTRIBUTE_ID, _attribute.getName());
-//                    input.getOptions().put(InputFunction.OBJECT_ID, _attribute.getObject().getID() + "");
-                    aggrigate.setSubProcesses(Arrays.asList(input));
-                    samples.addAll(aggrigate.getResult());
-                } else {
-                    samples.addAll(att.getSamples(from, until));
-                }
-
-            } else if (aggrigate != null) {
-                aggrigate.setSubProcesses(Arrays.asList(_dataProcessor));
-                samples.addAll(aggrigate.getResult());
-            } else {
-                samples.addAll(_dataProcessor.getResult());
-            }
+            samples = sg.generateSamples();
+            samples = sg.getAggregatedSamples(samples);
 
             for (SampleEditorExtension ex : extensions) {
-                ex.setSamples(att, samples);
+                ex.setSamples(_attribute, samples);
             }
 
             _dataChanged = true;
             _visibleExtension.update();
         } catch (JEVisException ex) {
-            ex.printStackTrace();
+            logger.error(ex);
         }
     }
 
@@ -539,13 +480,6 @@ public class SampleEditor {
     }
 
     private void update() {
-        updateSamples(_attribute, _from, _until, extensions);
+        updateSamples(_from, _until);
     }
-
-    private enum AGGREGATION {
-
-        None, Hourly, Daily, Weekly, Monthly,
-        Yearly
-    }
-
 }
