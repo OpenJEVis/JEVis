@@ -58,7 +58,16 @@ public class PrepareStep implements ProcessStep {
     }
 
     private List<CleanInterval> getIntervals(CleanDataAttribute calcAttribute, Period periodAlignment) {
-        Duration duration = periodAlignment.toStandardDuration();
+        Duration duration = null;
+
+        if (periodAlignment.equals(Period.months(1))) {
+            duration = Period.days(15).plusHours(5).plusMinutes(16).plusSeconds(48).toStandardDuration();
+        } else if (periodAlignment.equals(Period.years(1))) {
+            duration = Period.days(182).plusHours(14).plusMinutes(54).plusSeconds(40).plusMillis(320).toStandardDuration();
+        } else {
+            duration = periodAlignment.toStandardDuration();
+        }
+
         //the interval with date x begins at x - (duration/2) and ends at x + (duration/2)
         //Todo Month has no well defined duration -> cant handle months atm
         Long halfDuration = duration.getMillis() / 2;
