@@ -44,7 +44,7 @@ public class FillGapStep implements ProcessStep {
         for (JEVisObject obj : calcAttribute.getObject().getParents()) {
             parentObject = obj;
         }
-        if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getGapFillingEnabled() || !calcAttribute.getGapFillingConfig().isEmpty()) {
+        if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getGapFillingEnabled() || calcAttribute.getGapFillingConfig().isEmpty()) {
             //no gap filling when there is no alignment or disabled or no config
             return;
         }
