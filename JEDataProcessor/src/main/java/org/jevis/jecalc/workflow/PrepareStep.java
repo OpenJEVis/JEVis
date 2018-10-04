@@ -59,27 +59,28 @@ public class PrepareStep implements ProcessStep {
 
     private List<CleanInterval> getIntervals(CleanDataAttribute calcAttribute, Period periodAlignment) {
         Duration duration = null;
+        Long halfDuration = null;
 
         if (periodAlignment.equals(Period.months(1))) {
             duration = Period.days(15).plusHours(5).plusMinutes(16).plusSeconds(48).toStandardDuration();
+            halfDuration = duration.getMillis();
         } else if (periodAlignment.equals(Period.years(1))) {
             duration = Period.days(182).plusHours(14).plusMinutes(54).plusSeconds(40).plusMillis(320).toStandardDuration();
+            halfDuration = duration.getMillis();
         } else {
             duration = periodAlignment.toStandardDuration();
+            halfDuration = duration.getMillis() / 2;
         }
-
-        //the interval with date x begins at x - (duration/2) and ends at x + (duration/2)
-        //Todo Month has no well defined duration -> cant handle months atm
-        Long halfDuration = duration.getMillis() / 2;
 
         List<CleanInterval> cleanIntervals = new ArrayList<>();
         DateTime currentDate = calcAttribute.getFirstDate();
         DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
         DateTime maxEndDate = calcAttribute.getMaxEndDate();
+
         if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
-            logger.error("Cant calculate the intervals with startdate " + datePattern.print(currentDate) + " and enddate " + datePattern.print(maxEndDate));
+            logger.error("Cant calculate the intervals with start date " + datePattern.print(currentDate) + " and end date " + datePattern.print(maxEndDate));
         } else {
-            logger.info("Calc interval between startdate {} and enddate {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
+            logger.info("Calc interval between start date {} and end date {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
             while (currentDate.isBefore(maxEndDate)) {
                 DateTime startInterval = currentDate.minus(halfDuration);
                 DateTime endInterval = currentDate.plus(halfDuration);
@@ -88,7 +89,6 @@ public class PrepareStep implements ProcessStep {
                 CleanInterval currentInterval = new CleanInterval(interval, currentDate);
                 cleanIntervals.add(currentInterval);
 
-                //calculate the next date
                 currentDate = currentDate.plus(periodAlignment);
             }
             logger.info("{} intervals calculated", cleanIntervals.size());
