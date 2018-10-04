@@ -81,7 +81,7 @@ public class ServiceMode {
                 Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
                 if (!reportEnabled) {
                     logger.info("Report is not enabled");
-                    break;
+                    continue;
                 }
 
                 ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
