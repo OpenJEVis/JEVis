@@ -45,7 +45,7 @@ public class PrepareStep implements ProcessStep {
         Period periodAlignment = calcAttribute.getPeriodAlignment();
         logger.info("Period is {}", PeriodFormat.getDefault().print(periodAlignment));
         logger.info("Samples should be aligned {}", calcAttribute.getIsPeriodAligned());
-        if (periodAlignment.toStandardDuration().getMillis() == 0 && calcAttribute.getIsPeriodAligned()) {
+        if (periodAlignment.equals(Period.ZERO) && calcAttribute.getIsPeriodAligned()) {
             throw new RuntimeException("No Input Sample Rate given for Object Clean Data and Attribute Value");
         } else if (calcAttribute.getIsPeriodAligned()) {
             List<CleanInterval> cleanIntervals = getIntervals(calcAttribute, periodAlignment);
