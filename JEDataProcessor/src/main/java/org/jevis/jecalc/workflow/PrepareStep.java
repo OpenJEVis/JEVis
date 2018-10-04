@@ -77,7 +77,7 @@ public class PrepareStep implements ProcessStep {
 
                 while (currentDate.isBefore(maxEndDate)) {
                     DateTime startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1, 0, 0, 0);
-                    DateTime endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear() + 1, 1, 0, 0, 0);
+                    DateTime endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1, 0, 0, 0).plusMonths(1);
                     Interval interval = new Interval(startInterval, endInterval);
 
                     CleanInterval currentInterval = new CleanInterval(interval, currentDate);
@@ -92,7 +92,7 @@ public class PrepareStep implements ProcessStep {
 
                 while (currentDate.isBefore(maxEndDate)) {
                     DateTime startInterval = new DateTime(currentDate.getYear(), 1, 1, 0, 0, 0);
-                    DateTime endInterval = new DateTime(currentDate.getYear() + 1, 1, 1, 0, 0, 0);
+                    DateTime endInterval = new DateTime(currentDate.getYear(), 1, 1, 0, 0, 0).plusYears(1);
                     Interval interval = new Interval(startInterval, endInterval);
 
                     CleanInterval currentInterval = new CleanInterval(interval, currentDate);
