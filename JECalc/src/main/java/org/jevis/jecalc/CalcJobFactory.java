@@ -135,7 +135,8 @@ class CalcJobFactory {
         List<JEVisSample> returnSamples = new ArrayList<>();
         switch (inputType) {
             case PERIODIC:
-                returnSamples = valueAttribute.getSamples(startTime, new DateTime());
+                //todo try to make it better for incomplete periods (aggregation)
+                returnSamples = valueAttribute.getSamples(startTime, new DateTime().minus(valueAttribute.getInputSampleRate()));
                 break;
             case STATIC:
                 JEVisSample constant = valueAttribute.getLatestSample();
