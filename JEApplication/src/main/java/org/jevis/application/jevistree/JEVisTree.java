@@ -40,6 +40,7 @@ import org.jevis.application.application.SaveResourceBundle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -56,12 +57,17 @@ public class JEVisTree extends TreeTableView {
     private JEVisObject copyObject;
     private JEVisTreeRow dragItem;
     private SaveResourceBundle rb;
+    private UUID uuid = UUID.randomUUID();
 
     public JEVisTree(JEVisDataSource ds) {
         super();
         this.ds = ds;
         rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
         init();
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 
     public void reload() {

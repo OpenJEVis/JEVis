@@ -54,12 +54,12 @@ import java.util.Observer;
  */
 public class GraphPluginView implements Plugin, Observer {
 
+    private final Logger logger = LogManager.getLogger(GraphPluginView.class);
     private ToolBarView toolBarView;
     private GraphDataModel dataModel;
     //private GraphController controller;
     private ChartView chartView;
     private List<ChartView> listChartViews = null;
-
     private StringProperty name = new SimpleStringProperty("Graph");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
@@ -67,14 +67,8 @@ public class GraphPluginView implements Plugin, Observer {
     private ToolBar toolBar;
     private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
-    private final Logger logger = LogManager.getLogger(GraphPluginView.class);
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
-
-    @Override
-    public String getClassName() {
-        return "Graph Plugin";
-    }
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new GraphDataModel();
@@ -86,6 +80,11 @@ public class GraphPluginView implements Plugin, Observer {
 
         this.ds = ds;
         this.name.set(newname);
+    }
+
+    @Override
+    public String getClassName() {
+        return "Graph Plugin";
     }
 
     @Override
@@ -168,13 +167,13 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     @Override
-    public String getToolTip() {
-        return tooltip;
+    public void setUUID(String newid) {
+        id.set(newid);
     }
 
     @Override
-    public void setUUID(String newid) {
-        id.set(newid);
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

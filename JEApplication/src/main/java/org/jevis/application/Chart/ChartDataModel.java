@@ -57,7 +57,6 @@ public class ChartDataModel {
     }
 
     public List<JEVisSample> getSamples() {
-
         if (_somethingChanged) {
             _somethingChanged = false;
             samples = new ArrayList<>();
@@ -70,6 +69,8 @@ public class ChartDataModel {
 
 
                 SampleGenerator sg;
+
+
                 if (aggregationPeriod.equals(AggregationPeriod.NONE))
                     sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
                             getSelectedEnd(), AggregationMode.NONE, aggregationPeriod);

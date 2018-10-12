@@ -73,8 +73,8 @@ public class LabelElement extends MoveableNode implements SCADAElement {
         userConfig.put(SHOW_UNIT, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.showunit"), GENERAL_GROUP, true, "Help"));
 
 
-        userConfig.put(XPOS, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.xpos"), GENERAL_GROUP, 100, "Help"));
-        userConfig.put(YPOS, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.ypos"), GENERAL_GROUP, 100, "Help"));
+        userConfig.put(XPOS, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.xpos"), GENERAL_GROUP, 100d, "Help"));
+        userConfig.put(YPOS, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.ypos"), GENERAL_GROUP, 100d, "Help"));
 
 
         userConfig.put(FONT_COLOR, new ConfigSheet.Property(I18n.getInstance().getString("plugin.scada.element.setting.label.fontcolor"), GENERAL_GROUP, Color.WHITE, "Help"));
@@ -247,7 +247,6 @@ public class LabelElement extends MoveableNode implements SCADAElement {
     @Override
     public void update() {
         view.getChildren().clear();
-        view.getChildren().add(text);
 
 
         String value = "";
@@ -275,7 +274,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
 
         logger.info("Relocate: " + xPositionProperty.getValue() + " " + yPositionProperty.getValue());
         relocateRelativ(xPositionProperty.getValue(), yPositionProperty.getValue());
-
+//        relocate(xPositionProperty.getValue(), yPositionProperty.getValue());
 
         Font font = new Font((double) userConfig.get(FONT_SIZE).getObject());
         text.setFont(font);
@@ -290,6 +289,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
             label.setText(labelText + ":");
         }
 
+        view.getChildren().add(text);
 
         if (attribute != null) {
             lastSample = attribute.getLatestSample();
@@ -352,7 +352,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
         try {
             logger.info("Show Unit: " + showUnit + " " + attribute.getDisplayUnit());
             if (showUnit && attribute.getDisplayUnit() != null) {
-                value += attribute.getDisplayUnit().getPrefix() + UnitManager.getInstance().formate(attribute.getDisplayUnit());
+                value += UnitManager.getInstance().formate(attribute.getDisplayUnit());
             }
         } catch (JEVisException e) {
             e.printStackTrace();
@@ -363,8 +363,11 @@ public class LabelElement extends MoveableNode implements SCADAElement {
         label.setTextFill(textColor);
         Background bg = new Background(new BackgroundFill(bgColor, new CornerRadii(0), Insets.EMPTY));
         view.setBackground(bg);
+        text.setBackground(bg);
+        label.setBackground(bg);
 
-        this.text.setText(value);
+
+        text.setText(value);
 
 
     }

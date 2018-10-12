@@ -54,12 +54,10 @@ import java.util.List;
  */
 public class ChartSelectionDialog {
 
-    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
-
-    private Response _response = Response.CANCEL;
-
     private final JEVisDataSource _ds;
     private final String ICON = "1404313956_evolution-tasks.png";
+    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
+    private Response _response = Response.CANCEL;
     private GraphDataModel data;
     private Stage stage;
     private boolean init = true;
@@ -200,9 +198,11 @@ public class ChartSelectionDialog {
 
         ok.setOnAction(event -> {
             tree.setUserSelectionEnded();
+
             _response = Response.OK;
 
             stage.close();
+
         });
 
         stage.showAndWait();
@@ -257,10 +257,6 @@ public class ChartSelectionDialog {
         return _tree;
     }
 
-    public enum Response {
-        OK, CANCEL
-    }
-
     public GraphDataModel getSelectedData() {
         return data;
     }
@@ -271,5 +267,9 @@ public class ChartSelectionDialog {
 
     public ChartPlugin getBp() {
         return bp;
+    }
+
+    public enum Response {
+        OK, CANCEL
     }
 }

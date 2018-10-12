@@ -396,7 +396,8 @@ public class ChartPlugin implements TreePlugin {
                                     if (type == DATE_TYPE.START) {
                                         LocalDate ld = dp.valueProperty().get();
                                         DateTime newDateTimeStart = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
-                                        _data.getSelectedData().parallelStream().forEach(mdl -> {
+                                        _data.getSelectedData().forEach(mdl -> {
+//                                        _data.getSelectedData().parallelStream().forEach(mdl -> {
                                             if (mdl.getSelected()) {
                                                 mdl.setSelectedStart(newDateTimeStart);
                                             }
@@ -404,7 +405,8 @@ public class ChartPlugin implements TreePlugin {
                                     } else if (type == DATE_TYPE.END) {
                                         LocalDate ld = dp.valueProperty().get();
                                         DateTime newDateTimeEnd = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
-                                        _data.getSelectedData().parallelStream().forEach(mdl -> {
+                                        _data.getSelectedData().forEach(mdl -> {
+//                                        _data.getSelectedData().parallelStream().forEach(mdl -> {
                                             if (mdl.getSelected()) {
                                                 mdl.setSelectedEnd(newDateTimeEnd);
                                             }
@@ -428,7 +430,14 @@ public class ChartPlugin implements TreePlugin {
                                     }
                                     commitEdit(jodaTime);
                                 });
+
+                                if (data.getAttribute() != null && data.getAttribute().hasSample()) {
+                                    stackPane.setDisable(false);
+                                } else {
+                                    stackPane.setDisable(true);
+                                }
                             }
+
 
                             setText(null);
                             setGraphic(stackPane);
@@ -738,7 +747,8 @@ public class ChartPlugin implements TreePlugin {
 
                                 tb.setOnAction(event -> {
                                     JEVisUnit u = ChartUnits.parseUnit(box.getSelectionModel().getSelectedItem().toString());
-                                    _data.getSelectedData().parallelStream().forEach(mdl -> {
+                                    _data.getSelectedData().forEach(mdl -> {
+//                                    _data.getSelectedData().parallelStream().forEach(mdl -> {
                                         if (mdl.getSelected()) {
                                             mdl.setUnit(u);
                                         }
@@ -868,7 +878,8 @@ public class ChartPlugin implements TreePlugin {
 
         textFieldChartName.textProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                _data.getSelectedData().parallelStream().forEach(mdl -> {
+                _data.getSelectedData().forEach(mdl -> {
+//                _data.getSelectedData().parallelStream().forEach(mdl -> {
                     if (mdl.getSelected()) {
                         if (mdl.get_selectedCharts().contains(oldValue)) {
                             mdl.get_selectedCharts().set(mdl.get_selectedCharts().indexOf(oldValue), newValue);
@@ -877,7 +888,8 @@ public class ChartPlugin implements TreePlugin {
                 });
                 AtomicReference<ChartSettings> set = new AtomicReference<>();
 
-                _data.getCharts().parallelStream().forEach(chartSettings -> {
+                _data.getCharts().forEach(chartSettings -> {
+//                _data.getCharts().parallelStream().forEach(chartSettings -> {
                     if (chartSettings.getName().equals(oldValue)) {
                         set.set(chartSettings);
                     }
@@ -917,7 +929,8 @@ public class ChartPlugin implements TreePlugin {
 
         comboBoxChartType.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                _data.getCharts().parallelStream().forEach(chart -> {
+                _data.getCharts().forEach(chart -> {
+//                    _data.getCharts().parallelStream().forEach(chart -> {
                     if (chart.getName().equals(textFieldChartName.getText())) {
                         ChartType type = ChartType.parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
                         chart.setChartType(type);
@@ -945,9 +958,11 @@ public class ChartPlugin implements TreePlugin {
 
                 TreeTableCell<JEVisTreeRow, Boolean> cell = new TreeTableCell<JEVisTreeRow, Boolean>() {
 
+
                     @Override
                     public void commitEdit(Boolean newValue) {
                         super.commitEdit(newValue);
+                        System.out.println("New value: " + newValue);
                         getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
                         ChartDataModel data = getData(getTreeTableRow().getItem());
                         data.setSelected(newValue);
@@ -966,6 +981,8 @@ public class ChartPlugin implements TreePlugin {
                     protected void updateItem(Boolean item, boolean empty) {
                         super.updateItem(item, empty);
                         if (!empty) {
+
+                            CheckBox cbox = new CheckBox();
                             StackPane hbox = new StackPane();
 
                             /**
@@ -977,7 +994,7 @@ public class ChartPlugin implements TreePlugin {
                                     && tree.getFilter().showColumn(getTreeTableRow().getItem(), rb.getString("graph.table.color"))) {
 
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
-                                CheckBox cbox = new CheckBox();
+
                                 hbox.getChildren().setAll(cbox);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                 cbox.setSelected(item);
@@ -985,31 +1002,35 @@ public class ChartPlugin implements TreePlugin {
                                 setTextFieldEditable(textFieldChartName, item);
 
                                 cbox.setOnAction(event -> {
-                                    commitEdit(cbox.isSelected());
+                                    try {
+                                        System.out.println("State in box changed: ");
+                                        commitEdit(cbox.isSelected());
 
-                                    if (cbox.isSelected()) {
-                                        for (Color c : color_list) {
-                                            if (!usedColors.contains(c)) {
-                                                data.setColor(c);
-                                                usedColors.add(c);
-                                                Platform.runLater(() -> {
-                                                    JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
-                                                    getTreeTableRow().getTreeItem().setValue(sobj);
+                                        if (cbox.isSelected()) {
+                                            for (Color c : color_list) {
+                                                if (!usedColors.contains(c)) {
+                                                    data.setColor(c);
+                                                    usedColors.add(c);
+                                                    Platform.runLater(() -> {
+                                                        JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                        getTreeTableRow().getTreeItem().setValue(sobj);
 
-                                                });
-                                                break;
+                                                    });
+                                                    break;
+                                                }
                                             }
+                                        } else {
+                                            usedColors.remove(data.getColor());
+                                            data.setColor(Color.LIGHTBLUE);
+                                            Platform.runLater(() -> {
+                                                JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                getTreeTableRow().getTreeItem().setValue(sobj);
+
+                                            });
                                         }
-                                    } else {
-                                        usedColors.remove(data.getColor());
-                                        data.setColor(Color.LIGHTBLUE);
-                                        Platform.runLater(() -> {
-                                            JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
-                                            getTreeTableRow().getTreeItem().setValue(sobj);
-
-                                        });
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
                                     }
-
                                 });
 
                                 if (data.getAttribute() != null && data.getAttribute().hasSample()) {
@@ -1033,7 +1054,8 @@ public class ChartPlugin implements TreePlugin {
                             textFieldChartName.setEditable(true);
                         } else {
                             AtomicReference<Boolean> foundSelected = new AtomicReference<>(false);
-                            _data.getSelectedData().parallelStream().forEach(mdl -> {
+                            _data.getSelectedData().forEach(mdl -> {
+//                            _data.getSelectedData().parallelStream().forEach(mdl -> {
                                 if (mdl.getSelected()) {
                                     foundSelected.set(true);
                                 }
@@ -1059,7 +1081,8 @@ public class ChartPlugin implements TreePlugin {
 //    }
 
     public void selectNone() {
-        _data.getSelectedData().parallelStream().forEach(mdl -> {
+        _data.getSelectedData().forEach(mdl -> {
+//        _data.getSelectedData().parallelStream().forEach(mdl -> {
             if (mdl.getSelected()) {
                 mdl.setSelected(false);
             }
