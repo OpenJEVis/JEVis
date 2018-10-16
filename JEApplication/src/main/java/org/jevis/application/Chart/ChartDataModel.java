@@ -57,7 +57,6 @@ public class ChartDataModel {
     }
 
     public List<JEVisSample> getSamples() {
-
         if (_somethingChanged) {
             _somethingChanged = false;
             samples = new ArrayList<>();
@@ -496,18 +495,35 @@ public class ChartDataModel {
     }
 
 
-    public List<String> get_selectedCharts() {
+    public List<String> getSelectedcharts() {
         return _selectedCharts;
     }
 
-    public void set_selectedCharts(List<String> _selectedCharts) {
+    public void setSelectedCharts(List<String> selectedCharts) {
 
         _somethingChanged = true;
-        this._selectedCharts = _selectedCharts;
+        this._selectedCharts = selectedCharts;
     }
 
-    public void set_somethingChanged(boolean _somethingChanged) {
+    public void setSomethingChanged(boolean _somethingChanged) {
         this._somethingChanged = _somethingChanged;
     }
 
+    @Override
+    public String toString() {
+        return "ChartDataModel{" +
+
+                " _title='" + _title + '\'' +
+                ", _selectedStart=" + _selectedStart +
+                ", _selectedEnd=" + _selectedEnd +
+                ", _object=" + _object +
+                ", _attribute=" + _attribute +
+                ", _color=" + _color +
+                ", _selected=" + _selected +
+                ", _somethingChanged=" + _somethingChanged +
+                ", _unit=" + _unit +
+                ", _selectedCharts=" + _selectedCharts +
+                ", tableEntry=" + tableEntry +
+                '}';
+    }
 }

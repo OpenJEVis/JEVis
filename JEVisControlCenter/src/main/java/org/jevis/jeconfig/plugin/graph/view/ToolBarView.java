@@ -26,6 +26,8 @@ import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.AlphanumComparator;
+import org.jevis.application.jevistree.JEVisTree;
+import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.json.JsonAnalysisModel;
 import org.jevis.commons.json.JsonChartSettings;
@@ -69,6 +71,7 @@ public class ToolBarView {
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
+    private JEVisTree selectionTree = null;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, ChartView chartView, List<ChartView> listChartViews) {
         this.model = model;
@@ -174,16 +177,18 @@ public class ToolBarView {
     }
 
     private void loadNewDialog() {
+
+
         dialog = new LoadAnalysisDialog(ds, model, this);
         dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
         dialog.showAndWait().ifPresent(response -> {
             if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, model);
+                ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, model, getSelectionTree());
 
                 if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
-                    model.setCharts(selectionDialog.getBp().getData().getCharts());
-                    model.setSelectedData(selectionDialog.getBp().getData().getSelectedData());
+                    model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
+                    model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
 
                 }
             } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
@@ -227,20 +232,26 @@ public class ToolBarView {
         return listAnalysesComboBoxHidden;
     }
 
-    private void changeSettings(ActionEvent event) {
+    public JEVisTree getSelectionTree() {
+        if (selectionTree == null) {
+            selectionTree = JEVisTreeFactory.buildDefaultGraphTree(ds);
+        }
 
-        ChartSelectionDialog dia = new ChartSelectionDialog(ds, model);
+        return selectionTree;
+    }
+
+    private void changeSettings(ActionEvent event) {
+        ChartSelectionDialog dia = new ChartSelectionDialog(ds, model, getSelectionTree());
 
         if (dia.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
-            model.setCharts(dia.getBp().getData().getCharts());
-            model.setSelectedData(dia.getBp().getData().getSelectedData());
+            model.setCharts(dia.getChartPlugin().getData().getCharts());
+            model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
         }
     }
 
     public List<ChartView> getChartViews() {
         List<ChartView> charts = new ArrayList<>();
-
         chartsList = model.getChartsList();
 
         chartsList.forEach(s -> {
@@ -373,7 +384,7 @@ public class ToolBarView {
                     json.setSelectedStart(mdl.getSelectedStart().toString());
                     json.setSelectedEnd(mdl.getSelectedEnd().toString());
                     json.setUnit(mdl.getUnit().toJSON());
-                    json.setSelectedCharts(listToString(mdl.get_selectedCharts()));
+                    json.setSelectedCharts(listToString(mdl.getSelectedcharts()));
                     jsonDataModels.add(json);
                 }
             }
@@ -600,9 +611,9 @@ public class ToolBarView {
                 newData.getAttribute();
                 newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
                 newData.setSelected(selected);
-                newData.set_somethingChanged(true);
+                newData.setSomethingChanged(true);
                 newData.getSamples();
-                newData.set_selectedCharts(stringToList(mdl.getSelectedCharts()));
+                newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
                 newData.setUnit(unit);
                 data.put(obj.getID().toString(), newData);
             } catch (JEVisException e) {

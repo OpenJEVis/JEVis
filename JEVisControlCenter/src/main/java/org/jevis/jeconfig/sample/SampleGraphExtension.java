@@ -66,7 +66,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
         chartDataModel.setAttribute(obj);
         chartDataModel.setSamples(samples);
         chartDataModel.setColor(Color.BLUE);
-        chartDataModel.set_somethingChanged(false);
+        chartDataModel.setSomethingChanged(false);
 
         List<ChartDataModel> chartDataModelList = new ArrayList<>();
         chartDataModelList.add(chartDataModel);

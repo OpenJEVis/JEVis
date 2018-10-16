@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ViewFilter {
@@ -42,11 +41,6 @@ public class ViewFilter {
     private boolean _defaultAttributeShow = true;
     private boolean _defaultShowColumn = false;
 
-    public enum TYPE {
-
-        OBJECT, ATTRIBUTE
-    }
-
     public ViewFilter() {
     }
 
@@ -55,9 +49,8 @@ public class ViewFilter {
     }
 
     /**
-     *
-     * @deprecated will be removed with the real implementaion
      * @param show
+     * @deprecated will be removed with the real implementaion
      */
     public void showAttributes(boolean show) {
         _defaultAttributeShow = show;
@@ -133,6 +126,11 @@ public class ViewFilter {
             return _defaultAttributeShow;
         }
 
+    }
+
+    public enum TYPE {
+
+        OBJECT, ATTRIBUTE
     }
 
 }

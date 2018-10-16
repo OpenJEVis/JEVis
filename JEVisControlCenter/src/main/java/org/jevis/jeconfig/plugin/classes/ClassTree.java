@@ -37,9 +37,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.cache.CacheEvent;
-import org.jevis.application.cache.CacheEventHandler;
-import org.jevis.application.cache.Cached;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.commons.drivermanagment.ClassExporter;
 import org.jevis.commons.relationship.RelationshipFactory;
@@ -187,27 +184,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                 final TreeItem<JEVisClass> newItem = new ClassItem(object, this);
                 _itemCache.put(object.getName(), newItem);
 
-                if (object instanceof Cached) {
-                    ((Cached) object).addEventHandler(new CacheEventHandler() {
-                        @Override
-                        public void handle(CacheEvent event) {
-                            if (event.getType() == CacheEvent.TYPE.CLASS_CHILD_DELETE) {
 
-                            } else if (event.getType() == CacheEvent.TYPE.CLASS_DELETE) {
-                                try {
-
-                                    _itemCache.remove(object.getName());
-                                    newItem.getParent().getChildren();
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
-
-                            } else if (event.getType() == CacheEvent.TYPE.CLASS_BUILD_CHILD) {
-                                newItem.getChildren();
-                            }
-                        }
-                    });
-                }
                 return newItem;
             } catch (JEVisException ex) {
                 logger.fatal(ex);

@@ -23,6 +23,7 @@ import java.util.*;
 
 public class GraphExport {
     private static final Logger logger = LogManager.getLogger(GraphExport.class);
+    final DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private final GraphDataModel model;
     private final JEVisDataSource ds;
     private boolean needSave = false;
@@ -31,7 +32,6 @@ public class GraphExport {
     private DateTime maxDate = null;
     private Boolean multiAnalyses = false;
     private List<String> charts = new ArrayList<>();
-    final DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     public GraphExport(JEVisDataSource ds, GraphDataModel model, String analysisName) {
         this.model = model;
@@ -40,7 +40,7 @@ public class GraphExport {
 
         for (ChartDataModel mdl : model.getSelectedData()) {
             if (mdl.getSelected()) {
-                for (String s : mdl.get_selectedCharts()) {
+                for (String s : mdl.getSelectedcharts()) {
                     if (charts.isEmpty() || !charts.contains(s)) charts.add(s);
                 }
             }
@@ -141,7 +141,7 @@ public class GraphExport {
         for (String s : charts) {
             String header = "Date";
             for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.get_selectedCharts().contains(s)) {
+                if (mdl.getSelectedcharts().contains(s)) {
                     String objectName = mdl.getObject().getName();
                     String dpName = "";
                     if (mdl.getDataProcessor() != null) dpName = mdl.getDataProcessor().getName();
@@ -170,7 +170,7 @@ public class GraphExport {
                 if (currentEnd == null) currentEnd = mdl.getSelectedEnd();
                 else mdl.setSelectedEnd(currentEnd);
 
-                if (firstSet && mdl.get_selectedCharts().contains(s)) {
+                if (firstSet && mdl.getSelectedcharts().contains(s)) {
                     for (JEVisSample sample : mdl.getSamples()) {
                         dateColumn.add(standard.print(sample.getTimestamp()));
                     }
@@ -185,7 +185,7 @@ public class GraphExport {
         for (String s : charts) {
             Map<String, List<JEVisSample>> map = new HashMap<>();
             for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.get_selectedCharts().contains(s)) {
+                if (mdl.getSelectedcharts().contains(s)) {
                     map.put(mdl.getObject().getName(), mdl.getSamples());
                 }
             }
@@ -206,7 +206,7 @@ public class GraphExport {
 
                 for (ChartDataModel mdl : model.getSelectedData()) {
                     String objName = mdl.getObject().getName();
-                    if (mdl.get_selectedCharts().contains(s)) {
+                    if (mdl.getSelectedcharts().contains(s)) {
                         if (hasValues) {
                             Double value = listMaps.get(chartsIndex).get(objName).get(i).getValueAsDouble();
                             str += value + ";";

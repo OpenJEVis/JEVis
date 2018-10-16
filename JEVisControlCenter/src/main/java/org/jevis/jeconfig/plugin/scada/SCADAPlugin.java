@@ -33,6 +33,8 @@ import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.scada.data.ScadaAnalysisData;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -47,11 +49,11 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class SCADAPlugin implements Plugin {
 
-    private static final Logger logger = LogManager.getLogger(SCADAPlugin.class);
     public final static String CLASS_SCADA_ANALYSIS = "SCADA Analysis";
     public final static String ATTRIBUTE_DATA_MODEL = "Data Model";
     public final static String ATTRIBUTE_BACKGROUND = "Background";
-
+    private static final Logger logger = LogManager.getLogger(SCADAPlugin.class);
+    private final DateTimeFormatter dfp = DateTimeFormat.forPattern("HH:mm:ss dd.MM.YYYY");
     private final BorderPane root = new BorderPane();
     private FileChooser fileChooser = new FileChooser();
     private JEVisDataSource ds;
@@ -188,7 +190,7 @@ public class SCADAPlugin implements Plugin {
             public void run() {
                 logger.info("--- Update--- ");
                 Platform.runLater(() -> {
-                    lastUpdateLabel.setText("Update: " + (new DateTime()).toString());
+                    lastUpdateLabel.setText("Update: " + (dfp.print(new DateTime())));
                     updateUI(analysis);
                 });
 

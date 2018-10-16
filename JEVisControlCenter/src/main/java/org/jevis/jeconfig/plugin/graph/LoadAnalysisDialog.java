@@ -66,6 +66,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         if (toolBarView.getWorkdayStart() != null) dateHelper.setStartTime(toolBarView.getWorkdayStart());
         if (toolBarView.getWorkdayEnd() != null) dateHelper.setEndTime(toolBarView.getWorkdayEnd());
 
+
         if (toolBarView.getWorkdayStart() != null && toolBarView.getWorkdayEnd() != null) {
             if (toolBarView.getWorkdayEnd().isAfter(toolBarView.getWorkdayStart())) {
                 selectedStart = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
@@ -152,7 +153,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         presetDateEntries.addAll(custom, today, last7Days, last30Days, yesterday, lastWeek, lastMonth);
         ComboBox<String> comboBoxPresetDates = new ComboBox(presetDateEntries);
-        comboBoxPresetDates.getSelectionModel().select(2);
+
 
         ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
 
@@ -198,6 +199,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 updateToolBarView();
             }
         });
+
 
         setupPickerListener();
 
@@ -292,11 +294,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 }
             }
         });
+        comboBoxPresetDates.getSelectionModel().select(2);
+
+
         this.setTitle(I18n.getInstance().getString("plugin.graph.analysis.dialog.title"));
 
-
         this.getDialogPane().getButtonTypes().add(newGraph);
-
         this.getDialogPane().setContent(vbox);
 
     }

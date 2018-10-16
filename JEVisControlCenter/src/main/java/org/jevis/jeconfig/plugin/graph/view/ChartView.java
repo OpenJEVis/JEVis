@@ -41,13 +41,12 @@ import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
-
-    private Chart chart;
-
-    private TableView tableView;
-
     private final Logger logger = LogManager.getLogger(ChartView.class);
+    private Chart chart;
+    private TableView tableView;
     private AlphanumComparator alphanumComparator = new AlphanumComparator();
+    private ChartType chartType = ChartType.AREA;
+    private String chartName = "";
 
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
@@ -194,9 +193,6 @@ public class ChartView implements Observer {
         tableView.prefHeightProperty().bind(Bindings.size(tableView.getItems()).multiply(tableView.getFixedCellSize()).add(30));
     }
 
-    private ChartType chartType = ChartType.AREA;
-    private String chartName = "";
-
     public Region getChartRegion() {
         if (chart != null)
             if (chart.getRegion() != null)
@@ -220,9 +216,9 @@ public class ChartView implements Observer {
         List<ChartDataModel> chartDataModels = new ArrayList<>();
 
         for (ChartDataModel singleRow : selectedData) {
-            if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+            if (Objects.isNull(chartName) || chartName.equals("") || singleRow.getSelectedcharts().contains(chartName)) {
                 if (chartName == "" || chartName == null) {
-                    if (singleRow.get_selectedCharts().size() == 1) title = singleRow.get_selectedCharts().get(0);
+                    if (singleRow.getSelectedcharts().size() == 1) title = singleRow.getSelectedcharts().get(0);
                 } else title = chartName;
                 chartDataModels.add(singleRow);
             }

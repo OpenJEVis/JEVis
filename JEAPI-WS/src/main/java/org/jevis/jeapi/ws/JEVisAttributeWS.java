@@ -44,11 +44,11 @@ import java.util.List;
  */
 public class JEVisAttributeWS implements JEVisAttribute {
 
+    private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
+    private final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
     private String name = "";
     private JEVisDataSourceWS ds;
     private long objectID;
-    private final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
-    private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private JsonAttribute json;
 
     public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json, Long obj) {
@@ -337,6 +337,12 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
+    public void setDisplaySampleRate(Period period) {
+        logger.info("setDisplaySampleRate: " + period.toString());
+        json.setDisplaySampleRate(period.toString());
+    }
+
+    @Override
     public Period getInputSampleRate() {
         try {
             if (json.getInputSampleRate() == null || json.getInputSampleRate().isEmpty()) {
@@ -352,12 +358,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public void setInputSampleRate(Period period) {
         json.setInputSampleRate(period.toString());
-    }
-
-    @Override
-    public void setDisplaySampleRate(Period period) {
-        logger.info("setDisplaySampleRate: " + period.toString());
-        json.setDisplaySampleRate(period.toString());
     }
 
     @Override

@@ -73,6 +73,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
+    private Map<Long, List<JEVisAttribute>> attributeCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisAttribute>>());
 
     public JEVisDataSourceWS(String host) {
         this.host = host;
@@ -387,8 +388,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
+    public void reloadAttributes() throws JEVisException {
+        attributeCache.clear();
+    }
+
+    @Override
     public List<JEVisAttribute> getAttributes(long objectID) {
         logger.debug("Get  getAttributes: {}", objectID);
+
+        if (attributeCache.containsKey(objectID)) {
+            return attributeCache.get(objectID);
+        }
+
         StringBuffer response = new StringBuffer();
         try {
 //            JEVisObject obj = getObject(objectID);
@@ -410,6 +421,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     logger.error(ex);
                 }
             }
+            attributeCache.put(objectID, attributes);
 
             return attributes;
 

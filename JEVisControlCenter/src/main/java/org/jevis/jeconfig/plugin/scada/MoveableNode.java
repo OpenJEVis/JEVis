@@ -84,7 +84,7 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
     }
 
     public void relocateRelativ(double xPercent, double yPercent) {
-
+        System.out.println("Relocate: " + xPercent + "  " + yPercent);
         double newX = (xPercent * this.parent.getWidth()) / 100;
         double newY = (yPercent * this.parent.getHeight()) / 100;
         this.relocate(newX, newY);

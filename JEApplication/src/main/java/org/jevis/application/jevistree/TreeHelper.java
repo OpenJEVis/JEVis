@@ -37,9 +37,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
-import org.jevis.application.cache.CacheEvent;
-import org.jevis.application.cache.CacheObjectEvent;
-import org.jevis.application.cache.Cached;
 import org.jevis.application.dialog.*;
 import org.jevis.application.tools.CalculationNameFormater;
 import org.jevis.commons.CommonClasses;
@@ -268,9 +265,6 @@ public class TreeHelper {
     }
 
     public static void EventReload(JEVisObject object) {
-        if (object instanceof Cached) {
-            ((Cached) object).fireEvent(new CacheObjectEvent(object, CacheEvent.TYPE.OBJECT_UPDATE));
-        }
 
     }
 

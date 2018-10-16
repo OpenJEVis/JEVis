@@ -37,9 +37,9 @@ import org.jevis.application.jevistree.plugin.MapPlugin;
  */
 public class JEVisTreeFactory {
 
-    private static final Logger logger = LogManager.getLogger(JEVisTreeFactory.class);
     public final static KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
     public final static KeyCombination findAgain = new KeyCodeCombination(KeyCode.F3);
+    private static final Logger logger = LogManager.getLogger(JEVisTreeFactory.class);
     private static KeyCombination lastCombination = null;
 
     public static void addDefaultKeys(JEVisTree tree) {
@@ -148,6 +148,7 @@ public class JEVisTreeFactory {
     public static void addGraphKeys(JEVisTree tree) {
 
         final KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
+        final KeyCombination showUUID = KeyCodeCombination.keyCombination("Ctrl+U");//For Debugging
 
         tree.addEventHandler(KeyEvent.KEY_PRESSED, t -> {
             logger.trace("TreeEvent: {}", t.getCode());
@@ -155,7 +156,11 @@ public class JEVisTreeFactory {
             if (findNode.match(t)) {
                 TreeHelper.EventOpenObject(tree, null);
             }
+            if (showUUID.match(t)) {
+                System.out.println("TRee.UUID: " + tree.getUUID());
+            }
         });
+
 
     }
 }

@@ -178,7 +178,7 @@ public class AreaChart implements Chart {
             tableData = FXCollections.emptyObservableList();
             Number finalValueForDisplay = valueForDisplay;
             chartDataModels.parallelStream().forEach(singleRow -> {
-                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.getSelectedcharts().contains(chartName)) {
                     try {
                         TreeMap<Double, JEVisSample> sampleTreeMap = singleRow.getSampleMap();
                         Double higherKey = sampleTreeMap.higherKey(finalValueForDisplay.doubleValue());
@@ -226,7 +226,7 @@ public class AreaChart implements Chart {
             Number valueForDisplay = null;
             valueForDisplay = areaChart.getXAxis().getValueForDisplay(x);
             for (ChartDataModel singleRow : chartDataModels) {
-                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.get_selectedCharts().contains(chartName)) {
+                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.getSelectedcharts().contains(chartName)) {
                     try {
                         Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
                         Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
