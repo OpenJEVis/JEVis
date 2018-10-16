@@ -20,6 +20,7 @@
  */
 package org.jevis.application.dialog;
 
+import com.beust.jcommander.internal.Nullable;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -61,13 +62,24 @@ public class ChartSelectionDialog {
     private GraphDataModel data;
     private Stage stage;
     private boolean init = true;
-    private JEVisTree _tree;
-    private ObservableList<String> chartsList = FXCollections.observableArrayList();
-    private ChartPlugin bp = null;
+    private JEVisTree tree;
+    //    private ObservableList<String> chartsList = FXCollections.observableArrayList();
+    private ChartPlugin chartPlugin = null;
 
-    public ChartSelectionDialog(JEVisDataSource ds, GraphDataModel data) {
+    /**
+     * @param ds
+     * @param data
+     * @param tree JEVisTree tu ise or new default if null
+     */
+    public ChartSelectionDialog(JEVisDataSource ds, GraphDataModel data, @Nullable JEVisTree tree) {
         this._ds = ds;
         this.data = data;
+        if (tree == null) {
+            tree = JEVisTreeFactory.buildDefaultGraphTree(_ds);
+        }
+        this.tree = tree;
+
+
     }
 
     public Response show(Stage owner) {
@@ -104,7 +116,15 @@ public class ChartSelectionDialog {
 
         AnchorPane treePane = new AnchorPane();
 
-        JEVisTree tree = getTree();
+
+        for (TreePlugin plugin : tree.getPlugins()) {
+            if (plugin instanceof ChartPlugin) {
+                chartPlugin = (ChartPlugin) plugin;
+                if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
+                    chartPlugin.setData(data);
+                }
+            }
+        }
         treePane.getChildren().setAll(tree);
         AnchorPane.setTopAnchor(tree, 0d);
         AnchorPane.setRightAnchor(tree, 0d);
@@ -130,16 +150,14 @@ public class ChartSelectionDialog {
         VBox.setVgrow(sep, Priority.NEVER);
         VBox.setVgrow(buttonBox, Priority.NEVER);
 
-        for (TreePlugin plugin : tree.getPlugins()) {
-            if (plugin instanceof ChartPlugin) {
-                bp = (ChartPlugin) plugin;
-                if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
-                    bp.set_data(data);
-                }
-            }
-        }
 
-        removeAllSelections.setOnAction(event -> bp.selectNone());
+        removeAllSelections.setOnAction(event -> {
+            try {
+                System.out.println("remove all Selection event");
+                chartPlugin.selectNone();
+            } catch (Exception ex) {
+            }
+        });
 
         tabConfiguration.setContent(root);
 
@@ -151,16 +169,20 @@ public class ChartSelectionDialog {
 
         TabPane tabPaneCharts = new TabPane();
 
-        chartsList = data.getChartsList();
-        for (String s : chartsList) {
+//        chartsList = data.getChartsList();chartPlugin
+        for (String s : chartPlugin.getData().getChartsList()) {
             tabPaneCharts.getTabs().add(getChartTab(s));
         }
 
-        chartsList.addListener((ListChangeListener<? super String>) c -> {
-            if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
-                tabPaneCharts.getTabs().clear();
-                for (String s : chartsList) {
-                    tabPaneCharts.getTabs().add(getChartTab(s));
+
+        //Disabled, for finding bugs
+        chartPlugin.getData().getChartsList().addListener((ListChangeListener<? super String>) c -> {
+            while (c.next()) {
+                if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
+                    tabPaneCharts.getTabs().clear();
+                    for (String s : chartPlugin.getData().getChartsList()) {
+                        tabPaneCharts.getTabs().add(getChartTab(s));
+                    }
                 }
             }
         });
@@ -181,7 +203,7 @@ public class ChartSelectionDialog {
 
             }
 
-            if (!listUS.isEmpty()) _tree.openUserSelectionNoChildren(listUS);
+            if (!listUS.isEmpty()) tree.openUserSelectionNoChildren(listUS);
         } else {
             List<UserSelection> listUS = new ArrayList<>();
             JEVisObject firstDataDir = null;
@@ -193,7 +215,7 @@ public class ChartSelectionDialog {
 
             }
             if (firstDataDir != null) listUS.add(new UserSelection(UserSelection.SelectionType.Object, firstDataDir));
-            if (!listUS.isEmpty()) _tree.openUserSelection(listUS);
+            if (!listUS.isEmpty()) tree.openUserSelection(listUS);
         }
 
         ok.setOnAction(event -> {
@@ -223,7 +245,7 @@ public class ChartSelectionDialog {
 
         textFieldName.textProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                for (String ch : chartsList) {
+                for (String ch : data.getChartsList()) {
                     if (ch.contains(currentChart)) ch = newValue;
                 }
             }
@@ -246,17 +268,6 @@ public class ChartSelectionDialog {
     }
 
 
-    public JEVisTree getTree() {
-        if (!init) {
-            return _tree;
-        }
-
-        _tree = JEVisTreeFactory.buildDefaultGraphTree(_ds);
-        init = false;
-
-        return _tree;
-    }
-
     public GraphDataModel getSelectedData() {
         return data;
     }
@@ -265,8 +276,8 @@ public class ChartSelectionDialog {
         this.data = data;
     }
 
-    public ChartPlugin getBp() {
-        return bp;
+    public ChartPlugin getChartPlugin() {
+        return chartPlugin;
     }
 
     public enum Response {

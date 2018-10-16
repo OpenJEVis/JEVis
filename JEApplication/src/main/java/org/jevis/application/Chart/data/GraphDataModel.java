@@ -11,7 +11,10 @@ import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.jevistree.AlphanumComparator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Observable;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,16 +23,50 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class GraphDataModel extends Observable {
 
-    private Set<ChartDataModel> selectedRawData = new HashSet<>();
+    private Set<ChartDataModel> selectedData = new HashSet<>();
     private Set<ChartSettings> charts = new HashSet<>();
     private Boolean hideShowIcons = true;
+    private ObservableList<String> selectedDataNames = FXCollections.observableArrayList(new ArrayList<>());
 
     public Set<ChartDataModel> getSelectedData() {
-        return selectedRawData;
+//        System.out.println("GraphDataModel.getSelectedData");
+        return selectedData;
     }
 
     public void setSelectedData(Set<ChartDataModel> selectedData) {
-        this.selectedRawData = selectedData;
+        this.selectedData = selectedData;
+        selectedDataNames.clear();
+
+
+        if (getSelectedData() != null) {
+            for (ChartDataModel mdl : getSelectedData()) {
+
+                if (mdl.getSelected()) {
+                    boolean found = false;
+                    for (String chartName : mdl.getSelectedcharts()) {
+                        for (ChartSettings set : getCharts()) {
+                            if (chartName.equals(set.getName())) {
+                                if (!selectedDataNames.contains(set.getName())) {
+
+                                    selectedDataNames.add(set.getName());
+                                    found = true;
+                                }
+                            }
+                        }
+                        if (!found) {
+                            if (!selectedDataNames.contains(chartName)) {
+                                getCharts().add(new ChartSettings(chartName));
+                                selectedDataNames.add(chartName);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        AlphanumComparator ac = new AlphanumComparator();
+        selectedDataNames.sort(ac);
+
         setChanged();
         notifyObservers();
     }
@@ -51,43 +88,43 @@ public class GraphDataModel extends Observable {
     }
 
     public ObservableList<String> getChartsList() {
-        List<String> tempList = new ArrayList<>();
+        return selectedDataNames;
 
-        if (getSelectedData() != null) {
-            for (ChartDataModel mdl : getSelectedData()) {
-                if (mdl.getSelected()) {
-                    boolean found = false;
-                    for (String chartName : mdl.get_selectedCharts()) {
-                        for (ChartSettings set : getCharts()) {
-                            if (chartName.equals(set.getName())) {
-                                if (!tempList.contains(set.getName())) {
-                                    tempList.add(set.getName());
-                                    found = true;
-                                }
-                            }
-                        }
-                        if (!found) {
-                            if (!tempList.contains(chartName)) {
-                                getCharts().add(new ChartSettings(chartName));
-                                tempList.add(chartName);
-                            }
-                        }
-                    }
-                }
-            }
-
-            AlphanumComparator ac = new AlphanumComparator();
-            tempList.sort(ac);
-
-            return FXCollections.observableArrayList(tempList);
-        } else return FXCollections.emptyObservableList();
+//        if (getSelectedData() != null) {
+//            for (ChartDataModel mdl : getSelectedData()) {
+//                if (mdl.getSelected()) {
+//                    boolean found = false;
+//                    for (String chartName : mdl.getSelectedcharts()) {
+//                        for (ChartSettings set : getCharts()) {
+//                            if (chartName.equals(set.getName())) {
+//                                if (!tempList.contains(set.getName())) {
+//                                    tempList.add(set.getName());
+//                                    found = true;
+//                                }
+//                            }
+//                        }
+//                        if (!found) {
+//                            if (!tempList.contains(chartName)) {
+//                                getCharts().add(new ChartSettings(chartName));
+//                                tempList.add(chartName);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//            AlphanumComparator ac = new AlphanumComparator();
+//            tempList.sort(ac);
+//
+//            return FXCollections.observableArrayList(tempList);
+//        } else return FXCollections.emptyObservableList();
     }
 
     public boolean containsId(Long id) {
         if (!getSelectedData().isEmpty()) {
             AtomicBoolean found = new AtomicBoolean(false);
-            getSelectedData().parallelStream().forEach(chartDataModel -> {
-                if (chartDataModel.getObject().getID() == id) {
+            getSelectedData().forEach(chartDataModel -> {
+                if (chartDataModel.getObject().getID().equals(id)) {
                     found.set(true);
                 }
             });
@@ -97,8 +134,8 @@ public class GraphDataModel extends Observable {
 
     public ChartDataModel get(Long id) {
         AtomicReference<ChartDataModel> out = new AtomicReference<>();
-        getSelectedData().parallelStream().forEach(chartDataModel -> {
-            if (chartDataModel.getObject().getID() == id) {
+        getSelectedData().forEach(chartDataModel -> {
+            if (chartDataModel.getObject().getID().equals(id)) {
                 out.set(chartDataModel);
             }
         });

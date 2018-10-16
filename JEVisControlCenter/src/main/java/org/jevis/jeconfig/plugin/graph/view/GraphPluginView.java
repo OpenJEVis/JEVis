@@ -182,12 +182,12 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     private void newAnalysis() {
-        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel);
+        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel, toolBarView.getSelectionTree());
 
         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
-            dataModel.setCharts(selectionDialog.getBp().getData().getCharts());
-            dataModel.setSelectedData(selectionDialog.getBp().getData().getSelectedData());
+            dataModel.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
+            dataModel.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
         }
     }
 
@@ -252,7 +252,6 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public Node getContentNode() {
-
         if (dataModel.getSelectedData() != null) chartsList = dataModel.getChartsList();
 
         if (border == null) {

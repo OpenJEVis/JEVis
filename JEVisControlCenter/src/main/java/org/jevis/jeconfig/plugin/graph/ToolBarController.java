@@ -18,9 +18,9 @@ import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
  */
 public class ToolBarController implements EventHandler {
 
+    private final JEVisDataSource ds;
     private GraphDataModel model;
     private ToolBarView view;
-    private final JEVisDataSource ds;
     private ChartSelectionDialog selectionDialog;
 
     public ToolBarController(ToolBarView view, GraphDataModel model, JEVisDataSource ds) {
@@ -32,13 +32,13 @@ public class ToolBarController implements EventHandler {
     @Override
     public void handle(Event event) {
         if (selectionDialog == null) {
-            selectionDialog = new ChartSelectionDialog(ds, model);
+            selectionDialog = new ChartSelectionDialog(ds, model, view.getSelectionTree());
         }
 
         if (selectionDialog.show(new Stage()) == ChartSelectionDialog.Response.OK) {
 
-            model.setCharts(selectionDialog.getBp().getData().getCharts());
-            model.setSelectedData(selectionDialog.getBp().getData().getSelectedData());
+            model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
+            model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
         }
     }
 
