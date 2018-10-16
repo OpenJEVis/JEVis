@@ -54,14 +54,13 @@ public class ServiceMode {
         List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
 
         logger.info("{} cleaning jobs found", processes.size());
-        processes.stream().forEach((currentProcess) -> {
+        for (ProcessManager currentProcess : processes) {
             try {
                 currentProcess.start();
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
-                logger.debug(ex.getMessage(), ex);
+                logger.debug(ex);
             }
-        });
+        }
         logger.info("Cleaning finished.");
     }
 }

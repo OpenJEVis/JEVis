@@ -66,11 +66,12 @@ public class LimitsStep implements ProcessStep {
             //identify limitbreaking intervals
             List<LimitBreak> limitBreaksStep1 = identifyLimitBreaks(intervals, confLimitsStep1);
             List<LimitBreak> limitBreaksStep2 = identifyLimitBreaks(intervals, confLimitsStep2);
-            logger.info("{} limit breaks identified", limitBreaksStep2.size() + limitBreaksStep1.size());
 
             if (limitBreaksStep1.isEmpty() && limitBreaksStep2.isEmpty()) { //no limit checks when there is no alignment
+                logger.info("No limit breaks identified.");
                 return;
             }
+            logger.info("{} limit breaks identified", limitBreaksStep2.size() + limitBreaksStep1.size());
 
             for (JsonLimitsConfig limitsConfig : calcAttribute.getLimitsConfig()) {
                 if (calcAttribute.getLimitsConfig().indexOf(limitsConfig) == 0) {
@@ -167,17 +168,24 @@ public class LimitsStep implements ProcessStep {
                         max = Double.parseDouble(lc.getMax());
                     } catch (Exception e) {
                         logger.error("Invalid Limit Configuration", e);
-                        return null;
+                        return new ArrayList<>();
                     }
-                    if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
+                    Double sampleValue;
+                    try {
+                        sampleValue = sample.getValueAsDouble();
+                    } catch (Exception e) {
+                        logger.error("Invalid Value", e);
+                        return new ArrayList<>();
+                    }
+                    if (sampleValue < min || sampleValue > max) {
                         if (currentLimitBreak == null) {
                             currentLimitBreak = new LimitBreakJEVis();
                             if (lastInterval != null && !lastInterval.getTmpSamples().isEmpty() && Objects.nonNull(lastInterval.getTmpSamples().get(0)))
                                 currentLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(0).getValueAsDouble());
                             currentLimitBreak.addInterval(currentInterval);
                             MinOrMax limit = null;
-                            if (sample.getValueAsDouble() < min) limit = MinOrMax.MIN;
-                            if (sample.getValueAsDouble() > max) limit = MinOrMax.MAX;
+                            if (sampleValue < min) limit = MinOrMax.MIN;
+                            if (sampleValue > max) limit = MinOrMax.MAX;
                             currentLimitBreak.setMinOrMax(limit);
                         } else {
                             currentLimitBreak.addInterval(currentInterval);
@@ -186,7 +194,7 @@ public class LimitsStep implements ProcessStep {
                         if (currentLimitBreak != null) {
                             logger.info("Limit Break on: " + currentLimitBreak.getIntervals().get(0).getDate() + " to: " +
                                     currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1).getDate());
-                            currentLimitBreak.setLastValue(sample.getValueAsDouble());
+                            currentLimitBreak.setLastValue(sampleValue);
                             limitBreaks.add(currentLimitBreak);
                             currentLimitBreak = null;
                         }
