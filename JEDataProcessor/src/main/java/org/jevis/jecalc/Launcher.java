@@ -20,7 +20,7 @@ public class Launcher {
     private static final Logger logger = LogManager.getLogger(Launcher.class);
     private int cycleTime = 1800000;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         //parse Commandline
         CommandLineParser cmd = CommandLineParser.getInstance();
         cmd.parse(args);
@@ -40,10 +40,10 @@ public class Launcher {
         }
     }
 
-    private void run() {
+    private void run() throws Exception {
         List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
 
-        logger.info("{} cleaning jobs found", processes.size());
+        logger.info("{} cleaning task found, starting now...", processes.size());
         processes.stream().forEach((currentProcess) -> {
             try {
                 currentProcess.start();

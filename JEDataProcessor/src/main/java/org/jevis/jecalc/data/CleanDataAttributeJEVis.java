@@ -10,13 +10,13 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
+import org.jevis.commons.task.LogTaskManager;
 import org.jevis.jecalc.gap.Gap.GapMode;
 import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
@@ -148,7 +148,8 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
                 if (firstTimestampRaw != null) {
                     firstDate = new DateTime(firstTimestampRaw.getYear(), firstTimestampRaw.getMonthOfYear(), firstTimestampRaw.getDayOfMonth(), 0, 0);
                 } else {
-                    throw new RuntimeException("No raw values in clean data row");
+                    firstDate = null;
+//                    throw new RuntimeException("No raw values in clean data row");
                 }
             }
         }
@@ -194,26 +195,27 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
                     getFirstDate().minus(getPeriodAlignment()),
                     getMaxEndDate());
         }
+        LogTaskManager.getInstance().getTask(getObject().getID()).addStep("Data Start", getFirstDate().minus(getPeriodAlignment()));
+        LogTaskManager.getInstance().getTask(getObject().getID()).addStep("Date End", getMaxEndDate());
         return rawSamples;
     }
 
     @Override
-    public Double getLastDiffValue() {
+    public Double getLastDiffValue() throws Exception {
         if (lastDiffValue == null) {
-            try {
-                //if there are values in the clean data, then there should be a last value in the raw data
-                JEVisAttribute attribute = getObject().getAttribute(VALUE_ATTRIBUTE_NAME);
-                if (attribute.hasSample()) {
-                    DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
-                    //DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
-                    //DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
-                    //List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
-                    List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(timestampFromLastSample, timestampFromLastSample);
+            //if there are values in the clean data, then there should be a last value in the raw data
+            JEVisAttribute attribute = getObject().getAttribute(VALUE_ATTRIBUTE_NAME);
+            if (attribute.hasSample()) {
+                DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
+                //DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
+                //DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
+                //List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
+                List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(timestampFromLastSample, timestampFromLastSample);
 
-                    if (!samples.isEmpty()) {
-                        lastDiffValue = samples.get(0).getValueAsDouble();
-                        //TODO this is working for period aligned stuff, other needs testing, old version was producing unexpected spikes in the values
-                    }
+                if (!samples.isEmpty()) {
+                    lastDiffValue = samples.get(0).getValueAsDouble();
+                    //TODO this is working for period aligned stuff, other needs testing, old version was producing unexpected spikes in the values
+                }
 
 //                Double firstRawValue = samples.get(0).getValueAsDouble();
 //                for (int i = samples.size() - 1; i >= 0; i--) {
@@ -223,9 +225,6 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
 //                        break;
 //                    }
 //                }
-                }
-            } catch (JEVisException ex) {
-                logger.error(ex);
             }
         }
         return lastDiffValue;
@@ -247,15 +246,11 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     }
 
     @Override
-    public Double getLastCleanValue() {
+    public Double getLastCleanValue() throws Exception {
         if (lastCleanValue == null) {
-            try {
-                JEVisSample latestSample = getObject().getAttribute("Value").getLatestSample();
-                if (latestSample != null) {
-                    lastCleanValue = latestSample.getValueAsDouble();
-                }
-            } catch (JEVisException ex) {
-                logger.error(ex);
+            JEVisSample latestSample = getObject().getAttribute("Value").getLatestSample();
+            if (latestSample != null) {
+                lastCleanValue = latestSample.getValueAsDouble();
             }
         }
         return lastCleanValue;

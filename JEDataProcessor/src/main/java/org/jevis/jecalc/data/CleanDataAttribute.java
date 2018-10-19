@@ -38,13 +38,13 @@ public interface CleanDataAttribute {
 
     Integer getPeriodOffset();
 
-    Double getLastDiffValue();
+    Double getLastDiffValue() throws Exception;
 
     List<JEVisSample> getMultiplier();
 
     Double getOffset();
 
-    Double getLastCleanValue();
+    Double getLastCleanValue() throws Exception;
 
     GapStrategy getGapFillingMode();
 

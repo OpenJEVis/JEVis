@@ -145,6 +145,13 @@
             <version>1.72</version>
         </dependency>
 
+        <!-- Used for console printing in table form -->
+        <dependency>
+            <groupId>com.massisframework</groupId>
+            <artifactId>j-text-utils</artifactId>
+            <version>0.3.4</version>
+        </dependency>
+
         <!--<dependency>-->
         <!--<groupId>com.fasterxml.jackson.datatype</groupId>-->
         <!--<artifactId>jackson-datatype-joda</artifactId>-->

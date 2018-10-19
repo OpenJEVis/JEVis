@@ -67,7 +67,7 @@ public class ServiceMode {
             logger.error(ex.getMessage());
         }
         List<JEVisObject> jevisCalcObjects = jevisObjects;
-        logger.info("{} calc jobs found", jevisCalcObjects.size());
+        logger.info("{} calc task found", jevisCalcObjects.size());
 
         List<JEVisObject> enabledObjects = new ArrayList<>();
         SampleHandler sampleHandler = new SampleHandler();
@@ -78,7 +78,7 @@ public class ServiceMode {
             }
         }
         List<JEVisObject> filterForEnabledCalcObjects = enabledObjects;
-        logger.info("{} enabled calc jobs found", filterForEnabledCalcObjects.size());
+        logger.info("{} enabled calc task found", filterForEnabledCalcObjects.size());
 
 
         CalcJobFactory calcJobCreator = new CalcJobFactory(filterForEnabledCalcObjects);

@@ -39,7 +39,7 @@ public class ProcessManagerFactory {
     private static final Logger logger = LogManager.getLogger(ProcessManagerFactory.class);
     public static JEVisDataSource jevisDataSource;
 
-    public static List<ProcessManager> getProcessManagerList() {
+    public static List<ProcessManager> getProcessManagerList() throws Exception {
         CommandLineParser cmd = CommandLineParser.getInstance();
 
 //        establishConnection();
@@ -84,29 +84,31 @@ public class ProcessManagerFactory {
         return false;
     }
 
-    private static List<ProcessManager> initProcessManagersFromJEVisAll() {
+    private static List<ProcessManager> initProcessManagersFromJEVisAll() throws Exception {
         List<JEVisObject> reportObjects = getAllCleaningObjects();
         List<ProcessManager> processManagers = new ArrayList<>();
         for (JEVisObject cleanObject : reportObjects) {
+
             try {
                 if (isEnabled(cleanObject)) {
+                    logger.trace("Add Data Object to job list: [{}] {}", cleanObject.getID(), cleanObject.getName());
                     processManagers.addAll(getAllProcessSteps(cleanObject));
                 }
             } catch (Exception ex) {
-                logger.error("Failure while init jevisobject with id {}", cleanObject.getID(), ex);
+                throw new Exception(String.format("Failure while init jevisobject with id {}", cleanObject.getID()), ex);
             }
         }
         return processManagers;
     }
 
-    private static List<ProcessManager> initProcessManagersFromJEVisSingle() {
+    private static List<ProcessManager> initProcessManagersFromJEVisSingle() throws Exception {
         List<ProcessManager> processManagers = new ArrayList<>();
         try {
             Long singleObject = CommandLineParser.getInstance().getSingleObject();
             JEVisObject processObject = jevisDataSource.getObject(singleObject);
             processManagers.addAll(getAllProcessSteps(processObject));
         } catch (JEVisException ex) {
-            logger.error("Process classes missing", ex);
+            throw new Exception("Process classes missing", ex);
         }
 
         return processManagers;
@@ -124,20 +126,21 @@ public class ProcessManagerFactory {
         return processManagers;
     }
 
-    private static List<JEVisObject> getAllCleaningObjects() {
+    private static List<JEVisObject> getAllCleaningObjects() throws Exception {
         JEVisClass reportClass;
         List<JEVisObject> reportObjects = new ArrayList<>();
         try {
             reportClass = jevisDataSource.getJEVisClass(CleanDataAttributeJEVis.CLASS_NAME);
             reportObjects = jevisDataSource.getObjects(reportClass, false);
+            logger.info("Total amount of Clean Data Objects: " + reportObjects.size());
         } catch (JEVisException ex) {
-            logger.error("Process classes missing", ex);
+            throw new Exception("Process classes missing", ex);
         }
         logger.info("{} cleaning objects found", reportObjects.size());
         return reportObjects;
     }
 
-    private static List<ProcessManager> getAllProcessSteps(JEVisObject cleanObject) {
+    private static List<ProcessManager> getAllProcessSteps(JEVisObject cleanObject) throws Exception {
         List<ProcessManager> processManagers = new ArrayList<>();
         ProcessType processType = getProcessType(cleanObject);
         if (processType.equals(ProcessType.clean)) {
@@ -179,13 +182,10 @@ public class ProcessManagerFactory {
         return processSteps;
     }
 
-    private static ProcessStep getProcessStepByFunction(JEVisObject functionalObject) {
+    private static ProcessStep getProcessStepByFunction(JEVisObject functionalObject) throws Exception {
         String jeVisClassName = null;
-        try {
-            jeVisClassName = functionalObject.getJEVisClassName();
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
+        jeVisClassName = functionalObject.getJEVisClassName();
+
         if (jeVisClassName == null) {
             return null;
         }
@@ -200,28 +200,23 @@ public class ProcessManagerFactory {
         }
     }
 
-    private static JEVisObject getCleanDataObject(JEVisObject processObject) {
+    private static JEVisObject getCleanDataObject(JEVisObject processObject) throws Exception {
         JEVisObject cleanObject = null;
-        try {
-            for (JEVisObject currentObject : processObject.getParents()) {
-                if (currentObject.getJEVisClassName().equals("Clean Data")) {
-                    cleanObject = currentObject;
-                    break;
-                }
+
+        for (JEVisObject currentObject : processObject.getParents()) {
+            if (currentObject.getJEVisClassName().equals("Clean Data")) {
+                cleanObject = currentObject;
+                break;
             }
-        } catch (JEVisException ex) {
-            logger.error(ex);
         }
+
         return cleanObject;
     }
 
-    public static ProcessType getProcessType(JEVisObject processObject) {
+    public static ProcessType getProcessType(JEVisObject processObject) throws Exception {
         String jeVisClassName = null;
-        try {
-            jeVisClassName = processObject.getJEVisClassName();
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
+
+        jeVisClassName = processObject.getJEVisClassName();
 
         if (jeVisClassName == null) {
             return null;
@@ -231,11 +226,8 @@ public class ProcessManagerFactory {
             return ProcessType.clean;
         } else {
             String functionalClassName = null;
-            try {
-                functionalClassName = processObject.getJEVisClass().getInheritance().getName();
-            } catch (JEVisException ex) {
-                logger.error(ex);
-            }
+            functionalClassName = processObject.getJEVisClass().getInheritance().getName();
+
             if (functionalClassName != null && functionalClassName.equals("Functional Data")) {
                 return ProcessType.functional;
             }
@@ -243,7 +235,7 @@ public class ProcessManagerFactory {
         return null;
     }
 
-    private static Collection<? extends ProcessManager> getProcessManagersByCleaningObject(JEVisObject cleanObject) {
+    private static Collection<? extends ProcessManager> getProcessManagersByCleaningObject(JEVisObject cleanObject) throws Exception {
         List<ProcessManager> processManagers = new ArrayList<>();
         ObjectHandler objectHandler = new ObjectHandler(jevisDataSource);
         CleanDataAttribute calcAttribute = new CleanDataAttributeJEVis(cleanObject, objectHandler);
@@ -253,18 +245,14 @@ public class ProcessManagerFactory {
         processManager.setProcessSteps(processSteps);
         processManagers.add(processManager);
 
-        try {
-            for (JEVisObject child : cleanObject.getChildren()) {
-                processManagers.add(getProcessManagerByFunctionalObject(child));
-            }
-        } catch (JEVisException ex) {
-            logger.error(ex);
+        for (JEVisObject child : cleanObject.getChildren()) {
+            processManagers.add(getProcessManagerByFunctionalObject(child));
         }
 
         return processManagers;
     }
 
-    private static ProcessManager getProcessManagerByFunctionalObject(JEVisObject functionalObject) {
+    private static ProcessManager getProcessManagerByFunctionalObject(JEVisObject functionalObject) throws Exception {
         JEVisObject cleanObject = getCleanDataObject(functionalObject);
         ObjectHandler objectHandler = new ObjectHandler(jevisDataSource);
         CleanDataAttribute calcAttribute = new CleanDataAttributeJEVis(cleanObject, objectHandler);
