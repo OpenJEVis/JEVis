@@ -63,8 +63,8 @@ public class TaskPrinter {
         columns.add("JEVisID");
         columns.add("Name");
         columns.add("Status");
+        columns.add("Job Started ");
         columns.add("Runtime");
-        columns.add("Job Start");
         List<Integer> hTemp = new ArrayList<>(stepHeader.values());
 
         Collections.sort(hTemp);

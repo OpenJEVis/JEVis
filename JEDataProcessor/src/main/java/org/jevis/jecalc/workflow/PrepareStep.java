@@ -44,6 +44,11 @@ public class PrepareStep implements ProcessStep {
         logger.info("[{}] raw samples found for cleaning: {}", resourceManager.getID(), rawSamples.size());
         LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("Raw S.", rawSamples.size() + "");
 
+        if (rawSamples.isEmpty()) {
+            logger.info("[{}] No new raw date stopping this job", resourceManager.getID());
+            return;
+        }
+
         resourceManager.setRawSamples(rawSamples);
 
         Period periodAlignment = calcAttribute.getPeriodAlignment();
@@ -69,8 +74,13 @@ public class PrepareStep implements ProcessStep {
         DateTime maxEndDate = calcAttribute.getMaxEndDate();
 
         logger.error("[{}] getIntervals: currentDate: {}  MaxEndDate: {} ", calcAttribute.getObject().getID(), currentDate, maxEndDate);
+//        if(calcAttribute.getRawSamples().size())
+//        if (currentDate != null && maxEndDate != null && currentDate.isBefore(maxEndDate)) {
+//            logger.warn("We are up to date nothing to do");
+//            return new ArrayList<>();
+//        }
         if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
-            throw new Exception(String.format("Cant calculate the intervals with start date {}  and end date {}", datePattern.print(currentDate), datePattern.print(maxEndDate)));
+            throw new Exception(String.format("Cant calculate the intervals with start date %s  and end date %s", datePattern.print(currentDate), datePattern.print(maxEndDate)));
 //            logger.error("Cant calculate the intervals with start date " + datePattern.print(currentDate) + " and end date " + datePattern.print(maxEndDate));
         } else {
             logger.info("[{}] Calc interval between start date {} and end date {}", calcAttribute.getObject().getID(), datePattern.print(currentDate), datePattern.print(maxEndDate));

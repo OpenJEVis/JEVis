@@ -63,8 +63,8 @@ public class ServiceMode {
     private void runProcesses() throws Exception {
         List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
 
-        logger.info("{} cleaning task found starting with 4 threads", processes.size());
-        processes.stream().limit(4).forEach((currentProcess) -> {
+        logger.info("{} cleaning task found starting", processes.size());
+        processes.stream().forEach((currentProcess) -> {
             try {
                 currentProcess.start();
             } catch (Exception ex) {
