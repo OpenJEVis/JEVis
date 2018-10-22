@@ -38,12 +38,12 @@ import java.util.Locale;
  */
 public class JEVisSampleWS implements JEVisSample {
 
+    public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
     private DateTime timestamp;
     private JEVisAttribute attribute;
     private JsonSample json;
     private JEVisDataSourceWS ds;
     private Logger logger = LogManager.getLogger(JEVisSampleWS.class);
-    public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
     private JEVisFile file = null;
 
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att) {
@@ -132,7 +132,7 @@ public class JEVisSampleWS implements JEVisSample {
     @Override
     public JEVisFile getValueAsFile() {
 
-        if (file != null && file.getBytes()!=null) {
+        if (file != null && file.getBytes() != null) {
             return file;
         } else {
             try {
@@ -223,4 +223,8 @@ public class JEVisSampleWS implements JEVisSample {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public String toString() {
+        return "JEVisSampleWS{ ts:" + getTimestamp() + " Value: " + getValueAsString() + "}";
+    }
 }

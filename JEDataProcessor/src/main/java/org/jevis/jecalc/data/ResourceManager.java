@@ -43,4 +43,10 @@ public class ResourceManager {
         this.rawSamples = rawSamples;
     }
 
+    public Long getID() {
+        if (calcAttribute == null || calcAttribute.getObject() == null) {
+            return -1l;
+        }
+        return calcAttribute.getObject().getID();
+    }
 }

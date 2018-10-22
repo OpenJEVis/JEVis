@@ -173,8 +173,8 @@
                     <sign>
                         <keystore>key.jks</keystore>
                         <keypass></keypass>
-                        <storepass>strepass</storepass>
-                        <alias>jevis</alias>
+                        <storepass>storepass</storepass>
+                        <alias>alias</alias>
 
                         <keystoreConfig>
                             <delete>false</delete>

@@ -7,7 +7,6 @@ package org.jevis.jecalc.functional.aggregation;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.SampleHandler;
@@ -38,27 +37,24 @@ public class AggregationJob {
         this.cleanData = cleanData;
     }
 
-    public static AggregationJob createAggregationJob(JEVisObject aggregationObject, JEVisObject cleanData, DateTime startDate, AggregationModus aggregationModus) {
-        try {
-            if (startDate == null) {
-                startDate = new DateTime(0);
-            }
-            logger.debug("Starttime: {}", startDate.toString(DateTimeFormat.fullDateTime()));
-            Period inputSampleRate = aggregationObject.getAttribute("Value").getInputSampleRate();
-            logger.debug("inputSampleRate: {}", inputSampleRate.toString(PeriodFormat.getDefault()));
-            if (inputSampleRate.equals(Period.ZERO)) {
-                throw new RuntimeException("Cant calculate with a zero period");
-            }
-            List<JEVisSample> cleanSamples = cleanData.getAttribute("Value").getSamples(startDate, new DateTime());
-            logger.debug("{} clean samples found for calculation", cleanSamples.size());
-            return new AggregationJob(aggregationModus, inputSampleRate, cleanSamples, cleanData);
-        } catch (JEVisException ex) {
-            logger.fatal(ex);
+    public static AggregationJob createAggregationJob(JEVisObject aggregationObject, JEVisObject cleanData, DateTime startDate, AggregationModus aggregationModus) throws Exception {
+
+        if (startDate == null) {
+            startDate = new DateTime(0);
         }
-        return null;
+        logger.debug("Starttime: {}", startDate.toString(DateTimeFormat.fullDateTime()));
+        Period inputSampleRate = aggregationObject.getAttribute("Value").getInputSampleRate();
+        logger.debug("inputSampleRate: {}", inputSampleRate.toString(PeriodFormat.getDefault()));
+        if (inputSampleRate.equals(Period.ZERO)) {
+            throw new RuntimeException("Cant calculate with a zero period");
+        }
+        List<JEVisSample> cleanSamples = cleanData.getAttribute("Value").getSamples(startDate, new DateTime());
+        logger.debug("{} clean samples found for calculation", cleanSamples.size());
+        return new AggregationJob(aggregationModus, inputSampleRate, cleanSamples, cleanData);
+
     }
 
-    public static AggregationJob createAggregationJob(JEVisObject aggregationObject, JEVisObject cleanData, AggregationModus aggregationModus) {
+    public static AggregationJob createAggregationJob(JEVisObject aggregationObject, JEVisObject cleanData, AggregationModus aggregationModus) throws Exception {
         SampleHandler sampleHandler = new SampleHandler();
         DateTime lastSampleTimestamp = sampleHandler.getTimeStampFromLastSample(aggregationObject, "Value");
         return createAggregationJob(aggregationObject, cleanData, lastSampleTimestamp, aggregationModus);

@@ -29,6 +29,7 @@ import java.util.Properties;
  */
 public class CleanDataAttributeOffline implements CleanDataAttribute {
 
+    private static final Logger logger = LogManager.getLogger(CleanDataAttributeOffline.class);
     private final String pathToOutput;
     private DateTime date;
     private int periodOffset;
@@ -38,15 +39,12 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private List<JEVisSample> multiplier;
     private Double offset;
     private GapStrategy gapStrategy;
-
     private List<JEVisSample> rawSample = new ArrayList<>();
     private boolean periodAligned;
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private Boolean limitsEnabled;
     private Boolean gapFillingEnabled;
-    private static final Logger logger = LogManager.getLogger(CleanDataAttributeOffline.class);
-
     private JEVisObject object;
     private List<JEVisSample> counterOverflow;
 
@@ -76,7 +74,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
         if (!rawSample.isEmpty()) {
             try {
                 return rawSample.get(rawSample.size() - 1).getTimestamp().plusSeconds(periodOffset).plus(periodAlignment);
-            } catch (JEVisException ex) {
+            } catch (Exception ex) {
                 logger.error(ex);
             }
         }

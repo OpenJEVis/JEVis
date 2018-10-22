@@ -5,7 +5,6 @@
  */
 package org.jevis.jecalc.workflow;
 
-import org.jevis.api.JEVisException;
 import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 
@@ -14,7 +13,7 @@ import org.jevis.jecalc.data.ResourceManager;
  */
 public interface ProcessStep {
 
-    void run(ResourceManager resourceManager) throws JEVisException;
+    void run(ResourceManager resourceManager) throws Exception;
 
     default String getNote(CleanInterval currentInterval) {
         String note = "";

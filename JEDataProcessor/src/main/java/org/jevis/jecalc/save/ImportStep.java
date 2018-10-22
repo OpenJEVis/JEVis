@@ -11,6 +11,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.task.LogTaskManager;
 import org.jevis.jecalc.data.*;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
@@ -29,7 +30,7 @@ public class ImportStep implements ProcessStep {
     private static final Logger logger = LogManager.getLogger(ImportStep.class);
 
     @Override
-    public void run(ResourceManager resourceManager) {
+    public void run(ResourceManager resourceManager) throws Exception {
         if (resourceManager.getCalcAttribute() instanceof CleanDataAttributeJEVis) {
             importintoJEVis(resourceManager);
         } else if (resourceManager.getCalcAttribute() instanceof CleanDataAttributeOffline) {
@@ -37,15 +38,13 @@ public class ImportStep implements ProcessStep {
         }
     }
 
-    private void importintoJEVis(ResourceManager resourceManager) {
+    private void importintoJEVis(ResourceManager resourceManager) throws Exception {
         CleanDataAttributeJEVis cleanAttr = (CleanDataAttributeJEVis) resourceManager.getCalcAttribute();
         JEVisObject cleanObject = cleanAttr.getObject();
         JEVisAttribute attribute = null;
-        try {
-            attribute = cleanObject.getAttribute(CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME);
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
+
+        attribute = cleanObject.getAttribute(CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME);
+
         if (attribute == null) {
             return;
         }
@@ -54,31 +53,23 @@ public class ImportStep implements ProcessStep {
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
         for (CleanInterval curInterval : resourceManager.getIntervals()) {
             for (JEVisSample sample : curInterval.getTmpSamples()) {
-                try {
-                    Double rawValue = sample.getValueAsDouble();
-                    if (rawValue == null) {
-                        continue;
-                    }
-                    DateTime date = sample.getTimestamp();
-                    if (date != null) {
-                        try {
-                            DateTime timestamp = sample.getTimestamp().plusSeconds(calcAttribute.getPeriodOffset());
-                            JEVisSample sampleSql = attribute.buildSample(timestamp, rawValue, sample.getNote());
-                            cleanSamples.add(sampleSql);
-                        } catch (JEVisException ex) {
-                            logger.error(ex);
-                        }
-                    }
-                } catch (JEVisException ex) {
-                    logger.error(ex);
+                Double rawValue = sample.getValueAsDouble();
+                if (rawValue == null) {
+                    continue;
+                }
+                DateTime date = sample.getTimestamp();
+                if (date != null) {
+                    DateTime timestamp = sample.getTimestamp().plusSeconds(calcAttribute.getPeriodOffset());
+                    JEVisSample sampleSql = attribute.buildSample(timestamp, rawValue, sample.getNote());
+                    cleanSamples.add(sampleSql);
+
                 }
             }
         }
-        try {
-            attribute.addSamples(cleanSamples);
-        } catch (JEVisException ex) {
-        }
-        logger.info("{} samples imported", cleanSamples.size());
+        logger.info("[{}] Start import of new Samples: {}", resourceManager.getID(), cleanSamples.size());
+        attribute.addSamples(cleanSamples);
+        logger.info("[{}] Imported finished for samples: {}", resourceManager.getID(), cleanSamples.size());
+        LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
     }
 
     private void writeIntoFile(ResourceManager resourceManager) {

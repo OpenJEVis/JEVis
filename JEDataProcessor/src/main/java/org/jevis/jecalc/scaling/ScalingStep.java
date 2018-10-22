@@ -26,7 +26,7 @@ public class ScalingStep implements ProcessStep {
     private static final Logger logger = LogManager.getLogger(ScalingStep.class);
 
     @Override
-    public void run(ResourceManager resourceManager) {
+    public void run(ResourceManager resourceManager) throws Exception {
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> listMultipliers = calcAttribute.getMultiplier();
@@ -46,28 +46,24 @@ public class ScalingStep implements ProcessStep {
 
                 }
             } catch (JEVisException e) {
-                logger.error("no timestamp for multiplier", e);
+                throw new Exception("no timestamp for multiplier", e);
             }
             logger.info("scale with multiplier {} and offset {}", multiplierDouble, offset);
             for (CleanInterval currentInt : intervals) {
                 if (currentInt.getDate().isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || currentInt.getDate().isBefore(nextTimeStampOfMultiplier))) {
                     BigDecimal multi = new BigDecimal(multiplierDouble.toString());
                     for (JEVisSample sample : currentInt.getTmpSamples()) {
-                        try {
-                            Double rawValue = sample.getValueAsDouble();
-                            if (rawValue != null) {
-                                BigDecimal rawValueDec = new BigDecimal(rawValue.toString());
-                                BigDecimal productDec = new BigDecimal(0);
-                                productDec = productDec.add(rawValueDec);
-                                productDec = productDec.multiply(multi);
-                                productDec = productDec.add(offset);
-                                sample.setValue(productDec.doubleValue());
-                                String note = sample.getNote();
-                                note += ",scale";
-                                sample.setNote(note);
-                            }
-                        } catch (JEVisException ex) {
-                            logger.error(ex);
+                        Double rawValue = sample.getValueAsDouble();
+                        if (rawValue != null) {
+                            BigDecimal rawValueDec = new BigDecimal(rawValue.toString());
+                            BigDecimal productDec = new BigDecimal(0);
+                            productDec = productDec.add(rawValueDec);
+                            productDec = productDec.multiply(multi);
+                            productDec = productDec.add(offset);
+                            sample.setValue(productDec.doubleValue());
+                            String note = sample.getNote();
+                            note += ",scale";
+                            sample.setNote(note);
                         }
                     }
                 }

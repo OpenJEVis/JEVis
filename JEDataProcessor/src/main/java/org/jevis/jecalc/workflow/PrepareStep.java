@@ -7,8 +7,9 @@ package org.jevis.jecalc.workflow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.Task;
 import org.jevis.jecalc.data.CleanDataAttribute;
 import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
@@ -34,12 +35,20 @@ public class PrepareStep implements ProcessStep {
 
     @Override
 
-    public void run(ResourceManager resourceManager) {
+    public void run(ResourceManager resourceManager) throws Exception {
         CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
 
         //get the raw samples for the cleaning
+        logger.info("[{}] Request raw samples", resourceManager.getID());
         List<JEVisSample> rawSamples = calcAttribute.getRawSamples();
-        logger.info("{} raw samples found for cleaning", rawSamples.size());
+        logger.info("[{}] raw samples found for cleaning: {}", resourceManager.getID(), rawSamples.size());
+        LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("Raw S.", rawSamples.size() + "");
+
+        if (rawSamples.isEmpty()) {
+            logger.info("[{}] No new raw date stopping this job", resourceManager.getID());
+            return;
+        }
+
         resourceManager.setRawSamples(rawSamples);
 
         Period periodAlignment = calcAttribute.getPeriodAlignment();
@@ -57,17 +66,24 @@ public class PrepareStep implements ProcessStep {
 
     }
 
-    private List<CleanInterval> getIntervals(CleanDataAttribute calcAttribute, Period periodAlignment) {
+    private List<CleanInterval> getIntervals(CleanDataAttribute calcAttribute, Period periodAlignment) throws Exception {
 
         List<CleanInterval> cleanIntervals = new ArrayList<>();
         DateTime currentDate = calcAttribute.getFirstDate();
         DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
         DateTime maxEndDate = calcAttribute.getMaxEndDate();
 
+        logger.error("[{}] getIntervals: currentDate: {}  MaxEndDate: {} ", calcAttribute.getObject().getID(), currentDate, maxEndDate);
+//        if(calcAttribute.getRawSamples().size())
+//        if (currentDate != null && maxEndDate != null && currentDate.isBefore(maxEndDate)) {
+//            logger.warn("We are up to date nothing to do");
+//            return new ArrayList<>();
+//        }
         if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
-            logger.error("Cant calculate the intervals with start date " + datePattern.print(currentDate) + " and end date " + datePattern.print(maxEndDate));
+            throw new Exception(String.format("Cant calculate the intervals with start date %s  and end date %s", datePattern.print(currentDate), datePattern.print(maxEndDate)));
+//            logger.error("Cant calculate the intervals with start date " + datePattern.print(currentDate) + " and end date " + datePattern.print(maxEndDate));
         } else {
-            logger.info("Calc interval between start date {} and end date {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
+            logger.info("[{}] Calc interval between start date {} and end date {}", calcAttribute.getObject().getID(), datePattern.print(currentDate), datePattern.print(maxEndDate));
 
 
             if (periodAlignment.equals(Period.months(1))) {
@@ -116,24 +132,27 @@ public class PrepareStep implements ProcessStep {
                 }
             }
 
+
             logger.info("{} intervals calculated", cleanIntervals.size());
         }
+
+        if (cleanIntervals.isEmpty()) {
+            LogTaskManager.getInstance().getTask(calcAttribute.getObject().getID()).setStatus(Task.Status.IDLE);
+        }
+
         return cleanIntervals;
     }
 
-    private List<CleanInterval> getIntervalsFromRawSamples(CleanDataAttribute calcAttribute, List<JEVisSample> rawSamples) {
+    private List<CleanInterval> getIntervalsFromRawSamples(CleanDataAttribute calcAttribute, List<JEVisSample> rawSamples) throws Exception {
         List<CleanInterval> cleanIntervals = new ArrayList<>();
         for (JEVisSample curSample : rawSamples) {
-            try {
-                DateTime startInterval = curSample.getTimestamp().plusSeconds(calcAttribute.getPeriodOffset());
-                DateTime endInterval = startInterval.plusMillis(1);
-                Interval interval = new Interval(startInterval, endInterval);
+            DateTime startInterval = curSample.getTimestamp().plusSeconds(calcAttribute.getPeriodOffset());
+            DateTime endInterval = startInterval.plusMillis(1);
+            Interval interval = new Interval(startInterval, endInterval);
 
-                CleanInterval currentInterval = new CleanInterval(interval, startInterval);
-                cleanIntervals.add(currentInterval);
-            } catch (JEVisException ex) {
-                logger.fatal(ex);
-            }
+            CleanInterval currentInterval = new CleanInterval(interval, startInterval);
+            cleanIntervals.add(currentInterval);
+
         }
         logger.info("{} intervals calculated", cleanIntervals.size());
         return cleanIntervals;

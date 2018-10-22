@@ -100,9 +100,9 @@ public class CalcLauncher extends AbstractCliApp {
     protected void runComplete() {
         logger.info("Start Complete Mode");
         List<JEVisObject> jevisCalcObjects = getCalcObjects();
-        logger.info("{} calc jobs found", jevisCalcObjects.size());
+        logger.info("{} calc task found", jevisCalcObjects.size());
         List<JEVisObject> filterForEnabledCalcObjects = getEnabledCalcJobs(jevisCalcObjects);
-        logger.info("{} enabled calc jobs found", filterForEnabledCalcObjects.size());
+        logger.info("{} enabled calc task found", filterForEnabledCalcObjects.size());
         CalcJobFactory calcJobCreator = new CalcJobFactory(filterForEnabledCalcObjects);
         run(calcJobCreator);
     }

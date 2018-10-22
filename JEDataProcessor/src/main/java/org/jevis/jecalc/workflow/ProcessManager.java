@@ -7,8 +7,9 @@ package org.jevis.jecalc.workflow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.Task;
 import org.jevis.jecalc.data.CleanDataAttribute;
 import org.jevis.jecalc.data.ResourceManager;
 
@@ -34,19 +35,26 @@ public class ProcessManager {
     }
 
     public void start() {
-        logger.info("---------------------------------------------");
-        logger.info("Current Clean Data Object: {}", resourceManager.getCalcAttribute().getName());
-        for (ProcessStep ps : processSteps) {
-            try {
+        logger.info("[{}] Starting Process", resourceManager.getID());
+        Long id = -1l;
+        try {
+            id = resourceManager.getID();
+            LogTaskManager.getInstance().buildNewTask(resourceManager.getID(), LogTaskManager.parentName(resourceManager.getCalcAttribute().getObject()));
+            LogTaskManager.getInstance().getTask(resourceManager.getID()).setStatus(Task.Status.STARTED);
+
+            for (ProcessStep ps : processSteps) {
                 ps.run(resourceManager);
-            } catch (JEVisException e) {
-                logger.error("Error in process step: " + ps.getClass().getName() + " for object: "
-                        + resourceManager.getCalcAttribute().getName() + ":"
-                        + resourceManager.getCalcAttribute().getObject().getID());
             }
+
+            logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCalcAttribute().getObject().getName());
+            LogTaskManager.getInstance().getTask(resourceManager.getID()).setStatus(Task.Status.FINISHED);
+        } catch (Exception e) {
+            logger.error("[" + id + "] Error in process step:", e.getStackTrace());
+            e.printStackTrace();
+            LogTaskManager.getInstance().getTask(id).setExeption(e);
+            LogTaskManager.getInstance().getTask(id).setStatus(Task.Status.FAILED);
         }
-        logger.info("---------------------------------------------");
-        logger.info("Finished: {}", resourceManager.getCalcAttribute().getName());
+
     }
 
     private void addFunctionalSteps(List<ProcessStep> processSteps, JEVisObject cleanObject) {

@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -29,12 +29,12 @@ import org.joda.time.DateTime;
  */
 public class VirtualSample implements JEVisSample {
 
+    JEVisDataSource _ds;
     private Double _value;
     private DateTime _timeSatmp;
     private JEVisAttribute _att;
     private String _note;
     private JEVisUnit _unit;
-    JEVisDataSource _ds;
 
     public VirtualSample(DateTime ts, Double value) {
         _value = value;
@@ -169,5 +169,14 @@ public class VirtualSample implements JEVisSample {
         }
         VirtualSample otherSample = (VirtualSample) o;
         return otherSample.getTimestamp().equals(this.getTimestamp()) && otherSample.getValue().equals(this.getValue());
+    }
+
+    @Override
+    public String toString() {
+        return "VirtualSample{" +
+                "value=" + _value +
+                ", timeSatmp=" + _timeSatmp +
+                ", note='" + _note + '\'' +
+                '}';
     }
 }

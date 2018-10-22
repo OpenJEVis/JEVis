@@ -2,6 +2,8 @@ package org.jevis.jecalc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jecalc.workflow.ProcessManager;
 import org.jevis.jecalc.workflow.ProcessManagerFactory;
 
@@ -19,12 +21,19 @@ public class ServiceMode {
     }
 
     public void run() {
-        Thread service = new Thread(() -> runServiceHelp());
-        Runtime.getRuntime().addShutdownHook(
-                new JEDataProcessorShutdownHookThread(service)
-        );
+
 
         try {
+            Thread service = new Thread(() -> {
+                try {
+                    runEndlessService();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            Runtime.getRuntime().addShutdownHook(
+                    new JEDataProcessorShutdownHookThread(service)
+            );
 
             service.start();
         } catch (Exception e) {
@@ -38,29 +47,31 @@ public class ServiceMode {
         }
     }
 
-    private void runServiceHelp() {
+    private void runEndlessService() throws Exception {
 
         this.runProcesses();
         try {
+            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             logger.info("Entering Sleep mode for " + cycleTime + "ms.");
             Thread.sleep(cycleTime);
-            runServiceHelp();
+            runEndlessService();
         } catch (InterruptedException e) {
             logger.error("Interrupted sleep: ", e);
         }
     }
 
-    private void runProcesses() {
+    private void runProcesses() throws Exception {
+        ProcessManagerFactory.jevisDataSource.reloadAttributes();
         List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
 
-        logger.info("{} cleaning jobs found", processes.size());
-        for (ProcessManager currentProcess : processes) {
+        logger.info("{} cleaning task found starting", processes.size());
+        processes.stream().forEach((currentProcess) -> {
             try {
                 currentProcess.start();
             } catch (Exception ex) {
                 logger.debug(ex);
             }
-        }
+        });
         logger.info("Cleaning finished.");
     }
 }

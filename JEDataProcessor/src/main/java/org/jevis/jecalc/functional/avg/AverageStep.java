@@ -8,7 +8,6 @@ package org.jevis.jecalc.functional.avg;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.SampleHandler;
@@ -33,7 +32,7 @@ public class AverageStep implements ProcessStep {
     }
 
     @Override
-    public void run(ResourceManager resourceManager) {
+    public void run(ResourceManager resourceManager) throws Exception {
         logger.debug("Start Functional Step with id {}", functionalObject.getID());
         CleanDataAttributeJEVis jevisAttribute = (CleanDataAttributeJEVis) resourceManager.getCalcAttribute();
         JEVisObject cleanData = jevisAttribute.getObject();
@@ -41,12 +40,10 @@ public class AverageStep implements ProcessStep {
         AggregationJob createAggregationJob = AggregationJob.createAggregationJob(functionalObject, cleanData, Aggregator.AggregationModus.average);
         List<JEVisSample> aggregatedData = aggr.getAggregatedData(createAggregationJob);
         SampleHandler sampleHandler = new SampleHandler();
-        try {
-            JEVisAttribute attribute = functionalObject.getAttribute("Value");
-            sampleHandler.importDataAndReplaceSorted(aggregatedData, attribute);
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
+
+        JEVisAttribute attribute = functionalObject.getAttribute("Value");
+        sampleHandler.importDataAndReplaceSorted(aggregatedData, attribute);
+
     }
 
 }
