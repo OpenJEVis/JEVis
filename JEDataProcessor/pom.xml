@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jevis</groupId>
     <artifactId>JEDataProcessor</artifactId>
-    <version>1.2</version>
+    <version>1.4</version>
     <packaging>jar</packaging>
     <name>JEDataProcessor</name>
 

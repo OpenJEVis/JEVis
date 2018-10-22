@@ -61,6 +61,7 @@ public class ServiceMode {
     }
 
     private void runProcesses() throws Exception {
+        ProcessManagerFactory.jevisDataSource.reloadAttributes();
         List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
 
         logger.info("{} cleaning task found starting", processes.size());
