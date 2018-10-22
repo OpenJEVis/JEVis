@@ -71,7 +71,7 @@ public class ServiceMode {
             } catch (Exception ex) {
                 logger.debug(ex);
             }
-        }
+        });
         logger.info("Cleaning finished.");
     }
 }

@@ -171,19 +171,15 @@ public class LimitsStep implements ProcessStep {
         for (CleanInterval currentInterval : intervals) {
             for (JsonLimitsConfig lc : conf) {
                 for (JEVisSample sample : currentInterval.getTmpSamples()) {
-                    Double min;
-                    Double max;
-                    try {
-                        min = Double.parseDouble(lc.getMin());
-                        max = Double.parseDouble(lc.getMax());
-                    } catch (Exception e) {
-                        throw new Exception("Invalid Limit Configuration", e);
-                    }
+                    Double min = Double.parseDouble(lc.getMin());
+                    Double max = Double.parseDouble(lc.getMax());
+
                     if (sample == null || sample.getValueAsDouble() == null) {
                         throw new Exception("Error in identifyLimitBreaks, emty tmp value in interval: " + currentInterval.getInterval());
                     }
                     logger.error("- Limits Sample: {} min: {} max: {}" + sample, min, max);
 
+                    Double sampleValue = sample.getValueAsDouble();
 
                     if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
                         if (currentLimitBreak == null) {
