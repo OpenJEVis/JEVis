@@ -69,10 +69,9 @@ public class ServiceMode {
             try {
                 currentProcess.start();
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
-                logger.debug(ex.getMessage(), ex);
+                logger.debug(ex);
             }
-        });
+        }
         logger.info("Cleaning finished.");
     }
 }
