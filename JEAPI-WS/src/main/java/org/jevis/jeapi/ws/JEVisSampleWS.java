@@ -121,6 +121,12 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public Boolean getValueAsBoolean() {
+        if (json.getValue().equals("1")) {
+            return true;
+        } else if (json.getValue().equals("0")) {
+            return false;
+        }
+
         return Boolean.parseBoolean(getValueAsString());
     }
 

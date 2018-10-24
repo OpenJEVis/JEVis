@@ -70,6 +70,11 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     }
 
     @Override
+    public void checkConfig() throws Exception {
+
+    }
+
+    @Override
     public DateTime getMaxEndDate() {
         if (!rawSample.isEmpty()) {
             try {
@@ -99,6 +104,11 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     @Override
     public Boolean getValueIsQuantity() {
         return valueIsQuantity;
+    }
+
+    @Override
+    public boolean isFirstRun() throws Exception {
+        return true;
     }
 
     private void initProperties(String pathToCleanConfigFile) {
@@ -156,7 +166,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     }
 
     @Override
-    public Double getLastDiffValue() {
+    public Double getLastCounterValue() {
         return null;
     }
 

@@ -27,7 +27,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.config.CommonOptions;
-import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.ws.json.*;
 import org.joda.time.DateTime;
 
@@ -348,7 +347,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public List<JEVisRelationship> getRelationshipsWS() {
         logger.debug("Get ALL RelationshipsWS");
         try {
-            Benchmark bm = new Benchmark();
+//            Benchmark bm = new Benchmark();
             List<JEVisRelationship> objects = new ArrayList<>();
             String resource = HTTPConnection.API_PATH_V1
                     + REQUEST.RELATIONSHIPS.PATH;
@@ -361,7 +360,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             for (JsonRelationship rel : jsons) {
                 objects.add(new JEVisRelationshipWS(JEVisDataSourceWS.this, rel));
             }
-            bm.printBenchmarkDetail("Time to get Relationships");
+//            bm.printBenchmarkDetail("Time to get Relationships");
             return objects;
 
         } catch (ProtocolException ex) {

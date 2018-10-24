@@ -52,8 +52,8 @@ public class PrepareStep implements ProcessStep {
         resourceManager.setRawSamples(rawSamples);
 
         Period periodAlignment = calcAttribute.getPeriodAlignment();
-        logger.info("Period is {}", PeriodFormat.getDefault().print(periodAlignment));
-        logger.info("Samples should be aligned {}", calcAttribute.getIsPeriodAligned());
+        logger.info("[{}] Period is {}", resourceManager.getID(), PeriodFormat.getDefault().print(periodAlignment));
+        logger.info("[{}] Samples should be aligned {}", resourceManager.getID(), calcAttribute.getIsPeriodAligned());
         if (periodAlignment.equals(Period.ZERO) && calcAttribute.getIsPeriodAligned()) {
             throw new RuntimeException("No Input Sample Rate given for Object Clean Data and Attribute Value");
         } else if (calcAttribute.getIsPeriodAligned()) {
@@ -67,28 +67,29 @@ public class PrepareStep implements ProcessStep {
     }
 
     private List<CleanInterval> getIntervals(CleanDataAttribute calcAttribute, Period periodAlignment) throws Exception {
-
         List<CleanInterval> cleanIntervals = new ArrayList<>();
+
+        if (calcAttribute.getMaxEndDate() == null) {
+            logger.info("[{}] No Raw data, nothing to to", calcAttribute.getObject().getID());
+            return cleanIntervals;
+        }
+
         DateTime currentDate = calcAttribute.getFirstDate();
         DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
         DateTime maxEndDate = calcAttribute.getMaxEndDate();
 
         logger.error("[{}] getIntervals: currentDate: {}  MaxEndDate: {} ", calcAttribute.getObject().getID(), currentDate, maxEndDate);
-//        if(calcAttribute.getRawSamples().size())
-//        if (currentDate != null && maxEndDate != null && currentDate.isBefore(maxEndDate)) {
-//            logger.warn("We are up to date nothing to do");
-//            return new ArrayList<>();
-//        }
+
         if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
-            throw new Exception(String.format("Cant calculate the intervals with start date %s  and end date %s", datePattern.print(currentDate), datePattern.print(maxEndDate)));
+            logger.warn("Nothing to do with only one interval");
+            return cleanIntervals;
+//            throw new Exception(String.format("Cant calculate the intervals with start date %s  and end date %s", datePattern.print(currentDate), datePattern.print(maxEndDate)));
 //            logger.error("Cant calculate the intervals with start date " + datePattern.print(currentDate) + " and end date " + datePattern.print(maxEndDate));
         } else {
             logger.info("[{}] Calc interval between start date {} and end date {}", calcAttribute.getObject().getID(), datePattern.print(currentDate), datePattern.print(maxEndDate));
 
 
             if (periodAlignment.equals(Period.months(1))) {
-                //duration = Period.days(15).plusHours(5).plusMinutes(16).plusSeconds(48).toStandardDuration();
-                //halfDuration = duration.getMillis();
                 currentDate = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1, 0, 0, 0);
 
                 while (currentDate.isBefore(maxEndDate)) {
@@ -102,8 +103,6 @@ public class PrepareStep implements ProcessStep {
                     currentDate = currentDate.plus(periodAlignment);
                 }
             } else if (periodAlignment.equals(Period.years(1))) {
-                //duration = Period.days(182).plusHours(14).plusMinutes(54).plusSeconds(40).plusMillis(320).toStandardDuration();
-                //halfDuration = duration.getMillis();
                 currentDate = new DateTime(currentDate.getYear(), 1, 1, 0, 0, 0);
 
                 while (currentDate.isBefore(maxEndDate)) {
@@ -133,7 +132,7 @@ public class PrepareStep implements ProcessStep {
             }
 
 
-            logger.info("{} intervals calculated", cleanIntervals.size());
+            logger.info("[{}] {} intervals calculated", calcAttribute.getObject().getID(), cleanIntervals.size());
         }
 
         if (cleanIntervals.isEmpty()) {
@@ -154,7 +153,7 @@ public class PrepareStep implements ProcessStep {
             cleanIntervals.add(currentInterval);
 
         }
-        logger.info("{} intervals calculated", cleanIntervals.size());
+        logger.info("[{}] {} intervals calculated", calcAttribute.getObject().getID(), cleanIntervals.size());
         return cleanIntervals;
     }
 }

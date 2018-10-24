@@ -20,6 +20,18 @@ import java.util.List;
  */
 public interface CleanDataAttribute {
 
+    /**
+     * Check if the configuration is valid. Throws exception if configuration is not valid.
+     *
+     * @throws Exception
+     */
+    void checkConfig() throws Exception;
+
+    /**
+     * Returns the last clean data timestamp plus the period as the expected next first new date
+     *
+     * @return
+     */
     DateTime getFirstDate();
 
     DateTime getMaxEndDate();
@@ -38,7 +50,20 @@ public interface CleanDataAttribute {
 
     Integer getPeriodOffset();
 
-    Double getLastDiffValue() throws Exception;
+    /**
+     * Returns the last counter value
+     *
+     * @return
+     * @throws Exception
+     */
+    Double getLastCounterValue() throws Exception;
+
+    /**
+     * Return true if this is the first run of the precalc for this Clean Data
+     *
+     * @return
+     */
+    boolean isFirstRun() throws Exception;
 
     List<JEVisSample> getMultiplier();
 
@@ -56,7 +81,7 @@ public interface CleanDataAttribute {
 
     List<JsonGapFillingConfig> getGapFillingConfig();
 
-    List<JsonLimitsConfig> getLimitsConfig();
+    List<JsonLimitsConfig> getLimitsConfig() throws Exception;
 
     JEVisObject getObject();
 

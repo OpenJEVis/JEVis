@@ -7,11 +7,14 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import javax.swing.*;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class TaskPrinter {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("yy-MM-dd HH:mm");//yyyy-MM-dd HH:mm
     private static final Logger logger = LogManager.getLogger(TaskPrinter.class);
 
     public static void printJobStatus(LogTaskManager taskManager) {
@@ -19,7 +22,7 @@ public class TaskPrinter {
         Map<String, Integer> stepHeader = new HashMap<>();
 
         try {
-            int nextInt = 5;
+            int nextInt = 6;
             /**
              * Find all used Steps and give them an header number
              */
@@ -27,7 +30,6 @@ public class TaskPrinter {
                 for (TaskStep step : task.getSteps()) {
 //                    System.out.println("Step: " + step.getType());
                     if (!stepHeader.containsKey(step.getType())) {
-                        System.out.println("add step: " + nextInt + " " + step.getType());
                         stepHeader.put(step.getType(), nextInt);
                         nextInt++;
                     }
@@ -38,7 +40,7 @@ public class TaskPrinter {
             ex.printStackTrace();
         }
 
-        Object[][] data = new Object[allTasks.size()][5 + stepHeader.size()];
+        Object[][] data = new Object[allTasks.size()][6 + stepHeader.size()];
 
         for (int i = 0; i < allTasks.size(); i++) {
             Task task = allTasks.get(i);
@@ -46,10 +48,30 @@ public class TaskPrinter {
             data[i][1] = task.getTaskName().length() < 40 ? task.getTaskName() : task.getTaskName().substring(0, 40) + "..";
             data[i][2] = task.getStatus();
             data[i][3] = FORMATTER.print(task.getStartTime());
-            data[i][4] = task.getRunTime().toPeriod().getSeconds();
+
             data[i][4] = task.getRunTime().toPeriod().getMillis() < 1000
-                    ? task.getRunTime().toPeriod().getMillis() + "msec"
-                    : task.getRunTime().toPeriod().getSeconds() + "sec";
+                    ? task.getRunTime().toPeriod().getMillis() + " msec"
+                    : task.getRunTime().toPeriod().getSeconds() + "  sec";
+
+            String shortError = "";
+            if (task.getExpetion() != null) {
+                try {
+                    shortError = task.getExpetion().getStackTrace()[0].getClassName().substring(
+                            task.getExpetion().getStackTrace()[0].getClassName().lastIndexOf(".") + 1,
+                            task.getExpetion().getStackTrace()[0].getClassName().length())
+                            + ":" + task.getExpetion().getStackTrace()[0].getLineNumber()
+                            + ":" + task.getExpetion().getStackTrace()[0].getMethodName();
+
+
+                    shortError = shortError.length() < 50
+                            ? shortError
+                            : ".." + shortError.substring(shortError.length() - 50, shortError.length());
+
+                } catch (Exception ex) {
+                }
+            }
+
+            data[i][5] = shortError;
 
             //Dynamic Steps info
             for (TaskStep tStep : task.getSteps()) {
@@ -65,6 +87,7 @@ public class TaskPrinter {
         columns.add("Status");
         columns.add("Job Started ");
         columns.add("Runtime");
+        columns.add("Error Location");
         List<Integer> hTemp = new ArrayList<>(stepHeader.values());
 
         Collections.sort(hTemp);
@@ -79,8 +102,15 @@ public class TaskPrinter {
 
         TextTable table = new TextTable(columns.toArray(new String[0]), data);
         table.setAddRowNumbering(true);
-        table.setSort(1, SortOrder.DESCENDING);
-        table.printTable();
+        table.setSort(2, SortOrder.ASCENDING);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (PrintStream ps = new PrintStream(baos, true, "utf8")) {
+            table.printTable(ps, 0);
+            logger.error("Status Table\n" + new String(baos.toByteArray(), StandardCharsets.UTF_8));
+        } catch (Exception ex) {
+
+        }
+//        table.printTable();
     }
 
 

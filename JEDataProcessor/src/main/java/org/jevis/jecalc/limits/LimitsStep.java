@@ -45,6 +45,7 @@ public class LimitsStep implements ProcessStep {
         for (JEVisObject obj : calcAttribute.getObject().getParents()) {
             parentObject = obj;
         }
+
         if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getLimitsEnabled() || calcAttribute.getLimitsConfig().isEmpty()) {
             //no limits check when there is no alignment or disabled or no config
             return;
@@ -175,7 +176,7 @@ public class LimitsStep implements ProcessStep {
                     Double max = Double.parseDouble(lc.getMax());
 
                     if (sample == null || sample.getValueAsDouble() == null) {
-                        throw new Exception("Error in identifyLimitBreaks, emty tmp value in interval: " + currentInterval.getInterval());
+                        throw new Exception("Error in identifyLimitBreaks, empty value in interval: " + currentInterval.getInterval());
                     }
                     logger.error("- Limits Sample: {} min: {} max: {}" + sample, min, max);
 

@@ -22,6 +22,7 @@ import org.jevis.jecalc.gap.Gap.GapStrategy;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.jevis.jecalc.data.CleanDataAttributeJEVis.AttributeName.*;
@@ -60,11 +61,50 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     private List<JEVisSample> counterOverflow;
     private Double lastDiffValue;
     private Double lastCleanValue;
+    private boolean isFirstRunPeriod = true;
 
     public CleanDataAttributeJEVis(JEVisObject calcObject, ObjectHandler objectHandler) {
         object = calcObject;
         rawDataObject = objectHandler.getFirstParent(calcObject);
         sampleHandler = new SampleHandler();
+    }
+
+    @Override
+    public void checkConfig() throws Exception {
+        List<String> errors = new ArrayList<>();
+        if (getLimitsEnabled() && getLimitsConfig().isEmpty()) {
+            errors.add(String.format("Missing Limit configuration"));
+        }
+
+        if (getGapFillingEnabled() && getGapFillingConfig().isEmpty()) {
+            errors.add(String.format("Missing Gap configuration,"));
+        }
+
+        /**
+         * Why is the boolean, 'conversion to deferential' an list? can a counter can switch between deferential and not?
+         */
+//        if (getConversionDifferential().isEmpty()) {
+//
+//        }
+
+        if (getMultiplier().isEmpty()) {
+            errors.add((String.format("Multiplier is empty")));
+        }
+        if (getObject() == null) {
+            errors.add((String.format("Offset is emmy")));
+        }
+
+        if (!errors.isEmpty()) {
+            StringBuilder stringBuilder = new StringBuilder();
+            errors.forEach(s -> {
+                stringBuilder.append(" -");
+                stringBuilder.append(s);
+                stringBuilder.append("\n");
+            });
+            throw new Exception(String.format("[%s] Error in configuration, stopping: \n %s", getObject().getID(), stringBuilder.toString()));
+        }
+
+
     }
 
     @Override
@@ -170,19 +210,24 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
             if (gapFillingConfig != null && !gapFillingConfig.equals("")) {
                 jsonGapFillingConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
                 }.getType());
+            } else {
+                return new ArrayList<>();
             }
         }
         return jsonGapFillingConfig;
     }
 
     @Override
-    public List<JsonLimitsConfig> getLimitsConfig() {
+    public List<JsonLimitsConfig> getLimitsConfig() throws Exception {
         if (jsonLimitsConfig == null) {
             String limitsConfiguration = sampleHandler.getLastSample(getObject(), LIMITS_CONFIGURATION.getAttributeName(), "");
             if (limitsConfiguration != null && !limitsConfiguration.equals("")) {
                 jsonLimitsConfig = new Gson().fromJson(limitsConfiguration, new TypeToken<List<JsonLimitsConfig>>() {
                 }.getType());
+            } else {
+                return new ArrayList<>();
             }
+
         }
         return jsonLimitsConfig;
     }
@@ -193,41 +238,66 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
             rawSamples = sampleHandler.getSamplesInPeriod(rawDataObject,
                     VALUE_ATTRIBUTE_NAME,
                     getFirstDate().minus(getPeriodAlignment()),
+//                    getFirstDate(),
                     getMaxEndDate());
         }
-        LogTaskManager.getInstance().getTask(getObject().getID()).addStep("Data Start", getFirstDate().minus(getPeriodAlignment()));
-        LogTaskManager.getInstance().getTask(getObject().getID()).addStep("Date End", getMaxEndDate());
+        /**
+         * - Start is the first sample of the clean data
+         * - End is the last sample of the raw data
+         */
+        LogTaskManager.getInstance().getTask(getObject().getID()).addStep("Last Clean Data", getFirstDate().minus(getPeriodAlignment()));
+//        LogTaskManager.getInstance().getTask(getObject().getID()).addStep("Last Clean Data", getFirstDate());
+        LogTaskManager.getInstance().getTask(getObject().getID()).addStep("Last Raw Data", getMaxEndDate());
         return rawSamples;
     }
 
     @Override
-    public Double getLastDiffValue() throws Exception {
-        if (lastDiffValue == null) {
-            //if there are values in the clean data, then there should be a last value in the raw data
+    public boolean isFirstRun() throws Exception {
+        /**
+         * default is true, if true check if there clean data and if return false
+         */
+        if (isFirstRunPeriod) {
             JEVisAttribute attribute = getObject().getAttribute(VALUE_ATTRIBUTE_NAME);
-            if (attribute.hasSample()) {
-                DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
-                //DateTime lastPossibleDateTime = timestampFromLastSample.plus(period);
-                //DateTime firstDateTime = timestampFromLastSample.minus(period.multipliedBy(100));
-                //List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(firstDateTime, lastPossibleDateTime);
-                List<JEVisSample> samples = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME).getSamples(timestampFromLastSample, timestampFromLastSample);
-
-                if (!samples.isEmpty()) {
-                    lastDiffValue = samples.get(0).getValueAsDouble();
-                    //TODO this is working for period aligned stuff, other needs testing, old version was producing unexpected spikes in the values
-                }
-
-//                Double firstRawValue = samples.get(0).getValueAsDouble();
-//                for (int i = samples.size() - 1; i >= 0; i--) {
-//                    Double valueAsDouble = samples.get(i).getValueAsDouble();
-//                    if (valueAsDouble > firstRawValue) {
-//                        lastValue = valueAsDouble;
-//                        break;
-//                    }
-//                }
-            }
+            isFirstRunPeriod = attribute.getLatestSample() == null;
         }
-        return lastDiffValue;
+        logger.info("[{}] is first run: {}", getObject().getID(), isFirstRunPeriod);
+        return isFirstRunPeriod;
+    }
+
+
+    @Override
+    public Double getLastCounterValue() throws Exception {
+        logger.info("[{}] getLastCounterValue ", getObject().getID());
+
+        JEVisAttribute attribute = getObject().getAttribute(VALUE_ATTRIBUTE_NAME);
+
+
+        /**
+         * If this is the first ever run use the first raw counter value also as previous value.
+         * The first diff value will allays be 0 for now. No counter in the real world starts a 0 if the start there
+         * data collection.
+         */
+        if (isFirstRun()) {
+            return getRawSamples().get(0).getValueAsDouble();
+        }
+
+        /**
+         * If this is not the first ever run return the last counter value before the clean process period
+         */
+        DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
+
+        logger.error("[{}] get last raw counter: " + timestampFromLastSample);
+        JEVisAttribute rawValuesAtt = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME);
+
+        /**
+         * getFirstDate() gives us the next new clean data timestamp and we want the the last used
+         * raw sample before this. because of the chaotic nature of raw values we cannot be sure which it is
+         * so we load more an take the second last for now.
+         * TODO: we may have to store the last used clean sample or make this function more intelligent
+         */
+        List<JEVisSample> rawSamples = rawValuesAtt.getSamples(getFirstDate().minus(getPeriodAlignment().multipliedBy(3)), getFirstDate());
+        return rawSamples.get(rawSamples.size() - 2).getValueAsDouble();
+
     }
 
     @Override
