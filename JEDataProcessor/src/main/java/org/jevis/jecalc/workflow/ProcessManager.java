@@ -42,6 +42,9 @@ public class ProcessManager {
             LogTaskManager.getInstance().buildNewTask(resourceManager.getID(), LogTaskManager.parentName(resourceManager.getCalcAttribute().getObject()));
             LogTaskManager.getInstance().getTask(resourceManager.getID()).setStatus(Task.Status.STARTED);
 
+            resourceManager.getCalcAttribute().checkConfig();
+
+
             for (ProcessStep ps : processSteps) {
                 ps.run(resourceManager);
             }
@@ -49,10 +52,34 @@ public class ProcessManager {
             logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCalcAttribute().getObject().getName());
             LogTaskManager.getInstance().getTask(resourceManager.getID()).setStatus(Task.Status.FINISHED);
         } catch (Exception e) {
-            logger.error("[" + id + "] Error in process step:", e.getStackTrace());
-            e.printStackTrace();
+            if (logger.isDebugEnabled() || logger.isTraceEnabled()) {
+                logger.error("[{}] Error in process: \n {} \n ", id, org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
+            } else {
+                logger.error("[{}] Error in process: \n {} message: {}", id, getShortErrorMessage(e), e.getMessage());
+            }
             LogTaskManager.getInstance().getTask(id).setExeption(e);
             LogTaskManager.getInstance().getTask(id).setStatus(Task.Status.FAILED);
+        }
+
+    }
+
+    private String getShortErrorMessage(Exception ex) {
+//        System.out.println("getShortErrorMessage: " + ex);
+        try {
+            for (StackTraceElement te : ex.getStackTrace()) {
+                if (te.getClassName().startsWith("org.jevis")) {
+                    String shortClassName = "";
+                    if (te.getClassName().lastIndexOf(".") != -1) {
+                        shortClassName = te.getClassName().substring(te.getClassName().lastIndexOf(".") + 1, te.getClassName().length());
+                    } else {
+                        shortClassName = te.getClassName();
+                    }
+                    return shortClassName + ":" + te.getLineNumber() + ":" + te.getMethodName();
+                }
+            }
+            return ex.toString();
+        } catch (Exception exp2) {
+            return ex.toString();
         }
 
     }

@@ -7,6 +7,8 @@ package org.jevis.jecalc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jecalc.workflow.ProcessManager;
 import org.jevis.jecalc.workflow.ProcessManagerFactory;
 
@@ -47,6 +49,7 @@ public class Launcher {
         processes.stream().forEach((currentProcess) -> {
             try {
                 currentProcess.start();
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             } catch (Exception ex) {
                 logger.error(ex.getMessage());
                 logger.debug(ex.getMessage(), ex);

@@ -71,10 +71,10 @@ public class FillGapStep implements ProcessStep {
                             if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
                                 newGaps.add(g);
                                 doneGaps.add(g);
-                                logger.info("start filling with new Mode for " + c.getType());
                             }
                         }
                     }
+                    logger.info("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), gaps.size());
                     switch (c.getType()) {
                         case GapFillingType.NONE:
                             break;
@@ -103,10 +103,11 @@ public class FillGapStep implements ProcessStep {
                         default:
                             break;
                     }
+                    logger.info("[{}] Done", resourceManager.getID());
                 }
 
             } else {
-                logger.error("Found gap but missing GapFillingConfig in Object: " + calcAttribute.getObject().getName() + " Id: " + calcAttribute.getObject().getID());
+                logger.error("[{}] Found gap but missing GapFillingConfig", resourceManager.getID());
             }
 
         }
@@ -239,6 +240,9 @@ public class FillGapStep implements ProcessStep {
         List<JEVisSample> listSamples = null;
         List<JEVisSample> boundListSamples = new ArrayList<>();
         DateTime firstDate;
+        /**
+         * TODO: very redundant code and bad performance because there are a lot of webservice calls.
+         */
         switch (bindToSpecificValue) {
             default:
                 firstDate = getFirstDate(lastDate, c);
@@ -380,6 +384,7 @@ public class FillGapStep implements ProcessStep {
 
             }
         }
+        logger.info("Done");
     }
 
     private void fillAverage(List<Gap> gaps, JsonGapFillingConfig c) throws Exception {

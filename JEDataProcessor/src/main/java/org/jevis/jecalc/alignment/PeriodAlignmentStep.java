@@ -99,13 +99,11 @@ public class PeriodAlignmentStep implements ProcessStep {
                             currentInterval.addTmpSample(sample);
                         }
                     } else if (last) { //last sample
-                        System.out.println("use last value as replacement");
                         DateTime date = currentInterval.getDate();
                         Double valueAsDouble = currentRawSamples.get(currentRawSamples.size() - 1).getValueAsDouble();
                         JEVisSample sample = new VirtualSample(date, valueAsDouble);
                         sample.setNote("alignment(yes," + currentRawSamples.size() + ",last)");
                         currentInterval.addTmpSample(sample);
-                        System.out.println("used last replacement: " + date + " " + valueAsDouble);
 
                     } else if (avg) {
                         Double currentValue = calcAvgSample(currentRawSamples);

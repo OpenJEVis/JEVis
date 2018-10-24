@@ -54,6 +54,7 @@ public class ServiceMode {
             TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             logger.info("Entering Sleep mode for " + cycleTime + "ms.");
             Thread.sleep(cycleTime);
+            ProcessManagerFactory.jevisDataSource.reloadAttributes();
             runEndlessService();
         } catch (InterruptedException e) {
             logger.error("Interrupted sleep: ", e);
@@ -61,7 +62,6 @@ public class ServiceMode {
     }
 
     private void runProcesses() throws Exception {
-        ProcessManagerFactory.jevisDataSource.reloadAttributes();
         List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
 
         logger.info("{} cleaning task found starting", processes.size());

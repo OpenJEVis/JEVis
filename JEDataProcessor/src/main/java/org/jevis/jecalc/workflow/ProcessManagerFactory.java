@@ -77,6 +77,7 @@ public class ProcessManagerFactory {
             jevisDataSource = new JEVisDataSourceWS("http://" + con.getDb() + ":" + con.getPort());
             jevisDataSource.connect(con.getJevisUser(), con.getJevisPW());
             //Start ObjectCache
+
             jevisDataSource.getObjects();
         } catch (JEVisException ex) {
             logger.error("No Connection to database", ex);
@@ -159,6 +160,7 @@ public class ProcessManagerFactory {
 
     private static Collection<? extends ProcessStep> getDefaultSteps() {
         Collection<ProcessStep> processSteps = new ArrayList<>();
+
         ProcessStep preparation = new PrepareStep();
         processSteps.add(preparation);
 
