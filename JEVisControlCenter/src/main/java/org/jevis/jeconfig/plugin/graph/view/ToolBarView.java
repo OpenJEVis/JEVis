@@ -494,6 +494,7 @@ public class ToolBarView {
 
     public void getListAnalysis() {
         try {
+            ds.reloadAttributes();
             if (currentAnalysis == null) {
                 updateListAnalyses();
                 if (!observableListAnalyses.isEmpty())
@@ -502,7 +503,6 @@ public class ToolBarView {
             if (currentAnalysis != null) {
                 if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
                     if (currentAnalysis.getAttribute("Data Model").hasSample()) {
-                        ds.reloadAttributes();
                         String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
                         try {
                             if (str.endsWith("]")) {

@@ -149,12 +149,14 @@ public class ChartPlugin implements TreePlugin {
         }
 
         addChart.setOnAction(event -> {
-            String newName = chartTitle + " " + getData().getChartsList().size();
+            if (_data.getCharts().size() < 4) {
+                String newName = chartTitle + " " + getData().getChartsList().size();
 
-            _data.getCharts().add(new ChartSettings(newName));
-            getData().getChartsList().add(newName);
-            TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, getData().getChartsList().size() - 1);
-            column.getColumns().add(column.getColumns().size() - 6, selectColumn);
+                _data.getCharts().add(new ChartSettings(newName));
+                getData().getChartsList().add(newName);
+                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, getData().getChartsList().size() - 1);
+                column.getColumns().add(column.getColumns().size() - 6, selectColumn);
+            }
         });
 
         column.setGraphic(addChart);
