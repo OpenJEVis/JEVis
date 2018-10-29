@@ -179,11 +179,12 @@ public class ToolBarView {
     private void loadNewDialog() {
 
 
-        dialog = new LoadAnalysisDialog(ds, model, this);
-        dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
-        dialog.showAndWait().ifPresent(response -> {
-            if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
-                ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, model, getSelectionTree());
+        dialog = new LoadAnalysisDialog(ds, model, this, nameCurrentAnalysis);
+        //dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
+        dialog.showAndWait()
+                .ifPresent(response -> {
+                    if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, new GraphDataModel(), null);
 
                 if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
@@ -290,7 +291,7 @@ public class ToolBarView {
             }
         }));
 
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.FINISH);
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
         VBox vbox = new VBox();
@@ -302,7 +303,7 @@ public class ToolBarView {
 
         newAnalysis.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
                         if (!observableListAnalyses.contains(nameCurrentAnalysis)) {
                             try {
                                 for (JEVisObject obj : ds.getObjects(ds.getJEVisClass("Analyses Directory"), false)) {
@@ -501,6 +502,7 @@ public class ToolBarView {
             if (currentAnalysis != null) {
                 if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
                     if (currentAnalysis.getAttribute("Data Model").hasSample()) {
+                        ds.reloadAttributes();
                         String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
                         try {
                             if (str.endsWith("]")) {

@@ -811,15 +811,17 @@ public class ChartPlugin implements TreePlugin {
                         getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
                         ChartDataModel data = getData(getTreeTableRow().getItem());
                         data.setSelected(newValue);
-                        String selectedChart = data.getSelectedcharts().get(selectionColumnIndex);
-                        if (newValue) {
-                            if (!data.getSelectedcharts().contains(selectedChart)) {
 
-                                data.getSelectedcharts().add(selectedChart);
+                        //String selectedChart = data.getSelectedcharts().get(selectionColumnIndex);
+                        if (newValue) {
+                            if (!data.getSelectedcharts().contains(columnName)) {
+
+                                data.getSelectedcharts().add(columnName);
                             }
                         } else {
-                            data.getSelectedcharts().remove(selectedChart);
+                            data.getSelectedcharts().remove(columnName);
                         }
+
                     }
 
                     @Override

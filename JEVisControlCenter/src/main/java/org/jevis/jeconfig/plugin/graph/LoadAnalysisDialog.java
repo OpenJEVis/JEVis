@@ -62,6 +62,15 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         initialize();
     }
 
+    public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView, String nameCurrentAnalysis) {
+        this.graphDataModel = data;
+        this.ds = ds;
+        this.toolBarView = toolBarView;
+        this.nameCurrentAnalysis = nameCurrentAnalysis;
+
+        initialize();
+    }
+
     private void initialize() {
         if (toolBarView.getWorkdayStart() != null) dateHelper.setStartTime(toolBarView.getWorkdayStart());
         if (toolBarView.getWorkdayEnd() != null) dateHelper.setEndTime(toolBarView.getWorkdayEnd());
@@ -86,6 +95,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         HBox hbox_list = new HBox();
         hbox_list.getChildren().add(lv);
+        if (nameCurrentAnalysis != null && !nameCurrentAnalysis.equals(""))
+            lv.getSelectionModel().select(nameCurrentAnalysis);
+
         HBox.setHgrow(lv, Priority.ALWAYS);
 
         final Callback<DatePicker, DateCell> dayCellFactory
@@ -232,7 +244,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         vbox.getChildren().addAll(hbox_list, gp_date);
         vbox.setPrefWidth(600);
 
-        final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.FINISH);
+        final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
 
         lv.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -299,6 +311,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         this.setTitle(I18n.getInstance().getString("plugin.graph.analysis.dialog.title"));
 
+        if (nameCurrentAnalysis != null && !nameCurrentAnalysis.equals(""))
+            this.getDialogPane().getButtonTypes().add(loadGraph);
         this.getDialogPane().getButtonTypes().add(newGraph);
         this.getDialogPane().setContent(vbox);
 
@@ -532,6 +546,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (currentAnalysis != null) {
                 if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
                     if (currentAnalysis.getAttribute("Data Model").hasSample()) {
+                        ds.reloadAttributes();
                         String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
                         try {
                             if (str.endsWith("]")) {
@@ -615,4 +630,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     public void setSelectedEnd(DateTime selectedEnd) {
         this.selectedEnd = selectedEnd;
     }
+
+
 }
