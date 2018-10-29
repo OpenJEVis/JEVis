@@ -1,5 +1,9 @@
 package org.jevis.jeconfig.plugin.graph.view;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.text.NumberFormat;
 import java.util.*;
 
 public class GraphExport {
@@ -32,37 +37,87 @@ public class GraphExport {
     private DateTime maxDate = null;
     private Boolean multiAnalyses = false;
     private List<String> charts = new ArrayList<>();
+    final ObservableList<String> choices = FXCollections.observableArrayList(",", ".");
+    private String selectedDecimalSeparator = ",";
+    private NumberFormat numberFormat;
 
     public GraphExport(JEVisDataSource ds, GraphDataModel model, String analysisName) {
         this.model = model;
         this.ds = ds;
         this.setDates();
 
-        for (ChartDataModel mdl : model.getSelectedData()) {
-            if (mdl.getSelected()) {
-                for (String s : mdl.getSelectedcharts()) {
-                    if (charts.isEmpty() || !charts.contains(s)) charts.add(s);
+        numberFormat = NumberFormat.getNumberInstance(Locale.GERMANY);
+        numberFormat.setMinimumFractionDigits(2);
+        numberFormat.setMaximumFractionDigits(2);
+
+        ComboBox<String> decimalSeparatorChoiceBox = new ComboBox<>(choices);
+        decimalSeparatorChoiceBox.getSelectionModel().select(0);
+        decimalSeparatorChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                selectedDecimalSeparator = newValue;
+                updateNumberFormatter();
+            }
+        });
+
+        ButtonType buttonOk = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.export.decimalseparator.button.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.export.decimalseparator.button.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        Dialog<ButtonType> selectDecimalSeparators = new Dialog<>();
+        selectDecimalSeparators.setTitle(I18n.getInstance().getString("plugin.graph.dialog.export.decimalseparator.title"));
+        selectDecimalSeparators.getDialogPane().setPrefWidth(400);
+
+        VBox vBox = new VBox();
+
+        Label selection = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.decimalseparator.selection"));
+        Label emptyLine = new Label("");
+
+        vBox.getChildren().addAll(selection, emptyLine, decimalSeparatorChoiceBox);
+
+        selectDecimalSeparators.getDialogPane().setContent(vBox);
+
+        selectDecimalSeparators.getDialogPane().getButtonTypes().addAll(buttonOk, cancel);
+
+        selectDecimalSeparators.showAndWait().ifPresent(response -> {
+            if (response.getButtonData().getTypeCode() == buttonOk.getButtonData().getTypeCode()) {
+                for (ChartDataModel mdl : model.getSelectedData()) {
+                    if (mdl.getSelected()) {
+                        for (String s : mdl.getSelectedcharts()) {
+                            if (charts.isEmpty() || !charts.contains(s)) charts.add(s);
+                        }
+                    }
+                }
+                if (charts.size() > 1) {
+                    AlphanumComparator ac = new AlphanumComparator();
+                    Collections.sort(charts, ac);
+                    multiAnalyses = true;
+                }
+
+                String formattedName = analysisName.replaceAll(" ", "_");
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("CSV File Destination");
+                DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
+                fileChooser.setInitialFileName(formattedName + I18n.getInstance().getString("plugin.graph.dialog.export.from")
+                        + fmtDate.print(minDate) + I18n.getInstance().getString("plugin.graph.dialog.export.to")
+                        + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()) + ".csv");
+                File file = fileChooser.showSaveDialog(JEConfig.getStage());
+                if (file != null) {
+                    destinationFile = file;
+                    needSave = true;
                 }
             }
-        }
-        if (charts.size() > 1) {
-            AlphanumComparator ac = new AlphanumComparator();
-            Collections.sort(charts, ac);
-            multiAnalyses = true;
-        }
+        });
 
-        String formattedName = analysisName.replaceAll(" ", "_");
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("CSV File Destination");
-        DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
-        fileChooser.setInitialFileName(formattedName + I18n.getInstance().getString("plugin.graph.dialog.export.from")
-                + fmtDate.print(minDate) + I18n.getInstance().getString("plugin.graph.dialog.export.to")
-                + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()) + ".csv");
-        File file = fileChooser.showSaveDialog(JEConfig.getStage());
-        if (file != null) {
-            destinationFile = file;
-            needSave = true;
-        }
+
+    }
+
+    private void updateNumberFormatter() {
+        if (selectedDecimalSeparator.equals(","))
+            numberFormat = NumberFormat.getNumberInstance();
+        else if (selectedDecimalSeparator.equals("."))
+            numberFormat = NumberFormat.getNumberInstance(Locale.US);
+
+        numberFormat.setMinimumFractionDigits(2);
+        numberFormat.setMaximumFractionDigits(2);
     }
 
     private void setDates() {
@@ -126,7 +181,8 @@ public class GraphExport {
             s += dateColumn.get(i) + ";";
 
             for (ChartDataModel mdl : model.getSelectedData()) {
-                s += map.get(mdl.getObject().getName()).get(i).getValueAsDouble() + ";";
+                String formattedValue = numberFormat.format(map.get(mdl.getObject().getName()).get(i).getValueAsDouble());
+                s += formattedValue + ";";
             }
             sb.append(s);
             sb.append(System.getProperty("line.separator"));
@@ -208,8 +264,8 @@ public class GraphExport {
                     String objName = mdl.getObject().getName();
                     if (mdl.getSelectedcharts().contains(s)) {
                         if (hasValues) {
-                            Double value = listMaps.get(chartsIndex).get(objName).get(i).getValueAsDouble();
-                            str += value + ";";
+                            String formattedValue = numberFormat.format(listMaps.get(chartsIndex).get(objName).get(i).getValueAsDouble());
+                            str += formattedValue + ";";
                         } else {
                             str += ";";
                         }
