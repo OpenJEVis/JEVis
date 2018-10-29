@@ -27,10 +27,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.ChartType;
-import org.jevis.application.Chart.ChartUnits.ChartUnits;
-import org.jevis.application.Chart.ChartUnits.EnergyUnit;
-import org.jevis.application.Chart.ChartUnits.MassUnit;
-import org.jevis.application.Chart.ChartUnits.VolumeUnit;
+import org.jevis.application.Chart.ChartUnits.*;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
@@ -991,6 +988,9 @@ public class ChartPlugin implements TreePlugin {
         Boolean isEnergyUnit = false;
         Boolean isVolumeUnit = false;
         Boolean isMassUnit = false;
+        Boolean isPressureUnit = false;
+        Boolean isVolumeFlowUnit = false;
+
         JEVisUnit currentUnit = null;
         try {
             if (singleRow.getDataProcessor() != null
@@ -1037,6 +1037,26 @@ public class ChartPlugin implements TreePlugin {
         if (isMassUnit) for (
                 MassUnit mu : MassUnit.values())
             proNames.add(mu.toString());
+
+        for (
+                PressureUnit pu : PressureUnit.values()) {
+            if (pu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+                isPressureUnit = true;
+            }
+        }
+        if (isPressureUnit) for (
+                PressureUnit pu : PressureUnit.values())
+            proNames.add(pu.toString());
+
+        for (
+                VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
+            if (vfu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+                isVolumeFlowUnit = true;
+            }
+        }
+        if (isVolumeFlowUnit) for (
+                VolumeFlowUnit vfu : VolumeFlowUnit.values())
+            proNames.add(vfu.toString());
 
         ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
 
