@@ -97,7 +97,7 @@ public class LimitsStep implements ProcessStep {
                             for (JsonGapFillingConfig c : confGaps) {
                                 List<LimitBreak> newLimitBreaks = new ArrayList<>();
                                 for (LimitBreak lb : limitBreaksStep2) {
-                                    logger.info("start filling with Mode for " + c.getType());
+                                    logger.info("[{}] start filling with Mode for {}", calcAttribute.getObject().getID(), c.getType());
                                     DateTime firstDate = lb.getIntervals().get(0).getDate();
                                     DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
                                     if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
@@ -141,6 +141,8 @@ public class LimitsStep implements ProcessStep {
                 }
             }
         }
+        logger.info("[{}] finished filling gaps", calcAttribute.getObject().getID());
+
     }
 
     private Long defaultValue(String s) {

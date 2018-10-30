@@ -38,7 +38,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.commons.dataprocessing.v2.DataProcessing;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.sampletable.TableSample;
+import org.jevis.jeconfig.sample.sampletree2.SampleTable2;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -71,27 +71,29 @@ public class SampleTableExtension implements SampleEditorExtension {
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER);
 
-        final SampleTable table = new SampleTable(att, samples);
+        final SampleTable2 table = new SampleTable2(att, samples);
 //        final org.jevis.jeconfig.sampletable.SampleTableView table = new org.jevis.jeconfig.sampletable.SampleTableView(samples);
         table.setPrefSize(1000, 1000);
 
+
         Button deleteAll = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"));
         deleteAll.setOnAction(event -> {
-            try {
-                ConfirmDialog dia = new ConfirmDialog();
-                if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
-                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"),
-                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.message")) == ConfirmDialog.Response.YES) {
-
-                    att.deleteAllSample();
-                    setSamples(att, att.getAllSamples());
-                    update();
-                    logger.info("Deleted all Samples of Attribute " + att.getName() +
-                            " of Object " + att.getObject().getName() + " of ID " + att.getObject().getID());
-                }
-            } catch (Exception ex) {
-                logger.fatal(ex);
-            }
+            ((SampleTable2) table).debugStuff();
+//            try {
+//                ConfirmDialog dia = new ConfirmDialog();
+//                if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
+//                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"),
+//                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.message")) == ConfirmDialog.Response.YES) {
+//
+//                    att.deleteAllSample();
+//                    setSamples(att, att.getAllSamples());
+//                    update();
+//                    logger.info("Deleted all Samples of Attribute " + att.getName() +
+//                            " of Object " + att.getObject().getName() + " of ID " + att.getObject().getID());
+//                }
+//            } catch (Exception ex) {
+//                logger.fatal(ex);
+//            }
         });
 
         Button deleteSelected = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"));
@@ -105,11 +107,11 @@ public class SampleTableExtension implements SampleEditorExtension {
                             if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.title"),
                                     I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"),
                                     I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.message")) == ConfirmDialog.Response.YES) {
-                                ObservableList<TableSample> list = table.getSelectionModel().getSelectedItems();
-                                for (TableSample tsample : list) {
+                                ObservableList<SampleTable2.TableSample> list = table.getSelectionModel().getSelectedItems();
+                                for (SampleTable2.TableSample tsample : list) {
                                     try {
                                         //TODO: the JEAPI cound use to have an delte funtion for an list of samples
-                                        att.deleteSamplesBetween(tsample.getSample().getTimestamp(), tsample.getSample().getTimestamp());
+                                        att.deleteSamplesBetween(tsample.getJevisSample().getTimestamp(), tsample.getJevisSample().getTimestamp());
                                     } catch (JEVisException ex) {
                                         logger.fatal(ex);
                                     }
@@ -140,10 +142,10 @@ public class SampleTableExtension implements SampleEditorExtension {
                     DateTime endDate = null;
                     ConfirmDialog dia = new ConfirmDialog();
 
-                    ObservableList<TableSample> list = table.getSelectionModel().getSelectedItems();
+                    ObservableList<SampleTable2.TableSample> list = table.getSelectionModel().getSelectedItems();
                     if (list.size() == 2) {
-                        startDate = list.get(0).getSample().getTimestamp();
-                        endDate = list.get(list.size() - 1).getSample().getTimestamp();
+                        startDate = list.get(0).getJevisSample().getTimestamp();
+                        endDate = list.get(list.size() - 1).getJevisSample().getTimestamp();
 
                         if (startDate != null && endDate != null) {
                             if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.title"),
