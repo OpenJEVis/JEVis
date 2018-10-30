@@ -187,7 +187,7 @@ public class GapFillingEditor implements AttributeEditor {
         newConfig2.setType(GapFillingType.AVERAGE);
         newConfig2.setBoundary("2592000000");
         newConfig2.setBindtospecific(GapFillingBoundToSpecific.WEEKDAY);
-        newConfig2.setReferenceperiodcount("6");
+        newConfig2.setReferenceperiodcount("1");
         newConfig2.setReferenceperiod(GapFillingReferencePeriod.MONTH);
 
         newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
