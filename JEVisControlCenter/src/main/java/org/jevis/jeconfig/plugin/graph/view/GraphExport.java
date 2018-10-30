@@ -1,10 +1,13 @@
 package org.jevis.jeconfig.plugin.graph.view;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -37,24 +40,50 @@ public class GraphExport {
     private DateTime maxDate = null;
     private Boolean multiAnalyses = false;
     private List<String> charts = new ArrayList<>();
-    final ObservableList<String> choices = FXCollections.observableArrayList(",", ".");
-    private String selectedDecimalSeparator = ",";
+    final ObservableList<Locale> choices = FXCollections.observableArrayList(Locale.getAvailableLocales());
+    private Locale selectedLocale;
     private NumberFormat numberFormat;
 
     public GraphExport(JEVisDataSource ds, GraphDataModel model, String analysisName) {
         this.model = model;
         this.ds = ds;
         this.setDates();
+        AlphanumComparator ac = new AlphanumComparator();
+        choices.sort((o1, o2) -> ac.compare(o1.getDisplayLanguage(), o2.getDisplayLanguage()));
 
-        numberFormat = NumberFormat.getNumberInstance(Locale.GERMANY);
+        numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
 
-        ComboBox<String> decimalSeparatorChoiceBox = new ComboBox<>(choices);
-        decimalSeparatorChoiceBox.getSelectionModel().select(0);
+        JFXComboBox decimalSeparatorChoiceBox = new JFXComboBox(choices);
+
+        Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
+            @Override
+            public ListCell<Locale> call(ListView<Locale> param) {
+                return new ListCell<Locale>() {
+                    @Override
+                    protected void updateItem(Locale item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(item.getDisplayName());
+                        }
+                    }
+
+                };
+            }
+
+        };
+        decimalSeparatorChoiceBox.setCellFactory(cellFactory);
+        decimalSeparatorChoiceBox.setButtonCell(cellFactory.call(null));
+
+        decimalSeparatorChoiceBox.getSelectionModel().select(Locale.getDefault());
+
         decimalSeparatorChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
-                selectedDecimalSeparator = newValue;
+                selectedLocale = LocaleUtils.toLocale(newValue.toString());
                 updateNumberFormatter();
             }
         });
@@ -87,7 +116,6 @@ public class GraphExport {
                     }
                 }
                 if (charts.size() > 1) {
-                    AlphanumComparator ac = new AlphanumComparator();
                     Collections.sort(charts, ac);
                     multiAnalyses = true;
                 }
@@ -111,10 +139,11 @@ public class GraphExport {
     }
 
     private void updateNumberFormatter() {
-        if (selectedDecimalSeparator.equals(","))
-            numberFormat = NumberFormat.getNumberInstance();
-        else if (selectedDecimalSeparator.equals("."))
-            numberFormat = NumberFormat.getNumberInstance(Locale.US);
+        if (selectedLocale != null)
+            numberFormat = NumberFormat.getNumberInstance(selectedLocale);
+        else {
+            numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
+        }
 
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);

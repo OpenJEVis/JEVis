@@ -60,30 +60,40 @@ public class ChartDataModel {
         if (_somethingChanged) {
             _somethingChanged = false;
             samples = new ArrayList<>();
-            try {
+            if (getSelectedStart().isBefore(getSelectedEnd())) {
+                try {
 
+                    if (getDataProcessor() != null) {
+                        _dataProcessorObject = getDataProcessor();
+                        _attribute = _dataProcessorObject.getAttribute("Value");
+                    } else _attribute = _object.getAttribute("Value");
+
+
+                    SampleGenerator sg;
+                    if (aggregationPeriod.equals(AggregationPeriod.NONE))
+                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
+                                getSelectedEnd(), AggregationMode.NONE, aggregationPeriod);
+                    else
+                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
+                                getSelectedEnd(), AggregationMode.TOTAL, aggregationPeriod);
+
+                    samples = sg.generateSamples();
+                    samples = sg.getAggregatedSamples(samples);
+                    samples.addAll(factorizeSamples(samples));
+
+
+                } catch (Exception ex) {
+                    //TODO: exception handling
+                    logger.error("", ex);
+                }
+            } else {
                 if (getDataProcessor() != null) {
-                    _dataProcessorObject = getDataProcessor();
-                    _attribute = _dataProcessorObject.getAttribute("Value");
-                } else _attribute = _object.getAttribute("Value");
-
-
-                SampleGenerator sg;
-                if (aggregationPeriod.equals(AggregationPeriod.NONE))
-                    sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
-                            getSelectedEnd(), AggregationMode.NONE, aggregationPeriod);
-                else
-                    sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
-                            getSelectedEnd(), AggregationMode.TOTAL, aggregationPeriod);
-
-                samples = sg.generateSamples();
-                samples = sg.getAggregatedSamples(samples);
-                samples.addAll(factorizeSamples(samples));
-
-
-            } catch (Exception ex) {
-                //TODO: exception handling
-                logger.error("", ex);
+                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                            getDataProcessor().getName(), getDataProcessor().getID());
+                } else {
+                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                            getObject().getName(), getObject().getID());
+                }
             }
         }
 
