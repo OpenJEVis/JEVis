@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jecalc.data.CleanDataAttribute;
+import org.jevis.jecalc.data.CleanDataAttributeJEVis;
 import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.util.GapsAndLimits;
@@ -28,6 +29,7 @@ import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingTyp
 public class FillGapStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(FillGapStep.class);
+    private List<JEVisSample> sampleCache;
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
@@ -50,6 +52,11 @@ public class FillGapStep implements ProcessStep {
 
         if (Objects.nonNull(conf)) {
             if (!conf.isEmpty()) {
+                try {
+                    sampleCache = calcAttribute.getObject().getAttribute(CleanDataAttributeJEVis.CLASS_NAME).getAllSamples();
+                } catch (Exception e) {
+                    logger.error("No caching possible: " + e);
+                }
                 List<Gap> doneGaps = new ArrayList<>();
                 for (JsonGapFillingConfig c : conf) {
                     List<Gap> newGaps = new ArrayList<>();
@@ -70,7 +77,8 @@ public class FillGapStep implements ProcessStep {
                     } else
                         logger.info("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), newGaps.size());
 
-                    GapsAndLimits gal = new GapsAndLimits(intervals, calcAttribute, GapsAndLimits.GapsAndLimitsType.GAPS_TYPE, c, newGaps, new ArrayList<>());
+                    GapsAndLimits gal = new GapsAndLimits(intervals, calcAttribute, GapsAndLimits.GapsAndLimitsType.GAPS_TYPE,
+                            c, newGaps, new ArrayList<>(), sampleCache);
 
                     switch (c.getType()) {
                         case GapFillingType.NONE:

@@ -12,6 +12,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jecalc.data.CleanDataAttribute;
+import org.jevis.jecalc.data.CleanDataAttributeJEVis;
 import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 import org.jevis.jecalc.util.GapsAndLimits;
@@ -32,6 +33,7 @@ public class LimitsStep implements ProcessStep {
     private static final Logger logger = LogManager.getLogger(LimitsStep.class);
     CleanDataAttribute calcAttribute;
     private JEVisObject parentObject;
+    private List<JEVisSample> sampleCache;
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
@@ -69,6 +71,11 @@ public class LimitsStep implements ProcessStep {
             logger.info("{} limit breaks for step 1 identified", limitBreaksStep1.size());
             logger.info("{} limit breaks for step 2 identified", limitBreaksStep2.size());
 
+            try {
+                sampleCache = calcAttribute.getObject().getAttribute(CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME).getAllSamples();
+            } catch (Exception e) {
+                logger.error("No caching possible: " + e);
+            }
             for (JsonLimitsConfig limitsConfig : calcAttribute.getLimitsConfig()) {
                 if (calcAttribute.getLimitsConfig().indexOf(limitsConfig) == 0) {
                     for (LimitBreak limitBreak : limitBreaksStep1) {
@@ -102,7 +109,7 @@ public class LimitsStep implements ProcessStep {
                                 }
 
                                 GapsAndLimits gal = new GapsAndLimits(intervals, calcAttribute, GapsAndLimits.GapsAndLimitsType.LIMITS_TYPE,
-                                        c, new ArrayList<>(), limitBreaksStep2);
+                                        c, new ArrayList<>(), limitBreaksStep2, sampleCache);
 
                                 switch (c.getType()) {
                                     case GapFillingType.NONE:
