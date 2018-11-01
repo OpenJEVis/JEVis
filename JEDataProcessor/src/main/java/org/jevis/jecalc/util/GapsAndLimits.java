@@ -9,7 +9,6 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jecalc.data.CleanDataAttribute;
-import org.jevis.jecalc.data.CleanDataAttributeJEVis;
 import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.gap.Gap;
 import org.jevis.jecalc.limits.LimitBreak;
@@ -28,15 +27,17 @@ public class GapsAndLimits {
     private List<Gap> gapList;
     private List<LimitBreak> limitBreaksList;
     private JsonGapFillingConfig c;
+    private List<JEVisSample> sampleCache;
 
     public GapsAndLimits(List<CleanInterval> intervals, CleanDataAttribute calcAttribute, GapsAndLimitsType type,
-                         JsonGapFillingConfig c, List<Gap> gapList, List<LimitBreak> limitBreaksList) {
+                         JsonGapFillingConfig c, List<Gap> gapList, List<LimitBreak> limitBreaksList, List<JEVisSample> sampleCache) {
         this.intervals = intervals;
         this.calcAttribute = calcAttribute;
         this.gapsAndLimitsType = type;
         this.gapList = gapList;
         this.limitBreaksList = limitBreaksList;
         this.c = c;
+        this.sampleCache = sampleCache;
     }
 
     public static String getNote(CleanInterval currentInterval) {
@@ -60,7 +61,7 @@ public class GapsAndLimits {
         String bindToSpecificValue = c.getBindtospecific();
         if (Objects.isNull(bindToSpecificValue)) bindToSpecificValue = "";
         SampleHandler sh = new SampleHandler();
-        List<JEVisSample> listSamples = null;
+        //List<JEVisSample> listSamples = null;
         List<JEVisSample> boundListSamples = new ArrayList<>();
         DateTime firstDate;
         /**
@@ -69,11 +70,11 @@ public class GapsAndLimits {
         boundListSamples.clear();
         firstDate = getFirstDate(lastDate);
         List<JEVisSample> listSamplesNew = new ArrayList<>();
-        listSamples = sh.getSamplesInPeriod(calcAttribute.getObject(), CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
+        //listSamples = sh.getSamplesInPeriod(calcAttribute.getObject(), CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
         switch (bindToSpecificValue) {
             case (JEDataProcessorConstants.GapFillingBoundToSpecific.WEEKDAY):
-                if (listSamples != null && !listSamples.isEmpty()) {
-                    for (JEVisSample sample : listSamples) {
+                if (sampleCache != null && !sampleCache.isEmpty()) {
+                    for (JEVisSample sample : sampleCache) {
                         if (sample.getTimestamp().getDayOfWeek() == lastDate.getDayOfWeek()) {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 boundListSamples.add(sample);
@@ -95,8 +96,8 @@ public class GapsAndLimits {
                 }
                 return calcValueWithType(boundListSamples);
             case (JEDataProcessorConstants.GapFillingBoundToSpecific.WEEKOFYEAR):
-                if (listSamples != null && !listSamples.isEmpty()) {
-                    for (JEVisSample sample : listSamples) {
+                if (sampleCache != null && !sampleCache.isEmpty()) {
+                    for (JEVisSample sample : sampleCache) {
                         if (sample.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 boundListSamples.add(sample);
@@ -118,8 +119,8 @@ public class GapsAndLimits {
                 }
                 return calcValueWithType(boundListSamples);
             case (JEDataProcessorConstants.GapFillingBoundToSpecific.MONTHOFYEAR):
-                if (listSamples != null && !listSamples.isEmpty()) {
-                    for (JEVisSample sample : listSamples) {
+                if (sampleCache != null && !sampleCache.isEmpty()) {
+                    for (JEVisSample sample : sampleCache) {
                         if (sample.getTimestamp().getMonthOfYear() == lastDate.getMonthOfYear()) {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 boundListSamples.add(sample);
@@ -141,8 +142,8 @@ public class GapsAndLimits {
                 }
                 return calcValueWithType(boundListSamples);
             default:
-                if (listSamples != null && !listSamples.isEmpty()) {
-                    for (JEVisSample sample : listSamples) {
+                if (sampleCache != null && !sampleCache.isEmpty()) {
+                    for (JEVisSample sample : sampleCache) {
                         if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                             listSamplesNew.add(sample);
                         }
