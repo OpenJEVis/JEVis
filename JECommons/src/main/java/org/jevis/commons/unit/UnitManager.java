@@ -599,7 +599,7 @@ public class UnitManager {
         String uString = junit.getFormula().replace("·", "");
         uString = uString.replace("(", "");
         uString = uString.replace(")", "");
-        uString = uString.replace("/", "");
+        //uString = uString.replace("/", "");
         String withPrefix = getPrefixChar(junit.getPrefix()) + uString;
         return withPrefix;
     }
@@ -614,7 +614,7 @@ public class UnitManager {
         String u1 = unit.toString().replace("·", "");
         u1 = u1.replace("(", "");
         u1 = u1.replace(")", "");
-        u1 = u1.replace("/", "");
+        //u1 = u1.replace("/", "");
 
         return u1;
 
