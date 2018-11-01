@@ -5,7 +5,6 @@
  */
 package org.jevis.jecalc.workflow;
 
-import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
 
 /**
@@ -15,19 +14,4 @@ public interface ProcessStep {
 
     void run(ResourceManager resourceManager) throws Exception;
 
-    default String getNote(CleanInterval currentInterval) {
-        String note = "";
-        try {
-            note += currentInterval.getTmpSamples().get(0).getNote();
-        } catch (Exception e1) {
-            try {
-                note += currentInterval.getRawSamples().get(0).getNote();
-            } catch (Exception e2) {
-            }
-        }
-        if (note.equals("null")) {
-            note = "No Note";
-        }
-        return note;
-    }
 }
