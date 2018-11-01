@@ -7,23 +7,16 @@ package org.jevis.jecalc.gap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.constants.JEDataProcessorConstants.GapFillingBoundToSpecific;
-import org.jevis.commons.constants.JEDataProcessorConstants.GapFillingReferencePeriod;
-import org.jevis.commons.database.SampleHandler;
-import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jecalc.data.CleanDataAttribute;
-import org.jevis.jecalc.data.CleanDataAttributeJEVis;
 import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
+import org.jevis.jecalc.util.GapsAndLimits;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,15 +28,11 @@ import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingTyp
 public class FillGapStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(FillGapStep.class);
-    CleanDataAttribute calcAttribute;
-    private JEVisObject parentObject;
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        calcAttribute = resourceManager.getCalcAttribute();
-        for (JEVisObject obj : calcAttribute.getObject().getParents()) {
-            parentObject = obj;
-        }
+        CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
+
         if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getGapFillingEnabled() || calcAttribute.getGapFillingConfig().isEmpty()) {
             //no gap filling when there is no alignment or disabled or no config
             return;
@@ -74,37 +63,46 @@ public class FillGapStep implements ProcessStep {
                             }
                         }
                     }
-                    logger.info("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), gaps.size());
+
+                    if (newGaps.size() == 0) {
+                        logger.error("No gaps in this interval.");
+                        break;
+                    } else
+                        logger.info("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), newGaps.size());
+
+                    GapsAndLimits gal = new GapsAndLimits(intervals, calcAttribute, GapsAndLimits.GapsAndLimitsType.GAPS_TYPE, c, newGaps, new ArrayList<>());
+
                     switch (c.getType()) {
                         case GapFillingType.NONE:
                             break;
                         case GapFillingType.STATIC:
-                            fillStatic(newGaps);
+                            gal.fillStatic();
                             break;
                         case GapFillingType.INTERPOLATION:
-                            fillInterpolation(newGaps);
+                            gal.fillInterpolation();
                             break;
                         case GapFillingType.DEFAULT_VALUE:
-                            Double defaultValue = Double.valueOf(c.getDefaultvalue());
-                            fillDefault(newGaps, defaultValue);
+                            gal.fillDefault();
                             break;
                         case GapFillingType.MINIMUM:
-                            fillMinimum(newGaps, c);
+                            gal.fillMinimum();
                             break;
                         case GapFillingType.MAXIMUM:
-                            fillMaximum(newGaps, c);
+                            gal.fillMaximum();
                             break;
                         case GapFillingType.MEDIAN:
-                            fillMedian(newGaps, c);
+                            gal.fillMedian();
                             break;
                         case GapFillingType.AVERAGE:
-                            fillAverage(newGaps, c);
+                            gal.fillAverage();
                             break;
                         default:
                             break;
                     }
                     logger.info("[{}] Done", resourceManager.getID());
                 }
+                if (gaps.size() != doneGaps.size())
+                    logger.error("Could not complete all gaps. Gap may have been too long for reasonable gap filling.");
 
             } else {
                 logger.error("[{}] Found gap but missing GapFillingConfig", resourceManager.getID());
@@ -161,245 +159,6 @@ public class FillGapStep implements ProcessStep {
             }
         }
         return filteredGaps;
-    }
-
-    private void fillStatic(List<Gap> gaps) throws Exception {
-        for (Gap currentGap : gaps) {
-            Double firstValue = currentGap.getFirstValue();
-            for (CleanInterval currentInterval : currentGap.getIntervals()) {
-
-                JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
-                String note = "";
-                note += getNote(currentInterval);
-                note += "gap(Static)";
-                sample.setNote(note);
-                currentInterval.addTmpSample(sample);
-            }
-        }
-    }
-
-    private void fillInterpolation(List<Gap> gaps) throws Exception {
-        for (Gap currentGap : gaps) {
-            Double firstValue = currentGap.getFirstValue();
-            Double lastValue = currentGap.getLastValue();
-            int size = currentGap.getIntervals().size() + 1; //if there is a gap of 2, then you have 3 steps
-            if (firstValue != null && lastValue != null) {
-                Double stepSize = (lastValue - firstValue) / size;
-                Double currentValue = firstValue + stepSize;
-                for (CleanInterval currentInterval : currentGap.getIntervals()) {
-                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentValue);
-                    String note = "";
-                    note += getNote(currentInterval);
-                    note += ",gap(Interpolation)";
-                    sample.setNote(note);
-                    currentValue += stepSize;
-                    currentInterval.addTmpSample(sample);
-                }
-            }
-        }
-    }
-
-    private void fillDefault(List<Gap> gaps, Double value) throws Exception {
-        for (Gap currentGap : gaps) {
-            for (CleanInterval currentInterval : currentGap.getIntervals()) {
-                JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                String note = "";
-                note += getNote(currentInterval);
-                note += ",gap(Default)";
-                sample.setNote(note);
-                currentInterval.addTmpSample(sample);
-            }
-        }
-    }
-
-
-    private void fillMinimum(List<Gap> gaps, JsonGapFillingConfig c) throws Exception {
-
-        for (Gap currentGap : gaps) {
-            for (CleanInterval currentInterval : currentGap.getIntervals()) {
-                Double value = getGapValue(currentInterval.getDate(), c);
-                JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                String note = "";
-                note += getNote(currentInterval);
-                note += ",gap(Minimum)";
-                sample.setNote(note);
-            }
-        }
-    }
-
-    private Double getGapValue(DateTime lastDate, JsonGapFillingConfig c) throws JEVisException {
-
-        return getSpecificValue(lastDate, c);
-    }
-
-    private Double getSpecificValue(DateTime lastDate, JsonGapFillingConfig c) throws JEVisException {
-
-        String bindToSpecificValue = c.getBindtospecific();
-        if (Objects.isNull(bindToSpecificValue)) bindToSpecificValue = "";
-        SampleHandler sh = new SampleHandler();
-        List<JEVisSample> listSamples = null;
-        List<JEVisSample> boundListSamples = new ArrayList<>();
-        DateTime firstDate;
-        /**
-         * TODO: very redundant code and bad performance because there are a lot of webservice calls.
-         */
-        switch (bindToSpecificValue) {
-            default:
-                firstDate = getFirstDate(lastDate, c);
-                List<JEVisSample> listSamplesNew = new ArrayList<>();
-                listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
-                for (JEVisSample sample : listSamples) {
-                    if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                        listSamplesNew.add(sample);
-                    }
-                }
-                return calcValueWithType(listSamplesNew, c);
-
-            case (GapFillingBoundToSpecific.WEEKDAY):
-                boundListSamples.clear();
-                firstDate = getFirstDate(lastDate, c);
-                listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
-                for (JEVisSample sample : listSamples) {
-                    if (sample.getTimestamp().getDayOfWeek() == lastDate.getDayOfWeek()) {
-                        if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                            boundListSamples.add(sample);
-                        }
-                    }
-                }
-                return calcValueWithType(boundListSamples, c);
-            case (GapFillingBoundToSpecific.WEEKOFYEAR):
-                boundListSamples.clear();
-                firstDate = getFirstDate(lastDate, c);
-                listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
-                for (JEVisSample sample : listSamples) {
-                    if (sample.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
-                        if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                            boundListSamples.add(sample);
-                        }
-                    }
-                }
-                return calcValueWithType(boundListSamples, c);
-            case (GapFillingBoundToSpecific.MONTHOFYEAR):
-                boundListSamples.clear();
-                firstDate = getFirstDate(lastDate, c);
-                listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
-                for (JEVisSample sample : listSamples) {
-                    if (sample.getTimestamp().getMonthOfYear() == lastDate.getMonthOfYear()) {
-                        if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                            boundListSamples.add(sample);
-                        }
-                    }
-                }
-                return calcValueWithType(boundListSamples, c);
-        }
-    }
-
-    private DateTime getFirstDate(DateTime lastDate, JsonGapFillingConfig c) {
-        final String referencePeriod = c.getReferenceperiod();
-        Integer referencePeriodCount = Integer.parseInt(c.getReferenceperiodcount());
-        switch (referencePeriod) {
-            case (GapFillingReferencePeriod.DAY):
-                return lastDate.minusDays(referencePeriodCount);
-            case (GapFillingReferencePeriod.WEEK):
-                return lastDate.minusWeeks(referencePeriodCount);
-            case (GapFillingReferencePeriod.MONTH):
-                return lastDate.minusMonths(referencePeriodCount);
-            case (GapFillingReferencePeriod.YEAR):
-                return lastDate.minusYears(referencePeriodCount);
-            default:
-                return lastDate.minusDays(referencePeriodCount);
-        }
-    }
-
-    private Double calcValueWithType(List<JEVisSample> listSamples, JsonGapFillingConfig c) throws
-            JEVisException {
-        final String gapFillingType = c.getType();
-
-        if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
-            switch (gapFillingType) {
-                case GapFillingType.MINIMUM:
-                    Double minValue = listSamples.get(0).getValueAsDouble();
-                    for (JEVisSample sample : listSamples) {
-                        minValue = Math.min(minValue, sample.getValueAsDouble());
-                    }
-                    return minValue;
-                case GapFillingType.MAXIMUM:
-                    Double maxValue = listSamples.get(0).getValueAsDouble();
-                    for (JEVisSample sample : listSamples) {
-                        maxValue = Math.max(maxValue, sample.getValueAsDouble());
-                    }
-                    return maxValue;
-                case GapFillingType.MEDIAN:
-                    Double medianValue = 0d;
-                    List<Double> sortedArray = new ArrayList<>();
-                    for (JEVisSample sample : listSamples) {
-                        sortedArray.add(sample.getValueAsDouble());
-                    }
-                    Collections.sort(sortedArray);
-                    if (!sortedArray.isEmpty()) {
-                        if (sortedArray.size() > 2) medianValue = sortedArray.get(sortedArray.size() / 2);
-                        else if (sortedArray.size() == 2) medianValue = (sortedArray.get(0) + sortedArray.get(1)) / 2;
-                    }
-
-                    return medianValue;
-                case GapFillingType.AVERAGE:
-                    Double averageValue = 0d;
-                    for (JEVisSample sample : listSamples) {
-                        averageValue += sample.getValueAsDouble();
-                    }
-                    averageValue = averageValue / listSamples.size();
-                    return averageValue;
-                default:
-                    break;
-            }
-        }
-        return 0d;
-    }
-
-    private void fillMaximum(List<Gap> gaps, JsonGapFillingConfig c) throws Exception {
-
-        for (Gap currentGap : gaps) {
-            for (CleanInterval currentInterval : currentGap.getIntervals()) {
-                Double value = getGapValue(currentInterval.getDate(), c);
-                JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                String note = "";
-                note += getNote(currentInterval);
-                note += ",gap(Maximum)";
-                sample.setNote(note);
-                currentInterval.addTmpSample(sample);
-            }
-        }
-    }
-
-    private void fillMedian(List<Gap> gaps, JsonGapFillingConfig c) throws Exception {
-        for (Gap currentGap : gaps) {
-            for (CleanInterval currentInterval : currentGap.getIntervals()) {
-                Double value = getGapValue(currentInterval.getDate(), c);
-                JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                String note = "";
-                note += getNote(currentInterval);
-                note += ",gap(Median)";
-                sample.setNote(note);
-                currentInterval.addTmpSample(sample);
-
-            }
-        }
-        logger.info("Done");
-    }
-
-    private void fillAverage(List<Gap> gaps, JsonGapFillingConfig c) throws Exception {
-        for (Gap currentGap : gaps) {
-            for (CleanInterval currentInterval : currentGap.getIntervals()) {
-                Double value = getGapValue(currentInterval.getDate(), c);
-                JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                String note = "";
-                note += getNote(currentInterval);
-                note += ",gap(Average)";
-                sample.setNote(note);
-                currentInterval.addTmpSample(sample);
-
-            }
-        }
     }
 
 }
