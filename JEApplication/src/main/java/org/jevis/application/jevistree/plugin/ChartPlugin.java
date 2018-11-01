@@ -85,7 +85,7 @@ public class ChartPlugin implements TreePlugin {
     private final List<String> disabledItems = Arrays.asList(rb.getString("plugin.graph.charttype.scatter.name"),
             rb.getString("plugin.graph.charttype.bubble.name"));
     private List<Color> usedColors = new ArrayList<>();
-    private GraphDataModel _data = new GraphDataModel();
+    private GraphDataModel _data = new GraphDataModel(getTree().getJEVisDataSource());
 
     public JEVisTree getTree() {
         return _tree;

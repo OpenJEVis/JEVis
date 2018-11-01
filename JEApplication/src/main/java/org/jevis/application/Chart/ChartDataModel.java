@@ -34,7 +34,6 @@ public class ChartDataModel {
     private JEVisUnit _unit;
     private List<String> _selectedCharts = new ArrayList<>();
 
-
     public ChartDataModel() {
     }
 

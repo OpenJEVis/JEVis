@@ -71,7 +71,7 @@ public class GraphPluginView implements Plugin, Observer {
     private boolean firstStart = true;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
-        this.dataModel = new GraphDataModel();
+        this.dataModel = new GraphDataModel(ds);
         this.dataModel.addObserver(this);
 
         //this.controller = new GraphController(this, dataModel);

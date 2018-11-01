@@ -29,8 +29,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
-@XmlRootElement(name = "AnalysisModel")
-public class JsonAnalysisModel {
+@XmlRootElement(name = "JsonAnalysisDataRow")
+public class JsonAnalysisDataRow {
 
     private String name;
     private String selected;
@@ -43,7 +43,7 @@ public class JsonAnalysisModel {
     private String unit;
     private String selectedCharts;
 
-    public JsonAnalysisModel() {
+    public JsonAnalysisDataRow() {
     }
 
     @XmlElement(name = "name")

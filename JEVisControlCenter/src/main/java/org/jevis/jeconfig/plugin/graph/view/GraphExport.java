@@ -44,7 +44,7 @@ public class GraphExport {
     private Locale selectedLocale;
     private NumberFormat numberFormat;
 
-    public GraphExport(JEVisDataSource ds, GraphDataModel model, String analysisName) {
+    public GraphExport(JEVisDataSource ds, GraphDataModel model) {
         this.model = model;
         this.ds = ds;
         this.setDates();
@@ -120,7 +120,7 @@ public class GraphExport {
                     multiAnalyses = true;
                 }
 
-                String formattedName = analysisName.replaceAll(" ", "_");
+                String formattedName = model.getNameCurrentAnalysis().replaceAll(" ", "_");
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("CSV File Destination");
                 DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
