@@ -10,9 +10,9 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
-import org.jevis.commons.utils.JEVisDates;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -112,7 +112,7 @@ public class JEVisSOAPDataSource implements DataSource {
             JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.SOAPChannel.PATH);
             String path = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.SOAPChannel.LAST_READOUT);
-            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, JEVisDates.DEFAULT_DATE_FORMAT);
+            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
             JEVisType templateType = channelClass.getType(DataCollectorTypes.Channel.SOAPChannel.TEMPLATE);
             String template = DatabaseHelper.getObjectAsString(channel, templateType);
 

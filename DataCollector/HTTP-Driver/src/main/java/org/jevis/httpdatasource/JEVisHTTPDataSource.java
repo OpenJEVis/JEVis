@@ -10,8 +10,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
-import org.jevis.commons.utils.JEVisDates;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class JEVisHTTPDataSource implements DataSource {
             JEVisType pathType = channelClass.getType(HTTPChannelTypes.PATH);
             String path = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(HTTPChannelTypes.LAST_READOUT);
-            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, JEVisDates.DEFAULT_DATE_FORMAT);
+            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
             httpChannel.setLastReadout(lastReadout);
             httpChannel.setPath(path);
         } catch (JEVisException ex) {

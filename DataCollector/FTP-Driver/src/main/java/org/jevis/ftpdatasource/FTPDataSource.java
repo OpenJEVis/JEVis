@@ -12,9 +12,9 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
-import org.jevis.commons.utils.JEVisDates;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -141,7 +141,7 @@ public class FTPDataSource implements DataSource {
             JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.PATH);
             String filePath = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
-            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, JEVisDates.DEFAULT_DATE_FORMAT);
+            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
 //            String filePath = dp.getFilePath();
             logger.info("SendSampleRequest2");
             List<String> fileNames = DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, filePath);
