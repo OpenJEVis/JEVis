@@ -3,16 +3,16 @@ package org.jevis.commons.task;
 import org.jevis.api.JEVisObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LogTaskManager {
 
 
     private static LogTaskManager taskManager;
 
-    private Map<Long, Task> tasks = new HashMap<>();
+    private Map<Long, Task> tasks = new ConcurrentHashMap<>();
 
     private LogTaskManager() {
     }

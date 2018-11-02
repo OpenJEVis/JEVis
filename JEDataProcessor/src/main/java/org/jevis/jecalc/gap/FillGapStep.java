@@ -24,6 +24,7 @@ import java.util.Objects;
 import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingType;
 
 /**
+ *
  * @author broder
  */
 public class FillGapStep implements ProcessStep {
@@ -53,7 +54,10 @@ public class FillGapStep implements ProcessStep {
         if (Objects.nonNull(conf)) {
             if (!conf.isEmpty()) {
                 try {
-                    sampleCache = calcAttribute.getObject().getAttribute(CleanDataAttributeJEVis.CLASS_NAME).getAllSamples();
+                    DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
+                    DateTime lastDateForCache = calcAttribute.getFirstDate();
+
+                    sampleCache = calcAttribute.getObject().getAttribute(CleanDataAttributeJEVis.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
                 } catch (Exception e) {
                     logger.error("No caching possible: " + e);
                 }
@@ -111,6 +115,8 @@ public class FillGapStep implements ProcessStep {
                 }
                 if (gaps.size() != doneGaps.size())
                     logger.error("Could not complete all gaps. Gap may have been too long for reasonable gap filling.");
+
+                sampleCache = null;
 
             } else {
                 logger.error("[{}] Found gap but missing GapFillingConfig", resourceManager.getID());

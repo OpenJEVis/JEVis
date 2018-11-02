@@ -46,6 +46,8 @@ public class NumberSpinner extends HBox {
     private final Button decrementButton;
     private final NumberBinding buttonHeight;
     private final NumberBinding spacing;
+    private BigDecimal min;
+    private BigDecimal max;
 
     public NumberSpinner() {
         this(BigDecimal.ZERO, BigDecimal.ONE);
@@ -113,13 +115,6 @@ public class NumberSpinner extends HBox {
         incrementButton.prefHeightProperty().bind(buttonHeight.add(spacing));
         incrementButton.minHeightProperty().bind(buttonHeight.add(spacing));
         incrementButton.setFocusTraversable(false);
-        incrementButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent ae) {
-                increment();
-                ae.consume();
-            }
-        });
 
         // Paint arrow path on button using a StackPane
         StackPane incPane = new StackPane();
@@ -135,14 +130,8 @@ public class NumberSpinner extends HBox {
         decrementButton.minHeightProperty().bind(buttonHeight);
 
         decrementButton.setFocusTraversable(false);
-        decrementButton.setOnAction(new EventHandler<ActionEvent>() {
 
-            @Override
-            public void handle(ActionEvent ae) {
-                decrement();
-                ae.consume();
-            }
-        });
+        setListener();
 
         StackPane decPane = new StackPane();
         decPane.getChildren().addAll(decrementButton, arrowDown);
@@ -175,9 +164,9 @@ public class NumberSpinner extends HBox {
     }
 
     public final void setNumber(BigDecimal value) {
-        if (numberField.getNumber().compareTo(BigDecimal.valueOf(1)) == 1) {
-            numberField.setNumber(value);
-        }
+        //if (numberField.getNumber().compareTo(BigDecimal.valueOf(1)) != 0) {
+        numberField.setNumber(value);
+        //}
 
     }
 
@@ -198,4 +187,38 @@ public class NumberSpinner extends HBox {
         logger.info("spacing=" + spacing.toString());
     }
 
+    public void setMin(BigDecimal min) {
+        this.min = min;
+        setListener();
+    }
+
+    private void setListener() {
+        incrementButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent ae) {
+                if (max != null) {
+                    if (numberField.getNumber().compareTo(max) <= 0)
+                        increment();
+                } else increment();
+                ae.consume();
+            }
+        });
+
+        decrementButton.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent ae) {
+                if (max != null) {
+                    if (numberField.getNumber().compareTo(min) >= 0)
+                        decrement();
+                } else decrement();
+                ae.consume();
+            }
+        });
+    }
+
+    public void setMax(BigDecimal max) {
+        this.max = max;
+        setListener();
+    }
 }

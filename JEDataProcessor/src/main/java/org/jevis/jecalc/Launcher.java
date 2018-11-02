@@ -7,8 +7,6 @@ package org.jevis.jecalc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.task.LogTaskManager;
-import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jecalc.workflow.ProcessManager;
 import org.jevis.jecalc.workflow.ProcessManagerFactory;
 
@@ -46,15 +44,15 @@ public class Launcher {
         List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
 
         logger.info("{} cleaning task found, starting now...", processes.size());
-        processes.stream().forEach((currentProcess) -> {
-            try {
-                currentProcess.start();
-                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            } catch (Exception ex) {
-                logger.error(ex.getMessage());
-                logger.debug(ex.getMessage(), ex);
-            }
-        });
+        ProcessManagerFactory.getForkJoinPool().submit(
+                () -> processes.parallelStream().forEach(
+                        currentProcess -> {
+                            try {
+                                currentProcess.start();
+                            } catch (Exception ex) {
+                                logger.debug(ex);
+                            }
+                        }));
     }
 
 

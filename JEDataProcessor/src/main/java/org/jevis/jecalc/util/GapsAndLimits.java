@@ -61,16 +61,12 @@ public class GapsAndLimits {
         String bindToSpecificValue = c.getBindtospecific();
         if (Objects.isNull(bindToSpecificValue)) bindToSpecificValue = "";
         SampleHandler sh = new SampleHandler();
-        //List<JEVisSample> listSamples = null;
         List<JEVisSample> boundListSamples = new ArrayList<>();
         DateTime firstDate;
-        /**
-         * TODO: very redundant code and bad performance because there are a lot of webservice calls.
-         */
+
         boundListSamples.clear();
         firstDate = getFirstDate(lastDate);
         List<JEVisSample> listSamplesNew = new ArrayList<>();
-        //listSamples = sh.getSamplesInPeriod(calcAttribute.getObject(), CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
         switch (bindToSpecificValue) {
             case (JEDataProcessorConstants.GapFillingBoundToSpecific.WEEKDAY):
                 if (sampleCache != null && !sampleCache.isEmpty()) {
@@ -81,18 +77,17 @@ public class GapsAndLimits {
                             }
                         }
                     }
-                } else {
-                    for (CleanInterval ci : intervals) {
-                        if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
-                                || ci.getDate().equals(lastDate))
-                            for (JEVisSample js : ci.getTmpSamples()) {
-                                if (js.getTimestamp().getDayOfWeek() == lastDate.getDayOfWeek()) {
-                                    if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                        boundListSamples.add(js);
-                                    }
+                }
+                for (CleanInterval ci : intervals) {
+                    if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
+                            || ci.getDate().equals(lastDate))
+                        for (JEVisSample js : ci.getTmpSamples()) {
+                            if (js.getTimestamp().getDayOfWeek() == lastDate.getDayOfWeek()) {
+                                if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
+                                    boundListSamples.add(js);
                                 }
                             }
-                    }
+                        }
                 }
                 return calcValueWithType(boundListSamples);
             case (JEDataProcessorConstants.GapFillingBoundToSpecific.WEEKOFYEAR):
@@ -104,18 +99,17 @@ public class GapsAndLimits {
                             }
                         }
                     }
-                } else {
-                    for (CleanInterval ci : intervals) {
-                        if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
-                                || ci.getDate().equals(lastDate))
-                            for (JEVisSample js : ci.getTmpSamples()) {
-                                if (js.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
-                                    if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                        boundListSamples.add(js);
-                                    }
+                }
+                for (CleanInterval ci : intervals) {
+                    if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
+                            || ci.getDate().equals(lastDate))
+                        for (JEVisSample js : ci.getTmpSamples()) {
+                            if (js.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
+                                if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
+                                    boundListSamples.add(js);
                                 }
                             }
-                    }
+                        }
                 }
                 return calcValueWithType(boundListSamples);
             case (JEDataProcessorConstants.GapFillingBoundToSpecific.MONTHOFYEAR):
@@ -127,18 +121,17 @@ public class GapsAndLimits {
                             }
                         }
                     }
-                } else {
-                    for (CleanInterval ci : intervals) {
-                        if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
-                                || ci.getDate().equals(lastDate))
-                            for (JEVisSample js : ci.getTmpSamples()) {
-                                if (js.getTimestamp().getMonthOfYear() == lastDate.getMonthOfYear()) {
-                                    if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                        boundListSamples.add(js);
-                                    }
+                }
+                for (CleanInterval ci : intervals) {
+                    if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
+                            || ci.getDate().equals(lastDate))
+                        for (JEVisSample js : ci.getTmpSamples()) {
+                            if (js.getTimestamp().getMonthOfYear() == lastDate.getMonthOfYear()) {
+                                if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
+                                    boundListSamples.add(js);
                                 }
                             }
-                    }
+                        }
                 }
                 return calcValueWithType(boundListSamples);
             default:
@@ -148,16 +141,15 @@ public class GapsAndLimits {
                             listSamplesNew.add(sample);
                         }
                     }
-                } else {
-                    for (CleanInterval ci : intervals) {
-                        if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
-                                || ci.getDate().equals(lastDate))
-                            for (JEVisSample js : ci.getTmpSamples()) {
-                                if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                                    listSamplesNew.add(js);
-                                }
+                }
+                for (CleanInterval ci : intervals) {
+                    if (ci.getDate().equals(firstDate) || (ci.getDate().isAfter(firstDate) && ci.getDate().isBefore(lastDate))
+                            || ci.getDate().equals(lastDate))
+                        for (JEVisSample js : ci.getTmpSamples()) {
+                            if ((js.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (js.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
+                                listSamplesNew.add(js);
                             }
-                    }
+                        }
                 }
                 return calcValueWithType(listSamplesNew);
         }
