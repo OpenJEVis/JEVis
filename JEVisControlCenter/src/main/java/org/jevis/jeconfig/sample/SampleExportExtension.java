@@ -41,6 +41,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.sample.csvexporttable.CSVExportTableSampleTable;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -546,16 +547,16 @@ public class SampleExportExtension implements SampleEditorExtension {
         tabel.setPlaceholder(new Region());
 
         dateColum.setSortable(false);
-        dateColum.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("Date"));
+        dateColum.setCellValueFactory(new PropertyValueFactory<CSVExportTableSampleTable.TableSample, String>("Date"));
 
         valueColum.setSortable(false);
-        valueColum.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("Value"));
+        valueColum.setCellValueFactory(new PropertyValueFactory<CSVExportTableSampleTable.TableSample, String>("Value"));
 
         timeColum.setSortable(false);
-        timeColum.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("time"));
+        timeColum.setCellValueFactory(new PropertyValueFactory<CSVExportTableSampleTable.TableSample, String>("time"));
 
         dateTimeColumn.setSortable(false);
-        dateTimeColumn.setCellValueFactory(new PropertyValueFactory<SampleTable.TableSample, String>("Datetime"));
+        dateTimeColumn.setCellValueFactory(new PropertyValueFactory<CSVExportTableSampleTable.TableSample, String>("Datetime"));
 
         tabel.setMinWidth(555d);//TODo: replace Dirty workaround
         tabel.setPrefHeight(200d);//TODo: replace Dirty workaround

@@ -17,7 +17,7 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.sample.sampletree2;
+package org.jevis.jeconfig.sample.tableview;
 
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -53,31 +53,25 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 
 /**
- * The SampleTable can edit and delete all given sample for an attribute.
+ * The CSVExportTableSampleTable can edit and delete all given sample for an attribute.
  * <p>
  * TODO:
  * - Filter for Value > x
- * - Column for selecting and then delete
- * - imp value column, different editors for different type(Double, String, json, file)
- * - imp commit samples
- * - imp an good way to show imput errors of new samples
- * - add new sample functions, maybe an plus in the first empty selection column
- * - json value editor show "test test...." and when double clicked open popup with long text (what about json support?)
- * -
+ * - implement an good way to show input errors of new samples
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class SampleTable2 extends TableView<SampleTable2.TableSample> {
-    static final DateTimeFormatter dateViewFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private static final Logger logger = LogManager.getLogger(SampleTable2.class);
-    private static final Color COLOR_ERROR = Color.INDIANRED;
+public class SampleTable extends TableView<SampleTable.TableSample> {
+    private final static DateTimeFormatter dateViewFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private final static Logger logger = LogManager.getLogger(SampleTable.class);
+    private final static Color COLOR_ERROR = Color.INDIANRED;
     private final JEVisAttribute attribute;
     private final NumberFormat numberFormat = NumberFormat.getInstance(Locale.getDefault());
     private final Set<TableSample> changedSamples = new HashSet<>();
     private final BooleanProperty deleteInBetween = new SimpleBooleanProperty(false);
     private final BooleanProperty deleteSelected = new SimpleBooleanProperty(false);
     private final BooleanProperty needSave = new SimpleBooleanProperty(false);
-    private final ObservableList<SampleTable2.TableSample> data = FXCollections.observableArrayList();
+    private final ObservableList<SampleTable.TableSample> data = FXCollections.observableArrayList();
     private DateTime minDate = null;
     private DateTime maxDate = null;
 
@@ -87,7 +81,7 @@ public class SampleTable2 extends TableView<SampleTable2.TableSample> {
      * @param attribute
      * @param samples
      */
-    public SampleTable2(JEVisAttribute attribute, List<JEVisSample> samples) {
+    public SampleTable(JEVisAttribute attribute, List<JEVisSample> samples) {
         super();
         this.attribute = attribute;
 
@@ -136,7 +130,7 @@ public class SampleTable2 extends TableView<SampleTable2.TableSample> {
         data.clear();
         samples.forEach(jeVisSample -> {
             try {
-                data.add(new SampleTable2.TableSample(jeVisSample));
+                data.add(new SampleTable.TableSample(jeVisSample));
             } catch (Exception ex) {
                 logger.error("Error while loading samples in table", ex);
             }
@@ -504,7 +498,7 @@ public class SampleTable2 extends TableView<SampleTable2.TableSample> {
      *
      * @return
      */
-    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> doubleValueCell() {
+    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> valueCellDouble() {
         return new Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>>() {
             @Override
             public TableCell<TableSample, Object> call(TableColumn<TableSample, Object> param) {
@@ -582,7 +576,7 @@ public class SampleTable2 extends TableView<SampleTable2.TableSample> {
      *
      * @return
      */
-    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> fileValueCell() {
+    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> valueCellFile() {
         return new Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>>() {
             @Override
             public TableCell<TableSample, Object> call(TableColumn<TableSample, Object> param) {
@@ -637,7 +631,57 @@ public class SampleTable2 extends TableView<SampleTable2.TableSample> {
      *
      * @return
      */
-    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> stringValueCell() {
+    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> valueCellString() {
+        return new Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>>() {
+            @Override
+            public TableCell<TableSample, Object> call(TableColumn<TableSample, Object> param) {
+                return new TableCell<TableSample, Object>() {
+
+                    @Override
+                    protected void updateItem(Object item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+
+//                            TextField textField = new TextField(item.toString());
+                            TextArea textField = new TextArea(item.toString());
+                            setDefaultFieldStyle(this, textField);
+
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
+                                    setDefaultCellStyle(this);
+
+
+                                    TableSample tableSample = (TableSample) getTableRow().getItem();
+                                    tableSample.setValue(newValue + "");
+
+                                } catch (Exception ex) {
+                                    setErrorCellStyle(this, ex);
+                                    logger.error("Error in string text", ex);
+                                }
+                            });
+
+
+                            setGraphic(textField);
+
+                        }
+
+                    }
+                };
+            }
+
+        };
+    }
+
+
+    /**
+     * Create an callback cell for integer values
+     *
+     * @return
+     */
+    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> valueCellInteger() {
         return new Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>>() {
             @Override
             public TableCell<TableSample, Object> call(TableColumn<TableSample, Object> param) {
@@ -654,17 +698,36 @@ public class SampleTable2 extends TableView<SampleTable2.TableSample> {
                             TextField textField = new TextField(item.toString());
                             setDefaultFieldStyle(this, textField);
 
+
+                            UnaryOperator<TextFormatter.Change> filter = new UnaryOperator<TextFormatter.Change>() {
+
+                                @Override
+                                public TextFormatter.Change apply(TextFormatter.Change t) {
+
+                                    if (t.getControlNewText().isEmpty()) {
+                                        t.setText("0");
+                                    } else {
+                                        try {
+                                            Long bewValue = Long.parseLong(t.getControlNewText());
+                                        } catch (Exception ex) {
+                                            t.setText("");
+                                        }
+                                    }
+
+                                    return t;
+                                }
+                            };
+
+                            textField.setTextFormatter(new TextFormatter<>(filter));
+
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     setDefaultCellStyle(this);
-
-
                                     TableSample tableSample = (TableSample) getTableRow().getItem();
-                                    tableSample.setValue(newValue + "");
-
+                                    tableSample.setValue(Long.parseLong(newValue));
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);
-                                    logger.error("Error in string text", ex);
+                                    logger.error("Error in double text", ex);
                                 }
                             });
 
@@ -694,14 +757,17 @@ public class SampleTable2 extends TableView<SampleTable2.TableSample> {
         try {
 
             switch (attribute.getPrimitiveType()) {
+                case JEVisConstants.PrimitiveType.LONG:
+                    column.setCellFactory(valueCellInteger());
+                    break;
                 case JEVisConstants.PrimitiveType.DOUBLE:
-                    column.setCellFactory(doubleValueCell());
+                    column.setCellFactory(valueCellDouble());
                     break;
                 case JEVisConstants.PrimitiveType.FILE:
-                    column.setCellFactory(fileValueCell());
+                    column.setCellFactory(valueCellFile());
                     break;
                 default:
-                    column.setCellFactory(stringValueCell());
+                    column.setCellFactory(valueCellString());
                     break;
 
             }
@@ -957,7 +1023,7 @@ public class SampleTable2 extends TableView<SampleTable2.TableSample> {
 
         @Override
         public String toString() {
-            return "TableSample{" +
+            return "CSVExportTableSample{" +
                     "value=" + value +
                     ", note=" + note +
                     ", timeStamp=" + timeStamp +

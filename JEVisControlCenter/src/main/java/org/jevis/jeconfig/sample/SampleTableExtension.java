@@ -35,7 +35,7 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.sample.sampletree2.SampleTable2;
+import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
@@ -68,15 +68,15 @@ public class SampleTableExtension implements SampleEditorExtension {
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER);
 
-        final SampleTable2 table = new SampleTable2(att, samples);
-//        final org.jevis.jeconfig.sampletable.SampleTableView table = new org.jevis.jeconfig.sampletable.SampleTableView(samples);
+        final SampleTable table = new SampleTable(att, samples);
+//        final SampleTableView table = new SampleTableView(samples);
         table.setPrefSize(1000, 1000);
 
 
         Button deleteAll = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"));
 
         deleteAll.setOnAction(event -> {
-            ((SampleTable2) table).debugStuff();
+            ((SampleTable) table).debugStuff();
 //            try {
 //                ConfirmDialog dia = new ConfirmDialog();
 //                if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),

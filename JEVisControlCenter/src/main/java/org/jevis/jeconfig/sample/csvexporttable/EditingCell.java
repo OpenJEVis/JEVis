@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.sampletable;
+package org.jevis.jeconfig.sample.csvexporttable;
 
 /**
  * @author br
@@ -30,8 +30,9 @@ import java.util.List;
 
 /**
  * @author Graham Smith
+ * @deprecated
  */
-public class EditingCell extends TableCell<TableSample, String> {
+public class EditingCell extends TableCell<CSVExportTableSample, String> {
     private TextField textField;
 
     public EditingCell() {
@@ -107,7 +108,7 @@ public class EditingCell extends TableCell<TableSample, String> {
                     commitEdit(textField.getText());
 
                     String value = textField.getText();
-                    TableRow<TableSample> row = getTableRow();
+                    TableRow<CSVExportTableSample> row = getTableRow();
                     JEVisSample sample = row.getItem().getSample();
 
                     Dialog<ButtonType> dialogSaveValue = new Dialog<>();
@@ -183,9 +184,9 @@ public class EditingCell extends TableCell<TableSample, String> {
      * @return
      */
 
-    private TableColumn<TableSample, ?> getNextColumn(boolean forward) {
-        List<TableColumn<TableSample, ?>> columns = new ArrayList<>();
-        for (TableColumn<TableSample, ?> column : getTableView().getColumns()) {
+    private TableColumn<CSVExportTableSample, ?> getNextColumn(boolean forward) {
+        List<TableColumn<CSVExportTableSample, ?>> columns = new ArrayList<>();
+        for (TableColumn<CSVExportTableSample, ?> column : getTableView().getColumns()) {
             columns.addAll(getLeaves(column));
         }
         //There is no other column that supports editing.
@@ -208,8 +209,8 @@ public class EditingCell extends TableCell<TableSample, String> {
         return columns.get(nextIndex);
     }
 
-    private List<TableColumn<TableSample, ?>> getLeaves(TableColumn<TableSample, ?> root) {
-        List<TableColumn<TableSample, ?>> columns = new ArrayList<>();
+    private List<TableColumn<CSVExportTableSample, ?>> getLeaves(TableColumn<CSVExportTableSample, ?> root) {
+        List<TableColumn<CSVExportTableSample, ?>> columns = new ArrayList<>();
         if (root.getColumns().isEmpty()) {
             //We only want the leaves that are editable.
             if (root.isEditable()) {
@@ -217,7 +218,7 @@ public class EditingCell extends TableCell<TableSample, String> {
             }
             return columns;
         } else {
-            for (TableColumn<TableSample, ?> column : root.getColumns()) {
+            for (TableColumn<CSVExportTableSample, ?> column : root.getColumns()) {
                 columns.addAll(getLeaves(column));
             }
             return columns;
