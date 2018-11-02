@@ -17,7 +17,7 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.sample;
+package org.jevis.jeconfig.sample.csvexporttable;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -32,7 +32,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.sampletable.EditingCell;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -42,15 +41,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author Florian Simon <florian.simon@envidatec.com>
+ * Old TableView for JEVisSamples, used by CSV Export Plugin.
+ *
+ * @deprecated replaced by CSVExportTableSampleTable
  */
-public class SampleTable extends TableView {
-    private static final Logger logger = LogManager.getLogger(SampleTable.class);
-
+public class CSVExportTableSampleTable extends TableView {
     static final DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z");
+    private static final Logger logger = LogManager.getLogger(CSVExportTableSampleTable.class);
     private JEVisAttribute attribute;
 
-    public SampleTable(JEVisAttribute attribute, List<JEVisSample> samples) {
+    public CSVExportTableSampleTable(JEVisAttribute attribute, List<JEVisSample> samples) {
         super();
         this.attribute = attribute;
         getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -63,12 +63,12 @@ public class SampleTable extends TableView {
         setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
 
-        List<org.jevis.jeconfig.sampletable.TableSample> tjc = new LinkedList<>();
+        List<CSVExportTableSample> tjc = new LinkedList<>();
         for (JEVisSample sample : samples) {
-            tjc.add(new org.jevis.jeconfig.sampletable.TableSample(sample));
+            tjc.add(new CSVExportTableSample(sample));
         }
 
-        final ObservableList<org.jevis.jeconfig.sampletable.TableSample> data = FXCollections.observableArrayList(tjc);
+        final ObservableList<CSVExportTableSample> data = FXCollections.observableArrayList(tjc);
         setItems(data);
 
     }
@@ -86,7 +86,7 @@ public class SampleTable extends TableView {
 
         dateCol.setMinWidth(100);
         dateCol.setCellValueFactory(
-                new PropertyValueFactory<org.jevis.jeconfig.sampletable.TableSample, String>("date"));
+                new PropertyValueFactory<CSVExportTableSample, String>("date"));
         dateCol.setCellFactory(cellFactory);
 
         dateCol.setEditable(true);
@@ -94,7 +94,7 @@ public class SampleTable extends TableView {
         TableColumn valueCol = new TableColumn("Value");
 
         valueCol.setMinWidth(100);
-        valueCol.setCellValueFactory(new PropertyValueFactory<org.jevis.jeconfig.sampletable.TableSample, String>("value"));
+        valueCol.setCellValueFactory(new PropertyValueFactory<CSVExportTableSample, String>("value"));
         valueCol.setCellFactory(cellFactory);
 
 
@@ -103,7 +103,7 @@ public class SampleTable extends TableView {
         TableColumn noteCol = new TableColumn("Note");
 
         noteCol.setMinWidth(200);
-        noteCol.setCellValueFactory(new PropertyValueFactory<org.jevis.jeconfig.sampletable.TableSample, String>("note"));
+        noteCol.setCellValueFactory(new PropertyValueFactory<CSVExportTableSample, String>("note"));
         noteCol.setCellFactory(cellFactory);
 
         noteCol.setEditable(true);
@@ -113,9 +113,9 @@ public class SampleTable extends TableView {
         setEditable(true);
 
         dateCol.setOnEditCommit(
-                new EventHandler<TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String>>() {
+                new EventHandler<TableColumn.CellEditEvent<CSVExportTableSample, String>>() {
                     @Override
-                    public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t
+                    public void handle(TableColumn.CellEditEvent<CSVExportTableSample, String> t
                     ) {
                         t.getTableView().getItems().get(t.getTablePosition().getRow()).setDate(t.getNewValue());
                     }
@@ -129,7 +129,7 @@ public class SampleTable extends TableView {
                     public void handle(TableColumn.CellEditEvent event) {
                         try {
                             event.consume();
-                            JEVisSample sample = ((org.jevis.jeconfig.sampletable.TableSample) event.getTableView().getItems().get(event.getTablePosition().getRow())).getSample();
+                            JEVisSample sample = ((CSVExportTableSample) event.getTableView().getItems().get(event.getTablePosition().getRow())).getSample();
                             logger.info("Sample: " + sample.getTimestamp());
 
                             try {
@@ -165,9 +165,9 @@ public class SampleTable extends TableView {
 
             } else {
                 valueCol.setOnEditCommit(
-                        new EventHandler<TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String>>() {
+                        new EventHandler<TableColumn.CellEditEvent<CSVExportTableSample, String>>() {
                             @Override
-                            public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t) {
+                            public void handle(TableColumn.CellEditEvent<CSVExportTableSample, String> t) {
                                 t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
                             }
                         }
@@ -180,9 +180,9 @@ public class SampleTable extends TableView {
 
 
         noteCol.setOnEditCommit(
-                new EventHandler<TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String>>() {
+                new EventHandler<TableColumn.CellEditEvent<CSVExportTableSample, String>>() {
                     @Override
-                    public void handle(TableColumn.CellEditEvent<org.jevis.jeconfig.sampletable.TableSample, String> t
+                    public void handle(TableColumn.CellEditEvent<CSVExportTableSample, String> t
                     ) {
                         t.getTableView().getItems().get(t.getTablePosition().getRow()).setNote(t.getNewValue());
                     }

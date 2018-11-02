@@ -3,22 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.sampletable;
+package org.jevis.jeconfig.sample.csvexporttable;
 
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import org.jevis.api.JEVisSample;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /**
+ * Old TableView for JEVisSamples, used by CSV Export Plugin.
  *
  * @author Benjamin Reich
+ * @deprecated replaced by CSVExportTableSampleTable
  */
-public class TableSample {
+public class CSVExportTableSample {
 
-    
-    
+
     static final DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z");
 
     private final SimpleStringProperty _date = new SimpleStringProperty("ERROR");
@@ -26,7 +26,7 @@ public class TableSample {
     private final SimpleStringProperty _note = new SimpleStringProperty("ERROR");
     private JEVisSample _sample;
 
-    public TableSample(JEVisSample sample) {
+    public CSVExportTableSample(JEVisSample sample) {
         try {
             _date.set(fmtDate.print(sample.getTimestamp()));
         } catch (Exception ex) {
@@ -80,11 +80,11 @@ public class TableSample {
     public SimpleStringProperty getPrimaryEmailProperty() {
         return _note;
     }
-    
+
     public JEVisSample getSample() {
         return _sample;
     }
-    
+
     public void setSample(JEVisSample sample) {
         _sample = sample;
     }
