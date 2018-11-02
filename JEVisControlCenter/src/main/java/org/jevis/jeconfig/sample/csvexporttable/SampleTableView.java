@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.sampletable;
+package org.jevis.jeconfig.sample.csvexporttable;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,20 +22,21 @@ import java.util.List;
 
 /**
  * @author Benjamin Reich
+ * @deprecated
  */
 public class SampleTableView extends TableView {
 
+    //    private TableView _table = new TableView();
+    private final ObservableList<CSVExportTableSample> _data;
     private double _lastBarPositionV;
     private double _lastBarPositionH;
     private JEVisDataSource _ds;
-    //    private TableView _table = new TableView();
-    private final ObservableList<TableSample> _data;
 
     public SampleTableView(List<JEVisSample> samples) {
         super();
-        List<TableSample> tjc = new LinkedList<>();
+        List<CSVExportTableSample> tjc = new LinkedList<>();
         for (JEVisSample sample : samples) {
-            tjc.add(new TableSample(sample));
+            tjc.add(new CSVExportTableSample(sample));
         }
         _data = FXCollections.observableArrayList(tjc);
         setMinWidth(555d);//TODo: replace Dirty workaround
@@ -56,7 +57,7 @@ public class SampleTableView extends TableView {
 
         dateCol.setMinWidth(100);
         dateCol.setCellValueFactory(
-                new PropertyValueFactory<TableSample, String>("date"));
+                new PropertyValueFactory<CSVExportTableSample, String>("date"));
         dateCol.setCellFactory(cellFactory);
 
         dateCol.setEditable(
@@ -66,7 +67,7 @@ public class SampleTableView extends TableView {
 
         valueCol.setMinWidth(100);
         valueCol.setCellValueFactory(
-                new PropertyValueFactory<TableSample, String>("value"));
+                new PropertyValueFactory<CSVExportTableSample, String>("value"));
 
         valueCol.setCellFactory(cellFactory);
 
@@ -77,15 +78,15 @@ public class SampleTableView extends TableView {
         noteCol.setMinWidth(200);
 
         noteCol.setCellValueFactory(
-                new PropertyValueFactory<TableSample, String>("note"));
+                new PropertyValueFactory<CSVExportTableSample, String>("note"));
         noteCol.setCellFactory(cellFactory);
 
         noteCol.setEditable(true);
 
         dateCol.setOnEditCommit(
-                new EventHandler<CellEditEvent<TableSample, String>>() {
+                new EventHandler<CellEditEvent<CSVExportTableSample, String>>() {
                     @Override
-                    public void handle(CellEditEvent<TableSample, String> t
+                    public void handle(CellEditEvent<CSVExportTableSample, String> t
                     ) {
                         t.getTableView().getItems().get(t.getTablePosition().getRow()).setDate(t.getNewValue());
                     }
@@ -94,9 +95,9 @@ public class SampleTableView extends TableView {
         //Modifying the Value property
 
         valueCol.setOnEditCommit(
-                new EventHandler<CellEditEvent<TableSample, String>>() {
+                new EventHandler<CellEditEvent<CSVExportTableSample, String>>() {
                     @Override
-                    public void handle(CellEditEvent<TableSample, String> t
+                    public void handle(CellEditEvent<CSVExportTableSample, String> t
                     ) {
                         t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
 
@@ -105,9 +106,9 @@ public class SampleTableView extends TableView {
         );
         //Modifying the note property
         noteCol.setOnEditCommit(
-                new EventHandler<CellEditEvent<TableSample, String>>() {
+                new EventHandler<CellEditEvent<CSVExportTableSample, String>>() {
                     @Override
-                    public void handle(CellEditEvent<TableSample, String> t
+                    public void handle(CellEditEvent<CSVExportTableSample, String> t
                     ) {
                         t.getTableView().getItems().get(t.getTablePosition().getRow()).setNote(t.getNewValue());
                     }
