@@ -57,7 +57,7 @@
         </#if>
         <div class="col-3">
             <div class="wrapper">
-                <input class="input" type="date" id="id-${att.name?replace(' ', '')}"
+                <input class="input" type="timeStamp" id="id-${att.name?replace(' ', '')}"
                        onchange="sendDateToJEWebService('${bauth}', ${FormID?c}, '${att.name}', this.value)"
                        value="${att.value}">
                 <span class="underline"></span>
@@ -214,12 +214,12 @@
 		<#if att.name == "Measuring Point">
 		<div class="col-1">From:</div>
             <div class="col-2">
-                <input type="date" id="id-from" value="2010-01-01"
+                <input type="timeStamp" id="id-from" value="2010-01-01"
                        onchange="updateChart('${name}', this.value, document.getElementById('id-until').value, document.getElementById('id-MeasuringPoint').value, '${bauth}');">
             </div>
 		<div class="col-1">Until:</div>
             <div class="col-2">
-                <input type="date" id="id-until" value=""
+                <input type="timeStamp" id="id-until" value=""
                        onchange="updateChart('${name}', document.getElementById('id-from').value, this.value, document.getElementById('id-MeasuringPoint').value, '${bauth}');">
             </div>
         </#if>

@@ -295,4 +295,11 @@ public interface JEVisDataSource {
      * @throws JEVisException
      */
     void reloadAttributes() throws JEVisException;
+
+    /**
+     * request the reload of an attribute
+     *
+     * @throws JEVisException
+     */
+    void reloadAttribute(JEVisAttribute attribute);
 }

@@ -46,21 +46,20 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
-    private String name = "";
     private JEVisDataSourceWS ds;
     private long objectID;
     private JsonAttribute json;
+
 
     public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json, Long obj) {
         this.ds = ds;
         this.objectID = obj;
         this.json = json;
-        name = json.getType();
     }
 
     @Override
     public String getName() {
-        return name;
+        return json.getType();
     }
 
     @Override
@@ -70,7 +69,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public JEVisType getType() throws JEVisException {
-        return ds.getObject(objectID).getJEVisClass().getType(name);
+        return ds.getObject(objectID).getJEVisClass().getType(getName());
     }
 
     @Override
@@ -156,6 +155,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
 //
         }
+        ds.reloadAttribute(this);
         return 1;
     }
 
@@ -248,8 +248,9 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public boolean deleteAllSample() {
-
-        return deleteSamplesBetween(null, null);
+        Boolean delete = deleteSamplesBetween(null, null);
+        ds.reloadAttribute(this);
+        return delete;
     }
 
     @Override
@@ -281,12 +282,13 @@ public class JEVisAttributeWS implements JEVisAttribute {
 //                resource += "null";
             } else {
                 resource += "&" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL;
-                resource += HTTPConnection.FMT.print(from);
+                resource += HTTPConnection.FMT.print(to);
             }
 
             Gson gson = new Gson();
             HttpURLConnection conn = ds.getHTTPConnection().getDeleteConnection(resource);
 
+            ds.reloadAttribute(this);
             return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
         } catch (Exception ex) {
             return false;
@@ -437,7 +439,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public int compareTo(JEVisAttribute o
     ) {
-        return o.getName().compareTo(name);
+        return o.getName().compareTo(json.getType());
     }
 
 }

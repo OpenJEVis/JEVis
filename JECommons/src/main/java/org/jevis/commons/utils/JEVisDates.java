@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -30,15 +30,14 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 /**
- *
  * @author fs
  */
 public class JEVisDates {
 
-//    public static final String JEVis_DEFAULT = ISODateTimeFormat.dateTime().toString();//;"yyyy-MM-dd HH:mm:ss Z";
+    //    public static final String JEVis_DEFAULT = ISODateTimeFormat.dateTime().toString();//;"yyyy-MM-dd HH:mm:ss Z";
     private static final Logger logger = LogManager.getLogger(JEVisDates.class);
     public static DateTimeFormatter DEFAULT_DATE_FORMAT = ISODateTimeFormat.dateTime();
-    
+
     /**
      * Returns an default JEVisDate formatted date string.
      *
@@ -46,7 +45,7 @@ public class JEVisDates {
      * @return
      */
     public static String printDefaultDate(DateTime date) {
-        logger.error("print: {} {}",date);
+        logger.error("print: {} {}", date);
         if (date == null) {
             throw new IllegalArgumentException();
         }
@@ -55,7 +54,7 @@ public class JEVisDates {
     }
 
     public static void saveDefaultDate(JEVisAttribute attibute, DateTime timestamp, DateTime date) throws IllegalArgumentException, JEVisException {
-        logger.error("Save Date: {} {} {}",attibute,timestamp,date);
+        logger.error("Save Date: {} {} {}", attibute, timestamp, date);
         if (date == null || attibute == null) {
             throw new IllegalArgumentException();
         }
@@ -65,7 +64,7 @@ public class JEVisDates {
     }
 
     public static DateTime parseDefaultDate(JEVisAttribute date) throws IllegalArgumentException, JEVisException {
-        logger.error("Parse Date: {}",date);
+        logger.error("Parse Date: {}", date);
         if (date == null || !date.hasSample()) {
             throw new IllegalArgumentException();
         }
@@ -81,9 +80,9 @@ public class JEVisDates {
      * @return
      */
     public static DateTime parseDefaultDate(String datestring) throws IllegalArgumentException {
-        logger.error("Parse Date: {}",datestring);
+        logger.error("Parse Date: {}", datestring);
         if (datestring == null || datestring.isEmpty()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Date is empty or null");
         }
 
         try {
