@@ -392,6 +392,21 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
+    public void reloadAttribute(JEVisAttribute attribute) {
+        try {
+            attributeCache.remove(attribute.getObjectID());
+            List<JEVisAttribute> newAttributes = getAttributes(attribute.getObjectID());
+            for (JEVisAttribute jeVisAttribute : newAttributes) {
+                if (jeVisAttribute.getName().equals(attribute.getName())) {
+                    attribute = jeVisAttribute;
+                }
+            }
+        } catch (Exception ex) {
+            logger.error("Error, can not reload attribute", ex);
+        }
+    }
+
+    @Override
     public List<JEVisAttribute> getAttributes(long objectID) {
         logger.debug("Get  getAttributes: {}", objectID);
 

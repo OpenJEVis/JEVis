@@ -193,7 +193,11 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public String getNote() {
-        return json.getNote();
+        if (json.getNote() == null) {
+            return "";
+        } else {
+            return json.getNote();
+        }
     }
 
     @Override
@@ -216,7 +220,8 @@ public class JEVisSampleWS implements JEVisSample {
         logger.trace("Commit: {} {}", getTimestamp(), getValueAsString());
         List<JEVisSample> tmp = new ArrayList<>();
         tmp.add(this);
-        getAttribute().addSamples(tmp);
+//        getAttribute().addSamples(tmp);
+        ds.reloadAttribute(getAttribute());
     }
 
     @Override

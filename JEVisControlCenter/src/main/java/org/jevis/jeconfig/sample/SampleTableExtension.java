@@ -20,11 +20,9 @@
 package org.jevis.jeconfig.sample;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -33,15 +31,14 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ConfirmDialog;
-import org.jevis.commons.dataprocessing.v2.DataProcessing;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.sample.sampletree2.SampleTable2;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
+import org.joda.time.DateTimeFieldType;
 
 import java.util.List;
 
@@ -77,6 +74,7 @@ public class SampleTableExtension implements SampleEditorExtension {
 
 
         Button deleteAll = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"));
+
         deleteAll.setOnAction(event -> {
             ((SampleTable2) table).debugStuff();
 //            try {
@@ -97,34 +95,19 @@ public class SampleTableExtension implements SampleEditorExtension {
         });
 
         Button deleteSelected = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"));
+        deleteSelected.setDisable(!table.deleteSelectedProperty().getValue());
+        deleteSelected.disableProperty().bind(table.deleteSelectedProperty().not());
+
         deleteSelected.setOnAction(event -> {
                     try {
-                        if (!samples.isEmpty()) {
-                            DateTime startDate = samples.get(0).getTimestamp();
-                            DateTime endDate = samples.get(samples.size() - 1).getTimestamp();
-                            ConfirmDialog dia = new ConfirmDialog();
 
-                            if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.title"),
-                                    I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"),
-                                    I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.message")) == ConfirmDialog.Response.YES) {
-                                ObservableList<SampleTable2.TableSample> list = table.getSelectionModel().getSelectedItems();
-                                for (SampleTable2.TableSample tsample : list) {
-                                    try {
-                                        //TODO: the JEAPI cound use to have an delte funtion for an list of samples
-                                        att.deleteSamplesBetween(tsample.getJevisSample().getTimestamp(), tsample.getJevisSample().getTimestamp());
-                                    } catch (JEVisException ex) {
-                                        logger.fatal(ex);
-                                    }
-                                    logger.info("Deleted Samples " + list.size());
+                        ConfirmDialog dia = new ConfirmDialog();
 
-                                }
-
-                                //TODO: add workflow selection
-                                setSamples(att, DataProcessing.getSamples(att, startDate, endDate, ""));
-
-//                                    setSamples(att, att.getSamples(startDate, endDate));
-                                update();
-                            }
+                        if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.title"),
+                                I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"),
+                                I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.message")) == ConfirmDialog.Response.YES) {
+                            table.deleteSelectedProperty();
+                            update();
                         }
 
                     } catch (Exception ex) {
@@ -133,60 +116,85 @@ public class SampleTableExtension implements SampleEditorExtension {
 
                 }
         );
+        Button saveButton = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.save"));
+        saveButton.disableProperty().bind(table.needSaveProperty().not());
+        saveButton.setOnAction(event -> {
+            table.debugStuff();
+            table.commitChanges();
+            update();
+        });
+        saveButton.setDefaultButton(true);
+
+        Button addNewSample = new Button(null, JEConfig.getImage("list-add.png", 17, 17));
+        try {
+            /** File is not supported yet **/
+            addNewSample.setDisable(att.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE);
+        } catch (Exception ex) {
+        }
+
+        addNewSample.setOnAction(event -> {
+            /** TODO: implement missing PrimitiveTypes **/
+            try {
+                Object value;
+                switch (att.getPrimitiveType()) {
+                    case JEVisConstants.PrimitiveType.DOUBLE:
+                        value = 1.0d;
+                        break;
+                    case JEVisConstants.PrimitiveType.LONG:
+                        value = 1l;
+                        break;
+                    case JEVisConstants.PrimitiveType.BOOLEAN:
+                        value = true;
+                        break;
+                    default:
+                        value = "1";
+                        break;
+                }
+                table.addNewSample(new DateTime().withField(DateTimeFieldType.millisOfSecond(), 0), value, "Manual Sample");
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
 
         Button deleteInBetween = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.titlelong"));
+        deleteInBetween.setDisable(table.deleteInBetweenProperty().getValue());
+        deleteInBetween.disableProperty().bind(table.deleteInBetweenProperty().not());
+
         deleteInBetween.setOnAction(event -> {
-            try {
-                if (!samples.isEmpty()) {
-                    DateTime startDate = null;
-                    DateTime endDate = null;
-                    ConfirmDialog dia = new ConfirmDialog();
+                    try {
 
-                    ObservableList<SampleTable2.TableSample> list = table.getSelectionModel().getSelectedItems();
-                    if (list.size() == 2) {
-                        startDate = list.get(0).getJevisSample().getTimestamp();
-                        endDate = list.get(list.size() - 1).getJevisSample().getTimestamp();
+                        ConfirmDialog dia = new ConfirmDialog();
 
-                        if (startDate != null && endDate != null) {
-                            if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.title"),
-                                    I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.titlelong"),
-                                    I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message1") + "\n "
-                                            + ISODateTimeFormat.dateTime().print(startDate)
-                                            + " " + I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message2") + " "
-                                            + ISODateTimeFormat.dateTime().print(endDate) +
-                                            I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message3")) == ConfirmDialog.Response.YES) {
+                        if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.title"),
+                                I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.titlelong"),
+                                I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message1") + "\n "
+//                                        + ISODateTimeFormat.dateTime().print(startDate)
+                                        + " " + I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message2") +
+//                                        + ISODateTimeFormat.dateTime().print(endDate) +
+                                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message3")) == ConfirmDialog.Response.YES) {
 
-                                att.deleteSamplesBetween(startDate, endDate);
-
-                                //TODO: add workflow selection
-                                setSamples(att, DataProcessing.getSamples(att, startDate, endDate, ""));
-                                update();
-
-                                logger.info("Deleted Samples between: " +
-                                        startDate.toDateTimeISO() + " and " + endDate.toDateTimeISO());
-                            }
+                            table.deleteInBetween();
+                            update();
                         }
 
-                    } else {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.error.title"));
-                        alert.setHeaderText(null);
-                        alert.setContentText(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.error.message"));
 
-                        alert.showAndWait();
+//                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                                alert.setTitle(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.error.title"));
+//                                alert.setHeaderText(null);
+//                                alert.setContentText(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.error.message"));
+//
+//                                alert.showAndWait();
+
+
+                    } catch (Exception ex) {
+                        logger.fatal(ex);
                     }
-
-                }
-
-            } catch (Exception ex) {
-                logger.fatal(ex);
-            }
 
                 }
         );
 
         box.getChildren()
-                .setAll(deleteAll, deleteSelected, deleteInBetween);
+                .setAll(addNewSample, deleteAll, deleteSelected, deleteInBetween, saveButton);
 
         GridPane gp = new GridPane();
 
