@@ -128,7 +128,9 @@ public class JsonGapFillingConfig {
             return false;
         if (bindtospecific != null ? !bindtospecific.equals(that.bindtospecific) : that.bindtospecific != null)
             return false;
-        return referenceperiodcount != null ? referenceperiodcount.equals(that.referenceperiodcount) : that.referenceperiodcount == null;
+        if (referenceperiodcount != null ? referenceperiodcount.equals(that.referenceperiodcount) : that.referenceperiodcount != null)
+            return false;
+        return false;
     }
 
     @Override

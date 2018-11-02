@@ -80,18 +80,11 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
             errors.add(String.format("Missing Gap configuration,"));
         }
 
-        /**
-         * Why is the boolean, 'conversion to deferential' an list? can a counter can switch between deferential and not?
-         */
-//        if (getConversionDifferential().isEmpty()) {
-//
-//        }
-
         if (getMultiplier().isEmpty()) {
             errors.add((String.format("Multiplier is empty")));
         }
         if (getObject() == null) {
-            errors.add((String.format("Offset is emmy")));
+            errors.add((String.format("Offset is empty")));
         }
 
         if (!errors.isEmpty()) {
@@ -218,7 +211,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     }
 
     @Override
-    public List<JsonLimitsConfig> getLimitsConfig() throws Exception {
+    public List<JsonLimitsConfig> getLimitsConfig() {
         if (jsonLimitsConfig == null) {
             String limitsConfiguration = sampleHandler.getLastSample(getObject(), LIMITS_CONFIGURATION.getAttributeName(), "");
             if (limitsConfiguration != null && !limitsConfiguration.equals("")) {

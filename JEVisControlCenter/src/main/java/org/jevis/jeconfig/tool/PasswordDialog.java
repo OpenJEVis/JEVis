@@ -50,6 +50,14 @@ public class PasswordDialog {
     private static final Logger logger = LogManager.getLogger(PasswordDialog.class);
     public static String ICON = "1415303685_lock-128.png";
 
+    final Label passL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.newpassword"));
+
+    private Response response = Response.CANCEL;
+    final Label confirmL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.confirmpassword"));
+    final Button ok = new Button(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
+    final PasswordField pass = new PasswordField();
+    final PasswordField comfirm = new PasswordField();
+
     /**
      *
      * @param owner
@@ -61,7 +69,7 @@ public class PasswordDialog {
         logger.info("Change password dialog");
         final Stage stage = new Stage();
 
-        stage.setTitle("Change Password");
+        stage.setTitle(I18n.getInstance().getString("tool.dialog.passworddialog.title"));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
 
@@ -70,7 +78,7 @@ public class PasswordDialog {
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setWidth(350);
-        stage.setHeight(230);
+        stage.setHeight(260);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(false);
 
@@ -78,7 +86,7 @@ public class PasswordDialog {
 
         ok.setDefaultButton(true);
 
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button(I18n.getInstance().getString("tool.dialog.passworddialog.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -102,7 +110,7 @@ public class PasswordDialog {
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
-        Node header = DialogHeader.getDialogHeader(ICON, "Change Password");
+        Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("tool.dialog.passworddialog.header"));
 
         root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), gp, buttonPanel);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
@@ -151,14 +159,6 @@ public class PasswordDialog {
 
         return response;
     }
-
-    private Response response = Response.CANCEL;
-
-    final Label passL = new Label("New Password:");
-    final Label confirmL = new Label("Comfirm Password:");
-    final PasswordField pass = new PasswordField();
-    final PasswordField comfirm = new PasswordField();
-    final Button ok = new Button("OK");
 
     public enum Response {
 

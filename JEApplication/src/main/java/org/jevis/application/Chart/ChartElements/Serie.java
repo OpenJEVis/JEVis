@@ -11,7 +11,7 @@ public interface Serie {
     default void calcTableValues(TableEntry te, List<JEVisSample> samples, String unit) throws JEVisException {
         double min = Double.MAX_VALUE;
         double max = Double.MIN_VALUE;
-        Double avg;
+        Double avg = 0.0;
         Double sum = 0.0;
 
         for (JEVisSample smp : samples) {
@@ -20,14 +20,25 @@ public interface Serie {
             sum += smp.getValueAsDouble();
         }
 
-        avg = sum / samples.size();
+        if (samples.size() > 0)
+            avg = sum / samples.size();
+
         NumberFormat nf_out = NumberFormat.getNumberInstance();
         nf_out.setMaximumFractionDigits(2);
         nf_out.setMinimumFractionDigits(2);
 
-        te.setMin(nf_out.format(min) + " " + unit);
-        te.setMax(nf_out.format(max) + " " + unit);
-        te.setAvg(nf_out.format(avg) + " " + unit);
+        if (min == Double.MAX_VALUE)
+            te.setMin("- " + unit);
+        else te.setMin(nf_out.format(min) + " " + unit);
+
+        if (max == Double.MIN_VALUE)
+            te.setMax("- " + unit);
+        else te.setMax(nf_out.format(max) + " " + unit);
+
+        if (avg == 0.0)
+            te.setAvg("- " + unit);
+        else te.setAvg(nf_out.format(avg) + " " + unit);
+
         te.setSum(nf_out.format(sum) + " " + unit);
     }
 }

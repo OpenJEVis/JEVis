@@ -65,13 +65,16 @@ public class ServiceMode {
         List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
 
         logger.info("{} cleaning task found starting", processes.size());
-        processes.stream().forEach((currentProcess) -> {
-            try {
-                currentProcess.start();
-            } catch (Exception ex) {
-                logger.debug(ex);
-            }
-        });
+        ProcessManagerFactory.getForkJoinPool().submit(
+                () -> processes.parallelStream().forEach(
+                        currentProcess -> {
+                            try {
+                                currentProcess.start();
+                            } catch (Exception ex) {
+                                logger.debug(ex);
+                            }
+                        }));
+
         logger.info("Cleaning finished.");
     }
 }

@@ -15,6 +15,7 @@ import org.jevis.commons.driver.*;
 import org.jevis.commons.utils.JEVisDates;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -143,7 +144,7 @@ public class sFTPDataSource implements DataSource {
                 lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, JEVisDates.DEFAULT_DATE_FORMAT);
             } catch (Exception e) {
                 try {
-                    lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, JEVisDates.DEFAULT_DATE_FORMAT);
+                    lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
                 } catch (Exception ex) {
 
                 }

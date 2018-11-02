@@ -27,10 +27,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.ChartType;
-import org.jevis.application.Chart.ChartUnits.ChartUnits;
-import org.jevis.application.Chart.ChartUnits.EnergyUnit;
-import org.jevis.application.Chart.ChartUnits.MassUnit;
-import org.jevis.application.Chart.ChartUnits.VolumeUnit;
+import org.jevis.application.Chart.ChartUnits.*;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
@@ -88,7 +85,7 @@ public class ChartPlugin implements TreePlugin {
     private final List<String> disabledItems = Arrays.asList(rb.getString("plugin.graph.charttype.scatter.name"),
             rb.getString("plugin.graph.charttype.bubble.name"));
     private List<Color> usedColors = new ArrayList<>();
-    private GraphDataModel _data = new GraphDataModel();
+    private GraphDataModel _data;
 
     public JEVisTree getTree() {
         return _tree;
@@ -97,6 +94,7 @@ public class ChartPlugin implements TreePlugin {
     @Override
     public void setTree(JEVisTree tree) {
         _tree = tree;
+        _data = new GraphDataModel(_tree.getJEVisDataSource());
     }
 
     @Override
@@ -149,12 +147,14 @@ public class ChartPlugin implements TreePlugin {
         }
 
         addChart.setOnAction(event -> {
-            String newName = chartTitle + " " + getData().getChartsList().size();
+            if (_data.getCharts().size() < 4) {
+                String newName = chartTitle + " " + getData().getChartsList().size();
 
-            _data.getCharts().add(new ChartSettings(newName));
-            getData().getChartsList().add(newName);
-            TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, getData().getChartsList().size() - 1);
-            column.getColumns().add(column.getColumns().size() - 6, selectColumn);
+                _data.getCharts().add(new ChartSettings(newName));
+                getData().getChartsList().add(newName);
+                TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, getData().getChartsList().size() - 1);
+                column.getColumns().add(column.getColumns().size() - 6, selectColumn);
+            }
         });
 
         column.setGraphic(addChart);
@@ -811,15 +811,17 @@ public class ChartPlugin implements TreePlugin {
                         getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
                         ChartDataModel data = getData(getTreeTableRow().getItem());
                         data.setSelected(newValue);
-                        String selectedChart = data.getSelectedcharts().get(selectionColumnIndex);
-                        if (newValue) {
-                            if (!data.getSelectedcharts().contains(selectedChart)) {
 
-                                data.getSelectedcharts().add(selectedChart);
+                        //String selectedChart = data.getSelectedcharts().get(selectionColumnIndex);
+                        if (newValue) {
+                            if (!data.getSelectedcharts().contains(columnName)) {
+
+                                data.getSelectedcharts().add(columnName);
                             }
                         } else {
-                            data.getSelectedcharts().remove(selectedChart);
+                            data.getSelectedcharts().remove(columnName);
                         }
+
                     }
 
                     @Override
@@ -987,6 +989,9 @@ public class ChartPlugin implements TreePlugin {
         Boolean isEnergyUnit = false;
         Boolean isVolumeUnit = false;
         Boolean isMassUnit = false;
+        Boolean isPressureUnit = false;
+        Boolean isVolumeFlowUnit = false;
+
         JEVisUnit currentUnit = null;
         try {
             if (singleRow.getDataProcessor() != null
@@ -1033,6 +1038,26 @@ public class ChartPlugin implements TreePlugin {
         if (isMassUnit) for (
                 MassUnit mu : MassUnit.values())
             proNames.add(mu.toString());
+
+        for (
+                PressureUnit pu : PressureUnit.values()) {
+            if (pu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+                isPressureUnit = true;
+            }
+        }
+        if (isPressureUnit) for (
+                PressureUnit pu : PressureUnit.values())
+            proNames.add(pu.toString());
+
+        for (
+                VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
+            if (vfu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+                isVolumeFlowUnit = true;
+            }
+        }
+        if (isVolumeFlowUnit) for (
+                VolumeFlowUnit vfu : VolumeFlowUnit.values())
+            proNames.add(vfu.toString());
 
         ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
 

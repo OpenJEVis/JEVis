@@ -7,24 +7,19 @@ package org.jevis.jecalc.limits;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.constants.JEDataProcessorConstants.GapFillingBoundToSpecific;
-import org.jevis.commons.constants.JEDataProcessorConstants.GapFillingReferencePeriod;
-import org.jevis.commons.database.SampleHandler;
-import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jecalc.data.CleanDataAttribute;
 import org.jevis.jecalc.data.CleanDataAttributeJEVis;
 import org.jevis.jecalc.data.CleanInterval;
 import org.jevis.jecalc.data.ResourceManager;
+import org.jevis.jecalc.util.GapsAndLimits;
 import org.jevis.jecalc.workflow.ProcessStep;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,6 +33,7 @@ public class LimitsStep implements ProcessStep {
     private static final Logger logger = LogManager.getLogger(LimitsStep.class);
     CleanDataAttribute calcAttribute;
     private JEVisObject parentObject;
+    private List<JEVisSample> sampleCache;
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
@@ -64,7 +60,7 @@ public class LimitsStep implements ProcessStep {
         List<JsonGapFillingConfig> confGaps = calcAttribute.getGapFillingConfig();
 
         if (Objects.nonNull(confLimitsStep1)) {
-            //identify limitbreaking intervals
+            //identify limit breaking intervals
             List<LimitBreak> limitBreaksStep1 = identifyLimitBreaks(intervals, confLimitsStep1);
             List<LimitBreak> limitBreaksStep2 = identifyLimitBreaks(intervals, confLimitsStep2);
 
@@ -72,21 +68,28 @@ public class LimitsStep implements ProcessStep {
                 logger.info("No limit breaks identified.");
                 return;
             }
-            logger.info("{} limit breaks identified", limitBreaksStep2.size() + limitBreaksStep1.size());
+            logger.info("{} limit breaks for step 1 identified", limitBreaksStep1.size());
+            logger.info("{} limit breaks for step 2 identified", limitBreaksStep2.size());
 
+            try {
+                DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
+                DateTime lastDateForCache = calcAttribute.getFirstDate();
+
+                sampleCache = calcAttribute.getObject().getAttribute(CleanDataAttributeJEVis.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
+            } catch (Exception e) {
+                logger.error("No caching possible: " + e);
+            }
             for (JsonLimitsConfig limitsConfig : calcAttribute.getLimitsConfig()) {
                 if (calcAttribute.getLimitsConfig().indexOf(limitsConfig) == 0) {
                     for (LimitBreak limitBreak : limitBreaksStep1) {
                         Double firstValue = limitBreak.getFirstValue();
                         for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                            logger.info("start marking strange Nodes");
-                            for (JEVisSample smp : currentInterval.getRawSamples()) {
-                                JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentInterval.getTmpSamples().get(currentInterval.getRawSamples().indexOf(smp)).getValueAsDouble());
+                            logger.info("start marking peculiar samples");
+                            for (JEVisSample smp : currentInterval.getTmpSamples()) {
                                 String note = "";
-                                note += getNote(currentInterval);
+                                note += smp.getNote();
                                 note += ",limit(Step1)";
-                                sample.setNote(note);
-                                currentInterval.addTmpSample(sample);
+                                smp.setNote(note);
                             }
                         }
                     }
@@ -107,30 +110,33 @@ public class LimitsStep implements ProcessStep {
                                         }
                                     }
                                 }
+
+                                GapsAndLimits gal = new GapsAndLimits(intervals, calcAttribute, GapsAndLimits.GapsAndLimitsType.LIMITS_TYPE,
+                                        c, new ArrayList<>(), limitBreaksStep2, sampleCache);
+
                                 switch (c.getType()) {
                                     case GapFillingType.NONE:
                                         break;
                                     case GapFillingType.STATIC:
-                                        fillStatic(newLimitBreaks);
+                                        gal.fillStatic();
                                         break;
                                     case GapFillingType.INTERPOLATION:
-                                        fillInterpolation(newLimitBreaks);
+                                        gal.fillInterpolation();
                                         break;
                                     case GapFillingType.DEFAULT_VALUE:
-                                        Double defaultValue = Double.valueOf(c.getDefaultvalue());
-                                        fillDefault(newLimitBreaks, defaultValue);
+                                        gal.fillDefault();
                                         break;
                                     case GapFillingType.MINIMUM:
-                                        fillMinimum(newLimitBreaks, c);
+                                        gal.fillMinimum();
                                         break;
                                     case GapFillingType.MAXIMUM:
-                                        fillMaximum(newLimitBreaks, c);
+                                        gal.fillMaximum();
                                         break;
                                     case GapFillingType.MEDIAN:
-                                        fillMedian(newLimitBreaks, c);
+                                        gal.fillMedian();
                                         break;
                                     case GapFillingType.AVERAGE:
-                                        fillAverage(newLimitBreaks, c);
+                                        gal.fillAverage();
                                         break;
                                     default:
                                         break;
@@ -178,9 +184,9 @@ public class LimitsStep implements ProcessStep {
                     Double max = Double.parseDouble(lc.getMax());
 
                     if (sample == null || sample.getValueAsDouble() == null) {
+                        logger.error("- Limits Sample: {} min: {} max: {}" + sample, min, max);
                         throw new Exception("Error in identifyLimitBreaks, empty value in interval: " + currentInterval.getInterval());
                     }
-                    logger.error("- Limits Sample: {} min: {} max: {}" + sample, min, max);
 
                     Double sampleValue = sample.getValueAsDouble();
 
@@ -213,248 +219,4 @@ public class LimitsStep implements ProcessStep {
 
         return limitBreaks;
     }
-
-    private void fillStatic(List<LimitBreak> breaks) throws Exception {
-        for (LimitBreak limitBreak : breaks) {
-            Double firstValue = limitBreak.getFirstValue();
-            for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                try {
-                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
-                    String note = "";
-                    note += getNote(currentInterval);
-                    note += ",limit(Static)";
-                    sample.setNote(note);
-                    currentInterval.addTmpSample(sample);
-                } catch (Exception ex) {
-                    throw new Exception("Error while fillStatic", ex);
-                }
-            }
-        }
-    }
-
-    private void fillInterpolation(List<LimitBreak> breaks) throws Exception {
-        for (LimitBreak limitBreak : breaks) {
-            Double firstValue = limitBreak.getFirstValue();
-            Double lastValue = limitBreak.getLastValue();
-            int size = limitBreak.getIntervals().size() + 1; //if there is a Limit Break of 2, then you have 3 steps
-            if (firstValue != null && lastValue != null) {
-                Double stepSize = (lastValue - firstValue) / size;
-                Double currenValue = firstValue + stepSize;
-                for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                    try {
-                        JEVisSample sample = new VirtualSample(currentInterval.getDate(), currenValue);
-                        String note = "";
-                        note += getNote(currentInterval);
-                        note += ",limit(Interpolation)";
-                        sample.setNote(note);
-                        currenValue += stepSize;
-                        currentInterval.addTmpSample(sample);
-                    } catch (Exception ex) {
-                        new Exception("Error while fillInterpolation", ex);
-                    }
-                }
-            }
-        }
-    }
-
-    private void fillDefault(List<LimitBreak> breaks, Double defaultValue) throws Exception {
-        for (LimitBreak limitBreak : breaks) {
-            for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                try {
-                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), defaultValue);
-                    String note = "";
-                    note += getNote(currentInterval);
-                    note += ",limit(Default)";
-                    sample.setNote(note);
-                    currentInterval.addTmpSample(sample);
-                } catch (Exception ex) {
-                    throw new Exception("Error fillDefault", ex);
-                }
-            }
-        }
-    }
-
-    private Double getLimitBreakValue(DateTime lastDate, JsonGapFillingConfig c) throws JEVisException {
-
-        return getSpecificValue(lastDate, c);
-    }
-
-    private Double getSpecificValue(DateTime lastDate, JsonGapFillingConfig c) throws JEVisException {
-
-        String bindToSpecificValue = c.getBindtospecific();
-        if (Objects.isNull(bindToSpecificValue)) bindToSpecificValue = "";
-        SampleHandler sh = new SampleHandler();
-        List<JEVisSample> listSamples = null;
-        List<JEVisSample> boundListSamples = new ArrayList<>();
-        DateTime firstDate;
-        switch (bindToSpecificValue) {
-            default:
-                firstDate = getFirstDate(lastDate, c);
-                List<JEVisSample> listSamplesNew = new ArrayList<>();
-                listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
-                for (JEVisSample sample : listSamples) {
-                    if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                        listSamplesNew.add(sample);
-                    }
-                }
-                return calcValueWithType(listSamplesNew, c);
-
-            case (GapFillingBoundToSpecific.WEEKDAY):
-                boundListSamples.clear();
-                firstDate = getFirstDate(lastDate, c);
-                listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
-                for (JEVisSample sample : listSamples) {
-                    if (sample.getTimestamp().getDayOfWeek() == lastDate.getDayOfWeek()) {
-                        if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                            boundListSamples.add(sample);
-                        }
-                    }
-                }
-                return calcValueWithType(boundListSamples, c);
-            case (GapFillingBoundToSpecific.WEEKOFYEAR):
-                boundListSamples.clear();
-                firstDate = getFirstDate(lastDate, c);
-                listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
-                for (JEVisSample sample : listSamples) {
-                    if (sample.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
-                        if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                            boundListSamples.add(sample);
-                        }
-                    }
-                }
-                return calcValueWithType(boundListSamples, c);
-            case (GapFillingBoundToSpecific.MONTHOFYEAR):
-                boundListSamples.clear();
-                firstDate = getFirstDate(lastDate, c);
-                listSamples = sh.getSamplesInPeriod(parentObject, CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME, firstDate, lastDate);
-                for (JEVisSample sample : listSamples) {
-                    if (sample.getTimestamp().getMonthOfYear() == lastDate.getMonthOfYear()) {
-                        if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
-                            boundListSamples.add(sample);
-                        }
-                    }
-                }
-                return calcValueWithType(boundListSamples, c);
-        }
-    }
-
-    private DateTime getFirstDate(DateTime lastDate, JsonGapFillingConfig c) {
-        final String referencePeriod = c.getReferenceperiod();
-        Integer referencePeriodCount = Integer.parseInt(c.getReferenceperiodcount());
-        switch (referencePeriod) {
-            case (GapFillingReferencePeriod.DAY):
-                return lastDate.minusDays(referencePeriodCount);
-            case (GapFillingReferencePeriod.WEEK):
-                return lastDate.minusWeeks(referencePeriodCount);
-            case (GapFillingReferencePeriod.MONTH):
-                return lastDate.minusMonths(referencePeriodCount);
-            case (GapFillingReferencePeriod.YEAR):
-                return lastDate.minusYears(referencePeriodCount);
-            default:
-                return lastDate.minusDays(referencePeriodCount);
-        }
-    }
-
-    private Double calcValueWithType(List<JEVisSample> listSamples, JsonGapFillingConfig c) throws
-            JEVisException {
-        final String typeOfSubstituteValue = c.getType();
-        if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
-            switch (typeOfSubstituteValue) {
-                case GapFillingType.MEDIAN:
-                    Double medianValue = 0d;
-                    List<Double> sortedArray = new ArrayList<>();
-                    for (JEVisSample sample : listSamples) {
-                        sortedArray.add(sample.getValueAsDouble());
-                    }
-                    Collections.sort(sortedArray);
-                    medianValue = sortedArray.get(sortedArray.size() / 2);
-                    return medianValue;
-                case GapFillingType.AVERAGE:
-                    Double averageValue = 0d;
-                    for (JEVisSample sample : listSamples) {
-                        averageValue += sample.getValueAsDouble();
-                    }
-                    averageValue = averageValue / listSamples.size();
-                    return averageValue;
-                default:
-                    break;
-            }
-        }
-        return 0d;
-    }
-
-    private void fillMinimum(List<LimitBreak> breaks, JsonGapFillingConfig c) throws Exception {
-
-        for (LimitBreak limitBreak : breaks) {
-            for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                try {
-                    Double value = getLimitBreakValue(currentInterval.getDate(), c);
-                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                    String note = "";
-                    note += getNote(currentInterval);
-                    note += ",limit(Minimum)";
-                    sample.setNote(note);
-                    currentInterval.addTmpSample(sample);
-                } catch (Exception ex) {
-                    throw new Exception("Error while fillMinimum", ex);
-                }
-            }
-        }
-    }
-
-    private void fillMaximum(List<LimitBreak> breaks, JsonGapFillingConfig c) throws Exception {
-
-        for (LimitBreak limitBreak : breaks) {
-            for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                try {
-                    Double value = getLimitBreakValue(currentInterval.getDate(), c);
-                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                    String note = "";
-                    note += getNote(currentInterval);
-                    note += ",limit(Maximum)";
-                    sample.setNote(note);
-                    currentInterval.addTmpSample(sample);
-                } catch (Exception ex) {
-                    throw new Exception("Error while fillMaximun", ex);
-                }
-            }
-        }
-    }
-
-    private void fillMedian(List<LimitBreak> breaks, JsonGapFillingConfig c) throws Exception {
-        for (LimitBreak limitBreak : breaks) {
-            for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                try {
-                    Double value = getLimitBreakValue(currentInterval.getDate(), c);
-                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                    String note = "";
-                    note += getNote(currentInterval);
-                    note += ",limit(Median)";
-                    sample.setNote(note);
-                    currentInterval.addTmpSample(sample);
-                } catch (Exception ex) {
-                    throw new Exception("Error while fillMedian", ex);
-                }
-            }
-        }
-    }
-
-    private void fillAverage(List<LimitBreak> breaks, JsonGapFillingConfig c) throws Exception {
-        for (LimitBreak limitBreak : breaks) {
-            for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                try {
-                    Double value = getLimitBreakValue(currentInterval.getDate(), c);
-                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
-                    String note = "";
-                    note += getNote(currentInterval);
-                    note += ",limit(Average)";
-                    sample.setNote(note);
-                    currentInterval.addTmpSample(sample);
-                } catch (Exception ex) {
-                    throw new Exception("Error while fillAverage", ex);
-                }
-            }
-        }
-    }
-
 }

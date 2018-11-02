@@ -18,6 +18,16 @@ public class ChartUnits {
         Unit _l2 = NonSI.LITRE;
         Unit _m3 = SI.CUBIC_METRE;
 
+        Unit _literPerSecond = NonSI.LITER.divide(SI.SECOND);
+        Unit _literPerMinute = NonSI.LITER.divide(NonSI.MINUTE);
+        Unit _literPerHour = NonSI.LITER.divide(NonSI.HOUR);
+
+        Unit _cubicMeterPerSecond = SI.CUBIC_METRE.divide(SI.SECOND);
+        Unit _cubicMeterPerMinute = SI.CUBIC_METRE.divide(NonSI.MINUTE);
+        Unit _cubicMeterPerHour = SI.CUBIC_METRE.divide(NonSI.HOUR);
+
+        Unit _bar = NonSI.BAR;
+
         Unit _W = SI.WATT;
         Unit _kW = SI.KILO(SI.WATT);
         Unit _MW = SI.MEGA(SI.WATT);
@@ -33,6 +43,16 @@ public class ChartUnits {
         final JEVisUnit l = new JEVisUnitImp(_l);
         final JEVisUnit l2 = new JEVisUnitImp(_l2);
         final JEVisUnit m3 = new JEVisUnitImp(_m3);
+
+        final JEVisUnit literPerSecond = new JEVisUnitImp(_literPerSecond);
+        final JEVisUnit literPerMinute = new JEVisUnitImp(_literPerMinute);
+        final JEVisUnit literPerHour = new JEVisUnitImp(_literPerHour);
+
+        final JEVisUnit cubicMeterPerSecond = new JEVisUnitImp(_cubicMeterPerSecond);
+        final JEVisUnit cubicMeterPerMinute = new JEVisUnitImp(_cubicMeterPerMinute);
+        final JEVisUnit cubicMeterPerHour = new JEVisUnitImp(_cubicMeterPerHour);
+
+        final JEVisUnit bar = new JEVisUnitImp(_bar);
 
         final JEVisUnit W = new JEVisUnitImp(_W);
         final JEVisUnit kW = new JEVisUnitImp(_kW);
@@ -79,6 +99,27 @@ public class ChartUnits {
                 break;
             case "L":
                 result = l;
+                break;
+            case "L/s":
+                result = literPerSecond;
+                break;
+            case "L/m":
+                result = literPerMinute;
+                break;
+            case "L/h":
+                result = literPerHour;
+                break;
+            case "m³/s":
+                result = cubicMeterPerSecond;
+                break;
+            case "m³/m":
+                result = cubicMeterPerMinute;
+                break;
+            case "m³/h":
+                result = cubicMeterPerHour;
+                break;
+            case "bar":
+                result = bar;
                 break;
             default:
                 break;

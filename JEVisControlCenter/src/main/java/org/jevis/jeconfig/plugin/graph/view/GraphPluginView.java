@@ -71,7 +71,7 @@ public class GraphPluginView implements Plugin, Observer {
     private boolean firstStart = true;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
-        this.dataModel = new GraphDataModel();
+        this.dataModel = new GraphDataModel(ds);
         this.dataModel.addObserver(this);
 
         //this.controller = new GraphController(this, dataModel);
@@ -130,7 +130,7 @@ public class GraphPluginView implements Plugin, Observer {
 
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
 
                         newAnalysis();
 
@@ -182,7 +182,7 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     private void newAnalysis() {
-        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel, toolBarView.getSelectionTree());
+        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel, null);
 
         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
