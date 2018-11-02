@@ -1,0 +1,36 @@
+{
+  "name": "JEDataProcessor",
+  "description": "",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JEDataProcessor",
+      "end": "Service",
+      "type": 0
+    },
+    {
+      "start": "JEDataProcessor",
+      "end": "Service Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enable",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEDataProcessor"
+    },
+    {
+      "name": "Max Number Threads",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEDataProcessor"
+    }
+  ]
+}

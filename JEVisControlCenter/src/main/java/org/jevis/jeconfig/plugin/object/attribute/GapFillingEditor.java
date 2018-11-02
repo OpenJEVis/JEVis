@@ -41,8 +41,10 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +74,6 @@ public class GapFillingEditor implements AttributeEditor {
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
-
     }
 
     /**
@@ -134,7 +135,7 @@ public class GapFillingEditor implements AttributeEditor {
         if (hasChanged() && delete) {
             _attribute.deleteAllSample();
         } else if (hasChanged() && _newSample != null) {
-            //TODO: check if tpye is ok, maybe better at imput time
+            //TODO: check if type is ok, maybe better at input time
             _newSample.commit();
             _lastSample = _newSample;
             _newSample = null;
@@ -293,7 +294,9 @@ public class GapFillingEditor implements AttributeEditor {
         JFXComboBox typeBox = new JFXComboBox(optionsType);
         JFXComboBox referencePeriodBox = new JFXComboBox(optionsReferencePeriods);
         JFXComboBox boundSpecificBox = new JFXComboBox(optionsBoundSpecifics);
-        JFXTextField referencePeriodCountText = new JFXTextField();
+        NumberSpinner referencePeriodCountText = new NumberSpinner(new BigDecimal(1), new BigDecimal(1));
+        referencePeriodCountText.setMin(new BigDecimal(1));
+        referencePeriodCountText.setMax(new BigDecimal(5));
         JFXTextField boundaryText = new JFXTextField();
         JFXTextField defaultValueText = new JFXTextField();
 
@@ -302,9 +305,8 @@ public class GapFillingEditor implements AttributeEditor {
          */
         FXCollections.observableArrayList(typeBox, boundaryText, defaultValueText, referencePeriodBox, boundSpecificBox, referencePeriodCountText)
                 .forEach(field -> field.setPrefWidth(150));
-        FXCollections.observableArrayList(referencePeriodCountText, boundaryText, defaultValueText)
+        FXCollections.observableArrayList(boundaryText, defaultValueText)
                 .forEach(field -> field.setAlignment(Pos.CENTER_RIGHT));
-
 
         /**
          * Fill configuration values into gui elements
@@ -312,7 +314,6 @@ public class GapFillingEditor implements AttributeEditor {
         typeBox.getSelectionModel().select(config.getType());
         boundaryText.setText((Long.parseLong(config.getBoundary()) / 1000) + ""); //msec -> sec
         defaultValueText.setText(config.getDefaultvalue());
-        referencePeriodCountText.setText(config.getReferenceperiodcount());
 
         typeBox.getSelectionModel().select(
                 optionsType.contains(config.getType()) ? config.getType()
@@ -320,6 +321,16 @@ public class GapFillingEditor implements AttributeEditor {
         referencePeriodBox.getSelectionModel().select(
                 optionsReferencePeriods.contains(config.getReferenceperiod()) ? config.getReferenceperiod()
                         : GapFillingReferencePeriod.NONE);
+        BigDecimal parsedValue = new BigDecimal(145);
+        try {
+            if (config.getReferenceperiodcount() != null)
+                parsedValue = new BigDecimal(Long.parseLong(config.getReferenceperiodcount()));
+        } catch (Exception e) {
+            logger.error("Parsing Exception: ", e);
+        }
+
+        referencePeriodCountText.setNumber(parsedValue);
+
         boundSpecificBox.getSelectionModel().select(
                 optionsBoundSpecifics.contains(config.getBindtospecific()) ? config.getBindtospecific()
                         : GapFillingBoundToSpecific.NONE);
@@ -337,8 +348,10 @@ public class GapFillingEditor implements AttributeEditor {
         boundaryText.textProperty().addListener((observable, oldValue, newValue) -> {
             config.setBoundary((Long.parseLong(newValue) * 1000l) + "");//sec -> msec
         });
-        referencePeriodCountText.textProperty().addListener((observable, oldValue, newValue) -> {
-            config.setReferenceperiodcount(newValue);
+
+        referencePeriodCountText.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.intValue() <= 6 && newValue.intValue() > 0)
+                config.setReferenceperiodcount(newValue.toPlainString());
         });
 
         referencePeriodBox.valueProperty().addListener((observable, oldValue, newValue) -> {

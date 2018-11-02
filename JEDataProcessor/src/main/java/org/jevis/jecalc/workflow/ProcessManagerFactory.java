@@ -30,6 +30,7 @@ import org.jevis.jecalc.scaling.ScalingStep;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * @author broder
@@ -38,6 +39,7 @@ public class ProcessManagerFactory {
 
     private static final Logger logger = LogManager.getLogger(ProcessManagerFactory.class);
     public static JEVisDataSource jevisDataSource;
+    private static ForkJoinPool forkJoinPool;
 
     public static List<ProcessManager> getProcessManagerList() throws Exception {
         CommandLineParser cmd = CommandLineParser.getInstance();
@@ -63,7 +65,37 @@ public class ProcessManagerFactory {
             processManagers = initProcessManagersFromOffline();
         }
 
+        initializeThreadPool();
+
+        if (!checkServiceStatus()) processManagers.clear();
+
         return processManagers;
+    }
+
+    private static Boolean checkServiceStatus() {
+        Boolean enabled = true;
+        try {
+            JEVisClass dataProcessorClass = jevisDataSource.getJEVisClass("JEDataProcessor");
+            List<JEVisObject> listDataProcessorObjects = jevisDataSource.getObjects(dataProcessorClass, false);
+            enabled = listDataProcessorObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
+            logger.info("Service is enabled is " + enabled);
+        } catch (Exception e) {
+
+        }
+        return enabled;
+    }
+
+    private static void initializeThreadPool() {
+        Integer threadCount = 4;
+        try {
+            JEVisClass dataProcessorClass = jevisDataSource.getJEVisClass("JEDataProcessor");
+            List<JEVisObject> listDataProcessorObjects = jevisDataSource.getObjects(dataProcessorClass, false);
+            threadCount = listDataProcessorObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
+            logger.info("Set Thread count to: " + threadCount);
+        } catch (Exception e) {
+
+        }
+        forkJoinPool = new ForkJoinPool(threadCount);
     }
 
     private static boolean establishConnection() {
@@ -273,5 +305,9 @@ public class ProcessManagerFactory {
     public enum ProcessType {
 
         clean, functional
+    }
+
+    public static ForkJoinPool getForkJoinPool() {
+        return forkJoinPool;
     }
 }

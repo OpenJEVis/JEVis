@@ -72,7 +72,10 @@ public class LimitsStep implements ProcessStep {
             logger.info("{} limit breaks for step 2 identified", limitBreaksStep2.size());
 
             try {
-                sampleCache = calcAttribute.getObject().getAttribute(CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME).getAllSamples();
+                DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
+                DateTime lastDateForCache = calcAttribute.getFirstDate();
+
+                sampleCache = calcAttribute.getObject().getAttribute(CleanDataAttributeJEVis.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
             } catch (Exception e) {
                 logger.error("No caching possible: " + e);
             }
