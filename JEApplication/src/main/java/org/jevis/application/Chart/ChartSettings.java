@@ -6,7 +6,7 @@ public class ChartSettings {
 
     private String name;
     private ChartType chartType;
-    private Double height = 300d;
+    private Double height;
 
     public ChartSettings(String name) {
         this.name = name;
