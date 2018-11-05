@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -48,12 +48,11 @@ import org.jevis.application.resource.ResourceLoader;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SelectTargetDialog2 {
 
-//    private VBox root = new VBox();
+    //    private VBox root = new VBox();
     private Button ok = new Button("OK");
     private Button clear = new Button("Clear");
     private String ICON = "1404313956_evolution-tasks.png";
@@ -62,15 +61,6 @@ public class SelectTargetDialog2 {
     private Response _response = Response.CANCEL;
     private JEVisTree tree;
     private SimpleTargetPlugin stp = new SimpleTargetPlugin();
-
-    public enum Response {
-
-        OK, CANCEL
-    }
-
-    public enum MODE {
-        OBJECT, ATTRIBUTE
-    }
     private MODE mode = MODE.OBJECT;
 
     public Response show(Stage owner, JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
@@ -104,9 +94,6 @@ public class SelectTargetDialog2 {
         stp.setAllowMultySelection(allowMulty);
     }
 
-
-
-
     private VBox build(JEVisDataSource ds, String title, List<UserSelection> uselection) {
         VBox root = new VBox(0);
 //        root.setPadding(new Insets(10));
@@ -130,10 +117,10 @@ public class SelectTargetDialog2 {
         tree.openUserSelection(uselection);
         stp.setUserSelection(uselection);
         if (mode == MODE.ATTRIBUTE) {
-            stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
+            stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
             advanced.setSelected(true);
         } else if (mode == MODE.OBJECT) {
-            stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
+            stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
             advanced.setSelected(false);
         }
 
@@ -208,13 +195,10 @@ public class SelectTargetDialog2 {
         });
 
 
-
-
-
         Region spacer = new Region();
-        HBox.setHgrow(spacer,Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        buttonPanel.getChildren().setAll(advanced,spacer,ok, cancel);
+        buttonPanel.getChildren().setAll(advanced, spacer, ok, cancel);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(5));
 
@@ -230,6 +214,16 @@ public class SelectTargetDialog2 {
 
     public List<UserSelection> getUserSelection() {
         return stp.getUserSelection();
+    }
+
+
+    public enum Response {
+
+        OK, CANCEL
+    }
+
+    public enum MODE {
+        OBJECT, ATTRIBUTE
     }
 
 }

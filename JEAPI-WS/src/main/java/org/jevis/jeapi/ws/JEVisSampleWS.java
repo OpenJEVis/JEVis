@@ -39,7 +39,6 @@ import java.util.Locale;
 public class JEVisSampleWS implements JEVisSample {
 
     public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
-    private DateTime timestamp;
     private JEVisAttribute attribute;
     private JsonSample json;
     private JEVisDataSourceWS ds;

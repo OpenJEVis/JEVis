@@ -117,12 +117,12 @@ public class JEVisClassHelper {
                         String relKey = rel.getStart() + ":" + rel.getEnd() + ":" + rel.getType();
                         clRelationships.put(relKey, rel);
                     } catch (Exception ex) {
-                        logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
+                        logger.error("Error while listing classes relationships[{}]", jc.getKey(), ex);
                     }
                 }
 
             } catch (Exception ex) {
-                logger.error("Error while listing classes[" + jc.getKey() + "]", ex);
+                logger.error("Error while listing classes[{}]", jc.getKey(), ex);
             }
         }
 
@@ -151,7 +151,7 @@ public class JEVisClassHelper {
                         addHeirs(classMap, superClass);
                     }
                 } catch (Exception ex) {
-                    logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
+                    logger.error("Error while listing classes relationships[]", jc.getKey(), ex);
                 }
             }
 

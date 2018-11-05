@@ -23,6 +23,7 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -36,6 +37,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.dialog.ProgressForm;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -84,7 +86,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         this.attribute = attribute;
         setEditable(true);
 
-        setPlaceholder(new Label("No Data"));
+        setPlaceholder(new Label(I18n.getInstance().getString("sampleeditor.confirmationdialog.nodata")));
 
 
         setMinWidth(555d);//TODo: replace Dirty workaround
@@ -93,10 +95,10 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 
-        TableColumn selectionColumn = createSelectionColumn("Select");
-        TableColumn timeStampColumn = createTimeStampColumn("Timestamp");
-        TableColumn valueCol = createValueColumn("Value");
-        TableColumn noteColumn = createNoteColumn("Note");
+        TableColumn selectionColumn = createSelectionColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.select"));
+        TableColumn timeStampColumn = createTimeStampColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.time"));
+        TableColumn valueCol = createValueColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.value"));
+        TableColumn noteColumn = createNoteColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.note"));
 
 
         /**
@@ -104,7 +106,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
          */
         setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 //        setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
-        selectionColumn.setPrefWidth(60);
+        selectionColumn.setPrefWidth(70);
         timeStampColumn.setPrefWidth(155);
         noteColumn.setPrefWidth(200);
         valueCol.setPrefWidth(310);
@@ -117,7 +119,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         loadSamples(samples);
         setItems(data);
         editableProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Table.edibale: " + newValue);
+//            System.out.println("Table.editable: " + newValue);
         });
 
     }
@@ -159,6 +161,26 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     }
 
     /**
+     * Return the the oldest date loaded after change
+     *
+     * @return
+     */
+    public DateTime getMinDate() {
+        findMinMaxDate();
+        return minDate;
+    }
+
+    /**
+     * Return the newest date loaded after change
+     *
+     * @return
+     */
+    public DateTime getMaxDate() {
+        findMinMaxDate();
+        return maxDate;
+    }
+
+    /**
      * will be true if the selected data allow an delete in between action
      *
      * @return
@@ -190,7 +212,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                     try {
                         attribute.deleteSamplesBetween(tableSample.getJevisSample().getTimestamp(), tableSample.getJevisSample().getTimestamp());
                     } catch (Exception ex) {
-                        logger.error("Error while deleteing sample", ex);
+                        logger.error("Error while deleting samples", ex);
                     }
                 }
             });
@@ -204,20 +226,20 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     public void deleteInBetween() {
         if (deleteInBetween.getValue()) {
             DateTime firstDate = null;
-            DateTime secoundDate = null;
+            DateTime secondDate = null;
             for (TableSample tableSample : changedSamples) {
                 if (firstDate == null) {
                     firstDate = tableSample.getTimeStamp();
                 } else if (firstDate.isBefore(tableSample.getTimeStamp())) {
-                    secoundDate = tableSample.getTimeStamp();
+                    secondDate = tableSample.getTimeStamp();
                 } else {
-                    secoundDate = firstDate;
+                    secondDate = firstDate;
                     firstDate = tableSample.getTimeStamp();
                 }
             }
             try {
-                if (firstDate != null && secoundDate != null) {
-                    attribute.deleteSamplesBetween(firstDate, secoundDate);
+                if (firstDate != null && secondDate != null) {
+                    attribute.deleteSamplesBetween(firstDate, secondDate);
                     reloadSamples();
                 } else {
                     logger.warn("second timestamp is before first");
@@ -231,6 +253,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     }
 
     public void reloadSamples() {
+        findMinMaxDate();
         if (minDate != null && maxDate != null) {
             List<JEVisSample> samples = attribute.getSamples(minDate, maxDate);
             loadSamples(samples);
@@ -238,6 +261,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     }
 
     private void selectionChanged() {
+        logger.debug("selectionChanged: {}", changedSamples.size());
         deleteInBetween.setValue(changedSamples.size() == 2);
         deleteSelected.setValue(!changedSamples.isEmpty());
 
@@ -248,20 +272,43 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      * Try to commit all changed to the JEVisDataSource
      */
     public void commitChanges() {
-        changedSamples.forEach(tableSample -> {
-            try {
-                tableSample.commit();
-            } catch (Exception ex) {
-                logger.error("Error while committing sample", ex);
+
+        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
+
+        Task<Void> upload = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+
+                changedSamples.forEach(tableSample -> {
+                    try {
+                        tableSample.commit();
+                    } catch (Exception ex) {
+                        logger.error("Error while committing sample", ex);
+                    }
+                });
+
+                Thread.sleep(60);
+                reloadSamples();
+                return null;
             }
-        });
-    }
+        };
+        upload.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-
-    public void debugStuff() {
-        getItems().forEach(tableSample -> {
-            System.out.println("Sample: " + tableSample);
+        upload.setOnCancelled(event -> {
+            logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
+            pForm.getDialogStage().hide();
         });
+
+        upload.setOnFailed(event -> {
+            logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
+            pForm.getDialogStage().hide();
+        });
+
+        pForm.activateProgressBar(upload);
+        pForm.getDialogStage().show();
+
+        new Thread(upload).start();
+
     }
 
 
@@ -324,24 +371,20 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TextField textField = new TextField(dateViewFormat.print(item));
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TextField textField = new TextField(dateViewFormat.print(tableSample.getTimeStamp()));
                             setDefaultFieldStyle(this, textField);
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     DateTime newDate = dateViewFormat.parseDateTime(textField.getText());
 
+
                                     List<JEVisSample> exitingSample = attribute.getSamples(newDate, newDate);
                                     if (!exitingSample.isEmpty()) {
-                                        setErrorCellStyle(this, new Exception("Timestamp already exists"));
+                                        setErrorCellStyle(this, new Exception(I18n.getInstance().getString("sampleeditor.confirmationdialog.error.exists")));
                                     }
 
-                                    /**
-                                     *       - ?add also an date and time selector gui?
-                                     *       - if error set background color red and show error while save event
-                                     **/
-
-                                    TableSample tableSample = (TableSample) getTableRow().getItem();
                                     tableSample.setTimeStamp(newDate);
                                     setDefaultCellStyle(this);
                                 } catch (Exception ex) {
@@ -393,6 +436,10 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             try {
                                 TableSample tableSample = (TableSample) getTableRow().getItem();
                                 CheckBox checkBox = new CheckBox();
+                                checkBox.setSelected(tableSample.isSelected());
+                                checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                                    tableSample.setIsSelected(newValue);
+                                });
                                 setDefaultCellStyle(this);
                                 HBox box = new HBox(checkBox);
                                 box.setAlignment(Pos.BASELINE_CENTER);
@@ -409,8 +456,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         });
 
         ContextMenu menu = new ContextMenu();
-        MenuItem selectAll = new MenuItem("Select all");
-        MenuItem deselectAll = new MenuItem("deselect all");
+        MenuItem selectAll = new MenuItem(I18n.getInstance().getString("sampleeditor.confirmationdialog.selectall"));
+        MenuItem deselectAll = new MenuItem(I18n.getInstance().getString("sampleeditor.confirmationdialog.deselect"));
 
         selectAll.setOnAction(event -> {
             getItems().forEach(tableSample -> {
@@ -504,8 +551,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-
-                            TextField textField = new TextField(item.toString());
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TextField textField = new TextField(tableSample.getValue().toString());
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
                             setDefaultFieldStyle(this, textField);
@@ -546,7 +593,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     setDefaultCellStyle(this);
-                                    TableSample tableSample = (TableSample) getTableRow().getItem();
+
                                     tableSample.setValue(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);
@@ -639,9 +686,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
 //                            TextField textField = new TextField(item.toString());
-                            TextArea textField = new TextArea(item.toString());
+                            TextArea textField = new TextArea(tableSample.getValue().toString());
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
 //                            Button expand = new Button(null, JEConfig.getImage("if_ExpandMore.png", 8, 8));
@@ -676,7 +723,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                     setDefaultCellStyle(this);
 
 
-                                    TableSample tableSample = (TableSample) getTableRow().getItem();
                                     tableSample.setValue(newValue + "");
 
                                 } catch (Exception ex) {
@@ -717,8 +763,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-
-                            TextField textField = new TextField(item.toString());
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TextField textField = new TextField(tableSample.getValue().toString());
                             setDefaultFieldStyle(this, textField);
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
@@ -747,7 +793,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     setDefaultCellStyle(this);
-                                    TableSample tableSample = (TableSample) getTableRow().getItem();
+
                                     tableSample.setValue(Long.parseLong(newValue));
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);

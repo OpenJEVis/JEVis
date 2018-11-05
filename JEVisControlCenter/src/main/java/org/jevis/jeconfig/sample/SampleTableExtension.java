@@ -22,6 +22,7 @@ package org.jevis.jeconfig.sample;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -36,6 +37,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.application.dialog.ProgressForm;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.jevis.jeconfig.tool.I18n;
@@ -79,22 +81,28 @@ public class SampleTableExtension implements SampleEditorExtension {
         Button deleteAll = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"));
 
         deleteAll.setOnAction(event -> {
-            ((SampleTable) table).debugStuff();
-//            try {
-//                ConfirmDialog dia = new ConfirmDialog();
-//                if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
-//                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"),
-//                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.message")) == ConfirmDialog.Response.YES) {
-//
-//                    att.deleteAllSample();
-//                    setSamples(att, att.getAllSamples());
-//                    update();
-//                    logger.info("Deleted all Samples of Attribute " + att.getName() +
-//                            " of Object " + att.getObject().getName() + " of ID " + att.getObject().getID());
-//                }
-//            } catch (Exception ex) {
-//                logger.fatal(ex);
-//            }
+            try {
+                ConfirmDialog dia = new ConfirmDialog();
+                if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
+                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"),
+                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.message")) == ConfirmDialog.Response.YES) {
+
+                    taskWithAnimation(new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                            att.deleteAllSample();
+                            setSamples(att, att.getAllSamples());
+                            update();
+                            return null;
+                        }
+                    });
+
+                    logger.info("Deleted all Samples of Attribute " + att.getName() +
+                            " of Object " + att.getObject().getName() + " of ID " + att.getObject().getID());
+                }
+            } catch (Exception ex) {
+                logger.fatal(ex);
+            }
         });
 
         Button deleteSelected = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"));
@@ -109,8 +117,16 @@ public class SampleTableExtension implements SampleEditorExtension {
                         if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.title"),
                                 I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"),
                                 I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.message")) == ConfirmDialog.Response.YES) {
-                            table.deleteSelectedProperty();
-                            update();
+                            taskWithAnimation(new Task<Void>() {
+                                @Override
+                                protected Void call() throws Exception {
+                                    table.deleteSelectedData();
+                                    update();
+                                    return null;
+                                }
+                            });
+
+
                         }
 
                     } catch (Exception ex) {
@@ -122,7 +138,6 @@ public class SampleTableExtension implements SampleEditorExtension {
         Button saveButton = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.save"));
         saveButton.disableProperty().bind(table.needSaveProperty().not());
         saveButton.setOnAction(event -> {
-            table.debugStuff();
             table.commitChanges();
             update();
         });
@@ -176,8 +191,16 @@ public class SampleTableExtension implements SampleEditorExtension {
 //                                        + ISODateTimeFormat.dateTime().print(endDate) +
                                         I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message3")) == ConfirmDialog.Response.YES) {
 
-                            table.deleteInBetween();
-                            update();
+                            taskWithAnimation(new Task<Void>() {
+                                @Override
+                                protected Void call() throws Exception {
+                                    table.deleteInBetween();
+                                    update();
+                                    return null;
+                                }
+                            });
+
+
                         }
 
 
@@ -196,13 +219,11 @@ public class SampleTableExtension implements SampleEditorExtension {
                 }
         );
 
-        disableEditing.addListener((observable, oldValue, newValue) -> {
-            System.out.println("Disable tree: " + newValue);
-            table.setEditable(!newValue);
-            addNewSample.setDisable(newValue);
-
-
-        });
+//        disableEditing.addListener((observable, oldValue, newValue) -> {
+//            System.out.println("Disable tree: " + newValue);
+//            table.setEditable(!newValue);
+//            addNewSample.setDisable(newValue);
+//        });
 
         box.getChildren()
                 .setAll(addNewSample, deleteAll, deleteSelected, deleteInBetween, saveButton);
@@ -225,6 +246,29 @@ public class SampleTableExtension implements SampleEditorExtension {
         _view.setCenter(gp);
 //        _view.setCenter(box);
 //        _view.setCenter(table);
+    }
+
+    public void taskWithAnimation(Task<Void> task) {
+
+        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
+
+        task.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+        task.setOnCancelled(event -> {
+            logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
+            pForm.getDialogStage().hide();
+        });
+
+        task.setOnFailed(event -> {
+            logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
+            pForm.getDialogStage().hide();
+        });
+
+        pForm.activateProgressBar(task);
+        pForm.getDialogStage().show();
+
+        new Thread(task).start();
+
     }
 
     @Override

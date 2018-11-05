@@ -507,7 +507,8 @@ public class TreeHelper {
         List<UserSelection> userSeclection = new ArrayList<>();
         JEVisClass inputClass = calcObject.getDataSource().getJEVisClass("Input");
 
-        SelectTargetDialog2.Response response = dia.show(null, calcObject.getDataSource(), "Input Selection", userSeclection, SelectTargetDialog2.MODE.OBJECT);
+        SelectTargetDialog2.Response response = dia.show(null,
+                calcObject.getDataSource(), "Input Selection", userSeclection, SelectTargetDialog2.MODE.OBJECT);
 
         if (response == SelectTargetDialog2.Response.OK) {
             for (UserSelection us : dia.getUserSelection()) {
