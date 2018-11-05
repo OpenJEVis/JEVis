@@ -19,7 +19,10 @@
  */
 package org.jevis.jeconfig.sample;
 
+import com.jfoenix.controls.JFXDatePicker;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -44,15 +47,12 @@ import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
-import org.jevis.jeconfig.tool.datepicker.DatePicker;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * GUI Dialog to configure attributes and there sample.
@@ -63,16 +63,20 @@ import java.util.Locale;
 public class SampleEditor {
     private static final Logger logger = LogManager.getLogger(SampleEditor.class);
     public static String ICON = "1415314386_Graph.png";
+    final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
+    private final List<SampleEditorExtension> extensions = new ArrayList<>();
+    List<JEVisSample> samples = new ArrayList<>();
     private boolean _dataChanged = false;
     private SampleEditorExtension _visibleExtension = null;
     private DateTime _from = null;
     private DateTime _until = null;
-    private final List<SampleEditorExtension> extensions = new ArrayList<>();
     private JEVisAttribute _attribute;
     private Process _dataProcessor;
     private List<JEVisObject> _dataProcessors = new ArrayList<>();
-
     private AggregationPeriod _period = AggregationPeriod.NONE;
+    private Response response = Response.CANCEL;
+    private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
+
 
     /**
      * @param owner
@@ -107,7 +111,6 @@ public class SampleEditor {
 
         ok.setDefaultButton(true);
 
-//        Button export = new Button("Export");
         Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
         cancel.setCancelButton(true);
 
@@ -115,42 +118,20 @@ public class SampleEditor {
         spacer.setMaxWidth(2000);
 
         Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
-        DatePicker startdate = new DatePicker();
 
-        startdate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-//        startdate.getCalendarView().todayButtonTextProperty().set("Today");
-        startdate.getCalendarView().setShowWeeks(false);
-        startdate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
+        JFXDatePicker startdate = new JFXDatePicker();
+        JFXDatePicker enddate = new JFXDatePicker();
+        startdate.setMaxWidth(120);
+        enddate.setMaxWidth(120);
 
         Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
-        DatePicker enddate = new DatePicker();
-
-        enddate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-        enddate.getCalendarView().todayButtonTextProperty().set("Today");
-        enddate.getCalendarView().setShowWeeks(true);
-        enddate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
-
-//        SampleTableExtension tabelExtension = new SampleTableExtension(attribute, stage);//Default plugin
-
-//        final List<JEVisSample> samples = attribute.getAllSamples();
         if (attribute.hasSample()) {
             _from = attribute.getTimestampFromLastSample().minus(Duration.standardDays(1));
             _until = attribute.getTimestampFromLastSample();
 
-            startdate = new DatePicker(Locale.getDefault(), _from.toDate());
-            startdate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-            startdate.setSelectedDate(_from.toDate());
-            startdate.getCalendarView().setShowWeeks(false);
-            startdate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
-            startdate.setMaxWidth(100d);
+            startdate.valueProperty().set(LocalDate.of(_from.getYear(), _from.getMonthOfYear(), _from.getDayOfMonth()));
+            enddate.valueProperty().set(LocalDate.of(_from.getYear(), _from.getMonthOfYear(), _from.getDayOfMonth()));
 
-//            enddate.setSelectedDate(_until.toDate());
-            enddate.selectedDateProperty().setValue(_until.toDate());
-            enddate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-            enddate.setSelectedDate(_until.toDate());
-            enddate.getCalendarView().setShowWeeks(true);
-            enddate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
-            enddate.setMaxWidth(100d);
 
         }
 
@@ -178,6 +159,7 @@ public class SampleEditor {
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(cancel, Priority.NEVER);
 
+
         extensions.add(new SampleTableExtension(attribute, stage));
         extensions.add(new SampleGraphExtension(attribute)); // we now habe an graph plugin
         extensions.add(new AttributeStatesExtension(attribute));
@@ -186,15 +168,7 @@ public class SampleEditor {
 
         final List<Tab> tabs = new ArrayList<>();
 
-//        boolean fistEx = true;
         for (SampleEditorExtension ex : extensions) {
-//            _dataChanged
-//            if (fistEx) {
-//                logger.info("is first");
-//                ex.setSamples(attribute, samples);
-//                ex.update();
-//                fistEx = false;
-//            }
 
             Tab tabEditor = new Tab();
             tabEditor.setText(ex.getTitel());
@@ -202,6 +176,15 @@ public class SampleEditor {
             tabs.add(tabEditor);
 
         }
+
+        disableEditing.addListener((observable, oldValue, newValue) -> {
+            extensions.forEach(sampleEditorExtension -> {
+                System.out.println("Diabled editing in: " + sampleEditorExtension.getTitel());
+                sampleEditorExtension.disableEditing(newValue);
+
+            });
+        });
+
         _visibleExtension = extensions.get(0);
         updateSamples(_from, _until);
 
@@ -257,26 +240,13 @@ public class SampleEditor {
             }
         });
 
-        startdate.selectedDateProperty().addListener(new ChangeListener<Date>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Date> ov, Date t, Date t1) {
-                DateTime from = new DateTime(t1.getTime());
-                _from = from;
-//                _visibleExtension.setSamples(attribute, attribute.getSamples(_from, _until));
-                updateSamples(_from, _until);
-            }
+        startdate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            _from = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);
+            updateSamples(_from, _until);
         });
-
-        enddate.selectedDateProperty().addListener(new ChangeListener<Date>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Date> ov, Date t, Date t1) {
-                DateTime until = new DateTime(t1.getTime());
-                _until = until;
-//                _visibleExtension.setSamples(attribute, attribute.getSamples(_from, _until));
-                updateSamples(_from, _until);
-            }
+        enddate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            _until = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);
+            updateSamples(_from, _until);
         });
 
         cancel.setOnAction(new EventHandler<ActionEvent>() {
@@ -305,15 +275,9 @@ public class SampleEditor {
         return response;
     }
 
-    //    final Label passL = new Label("New Password:");
-//    final Label confirmL = new Label("Comfirm Password:");
-//    final PasswordField pass = new PasswordField();
-//    final PasswordField comfirm = new PasswordField();
-    final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
-
-    List<JEVisSample> samples = new ArrayList<>();
-
-    private Response response = Response.CANCEL;
+    private void disableEditing(boolean disable) {
+        disableEditing.setValue(true);
+    }
 
     private Node buildProcessorBox(final JEVisObject parentObj) {
         List<String> proNames = new ArrayList<>();
@@ -350,6 +314,7 @@ public class SampleEditor {
 
                     if (newValue.equals("None")) {
                         _dataProcessor = null;
+                        disableEditing.setValue(true);
                         update();
                     } else {
 
@@ -384,9 +349,15 @@ public class SampleEditor {
         aggregate.getSelectionModel().selectFirst();
         aggregate.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
+                if (oldValue != newValue) {
+                    disableEditing.setValue(true);
+                }
+
                 switch (newValue.intValue()) {
                     case 0:
                         _period = AggregationPeriod.NONE;
+                        System.out.println("Processor disable");
+                        disableEditing.setValue(false);/** only original DB data can be edited **/
                         break;
                     case 1:
                         _period = AggregationPeriod.HOURLY;
@@ -474,12 +445,12 @@ public class SampleEditor {
         }
     }
 
+    private void update() {
+        updateSamples(_from, _until);
+    }
+
     public enum Response {
 
         YES, CANCEL
-    }
-
-    private void update() {
-        updateSamples(_from, _until);
     }
 }

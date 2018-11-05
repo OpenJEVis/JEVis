@@ -406,6 +406,11 @@ public class SampleExportExtension implements SampleEditorExtension {
         _att = att;
     }
 
+    @Override
+    public void disableEditing(boolean disable) {
+        //TODO
+    }
+
     public boolean doExport() throws FileNotFoundException, UnsupportedEncodingException {
 
         String exportStrg = createCSVString(Integer.MAX_VALUE);
