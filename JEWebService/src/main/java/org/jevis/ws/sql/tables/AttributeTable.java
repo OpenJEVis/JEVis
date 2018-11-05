@@ -42,8 +42,6 @@ import java.util.List;
  */
 public class AttributeTable {
 
-    private Logger logger = LogManager.getLogger(AttributeTable.class);
-
     public final static String TABLE = "attribute";
     public final static String COLUMN_OBJECT = "object";
     public final static String COLUMN_NAME = "name";
@@ -52,15 +50,14 @@ public class AttributeTable {
     //    public final static String COLUMN_PERIOD = "period";//depricated
 //    public final static String COLUMN_UNIT = "unit";//depricated
     public final static String COLUMN_COUNT = "samplecount";
-//    public final static String COLUMN_ALT_SYMBOL = "altsymbol";
-
     public final static String COLUMN_INPUT_UNIT = "inputunit";
+    //    public final static String COLUMN_ALT_SYMBOL = "altsymbol";
     public final static String COLUMN_INPUT_RATE = "inputrate";
     public final static String COLUMN_DISPLAY_UNIT = "displayunit";
     public final static String COLUMN_DISPLAY_RATE = "displayrate";
     public final static String COLUMN_OPTION = "opt";//option and options are already sql keywords
-
     private final SQLDataSource _connection;
+    private Logger logger = LogManager.getLogger(AttributeTable.class);
 
     public AttributeTable(SQLDataSource ds) {
         _connection = ds;
@@ -246,7 +243,56 @@ public class AttributeTable {
 //
 //        return attributes;
 //    }
+
+
+    /**
+     * Remove attribute if row. Happens if all samples are deleted.
+     *
+     * @param objectID
+     * @param attribute
+     */
+    public void delteMinMaxTS(long objectID, String attribute) {
+        String sql = "" +
+                "delete from " + TABLE
+                + " where " + COLUMN_OBJECT + "=?,"
+                + " and " + COLUMN_NAME + "=?";
+
+        PreparedStatement ps = null;
+
+        try {
+            ps = _connection.getConnection().prepareStatement(sql);
+
+            //insert
+            ps.setLong(1, objectID);
+            ps.setString(2, attribute);
+
+
+            logger.debug("SQL: {}", ps);
+            ps.executeUpdate();
+
+        } catch (Exception ex) {
+            logger.error(ex);
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /*ignored*/
+                }
+            }
+        }
+    }
+
+
     public void updateMinMaxTS(long objectID, String attribute) {
+
+        try {
+            if (!_connection.getSampleTable().hasSamples(objectID, attribute)) {
+                delteMinMaxTS(objectID, attribute);
+            }//else continue
+        } catch (Exception ex) {
+            logger.error("Error while checking if attribute has data", ex);
+        }
 
         /* Possible trigger to haldle the update on the DB side but i fear the performace for an "for each"+"3 sub selects" and big inserts(100k+ rows)
         --
