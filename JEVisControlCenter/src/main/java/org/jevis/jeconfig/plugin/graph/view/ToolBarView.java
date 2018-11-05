@@ -5,7 +5,6 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
-import com.google.gson.Gson;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,7 +13,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -25,11 +23,10 @@ import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.json.JsonAnalysisDataRow;
+import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
-import org.jevis.commons.unit.JEVisUnitImp;
-import org.jevis.commons.ws.json.JsonUnit;
+import org.jevis.commons.json.JsonChartTimeFrame;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
@@ -38,7 +35,10 @@ import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author broder
@@ -51,8 +51,6 @@ public class ToolBarView {
     private ComboBox listAnalysesComboBoxHidden;
     private ChartView view;
     private List<ChartView> listView;
-    private DateTime selectedStart;
-    private DateTime selectedEnd;
     private Boolean _initialized = false;
     private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
@@ -83,7 +81,6 @@ public class ToolBarView {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
                 model.setJEVisObjectForCurrentAnalysis(newValue.toString());
                 model.getListAnalysis();
-                updateTimeFrame();
                 updateChart();
             }
         });
@@ -111,7 +108,6 @@ public class ToolBarView {
 
         reload.setOnAction(event -> {
             model.getSelectedData().forEach(chartDataModel -> chartDataModel.setSomethingChanged(true));
-            updateChart();
         });
 
         exportCSV.setOnAction(action -> {
@@ -174,8 +170,8 @@ public class ToolBarView {
     private void loadNewDialog() {
 
 
-        dialog = new LoadAnalysisDialog(ds, model, this);
-        //dialog.getLv().getSelectionModel().select(nameCurrentAnalysis);
+        dialog = new LoadAnalysisDialog(ds, model);
+
         dialog.showAndWait()
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
@@ -188,41 +184,15 @@ public class ToolBarView {
 
                         }
                     } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
-
-                        model.setCharts(dialog.getData().getCharts());
-                        model.setSelectedData(dialog.getData().getSelectedData());
-                        select(dialog.getLv().getSelectionModel().getSelectedItem());
-
+                        updateChart();
                     }
                 });
     }
 
     private void hideShowIconsInGraph() {
         model.setHideShowIcons(!model.getHideShowIcons());
-        updateChart();
     }
 
-    public void updateTimeFrame() {
-        if (selectedStart != null && selectedEnd != null) {
-            if (model.getSelectedData() != null && !model.getSelectedData().isEmpty()) {
-                for (ChartDataModel mdl : model.getSelectedData()) {
-                    if (mdl.getSelected()) {
-                        mdl.setSelectedStart(selectedStart);
-                        mdl.setSelectedEnd(selectedEnd);
-                    }
-                }
-            }
-
-            if (model.getListAnalysisModel() != null && !model.getListAnalysisModel().getListAnalyses().isEmpty()) {
-                for (JsonAnalysisDataRow mdl : model.getListAnalysisModel().getListAnalyses()) {
-                    if (Boolean.parseBoolean(mdl.getSelected())) {
-                        mdl.setSelectedStart(selectedStart.toString());
-                        mdl.setSelectedEnd(selectedEnd.toString());
-                    }
-                }
-            }
-        }
-    }
 
     public ComboBox getListAnalysesComboBoxHidden() {
         return listAnalysesComboBoxHidden;
@@ -275,11 +245,7 @@ public class ToolBarView {
         if (model.getNameCurrentAnalysis() != null && model.getNameCurrentAnalysis() != "")
             name.setText(model.getNameCurrentAnalysis());
 
-        name.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                model.setNameCurrentAnalysis(newValue);
-            }
-        });
+        name.textProperty().addListener((observable, oldValue, newValue) -> model.setNameCurrentAnalysis(newValue));
 
         name.focusedProperty().addListener((ov, t, t1) -> Platform.runLater(() -> {
             if (name.isFocused() && !name.getText().isEmpty()) {
@@ -370,6 +336,7 @@ public class ToolBarView {
         try {
             JEVisAttribute dataModel = model.getCurrentAnalysis().getAttribute("Data Model");
 
+            JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
             List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
             for (ChartDataModel mdl : selectedData) {
                 if (mdl.getSelected()) {
@@ -388,6 +355,13 @@ public class ToolBarView {
                     jsonDataModels.add(json);
                 }
             }
+            jsonChartDataModel.setListDataRows(jsonDataModels);
+
+            JsonChartTimeFrame jctf = new JsonChartTimeFrame();
+            jctf.setTimeframe(model.getAnalysisTimeFrame().getTimeFrame().toString());
+            jctf.setId(String.valueOf(model.getAnalysisTimeFrame().getId()));
+
+            jsonChartDataModel.setAnalysisTimeFrame(jctf);
 
             JEVisAttribute charts = model.getCurrentAnalysis().getAttribute("Charts");
             List<JsonChartSettings> jsonChartSettings = new ArrayList<>();
@@ -399,9 +373,9 @@ public class ToolBarView {
                 jsonChartSettings.add(set);
             }
 
-            if (jsonDataModels.toString().length() < 8192 && jsonChartSettings.toString().length() < 8192) {
+            if (jsonChartDataModel.toString().length() < 8192 && jsonChartSettings.toString().length() < 8192) {
                 DateTime now = DateTime.now();
-                JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonDataModels.toString());
+                JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonChartDataModel.toString());
                 JEVisSample smp2 = charts.buildSample(now.toDateTimeISO(), jsonChartSettings.toString());
                 smp.commit();
                 smp2.commit();
@@ -428,99 +402,14 @@ public class ToolBarView {
         } else return "";
     }
 
-    private List<String> stringToList(String s) {
-        if (Objects.nonNull(s)) {
-            List<String> tempList = new ArrayList<>(Arrays.asList(s.split(", ")));
-            for (String str : tempList) if (str.contains(", ")) str.replace(", ", "");
-            return tempList;
-        } else return new ArrayList<>();
-    }
 
     public void updateChart() {
-        DateTime currentStart = selectedStart;
-        DateTime currentEnd = selectedEnd;
-        Set<ChartDataModel> selectedData = getChartDataModels();
-        Set<ChartSettings> charts = getCharts();
 
-        for (ChartDataModel mdl : selectedData) {
-            if (mdl.getSelected()) {
-                mdl.setSelectedStart(currentStart);
-                mdl.setSelectedEnd(currentEnd);
-            }
-        }
-
-        model.setCharts(charts);
-        model.setSelectedData(selectedData);
+        model.setCharts(model.getCharts());
+        model.setSelectedData(model.getChartDataModels());
 
     }
 
-    private Set<ChartDataModel> getChartDataModels() {
-        Map<String, ChartDataModel> data = new HashMap<>();
-
-        for (JsonAnalysisDataRow mdl : model.getListAnalysisModel().getListAnalyses()) {
-            ChartDataModel newData = new ChartDataModel();
-            try {
-                Long id = Long.parseLong(mdl.getObject());
-                Long id_dp = null;
-                if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
-                JEVisObject obj = ds.getObject(id);
-                JEVisObject obj_dp = null;
-                if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
-                JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
-                DateTime start;
-                start = DateTime.parse(mdl.getSelectedStart());
-                DateTime end;
-                end = DateTime.parse(mdl.getSelectedEnd());
-                Boolean selected = Boolean.parseBoolean(mdl.getSelected());
-                newData.setObject(obj);
-                newData.setSelectedStart(start);
-                newData.setSelectedEnd(end);
-                newData.setColor(Color.valueOf(mdl.getColor()));
-                newData.setTitle(mdl.getName());
-                if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
-                newData.getAttribute();
-                newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
-                newData.setSelected(selected);
-                newData.setSomethingChanged(true);
-                newData.getSamples();
-                newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
-                newData.setUnit(unit);
-                data.put(obj.getID().toString(), newData);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get chart data model", e);
-            }
-        }
-        Set<ChartDataModel> selectedData = new HashSet<>();
-        for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
-            ChartDataModel value = entrySet.getValue();
-            if (value.getSelected()) {
-                selectedData.add(value);
-            }
-        }
-        return selectedData;
-    }
-
-    private Set<ChartSettings> getCharts() {
-        Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
-        Set<ChartSettings> chartSettings = new HashSet<>();
-
-        if (model.getListChartsSettings() != null && !model.getListChartsSettings().isEmpty()) {
-            for (JsonChartSettings settings : model.getListChartsSettings()) {
-                ChartSettings newSettings = new ChartSettings("");
-                newSettings.setName(settings.getName());
-                newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
-                if (settings.getHeight() != null)
-                    newSettings.setHeight(Double.parseDouble(settings.getHeight()));
-                chartSettingsHashMap.put(newSettings.getName(), newSettings);
-            }
-
-            for (Map.Entry<String, ChartSettings> entrySet : chartSettingsHashMap.entrySet()) {
-                ChartSettings value = entrySet.getValue();
-                chartSettings.add(value);
-            }
-        }
-        return chartSettings;
-    }
 
     public void selectFirst() {
         if (!_initialized) {
@@ -533,13 +422,5 @@ public class ToolBarView {
 
     public void select(String s) {
         listAnalysesComboBoxHidden.getSelectionModel().select(s);
-    }
-
-    public void setSelectedStart(DateTime selectedStart) {
-        this.selectedStart = selectedStart;
-    }
-
-    public void setSelectedEnd(DateTime selectedEnd) {
-        this.selectedEnd = selectedEnd;
     }
 }

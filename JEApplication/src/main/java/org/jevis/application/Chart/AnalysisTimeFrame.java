@@ -34,6 +34,28 @@ public class AnalysisTimeFrame {
         this.id = id;
     }
 
+    public TimeFrame parseTimeFrameFromString(String s) {
+        switch (s) {
+            case "custom":
+                return TimeFrame.custom;
+            case "today":
+                return TimeFrame.today;
+            case "last7Days":
+                return TimeFrame.last7Days;
+            case "last30Days":
+                return TimeFrame.last30Days;
+            case "yesterday":
+                return TimeFrame.yesterday;
+            case "lastWeek":
+                return TimeFrame.lastWeek;
+            case "lastMonth":
+                return TimeFrame.lastMonth;
+            case "customStartEnd":
+                return TimeFrame.customStartEnd;
+        }
+        return TimeFrame.last7Days;
+    }
+
     public enum TimeFrame {
         custom("custom"),
         today("today"),

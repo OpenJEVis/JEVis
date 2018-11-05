@@ -1,8 +1,8 @@
-package org.jevis.jeconfig.plugin.graph;
+package org.jevis.application.Chart.data;
 
-import org.jevis.application.Chart.data.CustomPeriodObject;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.commons.database.ObjectHandler;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class DateHelper {
+    private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private LocalTime startTime = LocalTime.of(0, 0, 0, 0);
     private LocalTime endTime = LocalTime.of(23, 59, 59, 999);
     private DateTime startDate;
@@ -469,9 +470,9 @@ public class DateHelper {
 
     public enum CustomReferencePoint {
 
-        NOW(I18n.getInstance().getString("graph.datehelper.referencepoint.now")), CUSTOM_PERIOD(I18n.getInstance().getString("graph.datehelper.referencepoint.customperiod")),
-        WEEKDAY(I18n.getInstance().getString("graph.datehelper.referencepoint.weekday")), MONTH(I18n.getInstance().getString("graph.datehelper.referencepoint.month")),
-        STARTTIMEDAY(I18n.getInstance().getString("graph.datehelper.referencepoint.starttimeday")), EDNTIMEDAY(I18n.getInstance().getString("graph.datehelper.referencepoint.endtimeday"));
+        NOW(rb.getString("graph.datehelper.referencepoint.now")), CUSTOM_PERIOD(rb.getString("graph.datehelper.referencepoint.customperiod")),
+        WEEKDAY(rb.getString("graph.datehelper.referencepoint.weekday")), MONTH(rb.getString("graph.datehelper.referencepoint.month")),
+        STARTTIMEDAY(rb.getString("graph.datehelper.referencepoint.starttimeday")), EDNTIMEDAY(rb.getString("graph.datehelper.referencepoint.endtimeday"));
 
         private final String referencePointName;
 
@@ -486,10 +487,10 @@ public class DateHelper {
 
     public enum Weekday {
 
-        MONDAY(I18n.getInstance().getString("graph.datehelper.weekday.monday")), TUESDAY(I18n.getInstance().getString("graph.datehelper.weekday.tuesday")),
-        WEDNESDAY(I18n.getInstance().getString("graph.datehelper.weekday.wednesday")), THURSDAY(I18n.getInstance().getString("graph.datehelper.weekday.thursday")),
-        FRIDAY(I18n.getInstance().getString("graph.datehelper.weekday.friday")), SATURDAY(I18n.getInstance().getString("graph.datehelper.weekday.saturday")),
-        SUNDAY(I18n.getInstance().getString("graph.datehelper.weekday.sunday"));
+        MONDAY(rb.getString("graph.datehelper.weekday.monday")), TUESDAY(rb.getString("graph.datehelper.weekday.tuesday")),
+        WEDNESDAY(rb.getString("graph.datehelper.weekday.wednesday")), THURSDAY(rb.getString("graph.datehelper.weekday.thursday")),
+        FRIDAY(rb.getString("graph.datehelper.weekday.friday")), SATURDAY(rb.getString("graph.datehelper.weekday.saturday")),
+        SUNDAY(rb.getString("graph.datehelper.weekday.sunday"));
 
         private final String weekdayName;
 
@@ -504,12 +505,12 @@ public class DateHelper {
 
     public enum Month {
 
-        JANUARY(I18n.getInstance().getString("graph.datehelper.months.january")), FEBRUARY(I18n.getInstance().getString("graph.datehelper.months.february")),
-        MARCH(I18n.getInstance().getString("graph.datehelper.months.march")), APRIL(I18n.getInstance().getString("graph.datehelper.months.april")),
-        MAY(I18n.getInstance().getString("graph.datehelper.months.may")), JUNE(I18n.getInstance().getString("graph.datehelper.months.june")),
-        JULY(I18n.getInstance().getString("graph.datehelper.months.july")), AUGUST(I18n.getInstance().getString("graph.datehelper.months.august")),
-        SEPTEMBER(I18n.getInstance().getString("graph.datehelper.months.september")), OCTOBER(I18n.getInstance().getString("graph.datehelper.months.october")),
-        NOVEMBER(I18n.getInstance().getString("graph.datehelper.months.november")), DECEMBER(I18n.getInstance().getString("graph.datehelper.months.december"));
+        JANUARY(rb.getString("graph.datehelper.months.january")), FEBRUARY(rb.getString("graph.datehelper.months.february")),
+        MARCH(rb.getString("graph.datehelper.months.march")), APRIL(rb.getString("graph.datehelper.months.april")),
+        MAY(rb.getString("graph.datehelper.months.may")), JUNE(rb.getString("graph.datehelper.months.june")),
+        JULY(rb.getString("graph.datehelper.months.july")), AUGUST(rb.getString("graph.datehelper.months.august")),
+        SEPTEMBER(rb.getString("graph.datehelper.months.september")), OCTOBER(rb.getString("graph.datehelper.months.october")),
+        NOVEMBER(rb.getString("graph.datehelper.months.november")), DECEMBER(rb.getString("graph.datehelper.months.december"));
 
         private final String monthName;
 
