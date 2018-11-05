@@ -19,16 +19,14 @@
  */
 package org.jevis.jeconfig.sample.tableview;
 
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
@@ -63,10 +61,10 @@ import java.util.function.UnaryOperator;
  */
 public class SampleTable extends TableView<SampleTable.TableSample> {
     private final static DateTimeFormatter dateViewFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private final static NumberFormat numberFormat = NumberFormat.getInstance(Locale.getDefault());
     private final static Logger logger = LogManager.getLogger(SampleTable.class);
     private final static Color COLOR_ERROR = Color.INDIANRED;
     private final JEVisAttribute attribute;
-    private final NumberFormat numberFormat = NumberFormat.getInstance(Locale.getDefault());
     private final Set<TableSample> changedSamples = new HashSet<>();
     private final BooleanProperty deleteInBetween = new SimpleBooleanProperty(false);
     private final BooleanProperty deleteSelected = new SimpleBooleanProperty(false);
@@ -84,6 +82,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     public SampleTable(JEVisAttribute attribute, List<JEVisSample> samples) {
         super();
         this.attribute = attribute;
+        setEditable(true);
 
         setPlaceholder(new Label("No Data"));
 
@@ -99,6 +98,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         TableColumn valueCol = createValueColumn("Value");
         TableColumn noteColumn = createNoteColumn("Note");
 
+
         /**
          * TODO: implement an nice resize policy where all take the minimum amount of space and the rest goes to value
          */
@@ -112,10 +112,13 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
         getColumns().addAll(selectionColumn, timeStampColumn, valueCol, noteColumn);
 
-        setEditable(true);
+//        setEditable(true);
 
         loadSamples(samples);
         setItems(data);
+        editableProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Table.edibale: " + newValue);
+        });
 
     }
 
@@ -274,7 +277,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     public TableSample addNewSample(DateTime timestamp, Object value, String note) throws Exception {
 
 
-//        System.out.println("addNewSample: " + timestamp);
         TableSample tSample = new TableSample(attribute.buildSample(timestamp, value, note));
         tSample.setIsNew(true);
         data.add(tSample);
@@ -359,7 +361,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
         });
 
-        column.setEditable(true);
         return column;
     }
 
@@ -393,11 +394,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                 TableSample tableSample = (TableSample) getTableRow().getItem();
                                 CheckBox checkBox = new CheckBox();
                                 setDefaultCellStyle(this);
-                                checkBox.selectedProperty().bind(tableSample.isSelectedProperty());
-                                checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                                    tableSample.setIsSelected(newValue);
-                                });
-
                                 HBox box = new HBox(checkBox);
                                 box.setAlignment(Pos.BASELINE_CENTER);
                                 setGraphic(box);
@@ -429,9 +425,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
         menu.getItems().addAll(selectAll, deselectAll);
         column.setContextMenu(menu);
-
-//        column.setMaxWidth(70d);
-        column.setEditable(true);
         return column;
     }
 
@@ -513,6 +506,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                         } else {
 
                             TextField textField = new TextField(item.toString());
+//                            textField.setDisable(!SampleTable.this.isEditable());
+//                            this.disableProperty().bind(textField.disableProperty());
                             setDefaultFieldStyle(this, textField);
 
 
@@ -647,7 +642,34 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
 //                            TextField textField = new TextField(item.toString());
                             TextArea textField = new TextArea(item.toString());
+//                            textField.setDisable(!SampleTable.this.isEditable());
+//                            this.disableProperty().bind(textField.disableProperty());
+//                            Button expand = new Button(null, JEConfig.getImage("if_ExpandMore.png", 8, 8));
+                            Button expand = new Button(null);
+                            expand.setBackground(new Background(new BackgroundImage(
+                                    JEConfig.getImage("if_ExpandMore.png"),
+                                    BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
+                                    new BackgroundSize(expand.getWidth(), expand.getHeight(),
+                                            true, true, true, false))));
+
+                            expand.setOnAction(event -> {
+                                Platform.runLater(() -> {
+                                    if (textField.getPrefRowCount() == 20) {
+                                        textField.setPrefRowCount(1);
+                                        textField.setWrapText(false);
+                                    } else {
+                                        textField.setPrefRowCount(20);
+                                        textField.setWrapText(true);
+                                    }
+
+                                });
+
+                            });
+
                             setDefaultFieldStyle(this, textField);
+                            textField.setWrapText(false);
+                            textField.setPrefRowCount(1);
+                            textField.autosize();
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
@@ -663,8 +685,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                 }
                             });
 
+                            HBox box = new HBox(5, textField, expand);
 
-                            setGraphic(textField);
+                            setGraphic(box);
 
                         }
 
@@ -697,7 +720,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
                             TextField textField = new TextField(item.toString());
                             setDefaultFieldStyle(this, textField);
-
+//                            textField.setDisable(!SampleTable.this.isEditable());
+//                            this.disableProperty().bind(textField.disableProperty());
 
                             UnaryOperator<TextFormatter.Change> filter = new UnaryOperator<TextFormatter.Change>() {
 
@@ -776,7 +800,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         }
 
 //        column.remainingWidth();
-        column.setEditable(true);
+//        column.setEditable(true);
+//        this.disableProperty().bind(column.editableProperty().not());
         return column;
     }
 
@@ -810,6 +835,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
 
                             TextField textField = new TextField(tableSample.getNote());
+//                            textField.setDisable(!SampleTable.this.isEditable());
+//                            this.disableProperty().bind(textField.disableProperty());
+
                             setDefaultFieldStyle(this, textField);
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
@@ -830,7 +858,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
         });
 
-        column.setEditable(true);
         return column;
     }
 

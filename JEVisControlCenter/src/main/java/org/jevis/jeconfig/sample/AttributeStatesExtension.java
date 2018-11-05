@@ -42,7 +42,6 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class AttributeStatesExtension implements SampleEditorExtension {
@@ -191,6 +190,11 @@ public class AttributeStatesExtension implements SampleEditorExtension {
         _samples = samples;
         _att = att;
         _dataChanged = true;
+    }
+
+    @Override
+    public void disableEditing(boolean disable) {
+        //TODO
     }
 
     @Override

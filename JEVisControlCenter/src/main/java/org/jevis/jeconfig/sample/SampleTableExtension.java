@@ -20,6 +20,8 @@
 package org.jevis.jeconfig.sample;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -54,6 +56,7 @@ public class SampleTableExtension implements SampleEditorExtension {
     private JEVisAttribute _att;
     private List<JEVisSample> _samples;
     private boolean _dataChanged = true;
+    private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
 
     public SampleTableExtension(JEVisAttribute att, Stage stage) {
         _att = att;
@@ -193,6 +196,14 @@ public class SampleTableExtension implements SampleEditorExtension {
                 }
         );
 
+        disableEditing.addListener((observable, oldValue, newValue) -> {
+            System.out.println("Disable tree: " + newValue);
+            table.setEditable(!newValue);
+            addNewSample.setDisable(newValue);
+
+
+        });
+
         box.getChildren()
                 .setAll(addNewSample, deleteAll, deleteSelected, deleteInBetween, saveButton);
 
@@ -236,6 +247,12 @@ public class SampleTableExtension implements SampleEditorExtension {
         _samples = samples;
         _att = att;
         _dataChanged = true;
+    }
+
+    @Override
+    public void disableEditing(boolean disable) {
+        disableEditing.setValue(disable);
+
     }
 
     @Override

@@ -39,10 +39,9 @@ import java.util.List;
 /**
  * Attribute editor extension to configure JEVIsOptions in an generic way.
  *
+ * @author Florian Simon
  * @TODO: The current JEVisAttributeSQL implementation is limited to 10240 chars
  * but that does not have to be the case for all implementations.
- *
- * @author Florian Simon
  */
 public class AttributeOptionExtension implements SampleEditorExtension {
     private static final Logger logger = LogManager.getLogger(AttributeOptionExtension.class);
@@ -220,6 +219,11 @@ public class AttributeOptionExtension implements SampleEditorExtension {
     @Override
     public String getTitel() {
         return "Options";
+    }
+
+    @Override
+    public void disableEditing(boolean disable) {
+        //TODO
     }
 
     @Override

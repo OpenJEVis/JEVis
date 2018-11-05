@@ -100,6 +100,11 @@ public class SampleGraphExtension implements SampleEditorExtension {
     }
 
     @Override
+    public void disableEditing(boolean disable) {
+        //TODO
+    }
+
+    @Override
     public void update() {
         Platform.runLater(new Runnable() {
             @Override
