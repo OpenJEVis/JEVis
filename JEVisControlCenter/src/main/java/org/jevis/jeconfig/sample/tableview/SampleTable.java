@@ -86,7 +86,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         this.attribute = attribute;
         setEditable(true);
 
-        setPlaceholder(new Label("No Data"));
+        setPlaceholder(new Label(I18n.getInstance().getString("sampleeditor.confirmationdialog.nodata")));
 
 
         setMinWidth(555d);//TODo: replace Dirty workaround
@@ -95,10 +95,10 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 
-        TableColumn selectionColumn = createSelectionColumn("Select");
-        TableColumn timeStampColumn = createTimeStampColumn("Timestamp");
-        TableColumn valueCol = createValueColumn("Value");
-        TableColumn noteColumn = createNoteColumn("Note");
+        TableColumn selectionColumn = createSelectionColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.select"));
+        TableColumn timeStampColumn = createTimeStampColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.time"));
+        TableColumn valueCol = createValueColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.value"));
+        TableColumn noteColumn = createNoteColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.note"));
 
 
         /**
@@ -106,7 +106,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
          */
         setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 //        setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
-        selectionColumn.setPrefWidth(60);
+        selectionColumn.setPrefWidth(70);
         timeStampColumn.setPrefWidth(155);
         noteColumn.setPrefWidth(200);
         valueCol.setPrefWidth(310);
@@ -119,7 +119,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         loadSamples(samples);
         setItems(data);
         editableProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Table.edibale: " + newValue);
+//            System.out.println("Table.editable: " + newValue);
         });
 
     }
@@ -212,7 +212,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                     try {
                         attribute.deleteSamplesBetween(tableSample.getJevisSample().getTimestamp(), tableSample.getJevisSample().getTimestamp());
                     } catch (Exception ex) {
-                        logger.error("Error while deleteing sample", ex);
+                        logger.error("Error while deleting samples", ex);
                     }
                 }
             });
@@ -226,20 +226,20 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     public void deleteInBetween() {
         if (deleteInBetween.getValue()) {
             DateTime firstDate = null;
-            DateTime secoundDate = null;
+            DateTime secondDate = null;
             for (TableSample tableSample : changedSamples) {
                 if (firstDate == null) {
                     firstDate = tableSample.getTimeStamp();
                 } else if (firstDate.isBefore(tableSample.getTimeStamp())) {
-                    secoundDate = tableSample.getTimeStamp();
+                    secondDate = tableSample.getTimeStamp();
                 } else {
-                    secoundDate = firstDate;
+                    secondDate = firstDate;
                     firstDate = tableSample.getTimeStamp();
                 }
             }
             try {
-                if (firstDate != null && secoundDate != null) {
-                    attribute.deleteSamplesBetween(firstDate, secoundDate);
+                if (firstDate != null && secondDate != null) {
+                    attribute.deleteSamplesBetween(firstDate, secondDate);
                     reloadSamples();
                 } else {
                     logger.warn("second timestamp is before first");
@@ -382,14 +382,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
                                     List<JEVisSample> exitingSample = attribute.getSamples(newDate, newDate);
                                     if (!exitingSample.isEmpty()) {
-                                        setErrorCellStyle(this, new Exception("Timestamp already exists"));
+                                        setErrorCellStyle(this, new Exception(I18n.getInstance().getString("sampleeditor.confirmationdialog.error.exists")));
                                     }
-
-                                    /**
-                                     *       - ?add also an date and time selector gui?
-                                     *       - if error set background color red and show error while save event
-                                     **/
-
 
                                     tableSample.setTimeStamp(newDate);
                                     setDefaultCellStyle(this);
@@ -462,8 +456,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         });
 
         ContextMenu menu = new ContextMenu();
-        MenuItem selectAll = new MenuItem("Select all");
-        MenuItem deselectAll = new MenuItem("deselect all");
+        MenuItem selectAll = new MenuItem(I18n.getInstance().getString("sampleeditor.confirmationdialog.selectall"));
+        MenuItem deselectAll = new MenuItem(I18n.getInstance().getString("sampleeditor.confirmationdialog.deselect"));
 
         selectAll.setOnAction(event -> {
             getItems().forEach(tableSample -> {
