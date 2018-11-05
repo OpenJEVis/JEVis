@@ -79,22 +79,21 @@ public class SampleTableExtension implements SampleEditorExtension {
         Button deleteAll = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"));
 
         deleteAll.setOnAction(event -> {
-            ((SampleTable) table).debugStuff();
-//            try {
-//                ConfirmDialog dia = new ConfirmDialog();
-//                if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
-//                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"),
-//                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.message")) == ConfirmDialog.Response.YES) {
-//
-//                    att.deleteAllSample();
-//                    setSamples(att, att.getAllSamples());
-//                    update();
-//                    logger.info("Deleted all Samples of Attribute " + att.getName() +
-//                            " of Object " + att.getObject().getName() + " of ID " + att.getObject().getID());
-//                }
-//            } catch (Exception ex) {
-//                logger.fatal(ex);
-//            }
+            try {
+                ConfirmDialog dia = new ConfirmDialog();
+                if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
+                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"),
+                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.message")) == ConfirmDialog.Response.YES) {
+
+                    att.deleteAllSample();
+                    setSamples(att, att.getAllSamples());
+                    update();
+                    logger.info("Deleted all Samples of Attribute " + att.getName() +
+                            " of Object " + att.getObject().getName() + " of ID " + att.getObject().getID());
+                }
+            } catch (Exception ex) {
+                logger.fatal(ex);
+            }
         });
 
         Button deleteSelected = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"));
@@ -122,7 +121,6 @@ public class SampleTableExtension implements SampleEditorExtension {
         Button saveButton = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.save"));
         saveButton.disableProperty().bind(table.needSaveProperty().not());
         saveButton.setOnAction(event -> {
-            table.debugStuff();
             table.commitChanges();
             update();
         });

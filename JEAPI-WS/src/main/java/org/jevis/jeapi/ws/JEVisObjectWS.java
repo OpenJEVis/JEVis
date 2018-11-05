@@ -204,6 +204,7 @@ public class JEVisObjectWS implements JEVisObject {
 
         JEVisObject newObj = new JEVisObjectWS(ds, newJson);
 
+
         return newObj;
     }
 
@@ -328,11 +329,10 @@ public class JEVisObjectWS implements JEVisObject {
             logger.trace("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
 
+            ds.reloadRelationships();
             if (update) {
                 notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
             } else {
-                ds.reloadRelationships();
-
                 if (!getParents().isEmpty()) {
                     getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD));
                 }

@@ -23,6 +23,7 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -36,6 +37,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.dialog.ProgressForm;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -159,6 +161,26 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     }
 
     /**
+     * Return the the oldest date loaded after change
+     *
+     * @return
+     */
+    public DateTime getMinDate() {
+        findMinMaxDate();
+        return minDate;
+    }
+
+    /**
+     * Return the newest date loaded after change
+     *
+     * @return
+     */
+    public DateTime getMaxDate() {
+        findMinMaxDate();
+        return maxDate;
+    }
+
+    /**
      * will be true if the selected data allow an delete in between action
      *
      * @return
@@ -231,6 +253,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     }
 
     public void reloadSamples() {
+        findMinMaxDate();
         if (minDate != null && maxDate != null) {
             List<JEVisSample> samples = attribute.getSamples(minDate, maxDate);
             loadSamples(samples);
@@ -248,20 +271,43 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      * Try to commit all changed to the JEVisDataSource
      */
     public void commitChanges() {
-        changedSamples.forEach(tableSample -> {
-            try {
-                tableSample.commit();
-            } catch (Exception ex) {
-                logger.error("Error while committing sample", ex);
+
+        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
+
+        Task<Void> upload = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+
+                changedSamples.forEach(tableSample -> {
+                    try {
+                        tableSample.commit();
+                    } catch (Exception ex) {
+                        logger.error("Error while committing sample", ex);
+                    }
+                });
+
+                Thread.sleep(60);
+                reloadSamples();
+                return null;
             }
-        });
-    }
+        };
+        upload.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-
-    public void debugStuff() {
-        getItems().forEach(tableSample -> {
-            System.out.println("Sample: " + tableSample);
+        upload.setOnCancelled(event -> {
+            logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
+            pForm.getDialogStage().hide();
         });
+
+        upload.setOnFailed(event -> {
+            logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
+            pForm.getDialogStage().hide();
+        });
+
+        pForm.activateProgressBar(upload);
+        pForm.getDialogStage().show();
+
+        new Thread(upload).start();
+
     }
 
 
