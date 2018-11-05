@@ -473,6 +473,53 @@ public class SampleTable {
         return samples;
     }
 
+    /**
+     * Check if this attribute has samples
+     *
+     * @param objectID
+     * @param attribute
+     * @return
+     */
+    public boolean hasSamples(long objectID, String attribute) throws Exception {
+        String sql = "" +
+                "select " + COLUMN_OBJECT + " from " + TABLE
+                + " where " + COLUMN_OBJECT + "=?"
+                + " and " + COLUMN_ATTRIBUTE + "=?"
+                + " limit 1";
+
+        PreparedStatement ps = null;
+
+        try {
+            ps = _connection.getConnection().prepareStatement(sql);
+
+            //insert
+            ps.setLong(1, objectID);
+            ps.setString(2, attribute);
+
+
+            logger.debug("SQL.hasSamples: {}", ps);
+            ResultSet rs = ps.executeQuery();
+            boolean hasSamples = false;
+            while (rs.next()) {
+                hasSamples = true;
+            }
+            return hasSamples;
+
+        } catch (Exception ex) {
+            logger.error(ex);
+            ex.printStackTrace();
+            throw ex;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /*ignored*/
+                }
+            }
+        }
+    }
+
     public JsonSample getLatest(long object, String att) throws JEVisException {
         JEVisSample sample = null;
         PreparedStatement ps = null;

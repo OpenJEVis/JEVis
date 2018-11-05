@@ -139,7 +139,7 @@ public class JEVisClassHelper {
                     endClass.getRelationships().add(rel.getValue());
                 }
             } catch (Exception ex) {
-                logger.error("Error while mapping class relationships[" + rel.getKey() + "]", ex);
+                logger.error("Error while mapping class relationships[{}]", rel.getKey(), ex);
             }
         }
 
