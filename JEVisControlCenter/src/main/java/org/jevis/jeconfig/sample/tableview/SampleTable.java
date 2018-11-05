@@ -261,6 +261,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     }
 
     private void selectionChanged() {
+        logger.debug("selectionChanged: {}", changedSamples.size());
         deleteInBetween.setValue(changedSamples.size() == 2);
         deleteSelected.setValue(!changedSamples.isEmpty());
 
@@ -370,12 +371,14 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TextField textField = new TextField(dateViewFormat.print(item));
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TextField textField = new TextField(dateViewFormat.print(tableSample.getTimeStamp()));
                             setDefaultFieldStyle(this, textField);
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     DateTime newDate = dateViewFormat.parseDateTime(textField.getText());
+
 
                                     List<JEVisSample> exitingSample = attribute.getSamples(newDate, newDate);
                                     if (!exitingSample.isEmpty()) {
@@ -387,7 +390,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                      *       - if error set background color red and show error while save event
                                      **/
 
-                                    TableSample tableSample = (TableSample) getTableRow().getItem();
+
                                     tableSample.setTimeStamp(newDate);
                                     setDefaultCellStyle(this);
                                 } catch (Exception ex) {
@@ -439,6 +442,10 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             try {
                                 TableSample tableSample = (TableSample) getTableRow().getItem();
                                 CheckBox checkBox = new CheckBox();
+                                checkBox.setSelected(tableSample.isSelected());
+                                checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                                    tableSample.setIsSelected(newValue);
+                                });
                                 setDefaultCellStyle(this);
                                 HBox box = new HBox(checkBox);
                                 box.setAlignment(Pos.BASELINE_CENTER);
@@ -550,8 +557,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-
-                            TextField textField = new TextField(item.toString());
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TextField textField = new TextField(tableSample.getValue().toString());
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
                             setDefaultFieldStyle(this, textField);
@@ -592,7 +599,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     setDefaultCellStyle(this);
-                                    TableSample tableSample = (TableSample) getTableRow().getItem();
+
                                     tableSample.setValue(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);
@@ -685,9 +692,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
 //                            TextField textField = new TextField(item.toString());
-                            TextArea textField = new TextArea(item.toString());
+                            TextArea textField = new TextArea(tableSample.getValue().toString());
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
 //                            Button expand = new Button(null, JEConfig.getImage("if_ExpandMore.png", 8, 8));
@@ -722,7 +729,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                     setDefaultCellStyle(this);
 
 
-                                    TableSample tableSample = (TableSample) getTableRow().getItem();
                                     tableSample.setValue(newValue + "");
 
                                 } catch (Exception ex) {
@@ -763,8 +769,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-
-                            TextField textField = new TextField(item.toString());
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TextField textField = new TextField(tableSample.getValue().toString());
                             setDefaultFieldStyle(this, textField);
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
@@ -793,7 +799,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     setDefaultCellStyle(this);
-                                    TableSample tableSample = (TableSample) getTableRow().getItem();
+
                                     tableSample.setValue(Long.parseLong(newValue));
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);
