@@ -305,16 +305,26 @@ public class GraphPluginView implements Plugin, Observer {
 
                 listChartViews.forEach(cv -> {
                     BorderPane bp = new BorderPane();
+                    Boolean newChart = false;
 
                     for (ChartSettings cset : dataModel.getCharts()) {
                         if (cset.getName().equals(cv.getChartName())) {
 
-                            bp.setPrefHeight(cset.getHeight());
-
+                            if (cset.getHeight() != null)
+                                bp.setPrefHeight(cset.getHeight());
+                            newChart = true;
                         }
                     }
 
-                    bp.setMinHeight(100);
+                    if (newChart) {
+                        Integer numberOfCharts = listChartViews.size();
+
+                        Double newHeight = border.getHeight() / numberOfCharts;
+
+                        bp.setPrefHeight(newHeight);
+                    }
+
+                    bp.setMinHeight(200);
                     bp.setTop(cv.getLegend());
                     bp.setCenter(cv.getChartRegion());
                     bp.setBottom(null);
