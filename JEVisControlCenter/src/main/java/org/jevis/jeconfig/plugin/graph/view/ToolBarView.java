@@ -8,6 +8,8 @@ package org.jevis.jeconfig.plugin.graph.view;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -52,6 +54,7 @@ public class ToolBarView {
     private List<ChartView> listView;
     private Boolean _initialized = false;
     private LoadAnalysisDialog dialog;
+    private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private JEVisTree selectionTree = null;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, ChartView chartView, List<ChartView> listChartViews) {
@@ -134,6 +137,12 @@ public class ToolBarView {
         delete.setTooltip(deleteTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
 
+        ToggleButton autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
+        Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
+        delete.setTooltip(autoResizeTip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(autoResize);
+
+
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
         Separator sep3 = new Separator();
@@ -166,7 +175,8 @@ public class ToolBarView {
 
         disableIcons.setOnAction(event -> hideShowIconsInGraph());
 
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, reload, save, delete, sep2, select, exportCSV, sep3, disableIcons);
+        autoResize.setOnAction(event -> autoResizeInGraph());
+        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, reload, save, delete, sep2, select, exportCSV, sep3, disableIcons, autoResize);
         _initialized = true;
         return toolBar;
     }
@@ -198,6 +208,14 @@ public class ToolBarView {
 
     private void hideShowIconsInGraph() {
         model.setHideShowIcons(!model.getHideShowIcons());
+    }
+
+    private void autoResizeInGraph() {
+        model.setAutoResize(!model.getAutoResize());
+    }
+
+    public ComboBox getListAnalysesComboBoxHidden() {
+        return listAnalysesComboBoxHidden;
     }
 
     public JEVisTree getSelectionTree() {

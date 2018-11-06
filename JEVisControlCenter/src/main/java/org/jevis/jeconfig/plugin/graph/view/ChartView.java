@@ -53,7 +53,13 @@ public class ChartView implements Observer {
         //dataModel.addObserver(this);
 
         tableView = new TableView();
-
+        tableView.setBorder(null);
+        tableView.setStyle(
+                ".table-view:focused {" +
+                        "-fx-padding: 0; " +
+                        "-fx-background-color: transparent, -fx-box-border, -fx-control-inner-background; " +
+                        "-fx-background-insets: -1.4,0,1;" +
+                        "}");
         tableView.sortPolicyProperty().set((Callback<TableView<TableEntry>, Boolean>) param -> {
 
             Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
