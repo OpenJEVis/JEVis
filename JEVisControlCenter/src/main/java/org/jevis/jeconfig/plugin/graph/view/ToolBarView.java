@@ -67,7 +67,6 @@ public class ToolBarView {
         ToolBar toolBar = new ToolBar();
         toolBar.setId("ObjectPlugin.Toolbar");
 
-        //load basic stuff
         double iconSize = 20;
         Label labelComboBox = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));
 
