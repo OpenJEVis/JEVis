@@ -60,7 +60,6 @@ public class GraphDataModel extends Observable {
         this.ds = ds;
     }
 
-
     public Set<ChartDataModel> getSelectedData() {
         return selectedData;
     }
@@ -446,9 +445,13 @@ public class GraphDataModel extends Observable {
                 newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
                 newData.setSelected(selected);
                 newData.setSomethingChanged(true);
-                newData.getSamples();
                 newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
                 newData.setUnit(unit);
+                /**
+                 * has to be the last action or the model will will register an settings change and then will
+                 * reload the data at the nest getSamples call
+                 */
+                newData.getSamples();
                 data.put(obj.getID().toString(), newData);
             } catch (JEVisException e) {
                 logger.error("Error: could not get chart data model", e);
@@ -493,4 +496,5 @@ public class GraphDataModel extends Observable {
             return tempList;
         } else return new ArrayList<>();
     }
+
 }
