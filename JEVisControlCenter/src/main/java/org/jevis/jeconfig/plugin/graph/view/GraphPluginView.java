@@ -176,6 +176,8 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     private void newAnalysis() {
+
+        dataModel.selectNone();
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel, null);
 
         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
@@ -246,7 +248,7 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public Node getContentNode() {
-        if (dataModel.getSelectedData() != null) chartsList = dataModel.getChartsList();
+        //if (dataModel.getSelectedData() != null) chartsList = dataModel.getChartsList();
 
         if (border == null) {
             border = new BorderPane();

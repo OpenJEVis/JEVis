@@ -226,30 +226,30 @@ public class ChartView implements Observer {
 
         this.chartName = title;
 
-        switch (chartType.toString()) {
-            case ("AREA"):
+        switch (chartType) {
+            case AREA:
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 setTableStandard();
                 addPeriodToValueColumn();
                 break;
-            case ("LINE"):
+            case LINE:
                 chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 setTableStandard();
                 addPeriodToValueColumn();
                 break;
-            case ("BAR"):
+            case BAR:
                 chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 setTableStandard();
                 break;
-            case ("BUBBLE"):
+            case BUBBLE:
                 chart = new BubbleChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 setTableStandard();
                 break;
-            case ("SCATTER"):
+            case SCATTER:
                 chart = new ScatterChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 setTableStandard();
                 break;
-            case ("PIE"):
+            case PIE:
                 chart = new PieChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 disableTable();
                 break;
@@ -263,19 +263,23 @@ public class ChartView implements Observer {
     }
 
     private void addPeriodToValueColumn() {
-        TableColumn tc = (TableColumn) tableView.getColumns().get(2);
-        String period = chart.getPeriod().toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
-        tc.setText(tc.getText() + " [" + period + "]");
-        tc = (TableColumn) tableView.getColumns().get(5);
-        tc.setText(tc.getText() + " [" + period + "]");
-        tc = (TableColumn) tableView.getColumns().get(6);
-        tc.setText(tc.getText() + " [" + period + "]");
-        tc = (TableColumn) tableView.getColumns().get(7);
-        tc.setText(tc.getText() + " [" + period + "]");
+        try {
+            TableColumn tc = (TableColumn) tableView.getColumns().get(2);
+            String period = chart.getPeriod().toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
+            tc.setText(tc.getText() + " [" + period + "]");
+            tc = (TableColumn) tableView.getColumns().get(5);
+            tc.setText(tc.getText() + " [" + period + "]");
+            tc = (TableColumn) tableView.getColumns().get(6);
+            tc.setText(tc.getText() + " [" + period + "]");
+            tc = (TableColumn) tableView.getColumns().get(7);
+            tc.setText(tc.getText() + " [" + period + "]");
 
-        String overall = new Period(chart.getStartDateTime(), chart.getEndDateTime()).toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
-        tc = (TableColumn) tableView.getColumns().get(8);
-        tc.setText(tc.getText() + " [" + overall + "]");
+            String overall = new Period(chart.getStartDateTime(), chart.getEndDateTime().plus(chart.getPeriod())).toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
+            tc = (TableColumn) tableView.getColumns().get(8);
+            tc.setText(tc.getText() + " [" + overall + "]");
+        } catch (Exception e) {
+            logger.error("Could not get table captions. " + e);
+        }
     }
 
     public void updateTablesSimultaneously(MouseEvent mouseEvent, Number valueForDisplay) {

@@ -74,9 +74,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         }
 
-        graphDataModel.updateListAnalyses();
         lv.setItems(graphDataModel.getObservableListAnalyses());
-        graphDataModel.getListAnalysis();
 
         HBox hbox_list = new HBox();
         hbox_list.getChildren().add(lv);
@@ -96,21 +94,22 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         LocalDate min = null;
                         LocalDate max = null;
                         for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
-                            JEVisAttribute att = mdl.getAttribute();
+                            if (mdl.getSelected()) {
+                                JEVisAttribute att = mdl.getAttribute();
 
-                            LocalDate min_check = LocalDate.of(
-                                    att.getTimestampFromFirstSample().getYear(),
-                                    att.getTimestampFromFirstSample().getMonthOfYear(),
-                                    att.getTimestampFromFirstSample().getDayOfMonth());
+                                LocalDate min_check = LocalDate.of(
+                                        att.getTimestampFromFirstSample().getYear(),
+                                        att.getTimestampFromFirstSample().getMonthOfYear(),
+                                        att.getTimestampFromFirstSample().getDayOfMonth());
 
-                            LocalDate max_check = LocalDate.of(
-                                    att.getTimestampFromLastSample().getYear(),
-                                    att.getTimestampFromLastSample().getMonthOfYear(),
-                                    att.getTimestampFromLastSample().getDayOfMonth());
+                                LocalDate max_check = LocalDate.of(
+                                        att.getTimestampFromLastSample().getYear(),
+                                        att.getTimestampFromLastSample().getMonthOfYear(),
+                                        att.getTimestampFromLastSample().getDayOfMonth());
 
-                            if (min == null || min_check.isBefore(min)) min = min_check;
-                            if (max == null || max_check.isAfter(max)) max = max_check;
-
+                                if (min == null || min_check.isBefore(min)) min = min_check;
+                                if (max == null || max_check.isAfter(max)) max = max_check;
+                            }
                         }
 
                         if (min != null && item.isBefore(min)) {
@@ -127,6 +126,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         };
 
+        Label individualText = new Label(I18n.getInstance().getString("plugin.graph.changedate.individual"));
         Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate"));
         pickerDateStart.setPrefWidth(120d);
         pickerDateStart.setDayCellFactory(dayCellFactory);
@@ -156,7 +156,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
 
-        if (!graphDataModel.getListAnalyses().isEmpty()) {
+        if (!graphDataModel.getSelectedData().isEmpty()) {
             updateTimeFramePicker();
         }
 
@@ -186,6 +186,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         for (int i = 0; i < 4; i++) {
                             programmaticallySetPresetDate[i] = true;
                         }
+                        setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                         break;
                     //last 7 days
                     case 2:
@@ -194,6 +195,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         for (int i = 0; i < 4; i++) {
                             programmaticallySetPresetDate[i] = true;
                         }
+                        setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                         break;
                     //last 30 days
                     case 3:
@@ -202,6 +204,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         for (int i = 0; i < 4; i++) {
                             programmaticallySetPresetDate[i] = true;
                         }
+                        setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                         break;
                     //yesterday
                     case 4:
@@ -210,6 +213,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         for (int i = 0; i < 4; i++) {
                             programmaticallySetPresetDate[i] = true;
                         }
+                        setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                         break;
                     //last Week days
                     case 5:
@@ -218,6 +222,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         for (int i = 0; i < 4; i++) {
                             programmaticallySetPresetDate[i] = true;
                         }
+                        setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                         break;
                     case 6:
                         //last Month
@@ -226,6 +231,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         for (int i = 0; i < 4; i++) {
                             programmaticallySetPresetDate[i] = true;
                         }
+                        setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                         break;
                     case 7:
                         graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd));
@@ -233,7 +239,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     default:
                         break;
                 }
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
             }
         });
 
@@ -252,7 +257,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         VBox vbox_picker = new VBox();
         vbox_picker.setSpacing(4);
-        vbox_picker.getChildren().addAll(startText, startBox, endText, endBox);
+        vbox_picker.getChildren().addAll(individualText, startText, startBox, endText, endBox);
 
         VBox vbox_buttons = new VBox();
         vbox_buttons.setSpacing(4);
@@ -276,8 +281,20 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         lv.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
+
                 graphDataModel.setNameCurrentAnalysis(newValue);
                 graphDataModel.setJEVisObjectForCurrentAnalysis(newValue);
+
+                graphDataModel.updateSelectedData();
+
+                graphDataModel.setCharts(null);
+
+                AnalysisTimeFrame last7 = new AnalysisTimeFrame();
+                last7.setTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
+                graphDataModel.setAnalysisTimeFrame(last7);
+
+                graphDataModel.setCharts(graphDataModel.getCharts());
+                graphDataModel.setSelectedData(graphDataModel.getSelectedData());
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -317,12 +334,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         }
 
-
         this.setTitle(I18n.getInstance().getString("plugin.graph.analysis.dialog.title"));
 
+        this.getDialogPane().getButtonTypes().add(newGraph);
         if (graphDataModel.getNameCurrentAnalysis() != null && !graphDataModel.getNameCurrentAnalysis().equals(""))
             this.getDialogPane().getButtonTypes().add(loadGraph);
-        this.getDialogPane().getButtonTypes().add(newGraph);
+
         this.getDialogPane().setContent(vbox);
 
     }
@@ -492,7 +509,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             this.selectedStart = (new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
                     graphDataModel.getWorkdayStart().getHour(), graphDataModel.getWorkdayStart().getMinute(), 0).minusDays(8));
         }
-        graphDataModel.getListAnalysisModel().getListAnalyses().forEach(jsonAnalysisDataRow -> jsonAnalysisDataRow.setSelectedStart(selectedStart.toString()));
+        graphDataModel.getSelectedData().forEach(dataModel -> dataModel.setSelectedStart(selectedStart));
     }
 
     public void setSelectedEnd(DateTime selectedEnd) {
@@ -503,6 +520,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             this.selectedEnd = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
                     graphDataModel.getWorkdayEnd().getHour(), graphDataModel.getWorkdayEnd().getMinute(), 59, 999);
         }
-        graphDataModel.getListAnalysisModel().getListAnalyses().forEach(jsonAnalysisDataRow -> jsonAnalysisDataRow.setSelectedEnd(selectedEnd.toString()));
+        graphDataModel.getSelectedData().forEach(dataModel -> dataModel.setSelectedEnd(selectedEnd));
     }
 }
