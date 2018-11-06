@@ -43,6 +43,7 @@ public class GraphDataModel extends Observable {
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private Set<ChartSettings> charts = new HashSet<>();
     private Boolean hideShowIcons = true;
+    private Boolean autoResize = false;
     private ObservableList<String> selectedDataNames = FXCollections.observableArrayList(new ArrayList<>());
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame();
     private JEVisDataSource ds;
@@ -110,6 +111,16 @@ public class GraphDataModel extends Observable {
         this.charts = charts;
     }
 
+    public ChartSettings getChartSetting(String name) {
+        for (ChartSettings cset : getCharts()) {
+            if (cset.getName().equals(name)) {
+                return cset;
+            }
+        }
+        return null;
+
+    }
+
     public Boolean getHideShowIcons() {
         return hideShowIcons;
     }
@@ -117,6 +128,16 @@ public class GraphDataModel extends Observable {
     public void setHideShowIcons(Boolean hideShowIcons) {
         this.hideShowIcons = hideShowIcons;
 
+        setChanged();
+        notifyObservers();
+    }
+
+    public Boolean getAutoResize() {
+        return autoResize;
+    }
+
+    public void setAutoResize(Boolean resize) {
+        this.autoResize = resize;
         setChanged();
         notifyObservers();
     }
