@@ -19,6 +19,7 @@ import org.jevis.application.Chart.data.CustomPeriodObject;
 import org.jevis.application.Chart.data.DateHelper;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -33,6 +34,7 @@ import java.util.List;
  */
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
+    private final ToolBarView toolBarView;
     private GraphDataModel graphDataModel;
     private JFXDatePicker pickerDateStart = new JFXDatePicker();
     private JFXTimePicker pickerTimeStart = new JFXTimePicker();
@@ -46,8 +48,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private ComboBox<String> comboBoxPresetDates;
     private Boolean programmaticallySetPresetDate[] = new Boolean[4];
 
-    public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data) {
+    public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
+        this.toolBarView = toolBarView;
         this.ds = ds;
         for (int i = 0; i < 4; i++) {
             programmaticallySetPresetDate[i] = false;
@@ -78,8 +81,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         HBox hbox_list = new HBox();
         hbox_list.getChildren().add(lv);
-        if (graphDataModel.getNameCurrentAnalysis() != null && !graphDataModel.getNameCurrentAnalysis().equals(""))
-            lv.getSelectionModel().select(graphDataModel.getNameCurrentAnalysis());
+        if (graphDataModel.getCurrentAnalysis().getName() != null && !graphDataModel.getCurrentAnalysis().getName().equals(""))
+            lv.getSelectionModel().select(graphDataModel.getCurrentAnalysis().getName());
 
         HBox.setHgrow(lv, Priority.ALWAYS);
 
@@ -282,19 +285,13 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         lv.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
 
-                graphDataModel.setNameCurrentAnalysis(newValue);
-                graphDataModel.setJEVisObjectForCurrentAnalysis(newValue);
 
-                graphDataModel.updateSelectedData();
-
-                graphDataModel.setCharts(null);
 
                 AnalysisTimeFrame last7 = new AnalysisTimeFrame();
                 last7.setTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
                 graphDataModel.setAnalysisTimeFrame(last7);
 
-                graphDataModel.setCharts(graphDataModel.getCharts());
-                graphDataModel.setSelectedData(graphDataModel.getSelectedData());
+                toolBarView.select(newValue);
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -337,7 +334,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         this.setTitle(I18n.getInstance().getString("plugin.graph.analysis.dialog.title"));
 
         this.getDialogPane().getButtonTypes().add(newGraph);
-        if (graphDataModel.getNameCurrentAnalysis() != null && !graphDataModel.getNameCurrentAnalysis().equals(""))
+        if (graphDataModel.getCurrentAnalysis().getName() != null && !graphDataModel.getCurrentAnalysis().getName().equals(""))
             this.getDialogPane().getButtonTypes().add(loadGraph);
 
         this.getDialogPane().setContent(vbox);

@@ -54,7 +54,6 @@ public class GraphDataModel extends Observable {
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis;
-    private String nameCurrentAnalysis;
 
     public GraphDataModel(JEVisDataSource ds) {
         this.ds = ds;
@@ -206,7 +205,7 @@ public class GraphDataModel extends Observable {
                     ChartSettings newSettings = new ChartSettings("");
                     newSettings.setName(settings.getName());
                     newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
-                    System.out.println("newSettings chartType: " + newSettings.getChartType());
+
                     if (settings.getHeight() != null)
                         newSettings.setHeight(Double.parseDouble(settings.getHeight()));
                     chartSettingsHashMap.put(newSettings.getName(), newSettings);
@@ -252,6 +251,7 @@ public class GraphDataModel extends Observable {
 
     public void setAutoResize(Boolean resize) {
         this.autoResize = resize;
+
         setChanged();
         notifyObservers();
     }
@@ -290,6 +290,7 @@ public class GraphDataModel extends Observable {
     public void setAnalysisTimeFrame(AnalysisTimeFrame analysisTimeFrame) {
 
         DateHelper dateHelper = new DateHelper();
+        setMinMaxForDateHelper(dateHelper);
         if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
         if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
 
@@ -332,6 +333,41 @@ public class GraphDataModel extends Observable {
         }
 
         this.analysisTimeFrame = analysisTimeFrame;
+    }
+
+    private void setMinMaxForDateHelper(DateHelper dateHelper) {
+        DateTime min = null;
+        DateTime max = null;
+        for (ChartDataModel mdl : getSelectedData()) {
+            if (mdl.getSelected()) {
+                JEVisAttribute att = mdl.getAttribute();
+
+                DateTime min_check = new DateTime(
+                        att.getTimestampFromFirstSample().getYear(),
+                        att.getTimestampFromFirstSample().getMonthOfYear(),
+                        att.getTimestampFromFirstSample().getDayOfMonth(),
+                        att.getTimestampFromFirstSample().getHourOfDay(),
+                        att.getTimestampFromFirstSample().getMinuteOfHour(),
+                        att.getTimestampFromFirstSample().getSecondOfMinute());
+
+                DateTime max_check = new DateTime(
+                        att.getTimestampFromLastSample().getYear(),
+                        att.getTimestampFromLastSample().getMonthOfYear(),
+                        att.getTimestampFromLastSample().getDayOfMonth(),
+                        att.getTimestampFromLastSample().getHourOfDay(),
+                        att.getTimestampFromLastSample().getMinuteOfHour(),
+                        att.getTimestampFromLastSample().getSecondOfMinute());
+
+                if (min == null || min_check.isBefore(min)) min = min_check;
+                if (max == null || max_check.isAfter(max)) max = max_check;
+            }
+        }
+
+        if (min != null && max != null) {
+            dateHelper.setMinStartDateTime(min);
+            dateHelper.setMaxEndDateTime(max);
+        }
+
     }
 
     private void updateStartEndToDataModel(DateHelper dh) {
@@ -464,7 +500,6 @@ public class GraphDataModel extends Observable {
             }
         }
         this.currentAnalysis = currentAnalysis;
-        if (currentAnalysis != null) this.nameCurrentAnalysis = currentAnalysis.getName();
 
         if (listAnalysisModel == null) getListAnalysisModel();
     }
@@ -494,16 +529,6 @@ public class GraphDataModel extends Observable {
 
     public LocalTime getWorkdayEnd() {
         return workdayEnd;
-    }
-
-    public String getNameCurrentAnalysis() {
-        if (nameCurrentAnalysis == null)
-            this.nameCurrentAnalysis = getCurrentAnalysis().getName();
-        return nameCurrentAnalysis;
-    }
-
-    public void setNameCurrentAnalysis(String nameCurrentAnalysis) {
-        this.nameCurrentAnalysis = nameCurrentAnalysis;
     }
 
     public JEVisObject getCurrentAnalysis() {

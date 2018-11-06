@@ -78,13 +78,12 @@ public class ToolBarView {
         listAnalysesComboBoxHidden.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
                 AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
-                model.setNameCurrentAnalysis(newValue.toString());
-                model.setJEVisObjectForCurrentAnalysis(newValue.toString());
 
-                model.updateSelectedData();
+                model.setJEVisObjectForCurrentAnalysis(newValue.toString());
 
                 model.setCharts(null);
                 model.setAnalysisTimeFrame(oldTimeFrame);
+                model.updateSelectedData();
 
                 model.setCharts(model.getCharts());
                 model.setSelectedData(model.getSelectedData());
@@ -183,7 +182,7 @@ public class ToolBarView {
     private void loadNewDialog() {
 
 
-        dialog = new LoadAnalysisDialog(ds, model);
+        dialog = new LoadAnalysisDialog(ds, model, this);
 
         dialog.showAndWait()
                 .ifPresent(response -> {
@@ -262,10 +261,8 @@ public class ToolBarView {
         newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         TextField name = new TextField();
-        if (model.getNameCurrentAnalysis() != null && model.getNameCurrentAnalysis() != "")
-            name.setText(model.getNameCurrentAnalysis());
-
-        name.textProperty().addListener((observable, oldValue, newValue) -> model.setNameCurrentAnalysis(newValue));
+        if (model.getCurrentAnalysis().getName() != null && model.getCurrentAnalysis().getName() != "")
+            name.setText(model.getCurrentAnalysis().getName());
 
         name.focusedProperty().addListener((ov, t, t1) -> Platform.runLater(() -> {
             if (name.isFocused() && !name.getText().isEmpty()) {
@@ -286,21 +283,21 @@ public class ToolBarView {
         newAnalysis.showAndWait()
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                        if (!model.getObservableListAnalyses().contains(model.getNameCurrentAnalysis())) {
+                        if (!model.getObservableListAnalyses().contains(model.getCurrentAnalysis().getName())) {
                             try {
                                 for (JEVisObject obj : ds.getObjects(ds.getJEVisClass("Analyses Directory"), false)) {
                                     JEVisObject analysesDir = obj;
                                     JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
-                                    model.setCurrentAnalysis(obj.buildObject(model.getNameCurrentAnalysis(), classAnalysis));
+                                    model.setCurrentAnalysis(obj.buildObject(model.getCurrentAnalysis().getName(), classAnalysis));
                                     model.getCurrentAnalysis().commit();
                                 }
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
                             saveDataModel(model.getSelectedData(), model.getCharts());
-                            model.updateListAnalyses();
+
                             listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
-                            listAnalysesComboBoxHidden.getSelectionModel().select(model.getNameCurrentAnalysis());
+                            listAnalysesComboBoxHidden.getSelectionModel().select(model.getCurrentAnalysis().getName());
                         } else {
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
                             dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
@@ -313,9 +310,9 @@ public class ToolBarView {
                             dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
                                 if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
                                     saveDataModel(model.getSelectedData(), model.getCharts());
-                                    model.updateListAnalyses();
+
                                     listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
-                                    listAnalysesComboBoxHidden.getSelectionModel().select(model.getNameCurrentAnalysis());
+                                    listAnalysesComboBoxHidden.getSelectionModel().select(model.getCurrentAnalysis().getName());
                                 } else {
 
                                 }
