@@ -28,11 +28,14 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
@@ -79,6 +82,7 @@ public class GraphPluginView implements Plugin, Observer {
 
         this.ds = ds;
         this.name.set(newname);
+        getContentNode();
     }
 
     @Override
@@ -117,7 +121,6 @@ public class GraphPluginView implements Plugin, Observer {
 
             loadAnalysis.setOnAction(event -> openDialog());
 
-            if (border == null) border = new BorderPane();
 
             border.setCenter(vBox);
         }
@@ -255,7 +258,8 @@ public class GraphPluginView implements Plugin, Observer {
             if (chartView != null)
                 border.setCenter(chartView.getChartRegion());
 
-            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
         }
 
         return border;
@@ -264,6 +268,9 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+
+        double abolutMinSize = 200;
+        double autoMinSize = 200;
 
         if (dataModel.getSelectedData() != null) {
             chartsList = dataModel.getChartsList();
@@ -287,9 +294,10 @@ public class GraphPluginView implements Plugin, Observer {
                     border.setCenter(chartView.getChartRegion());
                 }
             } else if (chartsList.size() > 1) {
-                if (border == null) {
-                    border = new BorderPane();
-                }
+
+                double maxhight = border.getHeight();
+                double totalPrefHight = 0;
+
                 listChartViews = null;
                 listChartViews = toolBarView.getChartViews();
                 AlphanumComparator ac = new AlphanumComparator();
@@ -299,37 +307,51 @@ public class GraphPluginView implements Plugin, Observer {
                 }
 
                 VBox vBox = new VBox();
+                vBox.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
 
                 ScrollPane sp = new ScrollPane();
+                sp.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
                 sp.setFitToWidth(true);
+                sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-                listChartViews.forEach(cv -> {
+//                listChartViews.forEach(cv -> {
+                for (ChartView cv : listChartViews) {
+
                     BorderPane bp = new BorderPane();
-                    Boolean newChart = false;
+                    bp.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
+
 
                     for (ChartSettings cset : dataModel.getCharts()) {
                         if (cset.getName().equals(cv.getChartName())) {
 
-                            if (cset.getHeight() != null)
+                            if (cset.getHeight() != null) {
                                 bp.setPrefHeight(cset.getHeight());
-                            newChart = true;
+                            } else {
+                                /**
+                                 * Add offset for every data object because of the table legend
+                                 * Every row has about 25 pixel with the default font
+                                 */
+                                int dataSize = 0;
+                                for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
+                                    for (String name : chartDataModel.getSelectedcharts()) {
+                                        if (name.equals(cv.getChartName())) {
+                                            dataSize++;
+                                        }
+                                    }
+                                }
+                                bp.setPrefHeight(autoMinSize + (dataSize * 25));
+
+                            }
+//                            totalPrefHight += bp.getPrefHeight();
                         }
                     }
 
-                    if (newChart) {
-                        Integer numberOfCharts = listChartViews.size();
-
-                        Double newHeight = border.getHeight() / numberOfCharts;
-
-                        bp.setPrefHeight(newHeight);
-                    }
-
-                    bp.setMinHeight(200);
+                    bp.setMinHeight(abolutMinSize);
                     bp.setTop(cv.getLegend());
                     bp.setCenter(cv.getChartRegion());
                     bp.setBottom(null);
-                    bp.setBorder(new Border(new BorderStroke(Color.DARKGRAY,
-                            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(4, 4, 4, 4))));
+//                    bp.setBorder(new Border(new BorderStroke(Color.DARKGRAY,
+//                            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1, 0, 1, 0))));
 
                     DragResizerXY.makeResizable(bp);
 
@@ -410,8 +432,46 @@ public class GraphPluginView implements Plugin, Observer {
 
                     vBox.getChildren().add(bp);
                     vBox.getChildren().add(sep);
+//                    totalPrefHight += sep.getPrefHeight();
 
-                });
+
+                }
+
+                if (dataModel.getAutoResize()) {
+                    /**
+                     * If all children take more space then the maximum available size
+                     * set all on min size. after this the free space will be reallocate
+                     */
+                    totalPrefHight = calculationTotalPrefSize(vBox);
+                    if (totalPrefHight > maxhight) {
+                        vBox.getChildren().forEach(node -> {
+                            System.out.println("Min: " + node.getClass());
+                            if (node instanceof BorderPane) {
+                                System.out.println("Set min");
+                                ((BorderPane) node).setPrefHeight(autoMinSize);
+                            }
+                        });
+                    }
+
+                    /**
+                     * Recalculate total prefsize
+                     */
+                    totalPrefHight = calculationTotalPrefSize(vBox);
+
+                    /**
+                     * Reallocate free space equal to all children
+                     */
+                    if (totalPrefHight < maxhight) {
+                        /** size/2 because there is an separator for every chart **/
+                        final double freeSpacePart = (maxhight - totalPrefHight) / (vBox.getChildren().size() / 2);
+                        vBox.getChildren().forEach(node -> {
+                            if (node instanceof Pane) {
+                                ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart);
+                            }
+                        });
+
+                    }
+                }
 
                 sp.setContent(vBox);
 
@@ -422,5 +482,18 @@ public class GraphPluginView implements Plugin, Observer {
             }
         }
         System.gc();
+    }
+
+    private double calculationTotalPrefSize(Pane pane) {
+        double totalPrefHight = 0;
+        for (Node node : pane.getChildren()) {
+            if (node instanceof Separator) {
+                /** Separator has no preSize so tested a working one, the real size can only be taken after rendering **/
+                totalPrefHight += 4.5;
+            } else if (node instanceof Region) {
+                totalPrefHight += ((Region) node).getPrefHeight();
+            }
+        }
+        return totalPrefHight;
     }
 }
