@@ -28,14 +28,12 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.AnalysisTimeFrame;
 import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
@@ -138,7 +136,7 @@ public class GraphPluginView implements Plugin, Observer {
 
                     } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
-                        toolBarView.select(dialog.getLv().getSelectionModel().getSelectedItem());
+                        toolBarView.select(dataModel.getCurrentAnalysis().getName());
                     }
                 });
     }
@@ -179,7 +177,13 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     private void newAnalysis() {
+
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel, null);
+
+        AnalysisTimeFrame atf = new AnalysisTimeFrame();
+        atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
+
+        dataModel.setAnalysisTimeFrame(atf);
 
         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 

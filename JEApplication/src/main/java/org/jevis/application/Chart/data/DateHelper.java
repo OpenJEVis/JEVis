@@ -24,6 +24,8 @@ public class DateHelper {
     private InputType inputType;
     private Boolean userSet = true;
     private CustomPeriodObject customPeriodObject;
+    private DateTime minStartDateTime;
+    private DateTime maxEndDateTime;
 
     public DateHelper(TransformType type) {
         this.type = type;
@@ -73,21 +75,30 @@ public class DateHelper {
             case CUSTOM:
                 break;
             case TODAY:
-                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                        startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case LAST7DAYS:
-                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                        startTime.getHour(), startTime.getMinute(), startTime.getSecond())
                         .minusDays(7);
+
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case LAST30DAYS:
-                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                        startTime.getHour(), startTime.getMinute(), startTime.getSecond())
                         .minusDays(30);
+
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case YESTERDAY:
-                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                startDate = getEndDate()
                         .minusDays(1);
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
@@ -303,6 +314,7 @@ public class DateHelper {
                 break;
             case TODAY:
                 now = DateTime.now();
+
                 endDate = now;
                 break;
             case LAST7DAYS:
@@ -318,6 +330,7 @@ public class DateHelper {
                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                         endTime.getHour(), endTime.getMinute(), endTime.getSecond())
                         .minusDays(1);
+
                 break;
             case LASTWEEK:
                 now = DateTime.now();
@@ -607,5 +620,21 @@ public class DateHelper {
     public LocalDate getEndAsLocalDate() {
         DateTime end = getEndDate();
         return LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth());
+    }
+
+    public void setMinStartDateTime(DateTime minStartDateTime) {
+        this.minStartDateTime = minStartDateTime;
+    }
+
+    public void setMaxEndDateTime(DateTime maxEndDateTime) {
+        this.maxEndDateTime = maxEndDateTime;
+    }
+
+    public DateTime getMinStartDateTime() {
+        return minStartDateTime;
+    }
+
+    public DateTime getMaxEndDateTime() {
+        return maxEndDateTime;
     }
 }

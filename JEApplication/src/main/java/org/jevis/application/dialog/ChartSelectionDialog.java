@@ -153,7 +153,6 @@ public class ChartSelectionDialog {
 
         removeAllSelections.setOnAction(event -> {
             try {
-                System.out.println("remove all Selection event");
                 chartPlugin.selectNone();
             } catch (Exception ex) {
             }
@@ -204,18 +203,11 @@ public class ChartSelectionDialog {
             }
 
             if (!listUS.isEmpty()) tree.openUserSelectionNoChildren(listUS);
-        } else {
-            List<UserSelection> listUS = new ArrayList<>();
-            JEVisObject firstDataDir = null;
-            try {
-                JEVisClass classDataDirectory = _ds.getJEVisClass("Data Directory");
-                List<JEVisObject> listDataDirectories = _ds.getObjects(classDataDirectory, false);
-                if (!listDataDirectories.isEmpty()) firstDataDir = listDataDirectories.get(0);
-            } catch (JEVisException e) {
-
+            else {
+                openFirstDataDir();
             }
-            if (firstDataDir != null) listUS.add(new UserSelection(UserSelection.SelectionType.Object, firstDataDir));
-            if (!listUS.isEmpty()) tree.openUserSelection(listUS);
+        } else {
+            openFirstDataDir();
         }
 
         ok.setOnAction(event -> {
@@ -230,6 +222,20 @@ public class ChartSelectionDialog {
         stage.showAndWait();
 
         return _response;
+    }
+
+    private void openFirstDataDir() {
+        List<UserSelection> listUS = new ArrayList<>();
+        JEVisObject firstDataDir = null;
+        try {
+            JEVisClass classDataDirectory = _ds.getJEVisClass("Data Directory");
+            List<JEVisObject> listDataDirectories = _ds.getObjects(classDataDirectory, false);
+            if (!listDataDirectories.isEmpty()) firstDataDir = listDataDirectories.get(0);
+        } catch (JEVisException e) {
+
+        }
+        if (firstDataDir != null) listUS.add(new UserSelection(UserSelection.SelectionType.Object, firstDataDir));
+        if (!listUS.isEmpty()) tree.openUserSelection(listUS);
     }
 
     private Tab getChartTab(String s) {

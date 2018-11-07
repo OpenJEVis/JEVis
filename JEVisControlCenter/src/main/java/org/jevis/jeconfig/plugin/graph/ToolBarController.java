@@ -37,8 +37,7 @@ public class ToolBarController implements EventHandler {
 
         if (selectionDialog.show(new Stage()) == ChartSelectionDialog.Response.OK) {
 
-            model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
-            model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
+
         }
     }
 

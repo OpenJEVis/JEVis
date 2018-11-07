@@ -54,24 +54,39 @@ public class GraphDataModel extends Observable {
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis;
-    private String nameCurrentAnalysis;
 
     public GraphDataModel(JEVisDataSource ds) {
         this.ds = ds;
     }
 
     public Set<ChartDataModel> getSelectedData() {
-        return selectedData;
+        if (selectedData == null || selectedData.isEmpty()) {
+
+            updateSelectedData();
+
+            if (selectedData != null && !selectedData.isEmpty() && getListAnalysisModel() != null && getListAnalysisModel().getAnalysisTimeFrame() != null
+                    && getListAnalysisModel().getAnalysisTimeFrame().getTimeframe() != null) {
+                AnalysisTimeFrame newATF = new AnalysisTimeFrame();
+                try {
+                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(getListAnalysisModel().getAnalysisTimeFrame().getTimeframe()));
+                    newATF.setId(Long.parseLong(getListAnalysisModel().getAnalysisTimeFrame().getId()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                setAnalysisTimeFrame(newATF);
+            }
+        }
+
+        return this.selectedData;
     }
 
     public void setSelectedData(Set<ChartDataModel> selectedData) {
         this.selectedData = selectedData;
-        selectedDataNames.clear();
 
+        selectedDataNames.clear();
 
         if (getSelectedData() != null) {
             for (ChartDataModel mdl : getSelectedData()) {
-
                 if (mdl.getSelected()) {
                     boolean found = false;
                     for (String chartName : mdl.getSelectedcharts()) {
@@ -102,8 +117,131 @@ public class GraphDataModel extends Observable {
         notifyObservers();
     }
 
+    public void updateSelectedData() {
+        Set<ChartDataModel> selectedData = new HashSet<>();
+
+        if (getListAnalysisModel() != null) {
+            Map<String, ChartDataModel> data = new HashMap<>();
+
+            for (JsonAnalysisDataRow mdl : getListAnalysisModel().getListAnalyses()) {
+                ChartDataModel newData = new ChartDataModel();
+
+                try {
+                    Long id = Long.parseLong(mdl.getObject());
+                    Long id_dp = null;
+                    if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
+                    JEVisObject obj = ds.getObject(id);
+                    JEVisObject obj_dp = null;
+                    if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
+                    JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
+                    DateTime start;
+                    start = DateTime.parse(mdl.getSelectedStart());
+                    DateTime end;
+                    end = DateTime.parse(mdl.getSelectedEnd());
+                    Boolean selected = Boolean.parseBoolean(mdl.getSelected());
+                    newData.setObject(obj);
+
+                    newData.setSelectedStart(start);
+                    newData.setSelectedEnd(end);
+
+                    newData.setColor(Color.valueOf(mdl.getColor()));
+                    newData.setTitle(mdl.getName());
+                    if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
+                    newData.getAttribute();
+                    newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
+                    newData.setSelected(selected);
+                    newData.setSomethingChanged(true);
+                    newData.getSamples();
+                    newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
+                    newData.setUnit(unit);
+                    data.put(obj.getID().toString(), newData);
+                } catch (JEVisException e) {
+                    logger.error("Error: could not get chart data model", e);
+                }
+            }
+
+            for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
+                ChartDataModel value = entrySet.getValue();
+                if (value.getSelected()) {
+                    selectedData.add(value);
+                }
+            }
+
+//            try {
+//                AnalysisTimeFrame newATF = new AnalysisTimeFrame();
+//                newATF.setTimeFrame(newATF.parseTimeFrameFromString(getListAnalysisModel().getAnalysisTimeFrame().getTimeframe()));
+//                newATF.setId(Long.parseLong(getListAnalysisModel().getAnalysisTimeFrame().getId()));
+//                analysisTimeFrame = newATF;
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+
+        }
+        this.selectedData = selectedData;
+    }
+
+    public void updateSamples() {
+        selectedData.forEach(chartDataModel -> {
+            chartDataModel.setSomethingChanged(true);
+            chartDataModel.getSamples();
+        });
+    }
+
     public Set<ChartSettings> getCharts() {
+        if (charts == null) updateCharts();
+
         return charts;
+    }
+
+    private void updateCharts() {
+        if (charts == null || charts.isEmpty()) {
+            try {
+                ds.reloadAttributes();
+                if (getCurrentAnalysis() != null) {
+                    if (Objects.nonNull(getCurrentAnalysis().getAttribute("Charts"))) {
+                        if (getCurrentAnalysis().getAttribute("Charts").hasSample()) {
+                            String str = getCurrentAnalysis().getAttribute("Charts").getLatestSample().getValueAsString();
+                            try {
+                                if (str.startsWith("[")) {
+                                    listChartsSettings = new Gson().fromJson(str, new TypeToken<List<JsonChartSettings>>() {
+                                    }.getType());
+
+                                } else {
+                                    listChartsSettings = new ArrayList<>();
+                                    listChartsSettings.add(new Gson().fromJson(str, JsonChartSettings.class));
+                                }
+                            } catch (Exception e) {
+                                logger.error("Error: could not read chart settings", e);
+                            }
+                        }
+                    }
+                    updateWorkDays();
+                }
+            } catch (JEVisException e) {
+                logger.error("Error: could not get analysis model", e);
+            }
+
+            Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
+            Set<ChartSettings> chartSettings = new HashSet<>();
+
+            if (listChartsSettings != null && !listChartsSettings.isEmpty()) {
+                for (JsonChartSettings settings : listChartsSettings) {
+                    ChartSettings newSettings = new ChartSettings("");
+                    newSettings.setName(settings.getName());
+                    newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
+
+                    if (settings.getHeight() != null)
+                        newSettings.setHeight(Double.parseDouble(settings.getHeight()));
+                    chartSettingsHashMap.put(newSettings.getName(), newSettings);
+                }
+
+                for (Map.Entry<String, ChartSettings> entrySet : chartSettingsHashMap.entrySet()) {
+                    ChartSettings value = entrySet.getValue();
+                    chartSettings.add(value);
+                }
+                charts = chartSettings;
+            }
+        }
     }
 
     public void setCharts(Set<ChartSettings> charts) {
@@ -137,11 +275,13 @@ public class GraphDataModel extends Observable {
 
     public void setAutoResize(Boolean resize) {
         this.autoResize = resize;
+
         setChanged();
         notifyObservers();
     }
 
     public ObservableList<String> getChartsList() {
+
         return selectedDataNames;
     }
 
@@ -172,122 +312,124 @@ public class GraphDataModel extends Observable {
     }
 
     public void setAnalysisTimeFrame(AnalysisTimeFrame analysisTimeFrame) {
-        this.analysisTimeFrame = analysisTimeFrame;
 
-        DateHelper dateHelper = new DateHelper();
-        if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
-        if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
+        if (!selectedData.isEmpty() || selectedData != null) {
+            DateHelper dateHelper = new DateHelper();
+            setMinMaxForDateHelper(dateHelper);
+            if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
+            if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
 
-        switch (analysisTimeFrame.getTimeFrame()) {
-            //Custom
-            case custom:
-                break;
-            //today
-            case today:
-                dateHelper.setType(DateHelper.TransformType.TODAY);
-                updateStartEndToDataModel(dateHelper);
-                break;
-            //last 7 days
-            case last7Days:
-                dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                updateStartEndToDataModel(dateHelper);
-                break;
-            //last 30 days
-            case last30Days:
-                dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                updateStartEndToDataModel(dateHelper);
-                break;
-            //yesterday
-            case yesterday:
-                dateHelper.setType(DateHelper.TransformType.YESTERDAY);
-                updateStartEndToDataModel(dateHelper);
-                break;
-            //last Week days
-            case lastWeek:
-                dateHelper.setType(DateHelper.TransformType.LASTWEEK);
-                updateStartEndToDataModel(dateHelper);
-                break;
-            case lastMonth:
-                //last Month
-                dateHelper.setType(DateHelper.TransformType.LASTMONTH);
-                updateStartEndToDataModel(dateHelper);
-                break;
-            case customStartEnd:
-                break;
-            default:
-                break;
+            switch (analysisTimeFrame.getTimeFrame()) {
+                //Custom
+                case custom:
+                    break;
+                //today
+                case today:
+                    dateHelper.setType(DateHelper.TransformType.TODAY);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
+                //last 7 days
+                case last7Days:
+                    dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
+                //last 30 days
+                case last30Days:
+                    dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
+                //yesterday
+                case yesterday:
+                    dateHelper.setType(DateHelper.TransformType.YESTERDAY);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
+                //last Week days
+                case lastWeek:
+                    dateHelper.setType(DateHelper.TransformType.LASTWEEK);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
+                case lastMonth:
+                    //last Month
+                    dateHelper.setType(DateHelper.TransformType.LASTMONTH);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
+                case customStartEnd:
+                    break;
+            }
         }
+        this.analysisTimeFrame = analysisTimeFrame;
+    }
+
+    private void setMinMaxForDateHelper(DateHelper dateHelper) {
+        DateTime min = null;
+        DateTime max = null;
+        for (ChartDataModel mdl : selectedData) {
+            if (mdl.getSelected()) {
+                JEVisAttribute att = mdl.getAttribute();
+
+                DateTime min_check = new DateTime(
+                        att.getTimestampFromFirstSample().getYear(),
+                        att.getTimestampFromFirstSample().getMonthOfYear(),
+                        att.getTimestampFromFirstSample().getDayOfMonth(),
+                        att.getTimestampFromFirstSample().getHourOfDay(),
+                        att.getTimestampFromFirstSample().getMinuteOfHour(),
+                        att.getTimestampFromFirstSample().getSecondOfMinute());
+
+                DateTime max_check = new DateTime(
+                        att.getTimestampFromLastSample().getYear(),
+                        att.getTimestampFromLastSample().getMonthOfYear(),
+                        att.getTimestampFromLastSample().getDayOfMonth(),
+                        att.getTimestampFromLastSample().getHourOfDay(),
+                        att.getTimestampFromLastSample().getMinuteOfHour(),
+                        att.getTimestampFromLastSample().getSecondOfMinute());
+
+                if (min == null || min_check.isBefore(min)) min = min_check;
+                if (max == null || max_check.isAfter(max)) max = max_check;
+            }
+        }
+
+        if (min != null && max != null) {
+            dateHelper.setMinStartDateTime(min);
+            dateHelper.setMaxEndDateTime(max);
+        }
+
     }
 
     private void updateStartEndToDataModel(DateHelper dh) {
+        DateTime start;
+        DateTime end;
+        if (dh.getStartDate().isAfter(dh.getMinStartDateTime())) start = dh.getStartDate();
+        else start = dh.getMinStartDateTime();
+        if (dh.getEndDate().isBefore(dh.getMaxEndDateTime())) end = dh.getEndDate();
+        else {
+            end = dh.getMaxEndDateTime();
+            if (end != null && getAnalysisTimeFrame() != null && getAnalysisTimeFrame().getTimeFrame() != null) {
+                switch (getAnalysisTimeFrame().getTimeFrame()) {
+                    case today:
+                        start = end.minusDays(1);
+                        break;
+                    case last7Days:
+                        start = end.minusDays(7);
+                        break;
+                    case last30Days:
+                        start = end.minusDays(30);
+                        break;
+                }
+            }
+        }
+        DateTime finalStart = start;
         getSelectedData().forEach(chartDataModel -> {
             if (chartDataModel.getSelected()) {
-                chartDataModel.setSelectedStart(dh.getStartDate());
-                chartDataModel.setSelectedStart(dh.getEndDate());
+                chartDataModel.setSelectedStart(finalStart);
+                chartDataModel.setSelectedEnd(end);
+                chartDataModel.setSomethingChanged(true);
             }
         });
     }
 
-    public void getListAnalysis() {
-        try {
-            ds.reloadAttributes();
-            if (currentAnalysis == null) {
-                updateListAnalyses();
-                if (!observableListAnalyses.isEmpty())
-                    setJEVisObjectForCurrentAnalysis(observableListAnalyses.get(0));
-            }
-            if (currentAnalysis != null) {
-                if (Objects.nonNull(currentAnalysis.getAttribute("Data Model"))) {
-                    if (currentAnalysis.getAttribute("Data Model").hasSample()) {
-                        String str = currentAnalysis.getAttribute("Data Model").getLatestSample().getValueAsString();
-                        try {
-                            if (str.startsWith("[")) {
-                                listAnalysisModel = new JsonChartDataModel();
-                                List<JsonAnalysisDataRow> listOld = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisDataRow>>() {
-                                }.getType());
-                                listAnalysisModel.setListDataRows(listOld);
-                            } else {
-                                try {
-                                    listAnalysisModel = new Gson().fromJson(str, new TypeToken<JsonChartDataModel>() {
-                                    }.getType());
-                                } catch (Exception e) {
-                                    logger.error(e);
-                                    listAnalysisModel = new JsonChartDataModel();
-                                    listAnalysisModel.getListAnalyses().add(new Gson().fromJson(str, JsonAnalysisDataRow.class));
-                                }
-                            }
-                        } catch (Exception e) {
-                            logger.error("Error: could not read data model", e);
-                        }
-                    }
-                }
-                if (Objects.nonNull(currentAnalysis.getAttribute("Charts"))) {
-                    if (currentAnalysis.getAttribute("Charts").hasSample()) {
-                        String str = currentAnalysis.getAttribute("Charts").getLatestSample().getValueAsString();
-                        try {
-                            if (str.endsWith("]")) {
-                                listChartsSettings = new Gson().fromJson(str, new TypeToken<List<JsonChartSettings>>() {
-                                }.getType());
-
-                            } else {
-                                listChartsSettings = new ArrayList<>();
-                                listChartsSettings.add(new Gson().fromJson(str, JsonChartSettings.class));
-                            }
-                        } catch (Exception e) {
-                            logger.error("Error: could not read chart settings", e);
-                        }
-                    }
-                }
-                updateWorkDays();
-            }
-        } catch (JEVisException e) {
-            logger.error("Error: could not get analysis model", e);
-        }
-    }
-
     private void updateWorkDays() {
         try {
-            JEVisObject site = currentAnalysis.getParents().get(0).getParents().get(0);
+            JEVisObject site = getCurrentAnalysis().getParents().get(0).getParents().get(0);
             LocalTime start = null;
             LocalTime end = null;
             try {
@@ -340,6 +482,7 @@ public class GraphDataModel extends Observable {
 
         }
         try {
+            ds.reloadAttributes();
             listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis", e);
@@ -352,54 +495,96 @@ public class GraphDataModel extends Observable {
     }
 
     public JsonChartDataModel getListAnalysisModel() {
+
+        JsonChartDataModel tempModel = null;
+        try {
+            ds.reloadAttributes();
+
+            if (charts == null) {
+                updateCharts();
+            }
+            if (getCurrentAnalysis() != null) {
+                if (Objects.nonNull(getCurrentAnalysis().getAttribute("Data Model"))) {
+                    if (getCurrentAnalysis().getAttribute("Data Model").hasSample()) {
+                        String str = getCurrentAnalysis().getAttribute("Data Model").getLatestSample().getValueAsString();
+                        try {
+                            if (str.startsWith("[")) {
+                                tempModel = new JsonChartDataModel();
+                                List<JsonAnalysisDataRow> listOld = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisDataRow>>() {
+                                }.getType());
+                                tempModel.setListDataRows(listOld);
+                            } else {
+                                try {
+                                    tempModel = new Gson().fromJson(str, new TypeToken<JsonChartDataModel>() {
+                                    }.getType());
+                                } catch (Exception e) {
+                                    logger.error(e);
+                                    tempModel = new JsonChartDataModel();
+                                    tempModel.getListAnalyses().add(new Gson().fromJson(str, JsonAnalysisDataRow.class));
+                                }
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error: could not read data model", e);
+                        }
+                    }
+                }
+                updateWorkDays();
+            }
+        } catch (JEVisException e) {
+            logger.error("Error: could not get analysis model", e);
+        }
+
+        this.listAnalysisModel = tempModel;
+
         return listAnalysisModel;
     }
 
     public void setJEVisObjectForCurrentAnalysis(String s) {
         JEVisObject currentAnalysis = null;
+        if (listAnalyses == null || listAnalyses.isEmpty()) updateListAnalyses();
         for (JEVisObject obj : listAnalyses) {
             if (obj.getName().equals(s)) {
                 currentAnalysis = obj;
             }
         }
         this.currentAnalysis = currentAnalysis;
+
+        if (listAnalysisModel == null) getListAnalysisModel();
     }
 
+    public void removeUnusedCharts() {
+        Set<ChartSettings> chartsNew = new HashSet<>();
+        selectedData.forEach(chartDataModel -> {
+            if (chartDataModel.getSelected())
+                chartDataModel.getSelectedcharts().forEach(s -> {
+                    charts.forEach(chartSettings -> {
+                        chartsNew.add(chartSettings);
+                    });
+                });
+        });
+        charts = chartsNew;
+    }
+
+
     public ObservableList<String> getObservableListAnalyses() {
+        updateListAnalyses();
         return observableListAnalyses;
     }
 
-    public List<JsonChartSettings> getListChartsSettings() {
-        return listChartsSettings;
-    }
-
     public LocalTime getWorkdayStart() {
-        if (workdayStart == null)
-            updateWorkDays();
         return workdayStart;
     }
 
     public LocalTime getWorkdayEnd() {
-        if (workdayEnd == null)
-            updateWorkDays();
         return workdayEnd;
     }
 
-    public List<JEVisObject> getListAnalyses() {
-        return listAnalyses;
-    }
-
-    public String getNameCurrentAnalysis() {
-        if (nameCurrentAnalysis == null)
-            this.nameCurrentAnalysis = currentAnalysis.getName();
-        return nameCurrentAnalysis;
-    }
-
-    public void setNameCurrentAnalysis(String nameCurrentAnalysis) {
-        this.nameCurrentAnalysis = nameCurrentAnalysis;
-    }
-
     public JEVisObject getCurrentAnalysis() {
+//        if (currentAnalysis == null) {
+//            updateListAnalyses();
+//            if (!observableListAnalyses.isEmpty())
+//                setJEVisObjectForCurrentAnalysis(observableListAnalyses.get(0));
+//        }
         return currentAnalysis;
     }
 
@@ -409,14 +594,6 @@ public class GraphDataModel extends Observable {
 
     public Set<ChartDataModel> getChartDataModels() {
         Map<String, ChartDataModel> data = new HashMap<>();
-
-        AnalysisTimeFrame newATF = new AnalysisTimeFrame();
-        try {
-            newATF.setTimeFrame(newATF.parseTimeFrameFromString(listAnalysisModel.getAnalysisTimeFrame().getTimeframe()));
-            newATF.setId(Long.parseLong(listAnalysisModel.getAnalysisTimeFrame().getId()));
-        } catch (Exception e) {
-        }
-        setAnalysisTimeFrame(newATF);
 
         for (JsonAnalysisDataRow mdl : getListAnalysisModel().getListAnalyses()) {
             ChartDataModel newData = new ChartDataModel();
@@ -467,28 +644,6 @@ public class GraphDataModel extends Observable {
         return selectedData;
     }
 
-    public Set<ChartSettings> getChartSettings() {
-        Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
-        Set<ChartSettings> chartSettings = new HashSet<>();
-
-        if (getListChartsSettings() != null && !getListChartsSettings().isEmpty()) {
-            for (JsonChartSettings settings : getListChartsSettings()) {
-                ChartSettings newSettings = new ChartSettings("");
-                newSettings.setName(settings.getName());
-                newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
-                if (settings.getHeight() != null)
-                    newSettings.setHeight(Double.parseDouble(settings.getHeight()));
-                chartSettingsHashMap.put(newSettings.getName(), newSettings);
-            }
-
-            for (Map.Entry<String, ChartSettings> entrySet : chartSettingsHashMap.entrySet()) {
-                ChartSettings value = entrySet.getValue();
-                chartSettings.add(value);
-            }
-        }
-        return chartSettings;
-    }
-
     private List<String> stringToList(String s) {
         if (Objects.nonNull(s)) {
             List<String> tempList = new ArrayList<>(Arrays.asList(s.split(", ")));
@@ -497,4 +652,11 @@ public class GraphDataModel extends Observable {
         } else return new ArrayList<>();
     }
 
+    public void selectNone() {
+        getSelectedData().forEach(mdl -> {
+            if (mdl.getSelected()) {
+                mdl.setSelected(false);
+            }
+        });
+    }
 }

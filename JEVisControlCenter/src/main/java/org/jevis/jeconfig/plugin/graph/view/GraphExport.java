@@ -120,7 +120,7 @@ public class GraphExport {
                     multiAnalyses = true;
                 }
 
-                String formattedName = model.getNameCurrentAnalysis().replaceAll(" ", "_");
+                String formattedName = model.getCurrentAnalysis().getName().replaceAll(" ", "_");
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("CSV File Destination");
                 DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");

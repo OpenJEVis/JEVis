@@ -19,6 +19,7 @@ import org.jevis.application.Chart.data.CustomPeriodObject;
 import org.jevis.application.Chart.data.DateHelper;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -33,6 +34,7 @@ import java.util.List;
  */
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
+    private final ToolBarView toolBarView;
     private GraphDataModel graphDataModel;
     private JFXDatePicker pickerDateStart = new JFXDatePicker();
     private JFXTimePicker pickerTimeStart = new JFXTimePicker();
@@ -46,8 +48,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private ComboBox<String> comboBoxPresetDates;
     private Boolean programmaticallySetPresetDate[] = new Boolean[4];
 
-    public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data) {
+    public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
+        this.toolBarView = toolBarView;
         this.ds = ds;
         for (int i = 0; i < 4; i++) {
             programmaticallySetPresetDate[i] = false;
@@ -58,75 +61,21 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
     private void initialize() {
 
-        if (graphDataModel.getWorkdayStart() != null && graphDataModel.getWorkdayEnd() != null) {
-            dateHelper.setStartTime(graphDataModel.getWorkdayStart());
-            dateHelper.setEndTime(graphDataModel.getWorkdayEnd());
-            if (graphDataModel.getWorkdayEnd().isAfter(graphDataModel.getWorkdayStart())) {
-                setSelectedStart(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        graphDataModel.getWorkdayStart().getHour(), graphDataModel.getWorkdayStart().getMinute(), 0).minusDays(7));
-                setSelectedEnd(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        graphDataModel.getWorkdayEnd().getHour(), graphDataModel.getWorkdayEnd().getMinute(), 59, 999));
-            } else {
-                setSelectedStart(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        graphDataModel.getWorkdayStart().getHour(), graphDataModel.getWorkdayStart().getMinute(), 0).minusDays(8));
-                setSelectedEnd(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        graphDataModel.getWorkdayEnd().getHour(), graphDataModel.getWorkdayEnd().getMinute(), 59, 999));
-            }
-        }
+        checkForCustomizedWorkdayTimeFrame();
 
-        graphDataModel.updateListAnalyses();
         lv.setItems(graphDataModel.getObservableListAnalyses());
-        graphDataModel.getListAnalysis();
 
         HBox hbox_list = new HBox();
         hbox_list.getChildren().add(lv);
-        if (graphDataModel.getNameCurrentAnalysis() != null && !graphDataModel.getNameCurrentAnalysis().equals(""))
-            lv.getSelectionModel().select(graphDataModel.getNameCurrentAnalysis());
+        if (graphDataModel.getCurrentAnalysis() != null && graphDataModel.getCurrentAnalysis().getName() != null
+                && !graphDataModel.getCurrentAnalysis().getName().equals(""))
+            lv.getSelectionModel().select(graphDataModel.getCurrentAnalysis().getName());
 
         HBox.setHgrow(lv, Priority.ALWAYS);
 
-        final Callback<DatePicker, DateCell> dayCellFactory
-                = new Callback<DatePicker, DateCell>() {
-            @Override
-            public DateCell call(final DatePicker datePicker) {
-                return new DateCell() {
-                    @Override
-                    public void updateItem(LocalDate item, boolean empty) {
-                        super.updateItem(item, empty);
-                        LocalDate min = null;
-                        LocalDate max = null;
-                        for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
-                            JEVisAttribute att = mdl.getAttribute();
+        final Callback<DatePicker, DateCell> dayCellFactory = getAllowedTimeFrameForDataRows();
 
-                            LocalDate min_check = LocalDate.of(
-                                    att.getTimestampFromFirstSample().getYear(),
-                                    att.getTimestampFromFirstSample().getMonthOfYear(),
-                                    att.getTimestampFromFirstSample().getDayOfMonth());
-
-                            LocalDate max_check = LocalDate.of(
-                                    att.getTimestampFromLastSample().getYear(),
-                                    att.getTimestampFromLastSample().getMonthOfYear(),
-                                    att.getTimestampFromLastSample().getDayOfMonth());
-
-                            if (min == null || min_check.isBefore(min)) min = min_check;
-                            if (max == null || max_check.isAfter(max)) max = max_check;
-
-                        }
-
-                        if (min != null && item.isBefore(min)) {
-                            setDisable(true);
-                            setStyle("-fx-background-color: #ffc0cb;");
-                        }
-
-                        if (max != null && item.isAfter(max)) {
-                            setDisable(true);
-                            setStyle("-fx-background-color: #ffc0cb;");
-                        }
-                    }
-                };
-            }
-        };
-
+        Label individualText = new Label(I18n.getInstance().getString("plugin.graph.changedate.individual"));
         Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate"));
         pickerDateStart.setPrefWidth(120d);
         pickerDateStart.setDayCellFactory(dayCellFactory);
@@ -156,84 +105,13 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
 
-        if (!graphDataModel.getListAnalyses().isEmpty()) {
+        if (!graphDataModel.getSelectedData().isEmpty()) {
             updateTimeFramePicker();
         }
 
         comboBoxPresetDates.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                switch (newValue.intValue()) {
-                    //Custom
-                    case 0:
-                        DateTime start = DateTime.now();
-                        DateTime end = new DateTime(0);
-                        graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.custom));
-                        for (ChartDataModel chartDataModel : graphDataModel.getSelectedData()) {
-                            if (chartDataModel.getSelected()) {
-                                if (chartDataModel.getSelectedStart().isBefore(start))
-                                    start = chartDataModel.getSelectedStart();
-                                if (chartDataModel.getSelectedEnd().isAfter(end))
-                                    end = chartDataModel.getSelectedStart();
-                            }
-                        }
-                        dateHelper.setStartDate(start);
-                        dateHelper.setEndDate(end);
-                        break;
-                    //today
-                    case 1:
-                        dateHelper.setType(DateHelper.TransformType.TODAY);
-                        graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.today));
-                        for (int i = 0; i < 4; i++) {
-                            programmaticallySetPresetDate[i] = true;
-                        }
-                        break;
-                    //last 7 days
-                    case 2:
-                        dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                        graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days));
-                        for (int i = 0; i < 4; i++) {
-                            programmaticallySetPresetDate[i] = true;
-                        }
-                        break;
-                    //last 30 days
-                    case 3:
-                        dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                        graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last30Days));
-                        for (int i = 0; i < 4; i++) {
-                            programmaticallySetPresetDate[i] = true;
-                        }
-                        break;
-                    //yesterday
-                    case 4:
-                        dateHelper.setType(DateHelper.TransformType.YESTERDAY);
-                        graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.yesterday));
-                        for (int i = 0; i < 4; i++) {
-                            programmaticallySetPresetDate[i] = true;
-                        }
-                        break;
-                    //last Week days
-                    case 5:
-                        dateHelper.setType(DateHelper.TransformType.LASTWEEK);
-                        graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastWeek));
-                        for (int i = 0; i < 4; i++) {
-                            programmaticallySetPresetDate[i] = true;
-                        }
-                        break;
-                    case 6:
-                        //last Month
-                        dateHelper.setType(DateHelper.TransformType.LASTMONTH);
-                        graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth));
-                        for (int i = 0; i < 4; i++) {
-                            programmaticallySetPresetDate[i] = true;
-                        }
-                        break;
-                    case 7:
-                        graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd));
-                        break;
-                    default:
-                        break;
-                }
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                applySelectedDatePresetToDataModel(newValue.intValue());
             }
         });
 
@@ -252,7 +130,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         VBox vbox_picker = new VBox();
         vbox_picker.setSpacing(4);
-        vbox_picker.getChildren().addAll(startText, startBox, endText, endBox);
+        vbox_picker.getChildren().addAll(individualText, startText, startBox, endText, endBox);
 
         VBox vbox_buttons = new VBox();
         vbox_buttons.setSpacing(4);
@@ -276,8 +154,16 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         lv.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
-                graphDataModel.setNameCurrentAnalysis(newValue);
-                graphDataModel.setJEVisObjectForCurrentAnalysis(newValue);
+
+                AnalysisTimeFrame oldTimeFrame = graphDataModel.getAnalysisTimeFrame();
+
+                AnalysisTimeFrame last7 = new AnalysisTimeFrame();
+                last7.setTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
+                graphDataModel.setAnalysisTimeFrame(last7);
+
+                toolBarView.select(newValue);
+
+                graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -317,14 +203,145 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         }
 
-
         this.setTitle(I18n.getInstance().getString("plugin.graph.analysis.dialog.title"));
 
-        if (graphDataModel.getNameCurrentAnalysis() != null && !graphDataModel.getNameCurrentAnalysis().equals(""))
-            this.getDialogPane().getButtonTypes().add(loadGraph);
         this.getDialogPane().getButtonTypes().add(newGraph);
+        if (graphDataModel.getCurrentAnalysis() != null && graphDataModel.getCurrentAnalysis().getName() != null
+                && !graphDataModel.getCurrentAnalysis().getName().equals(""))
+            this.getDialogPane().getButtonTypes().add(loadGraph);
+
         this.getDialogPane().setContent(vbox);
 
+    }
+
+    private void applySelectedDatePresetToDataModel(Integer newValue) {
+        switch (newValue) {
+            //Custom
+            case 0:
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.custom));
+                break;
+            //today
+            case 1:
+                dateHelper.setType(DateHelper.TransformType.TODAY);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.today));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            //last 7 days
+            case 2:
+                dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            //last 30 days
+            case 3:
+                dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last30Days));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            //yesterday
+            case 4:
+                dateHelper.setType(DateHelper.TransformType.YESTERDAY);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.yesterday));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            //last Week days
+            case 5:
+                dateHelper.setType(DateHelper.TransformType.LASTWEEK);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastWeek));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            case 6:
+                //last Month
+                dateHelper.setType(DateHelper.TransformType.LASTMONTH);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            case 7:
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private Callback<DatePicker, DateCell> getAllowedTimeFrameForDataRows() {
+        return new Callback<DatePicker, DateCell>() {
+            @Override
+            public DateCell call(final DatePicker datePicker) {
+                return new DateCell() {
+                    @Override
+                    public void updateItem(LocalDate item, boolean empty) {
+                        super.updateItem(item, empty);
+                        LocalDate min = null;
+                        LocalDate max = null;
+                        for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
+                            if (mdl.getSelected()) {
+                                JEVisAttribute att = mdl.getAttribute();
+
+                                LocalDate min_check = LocalDate.of(
+                                        att.getTimestampFromFirstSample().getYear(),
+                                        att.getTimestampFromFirstSample().getMonthOfYear(),
+                                        att.getTimestampFromFirstSample().getDayOfMonth());
+
+                                LocalDate max_check = LocalDate.of(
+                                        att.getTimestampFromLastSample().getYear(),
+                                        att.getTimestampFromLastSample().getMonthOfYear(),
+                                        att.getTimestampFromLastSample().getDayOfMonth());
+
+                                if (min == null || min_check.isBefore(min)) min = min_check;
+                                if (max == null || max_check.isAfter(max)) max = max_check;
+                            }
+                        }
+
+                        if (min != null && item.isBefore(min)) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;");
+                        }
+
+                        if (max != null && item.isAfter(max)) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;");
+                        }
+                    }
+                };
+            }
+        };
+    }
+
+    private void checkForCustomizedWorkdayTimeFrame() {
+        if (graphDataModel.getWorkdayStart() != null && graphDataModel.getWorkdayEnd() != null) {
+            dateHelper.setStartTime(graphDataModel.getWorkdayStart());
+            dateHelper.setEndTime(graphDataModel.getWorkdayEnd());
+            if (graphDataModel.getWorkdayEnd().isAfter(graphDataModel.getWorkdayStart())) {
+                setSelectedStart(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                        graphDataModel.getWorkdayStart().getHour(), graphDataModel.getWorkdayStart().getMinute(), 0).minusDays(7));
+                setSelectedEnd(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                        graphDataModel.getWorkdayEnd().getHour(), graphDataModel.getWorkdayEnd().getMinute(), 59, 999));
+            } else {
+                setSelectedStart(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                        graphDataModel.getWorkdayStart().getHour(), graphDataModel.getWorkdayStart().getMinute(), 0).minusDays(8));
+                setSelectedEnd(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
+                        graphDataModel.getWorkdayEnd().getHour(), graphDataModel.getWorkdayEnd().getMinute(), 59, 999));
+            }
+        }
     }
 
     private void setupPickerListener() {
@@ -332,8 +349,10 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 LocalDate ld = pickerDateStart.valueProperty().getValue();
                 LocalTime lt = pickerTimeStart.valueProperty().getValue();
-                setSelectedStart(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
-                        lt.getHour(), lt.getMinute(), lt.getSecond()));
+                if (ld != null && lt != null) {
+                    setSelectedStart(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
+                            lt.getHour(), lt.getMinute(), lt.getSecond()));
+                }
                 if (!programmaticallySetPresetDate[0]) comboBoxPresetDates.getSelectionModel().select(0);
                 programmaticallySetPresetDate[0] = false;
             }
@@ -343,8 +362,10 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 LocalDate ld = pickerDateStart.valueProperty().getValue();
                 LocalTime lt = pickerTimeStart.valueProperty().getValue();
-                setSelectedStart(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
-                        lt.getHour(), lt.getMinute(), lt.getSecond()));
+                if (ld != null && lt != null) {
+                    setSelectedStart(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
+                            lt.getHour(), lt.getMinute(), lt.getSecond()));
+                }
                 if (!programmaticallySetPresetDate[1]) comboBoxPresetDates.getSelectionModel().select(0);
                 programmaticallySetPresetDate[1] = false;
             }
@@ -354,8 +375,10 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 LocalDate ld = pickerDateEnd.valueProperty().getValue();
                 LocalTime lt = pickerTimeEnd.valueProperty().getValue();
-                setSelectedEnd(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
-                        lt.getHour(), lt.getMinute(), lt.getSecond()));
+                if (ld != null && lt != null) {
+                    setSelectedEnd(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
+                            lt.getHour(), lt.getMinute(), lt.getSecond()));
+                }
                 if (!programmaticallySetPresetDate[2]) comboBoxPresetDates.getSelectionModel().select(0);
                 programmaticallySetPresetDate[2] = false;
             }
@@ -365,8 +388,10 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 LocalDate ld = pickerDateEnd.valueProperty().getValue();
                 LocalTime lt = pickerTimeEnd.valueProperty().getValue();
-                setSelectedEnd(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
-                        lt.getHour(), lt.getMinute(), lt.getSecond()));
+                if (ld != null && lt != null) {
+                    setSelectedEnd(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
+                            lt.getHour(), lt.getMinute(), lt.getSecond()));
+                }
                 if (!programmaticallySetPresetDate[3]) {
                     comboBoxPresetDates.getSelectionModel().select(0);
                 }
@@ -485,24 +510,18 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     }
 
     public void setSelectedStart(DateTime selectedStart) {
-        if (graphDataModel.getWorkdayEnd().isAfter(graphDataModel.getWorkdayStart())) {
-            this.selectedStart = (new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                    graphDataModel.getWorkdayStart().getHour(), graphDataModel.getWorkdayStart().getMinute(), 0).minusDays(7));
-        } else {
-            this.selectedStart = (new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                    graphDataModel.getWorkdayStart().getHour(), graphDataModel.getWorkdayStart().getMinute(), 0).minusDays(8));
-        }
-        graphDataModel.getListAnalysisModel().getListAnalyses().forEach(jsonAnalysisDataRow -> jsonAnalysisDataRow.setSelectedStart(selectedStart.toString()));
+
+        graphDataModel.getSelectedData().forEach(dataModel -> {
+            dataModel.setSelectedStart(selectedStart);
+            dataModel.setSomethingChanged(true);
+        });
     }
 
     public void setSelectedEnd(DateTime selectedEnd) {
-        if (graphDataModel.getWorkdayEnd().isAfter(graphDataModel.getWorkdayStart())) {
-            this.selectedEnd = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                    graphDataModel.getWorkdayEnd().getHour(), graphDataModel.getWorkdayEnd().getMinute(), 59, 999);
-        } else {
-            this.selectedEnd = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                    graphDataModel.getWorkdayEnd().getHour(), graphDataModel.getWorkdayEnd().getMinute(), 59, 999);
-        }
-        graphDataModel.getListAnalysisModel().getListAnalyses().forEach(jsonAnalysisDataRow -> jsonAnalysisDataRow.setSelectedEnd(selectedEnd.toString()));
+
+        graphDataModel.getSelectedData().forEach(dataModel -> {
+            dataModel.setSelectedEnd(selectedEnd);
+            dataModel.setSomethingChanged(true);
+        });
     }
 }

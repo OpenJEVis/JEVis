@@ -1065,12 +1065,7 @@ public class ChartPlugin implements TreePlugin {
     }
 
     public void selectNone() {
-        _data.getSelectedData().forEach(mdl -> {
-//        _data.getSelectedData().parallelStream().forEach(mdl -> {
-            if (mdl.getSelected()) {
-                mdl.setSelected(false);
-            }
-        });
+        _data.selectNone();
         _tree.refresh();
     }
 

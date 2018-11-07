@@ -78,7 +78,7 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public void setValue(Object value) throws ClassCastException {
-        logger.debug("setValue: {} Value: {}", getAttribute().getName(), value);
+        //logger.debug("setValue: {} Value: {}", getAttribute().getName(), value);
         try {
             if (getAttribute().getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
                 Double.valueOf(value.toString());
