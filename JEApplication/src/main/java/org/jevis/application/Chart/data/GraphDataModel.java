@@ -423,13 +423,41 @@ public class GraphDataModel extends Observable {
             if (end != null && getAnalysisTimeFrame() != null && getAnalysisTimeFrame().getTimeFrame() != null) {
                 switch (getAnalysisTimeFrame().getTimeFrame()) {
                     case today:
-                        start = end.minusDays(1);
+                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
+                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond());
+                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
                         break;
                     case last7Days:
-                        start = end.minusDays(7);
+                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
+                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
+                                .minusDays(7);
+
+                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
                         break;
                     case last30Days:
-                        start = end.minusDays(30);
+
+                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
+                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
+                                .minusDays(30);
+
+                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
+                        break;
+                    case yesterday:
+                        start = end
+                                .minusDays(1);
+                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
+                        break;
+                    case lastWeek:
+                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), getWorkdayStart().getHour(),
+                                getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
+                                .minusDays(end.getDayOfWeek() - 1).minusWeeks(1);
+                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
+                        break;
+                    case lastMonth:
+                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), getWorkdayStart().getHour(),
+                                getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
+                                .minusMonths(1).minusDays(end.getDayOfMonth() - 1);
+                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
                         break;
                 }
             }
