@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author broder
@@ -79,11 +80,30 @@ public class ToolBarView {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
                 AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
 
+                DateTime now = DateTime.now();
+                AtomicReference<DateTime> oldStart = new AtomicReference<>(now);
+                AtomicReference<DateTime> oldEnd = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
+                model.getSelectedData().forEach(chartDataModel -> {
+                    if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
+                        oldStart.set(chartDataModel.getSelectedStart());
+                    if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
+                        oldEnd.set(chartDataModel.getSelectedEnd());
+                });
+
                 model.setJEVisObjectForCurrentAnalysis(newValue.toString());
 
                 model.setCharts(null);
-                model.setAnalysisTimeFrame(oldTimeFrame);
                 model.updateSelectedData();
+
+                if (!model.getAnalysisTimeFrame().getTimeFrame().equals(oldTimeFrame.getTimeFrame())) {
+                    model.getSelectedData().forEach(chartDataModel -> {
+                        if (!oldStart.get().equals(now)) chartDataModel.setSelectedStart(oldStart.get());
+                        if (!oldEnd.get().equals(new DateTime(2001, 1, 1, 0, 0, 0)))
+                            chartDataModel.setSelectedEnd(oldEnd.get());
+                    });
+                    model.setAnalysisTimeFrame(oldTimeFrame);
+                    model.updateSamples();
+                }
 
                 model.setCharts(model.getCharts());
                 model.setSelectedData(model.getSelectedData());
@@ -189,6 +209,11 @@ public class ToolBarView {
                     if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
 
                         model.selectNone();
+                        AnalysisTimeFrame atf = new AnalysisTimeFrame();
+                        atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
+
+                        model.setAnalysisTimeFrame(atf);
+
                         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, model, null);
 
                         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
@@ -198,8 +223,9 @@ public class ToolBarView {
 
                         }
                     } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
-                        model.setCharts(model.getCharts());
-                        model.setSelectedData(model.getSelectedData());
+
+                        select(model.getCurrentAnalysis().getName());
+
                     }
                 });
     }
@@ -261,7 +287,7 @@ public class ToolBarView {
         newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         TextField name = new TextField();
-        if (model.getCurrentAnalysis().getName() != null && model.getCurrentAnalysis().getName() != "")
+        if (model.getCurrentAnalysis() != null && model.getCurrentAnalysis().getName() != null && model.getCurrentAnalysis().getName() != "")
             name.setText(model.getCurrentAnalysis().getName());
 
         name.focusedProperty().addListener((ov, t, t1) -> Platform.runLater(() -> {
@@ -283,12 +309,12 @@ public class ToolBarView {
         newAnalysis.showAndWait()
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                        if (!model.getObservableListAnalyses().contains(model.getCurrentAnalysis().getName())) {
+                        if (!model.getObservableListAnalyses().contains(name.getText())) {
                             try {
                                 for (JEVisObject obj : ds.getObjects(ds.getJEVisClass("Analyses Directory"), false)) {
                                     JEVisObject analysesDir = obj;
                                     JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
-                                    model.setCurrentAnalysis(obj.buildObject(model.getCurrentAnalysis().getName(), classAnalysis));
+                                    model.setCurrentAnalysis(obj.buildObject(name.getText(), classAnalysis));
                                     model.getCurrentAnalysis().commit();
                                 }
                             } catch (JEVisException e) {
