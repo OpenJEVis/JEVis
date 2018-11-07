@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -261,6 +262,18 @@ public class GraphPluginView implements Plugin, Observer {
         if (border == null) {
             border = new BorderPane();
 
+            /**
+             * If scene size changes and old value is not 0.0 (firsts draw) redraw
+             * TODO: resizing an window manually will cause a lot of resize changes and so redraws, handel this clever
+             */
+            border.heightProperty().addListener((observable, oldValue, newValue) -> {
+                if (!oldValue.equals(0.0)) {
+                    Platform.runLater(() -> {
+                        update(null, "Screen size changed");
+                    });
+                }
+            });
+
             //chartView.drawDefaultAreaChart();
             if (chartView != null)
                 border.setCenter(chartView.getChartRegion());
@@ -275,9 +288,8 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-
         double abolutMinSize = 200;
-        double autoMinSize = 200;
+        double autoMinSize = 220;
 
         if (dataModel.getSelectedData() != null) {
             chartsList = dataModel.getChartsList();
@@ -420,6 +432,10 @@ public class GraphPluginView implements Plugin, Observer {
 
             }
 
+
+            /**
+             * If auto size is on or if its only one chart sale the chart to maximize screen size
+             */
             if (chartsList.size() == 1 || dataModel.getAutoResize()) {
                 /**
                  * If all children take more space then the maximum available size
@@ -461,7 +477,6 @@ public class GraphPluginView implements Plugin, Observer {
             border.setBottom(null);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
         }
-        System.gc();
     }
 
     private double calculationTotalPrefSize(Pane pane) {

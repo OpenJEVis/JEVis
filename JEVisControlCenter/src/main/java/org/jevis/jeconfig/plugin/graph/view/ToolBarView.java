@@ -159,6 +159,16 @@ public class ToolBarView {
         Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
         delete.setTooltip(autoResizeTip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(autoResize);
+        autoResize.styleProperty().bind(
+                Bindings
+                        .when(autoResize.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(autoResize.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
 
         Separator sep1 = new Separator();
