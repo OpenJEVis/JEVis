@@ -167,14 +167,14 @@ public class GraphDataModel extends Observable {
                 }
             }
 
-//            try {
-//                AnalysisTimeFrame newATF = new AnalysisTimeFrame();
-//                newATF.setTimeFrame(newATF.parseTimeFrameFromString(getListAnalysisModel().getAnalysisTimeFrame().getTimeframe()));
-//                newATF.setId(Long.parseLong(getListAnalysisModel().getAnalysisTimeFrame().getId()));
-//                analysisTimeFrame = newATF;
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
+            try {
+                AnalysisTimeFrame newATF = new AnalysisTimeFrame();
+                newATF.setTimeFrame(newATF.parseTimeFrameFromString(getListAnalysisModel().getAnalysisTimeFrame().getTimeframe()));
+                newATF.setId(Long.parseLong(getListAnalysisModel().getAnalysisTimeFrame().getId()));
+                analysisTimeFrame = newATF;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
         this.selectedData = selectedData;
@@ -312,8 +312,12 @@ public class GraphDataModel extends Observable {
     }
 
     public void setAnalysisTimeFrame(AnalysisTimeFrame analysisTimeFrame) {
+        this.analysisTimeFrame = analysisTimeFrame;
+        /**
+         * analysisTimeFrame is used in the updateStartEndToDataModel function
+         */
 
-        if (!selectedData.isEmpty() || selectedData != null) {
+        if (selectedData != null && !selectedData.isEmpty()) {
             DateHelper dateHelper = new DateHelper();
             setMinMaxForDateHelper(dateHelper);
             if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
@@ -357,7 +361,6 @@ public class GraphDataModel extends Observable {
                     break;
             }
         }
-        this.analysisTimeFrame = analysisTimeFrame;
     }
 
     private void setMinMaxForDateHelper(DateHelper dateHelper) {
