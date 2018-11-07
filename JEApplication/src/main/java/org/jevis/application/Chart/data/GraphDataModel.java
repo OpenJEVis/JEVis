@@ -196,6 +196,10 @@ public class GraphDataModel extends Observable {
         return charts;
     }
 
+    public void setCharts(Set<ChartSettings> charts) {
+        this.charts = charts;
+    }
+
     private void updateCharts() {
         if (charts == null || charts.isEmpty()) {
             try {
@@ -245,10 +249,6 @@ public class GraphDataModel extends Observable {
                 charts = chartSettings;
             }
         }
-    }
-
-    public void setCharts(Set<ChartSettings> charts) {
-        this.charts = charts;
     }
 
     public ChartSettings getChartSetting(String name) {
@@ -582,7 +582,6 @@ public class GraphDataModel extends Observable {
         charts = chartsNew;
     }
 
-
     public ObservableList<String> getObservableListAnalyses() {
         updateListAnalyses();
         return observableListAnalyses;
@@ -676,4 +675,5 @@ public class GraphDataModel extends Observable {
             }
         });
     }
+
 }
