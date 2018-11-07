@@ -28,12 +28,15 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.Chart.AnalysisTimeFrame;
+import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
@@ -126,7 +129,7 @@ public class GraphPluginView implements Plugin, Observer {
 
     private void openDialog() {
 
-        dialog = new LoadAnalysisDialog(ds, dataModel);
+        dialog = new LoadAnalysisDialog(ds, dataModel, toolBarView);
 
         dialog.showAndWait()
                 .ifPresent(response -> {
