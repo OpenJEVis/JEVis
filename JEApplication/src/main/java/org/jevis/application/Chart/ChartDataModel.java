@@ -421,7 +421,7 @@ public class ChartDataModel {
         if (_selectedStart != null) {
             return _selectedStart;
         } else if (getAttribute() != null) {
-            DateTime dt = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(), 0, 0, 0, 0);
+            DateTime dt = getAttribute().getTimestampFromLastSample();
             dt = dt.minusDays(7);
             DateTime timeStampFromFirstSample = getAttribute().getTimestampFromFirstSample();
 

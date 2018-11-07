@@ -78,22 +78,24 @@ public class ToolBarView {
 
         listAnalysesComboBoxHidden.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
-                AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
-
-                model.setJEVisObjectForCurrentAnalysis(newValue.toString());
-
-                model.setCharts(null);
-                model.updateSelectedData();
-
                 DateTime now = DateTime.now();
                 AtomicReference<DateTime> oldStart = new AtomicReference<>(now);
                 AtomicReference<DateTime> oldEnd = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
-                model.getSelectedData().forEach(chartDataModel -> {
-                    if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
-                        oldStart.set(chartDataModel.getSelectedStart());
-                    if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
-                        oldEnd.set(chartDataModel.getSelectedEnd());
-                });
+
+                AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
+
+                model.setJEVisObjectForCurrentAnalysis(newValue.toString());
+                if (model.getAnalysisTimeFrame().getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
+                    model.getSelectedData().forEach(chartDataModel -> {
+                        if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
+                            oldStart.set(chartDataModel.getSelectedStart());
+                        if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
+                            oldEnd.set(chartDataModel.getSelectedEnd());
+                    });
+                }
+
+                model.setCharts(null);
+                model.updateSelectedData();
 
                 if (!model.getAnalysisTimeFrame().getTimeFrame().equals(oldTimeFrame.getTimeFrame())) {
                     model.getSelectedData().forEach(chartDataModel -> {

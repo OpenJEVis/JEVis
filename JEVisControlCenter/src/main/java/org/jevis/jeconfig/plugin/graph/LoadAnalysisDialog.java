@@ -275,7 +275,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case 7:
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd));
+                Long id = graphDataModel.getAnalysisTimeFrame().getId();
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd, id));
                 break;
             default:
                 break;
@@ -467,6 +468,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
                                 dateHelper.setStartTime(graphDataModel.getWorkdayStart());
                                 dateHelper.setEndTime(graphDataModel.getWorkdayEnd());
+
+                                graphDataModel.getAnalysisTimeFrame().setId(cpo.getObject().getID());
+
+                                for (int i = 0; i < 4; i++) {
+                                    programmaticallySetPresetDate[i] = true;
+                                }
 
                                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                             }
