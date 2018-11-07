@@ -152,9 +152,13 @@ public class GraphDataModel extends Observable {
                     newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
                     newData.setSelected(selected);
                     newData.setSomethingChanged(true);
-                    newData.getSamples();
                     newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
                     newData.setUnit(unit);
+                    /**
+                     * has to be the last action or the model will will register an settings change and then will
+                     * reload the data at the nest getSamples call
+                     */
+//                    newData.getSamples();
                     data.put(obj.getID().toString(), newData);
                 } catch (JEVisException e) {
                     logger.error("Error: could not get chart data model", e);
@@ -636,57 +640,6 @@ public class GraphDataModel extends Observable {
         this.currentAnalysis = currentAnalysis;
     }
 
-    public Set<ChartDataModel> getChartDataModels() {
-        Map<String, ChartDataModel> data = new HashMap<>();
-
-        for (JsonAnalysisDataRow mdl : getListAnalysisModel().getListAnalyses()) {
-            ChartDataModel newData = new ChartDataModel();
-            try {
-                Long id = Long.parseLong(mdl.getObject());
-                Long id_dp = null;
-                if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
-                JEVisObject obj = ds.getObject(id);
-                JEVisObject obj_dp = null;
-                if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
-                JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
-                DateTime start;
-                start = DateTime.parse(mdl.getSelectedStart());
-                DateTime end;
-                end = DateTime.parse(mdl.getSelectedEnd());
-                Boolean selected = Boolean.parseBoolean(mdl.getSelected());
-                newData.setObject(obj);
-
-                newData.setSelectedStart(start);
-                newData.setSelectedEnd(end);
-
-                newData.setColor(Color.valueOf(mdl.getColor()));
-                newData.setTitle(mdl.getName());
-                if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
-                newData.getAttribute();
-                newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
-                newData.setSelected(selected);
-                newData.setSomethingChanged(true);
-                newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
-                newData.setUnit(unit);
-                /**
-                 * has to be the last action or the model will will register an settings change and then will
-                 * reload the data at the nest getSamples call
-                 */
-                newData.getSamples();
-                data.put(obj.getID().toString(), newData);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get chart data model", e);
-            }
-        }
-        Set<ChartDataModel> selectedData = new HashSet<>();
-        for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
-            ChartDataModel value = entrySet.getValue();
-            if (value.getSelected()) {
-                selectedData.add(value);
-            }
-        }
-        return selectedData;
-    }
 
     private List<String> stringToList(String s) {
         if (Objects.nonNull(s)) {
