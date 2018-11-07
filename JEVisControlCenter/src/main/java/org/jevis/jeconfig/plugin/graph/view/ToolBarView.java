@@ -80,6 +80,11 @@ public class ToolBarView {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
                 AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
 
+                model.setJEVisObjectForCurrentAnalysis(newValue.toString());
+
+                model.setCharts(null);
+                model.updateSelectedData();
+
                 DateTime now = DateTime.now();
                 AtomicReference<DateTime> oldStart = new AtomicReference<>(now);
                 AtomicReference<DateTime> oldEnd = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
@@ -89,11 +94,6 @@ public class ToolBarView {
                     if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
                         oldEnd.set(chartDataModel.getSelectedEnd());
                 });
-
-                model.setJEVisObjectForCurrentAnalysis(newValue.toString());
-
-                model.setCharts(null);
-                model.updateSelectedData();
 
                 if (!model.getAnalysisTimeFrame().getTimeFrame().equals(oldTimeFrame.getTimeFrame())) {
                     model.getSelectedData().forEach(chartDataModel -> {
