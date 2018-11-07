@@ -20,6 +20,7 @@ import org.jevis.application.Chart.ChartType;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.AlphanumComparator;
+import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
@@ -167,13 +168,15 @@ public class GraphDataModel extends Observable {
                 }
             }
 
-            try {
-                AnalysisTimeFrame newATF = new AnalysisTimeFrame();
-                newATF.setTimeFrame(newATF.parseTimeFrameFromString(getListAnalysisModel().getAnalysisTimeFrame().getTimeframe()));
-                newATF.setId(Long.parseLong(getListAnalysisModel().getAnalysisTimeFrame().getId()));
-                analysisTimeFrame = newATF;
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (getListAnalysisModel().getAnalysisTimeFrame() != null) {
+                try {
+                    AnalysisTimeFrame newATF = new AnalysisTimeFrame();
+                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(getListAnalysisModel().getAnalysisTimeFrame().getTimeframe()));
+                    newATF.setId(Long.parseLong(getListAnalysisModel().getAnalysisTimeFrame().getId()));
+                    analysisTimeFrame = newATF;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
         }
@@ -358,7 +361,18 @@ public class GraphDataModel extends Observable {
                     updateStartEndToDataModel(dateHelper);
                     break;
                 case customStartEnd:
-                    break;
+                    if (analysisTimeFrame.getId() != 0l) {
+                        try {
+                            dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
+                            CustomPeriodObject cpo = new CustomPeriodObject(ds.getObject(analysisTimeFrame.getId()), new ObjectHandler(ds));
+                            dateHelper.setCustomPeriodObject(cpo);
+
+                            updateStartEndToDataModel(dateHelper);
+                        } catch (Exception e) {
+                            logger.error("Error getting custom period object: " + e);
+                        }
+                        break;
+                    }
             }
         }
     }
