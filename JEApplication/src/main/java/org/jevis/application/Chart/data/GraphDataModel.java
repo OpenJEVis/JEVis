@@ -437,7 +437,7 @@ public class GraphDataModel extends Observable {
                     case last7Days:
                         start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
                                 getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-                                .minusDays(7);
+                                .minusDays(6);
 
                         if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
                         break;
@@ -445,13 +445,12 @@ public class GraphDataModel extends Observable {
 
                         start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
                                 getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-                                .minusDays(30);
+                                .minusDays(29);
 
                         if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
                         break;
                     case yesterday:
-                        start = end
-                                .minusDays(1);
+                        start = end;
                         if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
                         break;
                     case lastWeek:
