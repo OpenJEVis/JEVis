@@ -192,6 +192,9 @@ public class GraphDataModel extends Observable {
             chartDataModel.setSomethingChanged(true);
             chartDataModel.getSamples();
         });
+
+        setChanged();
+        notifyObservers();
     }
 
     public Set<ChartSettings> getCharts() {
