@@ -421,13 +421,19 @@ public class ChartDataModel {
         if (_selectedStart != null) {
             return _selectedStart;
         } else if (getAttribute() != null) {
-            DateTime dt = getAttribute().getTimestampFromLastSample();
-            dt = dt.minusDays(7);
-            DateTime timeStampFromFirstSample = getAttribute().getTimestampFromFirstSample();
+            DateTime timeStampFromLastSample = getAttribute().getTimestampFromLastSample();
+            if (timeStampFromLastSample != null) {
+                timeStampFromLastSample = timeStampFromLastSample.minusDays(7);
 
-            if (timeStampFromFirstSample == null) _selectedStart = dt;
-            else if (timeStampFromFirstSample.isBefore(dt)) _selectedStart = dt;
-            else _selectedStart = timeStampFromFirstSample;
+                DateTime timeStampFromFirstSample = getAttribute().getTimestampFromFirstSample();
+                if (timeStampFromFirstSample != null) {
+                    if (timeStampFromFirstSample.isBefore(timeStampFromLastSample))
+                        _selectedStart = timeStampFromLastSample;
+                } else _selectedStart = timeStampFromFirstSample;
+
+            } else {
+                return null;
+            }
 
             return _selectedStart;
         } else {
@@ -474,7 +480,8 @@ public class ChartDataModel {
         if (_attribute == null) {
             try {
                 JEVisAttribute attribute = null;
-                if (getObject().getJEVisClassName().equals("Data") || getObject().getJEVisClassName().equals("Clean Data")) {
+                String jevisClassName = getObject().getJEVisClassName();
+                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data")) {
                     if (_dataProcessorObject == null) attribute = getObject().getAttribute("Value");
                     else attribute = getDataProcessor().getAttribute("Value");
 
