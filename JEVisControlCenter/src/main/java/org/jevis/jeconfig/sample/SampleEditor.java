@@ -87,6 +87,13 @@ public class SampleEditor {
         final Stage stage = new Stage();
 
         _attribute = attribute;
+        try {
+            _attribute.getDataSource().reloadAttribute(_attribute);
+        } catch (Exception ex) {
+            logger.error("Update failed", ex);
+        }
+        
+
         stage.setTitle(I18n.getInstance().getString("attribute.editor.title"));
         stage.initModality(Modality.NONE);
         stage.initOwner(owner);
@@ -124,13 +131,14 @@ public class SampleEditor {
         startdate.setMaxWidth(120);
         enddate.setMaxWidth(120);
 
+
         Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
         if (attribute.hasSample()) {
             _from = attribute.getTimestampFromLastSample().minus(Duration.standardDays(1));
             _until = attribute.getTimestampFromLastSample();
 
             startdate.valueProperty().set(LocalDate.of(_from.getYear(), _from.getMonthOfYear(), _from.getDayOfMonth()));
-            enddate.valueProperty().set(LocalDate.of(_from.getYear(), _from.getMonthOfYear(), _from.getDayOfMonth()));
+            enddate.valueProperty().set(LocalDate.of(_until.getYear(), _until.getMonthOfYear(), _until.getDayOfMonth()));
 
 
         }
