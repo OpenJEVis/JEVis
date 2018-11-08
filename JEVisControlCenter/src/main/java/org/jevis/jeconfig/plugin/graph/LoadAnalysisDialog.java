@@ -125,7 +125,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
         final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
-        final Label timeRange = new Label("Zeitbereich");
+        final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
 
 
         Region freeSpace = new Region();
