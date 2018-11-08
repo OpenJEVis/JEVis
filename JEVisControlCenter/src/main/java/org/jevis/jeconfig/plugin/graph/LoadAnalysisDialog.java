@@ -77,17 +77,19 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         final Callback<DatePicker, DateCell> dayCellFactory = getAllowedTimeFrameForDataRows();
 
 //        Label individualText = new Label(I18n.getInstance().getString("plugin.graph.changedate.individual"));
-        Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate"));
+        Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
         pickerDateStart.setPrefWidth(120d);
         pickerDateStart.setDayCellFactory(dayCellFactory);
-        pickerTimeStart.setPrefWidth(120d);
+        pickerTimeStart.setPrefWidth(100d);
+        pickerTimeStart.setMaxWidth(100d);
         pickerTimeStart.setIs24HourView(true);
         pickerTimeStart.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
         Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         pickerDateEnd.setPrefWidth(120d);
         pickerDateEnd.setDayCellFactory(dayCellFactory);
-        pickerTimeEnd.setPrefWidth(120d);
+        pickerTimeEnd.setPrefWidth(100d);
+        pickerTimeEnd.setMaxWidth(100d);
         pickerTimeEnd.setIs24HourView(true);
         pickerTimeEnd.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
@@ -123,60 +125,44 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
         final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
+        final Label timeRange = new Label("Zeitbereich");
 
+
+        Region freeSpace = new Region();
+        freeSpace.setPrefWidth(40);
+        GridPane.setFillWidth(freeSpace, true);
+        GridPane.setHgrow(freeSpace, Priority.ALWAYS);
+        GridPane.setFillWidth(comboBoxPresetDates, true);
+        GridPane.setFillWidth(comboBoxCustomPeriods, true);
+        comboBoxPresetDates.setMinWidth(200);
+        comboBoxCustomPeriods.setMinWidth(200);
 
         GridPane gridLayout = new GridPane();
         gridLayout.setPadding(new Insets(10, 10, 10, 10));
         gridLayout.setVgap(10);
 
-        gridLayout.add(pickerDateEnd, 0, 3); // column=1 row=0
-        gridLayout.add(pickerDateStart, 0, 1);
-        gridLayout.add(startText, 0, 0);
-        gridLayout.add(endText, 0, 2);
+        /** column 0**/
+        gridLayout.add(timeRange, 0, 0, 2, 1);
+        gridLayout.add(startText, 0, 1);
+        gridLayout.add(endText, 0, 3);
 
-        gridLayout.add(pickerTimeStart, 1, 1);
-        gridLayout.add(pickerTimeEnd, 1, 3);
-
-        Region freeSpace = new Region();
-        freeSpace.setPrefWidth(40);
-        gridLayout.add(freeSpace, 2, 0);
-        GridPane.setFillWidth(freeSpace, true);
-        GridPane.setHgrow(freeSpace, Priority.ALWAYS);
-
-        gridLayout.add(standardSelectionsLabel, 3, 0);
-        gridLayout.add(comboBoxPresetDates, 3, 1);
-
-        gridLayout.add(customSelectionsLabel, 3, 2);
-        gridLayout.add(comboBoxCustomPeriods, 3, 3);
+        /** Column 1 **/
+        gridLayout.add(pickerDateStart, 1, 1);
+        gridLayout.add(pickerDateEnd, 1, 3); // column=1 row=0
 
 
-//        HBox startBox = new HBox();
-//        startBox.setSpacing(4);
-//        startBox.getChildren().addAll(pickerDateStart, pickerTimeStart);
+        /** Column 2 **/
+        gridLayout.add(pickerTimeStart, 2, 1);
+        gridLayout.add(pickerTimeEnd, 2, 3);
 
-//        HBox endBox = new HBox();
-//        endBox.setSpacing(4);
-//        endBox.getChildren().addAll(pickerDateEnd, pickerTimeEnd);
+        /** Column 3 **/
+        gridLayout.add(freeSpace, 3, 0);
 
-//        VBox vbox_picker = new VBox();
-//        vbox_picker.setSpacing(4);
-//        vbox_picker.getChildren().addAll(individualText, startText, startBox, endText, endBox);
-
-//        VBox vbox_buttons = new VBox();
-//        vbox_buttons.setSpacing(4);
-//
-//        vbox_buttons.getChildren().addAll(standardSelectionsLabel, comboBoxPresetDates, customSelectionsLabel, comboBoxCustomPeriods);
-//        vbox_buttons.setAlignment(Pos.CENTER_RIGHT);
-
-//        gp_date.add(vbox_picker, 0, 0);
-//        gp_date.add(vbox_buttons, 1, 0);
-//        gp_date.setPrefWidth(hbox_list.getWidth());
-//        gp_date.setMaxSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
-
-//        VBox vbox = new VBox();
-//        vbox.setSpacing(14);
-//        vbox.getChildren().addAll(hbox_list, gp_date);
-//        vbox.setPrefWidth(600);
+        /** Column 3 **/
+        gridLayout.add(standardSelectionsLabel, 4, 0);
+        gridLayout.add(comboBoxPresetDates, 4, 1);
+        gridLayout.add(customSelectionsLabel, 4, 2);
+        gridLayout.add(comboBoxCustomPeriods, 4, 3);
 
 
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
