@@ -27,18 +27,20 @@ public interface Serie {
         nf_out.setMaximumFractionDigits(2);
         nf_out.setMinimumFractionDigits(2);
 
-        if (min == Double.MAX_VALUE)
+        if (min == Double.MAX_VALUE || samples.size() == 0)
             te.setMin("- " + unit);
         else te.setMin(nf_out.format(min) + " " + unit);
 
-        if (max == Double.MIN_VALUE)
+        if (max == Double.MIN_VALUE || samples.size() == 0)
             te.setMax("- " + unit);
         else te.setMax(nf_out.format(max) + " " + unit);
 
-        if (avg == 0.0)
+        if (avg == 0.0 || samples.size() == 0)
             te.setAvg("- " + unit);
         else te.setAvg(nf_out.format(avg) + " " + unit);
 
-        te.setSum(nf_out.format(sum) + " " + unit);
+        if (samples.size() == 0)
+            te.setSum("- " + unit);
+        else te.setSum(nf_out.format(sum) + " " + unit);
     }
 }
