@@ -87,10 +87,12 @@ public class ToolBarView {
                 model.setJEVisObjectForCurrentAnalysis(newValue.toString());
                 if (model.getAnalysisTimeFrame().getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
                     model.getSelectedData().forEach(chartDataModel -> {
-                        if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
-                            oldStart.set(chartDataModel.getSelectedStart());
-                        if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
-                            oldEnd.set(chartDataModel.getSelectedEnd());
+                        if (chartDataModel.getSelectedStart() != null && chartDataModel.getSelectedEnd() != null) {
+                            if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
+                                oldStart.set(chartDataModel.getSelectedStart());
+                            if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
+                                oldEnd.set(chartDataModel.getSelectedEnd());
+                        }
                     });
                 }
 
@@ -134,7 +136,9 @@ public class ToolBarView {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> {
-            model.getSelectedData().forEach(chartDataModel -> chartDataModel.setSomethingChanged(true));
+            String currentAnalysis = listAnalysesComboBoxHidden.getSelectionModel().getSelectedItem().toString();
+            select(null);
+            select(currentAnalysis);
         });
 
         exportCSV.setOnAction(action -> {
@@ -220,13 +224,14 @@ public class ToolBarView {
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
 
-                        model.selectNone();
+                        GraphDataModel newModel = new GraphDataModel(ds);
+
                         AnalysisTimeFrame atf = new AnalysisTimeFrame();
                         atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
 
-                        model.setAnalysisTimeFrame(atf);
+                        newModel.setAnalysisTimeFrame(atf);
 
-                        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, model, null);
+                        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel, null);
 
                         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 

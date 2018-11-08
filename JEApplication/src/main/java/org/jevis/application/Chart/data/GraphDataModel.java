@@ -621,6 +621,10 @@ public class GraphDataModel extends Observable {
         return observableListAnalyses;
     }
 
+    public ObservableList<String> getListAnalyses() {
+        return observableListAnalyses;
+    }
+
     public LocalTime getWorkdayStart() {
         return workdayStart;
     }
