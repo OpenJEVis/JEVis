@@ -273,6 +273,13 @@ public class GraphPluginView implements Plugin, Observer {
                     });
                 }
             });
+            border.heightProperty().addListener((observable, oldValue, newValue) -> {
+                if (!oldValue.equals(0.0)) {
+                    Platform.runLater(() -> {
+                        update(null, "Screen size changed");
+                    });
+                }
+            });
 
             //chartView.drawDefaultAreaChart();
             if (chartView != null)
@@ -288,7 +295,6 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        double abolutMinSize = 200;
         double autoMinSize = 220;
 
         if (dataModel.getSelectedData() != null) {
@@ -317,34 +323,36 @@ public class GraphPluginView implements Plugin, Observer {
 
                 BorderPane bp = new BorderPane();
                 bp.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
-
+                bp.setMinHeight(autoMinSize);
+                bp.setMaxWidth(border.getMaxWidth());
 
                 for (ChartSettings cset : dataModel.getCharts()) {
                     if (cset.getName().equals(cv.getChartName())) {
 
+                        /**
+                         * Add offset for every data object because of the table legend
+                         * Every row has about 25 pixel with the default font
+                         */
+                        int dataSizeOffset = 30;
+                        /** Calculate maxsize based on the amount of Data **/
+                        int dataSize = 0;
+                        for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
+                            for (String name : chartDataModel.getSelectedcharts()) {
+                                if (name.equals(cv.getChartName())) {
+                                    dataSize++;
+                                }
+                            }
+                        }
+                        bp.setMinHeight(autoMinSize + (dataSize * dataSizeOffset));
+
                         if (cset.getHeight() != null) {
                             bp.setPrefHeight(cset.getHeight());
                         } else {
-                            /**
-                             * Add offset for every data object because of the table legend
-                             * Every row has about 25 pixel with the default font
-                             */
-                            int dataSize = 0;
-                            for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
-                                for (String name : chartDataModel.getSelectedcharts()) {
-                                    if (name.equals(cv.getChartName())) {
-                                        dataSize++;
-                                    }
-                                }
-                            }
-                            bp.setPrefHeight(autoMinSize + (dataSize * 25));
-
+                            bp.setPrefHeight(autoMinSize + (dataSize * dataSizeOffset));
                         }
-//                            totalPrefHight += bp.getPrefHeight();
                     }
                 }
 
-                bp.setMinHeight(abolutMinSize);
                 bp.setTop(cv.getLegend());
                 bp.setCenter(cv.getChartRegion());
                 bp.setBottom(null);
@@ -443,11 +451,11 @@ public class GraphPluginView implements Plugin, Observer {
                  */
                 totalPrefHight = calculationTotalPrefSize(vBox);
                 if (totalPrefHight > maxhight) {
-                    vBox.getChildren().forEach(node -> {
+                    for (Node node : vBox.getChildren()) {
                         if (node instanceof BorderPane) {
                             ((BorderPane) node).setPrefHeight(autoMinSize);
                         }
-                    });
+                    }
                 }
 
                 /**
