@@ -136,7 +136,9 @@ public class ToolBarView {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> {
-            model.getSelectedData().forEach(chartDataModel -> chartDataModel.setSomethingChanged(true));
+            String currentAnalysis = listAnalysesComboBoxHidden.getSelectionModel().getSelectedItem().toString();
+            select(null);
+            select(currentAnalysis);
         });
 
         exportCSV.setOnAction(action -> {
