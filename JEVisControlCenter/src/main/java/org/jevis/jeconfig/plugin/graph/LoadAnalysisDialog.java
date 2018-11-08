@@ -61,10 +61,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
     private void initialize() {
 
+        analysisListView.setItems(graphDataModel.getListAnalyses());
 
         checkForCustomizedWorkdayTimeFrame();
-
-        analysisListView.setItems(graphDataModel.getObservableListAnalyses());
 
         HBox hbox_list = new HBox();
         hbox_list.getChildren().add(analysisListView);

@@ -87,10 +87,12 @@ public class ToolBarView {
                 model.setJEVisObjectForCurrentAnalysis(newValue.toString());
                 if (model.getAnalysisTimeFrame().getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
                     model.getSelectedData().forEach(chartDataModel -> {
-                        if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
-                            oldStart.set(chartDataModel.getSelectedStart());
-                        if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
-                            oldEnd.set(chartDataModel.getSelectedEnd());
+                        if (chartDataModel.getSelectedStart() != null && chartDataModel.getSelectedEnd() != null) {
+                            if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
+                                oldStart.set(chartDataModel.getSelectedStart());
+                            if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
+                                oldEnd.set(chartDataModel.getSelectedEnd());
+                        }
                     });
                 }
 
