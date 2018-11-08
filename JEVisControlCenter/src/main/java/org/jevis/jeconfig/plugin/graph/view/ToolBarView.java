@@ -224,13 +224,14 @@ public class ToolBarView {
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
 
-                        model.selectNone();
+                        GraphDataModel newModel = new GraphDataModel(ds);
+
                         AnalysisTimeFrame atf = new AnalysisTimeFrame();
                         atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
 
-                        model.setAnalysisTimeFrame(atf);
+                        newModel.setAnalysisTimeFrame(atf);
 
-                        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, model, null);
+                        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel, null);
 
                         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
