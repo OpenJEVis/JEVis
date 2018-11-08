@@ -236,7 +236,10 @@ public class ToolBarView {
                         }
                     } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
-                        select(model.getCurrentAnalysis().getName());
+                        model.setAnalysisTimeFrame(model.getAnalysisTimeFrame());
+                        model.updateSamples();
+                        model.setCharts(model.getCharts());
+                        model.setSelectedData(model.getSelectedData());
 
                     }
                 });

@@ -140,7 +140,10 @@ public class GraphPluginView implements Plugin, Observer {
 
                     } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
 
-                        toolBarView.select(dataModel.getCurrentAnalysis().getName());
+                        dataModel.setAnalysisTimeFrame(dataModel.getAnalysisTimeFrame());
+                        dataModel.updateSamples();
+                        dataModel.setCharts(dataModel.getCharts());
+                        dataModel.setSelectedData(dataModel.getSelectedData());
                     }
                 });
     }
