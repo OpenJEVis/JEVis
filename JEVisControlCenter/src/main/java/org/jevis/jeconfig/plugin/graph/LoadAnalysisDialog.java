@@ -4,7 +4,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Pos;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
@@ -40,7 +40,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private JFXTimePicker pickerTimeStart = new JFXTimePicker();
     private JFXDatePicker pickerDateEnd = new JFXDatePicker();
     private JFXTimePicker pickerTimeEnd = new JFXTimePicker();
-    private jfxtras.scene.control.ListView<String> lv = new ListView<>();
+    private jfxtras.scene.control.ListView<String> analysisListView = new ListView<>();
     private DateTime selectedStart = DateTime.now().minusDays(7);
     private DateTime selectedEnd = DateTime.now();
     private JEVisDataSource ds;
@@ -61,32 +61,35 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
     private void initialize() {
 
+
         checkForCustomizedWorkdayTimeFrame();
 
-        lv.setItems(graphDataModel.getObservableListAnalyses());
+        analysisListView.setItems(graphDataModel.getObservableListAnalyses());
 
         HBox hbox_list = new HBox();
-        hbox_list.getChildren().add(lv);
+        hbox_list.getChildren().add(analysisListView);
         if (graphDataModel.getCurrentAnalysis() != null && graphDataModel.getCurrentAnalysis().getName() != null
                 && !graphDataModel.getCurrentAnalysis().getName().equals(""))
-            lv.getSelectionModel().select(graphDataModel.getCurrentAnalysis().getName());
+            analysisListView.getSelectionModel().select(graphDataModel.getCurrentAnalysis().getName());
 
-        HBox.setHgrow(lv, Priority.ALWAYS);
+        HBox.setHgrow(analysisListView, Priority.ALWAYS);
 
         final Callback<DatePicker, DateCell> dayCellFactory = getAllowedTimeFrameForDataRows();
 
-        Label individualText = new Label(I18n.getInstance().getString("plugin.graph.changedate.individual"));
-        Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate"));
+//        Label individualText = new Label(I18n.getInstance().getString("plugin.graph.changedate.individual"));
+        Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
         pickerDateStart.setPrefWidth(120d);
         pickerDateStart.setDayCellFactory(dayCellFactory);
-        pickerTimeStart.setPrefWidth(120d);
+        pickerTimeStart.setPrefWidth(100d);
+        pickerTimeStart.setMaxWidth(100d);
         pickerTimeStart.setIs24HourView(true);
         pickerTimeStart.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
         Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         pickerDateEnd.setPrefWidth(120d);
         pickerDateEnd.setDayCellFactory(dayCellFactory);
-        pickerTimeEnd.setPrefWidth(120d);
+        pickerTimeEnd.setPrefWidth(100d);
+        pickerTimeEnd.setMaxWidth(100d);
         pickerTimeEnd.setIs24HourView(true);
         pickerTimeEnd.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
@@ -118,41 +121,51 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         setupPickerListener();
 
-        GridPane gp_date = new GridPane();
-
-        HBox startBox = new HBox();
-        startBox.setSpacing(4);
-        startBox.getChildren().addAll(pickerDateStart, pickerTimeStart);
-
-        HBox endBox = new HBox();
-        endBox.setSpacing(4);
-        endBox.getChildren().addAll(pickerDateEnd, pickerTimeEnd);
-
-        VBox vbox_picker = new VBox();
-        vbox_picker.setSpacing(4);
-        vbox_picker.getChildren().addAll(individualText, startText, startBox, endText, endBox);
-
-        VBox vbox_buttons = new VBox();
-        vbox_buttons.setSpacing(4);
         Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
         Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
-        vbox_buttons.getChildren().addAll(standardSelectionsLabel, comboBoxPresetDates, customSelectionsLabel, comboBoxCustomPeriods);
-        vbox_buttons.setAlignment(Pos.CENTER_RIGHT);
-
-        gp_date.add(vbox_picker, 0, 0);
-        gp_date.add(vbox_buttons, 1, 0);
-        gp_date.setPrefWidth(hbox_list.getWidth());
-        gp_date.setMaxSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
-
-        VBox vbox = new VBox();
-        vbox.setSpacing(14);
-        vbox.getChildren().addAll(hbox_list, gp_date);
-        vbox.setPrefWidth(600);
-
         final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
+        final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
 
-        lv.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+
+        Region freeSpace = new Region();
+        freeSpace.setPrefWidth(40);
+        GridPane.setFillWidth(freeSpace, true);
+        GridPane.setHgrow(freeSpace, Priority.ALWAYS);
+        GridPane.setFillWidth(comboBoxPresetDates, true);
+        GridPane.setFillWidth(comboBoxCustomPeriods, true);
+        comboBoxPresetDates.setMinWidth(200);
+        comboBoxCustomPeriods.setMinWidth(200);
+
+        GridPane gridLayout = new GridPane();
+        gridLayout.setPadding(new Insets(10, 10, 10, 10));
+        gridLayout.setVgap(10);
+
+        /** column 0**/
+        gridLayout.add(timeRange, 0, 0, 2, 1);
+        gridLayout.add(startText, 0, 1);
+        gridLayout.add(endText, 0, 3);
+
+        /** Column 1 **/
+        gridLayout.add(pickerDateStart, 1, 1);
+        gridLayout.add(pickerDateEnd, 1, 3); // column=1 row=0
+
+
+        /** Column 2 **/
+        gridLayout.add(pickerTimeStart, 2, 1);
+        gridLayout.add(pickerTimeEnd, 2, 3);
+
+        /** Column 3 **/
+        gridLayout.add(freeSpace, 3, 0);
+
+        /** Column 3 **/
+        gridLayout.add(standardSelectionsLabel, 4, 0);
+        gridLayout.add(comboBoxPresetDates, 4, 1);
+        gridLayout.add(customSelectionsLabel, 4, 2);
+        gridLayout.add(comboBoxCustomPeriods, 4, 3);
+
+
+        analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
 
                 AnalysisTimeFrame oldTimeFrame = graphDataModel.getAnalysisTimeFrame();
@@ -209,6 +222,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         if (graphDataModel.getCurrentAnalysis() != null && graphDataModel.getCurrentAnalysis().getName() != null
                 && !graphDataModel.getCurrentAnalysis().getName().equals(""))
             this.getDialogPane().getButtonTypes().add(loadGraph);
+
+        VBox vbox = new VBox();
+        vbox.getChildren().addAll(analysisListView, gridLayout);
 
         this.getDialogPane().setContent(vbox);
 
@@ -512,8 +528,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
     }
 
-    public ListView<String> getLv() {
-        return lv;
+    public ListView<String> getAnalysisListView() {
+        return analysisListView;
     }
 
     public void setSelectedStart(DateTime selectedStart) {
