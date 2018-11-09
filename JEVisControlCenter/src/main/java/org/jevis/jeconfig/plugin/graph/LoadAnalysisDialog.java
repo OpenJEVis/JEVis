@@ -62,6 +62,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private void initialize() {
 
         analysisListView.setItems(graphDataModel.getListAnalyses());
+        if (!analysisListView.getItems().isEmpty()) graphDataModel.updateWorkDaysFirstRun();
 
         checkForCustomizedWorkdayTimeFrame();
 

@@ -508,6 +508,36 @@ public class GraphDataModel extends Observable {
         }
     }
 
+    public void updateWorkDaysFirstRun() {
+        try {
+            JEVisObject site = listAnalyses.get(0).getParents().get(0).getParents().get(0);
+            LocalTime start = null;
+            LocalTime end = null;
+            try {
+                JEVisAttribute attStart = site.getAttribute("Workday Beginning");
+                JEVisAttribute attEnd = site.getAttribute("Workday End");
+                if (attStart.hasSample()) {
+                    String startStr = attStart.getLatestSample().getValueAsString();
+                    DateTime dtStart = DateTime.parse(startStr);
+                    start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
+                }
+                if (attEnd.hasSample()) {
+                    String endStr = attEnd.getLatestSample().getValueAsString();
+                    DateTime dtEnd = DateTime.parse(endStr);
+                    end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
+                }
+            } catch (Exception e) {
+            }
+
+            if (start != null && end != null) {
+                workdayStart = start;
+                workdayEnd = end;
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
     public void updateListAnalyses() {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
         try {
