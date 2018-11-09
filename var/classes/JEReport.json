@@ -32,6 +32,31 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEReport"
+    },
+    {
+      "name": "Enable",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEReport"
+    },
+    {
+      "name": "Max Number Threads",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEReport"
+    },
+    {
+      "name": "Cycle Time",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEReport"
     }
   ]
 }

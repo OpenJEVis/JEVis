@@ -26,10 +26,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 
 /**
- *
  * @author broder
  */
 public class ReportLauncher {
@@ -38,16 +38,32 @@ public class ReportLauncher {
     public static JEVisDataSource jevisDataSource;
     private static Injector injector;
     private boolean singleMode;
+    private static ForkJoinPool forkJoinPool;
 
     public static void main(String[] args) throws JEVisException {
         //parse Commandline
         JEVisCommandLine cmd = JEVisCommandLine.getInstance();
         cmd.parse(args);
 
+        initializeThreadPool();
+
         //start report
 //        Injector injector = Guice.createInjector(new ReportLauncherInjector());
         ReportLauncher launcher = new ReportLauncher();
         launcher.run();
+    }
+
+    private static void initializeThreadPool() {
+        Integer threadCount = 4;
+        try {
+            JEVisClass dataProcessorClass = jevisDataSource.getJEVisClass("JEReport");
+            List<JEVisObject> listDataProcessorObjects = jevisDataSource.getObjects(dataProcessorClass, false);
+            threadCount = listDataProcessorObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
+            logger.info("Set Thread count to: " + threadCount);
+        } catch (Exception e) {
+
+        }
+        forkJoinPool = new ForkJoinPool(threadCount);
     }
 
     public static Injector getInjector() {
@@ -73,29 +89,31 @@ public class ReportLauncher {
 
             //execute the report objects
             logger.info("nr of reports " + reportObjects.size());
-            for (JEVisObject reportObject : reportObjects) {
-                try {
-                    logger.info("---------------------------------------------------------------------");
-                    logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                    //check if the report is enabled
-                    ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
-                    Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
-                    if (!reportEnabled & !singleMode) {
-                        logger.info("Report is not enabled");
-                        continue;
-                    }
+            forkJoinPool.submit(
+                    () -> reportObjects.parallelStream().forEach(reportObject -> {
+                        try {
+                            logger.info("---------------------------------------------------------------------");
+                            logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                            //check if the report is enabled
+                            ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
+                            Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
+                            if (!reportEnabled & !singleMode) {
+                                logger.info("Report is not enabled");
 
-                    ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
-                    executor.executeReport();
-                } catch (Exception e) {
-                    logger.error("Error while creating report", e);
-                    e.printStackTrace();
-                }
-            }
+                            } else {
+
+                                ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+                                executor.executeReport();
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error while creating report", e);
+                            e.printStackTrace();
+                        }
+                    }));
         } else {
 
             if (cmd.getCycleSleepTime() != null) {
-                ServiceMode sm = new ServiceMode(jevisDataSource, cmd.getCycleSleepTime());
+                ServiceMode sm = new ServiceMode(jevisDataSource, forkJoinPool, cmd.getCycleSleepTime());
                 sm.run();
             } else {
                 ServiceMode sm = new ServiceMode();
@@ -111,6 +129,7 @@ public class ReportLauncher {
     public static JEVisDataSource getDataSource() {
         return jevisDataSource;
     }
+
 
     public boolean establishConnection() {
         JEVisCommandLine cmd = JEVisCommandLine.getInstance();
@@ -133,13 +152,13 @@ public class ReportLauncher {
     private void createObjects() {
         try {
             Path path = Paths.get("");
-            List<String> lines = Files.readAllLines(path,StandardCharsets.ISO_8859_1);
+            List<String> lines = Files.readAllLines(path, StandardCharsets.ISO_8859_1);
             int curLine = 0;
             List<String> dps = new ArrayList<>();
             for (String line : lines) {
-                if (curLine == 5){
+                if (curLine == 5) {
                     String[] splitted = line.split(";");
-                    for(int i = 2;i<splitted.length;i++){
+                    for (int i = 2; i < splitted.length; i++) {
                         String mapping = splitted[i];
                         createMapping(mapping);
                     }
