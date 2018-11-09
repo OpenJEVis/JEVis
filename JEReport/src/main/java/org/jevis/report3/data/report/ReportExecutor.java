@@ -69,6 +69,14 @@ public class ReportExecutor {
             return;
         }
 
+        /**
+         * Need to reload if report template changed (even if not very probable)
+         */
+        try {
+            reportObject.getDataSource().reloadAttributes();
+        } catch (Exception e) {
+        }
+
         List<ReportData> reportLinks = reportLinkFactory.getReportLinks(reportObject);
         intervalCalculator.buildIntervals(reportObject);
 
@@ -127,6 +135,9 @@ public class ReportExecutor {
             }
 
             JEVisObject notificationObject = property.getNotificationObject();
+            JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
+            attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
+
             sendNotification(notificationObject, fileForNotification);
 
             finisher.finishReport(report, property);
@@ -177,9 +188,6 @@ public class ReportExecutor {
         try {
 
             ReportServiceProperty service = getReportService();
-            JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
-            attachmentAttribute.deleteAllSample();
-            attachmentAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
 
             JEVisObject notiObj = reportObject.getDataSource().getObject(notificationObject.getID());
             Notification nofi = new EmailNotification();
