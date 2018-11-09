@@ -5,16 +5,20 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
+import com.google.common.util.concurrent.AtomicDouble;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
@@ -26,14 +30,12 @@ import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.Charts.*;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.jevistree.AlphanumComparator;
-import org.jevis.jeconfig.JEConfig;
+import org.jevis.application.tools.TableViewUntils;
 import org.jevis.jeconfig.tool.I18n;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormat;
 
 import java.util.*;
 
-import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
+import static javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY;
 
 /**
  * @author broder
@@ -42,6 +44,8 @@ public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
     private final Logger logger = LogManager.getLogger(ChartView.class);
+    private final double VALUE_COLUMNS_PREF_SIZE = 200;
+    private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;
     private Chart chart;
     private TableView tableView;
     private AlphanumComparator alphanumComparator = new AlphanumComparator();
@@ -53,6 +57,7 @@ public class ChartView implements Observer {
         //dataModel.addObserver(this);
 
         tableView = new TableView();
+
         tableView.setBorder(null);
         tableView.setStyle(
                 ".table-view:focused {" +
@@ -60,6 +65,8 @@ public class ChartView implements Observer {
                         "-fx-background-color: transparent, -fx-box-border, -fx-control-inner-background; " +
                         "-fx-background-insets: -1.4,0,1;" +
                         "}");
+        tableView.getStylesheets().add
+                (ChartView.class.getResource("/styles/ScrolllesTable.css").toExternalForm());
         tableView.sortPolicyProperty().set((Callback<TableView<TableEntry>, Boolean>) param -> {
 
             Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
@@ -67,67 +74,150 @@ public class ChartView implements Observer {
             return true;
         });
 
-        tableView.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
+
+//        tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
+//        tableView.onScrollTsoProperty().addListener((observable, oldValue, newValue) -> {
+//            System.out.println(newValue);
+//        });
+
+        tableView.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                System.out.println("ScrollEvent: " + event.toString());
+            }
+        });
+//        System.out.println("Blub");
+//        ScrollBar scrollBar = getTableScrollBar(tableView);
+//        scrollBar.visibleProperty().addListener((observable, oldValue, newValue) -> {
+//            System.out.println("Waring scrollbar is visible: " + newValue);
+//            if (newValue) {
+//                Platform.runLater(() -> {
+//                    tableView.resize(tableView.getWidth(), tableView.getHeight() + 25);
+//                });
+//            }
+//        });
+
+//        tableView.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
+//        tableView.setColumnResizePolicy((param) -> true);
+        tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
+
+        /** Disabled because of out ScrolllesTable.css **/
+        //tableView.setTableMenuButtonVisible(true);
+
+
 //        tableView.setFixedCellSize(25);
 //        tableView.prefHeightProperty().bind(Bindings.size(tableView.getItems()).multiply(tableView.getFixedCellSize()).add(30));
         TableColumn name = new TableColumn(I18n.getInstance().getString("plugin.graph.table.name"));
         name.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
         name.setSortable(false);
+        name.setPrefWidth(500);
+        name.setMinWidth(100);
 
-//        TableColumn colorCol = new TableColumn("Color333");
-//        colorCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("color"));
-        TableColumn colorCol = buildColorColumn(I18n.getInstance().getString("plugin.graph.table.color"));
+//        TableColumn colorCol = buildColorColumn(I18n.getInstance().getString("plugin.graph.table.color"));
+        TableColumn colorCol = buildColorColumn("");
         colorCol.setSortable(false);
+        colorCol.setPrefWidth(25);
+        colorCol.setMinWidth(25);
+//        column.setMaxWidth(120);
+//        column.setMinWidth(80);s
+
+
+        TableColumn periodCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.period"));
+        periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
+        periodCol.setStyle("-fx-alignment: CENTER-RIGHT");
+        periodCol.setSortable(false);
+        periodCol.setPrefWidth(100);
+        periodCol.setMinWidth(100);
 
         TableColumn value = new TableColumn(I18n.getInstance().getString("plugin.graph.table.value"));
         value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
         value.setStyle("-fx-alignment: CENTER-RIGHT");
         value.setSortable(false);
+        value.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+        value.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
         TableColumn dateCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.date"));
         dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
         dateCol.setStyle("-fx-alignment: CENTER");
         dateCol.setSortable(false);
+        dateCol.setPrefWidth(160);
+        dateCol.setMinWidth(160);
 
         TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
         note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
         note.setStyle("-fx-alignment: CENTER");
-        note.setPrefWidth(15);
+        note.setPrefWidth(50);
+        note.setMinWidth(50);
         note.setSortable(false);
 
         TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
         minCol.setStyle("-fx-alignment: CENTER-RIGHT");
         minCol.setSortable(false);
+        minCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+        minCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
         TableColumn maxCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.max"));
         maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
         maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
         maxCol.setSortable(false);
+        maxCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+        maxCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
         TableColumn avgCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.avg"));
         avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
         avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
         avgCol.setSortable(false);
+        avgCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+        avgCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
         TableColumn sumCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.sum"));
         sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
         sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
         sumCol.setSortable(false);
+        sumCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+        sumCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
         final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
         TableEntry tableEntry = new TableEntry("empty");
         tableData.add(tableEntry);
         tableView.setItems(tableData);
 
-        tableView.getColumns().addAll(name, colorCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
+        tableView.getColumns().addAll(colorCol, name, periodCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
+
+        TableColumn[] maxSizeColumns = new TableColumn[]{name};
+        TableColumn[] minSizeColumns = new TableColumn[]{note, colorCol, minCol, maxCol, avgCol, sumCol};
+
+        tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                TableViewUntils.allToMinButColumn(tableView, Arrays.asList(maxSizeColumns));
+            });
+
+        });
     }
+
+    public void growColomn(TableView<?> view, List<TableColumn> prioColumns) {
+        AtomicDouble width = new AtomicDouble();
+        double tableWidth = view.getWidth();
+        view.getColumns().forEach(col -> {
+            width.addAndGet(col.getWidth());
+        });
+
+        if (width.get() < tableWidth && !prioColumns.isEmpty()) {
+            double freePart = (tableWidth - width.get()) / prioColumns.size();
+            System.out.println("freePart: " + freePart);
+            for (int i = 0; i < prioColumns.size(); i++) {
+                TableColumn<?, ?> col = prioColumns.get(i);
+                col.setPrefWidth(col.getPrefWidth() + freePart);
+            }
+        }
+
+    }
+
 
     private TableColumn<TableEntry, Color> buildColorColumn(String columnName) {
         TableColumn<TableEntry, Color> column = new TableColumn(columnName);
-        column.setPrefWidth(100);
-        column.setMaxWidth(100);
-        column.setMinWidth(100);
+
 
         column.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getColor()));
 
@@ -270,19 +360,19 @@ public class ChartView implements Observer {
 
     private void addPeriodToValueColumn() {
         try {
-            TableColumn tc = (TableColumn) tableView.getColumns().get(2);
-            String period = chart.getPeriod().toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
-            tc.setText(tc.getText() + " [" + period + "]");
-            tc = (TableColumn) tableView.getColumns().get(5);
-            tc.setText(tc.getText() + " [" + period + "]");
-            tc = (TableColumn) tableView.getColumns().get(6);
-            tc.setText(tc.getText() + " [" + period + "]");
-            tc = (TableColumn) tableView.getColumns().get(7);
-            tc.setText(tc.getText() + " [" + period + "]");
-
-            String overall = new Period(chart.getStartDateTime(), chart.getEndDateTime().plus(chart.getPeriod())).toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
-            tc = (TableColumn) tableView.getColumns().get(8);
-            tc.setText(tc.getText() + " [" + overall + "]");
+//            TableColumn tc = (TableColumn) tableView.getColumns().get(2);
+//            String period = chart.getPeriod().toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
+//            tc.setText(tc.getText() + " [" + period + "]");
+//            tc = (TableColumn) tableView.getColumns().get(5);
+//            tc.setText(tc.getText() + " [" + period + "]");
+//            tc = (TableColumn) tableView.getColumns().get(6);
+//            tc.setText(tc.getText() + " [" + period + "]");
+//            tc = (TableColumn) tableView.getColumns().get(7);
+//            tc.setText(tc.getText() + " [" + period + "]");
+//
+//            String overall = new Period(chart.getStartDateTime(), chart.getEndDateTime().plus(chart.getPeriod())).toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
+//            tc = (TableColumn) tableView.getColumns().get(8);
+//            tc.setText(tc.getText() + " [" + overall + "]");
         } catch (Exception e) {
             logger.error("Could not get table captions. " + e);
         }

@@ -11,7 +11,6 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
 /**
- *
  * @author broder
  */
 public class TableEntry {
@@ -25,6 +24,7 @@ public class TableEntry {
     private final SimpleStringProperty avg;
     private final SimpleStringProperty sum;
     private final SimpleObjectProperty<Node> note;
+    private final SimpleStringProperty period;
 
     public TableEntry(String name) {
         this.name = new SimpleStringProperty(name);
@@ -38,18 +38,43 @@ public class TableEntry {
         this.max = new SimpleStringProperty();
         this.sum = new SimpleStringProperty();
         this.note = new SimpleObjectProperty<Node>();
+        this.period = new SimpleStringProperty();
+    }
+
+    public String getPeriod() {
+        return period.get();
+    }
+
+    public void setPeriod(String period) {
+        this.period.set(period);
+    }
+
+    public SimpleStringProperty periodProperty() {
+        return period;
     }
 
     public String getName() {
         return name.get();
     }
 
+    public void setName(String name) {
+        this.name.set(name);
+    }
+
     public String getValue() {
         return value.get();
     }
 
+    public void setValue(String value) {
+        this.value.set(value);
+    }
+
     public String getDate() {
         return date.get();
+    }
+
+    public void setDate(String date) {
+        this.date.set(date);
     }
 
     public Node getNote() {
@@ -62,18 +87,6 @@ public class TableEntry {
 
     public SimpleObjectProperty<Node> noteProperty() {
         return note;
-    }
-
-    public void setName(String name) {
-        this.name.set(name);
-    }
-
-    public void setDate(String date) {
-        this.date.set(date);
-    }
-
-    public void setValue(String value) {
-        this.value.set(value);
     }
 
     public Color getColor() {
