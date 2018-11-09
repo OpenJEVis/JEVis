@@ -17,6 +17,7 @@ import org.jevis.commons.driver.DriverHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * @author broder
@@ -29,6 +30,7 @@ public class Launcher extends AbstractCliApp {
     private static final Logger logger = LogManager.getLogger(Launcher.class);
     private int cycleTime = 900000;
     private final Command commands = new Command();
+    private ForkJoinPool forkJoinPool;
 
     /**
      * @param args the command line arguments
@@ -54,136 +56,35 @@ public class Launcher extends AbstractCliApp {
      * @param dataSources
      */
     private void excecuteDataSources(List<JEVisObject> dataSources) {
+
+        initializeThreadPool();
+
         logger.info("Number of Requests: " + dataSources.size());
 
-//        Long startTime = System.currentTimeMillis();
-//
-//        long maxNumberThreads = getNumberOfMaxThreads();
-//        int identifier = 1;
-//        ThreadHandler threadReqHandler = new ThreadHandler(dataSources);
-//        MDC.remove(Launcher.KEY);
-//        while (threadReqHandler.hasRequest()) {
-//            int activeCount = threadReqHandler.getNumberActiveRequests();
-//            if (activeCount < maxNumberThreads) {
-//                JEVisObject currentDataSourceJevis = threadReqHandler.getNextDataSource();
-//                initNewAppender("" + identifier, currentDataSourceJevis.getID() + "_" + currentDataSourceJevis.getName().replace(" ", "_") + ".log");
-//                MDC.put(Launcher.KEY, "" + identifier);
-        for (JEVisObject object : dataSources) {
-            logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
-            DataSource dataSource = DataSourceFactory.getDataSource(object);
+        forkJoinPool.submit(
+                () -> dataSources.parallelStream().forEach(object -> {
+                    logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
+                    DataSource dataSource = DataSourceFactory.getDataSource(object);
 
-            dataSource.initialize(object);
-            dataSource.run();
-        }
+                    dataSource.initialize(object);
+                    dataSource.run();
+                }));
 
-
-//                try {
-//                    DataSource dataSource = DataSourceFactory.getDataSource(currentDataSourceJevis);
-//                    dataSource.initialize(currentDataSourceJevis);
-//                    Thread dataCollectionThread = new Thread(dataSource, currentDataSourceJevis.getName());
-//                    long threadid = dataCollectionThread.getId();
-////                logger.info("start equip:" + currentDataSourceJevis.getName() + "id." + threadid);
-//                    threadReqHandler.addActiveThread(threadid);
-//                    //start the data source in a new thread
-//                    dataCollectionThread.start();
-//                } catch (Exception ex) {
-//                    Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ex.getMessage());
-//                }
-//                identifier++;
-//                MDC.remove(Launcher.KEY);
-//            } else {
-//                try {
-//                    boolean foundFinishedThread = false;
-//                    List<Long> finishedThreads = new ArrayList<Long>();
-//                    Set<Long> currentThreadIds = new HashSet<Long>();
-//                    for (Thread t : Thread.getAllStackTraces().keySet()) {
-//                        currentThreadIds.add(t.getId());
-////                        logger.info("thread_id:" + t.getId());
-//                    }
-//                    for (Long id : threadReqHandler.getActiveThreads()) {
-//                        if (!currentThreadIds.contains(id)) {
-//                            finishedThreads.add(id);
-//                            foundFinishedThread = true;
-//                        }
-//                    }
-//                    if (foundFinishedThread) {
-//                        for (Long id : finishedThreads) {
-////                            logger.info("Remove equip id: " + id);
-//                            threadReqHandler.removeActiveRequest(id);
-//                        }
-//                    } else {
-//                        Thread.sleep(10000);
-////                        logger.info("thread sleeps");
-//                    }
-//                } catch (InterruptedException ie) {
-//                    Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
-//                }
-//            }
-//        }
-//        //if runtime reached, then remove all threads and end the programm
-//        Long maxRuntime = getMaxRunTime() * 1000l;
-//
-//        while (threadReqHandler.getNumberActiveRequests() != 0) {
-//            Long currentRuntime = startTime - System.currentTimeMillis();
-//            if (currentRuntime > maxRuntime) {
-//                List<Long> finishedThreads = new ArrayList<Long>();
-//                List<Long> abortThreads = new ArrayList<Long>();
-//                Map<Long, Thread> currentThreadIds = new HashMap<Long, Thread>();
-//                for (Thread t : Thread.getAllStackTraces().keySet()) {
-//                    currentThreadIds.put(t.getId(), t);
-//                }
-//                for (Long id : threadReqHandler.getActiveThreads()) {
-//                    if (!currentThreadIds.containsKey(id)) {
-//                        finishedThreads.add(id);
-//                    } else {
-//                        Thread curThread = currentThreadIds.get(id);
-//                        curThread.interrupt();
-//                        abortThreads.add(id);
-//                    }
-//                }
-//                for (Long id : finishedThreads) {
-////                    logger.info("Remove equip id: " + id);
-//                    threadReqHandler.removeActiveRequest(id);
-//                }
-//                for (Long id : abortThreads) {
-////                    logger.info("Abort equip id: " + id);
-//                    threadReqHandler.removeActiveRequest(id);
-//                }
-//            }
-//            try {
-//                boolean foundFinishedThread = false;
-//                List<Long> finishedThreads = new ArrayList<Long>();
-//                Set<Long> currentThreadIds = new HashSet<Long>();
-//                for (Thread t : Thread.getAllStackTraces().keySet()) {
-//                    currentThreadIds.add(t.getId());
-////                    logger.info("thread_id:" + t.getId());
-//                }
-//                for (Long id : threadReqHandler.getActiveThreads()) {
-//                    if (!currentThreadIds.contains(id)) {
-//                        finishedThreads.add(id);
-//                        foundFinishedThread = true;
-//                    }
-//                }
-//                if (foundFinishedThread) {
-//                    for (Long id : finishedThreads) {
-////                        logger.info("Remove equip id: " + id);
-//                        threadReqHandler.removeActiveRequest(id);
-//                    }
-//                } else {
-//                    Thread.sleep(10000);
-////                    logger.info("thread sleeps");
-//                }
-//            } catch (InterruptedException ie) {
-//                Logger.getLogger(Launcher.class.getName()).log(Level.ERROR, ie.getMessage());
-//            }
-//        }
-//        try {
-//            ds.disconnect();
-//        } catch (JEVisException ex) {
-//            logger.error(Launcher.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
         logger.info("---------------------finish------------------------");
 
+    }
+
+    private void initializeThreadPool() {
+        Integer threadCount = 4;
+        try {
+            JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
+            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
+            threadCount = listDataCollectorObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
+            logger.info("Set Thread count to: " + threadCount);
+        } catch (Exception e) {
+
+        }
+        forkJoinPool = new ForkJoinPool(threadCount);
     }
 
     @Override
@@ -194,6 +95,19 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void handleAdditionalCommands() {
         DriverHelper.loadDriver(ds, commands.driverFolder);
+    }
+
+    private Boolean checkServiceStatus() {
+        Boolean enabled = true;
+        try {
+            JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
+            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
+            enabled = listDataCollectorObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
+            logger.info("Service is enabled is " + enabled);
+        } catch (Exception e) {
+
+        }
+        return enabled;
     }
 
     @Override
@@ -222,6 +136,8 @@ public class Launcher extends AbstractCliApp {
 
         if (cycle_time != null) cycleTime = cycle_time;
 
+        getCycleTimeFromService();
+
         try {
 
             service.start();
@@ -237,16 +153,28 @@ public class Launcher extends AbstractCliApp {
     }
 
     private void runServiceHelp() {
-        List<JEVisObject> dataSources = new ArrayList<>();
-        dataSources = getEnabledDataSources(ds);
-        excecuteDataSources(dataSources);
+
+        if (checkServiceStatus()) {
+            logger.info("Service is enabled.");
+            List<JEVisObject> dataSources = getEnabledDataSources(ds);
+            excecuteDataSources(dataSources);
+        } else {
+            logger.info("Service is disabled.");
+        }
         try {
             logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
+            try {
+                ds.reloadAttributes();
+            } catch (JEVisException e) {
+            }
+            getCycleTimeFromService();
+
             runServiceHelp();
         } catch (InterruptedException e) {
             logger.error("Interrupted sleep: ", e);
         }
+
     }
 
     @Override
@@ -263,38 +191,10 @@ public class Launcher extends AbstractCliApp {
         private String driverFolder;
     }
 
-    private int getNumberOfMaxThreads() {
-        try {
-            JEVisClass collectorClass = ds.getJEVisClass(DataCollectorTypes.JEDataCollector.NAME);
-            JEVisType numberThreadsType = collectorClass.getType(DataCollectorTypes.JEDataCollector.MAX_NUMBER_THREADS);
-            List<JEVisObject> dataCollector = ds.getObjects(collectorClass, false);
-            if (dataCollector.size() == 1) {
-                return (int) (long) dataCollector.get(0).getAttribute(numberThreadsType).getLatestSample().getValueAsLong();
-            }
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
-        return 1;
-    }
-
-    private long getMaxRunTime() {
-        try {
-            JEVisClass collectorClass = ds.getJEVisClass(DataCollectorTypes.JEDataCollector.NAME);
-            JEVisType runTimeType = collectorClass.getType(DataCollectorTypes.JEDataCollector.DATA_SOURCE_TIMEOUT);
-            List<JEVisObject> dataCollector = ds.getObjects(collectorClass, false);
-            if (dataCollector.size() == 1) {
-                return dataCollector.get(0).getAttribute(runTimeType).getLatestSample().getValueAsLong();
-            }
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
-        return 3600l;
-    }
-
-
     private List<JEVisObject> getEnabledDataSources(JEVisDataSource client) {
         List<JEVisObject> enabledDataSources = new ArrayList<JEVisObject>();
         try {
+            ds.reloadAttributes();
             JEVisClass dataSourceClass = client.getJEVisClass(DataCollectorTypes.DataSource.NAME);
             JEVisType enabledType = dataSourceClass.getType(DataCollectorTypes.DataSource.ENABLE);
             List<JEVisObject> allDataSources = client.getObjects(dataSourceClass, true);
@@ -312,6 +212,17 @@ public class Launcher extends AbstractCliApp {
             logger.error(ex);
         }
         return enabledDataSources;
+    }
+
+    private void getCycleTimeFromService() {
+        try {
+            JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
+            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
+            cycleTime = listDataCollectorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
+            logger.info("Service cycle time from service: " + cycleTime);
+        } catch (Exception e) {
+
+        }
     }
 
 }
