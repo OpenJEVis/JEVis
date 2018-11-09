@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -162,7 +163,7 @@ public class ReportLinkProperty implements ReportData {
     }
 
     private Map<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
-        Map<String, Object> linkMap = new HashMap<>();
+        Map<String, Object> linkMap = new ConcurrentHashMap<>();
         List<ReportAttributeProperty> attributeProperties = linkProperty.getAttributeProperties();
         //attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
         attributeProperties.parallelStream().forEach(attributeProperty -> {

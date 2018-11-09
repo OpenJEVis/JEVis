@@ -16,31 +16,24 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * @author broder
  */
 class CalcJobFactory {
 
-    private final Stack<JEVisObject> calcObjectStack = new Stack<>();
+
     private static final Logger logger = LogManager.getLogger(CalcJobFactory.class);
 
-    CalcJobFactory(List<JEVisObject> calcObjects) {
-        calcObjectStack.addAll(calcObjects);
+    CalcJobFactory() {
     }
 
-    boolean hasNextJob() {
-        return !calcObjectStack.isEmpty();
-    }
-
-    CalcJob getCurrentCalcJob(SampleHandler sampleHandler, JEVisDataSource ds) {
-        JEVisObject jevisObject = calcObjectStack.pop();
+    CalcJob getCurrentCalcJob(SampleHandler sampleHandler, JEVisDataSource ds, JEVisObject jevisObject) {
 
         logger.info("-------------------------------------------");
         long calcObjID = jevisObject.getID();
         logger.info("Create calc job for object with jevis id {}", calcObjID);
-        sampleHandler.getLastSample(jevisObject, Calculation.EXPRESSION.getName());
+
         String expression = sampleHandler.getLastSampleAsString(jevisObject, Calculation.EXPRESSION.getName());
         List<JEVisAttribute> outputAttributes = getAllOutputAttributes(jevisObject);
         DateTime startTime = getStartTimeFromOutputs(outputAttributes);

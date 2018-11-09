@@ -11,17 +11,21 @@ import org.jevis.report3.data.report.ReportAttributes;
 import org.jevis.report3.data.report.ReportExecutor;
 import org.jevis.report3.policy.ReportPolicy;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 public class ServiceMode {
     private static final Logger logger = LogManager.getLogger(ServiceMode.class);
     private Long cycleTime = 900000L;
     private JEVisDataSource _ds;
+    private ForkJoinPool forkJoinPool;
 
-    public ServiceMode(JEVisDataSource ds, Long cycleTime) {
+    public ServiceMode(JEVisDataSource ds, ForkJoinPool forkJoinPool, Long cycleTime) {
         this.cycleTime = cycleTime;
         this._ds = ds;
+
+        getCycleTimeFromService();
+        this.forkJoinPool = forkJoinPool;
     }
 
     public ServiceMode() {
@@ -59,39 +63,68 @@ public class ServiceMode {
         try {
             logger.info("finished all report objects, entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
+            _ds.reloadAttributes();
+            getCycleTimeFromService();
             runServiceHelp();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+    private Boolean checkServiceStatus() {
+        Boolean enabled = true;
+        try {
+            JEVisClass reportClass = _ds.getJEVisClass("JEReport");
+            List<JEVisObject> listReportObjects = _ds.getObjects(reportClass, false);
+            enabled = listReportObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
+            logger.info("Service is enabled is " + enabled);
+        } catch (Exception e) {
+
+        }
+        return enabled;
+    }
+
+    private void getCycleTimeFromService() {
+        try {
+            JEVisClass dataProcessorClass = _ds.getJEVisClass("JEReport");
+            List<JEVisObject> listDataProcessorObjects = _ds.getObjects(dataProcessorClass, false);
+            cycleTime = listDataProcessorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong();
+            logger.info("Service cycle time from service: " + cycleTime);
+        } catch (Exception e) {
+
+        }
+    }
+
     private void runProcesses() throws JEVisException {
-        List<JEVisObject> reportObjects = new ArrayList<>();
-        JEVisClass reportClass = _ds.getJEVisClass(ReportAttributes.NAME);
-        reportObjects = _ds.getObjects(reportClass, true);
 
-        //execute the report objects
-        logger.info("nr of reports " + reportObjects.size());
-        for (JEVisObject reportObject : reportObjects) {
-            try {
-                logger.info("---------------------------------------------------------------------");
-                logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                //check if the report is enabled
-                ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
-                Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
-                if (!reportEnabled) {
-                    logger.info("Report is not enabled");
-                    continue;
-                }
+        if (checkServiceStatus()) {
+            JEVisClass reportClass = _ds.getJEVisClass(ReportAttributes.NAME);
+            final List<JEVisObject> reportObjects = _ds.getObjects(reportClass, true);
 
-                ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
-                executor.executeReport();
+            //execute the report objects
+            logger.info("nr of reports " + reportObjects.size());
+            forkJoinPool.submit(
+                    () -> reportObjects.parallelStream().forEach(reportObject -> {
+                        try {
+                            logger.info("---------------------------------------------------------------------");
+                            logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                            //check if the report is enabled
+                            ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
+                            Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
+                            if (!reportEnabled) {
+                                logger.info("Report is not enabled");
+                            } else {
 
-                logger.info("---------------------------------------------------------------------");
-                logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-            } catch (Exception e) {
-                logger.error("Error while creating report", e);
-            }
+                                ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+                                executor.executeReport();
+
+                                logger.info("---------------------------------------------------------------------");
+                                logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error while creating report", e);
+                        }
+                    }));
         }
     }
 }
