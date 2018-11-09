@@ -98,7 +98,8 @@ public class DateHelper {
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case YESTERDAY:
-                startDate = getEndDate()
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(),
+                        startTime.getMinute(), startTime.getSecond())
                         .minusDays(1);
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
