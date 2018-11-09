@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
  * @author broder
  */
 public class PeriodicIntervalCalc implements IntervalCalculator {
