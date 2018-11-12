@@ -335,7 +335,6 @@ public class GapsAndLimits {
                         }
                     }
                 }
-                logger.info("blablablab");
                 break;
         }
     }
