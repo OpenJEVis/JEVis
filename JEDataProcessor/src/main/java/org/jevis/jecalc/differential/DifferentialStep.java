@@ -62,7 +62,7 @@ public class DifferentialStep implements ProcessStep {
                                     String note = curSample.getNote();
 
                                     if (cleanedVal < 0) {
-                                        logger.warn("[{}] Warning counter overflow", calcAttribute.getObject().getID());
+                                        logger.warn("[{}] Warning possible counter overflow", calcAttribute.getObject().getID());
                                         for (JEVisSample counterOverflow : listCounterOverflow) {
                                             if (counterOverflow != null && curSample.getTimestamp().isAfter(counterOverflow.getTimestamp())
                                                     && counterOverflow.getValueAsDouble() != 0.0) {

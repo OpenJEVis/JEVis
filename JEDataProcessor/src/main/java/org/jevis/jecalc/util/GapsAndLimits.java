@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.JEDataProcessorConstants;
-import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jecalc.data.CleanDataAttribute;
@@ -60,7 +59,6 @@ public class GapsAndLimits {
 
         String bindToSpecificValue = c.getBindtospecific();
         if (Objects.isNull(bindToSpecificValue)) bindToSpecificValue = "";
-        SampleHandler sh = new SampleHandler();
         List<JEVisSample> boundListSamples = new ArrayList<>();
         DateTime firstDate;
 
@@ -247,6 +245,7 @@ public class GapsAndLimits {
 
                     }
                 }
+                break;
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
@@ -278,6 +277,7 @@ public class GapsAndLimits {
                         currentInterval.addTmpSample(sample);
                     }
                 }
+                break;
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
@@ -315,6 +315,7 @@ public class GapsAndLimits {
                         }
                     }
                 }
+                break;
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     Double firstValue = currentLimitBreak.getFirstValue();
@@ -352,6 +353,7 @@ public class GapsAndLimits {
                         currentInterval.addTmpSample(sample);
                     }
                 }
+                break;
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
@@ -380,6 +382,7 @@ public class GapsAndLimits {
                         sample.setNote(note);
                     }
                 }
+                break;
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
@@ -409,6 +412,7 @@ public class GapsAndLimits {
                         currentInterval.addTmpSample(sample);
                     }
                 }
+                break;
             case LIMITS_TYPE:
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     Double firstValue = currentLimitBreak.getFirstValue();

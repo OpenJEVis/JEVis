@@ -82,7 +82,6 @@ public class LimitsStep implements ProcessStep {
             for (JsonLimitsConfig limitsConfig : calcAttribute.getLimitsConfig()) {
                 if (calcAttribute.getLimitsConfig().indexOf(limitsConfig) == 0) {
                     for (LimitBreak limitBreak : limitBreaksStep1) {
-                        Double firstValue = limitBreak.getFirstValue();
                         for (CleanInterval currentInterval : limitBreak.getIntervals()) {
                             logger.info("start marking peculiar samples");
                             for (JEVisSample smp : currentInterval.getTmpSamples()) {
@@ -100,11 +99,11 @@ public class LimitsStep implements ProcessStep {
                             for (JsonGapFillingConfig c : confGaps) {
                                 List<LimitBreak> newLimitBreaks = new ArrayList<>();
                                 for (LimitBreak lb : limitBreaksStep2) {
-                                    logger.info("[{}] start filling with Mode for {}", calcAttribute.getObject().getID(), c.getType());
-                                    DateTime firstDate = lb.getIntervals().get(0).getDate();
-                                    DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
-                                    if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
-                                        if (!filledLimitBreaks.contains(lb)) {
+                                    if (!filledLimitBreaks.contains(lb)) {
+                                        logger.info("[{}] start filling with Mode for {}", calcAttribute.getObject().getID(), c.getType());
+                                        DateTime firstDate = lb.getIntervals().get(0).getDate();
+                                        DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
+                                        if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
                                             newLimitBreaks.add(lb);
                                             filledLimitBreaks.add(lb);
                                         }
@@ -112,7 +111,7 @@ public class LimitsStep implements ProcessStep {
                                 }
 
                                 GapsAndLimits gal = new GapsAndLimits(intervals, calcAttribute, GapsAndLimits.GapsAndLimitsType.LIMITS_TYPE,
-                                        c, new ArrayList<>(), limitBreaksStep2, sampleCache);
+                                        c, new ArrayList<>(), newLimitBreaks, sampleCache);
 
                                 switch (c.getType()) {
                                     case GapFillingType.NONE:
@@ -141,11 +140,17 @@ public class LimitsStep implements ProcessStep {
                                     default:
                                         break;
                                 }
+                                logger.info("[{}] Done", resourceManager.getID());
                             }
+                            if (limitBreaksStep2.size() != filledLimitBreaks.size())
+                                logger.error("Could not complete all limit breaks. Limit break may have been too long for reasonable gap filling.");
+                        } else {
+                            logger.error("[{}] Found limit break but missing GapFillingConfig", resourceManager.getID());
                         }
                     }
                 }
             }
+            sampleCache = null;
         }
         logger.info("[{}] finished filling gaps", calcAttribute.getObject().getID());
 

@@ -66,6 +66,7 @@ public class FillGapStep implements ProcessStep {
                     List<Gap> newGaps = new ArrayList<>();
                     for (Gap g : gaps) {
                         if (!doneGaps.contains(g)) {
+                            logger.info("[{}] start filling with Mode for {}", calcAttribute.getObject().getID(), c.getType());
                             DateTime firstDate = g.getIntervals().get(0).getDate();
                             DateTime lastDate = g.getIntervals().get(g.getIntervals().size() - 1).getDate();
                             if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
