@@ -64,7 +64,7 @@ public class TableViewUntils {
         boolean needResize = false;
         double totalColSize = 0;
         for (int i = 0; i < view.getColumns().size(); i++) {
-            TableColumn col = (TableColumn) view.getColumns().get(i);
+            TableColumn col = view.getColumns().get(i);
 //            System.out.println("Col: " + col.getText());
             totalColSize += col.getPrefWidth();
         }
@@ -72,7 +72,7 @@ public class TableViewUntils {
 
         if (totalColSize > view.getWidth()) {
             for (int i = 0; i < view.getColumns().size(); i++) {
-                TableColumn col = (TableColumn) view.getColumns().get(i);
+                TableColumn col = view.getColumns().get(i);
                 if (!col.equals(column)) {
                     col.setPrefWidth(col.getMinWidth());
                 }

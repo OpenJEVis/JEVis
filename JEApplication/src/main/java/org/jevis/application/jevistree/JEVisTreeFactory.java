@@ -157,7 +157,7 @@ public class JEVisTreeFactory {
                 TreeHelper.EventOpenObject(tree, null);
             }
             if (showUUID.match(t)) {
-                System.out.println("TRee.UUID: " + tree.getUUID());
+                logger.info("TRee.UUID: " + tree.getUUID());
             }
         });
 
