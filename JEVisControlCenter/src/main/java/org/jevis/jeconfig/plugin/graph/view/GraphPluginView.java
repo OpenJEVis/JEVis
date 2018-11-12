@@ -356,7 +356,9 @@ public class GraphPluginView implements Plugin, Observer {
                     }
                 }
 
+                cv.getLegend().maxWidthProperty().bind(bp.widthProperty());
                 bp.setTop(cv.getLegend());
+
                 bp.setCenter(cv.getChartRegion());
                 bp.setBottom(null);
 

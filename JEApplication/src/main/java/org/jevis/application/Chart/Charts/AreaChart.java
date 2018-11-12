@@ -30,6 +30,7 @@ import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.PeriodFormat;
 
 import java.text.NumberFormat;
 import java.util.*;
@@ -90,7 +91,12 @@ public class AreaChart implements Chart {
         areaChart.setCreateSymbols(true);
 
         areaChart.getXAxis().setAutoRanging(true);
-        areaChart.getXAxis().setLabel(rb.getString("plugin.graph.chart.dateaxis.title"));
+        Period period = new Period(getStartDateTime(), getEndDateTime().plus(getPeriod()).plusSeconds(1));
+        period = period.minusSeconds(period.getSeconds());
+        String overall = period.toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale()));
+
+
+        areaChart.getXAxis().setLabel(rb.getString("plugin.graph.chart.dateaxis.title") + " " + overall);
         areaChart.getYAxis().setAutoRanging(true);
         areaChart.getYAxis().setLabel(unit);
 
@@ -207,6 +213,7 @@ public class AreaChart implements Chart {
                         tableEntry.setNote(formattedNote.getNote());
                         String unit = UnitManager.getInstance().formate(singleRow.getUnit());
                         tableEntry.setValue(formattedDouble + " " + unit);
+                        tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale())));
                         tableData.add(tableEntry);
                     } catch (Exception ex) {
                     }

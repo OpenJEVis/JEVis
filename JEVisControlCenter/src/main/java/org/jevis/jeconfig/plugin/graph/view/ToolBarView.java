@@ -210,7 +210,7 @@ public class ToolBarView {
         disableIcons.setOnAction(event -> hideShowIconsInGraph());
 
         autoResize.setOnAction(event -> autoResizeInGraph());
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, reload, save, delete, sep2, select, exportCSV, sep3, disableIcons, autoResize);
+        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, save, delete, sep2, select, exportCSV, sep3, disableIcons, autoResize, reload);
         _initialized = true;
         return toolBar;
     }
