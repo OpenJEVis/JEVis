@@ -43,6 +43,7 @@ import static javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY;
 public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
+    private static final Logger logger = LogManager.getLogger(ChartView.class);
     private final Logger logger = LogManager.getLogger(ChartView.class);
     private final double VALUE_COLUMNS_PREF_SIZE = 200;
     private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;

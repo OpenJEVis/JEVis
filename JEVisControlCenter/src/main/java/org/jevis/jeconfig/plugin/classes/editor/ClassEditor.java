@@ -83,7 +83,7 @@ public class ClassEditor {
     TextArea fDescription = new TextArea();
     CheckBox fUnique = new CheckBox();
     private ClassTree _tree = null;
-    public static Logger logger = LogManager.getLogger(ClassEditor.class);
+    private static final Logger logger = LogManager.getLogger(ClassEditor.class);
 
     public ClassEditor() {
         _view = new VBox();

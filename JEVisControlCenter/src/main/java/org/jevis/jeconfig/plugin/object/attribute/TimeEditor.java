@@ -53,7 +53,7 @@ public class TimeEditor implements AttributeEditor {
     private final HBox editor = new HBox();
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final Logger logger = LogManager.getLogger(TimeEditor.class);
+    private static final Logger logger = LogManager.getLogger(TimeEditor.class);
     private JEVisDataSource ds;
     private JEVisSample originalSample;
 

@@ -47,7 +47,7 @@ public class TargetEditor implements AttributeEditor {
     private Button _treeButton;
     private boolean _readOnly = true;
     private JEVisSample newSample;
-    private final Logger logger = LogManager.getLogger(TargetEditor.class);
+    private static final Logger logger = LogManager.getLogger(TargetEditor.class);
 
     private final MODE mode;
     private JEVisTree tree;

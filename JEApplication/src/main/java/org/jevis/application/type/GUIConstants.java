@@ -43,7 +43,7 @@ public class GUIConstants {
     public static DisplayType GAP_FILLING_CONFIG = new DisplayType("Gap Filling Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LIMITS_CONFIG = new DisplayType("Limits Config", JEVisConstants.PrimitiveType.STRING);
 
-    public static Logger logger = LogManager.getLogger(GUIConstants.class);
+    private static final Logger logger = LogManager.getLogger(GUIConstants.class);
 
     public static List<DisplayType> ALL = new ArrayList<DisplayType>() {
         {

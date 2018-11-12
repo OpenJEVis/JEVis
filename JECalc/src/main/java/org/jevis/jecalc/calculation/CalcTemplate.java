@@ -16,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
  */
 public class CalcTemplate {
 
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CalcTemplate.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CalcTemplate.class);
     private final Evaluator evaluator;
     private final String expression;
 

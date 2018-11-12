@@ -44,7 +44,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
     //    final JEVisObject _obj;
     private boolean _childLoaded = false;
     private final JEVisTree _tree;
-    public static Logger logger = LogManager.getLogger(JEVisTreeItem.class);
+    private static final Logger logger = LogManager.getLogger(JEVisTreeItem.class);
 
     /**
      * Constructor for the Root Item. This them will call getRoot from the

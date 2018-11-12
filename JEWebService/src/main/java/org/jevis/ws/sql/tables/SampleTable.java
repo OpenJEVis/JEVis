@@ -58,7 +58,7 @@ public class SampleTable {
     public final static String COLUMN_FILE = "file";
     public final static String COLUMN_FILE_NAME = "filename";
     private SQLDataSource _connection;
-    private Logger logger = LogManager.getLogger(SampleTable.class);
+    private static final Logger logger = LogManager.getLogger(SampleTable.class);
 
     public SampleTable(SQLDataSource ds) {
         _connection = ds;
@@ -449,7 +449,7 @@ public class SampleTable {
         }
     }
 
-    public List<JsonSample> getAll(long object, String att) throws SQLException, JEVisException {
+    public List<JsonSample> getAll(long object, String att) throws SQLException {
 //        logger.info("SampleTable.getAll");
         List<JsonSample> samples = new ArrayList<>();
 

@@ -33,7 +33,7 @@ import java.util.List;
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
 public class LoadAnalysisDialog extends Dialog<ButtonType> {
-    private final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
+    private static final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private final ToolBarView toolBarView;
     private GraphDataModel graphDataModel;
     private JFXDatePicker pickerDateStart = new JFXDatePicker();

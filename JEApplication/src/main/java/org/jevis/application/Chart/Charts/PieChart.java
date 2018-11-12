@@ -24,7 +24,7 @@ import java.util.List;
 
 public class PieChart implements Chart {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
-    private final Logger logger = LogManager.getLogger(PieChart.class);
+    private static final Logger logger = LogManager.getLogger(PieChart.class);
     private String chartName;
     private String unit;
     private List<ChartDataModel> chartDataModels;
