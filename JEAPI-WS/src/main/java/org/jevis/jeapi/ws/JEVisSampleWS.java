@@ -42,7 +42,7 @@ public class JEVisSampleWS implements JEVisSample {
     private JEVisAttribute attribute;
     private JsonSample json;
     private JEVisDataSourceWS ds;
-    private Logger logger = LogManager.getLogger(JEVisSampleWS.class);
+    private static final Logger logger = LogManager.getLogger(JEVisSampleWS.class);
     private JEVisFile file = null;
 
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att) {

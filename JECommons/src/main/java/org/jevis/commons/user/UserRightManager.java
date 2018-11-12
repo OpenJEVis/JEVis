@@ -35,7 +35,7 @@ public class UserRightManager {
 
     private final JEVisUser user;
     private List<JEVisRelationship> permissions = new ArrayList<>();
-    private Logger logger = LogManager.getLogger(UserRightManager.class);
+    private static final Logger logger = LogManager.getLogger(UserRightManager.class);
     private JEVisDataSource ds;
     private List<Long> readGIDS;
     private List<Long> createGIDS;

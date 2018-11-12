@@ -58,7 +58,7 @@ import java.util.Observer;
  */
 public class GraphPluginView implements Plugin, Observer {
 
-    private final Logger logger = LogManager.getLogger(GraphPluginView.class);
+    private static final Logger logger = LogManager.getLogger(GraphPluginView.class);
     private ToolBarView toolBarView;
     private GraphDataModel dataModel;
     //private GraphController controller;

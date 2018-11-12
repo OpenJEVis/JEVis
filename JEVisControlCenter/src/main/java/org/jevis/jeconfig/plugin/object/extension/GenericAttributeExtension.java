@@ -66,7 +66,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     public static DoubleProperty editorWhith = new SimpleDoubleProperty(350);
     private final BorderPane _view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     private JEVisObject _obj;
     private boolean _needSave = false;
     private List<AttributeEditor> _attributesEditor;

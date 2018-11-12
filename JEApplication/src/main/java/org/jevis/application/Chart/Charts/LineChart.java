@@ -36,7 +36,7 @@ import java.util.*;
 
 public class LineChart implements Chart {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
-    private final Logger logger = LogManager.getLogger(AreaChart.class);
+    private static final Logger logger = LogManager.getLogger(AreaChart.class);
     private String chartName;
     private String unit;
     private List<ChartDataModel> chartDataModels;

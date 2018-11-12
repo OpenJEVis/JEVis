@@ -68,7 +68,7 @@ public class ObjectEditor {
     private List<ObjectEditorExtension> activeExtensions = new ArrayList<>();
     private boolean _hasChanged = true;
     private String _lastOpenEditor = "";
-    private final Logger logger = LogManager.getLogger(ObjectEditor.class);
+    private static final Logger logger = LogManager.getLogger(ObjectEditor.class);
     private JEVisTree tree;
 
     private HiddenSidesPane _view;

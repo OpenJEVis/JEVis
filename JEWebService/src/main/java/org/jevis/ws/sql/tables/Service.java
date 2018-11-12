@@ -31,7 +31,7 @@ import java.sql.PreparedStatement;
  */
 public class Service {
 
-    private Logger logger = LogManager.getLogger(Service.class);
+    private static final Logger logger = LogManager.getLogger(Service.class);
 
     private final SQLDataSource _connection;
 

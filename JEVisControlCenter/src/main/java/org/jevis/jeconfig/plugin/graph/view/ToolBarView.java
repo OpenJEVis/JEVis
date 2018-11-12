@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ToolBarView {
 
     private final JEVisDataSource ds;
-    private final Logger logger = LogManager.getLogger(ToolBarView.class);
+    private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private GraphDataModel model;
     private ComboBox listAnalysesComboBoxHidden;
     private ChartView view;

@@ -52,7 +52,7 @@ public class HTTPConnection {
     private final String baseURL;
     private final String username;
     private final String password;
-    private final Logger logger = LogManager.getLogger(HTTPConnection.class);
+    private static final Logger logger = LogManager.getLogger(HTTPConnection.class);
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
 
     /**

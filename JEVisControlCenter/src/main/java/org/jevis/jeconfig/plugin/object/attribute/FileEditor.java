@@ -63,7 +63,7 @@ public class FileEditor implements AttributeEditor {
     private boolean _autoDownload = true;
 
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final Logger logger = LogManager.getLogger(FileEditor.class);
+    private static final Logger logger = LogManager.getLogger(FileEditor.class);
 
     public FileEditor(JEVisAttribute att) {
         _attribute = att;

@@ -5,17 +5,13 @@
  */
 package org.jevis.jecalc.calculation;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+
+import java.util.*;
 
 /**
  *
@@ -23,7 +19,7 @@ import org.joda.time.format.DateTimeFormat;
  */
 public class SampleMerger {
 
-    private final Logger logger = LogManager.getLogger(SampleMerger.class);
+    private static final Logger logger = LogManager.getLogger(SampleMerger.class);
     private final List<List<Sample>> allSamples = new ArrayList<>();
     private final List<Sample> constants = new ArrayList<>();
     private final List<List<Sample>> periodConstants = new ArrayList<>();
@@ -127,7 +123,7 @@ public class SampleMerger {
 
     public enum InputType {
 
-        STATIC, PERIODIC, NON_PERIODIC;
+        STATIC, PERIODIC, NON_PERIODIC
     }
 
 }

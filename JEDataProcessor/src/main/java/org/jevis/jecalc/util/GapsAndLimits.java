@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class GapsAndLimits {
-    private final Logger logger = LogManager.getLogger(GapsAndLimits.class);
+    private static final Logger logger = LogManager.getLogger(GapsAndLimits.class);
     private List<CleanInterval> intervals;
     private CleanDataAttribute calcAttribute;
     private GapsAndLimitsType gapsAndLimitsType;

@@ -32,7 +32,7 @@ import java.text.ParseException;
  */
 public abstract class BasicEditor implements AttributeEditor {
 
-    private final Logger logger = LogManager.getLogger(BasicEditor.class);
+    private static final Logger logger = LogManager.getLogger(BasicEditor.class);
     private final JEVisAttribute attribute;
     private final BooleanProperty changedProperty = new SimpleBooleanProperty(false);
     private final double height = 28;

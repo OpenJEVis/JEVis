@@ -37,7 +37,7 @@ import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
  */
 public class RelationsManagment {
 
-    static private Logger logger = LogManager.getLogger(RelationsManagment.class);
+    private static final Logger logger = LogManager.getLogger(RelationsManagment.class);
 
     /**
      *

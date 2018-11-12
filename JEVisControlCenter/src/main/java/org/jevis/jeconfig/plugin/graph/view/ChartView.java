@@ -41,7 +41,7 @@ import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
-    private final Logger logger = LogManager.getLogger(ChartView.class);
+    private static final Logger logger = LogManager.getLogger(ChartView.class);
     private Chart chart;
     private TableView tableView;
     private AlphanumComparator alphanumComparator = new AlphanumComparator();
