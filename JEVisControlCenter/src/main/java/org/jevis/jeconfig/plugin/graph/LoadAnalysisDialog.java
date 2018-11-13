@@ -176,7 +176,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
                 toolBarView.select(newValue);
 
-                graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
+                //graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();

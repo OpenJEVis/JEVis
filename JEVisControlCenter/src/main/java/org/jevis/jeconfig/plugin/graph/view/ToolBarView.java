@@ -105,9 +105,9 @@ public class ToolBarView {
                         if (!oldEnd.get().equals(new DateTime(2001, 1, 1, 0, 0, 0)))
                             chartDataModel.setSelectedEnd(oldEnd.get());
                     });
-                    model.setAnalysisTimeFrame(oldTimeFrame);
-                    model.updateSamples();
                 }
+                model.setAnalysisTimeFrame(oldTimeFrame);
+                model.updateSamples();
 
                 model.setCharts(model.getCharts());
                 model.setSelectedData(model.getSelectedData());
