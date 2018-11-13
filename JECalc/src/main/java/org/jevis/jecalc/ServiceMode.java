@@ -31,6 +31,7 @@ public class ServiceMode {
     public ServiceMode(JEVisDataSource ds) {
         this.ds = ds;
 
+        getCycleTimeFromService();
         initializeThreadPool();
     }
 
