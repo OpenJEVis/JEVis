@@ -27,6 +27,7 @@ public class ChartUnits {
         Unit _cubicMeterPerHour = SI.CUBIC_METRE.divide(NonSI.HOUR);
 
         Unit _bar = NonSI.BAR;
+        Unit _atm = NonSI.ATMOSPHERE;
 
         Unit _W = SI.WATT;
         Unit _kW = SI.KILO(SI.WATT);
@@ -53,6 +54,7 @@ public class ChartUnits {
         final JEVisUnit cubicMeterPerHour = new JEVisUnitImp(_cubicMeterPerHour);
 
         final JEVisUnit bar = new JEVisUnitImp(_bar);
+        final JEVisUnit atm = new JEVisUnitImp(_atm);
 
         final JEVisUnit W = new JEVisUnitImp(_W);
         final JEVisUnit kW = new JEVisUnitImp(_kW);
@@ -120,6 +122,9 @@ public class ChartUnits {
                 break;
             case "bar":
                 result = bar;
+                break;
+            case "atm":
+                result = atm;
                 break;
             default:
                 break;

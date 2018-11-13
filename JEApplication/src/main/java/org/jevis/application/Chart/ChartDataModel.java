@@ -339,7 +339,120 @@ public class ChartDataModel {
                             break;
                     }
                     break;
-                //TODO for flow and pressure
+                case "bar":
+                    switch (inputUnit) {
+                        case "atm":
+                            factor = 1d / 1.01325;
+                            break;
+                    }
+                    break;
+                case "atm":
+                    switch (inputUnit) {
+                        case "bar":
+                            factor = 1.01325 / 1d;
+                            break;
+                    }
+                    break;
+                case "m³/s":
+                    switch (inputUnit) {
+                        case "m³/min":
+                            factor = 1d / 60D;
+                            break;
+                        case "m³/h":
+                            factor = 1d / 3600d;
+                            break;
+                        case "l/s":
+                            factor = 1d / 1000d;
+                            break;
+                        case "l/min":
+                            factor = 1d / 60000d;
+                            break;
+                        case "l/h":
+                            factor = 1d / 3600000;
+                            break;
+                    }
+                    break;
+                case "m³/min":
+                    switch (inputUnit) {
+                        case "m³/s":
+                            factor = 60d;
+                            break;
+                        case "m³/h":
+                            factor = 1d / 60d;
+                            break;
+                        case "l/s":
+                            factor = 1000d * 60d;
+                            break;
+                        case "l/min":
+                            factor = 1000d;
+                            break;
+                        case "l/h":
+                            factor = 1000d / 60d;
+                            break;
+                    }
+                    break;
+                case "m³/h":
+                    switch (inputUnit) {
+                        case "m³/s":
+                            factor = 60d * 60d;
+                            break;
+                        case "m³/min":
+                            factor = 1d / 60d;
+                            break;
+                        case "l/s":
+                            factor = 1000d / 3600d;
+                            break;
+                        case "l/min":
+                            factor = 1000d / 60d;
+                            break;
+                        case "l/h":
+                            factor = 1000d;
+                            break;
+                    }
+                    break;
+                case "l/s":
+                    switch (inputUnit) {
+                        case "m³/s":
+                            //TODO: finish factors
+                            break;
+                        case "m³/min":
+                            break;
+                        case "m³/h":
+                            break;
+                        case "l/min":
+                            break;
+                        case "l/h":
+                            break;
+                    }
+                    break;
+                case "l/min":
+                    switch (inputUnit) {
+                        case "m³/s":
+                            break;
+                        case "m³/min":
+                            break;
+                        case "m³/h":
+                            break;
+                        case "l/s":
+                            break;
+                        case "l/h":
+                            break;
+                    }
+                    break;
+                case "l/h":
+                    switch (inputUnit) {
+                        case "m³/s":
+                            break;
+                        case "m³/min":
+                            break;
+                        case "m³/h":
+                            break;
+                        case "l/s":
+                            break;
+                        case "l/min":
+                            break;
+                    }
+                    break;
                 default:
                     break;
             }

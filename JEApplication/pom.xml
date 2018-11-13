@@ -4,7 +4,7 @@
 
     <groupId>org.jevis.application</groupId>
     <artifactId>jeapplication</artifactId>
-    <version>3.0.12</version>
+    <version>3.0.13</version>
 
     <packaging>jar</packaging>
 
