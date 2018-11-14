@@ -22,6 +22,7 @@ package org.jevis.application.jevistree;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -29,6 +30,8 @@ import javafx.scene.input.KeyEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.jevistree.filter.BasicCellFilter;
+import org.jevis.application.jevistree.filter.CellFilterFactory;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.application.jevistree.plugin.MapPlugin;
 
@@ -105,7 +108,15 @@ public class JEVisTreeFactory {
         ViewFilter filter = ViewFilterFactory.createDefaultGraphFilter();
         tree.setFiler(filter);
 
-        tree.getColumns().addAll(ColumnFactory.buildName(), ColumnFactory.buildID());
+        TreeTableColumn nameCol = ColumnFactory.buildName();
+        TreeTableColumn idCol = ColumnFactory.buildID();
+
+        BasicCellFilter cellFilter = new BasicCellFilter();
+        CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
+        CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
+        tree.setCellFilter(cellFilter);
+
+        tree.getColumns().addAll(nameCol, idCol);
         addDefaultKeys(tree);
 
         return tree;

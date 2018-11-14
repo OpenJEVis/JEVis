@@ -36,6 +36,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
+import org.jevis.application.jevistree.filter.CellFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,7 @@ public class JEVisTree extends TreeTableView {
     private JEVisTreeRow dragItem;
     private SaveResourceBundle rb;
     private UUID uuid = UUID.randomUUID();
+    private CellFilter cellFilter;
 
     public JEVisTree(JEVisDataSource ds) {
         super();
@@ -329,8 +331,18 @@ public class JEVisTree extends TreeTableView {
         _filter = filter;
     }
 
+    @Deprecated
     public ViewFilter getFilter() {
         return _filter;
+    }
+
+
+    public CellFilter getCellFilter() {
+        return this.cellFilter;
+    }
+
+    public void setCellFilter(CellFilter filter) {
+        this.cellFilter = filter;
     }
 
     public JEVisObject getCopyObject() {

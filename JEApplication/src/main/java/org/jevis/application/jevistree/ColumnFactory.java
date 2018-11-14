@@ -40,6 +40,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.resource.ResourceLoader;
 
@@ -60,6 +61,8 @@ public class ColumnFactory {
     private static final Logger logger = LogManager.getLogger(ColumnFactory.class);
     private static final Map<String, Image> icons = new HashMap<>();
     private static String fallbackIcon = "b86bebea-1880-11e8-accf-0ed5f89f718b";
+
+    private static Map<String, Image> classIconCache = new HashMap<>();
 
     public static TreeTableColumn<JEVisTreeRow, String> buildName() {
         TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn(OBJECT_NAME);
@@ -84,7 +87,7 @@ public class ColumnFactory {
                 }
 
             } catch (Exception ex) {
-                logger.info("Error in Column Fatory: " + ex);
+                logger.info("Error in Column Factory: " + ex);
                 return new ReadOnlyObjectWrapper<String>("Error");
             }
 
@@ -101,35 +104,39 @@ public class ColumnFactory {
                                           @Override
                                           public void commitEdit(String newValue) {
                                               super.commitEdit(newValue);
-//                        getTreeTableRow().getItem().getColorProperty().setValue(newValue);
                                           }
 
                                           @Override
                                           protected void updateItem(String item, boolean empty) {
                                               super.updateItem(item, empty);
+                                              setText(null);
+                                              setGraphic(null);
                                               if (!empty
                                                       && getTreeTableRow() != null
                                                       && getTreeTableRow().getTreeItem() != null
                                                       && getTreeTableRow().getTreeItem().getValue() != null
                                                       && getTreeTableRow().getTreeItem().getValue().getJEVisObject() != null) {
 
-                                                  HBox hbox = new HBox();//10
-                                                  Label nameLabel = new Label();
-                                                  Node icon = new Region();
-
-                                                  JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
-                                                  JEVisObject obj = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
-
-                                                  setContextMenu(new JEVisTreeContextMenu(obj, tree));
-
-                                                  hbox.setStyle("-fx-background-color: transparent;");
-                                                  nameLabel.setStyle("-fx-background-color: transparent;");
-
-                                                  nameLabel.setText(item);
-                                                  nameLabel.setPadding(new Insets(0, 0, 0, 8));
 
                                                   try {
-                                                      if (getTreeTableRow().getItem() != null) {
+                                                      HBox hbox = new HBox();//10
+                                                      Label nameLabel = new Label();
+                                                      Node icon = new Region();
+
+                                                      JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
+                                                      JEVisObject obj = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
+
+                                                      boolean showCell = tree.getCellFilter().showCell(getTableColumn(), getTreeTableRow().getTreeItem().getValue());
+                                                      if (showCell) {
+
+                                                          setContextMenu(new JEVisTreeContextMenu(obj, tree));
+
+                                                          hbox.setStyle("-fx-background-color: transparent;");
+                                                          nameLabel.setStyle("-fx-background-color: transparent;");
+
+                                                          nameLabel.setText(item);
+                                                          nameLabel.setPadding(new Insets(0, 0, 0, 8));
+
 
                                                           if (getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT) {
                                                               try {
@@ -151,23 +158,15 @@ public class ColumnFactory {
                                                               hbox2.getChildren().setAll(spacer, ResourceLoader.getImage("down_right-24.png", 10, 10));
                                                               icon = hbox2;
                                                           }
+
+                                                          hbox.getChildren().setAll(icon, nameLabel);
+                                                          setGraphic(hbox);
                                                       }
-
-
                                                   } catch (Exception ex) {
                                                       logger.catching(ex);
                                                   }
-
-                                                  hbox.getChildren().setAll(icon, nameLabel);
-                                                  setText(null);
-                                                  setGraphic(hbox);
-                                              } else {
-                                                  setText(null);
-                                                  setGraphic(null);
                                               }
-
                                           }
-
                                       };
 
                                       return cell;
@@ -179,31 +178,48 @@ public class ColumnFactory {
 
     }
 
-    private static ImageView getClassIcon(JEVisClass jclass, double h, double w) {
+    private static ImageView getClassIcon(JEVisClass jclass, double h, double w) throws JEVisException {
         try {
-            Image image = null;
-            if (jclass == null || jclass.getIcon() == null) {
-                if (icons.containsKey(fallbackIcon)) {
-                    image = icons.get(fallbackIcon);
-                } else {
-                    icons.put(fallbackIcon, new Image(ColumnFactory.class.getResourceAsStream("/icons/Folder_blank.png")));
-                    image = icons.get(fallbackIcon);
-                }
-            } else if (icons.containsKey(jclass.getName())) {
-                image = icons.get(jclass.getName());
-            } else if (jclass.getIcon() != null) {
-                image = SwingFXUtils.toFXImage(jclass.getIcon(), null);
-                icons.put(jclass.getName(), image);
+            if (!classIconCache.containsKey(jclass.getName())) {
+                classIconCache.put(jclass.getName(), SwingFXUtils.toFXImage(jclass.getIcon(), null));
             }
-            ImageView iv = new ImageView(image);
-            iv.fitHeightProperty().setValue(h);
-            iv.fitWidthProperty().setValue(w);
-            iv.setSmooth(true);
-            return iv;
+
         } catch (Exception ex) {
-            logger.catching(ex);
-            return new ImageView();
+            classIconCache.put(jclass.getName(), new Image(ColumnFactory.class.getResourceAsStream("/icons/Folder_blank.png")));
         }
+
+
+        ImageView iv = new ImageView(classIconCache.get(jclass.getName()));
+        iv.fitHeightProperty().setValue(h);
+        iv.fitWidthProperty().setValue(w);
+        iv.setSmooth(true);
+        return iv;
+
+
+//        try {
+//            Image image = null;
+//            if (jclass == null || jclass.getIcon() == null) {
+//                if (icons.containsKey(fallbackIcon)) {
+//                    image = icons.get(fallbackIcon);
+//                } else {
+//                    icons.put(fallbackIcon, new Image(ColumnFactory.class.getResourceAsStream("/icons/Folder_blank.png")));
+//                    image = icons.get(fallbackIcon);
+//                }
+//            } else if (icons.containsKey(jclass.getName())) {
+//                image = icons.get(jclass.getName());
+//            } else if (jclass.getIcon() != null) {
+//                image = SwingFXUtils.toFXImage(jclass.getIcon(), null);
+//                icons.put(jclass.getName(), image);
+//            }
+//            ImageView iv = new ImageView(image);
+//            iv.fitHeightProperty().setValue(h);
+//            iv.fitWidthProperty().setValue(w);
+//            iv.setSmooth(true);
+//            return iv;
+//        } catch (Exception ex) {
+//            logger.catching(ex);
+//            return new ImageView();
+//        }
     }
 
     public static TreeTableColumn<JEVisTreeRow, String> buildClass() {

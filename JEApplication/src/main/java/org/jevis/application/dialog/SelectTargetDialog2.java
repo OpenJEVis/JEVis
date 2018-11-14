@@ -20,6 +20,7 @@
 package org.jevis.application.dialog;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -52,9 +53,7 @@ import java.util.List;
  */
 public class SelectTargetDialog2 {
 
-    //    private VBox root = new VBox();
     private Button ok = new Button("OK");
-    private Button clear = new Button("Clear");
     private String ICON = "1404313956_evolution-tasks.png";
     private JEVisDataSource _ds;
     private Stage stage;
@@ -62,12 +61,15 @@ public class SelectTargetDialog2 {
     private JEVisTree tree;
     private SimpleTargetPlugin stp = new SimpleTargetPlugin();
     private MODE mode = MODE.OBJECT;
+    private SimpleObjectProperty<MODE> filterMode = new SimpleObjectProperty<>(MODE.OBJECT);
+    private SimpleTargetPlugin.SimpleFilter filter;
 
     public Response show(Stage owner, JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
-
+        System.out.println("SelectTargetDialog2.start: " + mode);
+        this.filter = filter;
         stage = new Stage();
         _ds = ds;
-        this.mode = mode;
+        filterMode = new SimpleObjectProperty<>(mode);
 
         stage.setTitle("Selection");
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -77,13 +79,13 @@ public class SelectTargetDialog2 {
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setWidth(524);
-        stage.setHeight(768);
+        stage.setWidth(700);
+        stage.setHeight(800);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(true);
         stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
-//        stage.setAlwaysOnTop(true);
-        stage.sizeToScene();
+        stage.setAlwaysOnTop(true);
+//        stage.sizeToScene();
         stage.toFront();
         stage.showAndWait();
 
@@ -93,6 +95,7 @@ public class SelectTargetDialog2 {
     public void allowMultySelect(boolean allowMulty) {
         stp.setAllowMultySelection(allowMulty);
     }
+
 
     private VBox build(JEVisDataSource ds, String title, List<UserSelection> uselection) {
         VBox root = new VBox(0);
@@ -112,49 +115,54 @@ public class SelectTargetDialog2 {
 
 
         CheckBox advanced = new CheckBox("Advanced");
+        System.out.println("Filtermode: " + filterMode.getValue());
+        switch (filterMode.getValue()) {
+            case ATTRIBUTE:
+                advanced.setSelected(true);
+                break;
+            case OBJECT:
+                advanced.setSelected(false);
+                break;
+        }
 
 
         tree.openUserSelection(uselection);
         stp.setUserSelection(uselection);
-        if (mode == MODE.ATTRIBUTE) {
-            stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
-            advanced.setSelected(true);
-        } else if (mode == MODE.OBJECT) {
-            stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
-            advanced.setSelected(false);
-        }
 
-        advanced.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                Platform.runLater(() -> {
-                    tree.setVisible(false);
-                    tree.getFilter().showAttributes(newValue);
-                    tree.reload();
-                    tree.openUserSelection(stp.getUserSelection());
-                    tree.setVisible(true);
-//                    logger.info("Change mode: "+newValue);
-//                    content.setVisible(false);
-//                    content.getChildren().removeAll();
-//
-//                    tree = new JEVisTree(ds);
-//                    tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-//                    tree.getPlugins().add(stp);
-//                    if(newValue){
-//                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
-//                        tree.getFilter().showAttributes(true);
-//
-//                    }else{
-//                        stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
-//                        tree.getFilter().showAttributes(false);
-//                    }
-//                    tree.openUserSelection(uselection);
-//
-//                    content.getChildren().add(tree);
-//                    content.setVisible(true);
+        filterMode.addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                tree.setVisible(false);
+                switch (newValue) {
 
-                });
+                    case OBJECT:
+
+
+                        stp.setModus(SimpleTargetPlugin.MODE.OBJECT, null);
+                        tree.getFilter().showAttributes(false);
+                        break;
+                    case ATTRIBUTE:
+                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE, null);
+                        tree.getFilter().showAttributes(true);
+                        break;
+                    case FILTER:
+                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE, filter);
+                        break;
+
+
+                }
+                tree.reload();
+                tree.setVisible(true);
+            });
+
+        });
+
+        advanced.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                filterMode.set(MODE.ATTRIBUTE);
+            } else {
+                filterMode.set(MODE.OBJECT);
             }
+
         });
 
         tree.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
@@ -198,7 +206,7 @@ public class SelectTargetDialog2 {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        buttonPanel.getChildren().setAll(advanced, spacer, ok, cancel);
+        buttonPanel.getChildren().setAll(advanced, spacer, cancel, ok);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(5));
 
@@ -223,7 +231,7 @@ public class SelectTargetDialog2 {
     }
 
     public enum MODE {
-        OBJECT, ATTRIBUTE
+        OBJECT, ATTRIBUTE, FILTER
     }
 
 }

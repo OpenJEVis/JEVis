@@ -116,13 +116,13 @@ public class NewObjectUnderDialog {
 
         tree.openUserSelection(uselection);
         stp.setUserSelection(uselection);
-        if (mode == MODE.ATTRIBUTE) {
-            stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
-            advanced.setSelected(true);
-        } else if (mode == MODE.OBJECT) {
-            stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
-            advanced.setSelected(false);
-        }
+//        if (mode == MODE.ATTRIBUTE) {
+//            stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
+//            advanced.setSelected(true);
+//        } else if (mode == MODE.OBJECT) {
+//            stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
+//            advanced.setSelected(false);
+//        }
 
         advanced.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
