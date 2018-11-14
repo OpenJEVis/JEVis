@@ -725,6 +725,7 @@ public class ChartPlugin implements TreePlugin {
         TextField textFieldChartName = new TextField(columnName);
         textFieldChartName.setText(columnName);
         textFieldChartName.setEditable(false);
+        textFieldChartName.setDisable(true);
         Tooltip tt = new Tooltip("Column id: " + selectionColumnIndex);//DEBUG, remove later
         textFieldChartName.setTooltip(tt);
 
@@ -848,7 +849,7 @@ public class ChartPlugin implements TreePlugin {
                                 hbox.getChildren().setAll(cbox);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
 
-                                setTextFieldEditable(textFieldChartName, item);
+                                setTextFieldEditable(textFieldChartName, comboBoxChartType, item);
 
                                 cbox.setOnAction(event -> {
                                     try {
@@ -901,18 +902,23 @@ public class ChartPlugin implements TreePlugin {
 
                     }
 
-                    private void setTextFieldEditable(TextField textFieldChartName, Boolean item) {
+                    private void setTextFieldEditable(TextField textFieldChartName, DisabledItemsComboBox<String> comboBoxChartType, Boolean item) {
                         if (item) {
                             textFieldChartName.setEditable(true);
+                            textFieldChartName.setDisable(true);
+                            comboBoxChartType.setDisable(true);
                         } else {
                             AtomicReference<Boolean> foundSelected = new AtomicReference<>(false);
                             _data.getSelectedData().forEach(mdl -> {
-//                            _data.getSelectedData().parallelStream().forEach(mdl -> {
-                                if (mdl.getSelected()) {
+                                if (mdl.getSelected() && mdl.getSelectedcharts().contains(textFieldChartName.getText())) {
                                     foundSelected.set(true);
                                 }
                             });
-                            if (foundSelected.get()) textFieldChartName.setEditable(true);
+                            if (foundSelected.get()) {
+                                textFieldChartName.setEditable(true);
+                                textFieldChartName.setDisable(false);
+                                comboBoxChartType.setDisable(false);
+                            }
                         }
                     }
                 };

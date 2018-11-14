@@ -187,7 +187,7 @@ public class SampleEditor {
 
         disableEditing.addListener((observable, oldValue, newValue) -> {
             extensions.forEach(sampleEditorExtension -> {
-                System.out.println("Diabled editing in: " + sampleEditorExtension.getTitel());
+                logger.info("Diabled editing in: " + sampleEditorExtension.getTitel());
                 sampleEditorExtension.disableEditing(newValue);
 
             });
@@ -364,7 +364,7 @@ public class SampleEditor {
                 switch (newValue.intValue()) {
                     case 0:
                         _period = AggregationPeriod.NONE;
-                        System.out.println("Processor disable");
+                        logger.info("Processor disable");
                         disableEditing.setValue(false);/** only original DB data can be edited **/
                         break;
                     case 1:

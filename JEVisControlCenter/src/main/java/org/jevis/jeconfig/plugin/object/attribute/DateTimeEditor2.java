@@ -59,7 +59,7 @@ public class DateTimeEditor2 implements AttributeEditor {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
     private JEVisDataSource ds;
-    private final Logger logger = LogManager.getLogger(DateTimeEditor2.class);
+    private static final Logger logger = LogManager.getLogger(DateTimeEditor2.class);
     private JEVisSample originalSample;
 
     public DateTimeEditor2(JEVisAttribute att) {

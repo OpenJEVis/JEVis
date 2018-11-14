@@ -57,7 +57,7 @@ public class AttributeTable {
     public final static String COLUMN_DISPLAY_RATE = "displayrate";
     public final static String COLUMN_OPTION = "opt";//option and options are already sql keywords
     private final SQLDataSource _connection;
-    private Logger logger = LogManager.getLogger(AttributeTable.class);
+    private static final Logger logger = LogManager.getLogger(AttributeTable.class);
 
     public AttributeTable(SQLDataSource ds) {
         _connection = ds;

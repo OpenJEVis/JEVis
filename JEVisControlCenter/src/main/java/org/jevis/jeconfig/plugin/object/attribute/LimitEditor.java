@@ -53,7 +53,7 @@ import static org.jevis.commons.constants.JEDataProcessorConstants.*;
  * Editor to configure JsonGapFillingConfig elements
  */
 public class LimitEditor implements AttributeEditor {
-    private final Logger logger = LogManager.getLogger(LimitEditor.class);
+    private static final Logger logger = LogManager.getLogger(LimitEditor.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _readOnly = new SimpleBooleanProperty(false);
     private final ObservableList<String> optionsReferencePeriods = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,

@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ToolBarView {
 
     private final JEVisDataSource ds;
-    private final Logger logger = LogManager.getLogger(ToolBarView.class);
+    private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private GraphDataModel model;
     private ComboBox listAnalysesComboBoxHidden;
     private ChartView view;
@@ -105,9 +105,9 @@ public class ToolBarView {
                         if (!oldEnd.get().equals(new DateTime(2001, 1, 1, 0, 0, 0)))
                             chartDataModel.setSelectedEnd(oldEnd.get());
                     });
-                    model.setAnalysisTimeFrame(oldTimeFrame);
-                    model.updateSamples();
                 }
+                model.setAnalysisTimeFrame(oldTimeFrame);
+                model.updateSamples();
 
                 model.setCharts(model.getCharts());
                 model.setSelectedData(model.getSelectedData());
@@ -163,7 +163,8 @@ public class ToolBarView {
 
         ToggleButton autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
         Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
-        delete.setTooltip(autoResizeTip);
+        autoResize.setTooltip(autoResizeTip);
+        autoResize.setSelected(true);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(autoResize);
         autoResize.styleProperty().bind(
                 Bindings
@@ -210,6 +211,7 @@ public class ToolBarView {
         disableIcons.setOnAction(event -> hideShowIconsInGraph());
 
         autoResize.setOnAction(event -> autoResizeInGraph());
+
         toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, save, delete, sep2, select, exportCSV, sep3, disableIcons, autoResize, reload);
         _initialized = true;
         return toolBar;

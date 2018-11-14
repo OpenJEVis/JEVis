@@ -45,7 +45,7 @@ public class JEVisUnitImp implements JEVisUnit {
     private Unit _unit = Unit.ONE;
     private String _label = "";
     private Prefix _prefix = Prefix.NONE;
-    private final Logger logger = LogManager.getLogger(JEVisUnitImp.class);
+    private static final Logger logger = LogManager.getLogger(JEVisUnitImp.class);
 //    private JsonUnit _json = null;
 
     public JEVisUnitImp(Unit unit) {

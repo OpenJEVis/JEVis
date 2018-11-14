@@ -40,11 +40,11 @@ import java.util.concurrent.atomic.AtomicReference;
 public class GraphDataModel extends Observable {
 
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
-    private final Logger logger = LogManager.getLogger(GraphDataModel.class);
+    private static final Logger logger = LogManager.getLogger(GraphDataModel.class);
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private Set<ChartSettings> charts = new HashSet<>();
     private Boolean hideShowIcons = true;
-    private Boolean autoResize = false;
+    private Boolean autoResize = true;
     private ObservableList<String> selectedDataNames = FXCollections.observableArrayList(new ArrayList<>());
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame();
     private JEVisDataSource ds;

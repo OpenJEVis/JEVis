@@ -32,7 +32,7 @@ public class ClassIconHandler {
     private List<File> files = new ArrayList<>();
     private boolean fileExists = false;
     private File tmpDir;
-    private final Logger logger = LogManager.getLogger(ClassIconHandler.class);
+    private static final Logger logger = LogManager.getLogger(ClassIconHandler.class);
     File zipFile;
 
     public ClassIconHandler(File tmpDir) {

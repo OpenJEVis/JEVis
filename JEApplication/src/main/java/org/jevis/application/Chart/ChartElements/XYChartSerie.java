@@ -20,7 +20,7 @@ import java.util.TreeMap;
 
 public class XYChartSerie implements Serie {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
-    private final Logger logger = LogManager.getLogger(XYChartSerie.class);
+    private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
     private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<Double, JEVisSample>();

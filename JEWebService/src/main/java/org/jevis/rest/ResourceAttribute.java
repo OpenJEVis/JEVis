@@ -43,7 +43,7 @@ import java.util.List;
 @Path("/JEWebService/v1/objects/{id}/attributes")
 public class ResourceAttribute {
 
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceAttribute.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceAttribute.class);
     private Date start = new Date();
 
 

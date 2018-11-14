@@ -43,7 +43,7 @@ import static javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY;
 public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
-    private final Logger logger = LogManager.getLogger(ChartView.class);
+    private static final Logger logger = LogManager.getLogger(ChartView.class);
     private final double VALUE_COLUMNS_PREF_SIZE = 200;
     private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;
     private Chart chart;
@@ -83,7 +83,7 @@ public class ChartView implements Observer {
         tableView.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent event) {
-                System.out.println("ScrollEvent: " + event.toString());
+                logger.info("ScrollEvent: " + event.toString());
             }
         });
 //        System.out.println("Blub");
@@ -205,7 +205,7 @@ public class ChartView implements Observer {
 
         if (width.get() < tableWidth && !prioColumns.isEmpty()) {
             double freePart = (tableWidth - width.get()) / prioColumns.size();
-            System.out.println("freePart: " + freePart);
+            logger.info("freePart: " + freePart);
             for (int i = 0; i < prioColumns.size(); i++) {
                 TableColumn<?, ?> col = prioColumns.get(i);
                 col.setPrefWidth(col.getPrefWidth() + freePart);

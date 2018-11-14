@@ -47,7 +47,7 @@ public class IPAdressEditor implements AttributeEditor {
     private JEVisDataSource ds;
     private JEVisAttribute att;
     private JEVisSample newSample;
-    private final Logger logger = LogManager.getLogger(IPAdressEditor.class);
+    private static final Logger logger = LogManager.getLogger(IPAdressEditor.class);
 
     public IPAdressEditor(JEVisAttribute att) {
         this.att = att;

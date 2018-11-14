@@ -32,7 +32,7 @@ public class JEVisException extends Exception {
     private static final boolean _debug = true;
     private int _code = 0;
     private String _message = "Missing Exception message";
-    Logger logger = LogManager.getLogger(JEVisException.class);
+    private static final Logger logger = LogManager.getLogger(JEVisException.class);
 
     /**
      *

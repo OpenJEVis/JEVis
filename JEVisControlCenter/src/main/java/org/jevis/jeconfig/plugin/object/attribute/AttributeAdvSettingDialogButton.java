@@ -20,7 +20,7 @@ import org.jevis.jeconfig.sample.SampleEditor;
  */
 public class AttributeAdvSettingDialogButton extends Button {
 
-    private final Logger logger = LogManager.getLogger(AttributeAdvSettingDialogButton.class);
+    private static final Logger logger = LogManager.getLogger(AttributeAdvSettingDialogButton.class);
     private final int height = 17;
 
     public AttributeAdvSettingDialogButton(JEVisAttribute attribute) {

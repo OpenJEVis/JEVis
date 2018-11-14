@@ -22,7 +22,7 @@ import java.util.TreeMap;
 
 public class BarChartSerie implements Serie {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
-    private final Logger logger = LogManager.getLogger(BarChartSerie.class);
+    private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private ObservableList<BarChart.Data<String, Number>> seriesData = FXCollections.observableArrayList();
     private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<Double, JEVisSample>();

@@ -44,15 +44,14 @@ public class Launcher {
         List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
 
         logger.info("{} cleaning task found, starting now...", processes.size());
-        ProcessManagerFactory.getForkJoinPool().submit(
-                () -> processes.parallelStream().forEach(
-                        currentProcess -> {
-                            try {
-                                currentProcess.start();
-                            } catch (Exception ex) {
-                                logger.debug(ex);
-                            }
-                        }));
+        processes.parallelStream().forEach(
+                currentProcess -> {
+                    try {
+                        currentProcess.start();
+                    } catch (Exception ex) {
+                        logger.debug(ex);
+                    }
+                });
     }
 
 
