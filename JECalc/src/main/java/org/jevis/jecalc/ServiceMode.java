@@ -11,6 +11,7 @@ import org.jevis.commons.utils.Benchmark;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 
 public class ServiceMode {
@@ -19,6 +20,7 @@ public class ServiceMode {
     private Benchmark bench;
     private JEVisDataSource ds;
     private ForkJoinPool forkJoinPool;
+    private ConcurrentHashMap<String, String> runningJobs = new ConcurrentHashMap();
 
     public ServiceMode(JEVisDataSource ds, Integer cycleTime) {
         this.cycleTime = cycleTime;
@@ -115,44 +117,53 @@ public class ServiceMode {
     }
 
     private void runProcesses() {
-        List<JEVisObject> jevisObjects = new ArrayList<>();
-        try {
-            ds.reloadAttributes();
-            JEVisClass calcClass = ds.getJEVisClass(CalcJobFactory.Calculation.CLASS.getName());
-            jevisObjects = ds.getObjects(calcClass, false);
-        } catch (JEVisException ex) {
-            logger.error(ex.getMessage());
-        }
-        List<JEVisObject> jevisCalcObjects = jevisObjects;
-        logger.info("{} calc task found", jevisCalcObjects.size());
-
-        List<JEVisObject> enabledObjects = new ArrayList<>();
-        SampleHandler sampleHandler = new SampleHandler();
-        for (JEVisObject curObj : jevisCalcObjects) {
-            Boolean valueAsBoolean = sampleHandler.getLastSampleAsBoolean(curObj, CalcJobFactory.Calculation.ENABLED.getName(), false);
-            if (valueAsBoolean) {
-                enabledObjects.add(curObj);
+        if (runningJobs.isEmpty()) {
+            List<JEVisObject> jevisObjects = new ArrayList<>();
+            try {
+                ds.reloadAttributes();
+                JEVisClass calcClass = ds.getJEVisClass(CalcJobFactory.Calculation.CLASS.getName());
+                jevisObjects = ds.getObjects(calcClass, false);
+            } catch (JEVisException ex) {
+                logger.error(ex.getMessage());
             }
+            List<JEVisObject> jevisCalcObjects = jevisObjects;
+            logger.info("{} calc task found", jevisCalcObjects.size());
+
+            List<JEVisObject> enabledObjects = new ArrayList<>();
+            SampleHandler sampleHandler = new SampleHandler();
+            for (JEVisObject curObj : jevisCalcObjects) {
+                Boolean valueAsBoolean = sampleHandler.getLastSampleAsBoolean(curObj, CalcJobFactory.Calculation.ENABLED.getName(), false);
+                if (valueAsBoolean) {
+                    enabledObjects.add(curObj);
+                }
+            }
+            List<JEVisObject> filterForEnabledCalcObjects = enabledObjects;
+            logger.info("{} enabled calc task found", filterForEnabledCalcObjects.size());
+
+
+            forkJoinPool.submit(
+                    () -> enabledObjects.parallelStream().forEach(object -> {
+                        bench = new Benchmark();
+                        runningJobs.put(object.getName(), "true");
+
+                        try {
+                            CalcJob calcJob;
+                            CalcJobFactory calcJobCreator = new CalcJobFactory();
+                            do {
+                                ds.reloadAttributes();
+                                calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                                calcJob.execute();
+                                Thread.sleep(500);
+                            } while (!calcJob.hasProcessedAllInputSamples());
+                            bench.printBechmark("Calculation (ID: " + calcJob.getCalcObjectID() + ") finished");
+                        } catch (Exception ex) {
+                            logger.error("error with calculation job, aborted", ex);
+                        }
+                        runningJobs.remove(object.getName());
+                    }));
+        } else {
+            logger.error("Still calculating Jobs. Waiting...");
         }
-        List<JEVisObject> filterForEnabledCalcObjects = enabledObjects;
-        logger.info("{} enabled calc task found", filterForEnabledCalcObjects.size());
-
-
-        CalcJobFactory calcJobCreator = new CalcJobFactory();
-
-        forkJoinPool.submit(
-                () -> enabledObjects.parallelStream().forEach(object -> {
-                    bench = new Benchmark();
-                    try {
-                        CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
-                        calcJob.execute();
-                        bench.printBechmark("Calculation (ID: " + calcJob.getCalcObjectID() + ") finished");
-                    } catch (Exception ex) {
-                        logger.error("error with calculation job, aborted", ex);
-                    }
-                }));
-
     }
-
 
 }

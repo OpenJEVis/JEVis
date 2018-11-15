@@ -25,10 +25,14 @@ import java.util.Map;
 class CalcJob {
 
     private static final Logger logger = LogManager.getLogger(CalcJob.class);
-    private final List<CalcInputObject> calcObjects;
-    private final String expression;
-    private final List<JEVisAttribute> outputs;
-    private final long calcObjID;
+    private List<CalcInputObject> calcObjects;
+    private String expression;
+    private List<JEVisAttribute> outputs;
+    private long calcObjID;
+    private boolean processedAllInputSamples = false;
+
+    CalcJob() {
+    }
 
     CalcJob(List<CalcInputObject> calcObjects, String expression, List<JEVisAttribute> outputObjects, long calcObjID) {
         this.calcObjects = calcObjects;
@@ -41,7 +45,7 @@ class CalcJob {
         SampleMerger sampleMerger = new SampleMerger();
         for (CalcInputObject calcObject : calcObjects) {
             sampleMerger.addSamples(calcObject.getSamples(), calcObject.getIdentifier(), calcObject.getInputType());
-            logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples(), calcObject.getIdentifier());
+            logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples().size(), calcObject.getIdentifier());
         }
         Map<DateTime, List<Sample>> mergedSamples = sampleMerger.merge();
         logger.debug("{} mergable calculations found", mergedSamples.size());
@@ -67,4 +71,27 @@ class CalcJob {
         return calcObjID;
     }
 
+    public void setHasProcessedAllInputSamples(boolean b) {
+        processedAllInputSamples = b;
+    }
+
+    public boolean hasProcessedAllInputSamples() {
+        return processedAllInputSamples;
+    }
+
+    public void setCalcInputObjects(List<CalcInputObject> calcInputObjects) {
+        this.calcObjects = calcInputObjects;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+
+    public void setOutputAttributes(List<JEVisAttribute> outputAttributes) {
+        this.outputs = outputAttributes;
+    }
+
+    public void setCalcObjID(long calcObjID) {
+        this.calcObjID = calcObjID;
+    }
 }

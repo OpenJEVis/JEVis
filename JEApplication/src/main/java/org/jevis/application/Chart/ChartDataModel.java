@@ -78,7 +78,7 @@ public class ChartDataModel {
 
                     samples = sg.generateSamples();
                     samples = sg.getAggregatedSamples(samples);
-                    samples.addAll(factorizeSamples(samples));
+                    samples = factorizeSamples(samples);
 
 
                 } catch (Exception ex) {
