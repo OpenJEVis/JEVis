@@ -74,10 +74,10 @@ public class DateValueAxis extends ValueAxis<Long> {
             "yyyy-MM-dd HH:mm",     // 1 day
             "yyyy-MM-dd HH:mm",     // 2 days
             "yyyy-MM-dd HH:mm",     // 3 days
-            "yyyy-MM-dd",     // 4 days
-            "yyyy-MM-dd",     // 5 days
-            "yyyy-MM-dd",     // 6 days
-            "yyyy-MM-dd",     // 7 days
+            "yyyy-MM-dd HH:mm",     // 4 days
+            "yyyy-MM-dd HH:mm",     // 5 days
+            "yyyy-MM-dd HH:mm",     // 6 days
+            "yyyy-MM-dd HH:mm",     // 7 days
             "yyyy-MM-dd",     // 8 days
             "yyyy-MM-dd",     // 9 days
             "yyyy-MM-dd",     // 10 days
