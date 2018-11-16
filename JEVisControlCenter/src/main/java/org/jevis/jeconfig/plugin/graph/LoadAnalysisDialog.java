@@ -99,14 +99,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         ObservableList<String> presetDateEntries = FXCollections.observableArrayList();
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
-        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
-        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
+        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
         final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
+        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
         final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
         final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
 
-        presetDateEntries.addAll(custom, today, last7Days, last30Days, yesterday, lastWeek, lastMonth, customStartEnd);
+        presetDateEntries.addAll(custom, today, yesterday, last7Days, lastWeek, last30Days, lastMonth, customStartEnd);
         comboBoxPresetDates = new ComboBox(presetDateEntries);
 
         ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
@@ -206,16 +206,16 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 case today:
                     comboBoxPresetDates.getSelectionModel().select(1);
                     break;
-                case last7Days:
+                case yesterday:
                     comboBoxPresetDates.getSelectionModel().select(2);
                     break;
-                case last30Days:
+                case last7Days:
                     comboBoxPresetDates.getSelectionModel().select(3);
                     break;
-                case yesterday:
+                case lastWeek:
                     comboBoxPresetDates.getSelectionModel().select(4);
                     break;
-                case lastWeek:
+                case last30Days:
                     comboBoxPresetDates.getSelectionModel().select(5);
                     break;
                 case lastMonth:
@@ -333,26 +333,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
-            //last 7 days
-            case 2:
-                dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days));
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            //last 30 days
-            case 3:
-                dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last30Days));
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
             //yesterday
-            case 4:
+            case 2:
                 dateHelper.setType(DateHelper.TransformType.YESTERDAY);
                 graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.yesterday));
                 for (int i = 0; i < 4; i++) {
@@ -360,10 +342,28 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
-            //last Week days
-            case 5:
+            //last 7 days
+            case 3:
+                dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            //last Week
+            case 4:
                 dateHelper.setType(DateHelper.TransformType.LASTWEEK);
                 graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastWeek));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            //last 30 days
+            case 5:
+                dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last30Days));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }

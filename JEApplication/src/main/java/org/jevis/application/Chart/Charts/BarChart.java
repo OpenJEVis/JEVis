@@ -52,17 +52,18 @@ public class BarChart implements Chart {
 
     private void init() {
         chartDataModels.forEach(singleRow -> {
-            try {
+            if (singleRow.getSelected()) {
+                try {
+                    BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
 
-                BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
 
+                    hexColors.add(singleRow.getColor());
+                    series.add(serie.getSerie());
+                    tableData.add(serie.getTableEntry());
 
-                hexColors.add(singleRow.getColor());
-                series.add(serie.getSerie());
-                tableData.add(serie.getTableEntry());
-
-            } catch (JEVisException e) {
-                e.printStackTrace();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
