@@ -1,7 +1,7 @@
 package org.jevis.application.Chart.ChartUnits;
 
 public enum VolumeUnit {
-    L("L"), m3("m³");
+    L("L"), m3("m³"), Nm3("Nm³");
 
     private final String name;
 
