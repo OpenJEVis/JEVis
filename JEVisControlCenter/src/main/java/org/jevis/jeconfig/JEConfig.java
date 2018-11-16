@@ -41,6 +41,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.I18nWS;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.login.FXLogin;
@@ -308,6 +309,12 @@ public class JEConfig extends Application {
                 I18n.getInstance().loadBundel(login.getSelectedLocale());
                 I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
+
+                /**
+                 * Need to set JEApplication Locale for translations
+                 */
+                AppLocale.getInstance().setLocale(login.getSelectedLocale());
+
                 _config.setLocale(login.getSelectedLocale());
 
                 try {
