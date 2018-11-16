@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.config.CommonOptions;
+import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.ws.json.*;
 import org.joda.time.DateTime;
 
@@ -69,6 +70,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private Map<String, JEVisClass> classCache = Collections.synchronizedMap(new HashMap<String, JEVisClass>());
     private Map<Long, JEVisObject> objectCache = Collections.synchronizedMap(new HashMap<Long, JEVisObject>());
     private Map<Long, List<JEVisRelationship>> objectRelMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisRelationship>>());
+//    private Map<Long, List<JEVisAttribute>> attributeMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisAttribute>>());
+
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
@@ -145,6 +148,47 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
+    public List<JEVisAttribute> getAttributes() throws JEVisException {
+        logger.trace("Get all attributes Objects");
+        Benchmark bm = new Benchmark();
+
+        try {
+            List<JEVisAttribute> attributeList = new ArrayList<>();
+            String resource = HTTPConnection.API_PATH_V1
+                    + REQUEST.ATTRIBUTES.PATH;
+
+
+            StringBuffer response = con.getRequest(resource);
+
+            Type listType = new TypeToken<List<JsonAttribute>>() {
+            }.getType();
+            List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
+            bm.printBechmark("to fetch attributes");
+            logger.trace("JsonAttribute.count: {}", jsons.size());
+            for (JsonAttribute jsonAttribute : jsons) {
+                JEVisAttribute newAttribute = new JEVisAttributeWS(this, jsonAttribute);
+                if (!attributeCache.containsKey(newAttribute.getObjectID())) {
+//                    System.out.println("create new list for: " + newAttribute.getObjectID());
+                    attributeCache.put(newAttribute.getObjectID(), new ArrayList<>());
+                }
+//                System.out.println("add to attribute cache: " + newAttribute.getObjectID() + "  " + newAttribute);
+                attributeCache.get(newAttribute.getObjectID()).add(newAttribute);
+            }
+            bm.printBechmark("to create attribute objects");
+//            System.out.println("return attributes: " + attributeList.size());
+            return attributeList;
+
+        } catch (ProtocolException ex) {
+            logger.error(ex);
+            //TODO: throw excption?! so the other function can handel it?
+            return new ArrayList<>();
+        } catch (IOException ex) {
+            logger.error(ex);
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
     public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) {
         try {
             JsonRelationship newJsonRel = new JsonRelationship();
@@ -191,47 +235,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return new ArrayList<>(objectCache.values());
 
     }
-
-//    public List<JEVisObject> getObjectsWS(List<Long> ids) {
-//        logger.trace("Get certain Objects");
-//        try {
-//            List<JEVisObject> objects = new ArrayList<>();
-//            String resource = HTTPConnection.API_PATH_V1
-//                    + REQUEST.OBJECTS.PATH
-//                    + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS + "false"
-//                    + "&" + REQUEST.OBJECTS.OPTIONS.ONLY_ROOT + "false"
-//                    + "&" + REQUEST.OBJECTS.OPTIONS.SPECIFIC_IDS;
-//            StringBuffer stringIDs = new StringBuffer();
-//            ids.forEach(id -> {
-//                stringIDs.append(id);
-//                if (!stringIDs.equals(ids.get(ids.size() - 1))) {
-//                    stringIDs.append(",");
-//                }
-//            });
-//            resource += stringIDs.toString();
-//
-//            StringBuffer response = con.getRequest(resource);
-//
-//            Type listType = new TypeToken<List<JsonObject>>() {
-//            }.getType();
-//            List<JsonObject> jsons = gson.fromJson(response.toString(), listType);
-//            logger.trace("JsonObject.count: {}", jsons.size());
-//            for (JsonObject obj : jsons) {
-//                logger.trace("New obj: " + obj);
-//                objects.add(new JEVisObjectWS(this, obj));
-//            }
-//
-//            return objects;
-//
-//        } catch (ProtocolException ex) {
-//            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
-//            //TODO: throw excption?! so the other function can handel it?
-//            return new ArrayList<>();
-//        } catch (IOException ex) {
-//            Logger.getLogger(JEVisDataSourceWS.class.getName()).log(Level.SEVERE, null, ex);
-//            return new ArrayList<>();
-//        }
-//    }
 
     public List<JEVisObject> getObjectsWS() {
         logger.trace("Get ALL Objects");
@@ -405,6 +408,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.error("Error, can not reload attribute", ex);
         }
     }
+
 
     @Override
     public List<JEVisAttribute> getAttributes(long objectID) {
@@ -843,7 +847,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public JEVisObject getObjectWS(Long id) {
-        logger.debug("GetObject: {}", id);
+        logger.error("GetObject: {}", id);
         String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "/" + id
                 + "?"
                 + REQUEST.OBJECTS.OPTIONS.INCLUDE_CHILDREN + "true";

@@ -7,7 +7,6 @@ import java.util.List;
 
 public class CellFilterFactory {
 
-
     public static List<ObjectAttributeFilter> defaultObjectTreeFilter() {
         List<ObjectAttributeFilter> filter = new ArrayList<>();
         filter.add(new ObjectAttributeFilter("All Objects", ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
@@ -32,5 +31,14 @@ public class CellFilterFactory {
         defaultAttributeTreeFilter().forEach(objectAttributeFilter -> {
             filter.addFilter(column, objectAttributeFilter);
         });
+    }
+
+    public static BasicCellFilter buildDefaultItemFilter() {
+        BasicCellFilter basicFilter = new BasicCellFilter();
+//        basicFilter.addItemFilter(new ObjectAttributeFilter(BasicCellFilter.TREE_ITEM_COLUMN, ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
+
+        basicFilter.addItemFilter(new ObjectAttributeFilter(BasicCellFilter.TREE_ITEM_COLUMN, "Data", ObjectAttributeFilter.NONE));
+
+        return basicFilter;
     }
 }

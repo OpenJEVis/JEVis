@@ -358,7 +358,8 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public int compareTo(JEVisObject o) {
-        return getName().compareTo(o.getName());
+
+        return getID().compareTo(o.getID());
     }
 
     @Override
@@ -401,4 +402,9 @@ public class JEVisObjectWS implements JEVisObject {
         json.setisPublic(ispublic);
     }
 
+
+    @Override
+    public String toString() {
+        return "JEVisObjectWS [ id: '" + getID() + "' name: '" + getName() + "' jclass: '" + getJEVisClassName() + "']";
+    }
 }

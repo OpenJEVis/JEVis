@@ -21,65 +21,119 @@
 package org.jevis.application.jevistree;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.classes.ClassHelper;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
-    //    final JEVisObject _obj;
-    private boolean _childLoaded = false;
-    private final JEVisTree _tree;
     private static final Logger logger = LogManager.getLogger(JEVisTreeItem.class);
+    private final JEVisTree jevisTree;
+    //    final JEVisObject _obj;
+//    private boolean _childLoaded = false;
+    private boolean isParentForFilter = false;
+    private boolean isFilterd = false;
+    private String attributeName = "";
+
 
     /**
      * Constructor for the Root Item. This them will call getRoot from the
      * Datasource
      *
      * @param tree
-     * @param ds
      * @throws JEVisException
      */
-    public JEVisTreeItem(JEVisTree tree, JEVisDataSource ds) throws JEVisException {
+    public JEVisTreeItem(JEVisTree tree) {
+        super();
 //        logger.trace("== init1 for root node==");
-        JEVisObject _obj = new JEVisRootObject(ds);
+        JEVisObject _obj = new JEVisRootObject();
         JEVisTreeRow sobj = new JEVisTreeRow(_obj);
         setValue(sobj);
 
-        _tree = tree;
-
-        addEventHandler();
+        jevisTree = tree;
+//        addEventHandler();
     }
 
     public JEVisTreeItem(JEVisTree tree, JEVisObject obj) {
+        super();
 //        logger.trace("== init2 == {}", obj.getID());
         JEVisTreeRow sobj = new JEVisTreeRow(obj);
         setValue(sobj);
-        _tree = tree;
-        addEventHandler();
+        jevisTree = tree;
+//        addEventHandler();
 
     }
+
+//    public JEVisTreeItem(JEVisTree tree, String attributeName) {
+////        logger.trace("== init2 == {}", obj.getID());
+//        this.attributeName = attributeName;
+////        JEVisTreeRow sobj = new JEVisTreeRow(obj);
+////        setValue(sobj);
+//        jevisTree = tree;
+////        addEventHandler();
+//
+//    }
 
     public JEVisTreeItem(JEVisTree tree, JEVisAttribute att) {
+        super();
         JEVisTreeRow sobj = new JEVisTreeRow(att);
         setValue(sobj);
-        _tree = tree;
-        addEventHandler();
+        jevisTree = tree;
+//        addEventHandler();
     }
+
+//    public JEVisTreeItem(JEVisTree tree, JEVisType type) {
+////        logger.trace("== init2 == {}", obj.getID());
+//        JEVisTreeRow sobj = new JEVisTreeRow(obj);
+//        setValue(sobj);
+//        jevisTree = tree;
+//        addEventHandler();
+//
+//    }
+
+    public boolean isObject() {
+        return getValue().getType() == JEVisTreeRow.TYPE.OBJECT;
+    }
+
+    /**
+     * True if this item is needed to display an positive filtered child.
+     *
+     * @return
+     */
+    public boolean isParentForFilter() {
+        return isParentForFilter;
+    }
+
+    /**
+     * @param parentForFilter
+     */
+    public void setParentForFilter(boolean parentForFilter) {
+        isParentForFilter = parentForFilter;
+    }
+
+    /**
+     * True if this element positive filters, so its visible
+     *
+     * @return
+     */
+    public boolean isFilterd() {
+        return isFilterd;
+    }
+
+    public void setFilterd(boolean filterd) {
+        isFilterd = filterd;
+    }
+
+//    public void setChildrenWorkaround(List<JEVisTreeItem> children) {
+//        _childLoaded = true;
+//        super.getChildren().setAll(children);
+//    }
 
     private void addEventHandler() {
         try {
@@ -112,7 +166,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
                         Platform.runLater(() -> {
                             setExpanded(false);
-                            _childLoaded = false;
+//                            _childLoaded = false;
                             getChildren();
 
                             setExpanded(true);
@@ -123,7 +177,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                         logger.error("Delete Child Event: {}", getValue().getJEVisObject().getID());
                         Platform.runLater(() -> {
                             setExpanded(false);
-                            _childLoaded = false;
+//                            _childLoaded = false;
                             getChildren();
 
                             setExpanded(true);
@@ -134,7 +188,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                         logger.trace("New Update Event: {}", getValue().getJEVisObject().getID());
                         Platform.runLater(() -> {
 
-                            _childLoaded = false;
+//                            _childLoaded = false;
 
                             JEVisTreeRow sobj = new JEVisTreeRow(getValue().getJEVisObject());
                             this.setValue(sobj);
@@ -152,102 +206,128 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
         }
     }
 
-    @Override
-    public ObservableList<TreeItem<JEVisTreeRow>> getChildren() {
-
-        if (!_childLoaded) {
-            _childLoaded = true;
-//            super.getChildren().remove(0, super.getChildren().size());
-            super.getChildren().clear();
-            try {
-
-                ViewFilter filter = _tree.getFilter();
-
-                if (getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-
-                    if (filter.showAttributes()) {
-                        for (JEVisAttribute att : getValue().getJEVisObject().getAttributes()) {
-
-                            if (filter.showAttribute(att)) {
-                                super.getChildren().add(new JEVisTreeItem(_tree, att));
-                            }
-                        }
-                    }
-
-                    List<JEVisTreeItem> treeItems = new ArrayList<>();
-
-                    for (JEVisObject child : getValue().getJEVisObject().getChildren()) {
-                        try {
-                            if (filter.showJEvisClass(child.getJEVisClass())) {
-                                treeItems.add(new JEVisTreeItem(_tree, child));
-//                                super.getChildren().add(new JEVisTreeItem(_tree, child));
-                            }
-                        } catch (NullPointerException ex) {
-                            logger.catching(ex);
-                        }
-                    }
-                    super.getChildren().addAll(treeItems);
-
-                }
-
-            } catch (JEVisException ex) {
-                logger.catching(ex);
-            }
-
-            FXCollections.sort(super.getChildren(), new Comparator<TreeItem<JEVisTreeRow>>() {
-                @Override
-                public int compare(TreeItem<JEVisTreeRow> o1, TreeItem<JEVisTreeRow> o2) {
-//                    logger.trace("Compare: {} to: {}", o1.getValue().getID(), o2.getValue().getID());
-
-                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-//                    logger.trace("2");
-                        try {
-                            boolean o1IsDir = ClassHelper.isDirectory(o1.getValue().getJEVisObject().getJEVisClass());
-                            boolean o2IsDir = ClassHelper.isDirectory(o2.getValue().getJEVisObject().getJEVisClass());
-
-
-                            if (o1IsDir && !o2IsDir) {//o1 is dir
-                                return -1;
-                            } else if (!o1IsDir && o2IsDir) {//o2 is dir
-                                return 1;
-                            } else { //non or both are a dir
-                                AlphanumComparator ac = new AlphanumComparator();
-
-                                return ac.compare(o1.getValue().getJEVisObject().getName(), o2.getValue().getJEVisObject().getName());
-                            }
-                        } catch (JEVisException jex) {
-                            logger.error(jex);
-                        }
-
-                    }
-
-                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-//                    logger.trace("3");
-                        return -1;
-                    }
-
-                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
-//                    logger.trace("4");
-                        return 1;
-                    }
-
-                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE && o2.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
-//                    logger.trace("5");
-                        return o1.getValue().getJEVisAttribute().getName().compareTo(o2.getValue().getJEVisAttribute().getName());
-                    }
-//                logger.trace("6");
-                    return 0;
-                }
-            });
-        }
-
-        return super.getChildren();
-//        return super.getChildren(); //To change body of generated methods, choose Tools | Templates.
-    }
+//    @Override
+//    public ObservableList<TreeItem<JEVisTreeRow>> getChildren() {
+//
+//        if (!_childLoaded) {
+//            _childLoaded = true;
+//            super.getChildren().clear();
+//            try {
+//
+//
+////
+////                if (getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
+////
+////                    for (JEVisAttribute att : getValue().getJEVisObject().getAttributes()) {
+////                        JEVisTreeItem newAttribute = new JEVisTreeItem(jevisTree, att);
+////                        boolean showRow = cellFilter.showRow(newAttribute);
+////                        if (showRow) {
+////                            super.getChildren().add(newAttribute);
+////                        } else {
+////                            newAttribute = null;//GC help
+////                        }
+////                    }
+////
+////                    List<JEVisTreeItem> treeItems = new ArrayList<>();
+////
+////                    for (JEVisObject child : getValue().getJEVisObject().getChildren()) {
+////                        try {
+////                            JEVisTreeItem newChildObj = new JEVisTreeItem(jevisTree, child);
+////                            boolean showRow = cellFilter.showRow(newChildObj);
+////                            if (showRow) {
+////                                treeItems.add(newChildObj);
+////                            } else {
+////                                newChildObj = null;//GC help
+////                            }
+////
+////                        } catch (Exception ex) {
+////                            logger.catching(ex);
+////                        }
+////                    }
+////                    super.getChildren().addAll(treeItems);
+////                }
+//
+//
+//            } catch (Exception ex) {
+//                logger.catching(ex);
+//            }
+//
+//            FXCollections.sort(super.getChildren(), new Comparator<TreeItem<JEVisTreeRow>>() {
+//                @Override
+//                public int compare(TreeItem<JEVisTreeRow> o1, TreeItem<JEVisTreeRow> o2) {
+////                    logger.trace("Compare: {} to: {}", o1.getValue().getID(), o2.getValue().getID());
+//
+//                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
+////                    logger.trace("2");
+//                        try {
+//                            boolean o1IsDir = ClassHelper.isDirectory(o1.getValue().getJEVisObject().getJEVisClass());
+//                            boolean o2IsDir = ClassHelper.isDirectory(o2.getValue().getJEVisObject().getJEVisClass());
+//
+//
+//                            if (o1IsDir && !o2IsDir) {//o1 is dir
+//                                return -1;
+//                            } else if (!o1IsDir && o2IsDir) {//o2 is dir
+//                                return 1;
+//                            } else { //non or both are a dir
+//                                AlphanumComparator ac = new AlphanumComparator();
+//
+//                                return ac.compare(o1.getValue().getJEVisObject().getName(), o2.getValue().getJEVisObject().getName());
+//                            }
+//                        } catch (JEVisException jex) {
+//                            logger.error(jex);
+//                        }
+//
+//                    }
+//
+//                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE && o2.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
+////                    logger.trace("3");
+//                        return -1;
+//                    }
+//
+//                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT && o2.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
+////                    logger.trace("4");
+//                        return 1;
+//                    }
+//
+//                    if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE && o2.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
+////                    logger.trace("5");
+//                        return o1.getValue().getJEVisAttribute().getName().compareTo(o2.getValue().getJEVisAttribute().getName());
+//                    }
+////                logger.trace("6");
+//                    return 0;
+//                }
+//            });
+//        }
+//
+//        return super.getChildren();
+////        return super.getChildren(); //To change body of generated methods, choose Tools | Templates.
+//    }
 
     @Override
     public boolean isLeaf() {
         return getChildren().isEmpty();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+//        System.out.println("TreeItem.equals");
+//        if (obj != null && obj instanceof JEVisTreeItem) {
+//            JEVisTreeRow otherRow = ((JEVisTreeItem) obj).getValue();
+//
+//            return otherRow.equals(((JEVisTreeItem) obj).getValue());
+//
+//        }
+//        return false;
+        return super.equals(obj);
+    }
+
+
+    @Override
+    public String toString() {
+        try {
+            return "JEVisTreeItem: [" + getValue() + "]";
+        } catch (Exception ex) {
+            return "JEVisTreeItem: [ null ]";
+        }
+    }
 }

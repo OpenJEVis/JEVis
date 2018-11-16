@@ -2,20 +2,20 @@ package org.jevis.application.jevistree;
 
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -32,19 +32,36 @@ import java.util.List;
  */
 public class JEVisRootObject implements JEVisObject {
 
-    private final List<JEVisObject> _children;
-    private final JEVisDataSource _ds;
+    //    private final List<JEVisObject> _children;
+//    private final JEVisDataSource _ds;
     private String _name = "Fake Root";
+    private List<JEVisObject> children = new ArrayList<>();
 
-    public JEVisRootObject(JEVisDataSource ds) throws JEVisException {
-        this._ds = ds;
-        _children = _ds.getRootObjects();
+    public JEVisRootObject() {
+//        this._ds = ds;
+//        _children = _ds.getRootObjects();
     }
 
-    public JEVisRootObject(JEVisDataSource ds, List<JEVisObject> roots) {
-        _ds = ds;
+//    public JEVisRootObject(JEVisDataSource ds, List<JEVisObject> roots) {
+//        _ds = ds;
+//
+//        _children = roots;
+//    }
 
-        _children = roots;
+
+    @Override
+    public List<JEVisObject> getParents() throws JEVisException {
+        return children;
+    }
+
+    @Override
+    public List<JEVisObject> getChildren() throws JEVisException {
+        return children;
+    }
+
+    @Override
+    public List<JEVisObject> getChildren(JEVisClass type, boolean inherit) throws JEVisException {
+        return children;
     }
 
     @Override
@@ -67,21 +84,6 @@ public class JEVisRootObject implements JEVisObject {
         return null;
     }
 
-    @Override
-    public List<JEVisObject> getParents() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<JEVisObject> getChildren() {
-        return _children;
-    }
-
-    @Override
-    public List<JEVisObject> getChildren(JEVisClass type, boolean inherit) {
-        //TODO implement filter, copy form original sql
-        return _children;
-    }
 
     @Override
     public List<JEVisAttribute> getAttributes() {
@@ -150,7 +152,7 @@ public class JEVisRootObject implements JEVisObject {
 
     @Override
     public JEVisDataSource getDataSource() {
-        return _ds;
+        return null;
     }
 
     @Override

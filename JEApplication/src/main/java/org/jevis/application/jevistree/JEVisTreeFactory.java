@@ -110,13 +110,14 @@ public class JEVisTreeFactory {
 
         TreeTableColumn nameCol = ColumnFactory.buildName();
         TreeTableColumn idCol = ColumnFactory.buildID();
+        TreeTableColumn maxTS = ColumnFactory.buildDataTS(true);
 
         BasicCellFilter cellFilter = new BasicCellFilter();
         CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
         CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
         tree.setCellFilter(cellFilter);
 
-        tree.getColumns().addAll(nameCol, idCol);
+        tree.getColumns().addAll(nameCol, idCol, maxTS);
         addDefaultKeys(tree);
 
         return tree;
