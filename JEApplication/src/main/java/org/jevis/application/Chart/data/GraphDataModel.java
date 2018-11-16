@@ -699,9 +699,7 @@ public class GraphDataModel extends Observable {
 
     public void selectNone() {
         getSelectedData().forEach(mdl -> {
-            if (mdl.getSelected()) {
-                mdl.setSelected(false);
-            }
+            mdl.setSelected(false);
         });
     }
 

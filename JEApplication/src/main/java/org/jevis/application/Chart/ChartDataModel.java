@@ -84,7 +84,6 @@ public class ChartDataModel {
 
                 } catch (Exception ex) {
                     //TODO: exception handling
-                    logger.error("", ex);
                 }
             } else {
                 if (getDataProcessor() != null) {

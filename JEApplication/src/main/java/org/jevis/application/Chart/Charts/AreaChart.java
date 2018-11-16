@@ -59,18 +59,20 @@ public class AreaChart implements Chart {
 
     private void init() {
         chartDataModels.forEach(singleRow -> {
-            try {
+            if (singleRow.getSelected()) {
+                try {
 
-                XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
+                    XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
-                hexColors.add(singleRow.getColor());
-                series.add(serie.getSerie());
-                tableData.add(serie.getTableEntry());
-                String currentUnit = UnitManager.getInstance().formate(singleRow.getUnit());
-                if (!unit.contains(currentUnit)) unit.add(currentUnit);
+                    hexColors.add(singleRow.getColor());
+                    series.add(serie.getSerie());
+                    tableData.add(serie.getTableEntry());
+                    String currentUnit = UnitManager.getInstance().formate(singleRow.getUnit());
+                    if (!unit.contains(currentUnit)) unit.add(currentUnit);
 
-            } catch (JEVisException e) {
-                logger.error("Error: Cant create series for data rows: ", e);
+                } catch (JEVisException e) {
+                    logger.error("Error: Cant create series for data rows: ", e);
+                }
             }
         });
 
