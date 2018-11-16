@@ -306,24 +306,24 @@ public class SQLDataSource {
         JsonObject ob = oTable.getObject(id);
         if (ob != null) {
             allObjects.add(ob);
-        }
 
-        if (children) {
-            ob.setObjects(new ArrayList<>());
-            getRelationshipTable().getAllForObject(ob.getId()).forEach(rel -> {
-                if (rel.getTo() == ob.getId() && rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
-                    try {
-                        JsonObject child = getObject(rel.getFrom(), false);
-                        if (getUserManager().canRead(child)) {
-                            ob.getObjects().add(child);
+            if (children) {
+                ob.setObjects(new ArrayList<>());
+                getRelationshipTable().getAllForObject(ob.getId()).forEach(rel -> {
+                    if (rel.getTo() == ob.getId() && rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
+                        try {
+                            JsonObject child = getObject(rel.getFrom(), false);
+                            if (getUserManager().canRead(child)) {
+                                ob.getObjects().add(child);
+                            }
+
+                        } catch (Exception ex) {
+
                         }
-
-                    } catch (Exception ex) {
-
                     }
-                }
-            });
+                });
 
+            }
         }
 
 
@@ -489,6 +489,16 @@ public class SQLDataSource {
 
     public boolean deleteSamplesBetween(long object, String attribute, DateTime startDate, DateTime endDate) {
         return getSampleTable().deleteSamples(object, attribute, startDate, endDate);
+    }
+
+    public List<JsonAttribute> getAttributes() {
+        //TODO userright check
+        try {
+            return getAttributeTable().getAllAttributes();
+        } catch (Exception ex) {
+            logger.error("Error while loading AllAttributes", ex);
+        }
+        return new ArrayList<>();
     }
 
     public List<JsonAttribute> getAttributes(long objectID) {
