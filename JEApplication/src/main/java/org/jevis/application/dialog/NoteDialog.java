@@ -58,7 +58,7 @@ public class NoteDialog extends Dialog<ButtonType> {
 
         this.setResizable(true);
 
-        this.getDialogPane().setPrefWidth(600);
+        this.getDialogPane().setPrefWidth(1220);
     }
 
     class rowNote {
@@ -66,8 +66,94 @@ public class NoteDialog extends Dialog<ButtonType> {
         private SimpleStringProperty note;
 
         public rowNote(String name, String note) {
+            StringBuilder formattedNote = new StringBuilder();
+            if (note.contains("alignment(yes")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.alignedtrue"));
+                formattedNote.append(System.getProperty("line.separator"));
+            } else if (note.contains("alignment(no")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.alignedfalse"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
+            if (note.contains("diff")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.diff"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+            if (note.contains("scale")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.scale"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
+            if (note.contains("limit(Step1)")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.limit1"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
+            if (note.contains("gap(Default")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.gap.default"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+            if (note.contains("gap(Static")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.gap.static"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
+            if (note.contains("gap(Average")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.gap.average"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
+            if (note.contains("gap(Median")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.gap.median"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
+            if (note.contains("gap(Interpolation")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.gap.interpolation"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
+            if (note.contains("gap(Min")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.gap.min"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
+            if (note.contains("gap(Max")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.gap.max"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
+            if (note.contains("limit(Default)")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.default"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+            if (note.contains("limit(Static)")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.static"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+            if (note.contains("limit(Average)")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.average"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+            if (note.contains("limit(Median)")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.median"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+            if (note.contains("limit(Interpolation)")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.interpolation"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+            if (note.contains("limit(Min)")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.min"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+            if (note.contains("limit(Max)")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.max"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
             this.name = new SimpleStringProperty(name);
-            this.note = new SimpleStringProperty(note);
+            this.note = new SimpleStringProperty(formattedNote.toString());
         }
 
         public String getName() {

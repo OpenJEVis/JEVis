@@ -303,8 +303,8 @@ public class GraphPluginView implements Plugin, Observer {
         if (dataModel.getSelectedData() != null) {
             chartsList = dataModel.getChartsList();
 
-            double maxhight = border.getHeight();
-            double totalPrefHight = 0;
+            double maxHeight = border.getHeight();
+            double totalPrefHeight = 0;
 
             listChartViews = null;
             listChartViews = toolBarView.getChartViews();
@@ -454,8 +454,8 @@ public class GraphPluginView implements Plugin, Observer {
                  * If all children take more space then the maximum available size
                  * set all on min size. after this the free space will be reallocate
                  */
-                totalPrefHight = calculationTotalPrefSize(vBox);
-                if (totalPrefHight > maxhight) {
+                totalPrefHeight = calculationTotalPrefSize(vBox);
+                if (totalPrefHeight > maxHeight) {
                     for (Node node : vBox.getChildren()) {
                         if (node instanceof BorderPane) {
                             ((BorderPane) node).setPrefHeight(autoMinSize);
@@ -466,14 +466,14 @@ public class GraphPluginView implements Plugin, Observer {
                 /**
                  * Recalculate total prefsize
                  */
-                totalPrefHight = calculationTotalPrefSize(vBox);
+                totalPrefHeight = calculationTotalPrefSize(vBox);
 
                 /**
                  * Reallocate free space equal to all children
                  */
-                if (totalPrefHight < maxhight) {
+                if (totalPrefHeight < maxHeight) {
                     /** size/2 because there is an separator for every chart **/
-                    final double freeSpacePart = (maxhight - totalPrefHight) / (vBox.getChildren().size() / 2);
+                    final double freeSpacePart = (maxHeight - totalPrefHeight) / (vBox.getChildren().size() / 2);
                     vBox.getChildren().forEach(node -> {
                         if (node instanceof Pane) {
                             ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart);
