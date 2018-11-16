@@ -22,7 +22,6 @@ package org.jevis.application.dialog;
 
 import com.beust.jcommander.internal.Nullable;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -75,7 +74,7 @@ public class ChartSelectionDialog {
         this._ds = ds;
         this.data = data;
         if (tree == null) {
-            tree = JEVisTreeFactory.buildDefaultGraphTree(_ds);
+            tree = JEVisTreeFactory.buildDefaultGraphTree(ds, data);
         }
         this.tree = tree;
 
@@ -175,16 +174,16 @@ public class ChartSelectionDialog {
 
 
         //Disabled, for finding bugs
-        chartPlugin.getData().getChartsList().addListener((ListChangeListener<? super String>) c -> {
-            while (c.next()) {
-                if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
-                    tabPaneCharts.getTabs().clear();
-                    for (String s : chartPlugin.getData().getChartsList()) {
-                        tabPaneCharts.getTabs().add(getChartTab(s));
-                    }
-                }
-            }
-        });
+//        chartPlugin.getData().getChartsList().addListener((ListChangeListener<? super String>) c -> {
+//            while (c.next()) {
+//                if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
+//                    tabPaneCharts.getTabs().clear();
+//                    for (String s : chartPlugin.getData().getChartsList()) {
+//                        tabPaneCharts.getTabs().add(getChartTab(s));
+//                    }
+//                }
+//            }
+//        });
 
         vboxCharts.getChildren().add(tabPaneCharts);
         tabChartsSettings.setContent(vboxCharts);

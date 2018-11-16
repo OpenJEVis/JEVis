@@ -30,6 +30,7 @@ import javafx.scene.input.KeyEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
 import org.jevis.application.jevistree.filter.CellFilterFactory;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
@@ -123,15 +124,21 @@ public class JEVisTreeFactory {
 
     }
 
-    public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds) {
+    public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, GraphDataModel graphDataModel) {
         JEVisTree tree = new JEVisTree(ds);
 
         ViewFilter filter = ViewFilterFactory.createDefaultGraphFilter();
         tree.setFiler(filter);
 
         TreePlugin bp = new ChartPlugin();
+        ((ChartPlugin) bp).setData(graphDataModel);
 
-        tree.getColumns().addAll(ColumnFactory.buildName());
+        BasicCellFilter cellFilter = new BasicCellFilter();
+        TreeTableColumn nameCol = ColumnFactory.buildName();
+        CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
+        tree.setCellFilter(cellFilter);
+
+        tree.getColumns().addAll(nameCol);
 
         tree.getPlugins().add(bp);
 

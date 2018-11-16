@@ -5,7 +5,6 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
@@ -54,7 +53,6 @@ public class ChartView implements Observer {
 
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
-        //dataModel.addObserver(this);
 
         tableView = new TableView();
 
@@ -74,53 +72,25 @@ public class ChartView implements Observer {
             return true;
         });
 
-
-//        tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
-//        tableView.onScrollTsoProperty().addListener((observable, oldValue, newValue) -> {
-//            System.out.println(newValue);
-//        });
-
         tableView.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent event) {
                 logger.info("ScrollEvent: " + event.toString());
             }
         });
-//        System.out.println("Blub");
-//        ScrollBar scrollBar = getTableScrollBar(tableView);
-//        scrollBar.visibleProperty().addListener((observable, oldValue, newValue) -> {
-//            System.out.println("Waring scrollbar is visible: " + newValue);
-//            if (newValue) {
-//                Platform.runLater(() -> {
-//                    tableView.resize(tableView.getWidth(), tableView.getHeight() + 25);
-//                });
-//            }
-//        });
-
-//        tableView.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
-//        tableView.setColumnResizePolicy((param) -> true);
         tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
         /** Disabled because of out ScrolllesTable.css **/
-        //tableView.setTableMenuButtonVisible(true);
-
-
-//        tableView.setFixedCellSize(25);
-//        tableView.prefHeightProperty().bind(Bindings.size(tableView.getItems()).multiply(tableView.getFixedCellSize()).add(30));
         TableColumn name = new TableColumn(I18n.getInstance().getString("plugin.graph.table.name"));
         name.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
         name.setSortable(false);
         name.setPrefWidth(500);
         name.setMinWidth(100);
 
-//        TableColumn colorCol = buildColorColumn(I18n.getInstance().getString("plugin.graph.table.color"));
         TableColumn colorCol = buildColorColumn("");
         colorCol.setSortable(false);
         colorCol.setPrefWidth(25);
         colorCol.setMinWidth(25);
-//        column.setMaxWidth(120);
-//        column.setMinWidth(80);s
-
 
         TableColumn periodCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.period"));
         periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
@@ -186,7 +156,6 @@ public class ChartView implements Observer {
         tableView.getColumns().addAll(colorCol, name, periodCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
 
         TableColumn[] maxSizeColumns = new TableColumn[]{name};
-        TableColumn[] minSizeColumns = new TableColumn[]{note, colorCol, minCol, maxCol, avgCol, sumCol};
 
         tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
@@ -195,25 +164,6 @@ public class ChartView implements Observer {
 
         });
     }
-
-    public void growColomn(TableView<?> view, List<TableColumn> prioColumns) {
-        AtomicDouble width = new AtomicDouble();
-        double tableWidth = view.getWidth();
-        view.getColumns().forEach(col -> {
-            width.addAndGet(col.getWidth());
-        });
-
-        if (width.get() < tableWidth && !prioColumns.isEmpty()) {
-            double freePart = (tableWidth - width.get()) / prioColumns.size();
-            logger.info("freePart: " + freePart);
-            for (int i = 0; i < prioColumns.size(); i++) {
-                TableColumn<?, ?> col = prioColumns.get(i);
-                col.setPrefWidth(col.getPrefWidth() + freePart);
-            }
-        }
-
-    }
-
 
     private TableColumn<TableEntry, Color> buildColorColumn(String columnName) {
         TableColumn<TableEntry, Color> column = new TableColumn(columnName);
@@ -260,14 +210,6 @@ public class ChartView implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-//        try {
-//            getChartsList();
-//            if (chartsList.size() == 1) this.drawAreaChart("");
-//            else if (chartsList.size() > 1) getChartViews();
-//
-//        } catch (JEVisException ex) {
-//            Logger.getLogger(ChartView.class.getName()).log(Level.SEVERE, null, ex);
-//        }
     }
 
     public Chart getChart() {
@@ -326,12 +268,10 @@ public class ChartView implements Observer {
             case AREA:
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 setTableStandard();
-                addPeriodToValueColumn();
                 break;
             case LINE:
                 chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
                 setTableStandard();
-                addPeriodToValueColumn();
                 break;
             case BAR:
                 chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
@@ -356,26 +296,6 @@ public class ChartView implements Observer {
         }
 
         tableView.sort();
-    }
-
-    private void addPeriodToValueColumn() {
-        try {
-//            TableColumn tc = (TableColumn) tableView.getColumns().get(2);
-//            String period = chart.getPeriod().toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
-//            tc.setText(tc.getText() + " [" + period + "]");
-//            tc = (TableColumn) tableView.getColumns().get(5);
-//            tc.setText(tc.getText() + " [" + period + "]");
-//            tc = (TableColumn) tableView.getColumns().get(6);
-//            tc.setText(tc.getText() + " [" + period + "]");
-//            tc = (TableColumn) tableView.getColumns().get(7);
-//            tc.setText(tc.getText() + " [" + period + "]");
-//
-//            String overall = new Period(chart.getStartDateTime(), chart.getEndDateTime().plus(chart.getPeriod())).toString(PeriodFormat.wordBased().withLocale(JEConfig.getConfig().getLocale()));
-//            tc = (TableColumn) tableView.getColumns().get(8);
-//            tc.setText(tc.getText() + " [" + overall + "]");
-        } catch (Exception e) {
-            logger.error("Could not get table captions. " + e);
-        }
     }
 
     public void updateTablesSimultaneously(MouseEvent mouseEvent, Number valueForDisplay) {

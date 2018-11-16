@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.graph;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -19,6 +20,7 @@ import org.jevis.application.Chart.data.CustomPeriodObject;
 import org.jevis.application.Chart.data.DateHelper;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -47,6 +49,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private DateHelper dateHelper = new DateHelper();
     private ComboBox<String> comboBoxPresetDates;
     private Boolean programmaticallySetPresetDate[] = new Boolean[4];
+    private ChoiceBox aggregationBox;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
@@ -123,6 +126,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
         Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
+        Label labelAggregation = new Label(I18n.getInstance().getString("plugin.graph.interval.label"));
         final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
         final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
@@ -145,6 +149,10 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         gridLayout.add(timeRange, 0, 0, 2, 1);
         gridLayout.add(startText, 0, 1);
         gridLayout.add(endText, 0, 3);
+
+        gridLayout.add(labelAggregation, 0, 4, 2, 1);
+        aggregationBox = getAggregationBox();
+        gridLayout.add(aggregationBox, 0, 5, 2, 1);
 
         /** Column 1 **/
         gridLayout.add(pickerDateStart, 1, 1);
@@ -169,14 +177,17 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             if (newValue != null && !newValue.equals(oldValue)) {
 
                 AnalysisTimeFrame oldTimeFrame = graphDataModel.getAnalysisTimeFrame();
+                AggregationPeriod oldAggregation = AggregationPeriod.parseAggregation(aggregationBox.valueProperty().toString());
 
+                graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 AnalysisTimeFrame last7 = new AnalysisTimeFrame();
                 last7.setTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
                 graphDataModel.setAnalysisTimeFrame(last7);
 
                 toolBarView.select(newValue);
 
-                //graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
+                graphDataModel.setAggregationPeriod(oldAggregation);
+                graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -228,6 +239,83 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         this.getDialogPane().setContent(vbox);
 
+    }
+
+    private ChoiceBox getAggregationBox() {
+        List<String> aggList = new ArrayList<>();
+
+        String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
+        String keyHourly = I18n.getInstance().getString("plugin.graph.interval.hourly");
+        String keyDaily = I18n.getInstance().getString("plugin.graph.interval.daily");
+        String keyWeekly = I18n.getInstance().getString("plugin.graph.interval.weekly");
+        String keyMonthly = I18n.getInstance().getString("plugin.graph.interval.monthly");
+        String keyQuarterly = I18n.getInstance().getString("plugin.graph.interval.quarterly");
+        String keyYearly = I18n.getInstance().getString("plugin.graph.interval.yearly");
+
+
+        aggList.add(keyPreset);
+        aggList.add(keyHourly);
+        aggList.add(keyDaily);
+        aggList.add(keyWeekly);
+        aggList.add(keyMonthly);
+        aggList.add(keyQuarterly);
+        aggList.add(keyYearly);
+
+        ChoiceBox aggregate = new ChoiceBox();
+        aggregate.setItems(FXCollections.observableArrayList(aggList));
+        aggregate.getSelectionModel().selectFirst();
+
+        if (!graphDataModel.getSelectedData().isEmpty()) {
+            for (ChartDataModel chartDataModel : graphDataModel.getSelectedData()) {
+                switch (chartDataModel.getAggregationPeriod()) {
+                    case NONE:
+                        aggregate.valueProperty().setValue(keyPreset);
+                        break;
+                    case HOURLY:
+                        aggregate.valueProperty().setValue(keyHourly);
+                        break;
+                    case DAILY:
+                        aggregate.valueProperty().setValue(keyDaily);
+                        break;
+                    case WEEKLY:
+                        aggregate.valueProperty().setValue(keyWeekly);
+                        break;
+                    case MONTHLY:
+                        aggregate.valueProperty().setValue(keyMonthly);
+                        break;
+                    case QUARTERLY:
+                        aggregate.valueProperty().setValue(keyQuarterly);
+                        break;
+                    case YEARLY:
+                        aggregate.valueProperty().setValue(keyYearly);
+                        break;
+                }
+                break;
+            }
+        }
+
+        aggregate.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+
+            graphDataModel.getSelectedData().forEach(data -> {
+                if (newValue.equals(keyPreset)) {
+                    data.setAggregationPeriod(AggregationPeriod.NONE);
+                } else if (newValue.equals(keyHourly)) {
+                    data.setAggregationPeriod(AggregationPeriod.HOURLY);
+                } else if (newValue.equals(keyDaily)) {
+                    data.setAggregationPeriod(AggregationPeriod.DAILY);
+                } else if (newValue.equals(keyWeekly)) {
+                    data.setAggregationPeriod(AggregationPeriod.WEEKLY);
+                } else if (newValue.equals(keyMonthly)) {
+                    data.setAggregationPeriod(AggregationPeriod.MONTHLY);
+                } else if (newValue.equals(keyQuarterly)) {
+                    data.setAggregationPeriod(AggregationPeriod.QUARTERLY);
+                } else if (newValue.equals(keyYearly)) {
+                    data.setAggregationPeriod(AggregationPeriod.YEARLY);
+                }
+            });
+
+        });
+        return aggregate;
     }
 
     private void applySelectedDatePresetToDataModel(Integer newValue) {
