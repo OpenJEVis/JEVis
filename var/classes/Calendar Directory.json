@@ -4,7 +4,7 @@
   "unique": true,
   "relationships": [
     {
-      "start": "Custom Timeframe",
+      "start": "Custom Period",
       "end": "Calendar Directory",
       "type": 3
     },
