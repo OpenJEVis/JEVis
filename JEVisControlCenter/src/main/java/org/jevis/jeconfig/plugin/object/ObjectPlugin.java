@@ -224,7 +224,6 @@ public class ObjectPlugin implements Plugin {
                         loadingObjectProperty.setValue(false);
 
                     }
-                    System.out.println("Dome tree change");
                 }
             });
 

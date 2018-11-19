@@ -43,6 +43,8 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.resource.ResourceLoader;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +55,6 @@ import java.util.Map;
 public class ColumnFactory {
 
     public static final String OBJECT_NAME = "Name";
-    public static final String OBJECT_DATA_MAXTS = "Data Max";
     public static final String OBJECT_ID = "ID";
     public static final String COLOR = "Color";
     public static final String OBJECT_CLASS = "Type";
@@ -61,8 +62,8 @@ public class ColumnFactory {
     public static final String ATTRIBUTE_LAST_MOD = "Last Modified";
     private static final Logger logger = LogManager.getLogger(ColumnFactory.class);
     private static final Map<String, Image> icons = new HashMap<>();
+    private static final DateTimeFormatter TS_DATES_FORMATE = DateTimeFormat.forPattern("yyyy-MM-dd HH:MM");
     private static String fallbackIcon = "b86bebea-1880-11e8-accf-0ed5f89f718b";
-
     private static Map<String, Image> classIconCache = new HashMap<>();
 
     public static TreeTableColumn<JEVisTreeRow, String> buildName() {
@@ -186,9 +187,17 @@ public class ColumnFactory {
      * @return
      */
     public static TreeTableColumn<JEVisTreeRow, String> buildDataTS(boolean max) {
-        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn(OBJECT_DATA_MAXTS);
-        column.setId(OBJECT_DATA_MAXTS);
-        column.setPrefWidth(300);
+        String coumnName = "Value Max";
+        if (max) {
+            coumnName = "Max Value TS";
+        } else {
+            coumnName = "Min Value TS";
+        }
+
+
+        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn(coumnName);
+        column.setId(coumnName);
+        column.setPrefWidth(135);
         column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, String> p) -> {
             try {
                 if (p != null && p.getValue() != null && p.getValue().getValue() != null && p.getValue().getValue().getJEVisObject() != null) {
@@ -209,9 +218,9 @@ public class ColumnFactory {
 
                     if (value != null) {
                         if (max == true) {
-                            return new ReadOnlyObjectWrapper<String>(value.getTimestampFromLastSample().toString());
+                            return new ReadOnlyObjectWrapper<String>(TS_DATES_FORMATE.print(value.getTimestampFromLastSample()));
                         } else {
-                            return new ReadOnlyObjectWrapper<String>(value.getTimestampFromFirstSample().toString());
+                            return new ReadOnlyObjectWrapper<String>(TS_DATES_FORMATE.print(value.getTimestampFromFirstSample()));
                         }
 
                     } else {

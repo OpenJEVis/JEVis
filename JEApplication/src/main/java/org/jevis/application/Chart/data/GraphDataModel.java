@@ -39,8 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class GraphDataModel extends Observable {
 
-    private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private static final Logger logger = LogManager.getLogger(GraphDataModel.class);
+    private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private Set<ChartSettings> charts = new HashSet<>();
     private Boolean hideShowIcons = true;
@@ -562,12 +562,12 @@ public class GraphDataModel extends Observable {
             }
 
         }
-        try {
-            ds.reloadAttributes();
-            listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
-        } catch (JEVisException e) {
-            logger.error("Error: could not get analysis", e);
-        }
+//        try {
+//            ds.reloadAttributes();
+//            listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
+//        } catch (JEVisException e) {
+//            logger.error("Error: could not get analysis", e);
+//        }
         observableListAnalyses.clear();
         for (JEVisObject obj : listAnalyses) {
             observableListAnalyses.add(obj.getName());
@@ -579,7 +579,7 @@ public class GraphDataModel extends Observable {
 
         JsonChartDataModel tempModel = null;
         try {
-            ds.reloadAttributes();
+//            ds.reloadAttributes();
 
             if (charts == null) {
                 updateCharts();

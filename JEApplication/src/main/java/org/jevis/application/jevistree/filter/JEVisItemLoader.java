@@ -146,9 +146,6 @@ public class JEVisItemLoader {
     public void buildItems(List<JEVisObject> objects) {
         for (JEVisObject object : objects) {
             try {
-                if (object.getID().equals(1l)) {
-                    System.out.println("found system");
-                }
 //                logger.error("Create item for object: {}", object.getName());
                 JEVisTreeItem item = new JEVisTreeItem(jeVisTree, object);
                 treeObjectItems.add(item);
@@ -274,7 +271,6 @@ public class JEVisItemLoader {
                 JEVisTreeItem rootChild = itemObjectLinker.get(rooObject);
                 if (rootChild.isFilterd() || rootChild.isParentForFilter()) {
                     rootItem.getChildren().add(rootChild);
-                    System.out.println("Add to root: " + rootChild.getValue().getJEVisObject());
                 } else {
                     logger.warn("Root is filtered out: {}", rooObject);
                 }

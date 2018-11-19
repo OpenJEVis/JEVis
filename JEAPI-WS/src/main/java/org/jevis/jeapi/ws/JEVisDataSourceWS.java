@@ -149,10 +149,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisAttribute> getAttributes() throws JEVisException {
-        logger.trace("Get all attributes Objects");
-        Benchmark bm = new Benchmark();
+//        logger.trace("Get all attributes Objects");
 
         try {
+            /**
+             * temporary solution for the problem that some objects does not have attributes
+             * an the cache will not know this so we add empty list for all objects.
+             **/
+            for (JEVisObject obj : getObjects()) {
+                attributeCache.put(obj.getID(), new ArrayList<>());
+            }
+
             List<JEVisAttribute> attributeList = new ArrayList<>();
             String resource = HTTPConnection.API_PATH_V1
                     + REQUEST.ATTRIBUTES.PATH;
@@ -163,19 +170,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             Type listType = new TypeToken<List<JsonAttribute>>() {
             }.getType();
             List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
-            bm.printBechmark("to fetch attributes");
-            logger.trace("JsonAttribute.count: {}", jsons.size());
+//            logger.trace("JsonAttribute.count: {}", jsons.size());
             for (JsonAttribute jsonAttribute : jsons) {
                 JEVisAttribute newAttribute = new JEVisAttributeWS(this, jsonAttribute);
                 if (!attributeCache.containsKey(newAttribute.getObjectID())) {
-//                    System.out.println("create new list for: " + newAttribute.getObjectID());
                     attributeCache.put(newAttribute.getObjectID(), new ArrayList<>());
                 }
-//                System.out.println("add to attribute cache: " + newAttribute.getObjectID() + "  " + newAttribute);
                 attributeCache.get(newAttribute.getObjectID()).add(newAttribute);
+                attributeList.add(newAttribute);
             }
-            bm.printBechmark("to create attribute objects");
-//            System.out.println("return attributes: " + attributeList.size());
             return attributeList;
 
         } catch (ProtocolException ex) {
@@ -391,12 +394,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public void reloadAttributes() throws JEVisException {
+        logger.warn("Complete attribute reload");
         attributeCache.clear();
     }
 
     @Override
     public void reloadAttribute(JEVisAttribute attribute) {
         try {
+            logger.warn("Reload Attribute: " + attribute);
             attributeCache.remove(attribute.getObjectID());
             List<JEVisAttribute> newAttributes = getAttributes(attribute.getObjectID());
             for (JEVisAttribute jeVisAttribute : newAttributes) {
@@ -412,11 +417,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisAttribute> getAttributes(long objectID) {
-        logger.debug("Get  getAttributes: {}", objectID);
+//        logger.debug("Get  getAttributes: {}", objectID);
 
         if (attributeCache.containsKey(objectID)) {
+//            logger.warn("Attribute is not in cache: {}", objectID);
+//            logger.error("Cache size: " + attributeCache);
             return attributeCache.get(objectID);
         }
+//        logger.error("Attribute nit in Cache[{}]: {}", attributeCache.size(), objectID);
 
         StringBuffer response = new StringBuffer();
         try {
@@ -1031,8 +1039,19 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public void preload() {
-        getJEVisClasses();
-        getClassIcon();
+        try {
+            Benchmark benchmark = new Benchmark();
+            getJEVisClasses();
+            benchmark.printBenchmarkDetail("Preload - Classes");
+            getClassIcon();
+            benchmark.printBenchmarkDetail("Preload - Icons");
+            getObjects();
+            benchmark.printBenchmarkDetail("Preload - Objects");
+            getAttributes();
+            benchmark.printBenchmarkDetail("Preload - Attributes");
+        } catch (Exception ex) {
+            logger.warn("Error while preloading data source", ex);
+        }
     }
 
     public List<JsonI18nClass> getTranslation() {
