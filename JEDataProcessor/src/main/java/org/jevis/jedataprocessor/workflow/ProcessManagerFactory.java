@@ -44,13 +44,6 @@ public class ProcessManagerFactory {
     public static List<ProcessManager> getProcessManagerList() throws Exception {
         CommandLineParser cmd = CommandLineParser.getInstance();
 
-//        establishConnection();
-//        try {
-//            jevisDataSource.getObject(7731l).getAttribute("Value").deleteAllSample();
-//            jevisDataSource.getObject(7730l).getAttribute("Value").deleteAllSample();
-//        } catch (JEVisException ex) {
-//            logger.error(null, ex);
-//        }
         List<ProcessManager> processManagers = new ArrayList<>();
         //case jevis single
         if (cmd.isAllJEvisMode() || cmd.isServiceMode()) {

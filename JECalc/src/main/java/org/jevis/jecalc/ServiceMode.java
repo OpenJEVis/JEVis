@@ -7,7 +7,6 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.commons.utils.Benchmark;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.concurrent.ForkJoinPool;
 public class ServiceMode {
     private static final Logger logger = LogManager.getLogger(ServiceMode.class);
     private Integer cycleTime = 900000;
-    private Benchmark bench;
+
     private JEVisDataSource ds;
     private ForkJoinPool forkJoinPool;
     private ConcurrentHashMap<String, String> runningJobs = new ConcurrentHashMap();
@@ -143,27 +142,28 @@ public class ServiceMode {
 
             forkJoinPool.submit(
                     () -> enabledObjects.parallelStream().forEach(object -> {
-                        bench = new Benchmark();
-                        runningJobs.put(object.getName(), "true");
+                        if (!runningJobs.containsKey(object.getName() + ":" + object.getID())) {
 
-                        try {
-                            CalcJob calcJob;
-                            CalcJobFactory calcJobCreator = new CalcJobFactory();
-                            do {
-                                ds.reloadAttributes();
-                                calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
-                                calcJob.execute();
-                                Thread.sleep(500);
-                            } while (!calcJob.hasProcessedAllInputSamples());
-                            bench.printBechmark("Calculation (ID: " + calcJob.getCalcObjectID() + ") finished");
-                        } catch (Exception ex) {
-                            logger.error("error with calculation job, aborted", ex);
+                            runningJobs.put(object.getName() + ":" + object.getID(), "true");
+
+                            try {
+                                CalcJob calcJob;
+                                CalcJobFactory calcJobCreator = new CalcJobFactory();
+                                do {
+                                    ds.reloadAttributes();
+                                    calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                                    calcJob.execute();
+                                    Thread.sleep(500);
+                                } while (!calcJob.hasProcessedAllInputSamples());
+
+                            } catch (Exception ex) {
+                                logger.error("error with calculation job, aborted", ex);
+                            }
+                            runningJobs.remove(object.getName());
+                        } else {
+                            logger.error("Still calculating Job " + object.getName() + ":" + object.getID());
                         }
-                        runningJobs.remove(object.getName());
                     }));
-        } else {
-            logger.error("Still calculating Jobs. Waiting...");
         }
     }
-
 }
