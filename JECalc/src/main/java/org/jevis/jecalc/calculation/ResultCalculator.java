@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author broder
  */
 public class ResultCalculator {
@@ -34,7 +33,20 @@ public class ResultCalculator {
                 template.put(sample.getVariable(), sample.getValue());
             }
             Double evaluate = template.evaluate();
-            resultList.add(new VirtualSample(entry.getKey(), evaluate));
+            if (Double.isInfinite(evaluate) || Double.isNaN(evaluate)) {
+                VirtualSample smp = new VirtualSample(entry.getKey(), 0.0);
+                String note = smp.getNote();
+                if (note == null) {
+                    note = "";
+                    note += "calc(infinite)";
+                } else {
+                    note += ",calc(infinite)";
+                }
+                smp.setNote(note);
+                resultList.add(smp);
+            } else {
+                resultList.add(new VirtualSample(entry.getKey(), evaluate));
+            }
         }
         return resultList;
     }
