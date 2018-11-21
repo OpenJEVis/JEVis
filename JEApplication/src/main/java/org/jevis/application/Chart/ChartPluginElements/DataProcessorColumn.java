@@ -50,16 +50,15 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
         }
 
         ChoiceBox processorBox = new ChoiceBox();
+        processorBox.setPrefWidth(120);
+        processorBox.setMinWidth(100);
         processorBox.setItems(FXCollections.observableArrayList(proNames));
 
         processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-            //TODO:replace this quick and dirty workaround
-
 
             if (newValue.equals(rb.getString("graph.processing.raw"))) {
                 data.setDataProcessor(null);
             } else {
-                //TODO going by name is not the fine art, replace!
                 for (JEVisObject configObject : _dataProcessors) {
                     if (configObject.getName().equals(newValue)) {
                         data.setDataProcessor(configObject);
@@ -88,7 +87,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
     @Override
     public void buildColumn() {
         TreeTableColumn<JEVisTreeRow, JEVisObject> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(120);
+        column.setPrefWidth(140);
         column.setEditable(true);
 
         column.setCellValueFactory(param -> {

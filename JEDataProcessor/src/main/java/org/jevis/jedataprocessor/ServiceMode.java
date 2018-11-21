@@ -20,7 +20,6 @@ public class ServiceMode {
 
     public ServiceMode(Integer cycleTime) {
         this.cycleTime = cycleTime;
-
     }
 
     private void getCycleTimeFromService() throws JEVisException {

@@ -70,58 +70,61 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 JEVisException e) {
         }
 
-        for (
-                EnergyUnit eu : EnergyUnit.values()) {
+        for (EnergyUnit eu : EnergyUnit.values()) {
             if (eu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isEnergyUnit = true;
             }
 
         }
-        if (isEnergyUnit) for (
-                EnergyUnit eu : EnergyUnit.values())
+        if (isEnergyUnit) for (EnergyUnit eu : EnergyUnit.values()) {
             proNames.add(eu.toString());
+        }
 
-        for (
-                VolumeUnit vu : VolumeUnit.values()) {
+        for (VolumeUnit vu : VolumeUnit.values()) {
             if (vu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isVolumeUnit = true;
             }
         }
-        if (isVolumeUnit) for (
-                VolumeUnit vu : VolumeUnit.values())
+        if (isVolumeUnit) for (VolumeUnit vu : VolumeUnit.values()) {
             proNames.add(vu.toString());
+        }
 
-        for (
-                MassUnit mu : MassUnit.values()) {
+        for (MassUnit mu : MassUnit.values()) {
             if (mu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isMassUnit = true;
             }
         }
-        if (isMassUnit) for (
-                MassUnit mu : MassUnit.values())
+        if (isMassUnit) for (MassUnit mu : MassUnit.values()) {
             proNames.add(mu.toString());
+        }
 
-        for (
-                PressureUnit pu : PressureUnit.values()) {
+        for (PressureUnit pu : PressureUnit.values()) {
             if (pu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isPressureUnit = true;
             }
         }
-        if (isPressureUnit) for (
-                PressureUnit pu : PressureUnit.values())
+        if (isPressureUnit) for (PressureUnit pu : PressureUnit.values()) {
             proNames.add(pu.toString());
+        }
 
-        for (
-                VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
+        for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
             if (vfu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
                 isVolumeFlowUnit = true;
             }
         }
-        if (isVolumeFlowUnit) for (
-                VolumeFlowUnit vfu : VolumeFlowUnit.values())
-            proNames.add(vfu.toString());
+        if (isVolumeFlowUnit) {
+            for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
+                proNames.add(vfu.toString());
+            }
+        }
+
+        if (!isEnergyUnit && !isMassUnit && !isPressureUnit && !isVolumeFlowUnit && !isVolumeUnit) {
+            proNames.add(singleRow.getUnit().getLabel());
+        }
 
         ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
+        processorBox.setPrefWidth(80);
+        processorBox.setMinWidth(60);
 
         return processorBox;
     }
@@ -139,7 +142,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
     @Override
     public void buildColumn() {
         TreeTableColumn<JEVisTreeRow, JEVisUnit> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(90);
+        column.setPrefWidth(110);
         column.setEditable(true);
 
         column.setCellValueFactory(param -> {
@@ -168,9 +171,10 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                 if (data.getUnit() != null)
                                     if (!data.getUnit().equals(Unit.ONE)) {
                                         String selection = UnitManager.getInstance().formate(data.getUnit());
-                                        box.getSelectionModel().select(selection);
+                                        if (!selection.equals("")) box.getSelectionModel().select(selection);
+                                        else box.getSelectionModel().selectFirst();
                                     } else {
-                                        box.getSelectionModel().select(0);
+                                        box.getSelectionModel().selectFirst();
                                     }
 
                                 box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {

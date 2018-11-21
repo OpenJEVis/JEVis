@@ -135,6 +135,9 @@ public class JEVisTreeFactory {
 
         BasicCellFilter cellFilter = new BasicCellFilter();
         TreeTableColumn nameCol = ColumnFactory.buildName();
+        nameCol.setPrefWidth(500);
+        nameCol.setMinWidth(100);
+
         CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
         tree.setCellFilter(cellFilter);
 

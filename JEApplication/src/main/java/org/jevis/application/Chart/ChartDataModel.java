@@ -40,7 +40,7 @@ public class ChartDataModel {
 
     public JEVisUnit getUnit() {
         try {
-            if (_unit == null) {
+            if (_unit == null || _somethingChanged) {
                 if (getAttribute() != null) {
                     _unit = getAttribute().getDisplayUnit();
                 }
@@ -245,7 +245,7 @@ public class ChartDataModel {
     }
 
     public JEVisAttribute getAttribute() {
-        if (_attribute == null) {
+        if (_attribute == null || _somethingChanged) {
             try {
                 JEVisAttribute attribute = null;
                 String jevisClassName = getObject().getJEVisClassName();
