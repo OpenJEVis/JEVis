@@ -40,7 +40,7 @@ public class JEVisObjectWS implements JEVisObject {
     private final EventListenerList listeners = new EventListenerList();
     private JEVisDataSourceWS ds;
     private List<JEVisObject> parents = null;
-    private List<JEVisObject> children = null;
+    //    private List<JEVisObject> children = null;
     private JsonObject json;
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
@@ -60,10 +60,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public synchronized void notifyListeners(JEVisEvent event) {
-//        if (event.getType() == JEVisEvent.TYPE.OBJECT_NEW_CHILD) {
-//            children = null;
-//        }
-
+        logger.error("Object event[{}] listeners: {} event:", getID(), listeners.getListenerCount(), event.getType());
         for (JEVisEventListener l : listeners.getListeners(JEVisEventListener.class)) {
             l.fireEvent(event);
         }
@@ -111,14 +108,14 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisObject> getChildren() throws JEVisException {
-        children = new ArrayList<>();
+        List<JEVisObject> children = new ArrayList<>();
         for (JEVisRelationship rel : getRelationships()) {
             try {
-                if (rel.getType() == 1 && rel.getEndObject().equals(this)) {
+                if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && rel.getEndID() == getID()) {
                     children.add(rel.getStartObject());
                 }
             } catch (NullPointerException ex) {
-
+                logger.error(ex);
             }
         }
 
@@ -126,13 +123,14 @@ public class JEVisObjectWS implements JEVisObject {
         return children;
     }
 
+
     @Override
     public List<JEVisObject> getChildren(JEVisClass jclass, boolean inherit) throws JEVisException {
         List<JEVisObject> filterLIst = new ArrayList<>();
-        if (children == null) {
-            getChildren();
-        }
-        for (JEVisObject obj : children) {
+//        if (children == null) {
+//            getChildren();
+//        }
+        for (JEVisObject obj : getChildren()) {
             //TODO: also get inherit
 
             JEVisClass oClass = obj.getJEVisClass();
@@ -326,7 +324,7 @@ public class JEVisObjectWS implements JEVisObject {
             //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
 
             JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
-            logger.trace("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
+            logger.error("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
 
             ds.reloadRelationships();
@@ -334,7 +332,11 @@ public class JEVisObjectWS implements JEVisObject {
                 notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
             } else {
                 if (!getParents().isEmpty()) {
-                    getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+                    try {
+                        getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
 

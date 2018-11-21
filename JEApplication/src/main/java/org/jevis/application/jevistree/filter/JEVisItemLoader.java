@@ -1,7 +1,10 @@
 package org.jevis.application.jevistree.filter;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -29,6 +32,7 @@ public class JEVisItemLoader {
     final Map<JEVisObject, JEVisTreeItem> itemObjectLinker = new TreeMap<>();
     final Map<JEVisAttribute, JEVisTreeItem> itemAttributeLinker = new HashMap<>();
     private Comparator<JEVisTreeItem> comperator;
+    private CellFilter activFilter = null;
 
 
     /**
@@ -43,73 +47,11 @@ public class JEVisItemLoader {
         this.allObjects = objects;
         this.roots = roots;
 
-        /**
-         * Default JEVisTree sort.
-         * Order:
-         * 1. Objects before Attributes
-         * 2. Directory's before other JEVisClasses
-         * 3. objects compared by JEVisClasses
-         * 4. Objects compared by name
-         * 5. Attributes by name
-         */
-        this.comperator = new Comparator<JEVisTreeItem>() {
-            @Override
-            public int compare(JEVisTreeItem o1, JEVisTreeItem o2) {
-                try {
-                    JEVisTreeRow row1 = o1.getValue();
-                    JEVisTreeRow row2 = o2.getValue();
-
-                    if (row1.getType() == row2.getType()) {
-
-                        /** if they are objects **/
-                        if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-
-                            boolean o1isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row1.getJEVisObject().getJEVisClassName());
-                            boolean o2isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row2.getJEVisObject().getJEVisClassName());
-
-                            /** Check if one of this is an directory, if it will be first **/
-                            if (o1isDir && !o2isDir) {
-                                return -1;
-                            } else if (!o1isDir && o2isDir) {
-                                return 1;
-                            }
-
-                            /** Sort by Classname **/
-                            int className = row1.getJEVisObject().getJEVisClassName().compareTo(row2.getJEVisObject().getJEVisClassName());
-                            if (className == 0) {
-                                /** if same class sort by name **/
-                                return row1.getJEVisObject().getName().compareTo(row2.getJEVisObject().getName());
-                            } else {
-                                return className;
-                            }
-
-
-                        } else if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
-                            /** attributes are sorted by name **/
-                            return row1.getJEVisAttribute().getName().compareTo(row2.getJEVisAttribute().getName());
-                        }
-
-
-                    } else {/** one is object the other attribute, Object before attribute **/
-                        if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-                            return -1;
-                        } else {
-                            return 1;
-                        }
-                    }
-                } catch (Exception ex) {
-                }
-
-                /** if something goes wrong rerun eequal **/
-                return 0;
-            }
-        };
-
         buildItems(this.allObjects);
     }
 
     /**
-     * Rest items
+     * Reset items
      */
     private void cleanFilter() {
         for (JEVisTreeItem item : treeObjectItems) {
@@ -132,9 +74,6 @@ public class JEVisItemLoader {
         itemObjectLinker.clear();
     }
 
-    public void setItemComperator(Comparator<JEVisTreeItem> comperator) {
-
-    }
 
     /**
      * Create JEVisTreeItem all objects and attributes.
@@ -148,6 +87,7 @@ public class JEVisItemLoader {
             try {
 //                logger.error("Create item for object: {}", object.getName());
                 JEVisTreeItem item = new JEVisTreeItem(jeVisTree, object);
+                registerEventHandler(object);
                 treeObjectItems.add(item);
                 itemObjectLinker.put(object, item);
                 for (JEVisAttribute attribute : object.getAttributes()) {
@@ -164,6 +104,22 @@ public class JEVisItemLoader {
                 logger.error("Error while loading object {}", object.getID(), ex);
             }
         }
+    }
+
+    /**
+     * Build an new single JEVisTreeItem out of an JEVIsoObject and check filter
+     * This function will also set filter to true. Use this if after the tree is already filtered an new object is added.
+     *
+     * @param object
+     */
+    public void buildItems(JEVisObject object) {
+        List<JEVisObject> list = new ArrayList<>();
+        list.add(object);
+        buildItems(list);
+
+        /** the new item is always visible **/
+        JEVisTreeItem newItem = itemObjectLinker.get(object);
+        newItem.setFilterd(true);
     }
 
     /**
@@ -189,6 +145,18 @@ public class JEVisItemLoader {
     }
 
     /**
+     * Internal debug help
+     */
+    private void printItemDebug() {
+        for (JEVisTreeItem item : treeObjectItems) {
+            if (item.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
+                System.out.println("item: " + item);
+            }
+        }
+    }
+
+
+    /**
      * Filter the the Objects list and set the new root item for the tree
      *
      * @param filter
@@ -196,6 +164,7 @@ public class JEVisItemLoader {
      */
     public void filterTree(CellFilter filter) {
         System.out.println("===== Start treeFilter ======");
+        this.activFilter = filter;
         Benchmark benchmark = new Benchmark();
         cleanFilter();
         Set<JEVisObject> neededParents = new HashSet<>();
@@ -203,11 +172,13 @@ public class JEVisItemLoader {
         /** find matching objects **/
         for (JEVisTreeItem item : treeObjectItems) {
             boolean show = filter.showItem(item.getValue().getJEVisObject());
-            item.setFilterd(show);
-            parentCheck(neededParents, item.getValue().getJEVisObject());
+            if (show) {
+                item.setFilterd(true);
+                parentCheck(neededParents, item.getValue().getJEVisObject());
+            }
         }
 
-        benchmark.printBechmark("find matching objects");
+        benchmark.printBenchmarkDetail("find matching objects");
 
         /** find matching attributes **/
         for (JEVisTreeItem item : treeAttributeItems) {
@@ -215,10 +186,10 @@ public class JEVisItemLoader {
             item.setFilterd(show);
             if (show) {
                 item.setParentForFilter(true);
+                parentCheck(neededParents, item.getValue().getJEVisObject());
             }
-            parentCheck(neededParents, item.getValue().getJEVisObject());
         }
-        benchmark.printBechmark("find matching attributes");
+        benchmark.printBenchmarkDetail("find matching attributes");
 
         /** set needed parents **/
         for (JEVisTreeItem item : treeObjectItems) {
@@ -226,40 +197,22 @@ public class JEVisItemLoader {
                 item.setParentForFilter(true);
             }
         }
-        benchmark.printBechmark("find parents");
+//        printItemDebug();
+
+        benchmark.printBenchmarkDetail("find parents");
         /** build children lists **/
         for (JEVisTreeItem item : treeObjectItems) {
             if ((item.isFilterd() || item.isParentForFilter()) && item.isObject()) {
 
                 ObservableList<JEVisTreeItem> newChildrenList = FXCollections.observableArrayList();
                 try {
-                    for (JEVisObject objChild : item.getValue().getJEVisObject().getChildren()) {
-                        /** add object children **/
-                        if (itemObjectLinker.containsKey(objChild)) {
-                            JEVisTreeItem itemChild = itemObjectLinker.get(objChild);
-                            if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
-                                newChildrenList.add(itemChild);
-                            }
-
-                        }
-                        /** add attributes children **/
-                        for (JEVisAttribute attribute : item.getValue().getJEVisObject().getAttributes()) {
-                            if (itemAttributeLinker.containsKey(attribute)) {
-                                JEVisTreeItem itemChild = itemAttributeLinker.get(attribute);
-                                if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
-                                    newChildrenList.add(itemChild);
-                                }
-                            }
-                        }
-                    }
-                    newChildrenList.sort(comperator);
-                    item.getChildren().setAll(newChildrenList);
+                    update(item.getValue().getJEVisObject());
                 } catch (Exception ex) {
                     logger.error("Error while adding children {}", item, ex);
                 }
             }
         }
-        benchmark.printBechmark("build chindren");
+        benchmark.printBenchmarkDetail("build chindren");
 
 //        Arrays.sort();
 
@@ -281,9 +234,89 @@ public class JEVisItemLoader {
 
         }
 
-        benchmark.printBechmark("build root");
+        benchmark.printBenchmarkDetail("build root");
 
         jeVisTree.setRoot(rootItem);
+    }
+
+    /**
+     * Update an object and its children
+     *
+     * @param object
+     */
+    public void update(JEVisObject object) {
+        try {
+            JEVisTreeItem item = itemObjectLinker.get(object);
+            ObservableList<JEVisTreeItem> newChildrenList = FXCollections.observableArrayList();
+
+            for (JEVisObject objChild : object.getChildren()) {
+                /** add object children **/
+                if (itemObjectLinker.containsKey(objChild)) {
+                    JEVisTreeItem itemChild = itemObjectLinker.get(objChild);
+                    if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
+                        newChildrenList.add(itemChild);
+                    }
+
+                }
+                /** add attributes children **/
+                for (JEVisAttribute attribute : object.getAttributes()) {
+                    if (itemAttributeLinker.containsKey(attribute)) {
+                        JEVisTreeItem itemChild = itemAttributeLinker.get(attribute);
+                        if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
+                            newChildrenList.add(itemChild);
+                        }
+                    }
+                }
+            }
+            newChildrenList.sort(TreeItemComparator.getInstance());
+            item.getChildren().setAll(newChildrenList);
+
+        } catch (Exception ex) {
+            logger.error(ex);
+            ex.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Add the EventListeners to the JEVisObject to handel delete,update, new and so on
+     *
+     * @param object
+     */
+    public void registerEventHandler(JEVisObject object) {
+
+        /** TODO: an weak listener would be better **/
+        object.addEventListener(event -> {
+            logger.error("Object Event [{}]: object {}", event.getType(), object.getID());
+            switch (event.getType()) {
+                case OBJECT_DELETE:
+                    /** nothing to do, we listen to the parent OBJECT_CHILD_DELETED event **/
+                    break;
+                case OBJECT_NEW_CHILD:
+                    JEVisObject newObject = (JEVisObject) event.getSource();
+                    buildItems(newObject);
+                    if (newObject != null && itemObjectLinker.containsKey(newObject)) {
+                        Platform.runLater(() -> {
+                            update(object);
+                            jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
+                        });
+                    }
+                    break;
+                case OBJECT_CHILD_DELETED:
+                    update(object);
+
+                    break;
+                case OBJECT_UPDATED:
+                    JEVisTreeItem parentItem = itemObjectLinker.get(object);
+                    TreeItem.TreeModificationEvent<JEVisTreeItem> treeEvent = new TreeItem.TreeModificationEvent(JEVisTreeItem.valueChangedEvent(), parentItem);
+                    Event.fireEvent(parentItem, treeEvent);
+
+                    break;
+                default:
+                    break;
+            }
+        });
+
     }
 
 }

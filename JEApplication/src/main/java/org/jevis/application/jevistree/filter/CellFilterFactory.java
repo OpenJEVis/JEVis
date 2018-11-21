@@ -41,4 +41,5 @@ public class CellFilterFactory {
 
         return basicFilter;
     }
+
 }

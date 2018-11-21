@@ -90,9 +90,6 @@ public class JEVisTree extends TreeTableView {
 
             setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
             setTableMenuButtonVisible(true);
-            getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                System.out.println("JEVisTreeSelectionEvent: " + newValue);
-            });
 
             plugins.addListener(new ListChangeListener<TreePlugin>() {
 

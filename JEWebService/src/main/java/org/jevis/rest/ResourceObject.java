@@ -207,6 +207,7 @@ public class ResourceObject {
 
         SQLDataSource ds = null;
         try {
+            System.out.println("Build OBject: " + object);
             ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("ObjectResource", "postObject");
 
@@ -230,8 +231,9 @@ public class ResourceObject {
                         return Response.status(Response.Status.UNAUTHORIZED).build();
                     }
                 } else {
+                    System.out.println("Build object: [" + json.getId() + "]" + json.getName() + " under: " + parentObj.getId());
                     JsonObject newObj = ds.buildObject(json, parentObj.getId());
-
+                    System.out.println("New Object: [" + newObj.getId() + "]" + newObj.getName() + " under: " + parentObj.getId());
                     return Response.ok(newObj).build();
                 }
 

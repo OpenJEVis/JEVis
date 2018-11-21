@@ -192,7 +192,6 @@ public class ObjectPlugin implements Plugin {
 
                 @Override
                 public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                    System.out.println("New selected item: new: " + newValue + " old: " + oldValue);
                     if (newValue instanceof JEVisTreeItem) {
                         JEVisTreeItem item = (JEVisTreeItem) newValue;
                         JEVisObject obj = item.getValue().getJEVisObject();

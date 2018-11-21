@@ -183,6 +183,8 @@ public class ColumnFactory {
     }
 
     /**
+     * TODo: localize
+     *
      * @param max if 1 the max date, if false the min date
      * @return
      */
@@ -216,7 +218,7 @@ public class ColumnFactory {
                         }
                     }
 
-                    if (value != null) {
+                    if (value != null && value.getLatestSample() != null) {
                         if (max == true) {
                             return new ReadOnlyObjectWrapper<String>(TS_DATES_FORMATE.print(value.getTimestampFromLastSample()));
                         } else {
