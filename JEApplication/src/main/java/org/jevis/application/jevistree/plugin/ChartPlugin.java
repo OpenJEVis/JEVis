@@ -87,6 +87,7 @@ public class ChartPlugin implements TreePlugin {
     private List<Color> usedColors = new ArrayList<>();
     private GraphDataModel _data;
 
+
     public JEVisTree getTree() {
         return _tree;
     }
@@ -160,6 +161,7 @@ public class ChartPlugin implements TreePlugin {
         column.setGraphic(addChart);
 
         TreeTableColumn<JEVisTreeRow, Color> colorColumn = buildColorColumn(_tree, rb.getString("graph.table.color"));
+        colorColumn.setId(rb.getString("graph.table.color"));
 
         List<TreeTableColumn<JEVisTreeRow, Long>> allColumns = new ArrayList<>();
         List<TreeTableColumn> selectionColumns = new ArrayList<>();
@@ -211,7 +213,8 @@ public class ChartPlugin implements TreePlugin {
                         super.updateItem(item, empty);
                         if (!empty) {
                             StackPane hbox = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null
+                                    && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ColorPicker colorPicker = new ColorPicker();
 
@@ -289,7 +292,7 @@ public class ChartPlugin implements TreePlugin {
                         super.updateItem(item, empty);
                         if (!empty) {
                             StackPane stackPane = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 DatePicker dp = buildDatePicker(data, type);
 
@@ -467,7 +470,7 @@ public class ChartPlugin implements TreePlugin {
                         if (!empty) {
                             StackPane hbox = new StackPane();
 
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox aggBox = buildAggregateBox(data);
 
@@ -574,7 +577,7 @@ public class ChartPlugin implements TreePlugin {
                         if (!empty) {
                             StackPane hbox = new StackPane();
 
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox box = buildProcessorBox(data);
 
@@ -628,7 +631,7 @@ public class ChartPlugin implements TreePlugin {
 
                             StackPane stackPane = new StackPane();
 
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox box = buildUnitBox(data);
 
@@ -842,7 +845,8 @@ public class ChartPlugin implements TreePlugin {
                              */
                             if (getTreeTableRow().getItem() != null
                                     && tree != null
-                                    && tree.getFilter().showColumn(getTreeTableRow().getItem(), rb.getString("graph.table.color"))) {
+                                    && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
+//                                    && tree.getFilter().showColumn(getTreeTableRow().getItem(), rb.getString("graph.table.color"))) {
 
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
 

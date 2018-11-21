@@ -32,8 +32,12 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
 import org.jevis.application.jevistree.filter.CellFilterFactory;
+import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.application.jevistree.plugin.MapPlugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -105,8 +109,8 @@ public class JEVisTreeFactory {
     public static JEVisTree buildBasicDefault(JEVisDataSource ds) {
         JEVisTree tree = new JEVisTree(ds);
 
-        ViewFilter filter = ViewFilterFactory.createDefaultGraphFilter();
-        tree.setFiler(filter);
+//        ViewFilter filter = ViewFilterFactory.createDefaultGraphFilter();
+//        tree.setFiler(filter);
 
         TreeTableColumn nameCol = ColumnFactory.buildName();
         TreeTableColumn idCol = ColumnFactory.buildID();
@@ -128,13 +132,24 @@ public class JEVisTreeFactory {
     public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds) {
         JEVisTree tree = new JEVisTree(ds);
 
-        ViewFilter filter = ViewFilterFactory.createDefaultGraphFilter();
-        tree.setFiler(filter);
+
+        TreeTableColumn nameCol = ColumnFactory.buildName();
+        TreeTableColumn idCol = ColumnFactory.buildID();
+        TreeTableColumn minTS = ColumnFactory.buildDataTS(false);
+        TreeTableColumn maxTS = ColumnFactory.buildDataTS(true);
+
+
+        BasicCellFilter cellFilter = new BasicCellFilter();
+        CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
+        CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
+        List<ObjectAttributeFilter> filter = new ArrayList<>();
+        filter.add(new ObjectAttributeFilter("All Objects", ObjectAttributeFilter.ALL, ObjectAttributeFilter.ALL));
+
+
+        tree.setCellFilter(cellFilter);
 
         TreePlugin bp = new ChartPlugin();
-
-        tree.getColumns().addAll(ColumnFactory.buildName());
-
+        tree.getColumns().addAll(nameCol, idCol);
         tree.getPlugins().add(bp);
 
         addGraphKeys(tree);
@@ -147,8 +162,8 @@ public class JEVisTreeFactory {
         logger.info("build map tree");
         JEVisTree tree = new JEVisTree(ds);
 
-        ViewFilter filter = ViewFilterFactory.createMapFilter();
-        tree.setFiler(filter);
+//        ViewFilter filter = ViewFilterFactory.createMapFilter();
+//        tree.setFiler(filter);
 
         TreePlugin bp = new MapPlugin();
         tree.getColumns().addAll(ColumnFactory.buildName(), ColumnFactory.buildID());

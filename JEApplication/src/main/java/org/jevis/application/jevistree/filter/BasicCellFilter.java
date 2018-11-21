@@ -2,7 +2,6 @@ package org.jevis.application.jevistree.filter;
 
 import javafx.scene.control.TreeTableColumn;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.application.jevistree.JEVisTree;
@@ -58,7 +57,7 @@ public class BasicCellFilter implements CellFilter {
 
 
     @Override
-    public boolean showCell(TreeTableColumn column, JEVisTreeRow row) throws JEVisException {
+    public boolean showCell(TreeTableColumn column, JEVisTreeRow row) {
         System.out.println("showCell?: \n-- " + column + "\n-- " + row);
         for (ObjectAttributeFilter objectAttributeFilter : filters.get(column)) {
             try {

@@ -139,7 +139,7 @@ public class SelectTargetDialog2 {
 
 //        cellFilter.addFilter(tree.getColumn(TARGET_COLUMN_ID), f2);
         tree.setCellFilter(cellFilter);
-        tree.getFilter().showAttributes(true);
+//        tree.getFilter().showAttributes(true);
 
         filterTypes.add(onlyAttFilter);
         filterTypes.add(f2);

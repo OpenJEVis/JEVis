@@ -505,7 +505,7 @@ public class ColumnFactory {
                         if (!empty) {
                             StackPane hbox = new StackPane();
 
-                            if (getTreeTableRow().getItem() != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), COLOR)) {
+                            if (getTreeTableRow().getItem() != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ColorPicker colorPicker = new ColorPicker();
                                 hbox.getChildren().setAll(colorPicker);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
@@ -567,7 +567,7 @@ public class ColumnFactory {
                             StackPane hbox = new StackPane();
                             CheckBox cbox = new CheckBox();
 
-                            if (getTreeTableRow().getItem() != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), SELECT_OBJECT)) {
+                            if (getTreeTableRow().getItem() != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
                                 hbox.getChildren().setAll(cbox);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                 cbox.setSelected(item);
