@@ -30,6 +30,7 @@ public class ServiceMode {
     }
 
     public ServiceMode() {
+        getCycleTimeFromService();
     }
 
     public void run() {

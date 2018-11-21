@@ -44,13 +44,6 @@ public class ProcessManagerFactory {
     public static List<ProcessManager> getProcessManagerList() throws Exception {
         CommandLineParser cmd = CommandLineParser.getInstance();
 
-//        establishConnection();
-//        try {
-//            jevisDataSource.getObject(7731l).getAttribute("Value").deleteAllSample();
-//            jevisDataSource.getObject(7730l).getAttribute("Value").deleteAllSample();
-//        } catch (JEVisException ex) {
-//            logger.error(null, ex);
-//        }
         List<ProcessManager> processManagers = new ArrayList<>();
         //case jevis single
         if (cmd.isAllJEvisMode() || cmd.isServiceMode()) {
@@ -79,7 +72,7 @@ public class ProcessManagerFactory {
             List<JEVisObject> listDataProcessorObjects = jevisDataSource.getObjects(dataProcessorClass, false);
             enabled = listDataProcessorObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
             logger.info("Service is enabled is " + enabled);
-        } catch (Exception e) {
+        } catch (JEVisException e) {
 
         }
         return enabled;
@@ -92,7 +85,7 @@ public class ProcessManagerFactory {
             List<JEVisObject> listDataProcessorObjects = jevisDataSource.getObjects(dataProcessorClass, false);
             threadCount = listDataProcessorObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
             logger.info("Set Thread count to: " + threadCount);
-        } catch (Exception e) {
+        } catch (JEVisException e) {
 
         }
         forkJoinPool = new ForkJoinPool(threadCount);
