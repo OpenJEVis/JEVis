@@ -11,10 +11,12 @@ import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.jevis.jedataprocessor.workflow.ProcessManagerFactory;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServiceMode {
     private static final Logger logger = LogManager.getLogger(Launcher.class);
     private Integer cycleTime = 900000;
+    private ConcurrentHashMap<String, String> runningJobs = new ConcurrentHashMap();
 
     public ServiceMode(Integer cycleTime) {
         this.cycleTime = cycleTime;
@@ -29,6 +31,7 @@ public class ServiceMode {
     }
 
     public ServiceMode() {
+        getCycleTimeFromService();
     }
 
     public void run() {
@@ -84,13 +87,21 @@ public class ServiceMode {
         ProcessManagerFactory.getForkJoinPool().submit(
                 () -> processes.parallelStream().forEach(
                         currentProcess -> {
-                            try {
-                                currentProcess.start();
-                            } catch (Exception ex) {
-                                logger.debug(ex);
-                            }
-                        }));
+                            if (!runningJobs.containsKey(currentProcess.getName() + ":" + currentProcess.getId())) {
 
-        logger.info("Cleaning finished.");
+                                runningJobs.put(currentProcess.getName() + ":" + currentProcess.getId(), "true");
+
+                                try {
+                                    currentProcess.start();
+                                } catch (Exception ex) {
+                                    logger.debug(ex);
+                                }
+                                runningJobs.remove(currentProcess.getName());
+
+                            } else {
+                                logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());
+                            }
+
+                        }));
     }
 }
