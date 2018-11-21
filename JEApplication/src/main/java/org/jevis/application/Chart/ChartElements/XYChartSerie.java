@@ -29,6 +29,7 @@ public class XYChartSerie implements Serie {
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
         String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+        if (unit.equals("")) unit = singleRow.getUnit().getLabel();
         if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
 
         String tableEntryName = singleRow.getObject().getName();

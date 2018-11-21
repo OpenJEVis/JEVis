@@ -39,7 +39,7 @@ public class AreaChart implements Chart {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private static final Logger logger = LogManager.getLogger(AreaChart.class);
     private String chartName;
-    private String unit;
+    private List<String> unit = new ArrayList<>();
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
     private ObservableList<XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
@@ -59,22 +59,29 @@ public class AreaChart implements Chart {
 
     private void init() {
         chartDataModels.forEach(singleRow -> {
-            try {
+            if (singleRow.getSelected()) {
+                try {
 
-                XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
+                    XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
-                hexColors.add(singleRow.getColor());
-                series.add(serie.getSerie());
-                tableData.add(serie.getTableEntry());
+                    hexColors.add(singleRow.getColor());
+                    series.add(serie.getSerie());
+                    tableData.add(serie.getTableEntry());
+                    String currentUnit = UnitManager.getInstance().formate(singleRow.getUnit());
+                    if (currentUnit.equals("")) currentUnit = singleRow.getUnit().getLabel();
+                    if (!unit.contains(currentUnit)) {
+                        unit.add(currentUnit);
+                    }
 
-            } catch (JEVisException e) {
-                logger.error("Error: Cant create series for data rows: ", e);
+                } catch (JEVisException e) {
+                    logger.error("Error: Cant create series for data rows: ", e);
+                }
             }
         });
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
-            unit = UnitManager.getInstance().formate(chartDataModels.get(0).getUnit());
-            if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
+
+            if (unit.isEmpty()) unit.add(rb.getString("plugin.graph.chart.valueaxis.nounit"));
             period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
         }
 
@@ -91,14 +98,22 @@ public class AreaChart implements Chart {
         areaChart.setCreateSymbols(true);
 
         areaChart.getXAxis().setAutoRanging(true);
-        Period period = new Period(getStartDateTime(), getEndDateTime().plus(getPeriod()).plusSeconds(1));
+
+        Period period = new Period(getStartDateTime(), getEndDateTime().plus(getPeriod()).plusSeconds(1)).minus(this.period);
         period = period.minusSeconds(period.getSeconds());
+        period = period.minusMillis(period.getMillis());
         String overall = period.toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale()));
 
 
         areaChart.getXAxis().setLabel(rb.getString("plugin.graph.chart.dateaxis.title") + " " + overall);
+
         areaChart.getYAxis().setAutoRanging(true);
-        areaChart.getYAxis().setLabel(unit);
+        String allUnits = "";
+        for (String s : unit) {
+            if (unit.indexOf(s) == 0) allUnits += s;
+            else allUnits += ", " + s;
+        }
+        areaChart.getYAxis().setLabel(allUnits);
 
         initializeZoom();
     }
@@ -212,6 +227,7 @@ public class AreaChart implements Chart {
                         tableEntry.setDate(new DateTime(Math.round(nearest)).toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                         tableEntry.setNote(formattedNote.getNote());
                         String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                        if (unit.equals("")) singleRow.getUnit().getLabel();
                         tableEntry.setValue(formattedDouble + " " + unit);
                         tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale())));
                         tableData.add(tableEntry);

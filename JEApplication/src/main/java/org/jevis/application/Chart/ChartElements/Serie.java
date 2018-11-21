@@ -10,13 +10,14 @@ public interface Serie {
 
     default void calcTableValues(TableEntry te, List<JEVisSample> samples, String unit) throws JEVisException {
         double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
-        Double avg = 0.0;
+        double max = -Double.MAX_VALUE;
+        double avg = 0.0;
         Double sum = 0.0;
 
         for (JEVisSample smp : samples) {
-            min = Math.min(min, smp.getValueAsDouble());
-            max = Math.max(max, smp.getValueAsDouble());
+            Double currentValue = smp.getValueAsDouble();
+            min = Math.min(min, currentValue);
+            max = Math.max(max, currentValue);
             sum += smp.getValueAsDouble();
         }
 
@@ -35,12 +36,12 @@ public interface Serie {
             te.setMax("- " + unit);
         else te.setMax(nf_out.format(max) + " " + unit);
 
-        if (avg == 0.0 || samples.size() == 0)
+        if (samples.size() == 0) {
             te.setAvg("- " + unit);
-        else te.setAvg(nf_out.format(avg) + " " + unit);
-
-        if (samples.size() == 0)
             te.setSum("- " + unit);
-        else te.setSum(nf_out.format(sum) + " " + unit);
+        } else {
+            te.setAvg(nf_out.format(avg) + " " + unit);
+            te.setSum(nf_out.format(sum) + " " + unit);
+        }
     }
 }

@@ -41,6 +41,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.I18nWS;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.login.FXLogin;
@@ -83,7 +84,7 @@ public class JEConfig extends Application {
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
-    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.5.3");
+    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.5.4");
 
     /**
      * Returns the last path the local user selected
@@ -308,6 +309,12 @@ public class JEConfig extends Application {
                 I18n.getInstance().loadBundel(login.getSelectedLocale());
                 I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
+
+                /**
+                 * Need to set JEApplication Locale for translations
+                 */
+                AppLocale.getInstance().setLocale(login.getSelectedLocale());
+
                 _config.setLocale(login.getSelectedLocale());
 
                 try {

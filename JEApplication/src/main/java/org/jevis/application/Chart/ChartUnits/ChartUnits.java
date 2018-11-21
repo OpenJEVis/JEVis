@@ -17,6 +17,7 @@ public class ChartUnits {
         Unit _l = NonSI.LITER;
         Unit _l2 = NonSI.LITRE;
         Unit _m3 = SI.CUBIC_METRE;
+        Unit _Nm3 = SI.CUBIC_METRE.alternate("Nm³");
 
         Unit _literPerSecond = NonSI.LITER.divide(SI.SECOND);
         Unit _literPerMinute = NonSI.LITER.divide(NonSI.MINUTE);
@@ -44,6 +45,7 @@ public class ChartUnits {
         final JEVisUnit l = new JEVisUnitImp(_l);
         final JEVisUnit l2 = new JEVisUnitImp(_l2);
         final JEVisUnit m3 = new JEVisUnitImp(_m3);
+        final JEVisUnit Nm3 = new JEVisUnitImp(_Nm3);
 
         final JEVisUnit literPerSecond = new JEVisUnitImp(_literPerSecond);
         final JEVisUnit literPerMinute = new JEVisUnitImp(_literPerMinute);
@@ -99,13 +101,16 @@ public class ChartUnits {
             case "m³":
                 result = m3;
                 break;
+            case "Nm³":
+                result = Nm3;
+                break;
             case "L":
                 result = l;
                 break;
             case "L/s":
                 result = literPerSecond;
                 break;
-            case "L/m":
+            case "L/min":
                 result = literPerMinute;
                 break;
             case "L/h":
@@ -114,7 +119,7 @@ public class ChartUnits {
             case "m³/s":
                 result = cubicMeterPerSecond;
                 break;
-            case "m³/m":
+            case "m³/min":
                 result = cubicMeterPerMinute;
                 break;
             case "m³/h":
@@ -130,5 +135,380 @@ public class ChartUnits {
                 break;
         }
         return result;
+    }
+
+    public Double scaleValue(String inputUnit, String outputUnit) {
+        Double factor = 1.0;
+        switch (outputUnit) {
+            case "W":
+                switch (inputUnit) {
+                    case "kW":
+                        factor = 1000d / 1d;
+                        break;
+                    case "MW":
+                        factor = 1000000d / 1d;
+                        break;
+                    case "GW":
+                        factor = 1000000000d / 1d;
+                        break;
+                    case "Wh":
+                        factor = 4d / 1d;
+                        break;
+                    case "kWh":
+                        factor = 4d / 1000d;
+                        break;
+                    case "MWh":
+                        factor = 4d / 1000000d;
+                        break;
+                    case "GWh":
+                        factor = 4d / 1000000000d;
+                        break;
+                }
+                break;
+            case "kW":
+                switch (inputUnit) {
+                    case "W":
+                        factor = 1d / 1000;
+                        break;
+                    case "MW":
+                        factor = 1d / 1000d;
+                        break;
+                    case "GW":
+                        factor = 1d / 1000000d;
+                        break;
+                    case "Wh":
+                        factor = 4000d / 1d;
+                        break;
+                    case "kWh":
+                        factor = 4d / 1d;
+                        break;
+                    case "MWh":
+                        factor = 4d / 1000d;
+                        break;
+                    case "GWh":
+                        factor = 4d / 1000000d;
+                        break;
+                }
+                break;
+            case "MW":
+                switch (inputUnit) {
+                    case "W":
+                        factor = 1d / 1000000d;
+                        break;
+                    case "kW":
+                        factor = 1d / 1000d;
+                        break;
+                    case "GW":
+                        factor = 1000d;
+                        break;
+                    case "Wh":
+                        factor = 4d / 1000000d;
+                        break;
+                    case "kWh":
+                        factor = 4d / 1000d;
+                        break;
+                    case "MWh":
+                        factor = 4d / 1d;
+                        break;
+                    case "GWh":
+                        factor = 4000d / 1d;
+                        break;
+                }
+                break;
+            case "GW":
+                switch (inputUnit) {
+                    case "W":
+                        factor = 1d / 1000000000d;
+                        break;
+                    case "kW":
+                        factor = 1d / 1000000d;
+                        break;
+                    case "MW":
+                        factor = 1d / 1000d;
+                        break;
+                    case "Wh":
+                        factor = 4d / 1000000000d;
+                        break;
+                    case "kWh":
+                        factor = 4d / 1000000d;
+                        break;
+                    case "MWh":
+                        factor = 4d / 1000d;
+                        break;
+                    case "GWh":
+                        factor = 4d / 1d;
+                        break;
+                }
+                break;
+            case "Wh":
+                switch (inputUnit) {
+                    case "kWh":
+                        factor = 1000d;
+                        break;
+                    case "MWh":
+                        factor = 1000000d / 1d;
+                        break;
+                    case "GWh":
+                        factor = 1000000000d / 1d;
+                        break;
+                    case "W":
+                        factor = 1 / 4d;
+                        break;
+                    case "kW":
+                        factor = 1000d / 4d;
+                        break;
+                    case "MW":
+                        factor = 1000000d / 4d;
+                        break;
+                    case "GW":
+                        factor = 1000000000d / 4d;
+                        break;
+                }
+                break;
+            case "kWh":
+                switch (inputUnit) {
+                    case "Wh":
+                        factor = 1d / 1000d;
+                        break;
+                    case "MWh":
+                        factor = 1000d;
+                        break;
+                    case "GWh":
+                        factor = 1000000d;
+                        break;
+                    case "W":
+                        factor = 1000d / 4d;
+                        break;
+                    case "kW":
+                        factor = 1d / 4d;
+                        break;
+                    case "MW":
+                        factor = 1d / 4000d;
+                        break;
+                    case "GW":
+                        factor = 1d / 4000000d;
+                        break;
+                }
+                break;
+            case "MWh":
+                switch (inputUnit) {
+                    case "Wh":
+                        factor = 1d / 1000000d;
+                        break;
+                    case "kWh":
+                        factor = 1d / 1000d;
+                        break;
+                    case "GWh":
+                        factor = 1000d;
+                        break;
+                    case "W":
+                        factor = 1d / 4000000d;
+                        break;
+                    case "kW":
+                        factor = 1d / 4000d;
+                        break;
+                    case "MW":
+                        factor = 1d / 4d;
+                        break;
+                    case "GW":
+                        factor = 1000d / 4d;
+                        break;
+                }
+                break;
+            case "GWh":
+                switch (inputUnit) {
+                    case "Wh":
+                        factor = 1d / 1000000000d;
+                        break;
+                    case "kWh":
+                        factor = 1d / 1000000d;
+                        break;
+                    case "MWh":
+                        factor = 1d / 1000d;
+                        break;
+                    case "W":
+                        factor = 1d / 4000000000d;
+                        break;
+                    case "kW":
+                        factor = 1d / 4000000d;
+                        break;
+                    case "MW":
+                        factor = 1d / 4000d;
+                        break;
+                    case "GW":
+                        factor = 1d / 4d;
+                        break;
+                }
+                break;
+            case "L":
+                switch (inputUnit) {
+                    case "m³":
+                        factor = 1000d;
+                        break;
+                    case "Nm³":
+                        factor = 1000d;
+                        break;
+                }
+                break;
+            case "m³":
+                switch (inputUnit) {
+                    case "L":
+                        factor = 1d / 1000d;
+                        break;
+                }
+                break;
+            case "Nm³":
+                switch (inputUnit) {
+                    case "L":
+                        factor = 1d / 1000d;
+                        break;
+                }
+                break;
+            case "kg":
+                switch (inputUnit) {
+                    case "t":
+                        factor = 1000d;
+                        break;
+                }
+                break;
+            case "t":
+                switch (inputUnit) {
+                    case "kg":
+                        factor = 1d / 1000d;
+                        break;
+                }
+                break;
+            case "bar":
+                switch (inputUnit) {
+                    case "atm":
+                        factor = 1d / 1.01325;
+                        break;
+                }
+                break;
+            case "atm":
+                switch (inputUnit) {
+                    case "bar":
+                        factor = 1.01325 / 1d;
+                        break;
+                }
+                break;
+            case "m³/s":
+                switch (inputUnit) {
+                    case "m³/min":
+                        factor = 1d / 60D;
+                        break;
+                    case "m³/h":
+                        factor = 1d / 3600d;
+                        break;
+                    case "l/s":
+                        factor = 1d / 1000d;
+                        break;
+                    case "l/min":
+                        factor = 1d / 60000d;
+                        break;
+                    case "l/h":
+                        factor = 1d / 3600000;
+                        break;
+                }
+                break;
+            case "m³/min":
+                switch (inputUnit) {
+                    case "m³/s":
+                        factor = 60d;
+                        break;
+                    case "m³/h":
+                        factor = 1d / 60d;
+                        break;
+                    case "l/s":
+                        factor = 1000d * 60d;
+                        break;
+                    case "l/min":
+                        factor = 1000d;
+                        break;
+                    case "l/h":
+                        factor = 1000d / 60d;
+                        break;
+                }
+                break;
+            case "m³/h":
+                switch (inputUnit) {
+                    case "m³/s":
+                        factor = 60d * 60d;
+                        break;
+                    case "m³/min":
+                        factor = 1d / 60d;
+                        break;
+                    case "l/s":
+                        factor = 1000d / 3600d;
+                        break;
+                    case "l/min":
+                        factor = 1000d / 60d;
+                        break;
+                    case "l/h":
+                        factor = 1000d;
+                        break;
+                }
+                break;
+            case "l/s":
+                switch (inputUnit) {
+                    case "m³/s":
+                        factor = 1d / 1000d;
+                        break;
+                    case "m³/min":
+                        factor = 60d / 1000d;
+                        break;
+                    case "m³/h":
+                        factor = 3600d / 10000;
+                        break;
+                    case "l/min":
+                        factor = 60d;
+                        break;
+                    case "l/h":
+                        factor = 3600d;
+                        break;
+                }
+                break;
+            case "l/min":
+                switch (inputUnit) {
+                    case "m³/s":
+                        factor = 1d / 60000d;
+                        break;
+                    case "m³/min":
+                        factor = 1d / 1000d;
+                        break;
+                    case "m³/h":
+                        factor = 60d / 1000d;
+                        break;
+                    case "l/s":
+                        factor = 1 / 60d;
+                        break;
+                    case "l/h":
+                        factor = 60d;
+                        break;
+                }
+                break;
+            case "l/h":
+                switch (inputUnit) {
+                    case "m³/s":
+                        factor = 1d / 3600000d;
+                        break;
+                    case "m³/min":
+                        factor = 1d / 60000d;
+                        break;
+                    case "m³/h":
+                        factor = 1d / 1000d;
+                        break;
+                    case "l/s":
+                        factor = 3600d;
+                        break;
+                    case "l/min":
+                        factor = 60d;
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        return factor;
     }
 }

@@ -1,7 +1,7 @@
 package org.jevis.application.Chart.ChartUnits;
 
 public enum PressureUnit {
-    bar("bar");
+    bar("bar"), atm("atm");
 
     private final String name;
 

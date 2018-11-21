@@ -24,6 +24,7 @@ import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
@@ -82,6 +83,7 @@ public class ToolBarView {
                 AtomicReference<DateTime> oldStart = new AtomicReference<>(now);
                 AtomicReference<DateTime> oldEnd = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
 
+                AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
                 AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
 
                 model.setJEVisObjectForCurrentAnalysis(newValue.toString());
@@ -106,6 +108,7 @@ public class ToolBarView {
                             chartDataModel.setSelectedEnd(oldEnd.get());
                     });
                 }
+                model.setAggregationPeriod(oldAggregationPeriod);
                 model.setAnalysisTimeFrame(oldTimeFrame);
                 model.updateSamples();
 
@@ -266,7 +269,7 @@ public class ToolBarView {
 
     public JEVisTree getSelectionTree() {
         if (selectionTree == null) {
-            selectionTree = JEVisTreeFactory.buildDefaultGraphTree(ds);
+            selectionTree = JEVisTreeFactory.buildDefaultGraphTree(ds, model);
         }
 
         return selectionTree;

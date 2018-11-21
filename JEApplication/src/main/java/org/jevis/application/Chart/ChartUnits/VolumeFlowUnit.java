@@ -2,11 +2,11 @@ package org.jevis.application.Chart.ChartUnits;
 
 public enum VolumeFlowUnit {
     literPerSecond("L/s"),
-    literPerMinute("L/m"),
+    literPerMinute("L/min"),
     literPerHour("L/h"),
 
     cubicMeterPerSecond("m³/s"),
-    cubicMeterPerMinute("m³/m"),
+    cubicMeterPerMinute("m³/min"),
     cubicMeterPerHour("m³/h");
 
 

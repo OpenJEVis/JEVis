@@ -2,10 +2,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jecalc.data.CleanDataAttribute;
-import org.jevis.jecalc.data.CleanDataAttributeOffline;
-import org.jevis.jecalc.util.DataRowReader;
-import org.jevis.jecalc.workflow.ProcessManager;
+import org.jevis.jedataprocessor.data.CleanDataAttribute;
+import org.jevis.jedataprocessor.data.CleanDataAttributeOffline;
+import org.jevis.jedataprocessor.util.DataRowReader;
+import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 

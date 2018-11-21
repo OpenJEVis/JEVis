@@ -5,7 +5,6 @@
  */
 package org.jevis.jecalc.calculation;
 
-import org.jevis.jecalc.calculation.CalcTemplate;
 import junit.framework.Assert;
 import org.junit.Test;
 

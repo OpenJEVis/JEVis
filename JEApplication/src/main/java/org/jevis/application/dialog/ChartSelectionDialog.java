@@ -22,7 +22,6 @@ package org.jevis.application.dialog;
 
 import com.beust.jcommander.internal.Nullable;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -31,6 +30,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisClass;
@@ -75,7 +75,7 @@ public class ChartSelectionDialog {
         this._ds = ds;
         this.data = data;
         if (tree == null) {
-            tree = JEVisTreeFactory.buildDefaultGraphTree(_ds);
+            tree = JEVisTreeFactory.buildDefaultGraphTree(ds, data);
         }
         this.tree = tree;
 
@@ -99,7 +99,10 @@ public class ChartSelectionDialog {
         stage.initOwner(owner);
 
         //1180 for the columns
-        stage.setWidth(1220);
+
+        double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
+        stage.setWidth(maxScreenWidth - 20);
+
         stage.setHeight(768);
         stage.setResizable(true);
 
@@ -175,16 +178,16 @@ public class ChartSelectionDialog {
 
 
         //Disabled, for finding bugs
-        chartPlugin.getData().getChartsList().addListener((ListChangeListener<? super String>) c -> {
-            while (c.next()) {
-                if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
-                    tabPaneCharts.getTabs().clear();
-                    for (String s : chartPlugin.getData().getChartsList()) {
-                        tabPaneCharts.getTabs().add(getChartTab(s));
-                    }
-                }
-            }
-        });
+//        chartPlugin.getData().getChartsList().addListener((ListChangeListener<? super String>) c -> {
+//            while (c.next()) {
+//                if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
+//                    tabPaneCharts.getTabs().clear();
+//                    for (String s : chartPlugin.getData().getChartsList()) {
+//                        tabPaneCharts.getTabs().add(getChartTab(s));
+//                    }
+//                }
+//            }
+//        });
 
         vboxCharts.getChildren().add(tabPaneCharts);
         tabChartsSettings.setContent(vboxCharts);

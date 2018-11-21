@@ -56,21 +56,21 @@ public class PieChart implements Chart {
 
 
         chartDataModels.forEach(singleRow -> {
+            if (singleRow.getSelected()) {
+                Double sumPiePiece = 0d;
+                for (JEVisSample sample : singleRow.getSamples()) {
+                    try {
+                        sumPiePiece += sample.getValueAsDouble();
+                    } catch (JEVisException e) {
 
-            Double sumPiePiece = 0d;
-            for (JEVisSample sample : singleRow.getSamples()) {
-                try {
-                    sumPiePiece += sample.getValueAsDouble();
-                } catch (JEVisException e) {
-
+                    }
                 }
+
+
+                listSumsPiePieces.add(sumPiePiece);
+                listTableEntryNames.add(singleRow.getTitle());
+                hexColors.add(singleRow.getColor());
             }
-
-
-            listSumsPiePieces.add(sumPiePiece);
-            listTableEntryNames.add(singleRow.getTitle());
-            hexColors.add(singleRow.getColor());
-
         });
 
         Double whole = 0d;

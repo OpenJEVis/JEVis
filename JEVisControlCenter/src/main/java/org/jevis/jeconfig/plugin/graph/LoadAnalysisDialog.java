@@ -19,6 +19,7 @@ import org.jevis.application.Chart.data.CustomPeriodObject;
 import org.jevis.application.Chart.data.DateHelper;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -47,6 +48,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private DateHelper dateHelper = new DateHelper();
     private ComboBox<String> comboBoxPresetDates;
     private Boolean programmaticallySetPresetDate[] = new Boolean[4];
+    private ComboBox<String> aggregationBox;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
@@ -96,14 +98,14 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         ObservableList<String> presetDateEntries = FXCollections.observableArrayList();
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
-        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
-        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
+        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
         final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
+        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
         final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
         final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
 
-        presetDateEntries.addAll(custom, today, last7Days, last30Days, yesterday, lastWeek, lastMonth, customStartEnd);
+        presetDateEntries.addAll(custom, today, yesterday, last7Days, lastWeek, last30Days, lastMonth, customStartEnd);
         comboBoxPresetDates = new ComboBox(presetDateEntries);
 
         ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
@@ -123,6 +125,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
         Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
+        Label labelAggregation = new Label(I18n.getInstance().getString("plugin.graph.interval.label"));
         final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
         final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
@@ -164,19 +167,28 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         gridLayout.add(customSelectionsLabel, 4, 2);
         gridLayout.add(comboBoxCustomPeriods, 4, 3);
 
+        gridLayout.add(labelAggregation, 4, 4, 2, 1);
+        aggregationBox = getAggregationBox();
+        GridPane.setFillWidth(aggregationBox, true);
+        aggregationBox.setMinWidth(200);
+        gridLayout.add(aggregationBox, 4, 5, 2, 1);
+
 
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
 
                 AnalysisTimeFrame oldTimeFrame = graphDataModel.getAnalysisTimeFrame();
+                AggregationPeriod oldAggregation = AggregationPeriod.parseAggregation(aggregationBox.valueProperty().toString());
 
+                graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 AnalysisTimeFrame last7 = new AnalysisTimeFrame();
                 last7.setTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
                 graphDataModel.setAnalysisTimeFrame(last7);
 
                 toolBarView.select(newValue);
 
-                //graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
+                graphDataModel.setAggregationPeriod(oldAggregation);
+                graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
 
                 if (oldValue == null) {
                     this.getDialogPane().getButtonTypes().clear();
@@ -195,16 +207,16 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 case today:
                     comboBoxPresetDates.getSelectionModel().select(1);
                     break;
-                case last7Days:
+                case yesterday:
                     comboBoxPresetDates.getSelectionModel().select(2);
                     break;
-                case last30Days:
+                case last7Days:
                     comboBoxPresetDates.getSelectionModel().select(3);
                     break;
-                case yesterday:
+                case lastWeek:
                     comboBoxPresetDates.getSelectionModel().select(4);
                     break;
-                case lastWeek:
+                case last30Days:
                     comboBoxPresetDates.getSelectionModel().select(5);
                     break;
                 case lastMonth:
@@ -230,6 +242,83 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
     }
 
+    private ComboBox<String> getAggregationBox() {
+        List<String> aggList = new ArrayList<>();
+
+        String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
+        String keyHourly = I18n.getInstance().getString("plugin.graph.interval.hourly");
+        String keyDaily = I18n.getInstance().getString("plugin.graph.interval.daily");
+        String keyWeekly = I18n.getInstance().getString("plugin.graph.interval.weekly");
+        String keyMonthly = I18n.getInstance().getString("plugin.graph.interval.monthly");
+        String keyQuarterly = I18n.getInstance().getString("plugin.graph.interval.quarterly");
+        String keyYearly = I18n.getInstance().getString("plugin.graph.interval.yearly");
+
+
+        aggList.add(keyPreset);
+        aggList.add(keyHourly);
+        aggList.add(keyDaily);
+        aggList.add(keyWeekly);
+        aggList.add(keyMonthly);
+        aggList.add(keyQuarterly);
+        aggList.add(keyYearly);
+
+        ComboBox<String> aggregate = new ComboBox<>();
+        aggregate.setItems(FXCollections.observableArrayList(aggList));
+        aggregate.getSelectionModel().selectFirst();
+
+        if (!graphDataModel.getSelectedData().isEmpty()) {
+            for (ChartDataModel chartDataModel : graphDataModel.getSelectedData()) {
+                switch (chartDataModel.getAggregationPeriod()) {
+                    case NONE:
+                        aggregate.valueProperty().setValue(keyPreset);
+                        break;
+                    case HOURLY:
+                        aggregate.valueProperty().setValue(keyHourly);
+                        break;
+                    case DAILY:
+                        aggregate.valueProperty().setValue(keyDaily);
+                        break;
+                    case WEEKLY:
+                        aggregate.valueProperty().setValue(keyWeekly);
+                        break;
+                    case MONTHLY:
+                        aggregate.valueProperty().setValue(keyMonthly);
+                        break;
+                    case QUARTERLY:
+                        aggregate.valueProperty().setValue(keyQuarterly);
+                        break;
+                    case YEARLY:
+                        aggregate.valueProperty().setValue(keyYearly);
+                        break;
+                }
+                break;
+            }
+        }
+
+        aggregate.valueProperty().addListener((observable, oldValue, newValue) -> {
+
+            graphDataModel.getSelectedData().forEach(data -> {
+                if (newValue.equals(keyPreset)) {
+                    data.setAggregationPeriod(AggregationPeriod.NONE);
+                } else if (newValue.equals(keyHourly)) {
+                    data.setAggregationPeriod(AggregationPeriod.HOURLY);
+                } else if (newValue.equals(keyDaily)) {
+                    data.setAggregationPeriod(AggregationPeriod.DAILY);
+                } else if (newValue.equals(keyWeekly)) {
+                    data.setAggregationPeriod(AggregationPeriod.WEEKLY);
+                } else if (newValue.equals(keyMonthly)) {
+                    data.setAggregationPeriod(AggregationPeriod.MONTHLY);
+                } else if (newValue.equals(keyQuarterly)) {
+                    data.setAggregationPeriod(AggregationPeriod.QUARTERLY);
+                } else if (newValue.equals(keyYearly)) {
+                    data.setAggregationPeriod(AggregationPeriod.YEARLY);
+                }
+            });
+
+        });
+        return aggregate;
+    }
+
     private void applySelectedDatePresetToDataModel(Integer newValue) {
         switch (newValue) {
             //Custom
@@ -245,26 +334,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
-            //last 7 days
-            case 2:
-                dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days));
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
-            //last 30 days
-            case 3:
-                dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last30Days));
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
-                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                break;
             //yesterday
-            case 4:
+            case 2:
                 dateHelper.setType(DateHelper.TransformType.YESTERDAY);
                 graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.yesterday));
                 for (int i = 0; i < 4; i++) {
@@ -272,10 +343,28 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
-            //last Week days
-            case 5:
+            //last 7 days
+            case 3:
+                dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            //last Week
+            case 4:
                 dateHelper.setType(DateHelper.TransformType.LASTWEEK);
                 graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastWeek));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            //last 30 days
+            case 5:
+                dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last30Days));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }

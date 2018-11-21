@@ -84,6 +84,13 @@ public class GraphDataModel extends Observable {
     public void setSelectedData(Set<ChartDataModel> selectedData) {
         this.selectedData = selectedData;
 
+        updateSelectedDataNames();
+
+        setChanged();
+        notifyObservers();
+    }
+
+    private void updateSelectedDataNames() {
         selectedDataNames.clear();
 
         if (getSelectedData() != null) {
@@ -113,9 +120,6 @@ public class GraphDataModel extends Observable {
 
         AlphanumComparator ac = new AlphanumComparator();
         selectedDataNames.sort(ac);
-
-        setChanged();
-        notifyObservers();
     }
 
     public void updateSelectedData() {
@@ -154,11 +158,6 @@ public class GraphDataModel extends Observable {
                     newData.setSomethingChanged(true);
                     newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
                     newData.setUnit(unit);
-                    /**
-                     * has to be the last action or the model will will register an settings change and then will
-                     * reload the data at the nest getSamples call
-                     */
-//                    newData.getSamples();
                     data.put(obj.getID().toString(), newData);
                 } catch (JEVisException e) {
                     logger.error("Error: could not get chart data model", e);
@@ -420,58 +419,71 @@ public class GraphDataModel extends Observable {
     }
 
     private void updateStartEndToDataModel(DateHelper dh) {
-        DateTime start;
-        DateTime end;
-        if (dh.getStartDate().isAfter(dh.getMinStartDateTime())) start = dh.getStartDate();
-        else start = dh.getMinStartDateTime();
-        if (dh.getEndDate().isBefore(dh.getMaxEndDateTime())) end = dh.getEndDate();
-        else {
-            end = dh.getMaxEndDateTime();
-            if (end != null && getAnalysisTimeFrame() != null && getAnalysisTimeFrame().getTimeFrame() != null) {
-                switch (getAnalysisTimeFrame().getTimeFrame()) {
-                    case today:
-                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
-                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond());
-                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-                        break;
-                    case last7Days:
-                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
-                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-                                .minusDays(6);
+        DateTime start = dh.getStartDate();
+        DateTime end = dh.getEndDate();
 
-                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-                        break;
-                    case last30Days:
+//        Disabled for now....
 
-                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
-                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-                                .minusDays(29);
+//        DateTime start;
+//        DateTime end;
+//        if (dh.getStartDate().isAfter(dh.getMinStartDateTime())) start = dh.getStartDate();
+//        else start = dh.getMinStartDateTime();
+//        if (dh.getEndDate().isBefore(dh.getMaxEndDateTime())) end = dh.getEndDate();
+//        else {
+//            end = dh.getMaxEndDateTime();
+//            if (end != null && getAnalysisTimeFrame() != null && getAnalysisTimeFrame().getTimeFrame() != null) {
+//                switch (getAnalysisTimeFrame().getTimeFrame()) {
+//                    case today:
+//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
+//                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond());
+//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
+//                        break;
+//                    case last7Days:
+//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
+//                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
+//                                .minusDays(6);
+//
+//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
+//                        break;
+//                    case last30Days:
+//
+//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
+//                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
+//                                .minusDays(29);
+//
+//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
+//                        break;
+//                    case yesterday:
+//                        start = end;
+//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
+//                        break;
+//                    case lastWeek:
+//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), getWorkdayStart().getHour(),
+//                                getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
+//                                .minusDays(end.getDayOfWeek() - 1).minusWeeks(1);
+//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
+//                        break;
+//                    case lastMonth:
+//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), getWorkdayStart().getHour(),
+//                                getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
+//                                .minusMonths(1).minusDays(end.getDayOfMonth() - 1);
+//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
+//                        break;
+//                }
+//            }
+//        }
+//        DateTime finalStart = start;
+//        getSelectedData().forEach(chartDataModel -> {
+//            if (chartDataModel.getSelected()) {
+//                chartDataModel.setSelectedStart(finalStart);
+//                chartDataModel.setSelectedEnd(end);
+//                chartDataModel.setSomethingChanged(true);
+//            }
+//        });
 
-                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-                        break;
-                    case yesterday:
-                        start = end;
-                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-                        break;
-                    case lastWeek:
-                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), getWorkdayStart().getHour(),
-                                getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-                                .minusDays(end.getDayOfWeek() - 1).minusWeeks(1);
-                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-                        break;
-                    case lastMonth:
-                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), getWorkdayStart().getHour(),
-                                getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-                                .minusMonths(1).minusDays(end.getDayOfMonth() - 1);
-                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-                        break;
-                }
-            }
-        }
-        DateTime finalStart = start;
         getSelectedData().forEach(chartDataModel -> {
             if (chartDataModel.getSelected()) {
-                chartDataModel.setSelectedStart(finalStart);
+                chartDataModel.setSelectedStart(start);
                 chartDataModel.setSelectedEnd(end);
                 chartDataModel.setSomethingChanged(true);
             }
@@ -687,10 +699,22 @@ public class GraphDataModel extends Observable {
 
     public void selectNone() {
         getSelectedData().forEach(mdl -> {
-            if (mdl.getSelected()) {
-                mdl.setSelected(false);
-            }
+            mdl.setSelected(false);
         });
     }
 
+    public AggregationPeriod getAggregationPeriod() {
+        if (getSelectedData() != null && !getSelectedData().isEmpty()) {
+            for (ChartDataModel chartDataModel : getSelectedData()) {
+                return chartDataModel.getAggregationPeriod();
+            }
+        }
+        return AggregationPeriod.NONE;
+    }
+
+    public void setAggregationPeriod(AggregationPeriod aggregationPeriod) {
+        if (getSelectedData() != null && !getSelectedData().isEmpty()) {
+            getSelectedData().forEach(chartDataModel -> chartDataModel.setAggregationPeriod(aggregationPeriod));
+        }
+    }
 }
