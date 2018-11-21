@@ -30,6 +30,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisClass;
@@ -98,7 +99,10 @@ public class ChartSelectionDialog {
         stage.initOwner(owner);
 
         //1180 for the columns
-        stage.setWidth(1220);
+
+        double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
+        stage.setWidth(maxScreenWidth - 20);
+
         stage.setHeight(768);
         stage.setResizable(true);
 

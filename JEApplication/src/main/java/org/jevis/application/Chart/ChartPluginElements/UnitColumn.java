@@ -123,6 +123,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         }
 
         ChoiceBox processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
+        processorBox.setPrefWidth(80);
+        processorBox.setMinWidth(60);
 
         return processorBox;
     }
@@ -140,7 +142,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
     @Override
     public void buildColumn() {
         TreeTableColumn<JEVisTreeRow, JEVisUnit> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(90);
+        column.setPrefWidth(110);
         column.setEditable(true);
 
         column.setCellValueFactory(param -> {
