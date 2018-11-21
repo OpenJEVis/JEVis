@@ -53,7 +53,7 @@ public class Note extends Node {
                 }
             }
 
-            if (note.contains("calc(infinity)")) {
+            if (note.contains("calc(infinite)")) {
                 try {
                     ImageView infinity = new ImageView(Note.infinity);
 
