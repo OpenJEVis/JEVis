@@ -17,6 +17,7 @@ public class Note extends Node {
     private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
     private static final Image limit = ResourceLoader.getImage("rodentia-icons_dialog-warning.png");
     private static final Image exception = ResourceLoader.getImage("rodentia-icons_process-stop.png");
+    private static final Image infinity = ResourceLoader.getImage("32423523543543_error_div0.png");
 
     public Note(String note, Color color) {
         if (note != null) {
@@ -54,11 +55,11 @@ public class Note extends Node {
 
             if (note.contains("calc(Infinity)")) {
                 try {
-                    ImageView warning = ResourceLoader.getImage("32423523543543_error_div0.png", iconSize, iconSize);
+                    ImageView infinity = new ImageView(Note.infinity);
 
-                    BorderPane warningWrapper = new BorderPane(warning);
-                    warningWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                    hbox.getChildren().add(warningWrapper);
+                    BorderPane infinityWrapper = new BorderPane(infinity);
+                    infinityWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                    hbox.getChildren().add(infinityWrapper);
                     changed = true;
                 } catch (Exception e) {
                 }
