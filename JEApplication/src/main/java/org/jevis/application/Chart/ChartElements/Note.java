@@ -52,7 +52,19 @@ public class Note extends Node {
                 }
             }
 
-            if (hbox.getChildren().size() == 2) {
+            if (note.contains("calc(Infinity)")) {
+                try {
+                    ImageView warning = ResourceLoader.getImage("32423523543543_error_div0.png", iconSize, iconSize);
+
+                    BorderPane warningWrapper = new BorderPane(warning);
+                    warningWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                    hbox.getChildren().add(warningWrapper);
+                    changed = true;
+                } catch (Exception e) {
+                }
+            }
+
+            if (hbox.getChildren().size() >= 2) {
                 hbox.getChildren().clear();
                 try {
                     ImageView exception = new ImageView(Note.exception);
@@ -60,12 +72,15 @@ public class Note extends Node {
                     exception.fitWidthProperty().set(iconSize);
 
                     BorderPane exceptionWrapper = new BorderPane(exception);
-                    exceptionWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                    exceptionWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+                            BorderWidths.DEFAULT)));
                     hbox.getChildren().add(exceptionWrapper);
                     changed = true;
                 } catch (Exception e) {
                 }
             }
+
+            hbox.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderWidths.EMPTY)));
 
             if (changed) this.node = hbox;
         }

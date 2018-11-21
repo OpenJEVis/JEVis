@@ -98,6 +98,7 @@ public class AreaChart implements Chart {
 
         Period period = new Period(getStartDateTime(), getEndDateTime().plus(getPeriod()).plusSeconds(1)).minus(this.period);
         period = period.minusSeconds(period.getSeconds());
+        period = period.minusMillis(period.getMillis());
         String overall = period.toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale()));
 
 

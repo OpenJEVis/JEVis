@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.graph;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -49,7 +48,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private DateHelper dateHelper = new DateHelper();
     private ComboBox<String> comboBoxPresetDates;
     private Boolean programmaticallySetPresetDate[] = new Boolean[4];
-    private ChoiceBox aggregationBox;
+    private ComboBox<String> aggregationBox;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
@@ -150,10 +149,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         gridLayout.add(startText, 0, 1);
         gridLayout.add(endText, 0, 3);
 
-        gridLayout.add(labelAggregation, 0, 4, 2, 1);
-        aggregationBox = getAggregationBox();
-        gridLayout.add(aggregationBox, 0, 5, 2, 1);
-
         /** Column 1 **/
         gridLayout.add(pickerDateStart, 1, 1);
         gridLayout.add(pickerDateEnd, 1, 3); // column=1 row=0
@@ -171,6 +166,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         gridLayout.add(comboBoxPresetDates, 4, 1);
         gridLayout.add(customSelectionsLabel, 4, 2);
         gridLayout.add(comboBoxCustomPeriods, 4, 3);
+
+        gridLayout.add(labelAggregation, 4, 4, 2, 1);
+        aggregationBox = getAggregationBox();
+        GridPane.setFillWidth(aggregationBox, true);
+        aggregationBox.setMinWidth(200);
+        gridLayout.add(aggregationBox, 4, 5, 2, 1);
 
 
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -241,7 +242,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
     }
 
-    private ChoiceBox getAggregationBox() {
+    private ComboBox<String> getAggregationBox() {
         List<String> aggList = new ArrayList<>();
 
         String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
@@ -261,7 +262,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         aggList.add(keyQuarterly);
         aggList.add(keyYearly);
 
-        ChoiceBox aggregate = new ChoiceBox();
+        ComboBox<String> aggregate = new ComboBox<>();
         aggregate.setItems(FXCollections.observableArrayList(aggList));
         aggregate.getSelectionModel().selectFirst();
 
@@ -294,7 +295,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         }
 
-        aggregate.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+        aggregate.valueProperty().addListener((observable, oldValue, newValue) -> {
 
             graphDataModel.getSelectedData().forEach(data -> {
                 if (newValue.equals(keyPreset)) {
