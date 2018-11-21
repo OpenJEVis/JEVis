@@ -152,6 +152,11 @@ public class NoteDialog extends Dialog<ButtonType> {
                 formattedNote.append(System.getProperty("line.separator"));
             }
 
+            if (note.contains("calc(Infinity)")) {
+                formattedNote.append(rb.getString("graph.dialog.note.text.calc.infinity"));
+                formattedNote.append(System.getProperty("line.separator"));
+            }
+
             this.name = new SimpleStringProperty(name);
             this.note = new SimpleStringProperty(formattedNote.toString());
         }
