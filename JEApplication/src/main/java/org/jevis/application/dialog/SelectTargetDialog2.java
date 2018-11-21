@@ -47,7 +47,7 @@ import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.UserSelection;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
-import org.jevis.application.jevistree.filter.CellFilterFactory;
+import org.jevis.application.jevistree.filter.FilterFactory;
 import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.application.resource.ResourceLoader;
@@ -124,7 +124,7 @@ public class SelectTargetDialog2 {
         ObservableList<ObjectAttributeFilter> filterTypes = FXCollections.observableArrayList();
         BasicCellFilter cellFilter = new BasicCellFilter();
 
-        CellFilterFactory.defaultAttributeTreeFilter().forEach(objectAttributeFilter -> {
+        FilterFactory.defaultAttributeTreeFilter().forEach(objectAttributeFilter -> {
             cellFilter.addFilter(tree.getColumn(ColumnFactory.OBJECT_NAME), objectAttributeFilter);
         });
 
@@ -138,7 +138,7 @@ public class SelectTargetDialog2 {
 
 
 //        cellFilter.addFilter(tree.getColumn(TARGET_COLUMN_ID), f2);
-        tree.setCellFilter(cellFilter);
+        tree.setFilter(cellFilter);
 //        tree.getFilter().showAttributes(true);
 
         filterTypes.add(onlyAttFilter);

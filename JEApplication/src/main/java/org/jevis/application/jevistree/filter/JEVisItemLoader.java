@@ -32,7 +32,7 @@ public class JEVisItemLoader {
     final Map<JEVisObject, JEVisTreeItem> itemObjectLinker = new TreeMap<>();
     final Map<JEVisAttribute, JEVisTreeItem> itemAttributeLinker = new HashMap<>();
     private Comparator<JEVisTreeItem> comperator;
-    private CellFilter activFilter = null;
+    private JEVisTReeFilter activFilter = null;
 
 
     /**
@@ -162,7 +162,7 @@ public class JEVisItemLoader {
      * @param filter
      * @return
      */
-    public void filterTree(CellFilter filter) {
+    public void filterTree(JEVisTReeFilter filter) {
         System.out.println("===== Start treeFilter ======");
         this.activFilter = filter;
         Benchmark benchmark = new Benchmark();

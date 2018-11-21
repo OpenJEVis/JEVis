@@ -15,12 +15,12 @@ import java.util.Set;
 
 public class FilterTreeLoader {
 
-    private CellFilter filter = null;
+    private JEVisTReeFilter filter = null;
     private JEVisTree tree;
 
     public void setTree(JEVisTree tree) {
         this.tree = tree;
-        filter = tree.getCellFilter();
+        filter = tree.getFilter();
     }
 
     private void findFilterItems(Set<JEVisObject> foundItems, JEVisObject parent) {

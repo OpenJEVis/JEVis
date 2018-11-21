@@ -101,7 +101,6 @@ public class ObjectPlugin implements Plugin {
                         tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
                         tree.getSelectionModel().selectFirst();
                     } catch (Exception ex) {
-                        ex.printStackTrace();
                     }
                 });
             }

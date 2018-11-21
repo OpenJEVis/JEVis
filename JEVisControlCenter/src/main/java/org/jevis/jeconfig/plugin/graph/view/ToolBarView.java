@@ -48,8 +48,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ToolBarView {
 
-    private final JEVisDataSource ds;
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
+    private final JEVisDataSource ds;
     private GraphDataModel model;
     private ComboBox listAnalysesComboBoxHidden;
     private ChartView view;
@@ -269,7 +269,7 @@ public class ToolBarView {
 
     public JEVisTree getSelectionTree() {
         if (selectionTree == null) {
-            selectionTree = JEVisTreeFactory.buildDefaultGraphTree(ds, model);
+            selectionTree = JEVisTreeFactory.buildDefaultGraphTree(ds);
         }
 
         return selectionTree;

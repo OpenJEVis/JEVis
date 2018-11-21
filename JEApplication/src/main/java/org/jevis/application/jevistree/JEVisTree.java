@@ -32,9 +32,8 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
-import org.jevis.application.jevistree.filter.CellFilter;
-import org.jevis.application.jevistree.filter.CellFilterFactory;
 import org.jevis.application.jevistree.filter.JEVisItemLoader;
+import org.jevis.application.jevistree.filter.JEVisTReeFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,7 @@ public class JEVisTree extends TreeTableView {
     private JEVisTreeRow dragItem;
     private SaveResourceBundle rb;
     private UUID uuid = UUID.randomUUID();
-    private CellFilter cellFilter;
+    private JEVisTReeFilter cellFilter;
 
     /**
      * Create an default Tree for the given JEVisDatasource by using all accessable JEVisOBjects starting by the
@@ -62,13 +61,15 @@ public class JEVisTree extends TreeTableView {
      *
      * @param ds
      */
-    public JEVisTree(JEVisDataSource ds) {
+    public JEVisTree(JEVisDataSource ds, JEVisTReeFilter filter) {
         super();
         this.ds = ds;
         rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
-        cellFilter = CellFilterFactory.buildDefaultItemFilter();
+//        cellFilter = FilterFactory.buildDefaultItemFilter();
+        this.cellFilter = filter;
         init();
     }
+
 
     public UUID getUUID() {
         return uuid;
@@ -210,11 +211,11 @@ public class JEVisTree extends TreeTableView {
         }
     }
 
-    public CellFilter getCellFilter() {
+    public JEVisTReeFilter getFilter() {
         return this.cellFilter;
     }
 
-    public void setCellFilter(CellFilter filter) {
+    public void setFilter(JEVisTReeFilter filter) {
         this.cellFilter = filter;
     }
 

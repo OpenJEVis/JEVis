@@ -75,7 +75,7 @@ public class ChartSelectionDialog {
         this._ds = ds;
         this.data = data;
         if (tree == null) {
-            tree = JEVisTreeFactory.buildDefaultGraphTree(ds, data);
+            tree = JEVisTreeFactory.buildDefaultGraphTree(ds);
         }
         this.tree = tree;
 

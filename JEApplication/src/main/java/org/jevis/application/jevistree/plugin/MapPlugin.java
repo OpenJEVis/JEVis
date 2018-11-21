@@ -139,7 +139,7 @@ public class MapPlugin implements TreePlugin {
                         if (!empty) {
                             StackPane hbox = new StackPane();
                             if (getTreeTableRow().getItem() != null && tree != null
-                                    && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 MapPlugin.DataModel data = getData(getTreeTableRow().getItem());
                                 ColorPicker colorPicker = new ColorPicker();
                                 hbox.getChildren().setAll(colorPicker);
@@ -284,7 +284,7 @@ public class MapPlugin implements TreePlugin {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                         if (!empty) {
                             StackPane hbox = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 DataModel data = getData(getTreeTableRow().getItem());
                                 DatePicker dp = buildDatePicker(data, type);
 
@@ -359,7 +359,7 @@ public class MapPlugin implements TreePlugin {
                             StackPane hbox = new StackPane();
                             CheckBox cbox = new CheckBox();
 
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 DataModel data = getData(getTreeTableRow().getItem());
                                 hbox.getChildren().setAll(cbox);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);

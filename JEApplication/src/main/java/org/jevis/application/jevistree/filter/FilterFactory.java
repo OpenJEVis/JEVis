@@ -5,7 +5,7 @@ import javafx.scene.control.TreeTableColumn;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CellFilterFactory {
+public class FilterFactory {
 
     public static List<ObjectAttributeFilter> defaultObjectTreeFilter() {
         List<ObjectAttributeFilter> filter = new ArrayList<>();

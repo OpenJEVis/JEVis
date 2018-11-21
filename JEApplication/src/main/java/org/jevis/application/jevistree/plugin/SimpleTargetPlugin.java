@@ -159,7 +159,7 @@ public class SimpleTargetPlugin implements TreePlugin {
                                 if (getTreeTableRow() != null && getTreeTableRow().getItem() != null && tree != null) {
                                     System.out.println("sectionColumn.update: " + getTreeTableRow().getItem().getID());
 
-                                    boolean show = _tree.getCellFilter().showCell(column, getTreeTableRow().getItem());
+                                    boolean show = _tree.getFilter().showCell(column, getTreeTableRow().getItem());
                                     System.out.println("ShowCell = " + show);
                                     if (show) {
 

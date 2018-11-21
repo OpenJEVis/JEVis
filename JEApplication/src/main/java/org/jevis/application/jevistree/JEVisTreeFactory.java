@@ -30,14 +30,12 @@ import javafx.scene.input.KeyEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.Chart.ChartPluginElements.*;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
-import org.jevis.application.jevistree.filter.CellFilterFactory;
+import org.jevis.application.jevistree.filter.FilterFactory;
 import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.application.jevistree.plugin.MapPlugin;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -107,20 +105,22 @@ public class JEVisTreeFactory {
     }
 
     public static JEVisTree buildBasicDefault(JEVisDataSource ds) {
-        JEVisTree tree = new JEVisTree(ds);
-
-//        ViewFilter filter = ViewFilterFactory.createDefaultGraphFilter();
-//        tree.setFiler(filter);
 
         TreeTableColumn nameCol = ColumnFactory.buildName();
         TreeTableColumn idCol = ColumnFactory.buildID();
         TreeTableColumn minTS = ColumnFactory.buildDataTS(false);
         TreeTableColumn maxTS = ColumnFactory.buildDataTS(true);
 
+        idCol.setVisible(false);
+        minTS.setVisible(false);
+        maxTS.setVisible(false);
+
         BasicCellFilter cellFilter = new BasicCellFilter();
-        CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
-        CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
-        tree.setCellFilter(cellFilter);
+        cellFilter.addItemFilter(new ObjectAttributeFilter("", ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
+
+        FilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
+        FilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
+        JEVisTree tree = new JEVisTree(ds, cellFilter);
 
         tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
         addDefaultKeys(tree);
@@ -130,7 +130,6 @@ public class JEVisTreeFactory {
     }
 
     public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds) {
-        JEVisTree tree = new JEVisTree(ds);
 
 
         TreeTableColumn nameCol = ColumnFactory.buildName();
@@ -138,20 +137,25 @@ public class JEVisTreeFactory {
         TreeTableColumn minTS = ColumnFactory.buildDataTS(false);
         TreeTableColumn maxTS = ColumnFactory.buildDataTS(true);
 
+        idCol.setVisible(false);
+        minTS.setVisible(false);
+        maxTS.setVisible(false);
 
         BasicCellFilter cellFilter = new BasicCellFilter();
-        CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
-        CellFilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
-        List<ObjectAttributeFilter> filter = new ArrayList<>();
-        filter.add(new ObjectAttributeFilter("All Objects", ObjectAttributeFilter.ALL, ObjectAttributeFilter.ALL));
+        ObjectAttributeFilter dataFilter = new ObjectAttributeFilter("Data Filter", "Data", ObjectAttributeFilter.NONE);
+        cellFilter.addItemFilter(dataFilter);
 
-
-        tree.setCellFilter(cellFilter);
+        cellFilter.addFilter(SelectionColumn.COLUMN_ID, dataFilter);
+        cellFilter.addFilter(UnitColumn.COLUMN_ID, dataFilter);
+        cellFilter.addFilter(DateColumn.COLUMN_ID, dataFilter);
+        cellFilter.addFilter(ColorColumn.COLUMN_ID, dataFilter);
+        cellFilter.addFilter(DataProcessorColumn.COLUMN_ID, dataFilter);
+        cellFilter.addFilter(AggregationColumn.COLUMN_ID, dataFilter);
+        JEVisTree tree = new JEVisTree(ds, cellFilter);
 
         TreePlugin bp = new ChartPlugin();
-        tree.getColumns().addAll(nameCol, idCol);
+        tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
         tree.getPlugins().add(bp);
-
         addGraphKeys(tree);
 
         return tree;
@@ -160,7 +164,7 @@ public class JEVisTreeFactory {
 
     public static JEVisTree buildDefaultMapTree(JEVisDataSource ds) {
         logger.info("build map tree");
-        JEVisTree tree = new JEVisTree(ds);
+        JEVisTree tree = new JEVisTree(ds, FilterFactory.buildDefaultItemFilter());
 
 //        ViewFilter filter = ViewFilterFactory.createMapFilter();
 //        tree.setFiler(filter);

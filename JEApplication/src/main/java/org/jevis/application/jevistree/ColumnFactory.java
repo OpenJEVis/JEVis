@@ -129,7 +129,7 @@ public class ColumnFactory {
                                                       JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
                                                       JEVisObject obj = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
 
-//                                                      boolean showCell = tree.getCellFilter().showCell(getTableColumn(), getTreeTableRow().getTreeItem().getValue());
+//                                                      boolean showCell = tree.getFilter().showCell(getTableColumn(), getTreeTableRow().getTreeItem().getValue());
 //                                                      showCell = true;
 
                                                       setContextMenu(new JEVisTreeContextMenu(obj, tree));
@@ -273,7 +273,7 @@ public class ColumnFactory {
 //                                                      JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
 //                                                      JEVisObject obj = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
 
-//                                                      boolean showCell = tree.getCellFilter().showCell(getTableColumn(), getTreeTableRow().getTreeItem().getValue());
+//                                                      boolean showCell = tree.getFilter().showCell(getTableColumn(), getTreeTableRow().getTreeItem().getValue());
 //                                                      showCell = true;
 
 //                                                      setContextMenu(new JEVisTreeContextMenu(obj, tree));
@@ -505,7 +505,7 @@ public class ColumnFactory {
                         if (!empty) {
                             StackPane hbox = new StackPane();
 
-                            if (getTreeTableRow().getItem() != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
+                            if (getTreeTableRow().getItem() != null && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ColorPicker colorPicker = new ColorPicker();
                                 hbox.getChildren().setAll(colorPicker);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
@@ -567,7 +567,7 @@ public class ColumnFactory {
                             StackPane hbox = new StackPane();
                             CheckBox cbox = new CheckBox();
 
-                            if (getTreeTableRow().getItem() != null && tree.getCellFilter().showCell(column, getTreeTableRow().getItem())) {
+                            if (getTreeTableRow().getItem() != null && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 hbox.getChildren().setAll(cbox);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                 cbox.setSelected(item);
