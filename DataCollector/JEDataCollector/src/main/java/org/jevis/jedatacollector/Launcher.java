@@ -48,10 +48,8 @@ public class Launcher extends AbstractCliApp {
 
     /**
      * Run all datasources in Threads. The maximum number of threads is defined
-     * in the JEVis System.
+     * in the JEVis System. There is only one thread per data source.
      * <p>
-     * PROBLEM: with the new structure. Probably not all data sources are able
-     * to handle multiple queries. Any solutions? Maybe without threads?
      *
      * @param dataSources
      */
@@ -103,8 +101,7 @@ public class Launcher extends AbstractCliApp {
             JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
             List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
             enabled = listDataCollectorObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
-            logger.info("Service is enabled is " + enabled);
-        } catch (Exception e) {
+        } catch (JEVisException e) {
 
         }
         return enabled;
@@ -136,10 +133,7 @@ public class Launcher extends AbstractCliApp {
 
         if (cycle_time != null) cycleTime = cycle_time;
 
-        getCycleTimeFromService();
-
         try {
-
             service.start();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -154,6 +148,13 @@ public class Launcher extends AbstractCliApp {
 
     private void runServiceHelp() {
 
+        try {
+            ds.reloadAttributes();
+            getCycleTimeFromService();
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
+
         if (checkServiceStatus()) {
             logger.info("Service is enabled.");
             List<JEVisObject> dataSources = getEnabledDataSources(ds);
@@ -164,11 +165,6 @@ public class Launcher extends AbstractCliApp {
         try {
             logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
-            try {
-                ds.reloadAttributes();
-            } catch (JEVisException e) {
-            }
-            getCycleTimeFromService();
 
             runServiceHelp();
         } catch (InterruptedException e) {
@@ -194,7 +190,6 @@ public class Launcher extends AbstractCliApp {
     private List<JEVisObject> getEnabledDataSources(JEVisDataSource client) {
         List<JEVisObject> enabledDataSources = new ArrayList<JEVisObject>();
         try {
-            ds.reloadAttributes();
             JEVisClass dataSourceClass = client.getJEVisClass(DataCollectorTypes.DataSource.NAME);
             JEVisType enabledType = dataSourceClass.getType(DataCollectorTypes.DataSource.ENABLE);
             List<JEVisObject> allDataSources = client.getObjects(dataSourceClass, true);
@@ -214,15 +209,11 @@ public class Launcher extends AbstractCliApp {
         return enabledDataSources;
     }
 
-    private void getCycleTimeFromService() {
-        try {
-            JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
-            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
-            cycleTime = listDataCollectorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
-            logger.info("Service cycle time from service: " + cycleTime);
-        } catch (Exception e) {
-
-        }
+    private void getCycleTimeFromService() throws JEVisException {
+        JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
+        List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
+        cycleTime = listDataCollectorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
+        logger.info("Service cycle time from service: " + cycleTime);
     }
 
 }

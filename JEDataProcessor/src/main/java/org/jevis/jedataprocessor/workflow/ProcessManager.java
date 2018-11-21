@@ -24,10 +24,14 @@ public class ProcessManager {
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
     private List<ProcessStep> processSteps = new ArrayList<>();
+    private String name;
+    private Long id;
 
     public ProcessManager(CleanDataAttribute calcAttribute) {
         resourceManager = new ResourceManager();
         resourceManager.setCalcAttribute(calcAttribute);
+        name = calcAttribute.getObject().getName();
+        id = calcAttribute.getObject().getID();
     }
 
     public void setProcessSteps(List<ProcessStep> processSteps) {
@@ -88,4 +92,11 @@ public class ProcessManager {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public Long getId() {
+        return id;
+    }
 }

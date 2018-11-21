@@ -28,7 +28,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.jevis.jecalc.Launcher</mainClass>
+                            <mainClass>org.jevis.jedataprocessor.Launcher</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
