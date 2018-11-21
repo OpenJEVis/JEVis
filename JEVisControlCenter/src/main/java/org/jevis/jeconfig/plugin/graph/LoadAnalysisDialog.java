@@ -177,6 +177,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
 
+                graphDataModel.setJEVisObjectForCurrentAnalysis(newValue);
                 AnalysisTimeFrame oldTimeFrame = graphDataModel.getAnalysisTimeFrame();
                 AggregationPeriod oldAggregation = AggregationPeriod.parseAggregation(aggregationBox.valueProperty().toString());
 
