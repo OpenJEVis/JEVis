@@ -3,6 +3,7 @@ package org.jevis.jedataprocessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.TaskPrinter;
@@ -18,18 +19,13 @@ public class ServiceMode {
     public ServiceMode(Integer cycleTime) {
         this.cycleTime = cycleTime;
 
-        getCycleTimeFromService();
     }
 
-    private void getCycleTimeFromService() {
-        try {
-            JEVisClass dataProcessorClass = ProcessManagerFactory.jevisDataSource.getJEVisClass("JEDataProcessor");
-            List<JEVisObject> listDataProcessorObjects = ProcessManagerFactory.jevisDataSource.getObjects(dataProcessorClass, false);
-            cycleTime = listDataProcessorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
-            logger.info("Service cycle time from service: " + cycleTime);
-        } catch (Exception e) {
-
-        }
+    private void getCycleTimeFromService() throws JEVisException {
+        JEVisClass dataProcessorClass = ProcessManagerFactory.jevisDataSource.getJEVisClass("JEDataProcessor");
+        List<JEVisObject> listDataProcessorObjects = ProcessManagerFactory.jevisDataSource.getObjects(dataProcessorClass, false);
+        cycleTime = listDataProcessorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
+        logger.info("Service cycle time from service: " + cycleTime);
     }
 
     public ServiceMode() {
@@ -64,13 +60,17 @@ public class ServiceMode {
 
     private void runEndlessService() throws Exception {
 
+        try {
+            ProcessManagerFactory.jevisDataSource.reloadAttributes();
+            getCycleTimeFromService();
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
         this.runProcesses();
         try {
             TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             logger.info("Entering Sleep mode for " + cycleTime + "ms.");
             Thread.sleep(cycleTime);
-            ProcessManagerFactory.jevisDataSource.reloadAttributes();
-            getCycleTimeFromService();
             runEndlessService();
         } catch (InterruptedException e) {
             logger.error("Interrupted sleep: ", e);

@@ -79,7 +79,7 @@ public class ProcessManagerFactory {
             List<JEVisObject> listDataProcessorObjects = jevisDataSource.getObjects(dataProcessorClass, false);
             enabled = listDataProcessorObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
             logger.info("Service is enabled is " + enabled);
-        } catch (Exception e) {
+        } catch (JEVisException e) {
 
         }
         return enabled;
@@ -92,7 +92,7 @@ public class ProcessManagerFactory {
             List<JEVisObject> listDataProcessorObjects = jevisDataSource.getObjects(dataProcessorClass, false);
             threadCount = listDataProcessorObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
             logger.info("Set Thread count to: " + threadCount);
-        } catch (Exception e) {
+        } catch (JEVisException e) {
 
         }
         forkJoinPool = new ForkJoinPool(threadCount);
