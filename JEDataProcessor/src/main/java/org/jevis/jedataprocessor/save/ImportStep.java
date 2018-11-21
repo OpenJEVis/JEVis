@@ -54,7 +54,7 @@ public class ImportStep implements ProcessStep {
         for (CleanInterval curInterval : resourceManager.getIntervals()) {
             for (JEVisSample sample : curInterval.getTmpSamples()) {
                 Double rawValue = sample.getValueAsDouble();
-                if (rawValue == null) {
+                if (rawValue == null || rawValue.isNaN() || rawValue.isInfinite()) {
                     continue;
                 }
                 DateTime date = sample.getTimestamp();
