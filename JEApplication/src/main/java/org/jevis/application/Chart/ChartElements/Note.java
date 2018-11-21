@@ -47,6 +47,7 @@ public class Note extends Node {
 
                     BorderPane limitWrapper = new BorderPane(limit);
                     limitWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
                     hbox.getChildren().add(limitWrapper);
                     changed = true;
                 } catch (Exception e) {
@@ -56,9 +57,12 @@ public class Note extends Node {
             if (note.contains("calc(infinite)")) {
                 try {
                     ImageView infinity = new ImageView(Note.infinity);
+                    infinity.fitHeightProperty().set(iconSize);
+                    infinity.fitWidthProperty().set(iconSize);
 
                     BorderPane infinityWrapper = new BorderPane(infinity);
                     infinityWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
                     hbox.getChildren().add(infinityWrapper);
                     changed = true;
                 } catch (Exception e) {
@@ -75,6 +79,7 @@ public class Note extends Node {
                     BorderPane exceptionWrapper = new BorderPane(exception);
                     exceptionWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
                             BorderWidths.DEFAULT)));
+
                     hbox.getChildren().add(exceptionWrapper);
                     changed = true;
                 } catch (Exception e) {
