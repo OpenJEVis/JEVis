@@ -1,45 +1,41 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEWebService.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.userregistration;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 import org.jevis.commons.relationship.RelationshipFactory;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.joda.time.DateTime;
+
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import java.util.List;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class UserFactory {
+    private static final Logger logger = LogManager.getLogger(UserFactory.class);
 
     /**
      * Very basic implementaion of an factory to create an default demo user
@@ -157,8 +153,7 @@ public class UserFactory {
 
             return true;
         } catch (JEVisException ex) {
-            Logger.getLogger(UserFactory.class.getName()).log(Level.SEVERE, null, ex);
-
+            logger.fatal(ex);
         }
 
         return false;

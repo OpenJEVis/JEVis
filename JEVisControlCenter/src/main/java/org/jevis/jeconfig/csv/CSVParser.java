@@ -19,6 +19,9 @@
  */
 package org.jevis.jeconfig.csv;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ import java.util.List;
  */
 public class CSVParser {
 
+    private static final Logger logger = LogManager.getLogger(CSVParser.class);
     private int _maxColumnCount = 0;
     private boolean _isAllwaysSameColumnCount = true;
     private List<CSVLine> rows;
@@ -46,7 +50,7 @@ public class CSVParser {
     private List<CSVLine> parseLines(List<String> list, String enclosed, String seperator, int header) {
         List<CSVLine> cslines = new ArrayList<>();
         int count = -1;
-//        System.out.println("Split column by: " + seperator + " text by: " + enclosed);
+//        logger.info("Split column by: " + seperator + " text by: " + enclosed);
         for (String line : list) {
             count++;
             if (count < header) {
@@ -82,15 +86,15 @@ public class CSVParser {
 
     private List<String> readFile(File csvFile, Charset charset) {
 
-        System.out.println("File: " + csvFile);
+        logger.info("File: " + csvFile);
         BufferedReader br = null;
         List<String> lines = new ArrayList<>();
         try {
 
             String line = "";
 //            br = new BufferedReader(new FileReader(csvFile));
-            System.out.println("1: " + new FileInputStream(csvFile));
-            System.out.println("2: " + new InputStreamReader(new FileInputStream(csvFile)));
+            logger.info("1: " + new FileInputStream(csvFile));
+            logger.info("2: " + new InputStreamReader(new FileInputStream(csvFile)));
             br = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), charset));
             while ((line = br.readLine()) != null) {
                 lines.add(line);

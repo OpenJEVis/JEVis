@@ -38,6 +38,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.tool.I18n;
 
 /**
  * The Classplugin is an GUI component which allows the user to configure the
@@ -55,6 +56,7 @@ public class ClassPlugin implements Plugin {
 //    private ObjectTree tf;
     private ClassTree tree;
     private ToolBar toolBar;
+    private String tooltip = I18n.getInstance().getString("pluginmanager.classplugin.tooltip");
 
     public ClassPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -91,6 +93,11 @@ public class ClassPlugin implements Plugin {
     @Override
     public String getUUID() {
         return id.get();
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override
@@ -244,7 +251,7 @@ public class ClassPlugin implements Plugin {
                     tree.reload(null);
                     break;
                 default:
-                    System.out.println("Unknows command ignore...");
+                    logger.info("Unknows command ignore...");
             }
         } catch (Exception ex) {
             logger.error(ex);

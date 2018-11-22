@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -28,10 +28,16 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.FileChooser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.AboutDialog;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.PasswordDialog;
+import org.joda.time.DateTime;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -40,16 +46,15 @@ import java.util.Optional;
 import java.util.prefs.Preferences;
 
 /**
- * This class build the top menu bar for JEConfig.
- *
- *
+ * This class builds the top menu bar for the JEVis Control Center.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class TopMenu extends MenuBar {
+    private static final Logger logger = LogManager.getLogger(TopMenu.class);
 
     private List<MenuItem> items = new ArrayList<>();
-    private Plugin activPlugin;
+    private Plugin activePlugin;
 
     public TopMenu() {
         super();
@@ -89,8 +94,8 @@ public class TopMenu extends MenuBar {
         // --- Menu Edit
         Menu menuEdit = new Menu(I18n.getInstance().getString("menu.edit"));
 
-        MenuItem copie = new MenuItem(I18n.getInstance().getString("menu.edit.copy"));
-        copie.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
+        MenuItem copy = new MenuItem(I18n.getInstance().getString("menu.edit.copy"));
+        copy.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
 
         MenuItem paste = new MenuItem(I18n.getInstance().getString("menu.edit.paste"));
         paste.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
@@ -104,41 +109,52 @@ public class TopMenu extends MenuBar {
         MenuItem findObject = new MenuItem(I18n.getInstance().getString("menu.edit.find"));
         findObject.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
 
+        MenuItem findAgain = new MenuItem(I18n.getInstance().getString("menu.edit.findagain"));
+        findAgain.setAccelerator(new KeyCodeCombination(KeyCode.F3));
+
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handleRequest(Constants.Plugin.Command.PASE);
+                activePlugin.handleRequest(Constants.Plugin.Command.PASTE);
             }
         });
 
-        copie.setOnAction(new EventHandler<ActionEvent>() {
+        copy.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handleRequest(Constants.Plugin.Command.COPY);
+                activePlugin.handleRequest(Constants.Plugin.Command.COPY);
             }
         });
 
         delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handleRequest(Constants.Plugin.Command.DELTE);
+                activePlugin.handleRequest(Constants.Plugin.Command.DELTE);
             }
         });
 
         rename.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handleRequest(Constants.Plugin.Command.RENAME);
+                activePlugin.handleRequest(Constants.Plugin.Command.RENAME);
             }
         });
 
         findObject.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activPlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
+                activePlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
             }
         });
-        menuEdit.getItems().addAll(copie, paste, delete, rename, findObject);
+
+        findAgain.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.FIND_AGAIN);
+            }
+        });
+
+        menuEdit.getItems().addAll(copy, paste, delete, rename, findObject, findAgain);
 
 //        menuEdit.getItems().addAll(copie, delete, rename);
         // --- Menu View
@@ -154,7 +170,32 @@ public class TopMenu extends MenuBar {
                 pref.putBoolean("show", !pref.getBoolean("show", true));
             }
         });
-        options.getItems().add(welcome);
+        MenuItem changePassword = new MenuItem(I18n.getInstance().getString("menu.options.changepassword"));
+        changePassword.setOnAction(event -> {
+            PasswordDialog dia = new PasswordDialog();
+            if (dia.show(JEConfig.getStage()) == PasswordDialog.Response.YES) {
+
+                try {
+                    String note = String.format("Password set by %s", activePlugin.getDataSource().getCurrentUser().getAccountName());
+
+                    JEVisSample sample;
+                    if (activePlugin.getDataSource().getCurrentUser().getUserObject().getAttribute("Password").hasSample()) {
+                        sample = activePlugin.getDataSource().getCurrentUser().getUserObject().getAttribute("Password").getLatestSample();
+                        sample.setValue(dia.getPassword());
+                    } else {
+                        sample = activePlugin.getDataSource().getCurrentUser().getUserObject().getAttribute("Password").buildSample(new DateTime(), dia.getPassword(), note);
+
+                    }
+                    sample.commit();
+
+                } catch (JEVisException ex) {
+                    logger.fatal(ex);
+                }
+
+            }
+        });
+
+        options.getItems().addAll(changePassword, welcome);
 
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 
@@ -167,7 +208,7 @@ public class TopMenu extends MenuBar {
                 AboutDialog dia = new AboutDialog();
                 dia.show(JEConfig.getStage(), I18n.getInstance().getString("menu.about.title")
                         , I18n.getInstance().getString("menu.about.message")
-                        , JEConfig.PROGRAMM_INFO, JEConfig.getImage("JEConfig_mac.png"));
+                        , JEConfig.PROGRAM_INFO, JEConfig.getImage("JEConfig_mac.png"));
 
             }
         });
@@ -184,7 +225,7 @@ public class TopMenu extends MenuBar {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle(I18n.getInstance().getString("menu.system.driver.open.title"));
                 fileChooser.getExtensionFilters().addAll(
-                        new FileChooser.ExtensionFilter(I18n.getInstance().getString("menu.system.driver.open.filter.jevis"), "*.jev"),
+                        new FileChooser.ExtensionFilter(I18n.getInstance().getString("menuJEDataProcessor - Gap filling #429.system.driver.open.filter.jevis"), "*.jev"),
                         new FileChooser.ExtensionFilter(I18n.getInstance().getString("menu.system.driver.open.filter.all"), "*.*"));
 
                 File selectedFile = fileChooser.showOpenDialog(JEConfig.getStage());
@@ -233,6 +274,7 @@ public class TopMenu extends MenuBar {
         try {
             classImport.setDisable(!JEConfig.getDataSource().getCurrentUser().isSysAdmin());
         } catch (Exception ex) {
+            logger.fatal(ex);
             classImport.setDisable(true);
         }
 
@@ -240,7 +282,7 @@ public class TopMenu extends MenuBar {
     }
 
     public void setPlugin(Plugin plugin) {
-        activPlugin = plugin;
+        activePlugin = plugin;
     }
 
 }

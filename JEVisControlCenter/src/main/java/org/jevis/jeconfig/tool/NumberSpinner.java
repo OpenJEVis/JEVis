@@ -1,12 +1,8 @@
 package org.jevis.jeconfig.tool;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
 import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -19,7 +15,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
-import javax.swing.JSpinner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.swing.*;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 
 /**
  * JavaFX Control that behaves like a {@link JSpinner} known in Swing. The
@@ -31,6 +32,7 @@ import javax.swing.JSpinner;
  */
 public class NumberSpinner extends HBox {
 
+    private static final Logger logger = LogManager.getLogger(NumberSpinner.class);
     public static final String ARROW = "NumberSpinnerArrow";
     public static final String NUMBER_FIELD = "NumberField";
     public static final String NUMBER_SPINNER = "NumberSpinner";
@@ -44,6 +46,8 @@ public class NumberSpinner extends HBox {
     private final Button decrementButton;
     private final NumberBinding buttonHeight;
     private final NumberBinding spacing;
+    private BigDecimal min;
+    private BigDecimal max;
 
     public NumberSpinner() {
         this(BigDecimal.ZERO, BigDecimal.ONE);
@@ -111,13 +115,6 @@ public class NumberSpinner extends HBox {
         incrementButton.prefHeightProperty().bind(buttonHeight.add(spacing));
         incrementButton.minHeightProperty().bind(buttonHeight.add(spacing));
         incrementButton.setFocusTraversable(false);
-        incrementButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent ae) {
-                increment();
-                ae.consume();
-            }
-        });
 
         // Paint arrow path on button using a StackPane
         StackPane incPane = new StackPane();
@@ -133,14 +130,8 @@ public class NumberSpinner extends HBox {
         decrementButton.minHeightProperty().bind(buttonHeight);
 
         decrementButton.setFocusTraversable(false);
-        decrementButton.setOnAction(new EventHandler<ActionEvent>() {
 
-            @Override
-            public void handle(ActionEvent ae) {
-                decrement();
-                ae.consume();
-            }
-        });
+        setListener();
 
         StackPane decPane = new StackPane();
         decPane.getChildren().addAll(decrementButton, arrowDown);
@@ -173,9 +164,9 @@ public class NumberSpinner extends HBox {
     }
 
     public final void setNumber(BigDecimal value) {
-        if (numberField.getNumber().compareTo(BigDecimal.valueOf(1)) == 1) {
-            numberField.setNumber(value);
-        }
+        //if (numberField.getNumber().compareTo(BigDecimal.valueOf(1)) != 0) {
+        numberField.setNumber(value);
+        //}
 
     }
 
@@ -189,11 +180,45 @@ public class NumberSpinner extends HBox {
 
     // debugging layout bounds
     public void dumpSizes() {
-        System.out.println("numberField (layout)=" + numberField.getLayoutBounds());
-        System.out.println("buttonInc (layout)=" + incrementButton.getLayoutBounds());
-        System.out.println("buttonDec (layout)=" + decrementButton.getLayoutBounds());
-        System.out.println("binding=" + buttonHeight.toString());
-        System.out.println("spacing=" + spacing.toString());
+        logger.info("numberField (layout)=" + numberField.getLayoutBounds());
+        logger.info("buttonInc (layout)=" + incrementButton.getLayoutBounds());
+        logger.info("buttonDec (layout)=" + decrementButton.getLayoutBounds());
+        logger.info("binding=" + buttonHeight.toString());
+        logger.info("spacing=" + spacing.toString());
     }
 
+    public void setMin(BigDecimal min) {
+        this.min = min;
+        setListener();
+    }
+
+    private void setListener() {
+        incrementButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent ae) {
+                if (max != null) {
+                    if (numberField.getNumber().compareTo(max) <= 0)
+                        increment();
+                } else increment();
+                ae.consume();
+            }
+        });
+
+        decrementButton.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent ae) {
+                if (max != null) {
+                    if (numberField.getNumber().compareTo(min) >= 0)
+                        decrement();
+                } else decrement();
+                ae.consume();
+            }
+        });
+    }
+
+    public void setMax(BigDecimal max) {
+        this.max = max;
+        setListener();
+    }
 }

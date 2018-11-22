@@ -29,6 +29,11 @@ public interface REQUEST {
 
     String API_PATH_V1 = "JEWebService/v1/";
 
+
+    interface ATTRIBUTES {
+        String PATH = "attributes/";
+    }
+
     interface OBJECTS {
 
         String PATH = "objects/";
@@ -37,6 +42,7 @@ public interface REQUEST {
 
             String INCLUDE_RELATIONSHIPS = "rel=";
             String ONLY_ROOT = "root=";
+            String INCLUDE_CHILDREN = "includeChildren=";
         }
 
         interface ATTRIBUTES {

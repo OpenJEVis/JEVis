@@ -1,39 +1,40 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JENotifier-EP.
- *
+ * <p>
  * JENotifier-EP is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JENotifier-EP is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JENotifier-EP. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JENotifier-EP is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jenotifier.notifier.SQL;
 
-import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
 
+import java.util.List;
+
 /**
- *
  * @author jb
  */
 public class DataPoint {
+    private static final Logger logger = LogManager.getLogger(DataPoint.class);
 
     private Long _datapointID;
     private String _periodStart;
@@ -45,8 +46,8 @@ public class DataPoint {
 
     public DataPoint() {
     }
-    
-    public DataPoint(DataPoint dp){
+
+    public DataPoint(DataPoint dp) {
         _datapointID = dp.getDatapoint();
         _periodStart = dp.getPeriodStart();
         _periodEnd = dp.getPeriodEnd();
@@ -55,7 +56,7 @@ public class DataPoint {
     /**
      * To get the value of the attribute of a JEVisObject.
      *
-     * @param obj the JEVis Object
+     * @param obj     the JEVis Object
      * @param attName the name of the attribute
      * @return the value of the attribute
      * @throws JEVisException
@@ -93,19 +94,19 @@ public class DataPoint {
             setDatapoint(Long.valueOf(String.valueOf(getAttribute(obj, DATA_POINT))));
         } catch (IllegalArgumentException ex) {
             setDatapoint(null);
-            Logger.getLogger(DataPoint.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
         try {
             setPeriodeStart(String.valueOf(getAttribute(obj, PERIOD_START)));
         } catch (IllegalArgumentException ex) {
             setPeriodeStart(null);
-            Logger.getLogger(DataPoint.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
         try {
             setPeriodeEnd(String.valueOf(getAttribute(obj, PERIOD_END)));
         } catch (IllegalArgumentException ex) {
             setPeriodeEnd(null);
-            Logger.getLogger(DataPoint.class.getName()).log(Level.ERROR, ex);
+            logger.error(ex);
         }
     }
 

@@ -1,29 +1,29 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.dialog;
 
-import java.util.List;
-
-import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -31,7 +31,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -41,43 +42,42 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.jevistree.ColumnFactory;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.UserSelection;
+import org.jevis.application.jevistree.filter.BasicCellFilter;
+import org.jevis.application.jevistree.filter.FilterFactory;
+import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.application.resource.ResourceLoader;
 
+import java.util.List;
+
+import static org.jevis.application.jevistree.plugin.SimpleTargetPlugin.TARGET_COLUMN_ID;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SelectTargetDialog2 {
 
-//    private VBox root = new VBox();
     private Button ok = new Button("OK");
-    private Button clear = new Button("Clear");
     private String ICON = "1404313956_evolution-tasks.png";
     private JEVisDataSource _ds;
     private Stage stage;
     private Response _response = Response.CANCEL;
     private JEVisTree tree;
     private SimpleTargetPlugin stp = new SimpleTargetPlugin();
-
-    public static enum Response {
-
-        OK, CANCEL
-    };
-
-    public enum MODE {
-        OBJECT, ATTRIBUTE
-    }
     private MODE mode = MODE.OBJECT;
+    private SimpleObjectProperty<MODE> filterMode = new SimpleObjectProperty<>(MODE.OBJECT);
+    private SimpleTargetPlugin.SimpleFilter filter;
 
     public Response show(Stage owner, JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
-
+        System.out.println("SelectTargetDialog2.start: " + mode);
+        this.filter = filter;
         stage = new Stage();
         _ds = ds;
-        this.mode = mode;
+        filterMode = new SimpleObjectProperty<>(mode);
 
         stage.setTitle("Selection");
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -87,13 +87,13 @@ public class SelectTargetDialog2 {
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setWidth(524);
-        stage.setHeight(768);
+        stage.setWidth(700);
+        stage.setHeight(800);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(true);
         stage.getIcons().setAll(ResourceLoader.getImage(ICON, 64, 64).getImage());
-//        stage.setAlwaysOnTop(true);
-        stage.sizeToScene();
+        stage.setAlwaysOnTop(true);
+//        stage.sizeToScene();
         stage.toFront();
         stage.showAndWait();
 
@@ -105,8 +105,6 @@ public class SelectTargetDialog2 {
     }
 
 
-
-
     private VBox build(JEVisDataSource ds, String title, List<UserSelection> uselection) {
         VBox root = new VBox(0);
 //        root.setPadding(new Insets(10));
@@ -115,60 +113,111 @@ public class SelectTargetDialog2 {
         VBox content = new VBox();
 
         tree = JEVisTreeFactory.buildBasicDefault(ds);
-        if (mode == MODE.ATTRIBUTE) {
-            tree.getFilter().showAttributes(true);
-        }
+//        if (mode == MODE.ATTRIBUTE) {
+//            tree.getFilter().showAttributes(true);
+//        }
 
         tree.getPlugins().add(stp);
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         content.getChildren().setAll(tree);
 
+        ObservableList<ObjectAttributeFilter> filterTypes = FXCollections.observableArrayList();
+        BasicCellFilter cellFilter = new BasicCellFilter();
 
-        CheckBox advanced = new CheckBox("Advanced");
+        FilterFactory.defaultAttributeTreeFilter().forEach(objectAttributeFilter -> {
+            cellFilter.addFilter(tree.getColumn(ColumnFactory.OBJECT_NAME), objectAttributeFilter);
+        });
+
+
+        ObjectAttributeFilter onlyAttFilter = new ObjectAttributeFilter("All Attributes", ObjectAttributeFilter.NONE, ObjectAttributeFilter.ALL);
+        ObjectAttributeFilter objAndAttFilter = new ObjectAttributeFilter("All Attributes", ObjectAttributeFilter.ALL, ObjectAttributeFilter.ALL);
+        ObjectAttributeFilter f2 = new ObjectAttributeFilter("All Data Objects", "Data", ObjectAttributeFilter.ALL);
+        cellFilter.addFilter(tree.getColumn(TARGET_COLUMN_ID), onlyAttFilter);
+        cellFilter.addFilter(tree.getColumn(ColumnFactory.OBJECT_NAME), objAndAttFilter);
+        cellFilter.addFilter(tree.getColumn(BasicCellFilter.TREE_ITEM_COLUMN), objAndAttFilter);
+
+
+//        cellFilter.addFilter(tree.getColumn(TARGET_COLUMN_ID), f2);
+        tree.setFilter(cellFilter);
+//        tree.getFilter().showAttributes(true);
+
+        filterTypes.add(onlyAttFilter);
+        filterTypes.add(f2);
+
+        ComboBox<ObjectAttributeFilter> filterBox = new ComboBox<>(filterTypes);
+        filterBox.setButtonCell(new ListCell<ObjectAttributeFilter>() {
+            @Override
+            protected void updateItem(ObjectAttributeFilter item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(item.getFilterName());
+                }
+            }
+        });
+        filterBox.setCellFactory(param -> new ListCell<ObjectAttributeFilter>() {
+            @Override
+            protected void updateItem(ObjectAttributeFilter item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(item.getFilterName());
+                }
+
+            }
+        });
+        filterBox.getSelectionModel().selectFirst();
+
+
+//        CheckBox advanced = new CheckBox("Advanced");
+
+//        System.out.println("Filtermode: " + filterMode.getValue());
+//        switch (filterMode.getValue()) {
+//            case ATTRIBUTE:
+//                advanced.setSelected(true);
+//                break;
+//            case OBJECT:
+//                advanced.setSelected(false);
+//                break;
+//        }
 
 
         tree.openUserSelection(uselection);
         stp.setUserSelection(uselection);
-        if (mode == MODE.ATTRIBUTE) {
-            stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
-            advanced.setSelected(true);
-        } else if (mode == MODE.OBJECT) {
-            stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
-            advanced.setSelected(false);
-        }
 
-        advanced.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                Platform.runLater(() -> {
-                    tree.setVisible(false);
-                    tree.getFilter().showAttributes(newValue);
-                    tree.reload();
-                    tree.openUserSelection(stp.getUserSelection());
-                    tree.setVisible(true);
-//                    System.out.println("Change mode: "+newValue);
-//                    content.setVisible(false);
-//                    content.getChildren().removeAll();
+//        filterMode.addListener((observable, oldValue, newValue) -> {
+//            Platform.runLater(() -> {
+//                tree.setVisible(false);
+//                switch (newValue) {
 //
-//                    tree = new JEVisTree(ds);
-//                    tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-//                    tree.getPlugins().add(stp);
-//                    if(newValue){
-//                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
-//                        tree.getFilter().showAttributes(true);
+//                    case OBJECT:
 //
-//                    }else{
-//                        stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
+//
+//                        stp.setModus(SimpleTargetPlugin.MODE.OBJECT, null);
 //                        tree.getFilter().showAttributes(false);
-//                    }
-//                    tree.openUserSelection(uselection);
+//                        break;
+//                    case ATTRIBUTE:
+//                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE, null);
+//                        tree.getFilter().showAttributes(true);
+//                        break;
+//                    case FILTER:
+//                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE, filter);
+//                        break;
 //
-//                    content.getChildren().add(tree);
-//                    content.setVisible(true);
+//
+//                }
+//                tree.reload();
+//                tree.setVisible(true);
+//            });
+//
+//        });
 
-                });
-            }
-        });
+//        advanced.selectedProperty().addListener((observable, oldValue, newValue) -> {
+//            if (newValue) {
+//                filterMode.set(MODE.ATTRIBUTE);
+//            } else {
+//                filterMode.set(MODE.OBJECT);
+//            }
+//
+//        });
 
         tree.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
 
@@ -208,13 +257,10 @@ public class SelectTargetDialog2 {
         });
 
 
-
-
-
         Region spacer = new Region();
-        HBox.setHgrow(spacer,Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        buttonPanel.getChildren().setAll(advanced,spacer,ok, cancel);
+        buttonPanel.getChildren().setAll(filterBox, spacer, cancel, ok);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(5));
 
@@ -230,6 +276,16 @@ public class SelectTargetDialog2 {
 
     public List<UserSelection> getUserSelection() {
         return stp.getUserSelection();
+    }
+
+
+    public enum Response {
+
+        OK, CANCEL
+    }
+
+    public enum MODE {
+        OBJECT, ATTRIBUTE, FILTER
     }
 
 }

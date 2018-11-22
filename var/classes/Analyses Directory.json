@@ -1,6 +1,6 @@
 {
   "name": "Analyses Directory",
-  "unique": false,
+  "unique": true,
   "relationships": [
     {
       "start": "Analyses Directory",

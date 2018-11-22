@@ -26,7 +26,7 @@ import java.util.zip.ZipOutputStream;
 @Path("/JEWebService/v1/classicons")
 public class ResourceIcons {
 
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceClasses.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceIcons.class);
 
     public final static String TEMPDIR = "JEWebService";
     public final static String TEMPFILE = "allIcons.zip";

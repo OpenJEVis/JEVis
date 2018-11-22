@@ -19,7 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.commons.validator.routines.LongValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,12 +38,11 @@ import java.util.Locale;
  */
 public class JEVisSampleWS implements JEVisSample {
 
-    private DateTime timestamp;
+    public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
+    private static final Logger logger = LogManager.getLogger(JEVisSampleWS.class);
     private JEVisAttribute attribute;
     private JsonSample json;
     private JEVisDataSourceWS ds;
-    private Logger logger = LogManager.getLogger(JEVisSampleWS.class);
-    public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
     private JEVisFile file = null;
 
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att) {
@@ -80,25 +78,25 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public void setValue(Object value) throws ClassCastException {
-        logger.debug("setValue: {} Value: {}",getAttribute().getName(),value);
+        //logger.debug("setValue: {} Value: {}", getAttribute().getName(), value);
         try {
             if (getAttribute().getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
                 Double.valueOf(value.toString());
-            }else if(getAttribute().getPrimitiveType() == JEVisConstants.PrimitiveType.LONG){
+            } else if (getAttribute().getPrimitiveType() == JEVisConstants.PrimitiveType.LONG) {
                 Long.valueOf(value.toString());
             }
 
             json.setValue(value.toString());
 
-        }catch (Exception ex){
-            throw new ClassCastException("Value object does not match the PrimitiveType of the Attribute");
+        } catch (Exception ex) {
+            throw new ClassCastException("Value object does not match the PrimitiveType of the Attribute: " + this.toString());
         }
     }
 
     @Override
     public Long getValueAsLong() {
         LongValidator validator = LongValidator.getInstance();
-        return validator.validate(getValueAsString(),Locale.US);
+        return validator.validate(getValueAsString(), Locale.US);
     }
 
     @Override
@@ -122,6 +120,12 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public Boolean getValueAsBoolean() {
+        if (json.getValue().equals("1")) {
+            return true;
+        } else if (json.getValue().equals("0")) {
+            return false;
+        }
+
         return Boolean.parseBoolean(getValueAsString());
     }
 
@@ -133,7 +137,7 @@ public class JEVisSampleWS implements JEVisSample {
     @Override
     public JEVisFile getValueAsFile() {
 
-        if (file != null) {
+        if (file != null && file.getBytes() != null) {
             return file;
         } else {
             try {
@@ -188,7 +192,11 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public String getNote() {
-        return json.getNote();
+        if (json.getNote() == null) {
+            return "";
+        } else {
+            return json.getNote();
+        }
     }
 
     @Override
@@ -212,6 +220,7 @@ public class JEVisSampleWS implements JEVisSample {
         List<JEVisSample> tmp = new ArrayList<>();
         tmp.add(this);
         getAttribute().addSamples(tmp);
+        ds.reloadAttribute(getAttribute());
     }
 
     @Override
@@ -224,4 +233,8 @@ public class JEVisSampleWS implements JEVisSample {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public String toString() {
+        return "JEVisSampleWS{ ts:" + getTimestamp() + " Value: " + getValueAsString() + "}";
+    }
 }

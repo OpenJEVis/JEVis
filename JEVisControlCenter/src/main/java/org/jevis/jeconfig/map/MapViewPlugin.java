@@ -23,6 +23,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.dialog.MapSelectionDialog;
 import org.jevis.application.jevistree.plugin.MapPlugin;
@@ -39,10 +41,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
  * @author broder
  */
 public class MapViewPlugin implements Plugin {
+    private static final Logger logger = LogManager.getLogger(MapViewPlugin.class);
 
     private JEVisDataSource ds;
     private JXMapViewer mapViewer;
@@ -54,6 +56,7 @@ public class MapViewPlugin implements Plugin {
     private TableView table;
     private ComboBox comboBox;
     private BooleanProperty firstStartProperty = new SimpleBooleanProperty(true);
+    private String tooltip = I18n.getInstance().getString("pluginmanager.mapview.tooltip");
 
     private Map<String, GPSRoute> routeData;
 
@@ -95,6 +98,11 @@ public class MapViewPlugin implements Plugin {
     @Override
     public String getUUID() {
         return id.get();
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override
@@ -148,20 +156,20 @@ public class MapViewPlugin implements Plugin {
                                 selectedData.add(value);
                             }
                         }
-                        System.out.println("calc data");
+                        logger.info("calc data");
                         DataCalculator dataCalc = new DataCalculator();
                         List<GPSRoute> calcRoues = dataCalc.calcRoues(selectedData);
 
                         //draw the map
-                        System.out.println("draw map");
+                        logger.info("draw map");
                         MapCreator mapCreator = new MapCreator(mapViewer);
                         mapCreator.drawMap(calcRoues);
 
-                        System.out.println("create table");
+                        logger.info("create table");
                         ObservableList<GPSSample> data
                                 = FXCollections.observableArrayList();
 
-                        System.out.println("size: " + calcRoues.get(0).getGpsSample().size());
+                        logger.info("size: " + calcRoues.get(0).getGpsSample().size());
                         data.addAll(calcRoues.get(0).getGpsSample());
 
                         table.setItems(data);
@@ -176,14 +184,14 @@ public class MapViewPlugin implements Plugin {
                         comboBox.valueProperty().addListener(new ChangeListener<String>() {
                             @Override
                             public void changed(ObservableValue ov, String t, String t1) {
-                                System.out.println(ov);
-                                System.out.println(t);
-                                System.out.println(t1);
+                                logger.info(ov);
+                                logger.info(t);
+                                logger.info(t1);
                                 GPSRoute route = routeData.get(t1);
                                 ObservableList<GPSSample> data
                                         = FXCollections.observableArrayList();
 
-                                System.out.println("size: " + calcRoues.get(0).getGpsSample().size());
+                                logger.info("size: " + calcRoues.get(0).getGpsSample().size());
                                 data.addAll(route.getGpsSample());
                                 table.setItems(data);
                             }
@@ -276,9 +284,9 @@ public class MapViewPlugin implements Plugin {
 
         ObservableList<String> options
                 = FXCollections.observableArrayList(
-                        "Example 1",
-                        "Example 2"
-                );
+                "Example 1",
+                "Example 2"
+        );
         comboBox = new ComboBox(options);
         comboBox.setPrefWidth(Double.MAX_VALUE);
         StackPane stack = new StackPane(comboBox);

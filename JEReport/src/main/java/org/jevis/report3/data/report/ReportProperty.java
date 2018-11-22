@@ -5,6 +5,8 @@
  */
 package org.jevis.report3.data.report;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.notification.ReportNotification;
@@ -14,14 +16,14 @@ import org.joda.time.DateTimeZone;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
  * @author broder
  */
 public class ReportProperty {
+    private static final Logger logger = LogManager.getLogger(ReportProperty.class);
 
     private Boolean enabled;
     private JEVisFile template;
@@ -45,14 +47,10 @@ public class ReportProperty {
     boolean initialize() {
         linkProperties = new ArrayList<>();
 
-        //init Attributes
         initializeAttributes(reportObject);
 
-        //init noti object
         initializeNotification(reportObject);
 
-        //init report links
-//        initializeReportLinkObjects(reportObject);
         return true;
     }
 
@@ -63,9 +61,7 @@ public class ReportProperty {
     void initializeAttributes(JEVisObject reportObject) {
         try {
             JEVisSample enabledSample = reportObject.getAttribute(ReportAttributes.ENABLED).getLatestSample();
-//            JEVisSample scheduleSample = reportObject.getAttribute(ReportAttributes.SCHEDULE).getLatestSample();
             JEVisSample templateSample = reportObject.getAttribute(ReportAttributes.TEMPLATE).getLatestSample();
-//            JEVisSample startRecordSample = reportObject.getAttribute(ReportAttributes.START_RECORD).getLatestSample();
 
             if (!DataHelper.checkAllObjectsNotNull(enabledSample, templateSample)) {
                 String missing = "";
@@ -75,7 +71,6 @@ public class ReportProperty {
             }
 
             enabled = enabledSample.getValueAsBoolean();
-//            String scheduleString = scheduleSample.getValueAsString();
             template = templateSample.getValueAsFile();
 
             if (reportObject.getAttribute(ReportAttributes.PDF) != null && reportObject.getAttribute(ReportAttributes.PDF).getLatestSample() != null) {
@@ -96,23 +91,10 @@ public class ReportProperty {
                 timeZone = DateTimeZone.forID("CET");
             }
 
-//            String startRecordString = startRecordSample.getValueAsString();
             if (!DataHelper.checkAllObjectsNotNull(enabled, template)) {
                 throw new RuntimeException("One Sample missing for report Object: id: " + reportObject.getID() + " and name: " + reportObject.getName());
             }
 
-//            if (!DataHelper.checkValidSchedule(scheduleString)) {
-//                throw new IllegalArgumentException("Invalid Schedule for report Object: id: " + reportObject.getID() + " and name: " + reportObject.getName());
-//            } else {
-//                schedule = ReportSchedule.valueOf(scheduleString.toUpperCase());
-//            }
-//
-//            if (!DataHelper.checkValidDateFormat(startRecordString)) {
-//                throw new IllegalArgumentException("Invalid Dateformat for report Object: id: " + reportObject.getID() + " and name: " + reportObject.getName());
-//            } else {
-//                startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
-//                endRecord = DateHelper.calcEndRecord(startRecord, schedule);
-//            }
         } catch (JEVisException ex) {
             throw new RuntimeException("Error while parsing attributes for report Object: id: " + reportObject.getID() + " and name: " + reportObject.getName(), ex);
         }
@@ -132,9 +114,6 @@ public class ReportProperty {
         }
     }
 
-//    public List<JEVisObject> getReportLinkObjects() {
-//        return reportLinkObjects;
-//    }
     public List<ReportLinkProperty> getLinkProperties() {
         return linkProperties;
     }
@@ -151,9 +130,6 @@ public class ReportProperty {
         return timeZone;
     }
 
-//    public ReportSchedule getSchedule() {
-//        return schedule;
-//    }
     public JEVisFile getTemplate() {
         return template;
     }
@@ -162,13 +138,6 @@ public class ReportProperty {
         return nrOfPdfPages;
     }
 
-//    public DateTime getStartRecord() {
-//        return startRecord;
-//    }
-//
-//    public DateTime getEndRecord() {
-//        return endRecord;
-//    }
     public JEVisObject getNotificationObject() {
         return notificationObject;
 
@@ -190,7 +159,7 @@ public class ReportProperty {
                 currentObjects.addAll(getChildirenFromDir(obj, currentObjects, ds, reportLinkDirClass, reportLinkClass));
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ReportProperty.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return currentObjects;
     }

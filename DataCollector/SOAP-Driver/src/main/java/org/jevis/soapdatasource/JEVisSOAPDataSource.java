@@ -5,36 +5,24 @@
  */
 package org.jevis.soapdatasource;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.soap.SOAPConnection;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
-import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.DataSource;
-import org.jevis.commons.driver.DataSourceHelper;
-import org.jevis.commons.driver.Importer;
-import org.jevis.commons.driver.ImporterFactory;
-import org.jevis.commons.driver.JEVisImporterAdapter;
-import org.jevis.commons.driver.Parser;
-import org.jevis.commons.driver.ParserFactory;
-import org.jevis.commons.driver.Result;
+import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author bf
  */
 public class JEVisSOAPDataSource implements DataSource {
+    private static final Logger logger = LogManager.getLogger(JEVisSOAPDataSource.class);
 
     private Parser _parser;
     private Importer _importer;
@@ -47,13 +35,13 @@ public class JEVisSOAPDataSource implements DataSource {
 
     @Override
     public void parse(List<InputStream> input) {
-        _parser.parse(input,_timeZone);
+        _parser.parse(input, _timeZone);
         _result = _parser.getResult();
     }
 
     @Override
     public void run() {
-        Logger.getLogger(SOAPConnection.class.getName()).log(Level.INFO, "Nr channels: " + _channels.size() + " for datasource: " + _dataSource.getID());
+        logger.info("Nr channels: " + _channels.size() + " for datasource: " + _dataSource.getID());
 
         for (JEVisObject channel : _channels) {
 
@@ -70,7 +58,7 @@ public class JEVisSOAPDataSource implements DataSource {
                     _parser.initialize(parser);
                     this.parse(input);
                 } else {
-                    Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, "no connection results for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+                    logger.error("no connection results for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
                     continue;
                 }
 
@@ -80,19 +68,18 @@ public class JEVisSOAPDataSource implements DataSource {
 //
 //                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
                     JEVisImporterAdapter.importResults(_result, _importer, channel);
-                    Logger.getLogger(SOAPConnection.class.getName()).log(Level.INFO, "import results: " + _result.size() + " for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+                    logger.info("import results: " + _result.size() + " for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
 
                 } else {
-                    Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, "no parsing results for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+                    logger.error("no parsing results for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
                 }
             } catch (Exception ex) {
-                Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, "error for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
-                Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, ex.getMessage());
-                ex.printStackTrace();
+                logger.error("error for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+                logger.error(ex);
 
             }
         }
-        Logger.getLogger(SOAPConnection.class.getName()).log(Level.INFO, "--------- finish datasource: " + _dataSource.getID() + " ----------");
+        logger.info("--------- finish datasource: " + _dataSource.getID() + " ----------");
 
     }
 
@@ -133,8 +120,8 @@ public class JEVisSOAPDataSource implements DataSource {
             soapChannel.setPath(path);
             soapChannel.setTemplate(template);
         } catch (JEVisException ex) {
-            Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, "Error while send sample request for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
-            Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, ex.getMessage());
+            logger.error("Error while send sample request for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+            logger.error(ex);
         }
 
         return _soapdatasource.sendSampleRequest(soapChannel);
@@ -189,8 +176,8 @@ public class JEVisSOAPDataSource implements DataSource {
             _soapdatasource.setSsl(_ssl);
             _soapdatasource.setUserName(_userName);
         } catch (JEVisException ex) {
-            Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, "error while init datasource: " + _dataSource.getID());
-            Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, ex.getMessage());
+            logger.error("error while init datasource: " + _dataSource.getID());
+            logger.error(ex);
         }
     }
 
@@ -201,8 +188,8 @@ public class JEVisSOAPDataSource implements DataSource {
             JEVisClass channelClass = soapObject.getDataSource().getJEVisClass(DataCollectorTypes.Channel.SOAPChannel.NAME);
             _channels = channelDir.getChildren(channelClass, false);
         } catch (JEVisException ex) {
-            Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, "error while init channels for datasource: " + _dataSource.getID());
-            Logger.getLogger(SOAPConnection.class.getName()).log(Level.ERROR, ex.getMessage());
+            logger.error("error while init channels for datasource: " + _dataSource.getID());
+            logger.error(ex);
         }
     }
 

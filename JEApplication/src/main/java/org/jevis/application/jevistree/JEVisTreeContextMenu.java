@@ -19,12 +19,15 @@
  */
 package org.jevis.application.jevistree;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -37,13 +40,12 @@ import org.jevis.commons.dimpex.DimpexObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEVisTreeContextMenu extends ContextMenu {
+    private static final Logger logger = LogManager.getLogger(JEVisTreeContextMenu.class);
 
     private JEVisObject _obj;
     private JEVisTree _tree;
@@ -53,8 +55,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
         _obj = obj;
         _tree = tree;
-
-
 
 
 //        getItems().add(buildMenuNew());
@@ -67,7 +67,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 buildCopy(),
                 buildPaste(),
                 new SeparatorMenuItem(),
-                buildExport(),
+                buildMenuExport(),
                 buildImport()
         );
 
@@ -76,8 +76,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 getItems().add(new SeparatorMenuItem());
                 getItems().add(buildMenuAddInput());
             }
-        }catch (Exception ex){
-            ex.printStackTrace();
+        } catch (Exception ex) {
+            logger.fatal(ex);
         }
 
     }
@@ -91,7 +91,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                              @Override
                              public void handle(ActionEvent t) {
 //                final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) _tree.getSelectionModel().getSelectedItem());
-                                 TreeHelper.EventDrop(_tree, _tree.getCopyObject(), _obj);
+                                 TreeHelper.EventDrop(_tree, _tree.getCopyObject(), _obj, CopyObjectDialog.DefaultAction.COPY);
                              }
                          }
         );
@@ -143,7 +143,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                                          List<DimpexObject> objects = DimpEX.readFile(selectedFile);
                                          DimpEX.importALL(_obj.getDataSource(), objects, _obj);
                                      } catch (Exception ex) {
-                                         ex.printStackTrace();
+                                         logger.fatal(ex);
                                      }
                                  }
 
@@ -171,7 +171,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 newContent.add(classItem);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(JEVisTreeContextMenu.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         return newContent;
@@ -185,8 +185,30 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 try {
                     TreeHelper.createCalcInput(_obj);
                 } catch (JEVisException ex) {
-                    ex.printStackTrace();
+                    logger.fatal(ex);
                 }
+            }
+        });
+
+        return menu;
+    }
+
+
+    public MenuItem buildMenuExport() {
+        MenuItem menu = new MenuItem(_tree.getRB().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                Platform.runLater(() -> {
+                    try {
+                        TreeHelper.EventExportTree(_obj);
+                    } catch (JEVisException ex) {
+                        logger.fatal(ex);
+                    }
+                });
+
+
             }
         });
 
@@ -220,7 +242,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 //                popup.show(_item.getGraphic(), 200d, 200d, Duration.seconds(1));
                 //TMP test
 
-//                System.out.println("expand all");
+//                logger.info("expand all");
 //                _item.expandAll(true);
             }
         });

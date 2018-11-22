@@ -25,7 +25,7 @@ public class I18nWS {
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
     private JEVisDataSourceWS ws;
     private List<JsonI18nClass> i18nfiles;
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(I18nWS.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(I18nWS.class);
 
 
     public I18nWS() {
@@ -59,7 +59,7 @@ public class I18nWS {
         if (json.getNames().containsKey(locale.getLanguage())) {
             return json.getNames().get(locale.getLanguage());
         } else {
-            logger.warn("Class name not found: {}",className);
+            logger.warn("Class name not found: {}", className);
             return className;
         }
     }
@@ -72,7 +72,7 @@ public class I18nWS {
                 if (type.getNames().containsKey(locale.getLanguage())) {
                     return type.getNames().get(locale.getLanguage());
                 } else {
-                    logger.warn("Type name not found: {}-{}",jevisClass,typeName);
+                    logger.warn("Type name not found: {}-{}", jevisClass, typeName);
                     return typeName;
                 }
             }
@@ -100,7 +100,7 @@ public class I18nWS {
         if (json.getDescriptions().containsKey(locale.getLanguage())) {
             return json.getDescriptions().get(locale.getLanguage());
         } else {
-            logger.warn("Class description not found: {}",className);
+            logger.warn("Class description not found: {}", className);
             return "";
         }
     }
@@ -130,7 +130,7 @@ public class I18nWS {
                 if (type.getDescriptions().containsKey(locale.getLanguage())) {
                     return type.getDescriptions().get(locale.getLanguage());
                 } else {
-                    logger.warn("Type description not found: {}-{}",jevisClass,typeName);
+                    logger.warn("Type description not found: {}-{}", jevisClass, typeName);
                     return "";
                 }
             }

@@ -20,6 +20,8 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebErrorEvent;
 import javafx.scene.web.WebView;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -27,17 +29,17 @@ import org.jevis.jeconfig.tool.I18n;
 import org.w3c.dom.Document;
 
 /**
- *
  * @author fs
  */
 public class LoytecBrowser implements Plugin {
-
+    private static final Logger logger = LogManager.getLogger(LoytecBrowser.class);
     private StringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.loytec.title"));
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane contentPane = new BorderPane();
     private WebEngine webEngine;
     private ImageView icon = new ImageView();
+    private String tooltip = I18n.getInstance().getString("pluginmanager.loytecbrowser.tooltip");
 
     public LoytecBrowser(JEVisDataSource ds) {
         this.ds = ds;
@@ -58,31 +60,31 @@ public class LoytecBrowser implements Plugin {
             webEngine.confirmHandlerProperty().addListener(new ChangeListener<Callback<String, Boolean>>() {
                 @Override
                 public void changed(ObservableValue<? extends Callback<String, Boolean>> observable, Callback<String, Boolean> oldValue, Callback<String, Boolean> newValue) {
-                    System.out.println("confirmHandlerProperty: " + newValue);
+                    logger.info("confirmHandlerProperty: " + newValue);
                 }
             });
             webEngine.onErrorProperty().addListener(new ChangeListener<EventHandler<WebErrorEvent>>() {
                 @Override
                 public void changed(ObservableValue<? extends EventHandler<WebErrorEvent>> observable, EventHandler<WebErrorEvent> oldValue, EventHandler<WebErrorEvent> newValue) {
-                    System.out.println("onErrorProperty: " + newValue);
+                    logger.info("onErrorProperty: " + newValue);
                 }
             });
             webEngine.setOnAlert(event -> showAlert(event.getData()));
             webEngine.setConfirmHandler(message -> showConfirm(message));
             webEngine.documentProperty().addListener(new ChangeListener<Document>() {
-                @Override
-                public void changed(ObservableValue<? extends Document> observable, Document oldValue, Document doc) {
-                    if (doc != null && !logedIn.getValue()) {
-                        System.out.println("do login");
+                                                         @Override
+                                                         public void changed(ObservableValue<? extends Document> observable, Document oldValue, Document doc) {
+                                                             if (doc != null && !logedIn.getValue()) {
+                                                                 logger.info("do login");
 //                        HTMLFormElement form = (HTMLFormElement) doc.getElementById("form-login");
 //
 //                        NodeList nodes = form.getElementsByTagName("input");
-//                        System.out.println("form: " + form);
+//                        logger.info("form: " + form);
 //                        for (int i = 0; i < form.getElements().getLength(); i++) {
 //                            try {
 //                                org.w3c.dom.Node node = nodes.item(i);
 //                                if (node != null) {
-//                                    System.out.println("Node.name: " + "  - " + node);
+//                                    logger.info("Node.name: " + "  - " + node);
 //                                    HTMLInputElement input = (HTMLInputElement) node;
 //                                    if (input.getId() != null) {
 //                                        switch (input.getId()) {
@@ -116,16 +118,16 @@ public class LoytecBrowser implements Plugin {
 //                        logedIn.setValue(Boolean.TRUE);
 ////                        form.setTarget(null);
 ////                        form.submit();
-                        Object ob = webEngine.executeScript("retryReload()");
-                        System.out.println();
-                    }
+                                                                 Object ob = webEngine.executeScript("retryReload()");
+                                                                 logger.info("");
+                                                             }
 
-                }
-            }
+                                                         }
+                                                     }
             );
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.fatal(ex);
         }
 
     }
@@ -136,12 +138,12 @@ public class LoytecBrowser implements Plugin {
     }
 
     private void showAlert(String message) {
-        System.out.println("http error: " +message);
+        logger.info("http error: " + message);
     }
 
     private boolean showConfirm(String message) {
-         System.out.println("http error: " +message);
-         return true;
+        logger.info("http error: " + message);
+        return true;
     }
 
     @Override
@@ -167,6 +169,11 @@ public class LoytecBrowser implements Plugin {
     @Override
     public String getUUID() {
         return id.getValue();
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

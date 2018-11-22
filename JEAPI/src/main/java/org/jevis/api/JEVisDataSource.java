@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2013 - 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI.
- *
+ * <p>
  * JEAPI is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -63,8 +63,8 @@ public interface JEVisDataSource {
     /**
      * Create a symbolic link to a JEVisObject
      *
-     * @param name Name of the new created link.
-     * @param parent Parent JEVisObject under which the new link will be created
+     * @param name         Name of the new created link.
+     * @param parent       Parent JEVisObject under which the new link will be created
      * @param linkedObject Target JEVisObject where the link links to
      * @return
      * @throws JEVisException
@@ -105,7 +105,7 @@ public interface JEVisDataSource {
      * Get all JEVisObjects from a JEVisClass
      *
      * @param jevisClass
-     * @param addheirs if true all heirs of the JEVisClass will also be included
+     * @param addheirs   if true all heirs of the JEVisClass will also be included
      * @return
      * @throws JEVisException
      */
@@ -151,9 +151,9 @@ public interface JEVisDataSource {
      * Returns all relationships of a certain type.
      *
      * @param type type of the relationship
-     * @see JEVisConstants
      * @return
      * @throws JEVisException
+     * @see JEVisConstants
      */
     List<JEVisRelationship> getRelationships(int type) throws JEVisException;
 
@@ -171,6 +171,8 @@ public interface JEVisDataSource {
     List<JEVisClassRelationship> getClassRelationships() throws JEVisException;
 
     List<JEVisClassRelationship> getClassRelationships(String jclass) throws JEVisException;
+
+    List<JEVisAttribute> getAttributes() throws JEVisException;
 
     /**
      * Connect to the DataSource as a JEVis user
@@ -287,6 +289,19 @@ public interface JEVisDataSource {
      * @throws JEVisException
      */
     void preload() throws JEVisException;
-    
-    
+
+    /**
+     * Request the reloading of all Attributes.
+     *
+     * @return
+     * @throws JEVisException
+     */
+    void reloadAttributes() throws JEVisException;
+
+    /**
+     * request the reload of an attribute
+     *
+     * @throws JEVisException
+     */
+    void reloadAttribute(JEVisAttribute attribute);
 }

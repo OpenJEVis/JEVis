@@ -19,8 +19,6 @@
  */
 package org.jevis.commons.classes;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -28,13 +26,16 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author fs
  */
 public class ClassHelper {
 
-    private static final Logger LOGGER = LogManager.getLogger(ClassHelper.class);
+    private static final Logger logger = LogManager.getLogger(ClassHelper.class);
 
     public static void updateTypesForHeirs(JEVisDataSource ds, String jclass) throws JEVisException {
         JEVisClass parentClass = ds.getJEVisClass(jclass);
@@ -46,7 +47,7 @@ public class ClassHelper {
 
                 //get all heirs form the parent add add/update the types to them
                 for (JEVisClass heir : parentClass.getHeirs()) {
-                    LOGGER.trace("Add Type: '{}' to {}", type.getName(), heir.getName());
+                    logger.trace("Add Type: '{}' to {}", type.getName(), heir.getName());
                     JEVisType childType = heir.getType(type.getName());
                     if (childType == null) {//add new
                         childType = heir.buildType(type.getName());
@@ -73,7 +74,7 @@ public class ClassHelper {
                             }
                         }
                         if (!parentHasType) {
-                            LOGGER.trace("Delete Type: {}", type.getName());
+                            logger.trace("Delete Type: {}", type.getName());
                             heir.deleteType(type.getName());
                         }
                     }
@@ -81,24 +82,24 @@ public class ClassHelper {
 
             }
         } else {
-            LOGGER.error("Why is the class null: {}", jclass);
+            logger.error("Why is the class null: {}", jclass);
         }
 
     }
 
-    public static boolean isDirectory(JEVisClass jclass) throws JEVisException{
+    public static boolean isDirectory(JEVisClass jclass) throws JEVisException {
 
-        if(jclass.getName().equals("Directory")){
+        if (jclass.getName().equals("Directory")) {
             return true;
         }
 
-        if(jclass.getInheritance()!=null ){
-            if(jclass.getInheritance().getName().equals("Directory")){
+        if (jclass.getInheritance() != null) {
+            if (jclass.getInheritance().getName().equals("Directory")) {
                 return true;
-            }else{
+            } else {
                 return isDirectory(jclass.getInheritance());
             }
-        }else{
+        } else {
             return false;
         }
     }

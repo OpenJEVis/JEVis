@@ -1,14 +1,12 @@
 package org.jevis.jenotifier;
 
-import org.jevis.api.JEVisException;
-
 /**
  * Hello world!
  *
  */
 public class App {
 
-    public static void main(String[] args) throws JEVisException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) {
 //        long notiID = 1482l;
 //        long notiDriID = 1424l;
 //
@@ -18,7 +16,7 @@ public class App {
 //        loader1.loadingClass();
 //        NotificationDriver notiDri = loader1.getNotiDriInstance();
 //
-////        System.out.println(notiDri.getDriverType());
+////        logger.info(notiDri.getDriverType());
 //
 //        Notification noti = loader1.getNotiInstance();
 //
@@ -32,13 +30,13 @@ public class App {
 //        if (noti.isNotiConfigured() && notiDri.isDriverConfigured() && notiDri.isSupported(noti)) {
 //
 //            notiDri.sendNotification(noti);
-//            System.out.println(notiDri.sendTimeRecorder(notiObj, noti));
+//            logger.info(notiDri.sendTimeRecorder(notiObj, noti));
 //        }
 //        if (noti.isSendSussesfully()) {
-//            System.out.println("successfuly sent");
-//// System.out.println((noti).getSendTime());
+//            logger.info("successfuly sent");
+//// logger.info((noti).getSendTime());
 //        } else {
-//            System.out.println("unsuccessfuly sent");
+//            logger.info("unsuccessfuly sent");
 //        }
 //        NotifierLoader loader1 = new NotifierLoader("/home/gf/NetBeansProjects/Notifier-EP/target/", "Notifier-EP-1.0-SNAPSHOT.jar");//, "org.jevis.jenotifier.notifier.Email.EmailNotificationDriver"
 //
@@ -50,7 +48,7 @@ public class App {
 //        loader.loading();
 //        NotificationDriver notiDri2 = loader.getNotificationDriver();
 //
-//        System.out.println(notiDri.getClass().equals(notiDri2.getClass()));
+//        logger.info(notiDri.getClass().equals(notiDri2.getClass()));
 //
 //        NotifierLoader_old loader1 = new NotifierLoader_old("/home/gf/NetBeansProjects/Notifier-EP/target/", "Notifier-EP-1.0-SNAPSHOT.jar");//, "org.jevis.jenotifier.notifier.Email.EmailNotificationDriver"
 //
@@ -62,11 +60,11 @@ public class App {
 //        loader1.loading();
 //        NotificationDriver notiDri2 = loader1.getNotificationDriver();
 //
-//        System.out.println(notiDri.getClass().equals(notiDri2.getClass()));
+//        logger.info(notiDri.getClass().equals(notiDri2.getClass()));
 //        ConfigXMLParse xml = new ConfigXMLParse();
 //        xml.XMLToMap("/home/gf/NetBeansProjects/JENotifier/JENotifierConfig.xml");
 //
 //
-//        System.out.println(xml.getter1().get("jevisUsername"));
+//        logger.info(xml.getter1().get("jevisUsername"));
     }
 }

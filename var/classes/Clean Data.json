@@ -34,7 +34,7 @@
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Limiting DataRow",
+      "name": "Limits Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
       "GUIPosition": 0,
@@ -46,6 +46,15 @@
       "name": "Limits Configuration",
       "primitiveType": 0,
       "guiType": "Limits Config",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "GapFilling Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
@@ -98,6 +107,15 @@
     },
     {
       "name": "Value Offset",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Counter Overflow",
       "primitiveType": 1,
       "guiType": "Number",
       "GUIPosition": 0,

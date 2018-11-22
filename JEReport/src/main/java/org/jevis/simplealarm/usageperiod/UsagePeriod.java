@@ -5,13 +5,13 @@
  */
 package org.jevis.simplealarm.usageperiod;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.joda.time.DateTime;
 
 /**
  * period is an integer value
@@ -28,6 +28,7 @@ import org.joda.time.DateTime;
  * @author ai
  */
 public class UsagePeriod {
+    private static final Logger logger = LogManager.getLogger(UsagePeriod.class);
 
     private final int NODATA = 0; 
     private int _times;
@@ -45,10 +46,10 @@ public class UsagePeriod {
     public void setPeriod(JEVisObject alarmObj, String attrName) {
         _times = getPeriod(alarmObj, attrName);
         int period = _times;
-        Logger.getLogger(UsagePeriod.class.getName()).log(Level.INFO, "hours bitmap: " + Integer.toBinaryString(_times));
+        logger.info("hours bitmap: " + Integer.toBinaryString(_times));
         _days = ((period >> 24) & 0xFF);
         _days = _days * 2; // shift of 1 to the left (days = 1,2,..7 - check bit 1 not 0)
-        Logger.getLogger(UsagePeriod.class.getName()).log(Level.INFO, "days bitmap: " + Integer.toBinaryString(_days));
+        logger.info("days bitmap: " + Integer.toBinaryString(_days));
     }
     
     private int getPeriod(JEVisObject alarmObj, String attrName) {
@@ -57,11 +58,11 @@ public class UsagePeriod {
             JEVisAttribute att = alarmObj.getAttribute(attrName);
 
             if (att == null) {
-                Logger.getLogger(UsagePeriod.class.getName()).log(Level.SEVERE, "Attribute is null");
+                logger.error("Attribute is null");
                 return NODATA;
             }
             if (!att.hasSample()) {
-                Logger.getLogger(UsagePeriod.class.getName()).log(Level.SEVERE, "Attribute has no samples");
+                logger.error("Attribute has no samples");
                 return NODATA;
             }
 
@@ -71,13 +72,13 @@ public class UsagePeriod {
                 val = lastS.getValueAsLong();
                 return safeLongToInt(val);
             } catch (JEVisException ex) {
-                Logger.getLogger(UsagePeriod.class.getName()).log(Level.INFO, "period is empty. defualt value added", ex);
+                logger.info("period is empty. defualt value added", ex);
                 return NODATA;
             }
         } catch (Exception ex) {
-            Logger.getLogger(UsagePeriod.class.getName()).log(Level.SEVERE, "Failed to get the value for the " + attrName, ex);
+            logger.error("Failed to get the value for the " + attrName, ex);
         }
-        Logger.getLogger(UsagePeriod.class.getName()).log(Level.SEVERE, "Get attribut value failed");
+        logger.error("Get attribute value failed");
         throw new NullPointerException();
     }
 

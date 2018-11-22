@@ -33,6 +33,7 @@ public class GUIConstants {
     public static DisplayType BASIC_ENUM = new DisplayType("String Enum", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LOCALE = new DisplayType("Language Selector", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType BASIC_TEXT_DATE_FULL = new DisplayType("Date", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType BASIC_TEXT_TIME = new DisplayType("Time", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType BASIC_NUMBER_LONG = new DisplayType("Number", JEVisConstants.PrimitiveType.LONG);
     public static DisplayType BASIC_TARGET_LONG = new DisplayType("Target Selector", JEVisConstants.PrimitiveType.LONG);
     public static DisplayType BASIC_PASSWORD = new DisplayType("Password", JEVisConstants.PrimitiveType.STRING);
@@ -41,8 +42,8 @@ public class GUIConstants {
     public static DisplayType TIME_ZONE = new DisplayType("Time Zone", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType GAP_FILLING_CONFIG = new DisplayType("Gap Filling Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LIMITS_CONFIG = new DisplayType("Limits Config", JEVisConstants.PrimitiveType.STRING);
-    
-    public static Logger LOGGER = LogManager.getLogger(GUIConstants.class);
+
+    private static final Logger logger = LogManager.getLogger(GUIConstants.class);
 
     public static List<DisplayType> ALL = new ArrayList<DisplayType>() {
         {
@@ -55,6 +56,7 @@ public class GUIConstants {
             add(BOOLEAN_BUTTON);
             add(PASSWORD_PBKDF2);
             add(BASIC_TEXT_DATE_FULL);
+            add(BASIC_TEXT_TIME);
             add(BASIC_NUMBER_LONG);
             add(BASIC_TARGET_LONG);
             add(TARGET_ATTRIBUTE);

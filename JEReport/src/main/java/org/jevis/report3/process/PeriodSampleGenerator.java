@@ -5,21 +5,18 @@
  */
 package org.jevis.report3.process;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.BasicProcess;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
-import org.jevis.commons.dataprocessing.ProcessOptions;
-import org.jevis.commons.dataprocessing.function.AggregationFunktion;
+import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.dataprocessing.function.AggregatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
+import org.jevis.commons.dataprocessing.function.MathFunction;
+import org.jevis.commons.dataprocessing.function.NullFunction;
 import org.jevis.report3.ReportLauncher;
 import org.jevis.report3.data.attribute.AttributeConfiguration;
 import org.jevis.report3.data.attribute.AttributeConfigurationFactory.ReportConfigurationName;
@@ -31,14 +28,19 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 /**
- *
  * @author broder
  */
 public class PeriodSampleGenerator implements SampleGenerator {
 
     boolean isValid = false;
     private Interval interval;
+    private static final Logger logger = LogManager.getLogger(PeriodSampleGenerator.class);
 
     public PeriodSampleGenerator(DateTime from, DateTime until) {
         interval = new Interval(from, until);
@@ -57,21 +59,24 @@ public class PeriodSampleGenerator implements SampleGenerator {
         try {
             attribute = dataObject.getAttribute(attributeData.getAttributeName());
         } catch (JEVisException ex) {
-            Logger.getLogger(PeriodSampleGenerator.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
 
         List<JEVisSample> samples = generateSamples(attribute, interval);
+        logger.debug("Generated " + samples.size() + " samples.");
 
         List<JEVisSample> aggregatedSamples = getAggregatedSamples(periodConfiguration, linkData, attributeData, samples);
+        logger.debug("Generated " + aggregatedSamples.size() + " aggregated samples.");
+
         Map<String, Object> sampleMap = ProcessHelper.getAttributeSamples(aggregatedSamples, attribute, property.getTimeZone());
+        logger.debug("Created sample map with " + sampleMap.size() + " entries.");
 
         return sampleMap;
     }
 
-    List<JEVisSample> generateSamples(JEVisAttribute attribute, Interval interval) {
+    private List<JEVisSample> generateSamples(JEVisAttribute attribute, Interval interval) {
         //calc the sample list
-        List<JEVisSample> samples = attribute.getSamples(interval.getStart(), interval.getEnd());
-        return samples;
+        return attribute.getSamples(interval.getStart(), interval.getEnd());
     }
 
     private List<JEVisSample> getAggregatedSamples(AttributeConfiguration periodConfiguration, ReportLinkProperty linkData, ReportAttributeProperty attributeData, List<JEVisSample> samples) {
@@ -79,86 +84,92 @@ public class PeriodSampleGenerator implements SampleGenerator {
         String modeName = null;
         try {
             modeName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
+            logger.info("Mode name: " + modeName);
         } catch (JEVisException ex) {
-            Logger.getLogger(PeriodSampleGenerator.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
 
         if (modeName == null) {
             return new ArrayList<>();
         }
 
-        BasicProcess aggrigate = new BasicProcess();
-        aggrigate.setJEVisDataSource(ReportLauncher.getDataSource());
-        aggrigate.setID("Dynamic");
+        BasicProcess aggregate = new BasicProcess();
+        aggregate.setJEVisDataSource(ReportLauncher.getDataSource());
 
-        AggregationModus mode = AggregationModus.get(modeName.toUpperCase());
+        AggregationMode mode = AggregationMode.get(modeName.toUpperCase());
         switch (mode) {
+            case MIN:
+                aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.MIN.toString());
+                break;
+            case MAX:
+                aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.MAX.toString());
+                break;
+            case MEDIAN:
+                aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.MEDIAN.toString());
+                break;
             case AVERAGE:
-                aggrigate.setFunction(new AggregationFunktion(mode.name().toLowerCase()));
+                aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.AVERAGE.toString());
                 break;
             case TOTAL:
-                aggrigate.setFunction(new AggregationFunktion(mode.name().toLowerCase()));
+                aggregate.setFunction(new AggregatorFunction());
+                aggregate.setID(AggregationMode.TOTAL.toString());
                 break;
             default:
-                aggrigate.setFunction(new AggregationFunktion(AggregationModus.TOTAL.name().toLowerCase()));
+                aggregate.setFunction(new NullFunction());
+                aggregate.setID("Null");
                 break;
         }
 
         AggregationPeriod period = AggregationPeriod.get(modeName.toUpperCase());
         switch (period) {
             case DAILY:
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
+                aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
                 break;
             case HOURLY:
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
+                aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
                 break;
             case WEEKLY:
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
+                aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
                 break;
             case MONTHLY:
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
+                aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
                 break;
             case QUARTERLY:
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(3).toString()));
+                aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(3).toString()));
                 break;
             case YEARLY:
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
+                aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
+                break;
+            case NONE:
+                try {
+                    Period p = linkData.getDataObject().getAttribute(attributeData.getAttributeName()).getInputSampleRate();
+                    aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, p.toString()));
+                } catch (JEVisException e) {
+                    try {
+                        Period p = linkData.getDataObject().getAttribute(attributeData.getAttributeName()).getDisplaySampleRate();
+                        aggregate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, p.toString()));
+                    } catch (JEVisException e1) {
+                        logger.fatal(e);
+                        return samples;
+                    }
+                }
                 break;
             default:
-                return samples;
+                break;
         }
+
         BasicProcess input = new BasicProcess();
         input.setJEVisDataSource(ReportLauncher.getDataSource());
         input.setID("Dynamic Input");
         input.setFunction(new InputFunction(samples));
         input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attributeData.getAttributeName()));
         input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, linkData.getDataObject().getID() + ""));
-        aggrigate.setSubProcesses(Arrays.asList(input));
-        List<JEVisSample> aggregatedSamples = aggrigate.getResult();
-        return aggregatedSamples;
-    }
+        aggregate.setSubProcesses(Collections.singletonList(input));
 
-    private enum AggregationPeriod {
-
-        NONE, HOURLY, DAILY, MONTHLY, WEEKLY, QUARTERLY, YEARLY;
-
-        public static AggregationPeriod get(String modusName) {
-            String period = modusName.split("_")[0];
-            return valueOf(period);
-        }
-    }
-
-    private enum AggregationModus {
-
-        TOTAL, AVERAGE;
-
-        public static AggregationModus get(String modusName) {
-            String[] modusArray = modusName.split("_");
-            String modus = TOTAL.name();
-            if (modusArray.length == 2) {
-                modus = modusArray[1];
-            }
-            return valueOf(modus);
-        }
+        return aggregate.getResult();
     }
 }

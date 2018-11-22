@@ -1,37 +1,40 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.dataprocessing;
 
-import org.jevis.commons.dataprocessing.function.NullFunction;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.utils.Benchmark;
+import org.jevis.commons.dataprocessing.function.NullFunction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class BasicProcess implements Process {
+    private static final Logger logger = LogManager.getLogger(BasicProcess.class);
 
     private ProcessFunction _processor = new NullFunction();
     private List<ProcessOption> _options = new ArrayList<>();
@@ -66,7 +69,7 @@ public class BasicProcess implements Process {
         setJEVisDataSource(ds);
         setObject(parentObj);
         for (JsonProcess jt : jTask.getSubTasks()) {
-            System.out.println("make new subtak: " + jt);
+            logger.info("make new sub task: " + jt);
             tasks.add(new BasicProcess(ds, jt, parentTask, parentObj));
         }
         _parent = parentTask;
@@ -96,7 +99,7 @@ public class BasicProcess implements Process {
 
     @Override
     public void setFunction(ProcessFunction processor) {
-        System.out.println("setProcess: " + processor.getName());
+        logger.info("setProcess: " + processor.getName());
         _processor = processor;
     }
 
@@ -132,25 +135,27 @@ public class BasicProcess implements Process {
             return _result;
         }
 
+        logger.info("Begin task " + getID());
+
         if (!isDone) {
             if (getSubProcesses().isEmpty()) {
-//            System.out.println("[" + _id + "]  No more sub tasks!");
+//            logger.info("[" + _id + "]  No more sub tasks!");
 
             } else {
                 for (Process task : getSubProcesses()) {
                     task.getResult();
                 }
-//            System.out.println("[" + _id + "] All subtask are done!");
+//            logger.info("[" + _id + "] All subtask are done!");
             }
             isDone = true;
+            logger.info(getID() + " task is done");
 
         }
 
-        Benchmark bench = new Benchmark();
         _result = getFunction().getResult(this);
-        System.out.println("[" + _id + "] [" + _processor.getName() + "]  Result size: " + _result.size());
 
-        bench.printBechmark(" Task " + getID());
+        logger.info("[" + _id + "] [" + _processor.getName() + "]  Result size: " + _result.size());
+
         return _result;
 
     }
@@ -186,10 +191,10 @@ public class BasicProcess implements Process {
     }
 
     public void print() {
-        System.out.println(toString());
+        logger.info(toString());
         for (Process task : getSubProcesses()) {
             ((BasicProcess) task).print();
-//            System.out.println("--- " + task.toString());
+//            logger.info("--- " + task.toString());
         }
     }
 

@@ -31,15 +31,18 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jeconfig.map.MapViewPlugin;
-import org.jevis.jeconfig.plugin.browser.ISO5001Browser;
-import org.jevis.jeconfig.plugin.dashboard.DashboardPlugin;
+import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
+import org.jevis.jeconfig.plugin.scada.SCADAPlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,6 +52,7 @@ import java.util.List;
  */
 public class PluginManager {
 
+    private static final Logger logger = LogManager.getLogger(PluginManager.class);
     private List<Plugin> _plugins = new ArrayList<>();
     private JEVisDataSource _ds;
     private boolean _watermark = true;
@@ -87,8 +91,8 @@ public class PluginManager {
         List<Plugin> plugins = new ArrayList<>();
 //        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
-        plugins.add(new DashboardPlugin(_ds));
-        plugins.add(new ISO5001Browser(_ds));
+        plugins.add(new SCADAPlugin(_ds));
+        plugins.add(new ISO50001Browser(_ds));
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
         plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
         plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.map.title")));
@@ -119,19 +123,19 @@ public class PluginManager {
 
             List<JEVisObject> servicesDir = _ds.getObjects(servicesClass, false);
             if (servicesDir == null || servicesDir.isEmpty()) {
-                System.out.println("Warning missing ServicesDirectory");
+                logger.info("Warning missing ServicesDirectory");
                 return;
             }
 
             List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
             if (controlCenterObj == null || controlCenterObj.isEmpty()) {
-                System.out.println("Warning missing ControlCenter");
+                logger.info("Warning missing ControlCenter");
                 return;
             }
 
             List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
             if (pluginObjs == null || pluginObjs.isEmpty()) {
-                System.out.println("Warning No Plugins installed");
+                logger.info("Warning No Plugins installed");
                 return;
             }
 
@@ -141,7 +145,7 @@ public class PluginManager {
                 for (JEVisObject plugObj : pluginObjs) {
                     try {
                         for (Plugin plugin : plugins) {
-                            try{
+                            try {
                                 if (plugin.getClassName().equals(plugObj.getJEVisClassName())) {
                                     JEVisAttribute enabled = plugObj.getAttribute("Enable");
                                     if (enabled == null) {
@@ -154,11 +158,11 @@ public class PluginManager {
                                         }
                                     }
                                 }
-                            }catch(Exception ex){
+                            } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
                         }
-                    }catch (Exception ex) {
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -166,8 +170,14 @@ public class PluginManager {
 
             }
 
+            try {
+                Collections.swap(_plugins, 0, 1);
+            } catch (Exception e) {
+                //workaround to get graph plugin to first position
+            }
 
-        }catch (Exception ex) {
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -192,7 +202,7 @@ public class PluginManager {
             try {
                 Tab pluginTab = new Tab(plugin.getName());
                 pluginTab.setClosable(false);
-                pluginTab.setTooltip(new Tooltip(plugin.getUUID()));
+                pluginTab.setTooltip(new Tooltip(plugin.getToolTip()));
 //            pluginTab.setContent(plugin.getView().getNode());
                 pluginTab.setContent(plugin.getContentNode());
                 tabPane.getTabs().add(pluginTab);

@@ -4,18 +4,18 @@
  */
 package org.jevis.jenotifier.config;
 
-import org.jevis.jenotifier.JENotifierHelper;
-import java.util.List;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.jevis.commons.cli.JEVisCommandLine;
+import org.jevis.jenotifier.JENotifierHelper;
+
+import java.util.List;
 
 /**
- *
  * @author gf
  */
 public class JENotifierConfig {
 
-//    private String _url;
+    //    private String _url;
     private String _jevisUserPW;
     private String _jevisUsername;
     private String _dbSchema;
@@ -31,7 +31,7 @@ public class JENotifierConfig {
     private String _mode;
     private List<Long> _notiIDs;
     private List<Long> _notiDriIDs;
-//    private long _interval;
+    //    private long _interval;
     private int _servicePort;
     private Level _debugLevel;
 
@@ -42,75 +42,68 @@ public class JENotifierConfig {
 //    public String getURL() {
 //        return _url;
 //    }
+
     /**
-     *
      * @return the host of the database
      */
     public String getDBHost() {
-//        System.out.println("code host in JENotifierConfig  " );
+//        logger.info("code host in JENotifierConfig  " );
         return _dbHost;
     }
 
     /**
-     *
      * @return the port of the database
      */
     public String getDBPort() {
-//        System.out.println("code port in JENotifierConfig  " );
+//        logger.info("code port in JENotifierConfig  " );
         return _dbPort;
     }
 
     /**
-     *
      * @return the user of the database
      */
     public String getDBUser() {
-//        System.out.println("code dbuser in JENotifierConfig  " );
+//        logger.info("code dbuser in JENotifierConfig  " );
         return _dbUser;
     }
 
     /**
-     *
      * @return the password of the database
      */
     public String getDBPassword() {
-//        System.out.println("code dbpassword in JENotifierConfig  ");
+//        logger.info("code dbpassword in JENotifierConfig  ");
         return _dbPassword;
     }
 
     /**
-     *
      * @return the schema of the database
      */
     public String getDBSchema() {
-//        System.out.println("code schema in JENotifierConfig  ");
+//        logger.info("code schema in JENotifierConfig  ");
         return _dbSchema;
     }
 
     /**
-     *
      * @return the name of jevis name
      */
     public String getJEVisUserName() {
-//        System.out.println("code jevis user name in JENotifierConfig  " );
+//        logger.info("code jevis user name in JENotifierConfig  " );
         return _jevisUsername;
     }
 
     /**
-     *
      * @return the password of jevis user
      */
     public String getJEVisUserPassword() {
-//        System.out.println("code jevis user pw in JENotifierConfig  ");
+//        logger.info("code jevis user pw in JENotifierConfig  ");
         return _jevisUserPW;
     }
 
     /**
-     *
      * @return the mode of JENotifier
      */
     public String getMode() {
-//        System.out.println("code mode in JENotifierConfig  " );
+//        logger.info("code mode in JENotifierConfig  " );
         return _mode;
     }
 
@@ -119,11 +112,11 @@ public class JENotifierConfig {
 //     * @return the interval time
 //     */
 //    public long getInterval() {
-////        System.out.println("code interval in JENotifierConfig  " );
+////        logger.info("code interval in JENotifierConfig  " );
 //        return _interval;
 //    }
+
     /**
-     *
      * @return the IDs of the notifications to be sent
      */
     public List<Long> getNotificationIDs() {
@@ -131,34 +124,30 @@ public class JENotifierConfig {
     }
 
     /**
-     *
      * @return the IDs of the drivers to be used
      */
     public List<Long> getNotificationDriverIDs() {
-//        System.out.println("code noti dri id in JENotifierConfig  " );
+//        logger.info("code noti dri id in JENotifierConfig  " );
         return _notiDriIDs;
     }
 
     /**
-     *
      * @return the path of the Jar File (Notifier)
      */
     public String getPathNotifiier() {
-//        System.out.println("code path noti in JENotifierConfig  " );
+//        logger.info("code path noti in JENotifierConfig  " );
         return _pathOfNotifierJar;
     }
 
     /**
-     *
      * @return the name of Jar File (Notifier)
      */
     public String getNameNotifier() {
-//        System.out.println("code name noti in JENotifierConfig  ");
+//        logger.info("code name noti in JENotifierConfig  ");
         return _nameOfNotifierJar;
     }
 
     /**
-     *
      * @return the names of the notification classes to be loaded
      */
     public List<String> getClassNoti() {
@@ -166,7 +155,6 @@ public class JENotifierConfig {
     }
 
     /**
-     *
      * @return the names of the driver classes to be loaded
      */
     public List<String> getClassNotiDriver() {
@@ -174,16 +162,14 @@ public class JENotifierConfig {
     }
 
     /**
-     *
      * @return the max number of the threads
      */
     public int getNumberOfThread() {
-//        System.out.println(config.get(JENotifierHelper.NUMBER_THREAD));
+//        logger.info(config.get(JENotifierHelper.NUMBER_THREAD));
         return _numberThread;
     }
 
     /**
-     *
      * @return the port of the service
      */
     public int getServicePort() {
@@ -201,7 +187,6 @@ public class JENotifierConfig {
     }
 
     /**
-     *
      * @param notiIDs
      */
     public void changeNotificationIDs(List<Long> notiIDs) {

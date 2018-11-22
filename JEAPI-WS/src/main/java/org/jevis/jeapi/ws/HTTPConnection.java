@@ -52,7 +52,7 @@ public class HTTPConnection {
     private final String baseURL;
     private final String username;
     private final String password;
-    private final Logger logger = LogManager.getLogger(HTTPConnection.class);
+    private static final Logger logger = LogManager.getLogger(HTTPConnection.class);
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
 
     /**
@@ -75,7 +75,7 @@ public class HTTPConnection {
     private void addAuth(HttpURLConnection conn, String username, String password) {
         String auth = new String(Base64.encodeBase64((username + ":" + password).getBytes()));
 
-//        System.out.println("Using auth: 'Authorization Basic " + auth);
+//        logger.info("Using auth: 'Authorization Basic " + auth);
         conn.setRequestProperty("Authorization", "Basic " + auth);
     }
 
@@ -208,7 +208,7 @@ public class HTTPConnection {
 //            reader = new InputStreamReader(con.getInputStream());
 //        }
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8));
         writer.write(json);
         writer.close();
         wr.close();

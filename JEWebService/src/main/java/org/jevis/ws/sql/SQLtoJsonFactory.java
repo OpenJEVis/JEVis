@@ -25,7 +25,6 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
 import org.jevis.ws.sql.tables.AttributeTable;
@@ -49,16 +48,15 @@ import java.util.Map;
  */
 public class SQLtoJsonFactory {
 
-    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(SQLtoJsonFactory.class);
-    /**
-     * Default date format for attribute dates
-     */
-    private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     /**
      * default date format for JEVIsSamples Timestamps
      */
     public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
-
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(SQLtoJsonFactory.class);
+    /**
+     * Default date format for attribute dates
+     */
+    private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private static final Gson gson = new Gson();
 
     //    public static JsonAttribute buildAttribute(ResultSet rs) throws JEVisException, SQLException {
@@ -97,7 +95,7 @@ public class SQLtoJsonFactory {
 //
 //        return jatt;
 //    }
-    public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQLException {
         JsonType type = JEVisClassHelper.getType(rs.getString(ObjectTable.COLUMN_CLASS), rs.getString(AttributeTable.COLUMN_NAME));
         if (type == null) {
             return null;
@@ -120,6 +118,7 @@ public class SQLtoJsonFactory {
         jatt.setInputSampleRate(imputSRate);
         jatt.setDisplaySampleRate(displayRate);
         jatt.setType(name);
+        jatt.setObjectID(objectID);
 
         try {
             JEVisUnitImp imputUnit = new JEVisUnitImp(gson.fromJson(rs.getString(AttributeTable.COLUMN_INPUT_UNIT), JsonUnit.class));
@@ -166,9 +165,8 @@ public class SQLtoJsonFactory {
      * Build a JSON representation of a JEVisObject
      *
      * @return
-     * @throws JEVisException
      */
-    public static JsonObject buildObject(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonObject buildObject(ResultSet rs) throws SQLException {
         JsonObject json = new JsonObject();
         json.setName(rs.getString(ObjectTable.COLUMN_NAME));
         json.setId(rs.getLong(ObjectTable.COLUMN_ID));
@@ -181,9 +179,8 @@ public class SQLtoJsonFactory {
      * Build a JSON representation of a JEVisRelationship
      *
      * @return
-     * @throws JEVisException
      */
-    public static JsonRelationship buildRelationship(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonRelationship buildRelationship(ResultSet rs) throws SQLException {
         JsonRelationship json = new JsonRelationship();
         json.setFrom(rs.getLong(RelationshipTable.COLUMN_START));
         json.setTo(rs.getLong(RelationshipTable.COLUMN_END));
@@ -222,9 +219,8 @@ public class SQLtoJsonFactory {
      * Build a JSON representation of a JEVIsSample
      *
      * @return
-     * @throws JEVisException
      */
-    public static JsonSample buildSample(ResultSet rs) throws JEVisException, SQLException {
+    public static JsonSample buildSample(ResultSet rs) throws SQLException {
         JsonSample json = new JsonSample();
         json.setNote(rs.getString(SampleTable.COLUMN_NOTE));
         json.setTs(sampleDTF.print(new DateTime(rs.getTimestamp(SampleTable.COLUMN_TIMESTAMP))));

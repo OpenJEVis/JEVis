@@ -19,6 +19,8 @@
  */
 package org.jevis.commons.unit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
 import org.jscience.economics.money.Money;
 
@@ -35,6 +37,7 @@ import java.util.*;
  * @author fs
  */
 public class UnitManager {
+    private static final Logger logger = LogManager.getLogger(UnitManager.class);
 
     private final static UnitManager unitManager = new UnitManager();
     private List<Unit> prefixes;
@@ -45,11 +48,17 @@ public class UnitManager {
     private List<JEVisUnit> _nonSIJunit;
     private List<Unit> si;
     private List<JEVisUnit> _siJunit;
-    private List<Unit> additonalUnits;
+    private List<Unit> additionalUnits;
     private HashMap<Unit, String> names;
     private HashMap<JEVisUnit, String> _namesJUnit;
     private HashMap<Unit, String> dimNames;
     private HashMap<JEVisUnit, String> _dimNamesJUnit;
+
+    /* A private Constructor prevents any other
+     * class from instantiating.
+     */
+    private UnitManager() {
+    }
 
     public static JEVisUnit cloneUnit(JEVisUnit unit) {
 
@@ -58,12 +67,6 @@ public class UnitManager {
         clone.setLabel(unit.getLabel());
         clone.setPrefix(unit.getPrefix());
         return clone;
-    }
-
-    /* A private Constructor prevents any other
-     * class from instantiating.
-     */
-    private UnitManager() {
     }
 
     public static UnitManager getInstance() {
@@ -323,9 +326,9 @@ public class UnitManager {
     }
 
     public JEVisUnit.Prefix getPrefix(String name, Locale locale) {
-//        System.out.println("getPrefix: " + name);
+//        logger.info("getPrefix: " + name);
         if (name == null || name.isEmpty()) {
-            System.out.println("emty Prefix = none");
+            logger.info("emty Prefix = none");
             return JEVisUnit.Prefix.NONE;
         }
 
@@ -371,7 +374,7 @@ public class UnitManager {
             case PrefixName.NONE:
                 return JEVisUnit.Prefix.NONE;
             default:
-                System.out.println("unkown Prefix: " + name);
+                logger.info("unkown Prefix: " + name);
                 return JEVisUnit.Prefix.NONE;
         }
     }
@@ -427,7 +430,7 @@ public class UnitManager {
                 return PrefixName.NONE;
 
             default:
-                System.out.println("Waring no prefix name found for: " + prefix);
+                logger.info("Warning no prefix name found for: " + prefix);
                 return PrefixName.NONE;
         }
     }
@@ -440,7 +443,7 @@ public class UnitManager {
      * @return
      */
     public Unit getUnitWithPrefix(Unit unit, JEVisUnit.Prefix prefix) {
-//        System.out.println("getUnitWithPrefix: " + prefix);
+//        logger.info("getUnitWithPrefix: " + prefix);
         switch (prefix) {
             case ATTO:
                 return SI.ATTO(unit);
@@ -593,12 +596,18 @@ public class UnitManager {
     }
 
     public String formate(JEVisUnit junit) {
-        String uString = junit.getFormula().replace("·", "");
-        uString = uString.replace("(", "");
-        uString = uString.replace(")", "");
-        uString = uString.replace("/", "");
-        String withPrefix = getPrefixChar(junit.getPrefix()) + uString;
-        return withPrefix;
+        if (junit != null && junit.getFormula() != null) {
+            String uString = junit.getFormula().replace("·", "");
+            uString = uString.replace("(", "");
+            uString = uString.replace(")", "");
+            //uString = uString.replace("/", "");
+            String withPrefix = getPrefixChar(junit.getPrefix()) + uString;
+            return withPrefix;
+        } else {
+            logger.warn("No unit for formate");
+            return "";
+        }
+
     }
 
     public String formate(Unit unit) {
@@ -606,12 +615,12 @@ public class UnitManager {
     }
 
     public String formate(Unit unit, String altSymbol) {
-//        System.out.println("Formate unit: " + unit + "  AltUnit: " + altSymbol);
+//        logger.info("Formate unit: " + unit + "  AltUnit: " + altSymbol);
 //        String u1 = unit.getStandardUnit().toString().replace("·", "");
         String u1 = unit.toString().replace("·", "");
         u1 = u1.replace("(", "");
         u1 = u1.replace(")", "");
-        u1 = u1.replace("/", "");
+        //u1 = u1.replace("/", "");
 
         return u1;
 
@@ -621,69 +630,69 @@ public class UnitManager {
      * @return
      * @TODO: this list comes from the WebServices
      */
-    public List<Unit> getAdditonalUnits() {
-        if (additonalUnits != null) {
-            return additonalUnits;
+    public List<Unit> getAdditionalUnits() {
+        if (additionalUnits != null) {
+            return additionalUnits;
         }
-        additonalUnits = new ArrayList<>();
+        additionalUnits = new ArrayList<>();
 
-        additonalUnits.add(Unit.valueOf("Hz"));
-        additonalUnits.add(NonSI.REVOLUTION.divide(SI.SECOND));
-        additonalUnits.add(SI.WATT.times(SI.SECOND));
-        additonalUnits.add(SI.WATT.times(NonSI.HOUR));
+        additionalUnits.add(Unit.valueOf("Hz"));
+        additionalUnits.add(NonSI.REVOLUTION.divide(SI.SECOND));
+        additionalUnits.add(SI.WATT.times(SI.SECOND));
+        additionalUnits.add(SI.WATT.times(NonSI.HOUR));
 
-        additonalUnits.add(Money.BASE_UNIT.alternate("€"));
-        additonalUnits.add(Money.BASE_UNIT.alternate("$"));
-        additonalUnits.add(Money.BASE_UNIT.alternate("£"));
-        additonalUnits.add(Money.BASE_UNIT.alternate("¥"));
-        additonalUnits.add(Money.BASE_UNIT.alternate("₦"));
-        additonalUnits.add(Money.BASE_UNIT.alternate("₹"));
+        additionalUnits.add(Money.BASE_UNIT.alternate("€"));
+        additionalUnits.add(Money.BASE_UNIT.alternate("$"));
+        additionalUnits.add(Money.BASE_UNIT.alternate("£"));
+        additionalUnits.add(Money.BASE_UNIT.alternate("¥"));
+        additionalUnits.add(Money.BASE_UNIT.alternate("₦"));
+        additionalUnits.add(Money.BASE_UNIT.alternate("₹"));
 
-        additonalUnits.add(SI.WATT.alternate("var"));
-        additonalUnits.add(SI.WATT.divide(SI.SQUARE_METRE));
-        additonalUnits.add(SI.METER.divide(SI.SECOND));
+        additionalUnits.add(SI.WATT.alternate("var"));
+        additionalUnits.add(SI.WATT.divide(SI.SQUARE_METRE));
+        additionalUnits.add(SI.METER.divide(SI.SECOND));
 
-        additonalUnits.add(Dimensionless.UNIT.alternate("Hits").divide(SI.METER.pow(2)));
-        additonalUnits.add(Unit.ONE.alternate("Hits").divide(SI.CENTIMETER.pow(2)));
-        additonalUnits.add(SI.OHM.divide(SI.CENTIMETER.pow(2)));
-        additonalUnits.add(SI.CENTIMETER.pow(2));
-        additonalUnits.add(SI.KILOMETER.pow(2));
+        additionalUnits.add(Dimensionless.UNIT.alternate("Hits").divide(SI.METER.pow(2)));
+        additionalUnits.add(Unit.ONE.alternate("Hits").divide(SI.CENTIMETER.pow(2)));
+        additionalUnits.add(SI.OHM.divide(SI.CENTIMETER.pow(2)));
+        additionalUnits.add(SI.CENTIMETER.pow(2));
+        additionalUnits.add(SI.KILOMETER.pow(2));
 
-        additonalUnits.add(Unit.ONE.times(1E-6));//ppm
+        additionalUnits.add(Unit.ONE.times(1E-6));//ppm
 
-        additonalUnits.add(SI.KILO(SI.WATT).times(NonSI.HOUR.times(SI.SECOND).times(Unit.ONE)));
+        additionalUnits.add(SI.KILO(SI.WATT).times(NonSI.HOUR.times(SI.SECOND).times(Unit.ONE)));
 
         //kWh/m²kWh/m²
-        additonalUnits.add(((SI.KILO(SI.WATT).times(NonSI.HOUR)).divide(SI.SQUARE_METRE)));
+        additionalUnits.add(((SI.KILO(SI.WATT).times(NonSI.HOUR)).divide(SI.SQUARE_METRE)));
 
         //Norm cubic metre
-        additonalUnits.add(SI.CUBIC_METRE.alternate("Nm³"));
+        additionalUnits.add(SI.CUBIC_METRE.alternate("Nm³"));
 
 
         try {
-            additonalUnits.add(SI.WATT.alternate("va"));
+            additionalUnits.add(SI.WATT.alternate("va"));
             /**
              * Workaround, should be Watt.time(hour) but this somehow does not work with .alternativ
              */
-            //additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
-            additonalUnits.add(Unit.ONE.alternate("vah"));
-            additonalUnits.add(Unit.ONE.alternate("cal"));
-            additonalUnits.add(Unit.ONE.alternate("vahr"));
+            //additionalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
+            additionalUnits.add(Unit.ONE.alternate("vah"));
+            additionalUnits.add(Unit.ONE.alternate("cal"));
+            additionalUnits.add(Unit.ONE.alternate("vahr"));
 
-//            additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
-//            System.out.println("1: " + SI.WATT.times(NonSI.HOUR).alternate("vahr"));
-//            additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("cal"));
-//            System.out.println("1: " + SI.WATT.times(NonSI.HOUR).alternate("cal"));
+//            additionalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
+//            logger.info("1: " + SI.WATT.times(NonSI.HOUR).alternate("vahr"));
+//            additionalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("cal"));
+//            logger.info("1: " + SI.WATT.times(NonSI.HOUR).alternate("cal"));
 //
-//            additonalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("vah"));
-//            System.out.println("4: " + SI.WATT.times(NonSI.HOUR).alternate("vah"));
+//            additionalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("vah"));
+//            logger.info("4: " + SI.WATT.times(NonSI.HOUR).alternate("vah"));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
 
-//        additonalUnits.add(Dimensionless.UNIT.alternate("Status"));
-        return additonalUnits;
+//        additionalUnits.add(Dimensionless.UNIT.alternate("Status"));
+        return additionalUnits;
     }
 
     public List<JEVisUnit> getCustomUnits() {
@@ -697,14 +706,14 @@ public class UnitManager {
             }
             if (!hasQuantitiy) {
 //                try {
-//                    System.out.println("Cutom unit has NO Qulity: " + formate(unit));
+//                    logger.info("Cutom unit has NO Qulity: " + formate(unit));
 //                } catch (JEVisException ex) {
 //                    Logger.getLogger(UnitManager.class.getName()).log(Level.SEVERE, null, ex);
 //                }
                 customUnits.add(unit);
             } else {
 //                try {
-//                    System.out.println("Cutom unit has Qulity: " + formate(unit));
+//                    logger.info("Cutom unit has Qulity: " + formate(unit));
 //                } catch (JEVisException ex) {
 //                    Logger.getLogger(UnitManager.class.getName()).log(Level.SEVERE, null, ex);
 //                }
@@ -715,12 +724,12 @@ public class UnitManager {
     }
 
     public List<JEVisUnit> getAdditonalJEVisUnits() {
-//        if (additonalUnits != null) {
-//            return additonalUnits;
+//        if (additionalUnits != null) {
+//            return additionalUnits;
 //        }
         List<JEVisUnit> units = new ArrayList<>();
 
-        for (Unit u : getAdditonalUnits()) {
+        for (Unit u : getAdditionalUnits()) {
             units.add(new JEVisUnitImp(u));
         }
         return units;
@@ -1082,7 +1091,7 @@ public class UnitManager {
 
         String name = getNameMapQuantities(locale).get(unit);
         if (name != null && !name.isEmpty()) {
-//            System.out.println(String.format(" get name for: %s [%s] = %s", unit.toString(), unit.getStandardUnit().toString(), name));
+//            logger.info(String.format(" get name for: %s [%s] = %s", unit.toString(), unit.getStandardUnit().toString(), name));
             return name;
         } else {
             return "Dimensionless";
@@ -1094,7 +1103,7 @@ public class UnitManager {
 
         String name = getNameMapQuantities().get(unit.getStandardUnit());
         if (name != null && !name.isEmpty()) {
-//            System.out.println(String.format(" get name for: %s [%s] = %s", unit.toString(), unit.getStandardUnit().toString(), name));
+//            logger.info(String.format(" get name for: %s [%s] = %s", unit.toString(), unit.getStandardUnit().toString(), name));
             return name;
         } else {
             return "Dimensionless";
@@ -1156,10 +1165,10 @@ public class UnitManager {
         for (JEVisUnit other : getAdditonalJEVisUnits()) {
 //            System.out.print(other + " ? ...");
             if (unit.isCompatible(other) && !other.equals(unit)) {
-//                System.out.println("is");
+//                logger.info("is");
                 units.add(other);
             }
-//            System.out.println("NOT");
+//            logger.info("NOT");
         }
 
         return units;
@@ -1179,15 +1188,15 @@ public class UnitManager {
 
     public List<Unit> getCompatibleAdditionalUnit(Unit unit) {
         List<Unit> units = new ArrayList<Unit>();
-//        System.out.println("Found add units for: " + unit);
+//        logger.info("Found add units for: " + unit);
 
-        for (Unit other : getAdditonalUnits()) {
+        for (Unit other : getAdditionalUnits()) {
 //            System.out.print(other + " ? ...");
             if (unit.getStandardUnit().isCompatible(other) && !other.equals(unit)) {
-//                System.out.println("is");
+//                logger.info("is");
                 units.add(other);
             }
-//            System.out.println("NOT");
+//            logger.info("NOT");
         }
 
         return units;

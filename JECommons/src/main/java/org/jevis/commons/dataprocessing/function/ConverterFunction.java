@@ -19,6 +19,8 @@
  */
 package org.jevis.commons.dataprocessing.function;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.*;
@@ -26,8 +28,6 @@ import org.jevis.commons.dataprocessing.Process;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -35,6 +35,7 @@ import java.util.logging.Logger;
  */
 public class ConverterFunction implements ProcessFunction {
 
+    private static final Logger logger = LogManager.getLogger(ConverterFunction.class);
     public final static String NAME = "Converter";
     public static final String MULTIPLAYER = "multiplier";
     public static final String OFFSET = "offset";
@@ -59,18 +60,18 @@ public class ConverterFunction implements ProcessFunction {
             b = Double.parseDouble(ProcessOptions.GetLatestOption(mainTask, OFFSET, new BasicProcessOption(OFFSET, "0")).getValue());
 
             if (mainTask.getSubProcesses().size() != 1) {
-                System.out.println("Waring Counter processor can only handel one input. using first only!");
+                logger.info("Waring Counter processor can only handel one input. using first only!");
             }
 
-            System.out.println("Using M:" + m + "  B:" + b);
+            logger.info("Using M:" + m + "  B:" + b);
             for (JEVisSample sample : mainTask.getSubProcesses().get(0).getResult()) {
 
                 try {
                     double sum = (sample.getValueAsDouble() * m) + b;
-//                    System.out.println("TS: " + sample.getTimestamp() + " new Value: " + sum);
+//                    logger.info("TS: " + sample.getTimestamp() + " new Value: " + sum);
                     _result.add(new VirtualSample(sample.getTimestamp(), sum, mainTask.getJEVisDataSource(), new VirtualAttribute(null)));
                 } catch (JEVisException ex) {
-                    Logger.getLogger(ConverterFunction.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
 

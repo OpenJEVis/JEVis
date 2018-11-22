@@ -5,6 +5,8 @@
  */
 package org.jevis.iso.classes;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
@@ -16,8 +18,6 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.jevis.iso.add.Snippets.getValueString;
 
@@ -25,6 +25,8 @@ import static org.jevis.iso.add.Snippets.getValueString;
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
  */
 public class InternalAudit {
+    private static final Logger logger = LogManager.getLogger(InternalAudit.class);
+
     private long ID;
     private String name;
     private Long year;
@@ -50,7 +52,7 @@ public class InternalAudit {
     private String actquestionsname;
     private Long actquestionsid;
 
-    public InternalAudit(SQLDataSource ds, JsonObject input) throws Exception {
+    public InternalAudit(SQLDataSource ds, JsonObject input) {
         ID = 0L;
         name = "";
         year = 0L;
@@ -162,7 +164,7 @@ public class InternalAudit {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(InternalAudit.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return generalquestionsname;
     }

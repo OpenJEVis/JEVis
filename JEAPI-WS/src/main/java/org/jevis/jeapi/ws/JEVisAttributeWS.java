@@ -44,23 +44,28 @@ import java.util.List;
  */
 public class JEVisAttributeWS implements JEVisAttribute {
 
-    private String name = "";
-    private JEVisDataSourceWS ds;
-    private long objectID;
-    private final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
     private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
+    private static final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
+    private JEVisDataSourceWS ds;
+    //    private long objectID;
     private JsonAttribute json;
+
 
     public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json, Long obj) {
         this.ds = ds;
-        this.objectID = obj;
         this.json = json;
-        name = json.getType();
+
+        this.json.setObjectID(obj);
+    }
+
+    public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json) {
+        this.ds = ds;
+        this.json = json;
     }
 
     @Override
     public String getName() {
-        return name;
+        return json.getType();
     }
 
     @Override
@@ -70,13 +75,13 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public JEVisType getType() throws JEVisException {
-        return ds.getObject(objectID).getJEVisClass().getType(name);
+        return ds.getObject(getObjectID()).getJEVisClass().getType(getName());
     }
 
     @Override
     public JEVisObject getObject() {
         try {
-            return ds.getObject(objectID);
+            return ds.getObject(getObjectID());
         } catch (Exception ex) {
             return null;
         }
@@ -156,6 +161,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
 //
         }
+        ds.reloadAttribute(this);
         return 1;
     }
 
@@ -248,8 +254,9 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public boolean deleteAllSample() {
-
-        return deleteSamplesBetween(null, null);
+        Boolean delete = deleteSamplesBetween(null, null);
+        ds.reloadAttribute(this);
+        return delete;
     }
 
     @Override
@@ -281,12 +288,13 @@ public class JEVisAttributeWS implements JEVisAttribute {
 //                resource += "null";
             } else {
                 resource += "&" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL;
-                resource += HTTPConnection.FMT.print(from);
+                resource += HTTPConnection.FMT.print(to);
             }
 
             Gson gson = new Gson();
             HttpURLConnection conn = ds.getHTTPConnection().getDeleteConnection(resource);
 
+            ds.reloadAttribute(this);
             return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
         } catch (Exception ex) {
             return false;
@@ -325,7 +333,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public Period getDisplaySampleRate() {
         try {
-            if (json.getDisplaySampleRate()==null || json.getDisplaySampleRate().isEmpty()) {
+            if (json.getDisplaySampleRate() == null || json.getDisplaySampleRate().isEmpty()) {
                 return Period.ZERO;
             } else {
                 return Period.parse(json.getDisplaySampleRate());
@@ -337,11 +345,17 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
+    public void setDisplaySampleRate(Period period) {
+        logger.info("setDisplaySampleRate: " + period.toString());
+        json.setDisplaySampleRate(period.toString());
+    }
+
+    @Override
     public Period getInputSampleRate() {
         try {
-            if (json.getInputSampleRate()==null || json.getInputSampleRate().isEmpty()) {
+            if (json.getInputSampleRate() == null || json.getInputSampleRate().isEmpty()) {
                 return Period.ZERO;
-            }else {
+            } else {
                 return Period.parse(json.getInputSampleRate());
             }
         } catch (Exception ex) {
@@ -352,12 +366,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public void setInputSampleRate(Period period) {
         json.setInputSampleRate(period.toString());
-    }
-
-    @Override
-    public void setDisplaySampleRate(Period period) {
-        System.out.println("setDisplaySampleRate: " + period.toString());
-        json.setDisplaySampleRate(period.toString());
     }
 
     @Override
@@ -377,7 +385,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public Long getObjectID() {
-        return objectID;
+        return json.getObjectID();
     }
 
     @Override
@@ -435,9 +443,26 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public int compareTo(JEVisAttribute o
-    ) {
-        return o.getName().compareTo(name);
+    public int compareTo(JEVisAttribute otherObject) {
+        return otherObject.getName().compareTo(json.getType());
     }
 
+    @Override
+    public boolean equals(Object otherObject) {
+        if (otherObject instanceof JEVisAttribute) {
+            JEVisAttribute otherAttribute = (JEVisAttribute) otherObject;
+            if (otherAttribute.getObjectID().equals(getObjectID())) {
+                return otherAttribute.getName().equals(otherAttribute.getName());
+            }
+        }
+
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "JEVisAttributeWS [ type: '" + json.getType() + "' object: '" + json.getObjectID() + "' basicType: '"
+                + json.getPrimitiveType() + "' maxTS: '" + json.getEnds() + "']";
+    }
 }

@@ -112,4 +112,36 @@ public class JsonGapFillingConfig {
         String prettyJson = gson.toJson(this);
         return prettyJson;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JsonGapFillingConfig that = (JsonGapFillingConfig) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        if (boundary != null ? !boundary.equals(that.boundary) : that.boundary != null) return false;
+        if (defaultvalue != null ? !defaultvalue.equals(that.defaultvalue) : that.defaultvalue != null) return false;
+        if (referenceperiod != null ? !referenceperiod.equals(that.referenceperiod) : that.referenceperiod != null)
+            return false;
+        if (bindtospecific != null ? !bindtospecific.equals(that.bindtospecific) : that.bindtospecific != null)
+            return false;
+        if (referenceperiodcount != null ? referenceperiodcount.equals(that.referenceperiodcount) : that.referenceperiodcount != null)
+            return false;
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (boundary != null ? boundary.hashCode() : 0);
+        result = 31 * result + (defaultvalue != null ? defaultvalue.hashCode() : 0);
+        result = 31 * result + (referenceperiod != null ? referenceperiod.hashCode() : 0);
+        result = 31 * result + (bindtospecific != null ? bindtospecific.hashCode() : 0);
+        result = 31 * result + (referenceperiodcount != null ? referenceperiodcount.hashCode() : 0);
+        return result;
+    }
 }

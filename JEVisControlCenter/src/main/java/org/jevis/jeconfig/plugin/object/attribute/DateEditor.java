@@ -19,19 +19,27 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import java.time.LocalDate;
+import com.jfoenix.controls.JFXDatePicker;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
-import jfxtras.scene.control.LocalDateTextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.utils.JEVisDates;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
+import org.joda.time.DateTimeZone;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  *
@@ -39,17 +47,18 @@ import org.joda.time.DateTime;
  */
 public class DateEditor implements AttributeEditor {
 
-    private final LocalDateTextField picker = new LocalDateTextField();
+    private final JFXDatePicker pickerDate = new JFXDatePicker();
     private final HBox editor = new HBox();
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
     private JEVisDataSource ds;
-    private JEVisSample newSample;
-    private final Logger logger = LogManager.getLogger(DateEditor.class);
+    private static final Logger logger = LogManager.getLogger(DateTimeEditor2.class);
+    private JEVisSample originalSample;
 
     public DateEditor(JEVisAttribute att) {
         this.att = att;
+        originalSample = att.getLatestSample();
         buildGUI();
     }
 
@@ -60,9 +69,12 @@ public class DateEditor implements AttributeEditor {
 
     @Override
     public void commit() throws JEVisException {
-        logger.trace("commit: {}", att.getName());
-        if (newSample != null) {
-            newSample.commit();
+        logger.error("commit: {}", att.getName());
+        if (hasChanged()) {
+            DateTime datetime = new DateTime(
+                    pickerDate.valueProperty().get().getYear(), pickerDate.valueProperty().get().getMonthValue(), pickerDate.valueProperty().get().getDayOfMonth(), 0, 0, 0, DateTimeZone.getDefault()); // is this timezone correct?
+
+            JEVisDates.saveDefaultDate(att, new DateTime(), datetime);
             logger.trace("commit.done: {}", att.getName());
         }
 
@@ -74,35 +86,34 @@ public class DateEditor implements AttributeEditor {
     }
 
     private void buildGUI() {
-        JEVisSample sample = att.getLatestSample();
-        picker.setPrefWidth(120);
 
-        if (sample != null) {
+        pickerDate.setPrefWidth(120d);
+
+        if (originalSample != null) {
             try {
-                if (!sample.getValueAsString().isEmpty()) {
-                    LocalDate dateTime;
-                    dateTime = LocalDate.parse(sample.getValueAsString(), picker.getDateTimeFormatter());
-                    picker.setLocalDate(dateTime);
-                }
+                DateTime date = JEVisDates.parseDefaultDate(att);
+                LocalDateTime lDate = LocalDateTime.of(
+                        date.get(DateTimeFieldType.year()), date.get(DateTimeFieldType.monthOfYear()), date.get(DateTimeFieldType.dayOfMonth()), date.get(DateTimeFieldType.hourOfDay()), date.get(DateTimeFieldType.minuteOfHour()), date.get(DateTimeFieldType.secondOfMinute()));
+                lDate.atZone(ZoneId.of(date.getZone().getID()));
+                pickerDate.valueProperty().setValue(lDate.toLocalDate());
 
             } catch (Exception ex) {
                 logger.catching(ex);
             }
+
         }
 
-        picker.textProperty().addListener((v, oldValue, newValue) -> {
-            try {
-                if (sample == null || !sample.getValueAsString().equals(newValue)) {
-                    newSample = att.buildSample(new DateTime(), newValue);
+        pickerDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+            @Override
+            public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
+                logger.info("///// Value changed: " + newValue);
+                if (!newValue.equals(oldValue)) {
                     _changed.setValue(Boolean.TRUE);
                 }
-            } catch (Exception ex) {
-                logger.catching(ex);
             }
         });
 
-        editor.getChildren().add(picker);
-
+        editor.getChildren().addAll(pickerDate);
     }
 
     @Override
@@ -112,13 +123,14 @@ public class DateEditor implements AttributeEditor {
 
     @Override
     public void setReadOnly(boolean canRead) {
-
+        editor.setDisable(canRead);
     }
 
     @Override
     public JEVisAttribute getAttribute() {
         return att;
     }
+
 
     @Override
     public boolean isValid() {

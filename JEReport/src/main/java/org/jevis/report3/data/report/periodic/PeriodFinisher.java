@@ -5,27 +5,25 @@
  */
 package org.jevis.report3.data.report.periodic;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.report3.DateHelper;
-import org.jevis.report3.data.report.Finisher;
-import org.jevis.report3.data.report.Report;
-import org.jevis.report3.data.report.ReportAttributes;
-import org.jevis.report3.data.report.ReportConfiguration;
-import org.jevis.report3.data.report.ReportProperty;
+import org.jevis.report3.data.report.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+
+import javax.inject.Inject;
 
 /**
  *
  * @author broder
  */
 public class PeriodFinisher implements Finisher {
+    private static final Logger logger = LogManager.getLogger(PeriodFinisher.class);
 
     private final SampleHandler sampleHandler;
     private ReportProperty.ReportSchedule schedule;
@@ -47,7 +45,7 @@ public class PeriodFinisher implements Finisher {
             String newStartTimeString = newStartRecordTime.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
             reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
         } catch (JEVisException ex) {
-            Logger.getLogger(PeriodFinisher.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 

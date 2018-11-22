@@ -7,10 +7,12 @@ package org.jevis.sftpdatasource;
 
 import com.jcraft.jsch.*;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
-import org.jevis.commons.cli.JEVisCommandLine;
 import org.jevis.commons.driver.*;
+import org.jevis.commons.utils.JEVisDates;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -21,9 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
+
 
 public class sFTPDataSource implements DataSource {
+    private static final Logger logger = LogManager.getLogger(sFTPDataSource.class);
 
     private Long _id;
     private String _name;
@@ -80,7 +83,7 @@ public class sFTPDataSource implements DataSource {
                     JEVisImporterAdapter.importResults(_result, _importer, channel);
                 }
             } catch (Exception ex) {
-                java.util.logging.Logger.getLogger(sFTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                logger.error(ex);
             }
         }
     }
@@ -125,9 +128,7 @@ public class sFTPDataSource implements DataSource {
             _channel = (ChannelSftp) _session.openChannel("sftp");
             _channel.connect();
         } catch (JSchException ex) {
-            org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ERROR, "No connection possible");
-            org.apache.log4j.Logger.getLogger(sFTPDataSource.class).setLevel(org.apache.log4j.Level.ALL);
-            org.apache.log4j.Logger.getLogger(sFTPDataSource.class).setLevel(JEVisCommandLine.getInstance().getDebugLevel());
+            logger.error("No connection possible");
 //            throw new FetchingException(_id, FetchingExceptionType.CONNECTION_ERROR);
             _channel.disconnect();
             _session.disconnect();
@@ -140,10 +141,10 @@ public class sFTPDataSource implements DataSource {
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
             DateTime lastReadout = new DateTime(2001, 01, 01, 0, 0, 0, 0);
             try {
-                lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"));
+                lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, JEVisDates.DEFAULT_DATE_FORMAT);
             } catch (Exception e) {
                 try {
-                    lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"));
+                    lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
                 } catch (Exception ex) {
 
                 }
@@ -153,7 +154,7 @@ public class sFTPDataSource implements DataSource {
             List<String> fileNames = DataSourceHelper.getSFTPMatchedFileNames(_channel, lastReadout, filePath);
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
             for (String fileName : fileNames) {
-                org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "FileInputName: " + fileName);
+                logger.info("FileInputName: " + fileName);
 
 //                ByteArrayOutputStream out = new ByteArrayOutputStream();
 //                String query = Paths.get(fileName);
@@ -168,7 +169,7 @@ public class sFTPDataSource implements DataSource {
                     }
                     baos.flush();
                 } catch (IOException ex) {
-                    java.util.logging.Logger.getLogger(sFTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                    logger.error(ex);
                 }
 
                 InputStream answer = new ByteArrayInputStream(baos.toByteArray());
@@ -183,11 +184,11 @@ public class sFTPDataSource implements DataSource {
         } catch (JEVisException ex) {
 
         } catch (SftpException ex) {
-            java.util.logging.Logger.getLogger(sFTPDataSource.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
 
         if (answerList.isEmpty()) {
-            org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ERROR, "Cant get any data from the device");
+            logger.error("Cant get any data from the device");
         }
 
         return answerList;
@@ -238,7 +239,7 @@ public class sFTPDataSource implements DataSource {
             _timezone = DateTimeZone.forID(timezoneString);
             _enabled = DatabaseHelper.getObjectAsBoolean(sftpObject, enableType);
         } catch (JEVisException ex) {
-            org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ERROR, ex.getMessage());
+            logger.error(ex);
         }
     }
 
@@ -249,7 +250,7 @@ public class sFTPDataSource implements DataSource {
             JEVisClass channelClass = ftpObject.getDataSource().getJEVisClass(DataCollectorTypes.Channel.sFTPChannel.NAME);
             _channels = channelDir.getChildren(channelClass, false);
         } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(sFTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 }

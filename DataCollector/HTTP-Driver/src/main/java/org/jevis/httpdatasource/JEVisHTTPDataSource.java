@@ -4,68 +4,24 @@ package org.jevis.httpdatasource;
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+import org.jevis.commons.DatabaseHelper;
+import org.jevis.commons.driver.*;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisType;
-import org.jevis.commons.DatabaseHelper;
-import org.jevis.commons.driver.DataSourceHelper;
-import org.jevis.commons.driver.Importer;
-import org.jevis.commons.driver.ImporterFactory;
-import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.Parser;
-import org.jevis.commons.driver.ParserFactory;
-import org.jevis.commons.driver.Result;
-import org.jevis.commons.driver.DataSource;
-import org.jevis.commons.driver.JEVisImporterAdapter;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
 
 /**
- *
  * @author bf
  */
 public class JEVisHTTPDataSource implements DataSource {
-
-    interface HTTPTypes extends DataCollectorTypes.DataSource.DataServer {
-
-        public final static String NAME = "HTTP Server";
-        public final static String PASSWORD = "Password";
-        public final static String SSL = "SSL";
-        public final static String USER = "User";
-    }
-
-    interface HTTPChannelDirectoryTypes extends DataCollectorTypes.ChannelDirectory {
-
-        public final static String NAME = "HTTP Channel Directory";
-    }
-
-    interface HTTPChannelTypes extends DataCollectorTypes.Channel {
-
-        public final static String NAME = "HTTP Channel";
-        public final static String PATH = "Path";
-    }
-
-    private Parser _parser;
-    private Importer _importer;
-    private List<JEVisObject> _channels;
-    private List<Result> _result;
-
-    private JEVisObject _dataSource;
-    private HTTPDataSource _httpdatasource;
-    
-    @Override
-    public void parse(List<InputStream> input) {
-        _parser.parse(input, _httpdatasource.getDateTimeZone());
-        _result = _parser.getResult();
-    }
+    private static final Logger logger = LogManager.getLogger(JEVisHTTPDataSource.class);
 
     @Override
     public void run() {
@@ -93,29 +49,9 @@ public class JEVisHTTPDataSource implements DataSource {
                     JEVisImporterAdapter.importResults(_result, _importer, channel);
                 }
             } catch (Exception ex) {
-                java.util.logging.Logger.getLogger(JEVisHTTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                logger.error(ex);
             }
         }
-    }
-
-    @Override
-    public void importResult() {
-//        _importer.importResult(_result);
-        //workaround until server is threadsave
-//        JEVisImporterAdapter.importResults(_result, _importer);
-    }
-
-    @Override
-    public void initialize(JEVisObject httpObject) {
-        _dataSource = httpObject;
-        initializeAttributes(httpObject);
-        initializeChannelObjects(httpObject);
-
-        _importer = ImporterFactory.getImporter(_dataSource);
-        if (_importer != null) {
-            _importer.initialize(_dataSource);
-        }
-
     }
 
     @Override
@@ -131,7 +67,7 @@ public class JEVisHTTPDataSource implements DataSource {
             httpChannel.setLastReadout(lastReadout);
             httpChannel.setPath(path);
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(JEVisHTTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
 
         return _httpdatasource.sendSampleRequest(httpChannel);
@@ -157,14 +93,14 @@ public class JEVisHTTPDataSource implements DataSource {
             Boolean ssl = DatabaseHelper.getObjectAsBoolean(httpObject, sslType);
             JEVisAttribute userAttr = httpObject.getAttribute(userType);
             JEVisAttribute timeZoneAttr = httpObject.getAttribute(timezoneType);
-            
+
             String timeZone = null;
-            if(!timeZoneAttr.hasSample()){
+            if (!timeZoneAttr.hasSample()) {
                 timeZone = "UTC";
             } else {
                 timeZone = timeZoneAttr.getLatestSample().getValueAsString();
             }
-            
+
             String userName = null;
             if (!userAttr.hasSample()) {
                 userName = "";
@@ -191,8 +127,22 @@ public class JEVisHTTPDataSource implements DataSource {
             _httpdatasource.setDateTimeZone(timeZone);
 
         } catch (JEVisException ex) {
-            Logger.getLogger(JEVisHTTPDataSource.class.getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
+    }
+
+    private Parser _parser;
+    private Importer _importer;
+    private List<JEVisObject> _channels;
+    private List<Result> _result;
+
+    private JEVisObject _dataSource;
+    private HTTPDataSource _httpdatasource;
+
+    @Override
+    public void parse(List<InputStream> input) {
+        _parser.parse(input, _httpdatasource.getDateTimeZone());
+        _result = _parser.getResult();
     }
 
     private void initializeChannelObjects(JEVisObject httpObject) {
@@ -202,8 +152,47 @@ public class JEVisHTTPDataSource implements DataSource {
             JEVisClass channelClass = httpObject.getDataSource().getJEVisClass(HTTPChannelTypes.NAME);
             _channels = channelDir.getChildren(channelClass, false);
         } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(JEVisHTTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
+    }
+
+    @Override
+    public void importResult() {
+//        _importer.importResult(_result);
+        //workaround until server is threadsave
+//        JEVisImporterAdapter.importResults(_result, _importer);
+    }
+
+    @Override
+    public void initialize(JEVisObject httpObject) {
+        _dataSource = httpObject;
+        initializeAttributes(httpObject);
+        initializeChannelObjects(httpObject);
+
+        _importer = ImporterFactory.getImporter(_dataSource);
+        if (_importer != null) {
+            _importer.initialize(_dataSource);
+        }
+
+    }
+
+    interface HTTPTypes extends DataCollectorTypes.DataSource.DataServer {
+
+        String NAME = "HTTP Server";
+        String PASSWORD = "Password";
+        String SSL = "SSL";
+        String USER = "User";
+    }
+
+    interface HTTPChannelDirectoryTypes extends DataCollectorTypes.ChannelDirectory {
+
+        String NAME = "HTTP Channel Directory";
+    }
+
+    interface HTTPChannelTypes extends DataCollectorTypes.Channel {
+
+        String NAME = "HTTP Channel";
+        String PATH = "Path";
     }
 
 }

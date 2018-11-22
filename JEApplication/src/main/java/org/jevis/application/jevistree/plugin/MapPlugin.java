@@ -14,6 +14,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -28,24 +30,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class MapPlugin implements TreePlugin {
+    private static final Logger logger = LogManager.getLogger(MapPlugin.class);
 
     private JEVisTree _tree;
     private String _title = "GIS #1";
     private Map<Long, List<JEVisSample>> _samples = new HashMap<>();
     private Map<String, DataModel> _data = new HashMap<>();
-
-    private enum DATE_TYPE {
-
-        START, END
-    }
 
     @Override
     public void setTree(JEVisTree tree) {
@@ -73,20 +68,16 @@ public class MapPlugin implements TreePlugin {
     @Override
     public void selectionFinished() {
         //Will happen if the user peress some kinde of OK button
-        System.out.println("selectionFinished()");
+        logger.info("selectionFinished()");
         for (Map.Entry<String, DataModel> entrySet : _data.entrySet()) {
             String key = entrySet.getKey();
             DataModel value = entrySet.getValue();
             if (value.getSelected()) {
-                System.out.println("key: " + key);
+                logger.info("key: " + key);
             }
 
         }
 
-    }
-
-    public void setTitle(String title) {
-        _title = title;
     }
 
     @Override
@@ -94,12 +85,16 @@ public class MapPlugin implements TreePlugin {
         return _title;
     }
 
+    public void setTitle(String title) {
+        _title = title;
+    }
+
     private DataModel getData(JEVisTreeRow row) {
         String id = row.getID();
         if (_data.containsKey(id)) {
             return _data.get(id);
         } else {
-//            System.out.println("add" + row.getJEVisObject());
+//            logger.info("add" + row.getJEVisObject());
             DataModel newData = new DataModel();
             newData.setObject(row.getJEVisObject());
             newData.setLongitude(row.getJEVisObject());
@@ -143,7 +138,8 @@ public class MapPlugin implements TreePlugin {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                         if (!empty) {
                             StackPane hbox = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null
+                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 MapPlugin.DataModel data = getData(getTreeTableRow().getItem());
                                 ColorPicker colorPicker = new ColorPicker();
                                 hbox.getChildren().setAll(colorPicker);
@@ -288,7 +284,7 @@ public class MapPlugin implements TreePlugin {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                         if (!empty) {
                             StackPane hbox = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 DataModel data = getData(getTreeTableRow().getItem());
                                 DatePicker dp = buildDatePicker(data, type);
 
@@ -363,7 +359,7 @@ public class MapPlugin implements TreePlugin {
                             StackPane hbox = new StackPane();
                             CheckBox cbox = new CheckBox();
 
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 DataModel data = getData(getTreeTableRow().getItem());
                                 hbox.getChildren().setAll(cbox);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
@@ -408,6 +404,11 @@ public class MapPlugin implements TreePlugin {
         return _data;
     }
 
+    private enum DATE_TYPE {
+
+        START, END
+    }
+
     public class DataModel {
 
         private DateTime _selectedStart;
@@ -428,7 +429,7 @@ public class MapPlugin implements TreePlugin {
 
         public void setSelected(boolean selected) {
             _selected = selected;
-            System.out.println("is selectec: " + _object.getName());
+            logger.info("is selectec: " + _object.getName());
         }
 
         public DateTime getSelectedStart() {
@@ -442,12 +443,16 @@ public class MapPlugin implements TreePlugin {
 
 //            if (_selectedStart != null && getAttribute() != null) {
 //                System.out.print("-");
-////                System.out.println("getSelectedStart1 " + getAttribute().getTimestampFromFirstSample());
+////                logger.info("getSelectedStart1 " + getAttribute().getTimestampFromFirstSample());
 //                return getAttribute().getTimestampFromFirstSample();
 //            }
 //            System.out.print(".");
-////            System.out.println("getSelectedStart2 " + _selectedStart);
+////            logger.info("getSelectedStart2 " + _selectedStart);
 //            return _selectedStart;
+        }
+
+        public void setSelectedStart(DateTime selectedStart) {
+            this._selectedStart = selectedStart;
         }
 
         public Color getColor() {
@@ -456,10 +461,6 @@ public class MapPlugin implements TreePlugin {
 
         public void setColor(Color _color) {
             this._color = _color;
-        }
-
-        public void setSelectedStart(DateTime selectedStart) {
-            this._selectedStart = selectedStart;
         }
 
         public DateTime getSelectedEnd() {
@@ -486,7 +487,7 @@ public class MapPlugin implements TreePlugin {
         }
 
         public void setObject(JEVisObject _object) {
-//            System.out.println("new DataModel: " + _object);
+//            logger.info("new DataModel: " + _object);
             this._object = _object;
         }
 
@@ -499,7 +500,7 @@ public class MapPlugin implements TreePlugin {
                     }
 //                    return values;
                 } catch (JEVisException ex) {
-                    Logger.getLogger(MapPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
 
@@ -508,7 +509,7 @@ public class MapPlugin implements TreePlugin {
 
         public JEVisAttribute getLatitudeAttribute() {
             if (_latitude == null) {
-//                System.out.println("att is null");
+//                logger.info("att is null");
                 try {
                     if (getObject().getJEVisClass().getName().equals("GPS Data")) {
                         JEVisAttribute values = getObject().getAttribute("Latitude");
@@ -516,14 +517,14 @@ public class MapPlugin implements TreePlugin {
                     }
 //                    return values;
                 } catch (JEVisException ex) {
-                    Logger.getLogger(MapPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
 
             return _latitude;
         }
 
-//        public void setAttribute(JEVisAttribute _attribute) {
+        //        public void setAttribute(JEVisAttribute _attribute) {
 //            this._attribute = _attribute;
 //        }
 //        public Color getColor() {
@@ -543,7 +544,7 @@ public class MapPlugin implements TreePlugin {
             try {
                 return getObject().getJEVisClass().getName().equals("GPS Data");
             } catch (JEVisException ex) {
-                Logger.getLogger(MapPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
             return false;
         }
@@ -583,18 +584,18 @@ public class MapPlugin implements TreePlugin {
         private void setLongitude(JEVisObject jeVisObject) {
             try {
                 _longitude = jeVisObject.getAttribute("Longitude");
-                System.out.println("long" + _longitude);
+                logger.info("long" + _longitude);
             } catch (JEVisException ex) {
-                Logger.getLogger(MapPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
 
         private void setLatitude(JEVisObject jeVisObject) {
             try {
                 _latitude = jeVisObject.getAttribute("Latitude");
-                System.out.println("lat" + _latitude);
+                logger.info("lat" + _latitude);
             } catch (JEVisException ex) {
-                Logger.getLogger(MapPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
 

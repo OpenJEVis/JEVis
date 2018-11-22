@@ -1,30 +1,63 @@
 package org.jevis.jecalc;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.commons.utils.Benchmark;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 
 public class ServiceMode {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceMode.class);
+    private static final Logger logger = LogManager.getLogger(ServiceMode.class);
     private Integer cycleTime = 900000;
-    private Benchmark bench;
+
     private JEVisDataSource ds;
+    private ForkJoinPool forkJoinPool;
+    private ConcurrentHashMap<String, String> runningJobs = new ConcurrentHashMap();
 
     public ServiceMode(JEVisDataSource ds, Integer cycleTime) {
         this.cycleTime = cycleTime;
         this.ds = ds;
+
+        getCycleTimeFromService();
+        initializeThreadPool();
     }
 
     public ServiceMode(JEVisDataSource ds) {
         this.ds = ds;
+
+        getCycleTimeFromService();
+        initializeThreadPool();
+    }
+
+    private void initializeThreadPool() {
+        Integer threadCount = 4;
+        try {
+            JEVisClass calcClass = ds.getJEVisClass("JECalc");
+            List<JEVisObject> listCalcObjects = ds.getObjects(calcClass, false);
+            threadCount = listCalcObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
+            logger.info("Set Thread count to: " + threadCount);
+        } catch (Exception e) {
+
+        }
+        forkJoinPool = new ForkJoinPool(threadCount);
+    }
+
+    private void getCycleTimeFromService() {
+        try {
+            JEVisClass calcClass = ds.getJEVisClass("JECalc");
+            List<JEVisObject> listCalcObjects = ds.getObjects(calcClass, false);
+            cycleTime = listCalcObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
+            logger.info("Service cycle time from service: " + cycleTime);
+        } catch (Exception e) {
+
+        }
     }
 
     public void run() {
@@ -40,7 +73,7 @@ public class ServiceMode {
             throw new RuntimeException(e);
         }
         try {
-            System.out.println("Press CTRL^C to exit..");
+            logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -49,52 +82,88 @@ public class ServiceMode {
 
     private void runServiceHelp() {
 
-        this.runProcesses();
+        if (checkServiceStatus()) {
+            logger.info("Service is enabled.");
+            this.runProcesses();
+        } else {
+            logger.info("Service is disabled.");
+        }
         try {
             Thread.sleep(cycleTime);
+            try {
+                ds.reloadAttributes();
+            } catch (JEVisException e) {
+            }
+            getCycleTimeFromService();
+
             runServiceHelp();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private void runProcesses() {
-        List<JEVisObject> jevisObjects = new ArrayList<>();
+    private Boolean checkServiceStatus() {
+        Boolean enabled = true;
         try {
-            JEVisClass calcClass = ds.getJEVisClass(CalcJobFactory.Calculation.CLASS.getName());
-            jevisObjects = ds.getObjects(calcClass, false);
-        } catch (JEVisException ex) {
-            logger.error(ex.getMessage());
+            JEVisClass calcClass = ds.getJEVisClass("JECalc");
+            List<JEVisObject> listCalcObjects = ds.getObjects(calcClass, false);
+            enabled = listCalcObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
+            logger.info("Service is enabled is " + enabled);
+        } catch (Exception e) {
+
         }
-        List<JEVisObject> jevisCalcObjects = jevisObjects;
-        logger.info("{} calc jobs found", jevisCalcObjects.size());
-
-        List<JEVisObject> enabledObjects = new ArrayList<>();
-        SampleHandler sampleHandler = new SampleHandler();
-        for (JEVisObject curObj : jevisCalcObjects) {
-            Boolean valueAsBoolean = sampleHandler.getLastSampleAsBoolean(curObj, CalcJobFactory.Calculation.ENABLED.getName(), false);
-            if (valueAsBoolean) {
-                enabledObjects.add(curObj);
-            }
-        }
-        List<JEVisObject> filterForEnabledCalcObjects = enabledObjects;
-        logger.info("{} enabled calc jobs found", filterForEnabledCalcObjects.size());
-
-
-        CalcJobFactory calcJobCreator = new CalcJobFactory(filterForEnabledCalcObjects);
-
-        while (calcJobCreator.hasNextJob()) {
-            bench = new Benchmark();
-            try {
-                CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds);
-                calcJob.execute();
-                bench.printBechmark("Calculation (ID: " + calcJob.getCalcObjectID() + ") finished");
-            } catch (Exception ex) {
-                logger.error("error with calculation job, aborted", ex);
-            }
-        }
-
+        return enabled;
     }
 
+    private void runProcesses() {
+        if (runningJobs.isEmpty()) {
+            List<JEVisObject> jevisObjects = new ArrayList<>();
+            try {
+                ds.reloadAttributes();
+                JEVisClass calcClass = ds.getJEVisClass(CalcJobFactory.Calculation.CLASS.getName());
+                jevisObjects = ds.getObjects(calcClass, false);
+            } catch (JEVisException ex) {
+                logger.error(ex.getMessage());
+            }
+            List<JEVisObject> jevisCalcObjects = jevisObjects;
+            logger.info("{} calc task found", jevisCalcObjects.size());
 
+            List<JEVisObject> enabledObjects = new ArrayList<>();
+            SampleHandler sampleHandler = new SampleHandler();
+            for (JEVisObject curObj : jevisCalcObjects) {
+                Boolean valueAsBoolean = sampleHandler.getLastSampleAsBoolean(curObj, CalcJobFactory.Calculation.ENABLED.getName(), false);
+                if (valueAsBoolean) {
+                    enabledObjects.add(curObj);
+                }
+            }
+            List<JEVisObject> filterForEnabledCalcObjects = enabledObjects;
+            logger.info("{} enabled calc task found", filterForEnabledCalcObjects.size());
+
+
+            forkJoinPool.submit(
+                    () -> enabledObjects.parallelStream().forEach(object -> {
+                        if (!runningJobs.containsKey(object.getName() + ":" + object.getID())) {
+
+                            runningJobs.put(object.getName() + ":" + object.getID(), "true");
+
+                            try {
+                                CalcJob calcJob;
+                                CalcJobFactory calcJobCreator = new CalcJobFactory();
+                                do {
+                                    ds.reloadAttributes();
+                                    calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                                    calcJob.execute();
+                                    Thread.sleep(500);
+                                } while (!calcJob.hasProcessedAllInputSamples());
+
+                            } catch (Exception ex) {
+                                logger.error("error with calculation job, aborted", ex);
+                            }
+                            runningJobs.remove(object.getName());
+                        } else {
+                            logger.error("Still calculating Job " + object.getName() + ":" + object.getID());
+                        }
+                    }));
+        }
+    }
 }

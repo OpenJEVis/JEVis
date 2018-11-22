@@ -35,10 +35,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Callback;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.cache.CacheEvent;
-import org.jevis.application.cache.CacheEventHandler;
-import org.jevis.application.cache.Cached;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.commons.drivermanagment.ClassExporter;
 import org.jevis.commons.relationship.RelationshipFactory;
@@ -55,13 +53,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ClassTree extends TreeView<JEVisClass> {
+    private static final Logger logger = LogManager.getLogger(ClassTree.class);
 
     private ClassEditor _editor = new ClassEditor();
     private boolean _editable = false;
@@ -70,7 +67,6 @@ public class ClassTree extends TreeView<JEVisClass> {
     private HashMap<String, TreeItem<JEVisClass>> _itemCache;
     private HashMap<String, ClassGraphic> _graphicCache;
     private HashMap<TreeItem<JEVisClass>, ObservableList<TreeItem<JEVisClass>>> _itemChildren;
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ClassTree.class);
 
     private JEVisClass _dragClass;
 
@@ -135,7 +131,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                             _editor.setJEVisClass(t1.getValue());
                         }
                     } catch (Exception ex) {
-                        System.out.println("Error while changing editor: " + ex);
+                        logger.error("Error while changing editor: " + ex);
                     }
 
                 }
@@ -146,7 +142,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                 @Override
                 public void handle(KeyEvent t) {
                     if (t.getCode() == KeyCode.F2) {
-                        System.out.println("F2 rename event");
+                        logger.info("F2 rename event");
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
@@ -188,31 +184,10 @@ public class ClassTree extends TreeView<JEVisClass> {
                 final TreeItem<JEVisClass> newItem = new ClassItem(object, this);
                 _itemCache.put(object.getName(), newItem);
 
-                if (object instanceof Cached) {
-                    ((Cached) object).addEventHandler(new CacheEventHandler() {
-                        @Override
-                        public void handle(CacheEvent event) {
-                            if (event.getType() == CacheEvent.TYPE.CLASS_CHILD_DELETE) {
 
-                            } else if (event.getType() == CacheEvent.TYPE.CLASS_DELETE) {
-                                try {
-
-                                    _itemCache.remove(object.getName());
-                                    newItem.getParent().getChildren();
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
-
-                            } else if (event.getType() == CacheEvent.TYPE.CLASS_BUILD_CHILD) {
-                                newItem.getChildren();
-                            }
-                        }
-                    });
-                }
                 return newItem;
             } catch (JEVisException ex) {
-                Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
-                ex.printStackTrace();
+                logger.fatal(ex);
             }
         }
 
@@ -240,16 +215,16 @@ public class ClassTree extends TreeView<JEVisClass> {
                 }
 
 //                for (JEVisClassRelationship rel : child.getRelationships(JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD)) {
-//                    System.out.println("rel: " + rel);
+//                    logger.info("rel: " + rel);
 //                    if (rel.getOtherClass(item.getValue().getInheritance())) {
-//                        System.out.println("from: " +);
+//                        logger.info("from: " +);
 //                    } else {
-//                        System.out.println("to");
+//                        logger.info("to");
 //                    }
 //                }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 //        sortList(list);
 
@@ -265,7 +240,7 @@ public class ClassTree extends TreeView<JEVisClass> {
     }
 
     private void expandAll(List<TreeItem<JEVisClass>> list, TreeItem<JEVisClass> root) {
-//        System.out.println("expand all");
+//        logger.info("expand all");
         for (final TreeItem<JEVisClass> item : root.getChildren()) {
             for (final TreeItem<JEVisClass> child : list) {
                 try {
@@ -312,7 +287,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                 list.add(newItem);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 //        sortList(list);
         _itemChildren.put(item, list);
@@ -336,7 +311,7 @@ public class ClassTree extends TreeView<JEVisClass> {
     }
 
     public void fireEventRename() {
-        System.out.println("fireRename");
+        logger.info("fireRename");
 
 //        edit(_cl.getCurrentItem());
     }
@@ -360,7 +335,7 @@ public class ClassTree extends TreeView<JEVisClass> {
     }
 
     public void fireDelete(JEVisClass jclass) {
-        System.out.println("======delete event");
+        logger.info("======delete event");
         if (jclass == null) {
             jclass = getSelectionModel().getSelectedItem().getValue();
         }
@@ -373,7 +348,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                 if (dia.show(JEConfig.getStage(), I18n.getInstance().getString("plugin.classes.tree.delete.title"),
                         I18n.getInstance().getString("plugin.classes.tree.delete.title_long"), question) == ConfirmDialog.Response.YES) {
                     try {
-                        System.out.println("User want to delete: " + jclass.getName());
+                        logger.info("User want to delete: " + jclass.getName());
 
                         //done by datasource(server)
 //                        if (jclass.getInheritance() != null) {
@@ -402,7 +377,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                     }
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
 
@@ -429,13 +404,13 @@ public class ClassTree extends TreeView<JEVisClass> {
 
 //                    parentItem.setExpanded(false);
                     } catch (JEVisException ex) {
-                        Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.fatal(ex);
                     }
 
                 }
             });
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.fatal(ex);
         }
     }
 
@@ -455,7 +430,7 @@ public class ClassTree extends TreeView<JEVisClass> {
             try {
                 fileChooser.setInitialFileName(items.get(0).getValue().getName() + "_" + fmt.print(now) + ".jev");
             } catch (JEVisException ex) {
-                Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
 
@@ -528,8 +503,7 @@ public class ClassTree extends TreeView<JEVisClass> {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -544,14 +518,14 @@ public class ClassTree extends TreeView<JEVisClass> {
                 return _graphicCache.get(object.getName());
             }
 
-//        System.out.println("grahic does not exist create for: " + object);
+//        logger.info("grahic does not exist create for: " + object);
             ClassGraphic graph = new ClassGraphic(object, this);
 
             _graphicCache.put(object.getName(), graph);
 
             return graph;
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         return null;
@@ -592,7 +566,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                             setDragItem(obj);
                             e.consume();
                         } catch (JEVisException ex) {
-                            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.fatal(ex);
                         }
                     }
                 });
@@ -603,7 +577,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                         try {
                             dragEvent.consume();
                         } catch (Exception ex) {
-                            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.fatal(ex);
                         }
                     }
                 });
@@ -619,12 +593,12 @@ public class ClassTree extends TreeView<JEVisClass> {
                                 }
 
                             } else {
-//                                System.out.println("Drag Over NULL!!");
+//                                logger.info("Drag Over NULL!!");
                             }
 
                             dragEvent.consume();
                         } catch (JEVisException ex) {
-                            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.fatal(ex);
                         }
                     }
                 });
@@ -659,7 +633,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                                         TreeItem<JEVisClass> dragItem = getObjectTreeItem(getDragItem());
 
                                         TreeItem<JEVisClass> dragParentItem = dragItem.getParent();
-                                        System.out.println("ParentItem: " + dragParentItem.getValue().getName());
+                                        logger.info("ParentItem: " + dragParentItem.getValue().getName());
                                         TreeItem<JEVisClass> targetItem = getObjectTreeItem(obj);
 
                                         getChildrenList(dragParentItem).remove(dragItem);
@@ -667,14 +641,13 @@ public class ClassTree extends TreeView<JEVisClass> {
                                         targetItem.setExpanded(true);
 
                                     } catch (JEVisException ex) {
-                                        Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                                        logger.fatal(ex);
                                     }
                                 }
                             });
 
                         } catch (JEVisException ex) {
-                            Logger.getLogger(ClassCell.class.getName()).log(Level.SEVERE, null, ex);
-                            ex.printStackTrace();
+                            logger.fatal(ex);
                         }
 
                         dragEvent.consume();

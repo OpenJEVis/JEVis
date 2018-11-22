@@ -1,45 +1,35 @@
 /**
  * Copyright (C) 2013 - 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEWebService.
- *
+ * <p>
  * JEWebService is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEWebService is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.ws.json;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.measure.unit.Unit;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisClassRelationship;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisType;
-import org.jevis.api.JEVisUnit;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This Factory can convert JEAPI interfaces into a JSON representation
@@ -48,7 +38,7 @@ import org.joda.time.format.ISODateTimeFormat;
  */
 public class JsonFactory {
 
-    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(JsonFactory.class);
+    private static final Logger logger = LogManager.getLogger(JsonFactory.class);
     /**
      * Default date format for attribute dates
      */
@@ -76,15 +66,15 @@ public class JsonFactory {
 
     public static JsonUnit buildUnit(JEVisUnit unit) {
         JsonUnit json = new JsonUnit();
-        try {            
+        try {
             json.setPrefix(UnitManager.getInstance().getPrefixName(unit.getPrefix(), Locale.getDefault()));
             json.setFormula(unit.getFormula());
             json.setLabel(unit.getLabel());
         } catch (Exception ex) {
-            System.out.println("Error while building JSON for unit: " + ex);
+            logger.error("Error while building JSON for unit: " + ex);
             json.setPrefix(UnitManager.PrefixName.NONE);
             json.setFormula(javax.measure.unit.Unit.ONE.toString());
-            json.setLabel("Unknow");
+            json.setLabel("Unknown");
         }
         return json;
     }
@@ -125,9 +115,8 @@ public class JsonFactory {
      *
      * @param objs
      * @return
-     * @throws JEVisException
      */
-    public static List<JsonRelationship> buildRelationship(List<JEVisRelationship> objs) throws JEVisException {
+    public static List<JsonRelationship> buildRelationship(List<JEVisRelationship> objs) {
         List<JsonRelationship> jRels = new ArrayList<JsonRelationship>();
         for (JEVisRelationship rel : objs) {
             try {
@@ -137,7 +126,7 @@ public class JsonFactory {
                 json.setType(rel.getType());
                 jRels.add(json);
             } catch (Exception ex) {
-                System.out.println("Error while building JSON: " + ex);
+                logger.error("Error while building JSON: " + ex);
             }
         }
 
@@ -149,9 +138,8 @@ public class JsonFactory {
      *
      * @param objs
      * @return
-     * @throws JEVisException
      */
-    public static List<JsonClassRelationship> buildClassRelationships(List<JEVisClassRelationship> objs) throws JEVisException {
+    public static List<JsonClassRelationship> buildClassRelationships(List<JEVisClassRelationship> objs) {
         List<JsonClassRelationship> jRels = new ArrayList<JsonClassRelationship>();
         for (JEVisClassRelationship rel : objs) {
             try {
@@ -162,7 +150,7 @@ public class JsonFactory {
 //                json.setType(rel.getType());
 //                jRels.add(json);
             } catch (Exception ex) {
-                System.out.println("Error while building JSON: " + ex);
+                logger.error("Error while building JSON: " + ex);
             }
         }
 
@@ -184,16 +172,15 @@ public class JsonFactory {
      *
      * @param objs
      * @return
-     * @throws JEVisException
      */
-    public static List<JsonObject> buildObject(List<JEVisObject> objs, boolean includeRelationships) throws JEVisException {
+    public static List<JsonObject> buildObject(List<JEVisObject> objs, boolean includeRelationships) {
         List<JsonObject> jObjects = new ArrayList<JsonObject>();
 
         for (JEVisObject obj : objs) {
             try {
                 jObjects.add(buildObject(obj, includeRelationships));
             } catch (Exception ex) {
-                LOGGER.catching(ex);
+                logger.error(ex);
             }
 
         }
@@ -241,16 +228,16 @@ public class JsonFactory {
      * @throws JEVisException
      */
     public static JsonObject buildObject(JEVisObject obj, boolean includeRelationships) throws JEVisException {
-        LOGGER.trace("build Json includeRelationships: {} obj: {}",includeRelationships,obj);
+        logger.trace("build Json includeRelationships: {} obj: {}", includeRelationships, obj);
         JsonObject json = new JsonObject();
         json.setName(obj.getName());
         json.setId(obj.getID());
         json.setJevisClass(obj.getJEVisClassName());
         json.setisPublic(obj.isPublic());
-        if(obj.getID()<10){
-            System.out.println("----------- "+obj.isPublic());
+        if (obj.getID() < 10) {
+            logger.info("----------- " + obj.isPublic());
         }
-        
+
 
         if (!obj.getParents().isEmpty()) {
             json.setParent(obj.getParents().get(0).getID());
@@ -355,7 +342,7 @@ public class JsonFactory {
             try {
                 jtypes.add(buildType(type));
             } catch (JEVisException ex) {
-                Logger.getLogger(JsonFactory.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
 

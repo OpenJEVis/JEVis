@@ -5,12 +5,13 @@
  */
 package org.jevis.commons.cli;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.regex.Pattern;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.BasicOption;
 import org.jevis.commons.config.CommonOptions;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.regex.Pattern;
 
 /**
  * Temporary solution to mask the DataSource authentication.
@@ -69,7 +70,7 @@ public class ConnectionEncoder {
         datasource.addOption(dsclass, true);
 
 //        for (JEVisOption jo : datasource.getOptions()) {
-//            System.out.println("KEY: " + jo.getKey() + "   Value: " + jo.getValue());
+//            logger.info("KEY: " + jo.getKey() + "   Value: " + jo.getValue());
 //        }
         return datasource;
     }

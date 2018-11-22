@@ -5,6 +5,12 @@
  */
 package org.jevis.report3;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.artofsolving.jodconverter.OfficeDocumentConverter;
+import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
+import org.artofsolving.jodconverter.office.OfficeManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -12,24 +18,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.artofsolving.jodconverter.OfficeDocumentConverter;
-import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
-import org.artofsolving.jodconverter.office.OfficeManager;
+
 
 /**
  *
  * @author broder
  */
 public class PdfConverter {
+    private static final Logger logger = LogManager.getLogger(PdfConverter.class);
 
     private File xlsFile;
     private File pdfFile;
 
     public PdfConverter(String filePrefix, byte[] fileContent) {
         try {
-            Path xlsFilePath = Files.createTempFile(filePrefix, ".xls");
+            Path xlsFilePath = Files.createTempFile(filePrefix, ".xlsx");
             xlsFile = xlsFilePath.toFile();
             Files.write(xlsFilePath, fileContent);
             xlsFile.deleteOnExit();
@@ -38,7 +41,7 @@ public class PdfConverter {
             pdfFile = pdfFilePath.toFile();
             pdfFile.deleteOnExit();
         } catch (IOException ex) {
-            Logger.getLogger(PdfConverter.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 

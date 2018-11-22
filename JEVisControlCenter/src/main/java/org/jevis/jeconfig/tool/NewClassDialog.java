@@ -1,27 +1,25 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.tool;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -32,23 +30,17 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -59,20 +51,9 @@ import org.jevis.application.resource.ResourceLoader;
  * @author fs
  */
 public class NewClassDialog {
-
+    private static final Logger logger = LogManager.getLogger(NewClassDialog.class);
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON_QUESTION = "1400874302_question_blue.png";
-
-    public static enum Response {
-
-        NO, YES, CANCEL
-    };
-
-    private JEVisClass inherit = null;
-    private String name;
-    final CheckBox iherit = new CheckBox("Inherit:");
-
-    private Response response = Response.CANCEL;
 
     /**
      *
@@ -136,7 +117,7 @@ public class NewClassDialog {
                 inherit = superClass;
 //                nameF.setText("new " + heir.getName());
             } catch (JEVisException ex) {
-                Logger.getLogger(NewClassDialog.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         } else {
             heritB.setText("");
@@ -168,7 +149,7 @@ public class NewClassDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 stage.close();
 //                isOK.setValue(true);
                 response = Response.YES;
@@ -183,7 +164,7 @@ public class NewClassDialog {
                 try {
                     inherit = ds.getJEVisClass(heritB.getText());
                 } catch (JEVisException ex) {
-                    Logger.getLogger(NewClassDialog.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });
@@ -214,7 +195,7 @@ public class NewClassDialog {
 
                     }
                 } catch (JEVisException ex) {
-                    Logger.getLogger(NewClassDialog.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
 
             }
@@ -244,9 +225,20 @@ public class NewClassDialog {
 //            response = Response.YES;
 //        }
 
-        System.out.println("return " + response);
+        logger.info("return " + response);
 
         return response;
+    }
+
+    private JEVisClass inherit = null;
+    private String name;
+    final CheckBox iherit = new CheckBox("Inherit:");
+
+    private Response response = Response.CANCEL;
+
+    public enum Response {
+
+        NO, YES, CANCEL
     }
 
     public String getClassName() {

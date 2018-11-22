@@ -4,20 +4,8 @@
  */
 package org.jevis.jenotifier.notifier.VIDA350;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -26,14 +14,23 @@ import org.jevis.jenotifier.notifier.Notification;
 import org.jevis.jenotifier.notifier.NotificationDriver;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
- *
  * @author gf
  */
 public class VIDA350NotificationDriver implements NotificationDriver {
+    private static final Logger logger = LogManager.getLogger(VIDA350NotificationDriver.class);
 
     private JEVisObject _jeDri;
-//    private URL _;
+    //    private URL _;
 //    private String _;
 //    private int _;
 //    private String _;
@@ -49,6 +46,7 @@ public class VIDA350NotificationDriver implements NotificationDriver {
 //            
 //        }
 //    }
+
     /**
      * Send the VIDA350 Notification with socket the returned responce-status is
      * not known, so set the successful with "if(true)", later can be revised
@@ -73,10 +71,10 @@ public class VIDA350NotificationDriver implements NotificationDriver {
 //                    sb.append(temp);
 //                }
 //            } catch (SocketTimeoutException e) {
-//                Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.INFO, "Data reading time out!");
-////                System.out.println("Data reading time out!");
+//                logger.info("Data reading time out!");
+////                logger.info("Data reading time out!");
 //            }
-////            System.out.println("Server: " + sb);
+////            logger.info("Server: " + sb);
             if (true) {
                 noti.setSuccessfulSend(true, new DateTime(new Date()));
                 success = true;
@@ -84,9 +82,9 @@ public class VIDA350NotificationDriver implements NotificationDriver {
             writer.close();
             client.close();
         } catch (UnknownHostException ex) {
-            Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         } catch (IOException ex) {
-            Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         return success;
     }
@@ -125,10 +123,10 @@ public class VIDA350NotificationDriver implements NotificationDriver {
             successful = sendVIDA350Notification(vidanoti);
             return successful;
         } else {
-            Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.INFO, "This Notification is not the VIDA350Notification.");
-            Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.INFO, "This Notification is" + jenoti.getType() + ".");
-//            System.out.println("This Notification is not the VIDA350Notification.");
-//            System.out.println("This Notification is" + jenoti.getType() + ".");
+            logger.info("This Notification is not the VIDA350Notification.");
+            logger.info("This Notification is" + jenoti.getType() + ".");
+//            logger.info("This Notification is not the VIDA350Notification.");
+//            logger.info("This Notification is" + jenoti.getType() + ".");
             return successful;
         }
     }
@@ -156,11 +154,7 @@ public class VIDA350NotificationDriver implements NotificationDriver {
      */
     public boolean isSupported(Notification jenoti) {
         boolean support;
-        if (jenoti.getType().equals(APPLICATIVE_NOTI_TYPE)) {
-            support = true;
-        } else {
-            support = false;
-        }
+        support = jenoti.getType().equals(APPLICATIVE_NOTI_TYPE);
         return support;
     }
 
@@ -180,7 +174,7 @@ public class VIDA350NotificationDriver implements NotificationDriver {
 //                Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.ERROR, ex);
 //            }
         } else {
-            Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.INFO, notiObj + " is not suitable for Push Notification Driver");
+            logger.info(notiObj + " is not suitable for Push Notification Driver");
         }
     }
 
@@ -204,10 +198,10 @@ public class VIDA350NotificationDriver implements NotificationDriver {
                     recorder.addSamples(ts);
                     re = true;
                 } else {
-                    Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.INFO, "The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
+                    logger.info("The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+                logger.error(ex);
             }
         }
         return re;
@@ -224,12 +218,12 @@ public class VIDA350NotificationDriver implements NotificationDriver {
         try {
             return driverObj.getJEVisClass().getName().equals(_type);
         } catch (JEVisException ex) {
-            Logger.getLogger(VIDA350NotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         return false;
     }
 
-//    public boolean sendTimeRecorder(JEVisObject notiObj, Notification noti) {
+    //    public boolean sendTimeRecorder(JEVisObject notiObj, Notification noti) {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 //    }
     public void setNotificationDriver(List<String> str) {

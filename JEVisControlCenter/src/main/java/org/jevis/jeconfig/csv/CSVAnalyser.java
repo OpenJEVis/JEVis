@@ -19,11 +19,7 @@
  */
 package org.jevis.jeconfig.csv;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,9 +63,9 @@ public class CSVAnalyser {
         }
 
         int inLine = 1;
-//        System.out.println("startIN: " + startLine);
-//        System.out.println("endLine" + endLine);
-//        System.out.println("total: " + lines.size());
+//        logger.info("startIN: " + startLine);
+//        logger.info("endLine" + endLine);
+//        logger.info("total: " + lines.size());
 
         for (String line : lines) {
 //            System.out.print("check line: " + line);
@@ -79,11 +75,11 @@ public class CSVAnalyser {
             }
 
             if (line.isEmpty()) {
-//                System.out.println("is emty");
+//                logger.info("is emty");
                 inLine++;
                 continue;
             }
-//            System.out.println("<-");
+//            logger.info("<-");
             inLine++;
             HashMap<Character, Integer> map = new HashMap<Character, Integer>();
             for (int i = 0; i < line.length(); i++) {
@@ -103,7 +99,7 @@ public class CSVAnalyser {
         int tab = cheackChar(lineCounter, '\t');
         int space = cheackChar(lineCounter, ' ');
 
-//        System.out.println("simicolons: " + simicolon);
+//        logger.info("simicolons: " + simicolon);
         if (simicolon == -2) {
             seperator = ";";
         } else if (comma == -2) {
@@ -142,8 +138,8 @@ public class CSVAnalyser {
     }
 
     private int cheackChar(List<HashMap> lineCounter, Character toCount) {
-//        System.out.println("check for: (" + toCount + ")");
-//        System.out.println("lines: " + lineCounter.size());
+//        logger.info("check for: (" + toCount + ")");
+//        logger.info("lines: " + lineCounter.size());
         int max = 0;
         int averange = 0;
         int min = 1000;
@@ -153,7 +149,7 @@ public class CSVAnalyser {
             lines++;
             int count = 0;
             if (map.containsKey(toCount)) {
-                count = map.get(toCount);;
+                count = map.get(toCount);
             }
 
             total += count;

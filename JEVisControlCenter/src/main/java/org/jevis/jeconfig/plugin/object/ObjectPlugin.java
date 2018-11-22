@@ -56,17 +56,16 @@ import org.joda.time.Period;
 
 import javax.measure.unit.Unit;
 import java.util.List;
-import java.util.logging.Level;
 
-import static org.jevis.application.jevistree.TreeHelper.LOGGER;
 
 /**
- * Theis JEConfig plugin allowes the user con work with the Objects in the JEVis
+ * This JEConfig plugin allows the user con work with the Objects in the JEVis
  * System.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ObjectPlugin implements Plugin {
+    private static final Logger logger = LogManager.getLogger(ObjectPlugin.class);
 
     private StringProperty name = new SimpleStringProperty("*NO_NAME*");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
@@ -79,8 +78,8 @@ public class ObjectPlugin implements Plugin {
     private LoadingPane treeLodingPane = new LoadingPane();
     private ToolBar toolBar;
     private ObjectEditor _editor = new ObjectEditor();
-    private final Logger logger = LogManager.getLogger(ObjectPlugin.class);
     private SimpleBooleanProperty loadingObjectProperty = new SimpleBooleanProperty();
+    private String tooltip = I18n.getInstance().getString("pluginmanager.object.tooltip");
 
     public ObjectPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -98,8 +97,11 @@ public class ObjectPlugin implements Plugin {
         try {
             if (tree.getSelectionModel().getSelectedItem() == null) {
                 Platform.runLater(() -> {
-                    tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
-                    tree.getSelectionModel().selectFirst();
+                    try {
+                        tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
+                        tree.getSelectionModel().selectFirst();
+                    } catch (Exception ex) {
+                    }
                 });
             }
 
@@ -107,7 +109,7 @@ public class ObjectPlugin implements Plugin {
                 tree.requestFocus();
             });
 
-        } catch (NullPointerException np) {
+        } catch (Exception np) {
             logger.error("Empty tree can focus first object", np);
         }
 //        }
@@ -137,6 +139,11 @@ public class ObjectPlugin implements Plugin {
     @Override
     public void setUUID(String newid) {
         id.set(newid);
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override
@@ -204,7 +211,7 @@ public class ObjectPlugin implements Plugin {
                         try {
                             _editor.setTree(tree);
                             if (obj.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
-                                System.out.println("changed: oh object is a link so im loading the linked object");
+                                logger.info("changed: oh object is a link so im loading the linked object");
                                 _editor.setObject(obj.getLinkedObject());
                             } else {
                                 _editor.setObject(obj);
@@ -307,9 +314,11 @@ public class ObjectPlugin implements Plugin {
                 return true;
             case Constants.Plugin.Command.FIND_OBJECT:
                 return true;
-            case Constants.Plugin.Command.PASE:
+            case Constants.Plugin.Command.PASTE:
                 return true;
             case Constants.Plugin.Command.COPY:
+                return true;
+            case Constants.Plugin.Command.FIND_AGAIN:
                 return true;
             default:
                 return false;
@@ -331,12 +340,12 @@ public class ObjectPlugin implements Plugin {
         upload.setOnSucceeded(event -> pForm.getDialogStage().close());
 
         upload.setOnCancelled(event -> {
-            LOGGER.error("Save Cancel");
+            logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
             pForm.getDialogStage().hide();
         });
 
         upload.setOnFailed(event -> {
-            LOGGER.error("Save failed");
+            logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
             pForm.getDialogStage().hide();
         });
 
@@ -380,17 +389,19 @@ public class ObjectPlugin implements Plugin {
 //                    tree.fireEventCreateWizard(tree.getSelectedObject());
                     break;
                 case Constants.Plugin.Command.FIND_OBJECT:
-                    TreeHelper.EventOpenObject(tree);
+                    TreeHelper.EventOpenObject(tree, JEVisTreeFactory.findNode);
                     break;
-                case Constants.Plugin.Command.PASE:
-
-                    TreeHelper.EventDrop(tree, tree.getCopyObject(), parent.getValue().getJEVisObject());
+                case Constants.Plugin.Command.FIND_AGAIN:
+                    TreeHelper.EventOpenObject(tree, JEVisTreeFactory.findAgain);
+                    break;
+                case Constants.Plugin.Command.PASTE:
+                    TreeHelper.EventDrop(tree, tree.getCopyObject(), parent.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
                     break;
                 case Constants.Plugin.Command.COPY:
                     tree.setCopyObject(parent.getValue().getJEVisObject());
                     break;
                 default:
-                    System.out.println("Unknown command ignore...");
+                    logger.info("Unknown command ignore...");
             }
         } catch (Exception ex) {
         }
@@ -609,7 +620,7 @@ public class ObjectPlugin implements Plugin {
 //                            }
 //                        });
                     } catch (JEVisException ex) {
-                        java.util.logging.Logger.getLogger(ObjectPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.error(ex);
 
                         if (ex.getMessage().equals("Can not create User with this name. The User has to be unique on the System")) {
                             InfoDialog info = new InfoDialog();
@@ -617,7 +628,7 @@ public class ObjectPlugin implements Plugin {
 
                         } else {
                             ExceptionDialog errorDia = new ExceptionDialog();
-                            errorDia.show(JEConfig.getStage(), "Error", "Could not create user", "Could not create new user.", ex, JEConfig.PROGRAMM_INFO);
+                            errorDia.show(JEConfig.getStage(), "Error", "Could not create user", "Could not create new user.", ex, JEConfig.PROGRAM_INFO);
 
                         }
                     }

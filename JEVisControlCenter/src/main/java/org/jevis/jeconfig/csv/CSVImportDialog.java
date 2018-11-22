@@ -41,6 +41,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.resource.ResourceLoader;
@@ -49,16 +51,14 @@ import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class CSVImportDialog {
+    private static final Logger logger = LogManager.getLogger(CSVImportDialog.class);
 
     public static String ICON = "1403727005_gnome-mime-application-vnd.lotus-1-2-3.png";
 
@@ -194,32 +194,12 @@ public class CSVImportDialog {
         VBox.setVgrow(spacer, Priority.ALWAYS);
         VBox.setVgrow(header, Priority.NEVER);
 
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                stage.close();
-                response = Response.CANCEL;
-            }
+        cancel.setOnAction(t -> {
+            stage.close();
+            response = Response.CANCEL;
         });
 
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                if (table.doImport()) {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle(I18n.getInstance().getString("csv.export.dialog.success.header"));
-                    alert.setHeaderText(null);
-                    alert.setContentText(I18n.getInstance().getString("csv.export.dialog.success.message"));
-                    alert.showAndWait();
-                } else {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle(I18n.getInstance().getString("csv.export.dialog.failed.title"));
-                    alert.setHeaderText(null);
-                    alert.setContentText(I18n.getInstance().getString("ccsv.export.dialog.failed.message"));
-                    alert.showAndWait();
-                }
-            }
-        });
+        ok.setOnAction(t -> table.doImport());
 
         stage.sizeToScene();
         stage.showAndWait();
@@ -228,19 +208,15 @@ public class CSVImportDialog {
     }
 
     private void updateTree() {
-//        System.out.println("UpdateTree");
+//        logger.info("UpdateTree");
         if (_csvFile != null) {
             Platform.runLater(() -> {
                 final CSVParser parser = parseCSV();
                 table = new CSVTable(_ds, parser);
                 tableRootPane.getChildren().setAll(table);
-                tableRootPane.heightProperty().addListener(new ChangeListener<Number>() {
-
-                    @Override
-                    public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
-                        if (table != null) {
-                            table.setPrefHeight(t1.doubleValue());
-                        }
+                tableRootPane.heightProperty().addListener((ov, t, t1) -> {
+                    if (table != null) {
+                        table.setPrefHeight(t1.doubleValue());
                     }
                 });
                 VBox.setVgrow(table, Priority.ALWAYS);
@@ -365,7 +341,7 @@ public class CSVImportDialog {
                         updateTree();
 
                     } catch (Exception ex) {
-                        System.out.println("Error while anylysing csv: " + ex);
+                        logger.info("Error while anylysing csv: " + ex);
                     }
                 }
 
@@ -379,7 +355,7 @@ public class CSVImportDialog {
 
                 FileChooser fileChooser = new FileChooser();
                 if (JEConfig.getLastPath() != null) {
-//                    System.out.println("Last Path: " + JEConfig.getLastPath().getParentFile());
+//                    logger.info("Last Path: " + JEConfig.getLastPath().getParentFile());
                     File file = JEConfig.getLastPath();
                     if (file.exists() && file.canRead()) {
                         fileChooser.setInitialDirectory(file);
@@ -396,7 +372,7 @@ public class CSVImportDialog {
                     Platform.runLater(() -> {
                         try {
                             JEConfig.setLastPath(file);
-                            System.out.println("file: " + file);
+                            logger.info("file: " + file);
 
                             fileNameL.setText(file.getName());// + System.getProperty("file.separator") + file.getName());
 
@@ -409,11 +385,11 @@ public class CSVImportDialog {
                             formats.getSelectionModel().select(Format.Custom.name());
                             updateTree();
                         } catch (Exception ex) {
-                            Logger.getLogger(CSVImportDialog.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.fatal(ex);
                         }
                     });
 //                        JEConfig.setLastPath(file);
-//                        System.out.println("file: " + file);
+//                        logger.info("file: " + file);
 //
 //                        fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
 //

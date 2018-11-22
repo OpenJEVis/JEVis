@@ -5,17 +5,19 @@
  */
 package org.jevis.simplealarm;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.simplealarm.usageperiod.UsagePeriod;
 import org.joda.time.DateTime;
+
+import java.util.List;
 
 /**
  *
  * @author ai
  */
 public class PeriodService {
+    private static final Logger logger = LogManager.getLogger(PeriodService.class);
 
     private static final int LOG_NORMAL = 1;
     private static final int LOG_SILENT = 2;
@@ -33,7 +35,7 @@ public class PeriodService {
             }
         }
 
-        Logger.getLogger(UsagePeriod.class.getName()).log(Level.INFO, "Date Time of alarm: " + dt + ", day of week: "+ dt.getDayOfWeek()+ " setted value = " + res);
+        logger.info("Date Time of alarm: " + dt + ", day of week: " + dt.getDayOfWeek() + " setted value = " + res);
 
         return res;
     }

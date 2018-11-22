@@ -6,10 +6,6 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXComboBox;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -22,19 +18,22 @@ import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
+import java.util.Comparator;
+import java.util.Locale;
+
 /**
- *
  * @author br
  */
 public class LanguageEditor implements AttributeEditor {
+    private static final Logger logger = LogManager.getLogger(LanguageEditor.class);
 
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(LanguageEditor.class);
     private final JEVisAttribute _attribute;
     private final HBox _editor = new HBox(5);
     private JEVisSample _newSample;
@@ -66,11 +65,11 @@ public class LanguageEditor implements AttributeEditor {
     public ObservableList<Locale> getEnumList(JEVisAttribute att) {
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
         try {
-            List<String> langs = Arrays.asList(Locale.getISOLanguages());
-            for(String lang:langs){
+            String[] langs = Locale.getISOLanguages();
+            for (String lang : langs) {
                 enumList.add(LocaleUtils.toLocale(lang));
             }
-            
+
 //            Locale[] list = DateFormat.getAvailableLocales();
 //            for (Locale l : list) {
 //                if(langs.){
@@ -113,7 +112,7 @@ public class LanguageEditor implements AttributeEditor {
                             setGraphic(null);
                             setText(null);
                         } else {
-//                            System.out.println("CodeL: " + item.getISO3Language());
+//                            logger.info("CodeL: " + item.getISO3Language());
 //                            try {
 //                                setGraphic(JEConfig.getImage("flags/" + item.getCountry().toLowerCase() + ".gif", 16, 16));
 //                            } catch (Exception ex) {
@@ -140,7 +139,7 @@ public class LanguageEditor implements AttributeEditor {
                 _newSample = _attribute.buildSample(new DateTime(), local.getLanguage());
                 _changed.setValue(Boolean.TRUE);
             } catch (JEVisException ex) {
-                Logger.getLogger(LanguageEditor.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         });
 

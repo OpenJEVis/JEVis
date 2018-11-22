@@ -4,11 +4,7 @@ package org.jevis.httpdatasource;
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -21,51 +17,28 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
-import org.jevis.commons.driver.DataSourceHelper;
 import org.jevis.commons.driver.DataCollectorTypes;
+import org.jevis.commons.driver.DataSourceHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author bf
  */
 public class HTTPDataSource {
-
-    // interfaces
-    interface HTTP extends DataCollectorTypes.DataSource.DataServer {
-
-        public final static String NAME = "HTTP Server";
-        public final static String PASSWORD = "Password";
-        public final static String SSL = "SSL";
-        public final static String USER = "User";
-    }
-
-    interface HTTPChannelDirectory extends DataCollectorTypes.ChannelDirectory {
-
-        public final static String NAME = "HTTP Channel Directory";
-    }
-
-    interface HTTPChannel extends DataCollectorTypes.Channel {
-
-        public final static String NAME = "HTTP Channel";
-        public final static String PATH = "Path";
-    }
-
-    // member variables
-    private Long _id;
-    private String _name;
-    private String _serverURL;
-    private Integer _port;
-    private Integer _connectionTimeout;
-    private Integer _readTimeout;
-    private String _userName;
-    private String _password;
-    private DateTimeZone _timeZone;
-    private Boolean _ssl = false;
+    private static final Logger logger = LogManager.getLogger(HTTPDataSource.class);
 
     /**
      * komplett überarbeiten!!!!!
@@ -81,7 +54,7 @@ public class HTTPDataSource {
             DateTime lastReadout = channel.getLastReadout();
 
             if (path.startsWith("/")) {
-                path = path.substring(1, path.length());
+                path = path.substring(1);
             }
 
             URL requestUrl;
@@ -105,19 +78,19 @@ public class HTTPDataSource {
                 if (_ssl) {
                     DataSourceHelper.doTrustToCertificates();
                 }
-                Logger.getLogger(HTTPDataSource.class.getName()).log(Level.INFO, "Connection URL: " + requestUrl);
+                logger.info("Connection URL: " + requestUrl);
                 request = (HttpURLConnection) requestUrl.openConnection();
 
 //                    if (_connectionTimeout == null) {
                 int connTimeoutInMSec = _connectionTimeout * 1000;
 //                    }
-                //  System.out.println("Connect timeout: " + _connectionTimeout+ " s");
+                //  logger.info("Connect timeout: " + _connectionTimeout+ " s");
                 request.setConnectTimeout(connTimeoutInMSec);
 
 //                    if (_readTimeout == null) {
                 int readTimeoutInMSec = _readTimeout * 1000;
 //                    }
-                //   System.out.println("read timeout: " + _readTimeout + " s");
+                //   logger.info("read timeout: " + _readTimeout + " s");
                 request.setReadTimeout(readTimeoutInMSec);
                 answer.add(request.getInputStream());
             } else {
@@ -158,22 +131,50 @@ public class HTTPDataSource {
                 HttpEntity oEntity = oResponse.getEntity();
                 String oXmlString = EntityUtils.toString(oEntity);
                 EntityUtils.consume(oEntity);
-                InputStream stream = new ByteArrayInputStream(oXmlString.getBytes("UTF-8"));
+                InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
                 answer.add(stream);
             }
 //        List<InputHandler> answerList = new ArrayList<InputHandler>();
 //        answerList.add(InputHandlerFactory.getInputConverter(answer));
         } catch (JEVisException ex) {
-            Logger.getLogger(HTTPDataSource.class.getName()).log(Level.ERROR, ex.getMessage());
-            java.util.logging.Logger.getLogger(HTTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(HTTPDataSource.class.getName()).log(Level.ERROR, ex.getMessage());
-            java.util.logging.Logger.getLogger(HTTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         } catch (Exception ex) {
-            Logger.getLogger(HTTPDataSource.class.getName()).log(Level.ERROR, ex.getMessage());
-            java.util.logging.Logger.getLogger(HTTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         return answer;
+    }
+
+    public void setDateTimeZone(String timeZone) {
+        logger.info("TIMEZONE: " + timeZone);
+        this._timeZone = DateTimeZone.forID(timeZone);
+    }
+
+    // interfaces
+    interface HTTP extends DataCollectorTypes.DataSource.DataServer {
+
+        String NAME = "HTTP Server";
+        String PASSWORD = "Password";
+        String SSL = "SSL";
+        String USER = "User";
+    }
+
+    // member variables
+    private Long _id;
+    private String _name;
+    private String _serverURL;
+    private Integer _port;
+    private Integer _connectionTimeout;
+    private Integer _readTimeout;
+    private String _userName;
+    private String _password;
+    private DateTimeZone _timeZone;
+    private Boolean _ssl = false;
+
+    interface HTTPChannelDirectory extends DataCollectorTypes.ChannelDirectory {
+
+        String NAME = "HTTP Channel Directory";
     }
 
     public void setName(String _name) {
@@ -207,12 +208,13 @@ public class HTTPDataSource {
     public void setSsl(Boolean _ssl) {
         this._ssl = _ssl;
     }
-    
-    public void setDateTimeZone(String timeZone){
-        System.out.println("TIMEZONE: "+timeZone);
-        this._timeZone = DateTimeZone.forID(timeZone);
+
+    interface HTTPChannel extends DataCollectorTypes.Channel {
+
+        String NAME = "HTTP Channel";
+        String PATH = "Path";
     }
-    
+
     public DateTimeZone getDateTimeZone() {
         return _timeZone;
     }

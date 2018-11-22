@@ -71,7 +71,7 @@ public class FileManager {
 
         if (length > Integer.MAX_VALUE) {
             // File is too large
-            System.out.println("File is too large...");
+            logger.info("File is too large...");
         }
 
         // Create the byte array to hold the data
@@ -106,9 +106,9 @@ public class FileManager {
             fos.write(fileAsByte);
             fos.close();
         } catch (FileNotFoundException ex) {
-            System.out.println("FileNotFoundException : " + ex);
+            logger.info("FileNotFoundException : " + ex);
         } catch (IOException ioe) {
-            System.out.println("IOException : " + ioe);
+            logger.info("IOException : " + ioe);
         }
     }
     

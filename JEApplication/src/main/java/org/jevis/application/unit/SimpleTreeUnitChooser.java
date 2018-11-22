@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -34,14 +34,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javax.measure.unit.Unit;
-import org.jevis.api.JEVisAttribute;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.dialog.DialogHeader;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.commons.unit.JEVisUnitImp;
+
+import javax.measure.unit.Unit;
 
 /**
  * This simple Dialog allows the user to select an Unit in an treeview
@@ -49,21 +50,9 @@ import org.jevis.commons.unit.JEVisUnitImp;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SimpleTreeUnitChooser {
+    private static final Logger logger = LogManager.getLogger(SimpleTreeUnitChooser.class);
 
-    public static enum Response {
-
-        YES, CANCEL
-    };
-
-    private Response response = Response.CANCEL;
-
-    private UnitTree uTree;
-    private JEVisUnit _unit = new JEVisUnitImp(Unit.ONE);
-
-    public SimpleTreeUnitChooser() {
-    }
-
-    public Response show(Point2D position, final JEVisDataSource ds) throws JEVisException {
+    public Response show(Point2D position, final JEVisDataSource ds) {
         final Stage stage = new Stage();
 
         stage.setTitle("Base Unit Selection");
@@ -114,9 +103,9 @@ public class SimpleTreeUnitChooser {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 response = Response.YES;
-                System.out.println("UnitTree.OK: " + uTree.getSelectedObject().getUnit());
+                logger.info("UnitTree.OK: " + uTree.getSelectedObject().getUnit());
                 _unit = uTree.getSelectedObject().getUnit();
                 stage.close();
 
@@ -137,6 +126,19 @@ public class SimpleTreeUnitChooser {
         stage.showAndWait();
 
         return response;
+    }
+
+    private Response response = Response.CANCEL;
+
+    private UnitTree uTree;
+    private JEVisUnit _unit = new JEVisUnitImp(Unit.ONE);
+
+    public SimpleTreeUnitChooser() {
+    }
+
+    public enum Response {
+
+        YES, CANCEL
     }
 
     public JEVisUnit getUnit() {

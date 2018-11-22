@@ -5,8 +5,9 @@
 package org.jevis.jedatacollector;
 
 import org.apache.commons.cli.Option;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.cli.JEVisCommandLine;
 
 /**
@@ -14,6 +15,7 @@ import org.jevis.commons.cli.JEVisCommandLine;
  * @author bf
  */
 public class Helper {
+    private static final Logger logger = LogManager.getLogger(Helper.class);
 
     //Command line Parameter
     public static String SINGLE = "single";
@@ -63,6 +65,6 @@ public class Helper {
 
     public static void initializeLogger(Level debugLevel) {
 //        PropertyConfigurator.configure("log4j.properties");
-        Logger.getRootLogger().setLevel(debugLevel);
+        //Logger.getRootLogger().setLevel(debugLevel);
     }
 }

@@ -43,6 +43,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "sFTP Server"
+    },
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "sFTP Server"
     }
   ]
 }

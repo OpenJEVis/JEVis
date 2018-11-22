@@ -56,7 +56,7 @@ public class Benchmark {
 
 //        System.out.printf("[  |%4d|%n  %s  ] for - %s", milis, unit, text);
         System.out.printf("[%4d %s] %s\n", milis, unit, text);
-//        System.out.println("[" + (milis) + unit + "] for - " + text);
+//        logger.info("[" + (milis) + unit + "] for - " + text);
     }
 
     public void printBenchmarkDetail(String text) {

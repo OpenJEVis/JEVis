@@ -77,7 +77,7 @@ public class JEVisClassHelper {
 //                            clone.setInherited(true);
                             subClass.getTypes().add(clone);
                         } else {
-//                            System.out.println("Waring, redudant type in "+subClass.getName()+ ": "+type.getName());
+//                            logger.info("Waring, redudant type in "+subClass.getName()+ ": "+type.getName());
                         }
                     } catch (Exception ex) {
 //                        logger.warn(ex);
@@ -117,12 +117,12 @@ public class JEVisClassHelper {
                         String relKey = rel.getStart() + ":" + rel.getEnd() + ":" + rel.getType();
                         clRelationships.put(relKey, rel);
                     } catch (Exception ex) {
-                        logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
+                        logger.error("Error while listing classes relationships[{}]", jc.getKey(), ex);
                     }
                 }
 
             } catch (Exception ex) {
-                logger.error("Error while listing classes[" + jc.getKey() + "]", ex);
+                logger.error("Error while listing classes[{}]", jc.getKey(), ex);
             }
         }
 
@@ -139,7 +139,7 @@ public class JEVisClassHelper {
                     endClass.getRelationships().add(rel.getValue());
                 }
             } catch (Exception ex) {
-                logger.error("Error while mapping class relationships[" + rel.getKey() + "]", ex);
+                logger.error("Error while mapping class relationships[{}]", rel.getKey(), ex);
             }
         }
 
@@ -151,7 +151,7 @@ public class JEVisClassHelper {
                         addHeirs(classMap, superClass);
                     }
                 } catch (Exception ex) {
-                    logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
+                    logger.error("Error while listing classes relationships[]", jc.getKey(), ex);
                 }
             }
 

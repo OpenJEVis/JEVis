@@ -15,13 +15,15 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.JEConfig;
 
 /**
- *
  * @author fs
  */
 public class ConnectionEncoderWindow {
+    private static final Logger logger = LogManager.getLogger(ConnectionEncoderWindow.class);
 
     @FXML
     private TextField host;
@@ -46,12 +48,12 @@ public class ConnectionEncoderWindow {
 
     @FXML
     void onChanged(KeyEvent event) {
-        System.out.println("onChange");
+        logger.info("onChange");
     }
 
     @FXML
     void onCopy(ActionEvent event) {
-        System.out.println("OnCopy");
+        logger.info("OnCopy");
     }
 
     public ConnectionEncoderWindow(Stage stage) {

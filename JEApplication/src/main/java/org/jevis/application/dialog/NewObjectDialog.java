@@ -27,13 +27,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -41,6 +39,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -52,14 +52,12 @@ import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.tools.NumberSpinner;
 
 import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author fs
  */
 public class NewObjectDialog {
-
+    private static final Logger logger = LogManager.getLogger(NewObjectDialog.class);
     public static String ICON = "1403104602_brick_add.png";
 
     private int createCount = 1;
@@ -82,7 +80,7 @@ public class NewObjectDialog {
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
 
         Dialog<ButtonType> dialog = new Dialog();
-        dialog.setTitle("jevistree.dialog.new.title");
+        dialog.setTitle(rb.getString("jevistree.dialog.new.title"));
         dialog.setHeaderText(rb.getString("jevistree.dialog.new.header"));
         dialog.getDialogPane().getButtonTypes().setAll();
         dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
@@ -120,7 +118,7 @@ public class NewObjectDialog {
                 );
 
             } catch (JEVisException ex) {
-                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         } else if (type == Type.RENAME) {
             options.add(jclass);
@@ -148,7 +146,7 @@ public class NewObjectDialog {
                                 box.getChildren().setAll(icon, cName);
 
                             } catch (JEVisException ex) {
-                                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.fatal(ex);
                             }
 
                             setGraphic(box);
@@ -170,7 +168,7 @@ public class NewObjectDialog {
                     fName.setText(I18nWS.getInstance().getClassName(newValue.getName()));
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         });
 
@@ -220,7 +218,7 @@ public class NewObjectDialog {
                 count.setDisable(false);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         if (type == Type.NEW) {

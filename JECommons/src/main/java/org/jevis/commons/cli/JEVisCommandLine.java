@@ -5,16 +5,17 @@
 package org.jevis.commons.cli;
 
 import org.apache.commons.cli.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
 /**
- *
  * @author bf
  */
 public class JEVisCommandLine {
+    private static final Logger logger = LogManager.getLogger(JEVisCommandLine.class);
 
     private static JEVisCommandLine _instance = null;
     private Options _options;
@@ -78,7 +79,7 @@ public class JEVisCommandLine {
         try {
             _cmd = _parser.parse(_options, args);
         } catch (ParseException ex) {
-            Logger.getLogger(JEVisCommandLine.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
             showHelp();
             System.exit(0);
         }

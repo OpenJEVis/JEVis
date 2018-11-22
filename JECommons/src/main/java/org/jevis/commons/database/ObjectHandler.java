@@ -5,20 +5,17 @@
  */
 package org.jevis.commons.database;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
 
 /**
- *
  * @author broder
  */
 public class ObjectHandler {
+    private static final Logger logger = LogManager.getLogger(ObjectHandler.class);
 
     private final JEVisDataSource dataSource;
 
@@ -29,16 +26,16 @@ public class ObjectHandler {
     public void printObject(long l) {
         try {
             JEVisObject jevisObject = dataSource.getObject(l);
-            System.out.println(jevisObject.getName());
+            logger.info(jevisObject.getName());
             for (JEVisAttribute attr : jevisObject.getAttributes()) {
                 Object attrValue = null;
                 if (attr.getLatestSample() != null) {
                     attrValue = attr.getLatestSample().getValue();
                 }
-                System.out.println(attr.getName() + "," + attrValue);
+                logger.info(attr.getName() + "," + attrValue);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ClassHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -49,7 +46,7 @@ public class ObjectHandler {
                 parent = calcObject.getParents().get(0);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ObjectHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return parent;
     }
@@ -59,7 +56,7 @@ public class ObjectHandler {
         try {
             object = dataSource.getObject(l);
         } catch (JEVisException ex) {
-            Logger.getLogger(ObjectHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return object;
     }
@@ -70,7 +67,7 @@ public class ObjectHandler {
             JEVisClass jeVisClass = dataSource.getJEVisClass(typeName);
             childObject = parentObject.buildObject(objectName, jeVisClass);
         } catch (JEVisException ex) {
-            Logger.getLogger(ObjectHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return childObject;
     }
@@ -82,7 +79,7 @@ public class ObjectHandler {
             for (JEVisObject obj : children) {
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ObjectHandler.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 

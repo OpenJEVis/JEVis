@@ -60,7 +60,7 @@ public class Mail {
     }
 
     public void sendMail(String emails, String filename) throws AddressException, MessagingException, GeneralSecurityException {
-        System.out.println("FILENAME " + filename);
+        logger.info("FILENAME " + filename);
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 //        String host = "smtp.1und1.de";
 //        int _port = 587;
@@ -123,7 +123,7 @@ public class Mail {
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
         transport.sendMessage(message, addresses);
-        System.out.println("E-Mail gesendet an " + emails);
+        logger.info("E-Mail gesendet an " + emails);
         transport.close();
     }
 }

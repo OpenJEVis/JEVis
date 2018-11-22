@@ -19,13 +19,11 @@
  */
 package org.jevis.commons.application;
 
-import org.jevis.commons.application.LibraryInfo;
-
 /**
  *
  * @author fs
  */
 public class Info {
 
-    public static LibraryInfo INFO = new LibraryInfo("JECommons", "3.0.0");
+    public static LibraryInfo INFO = new LibraryInfo("JECommons", "3.8");
 }

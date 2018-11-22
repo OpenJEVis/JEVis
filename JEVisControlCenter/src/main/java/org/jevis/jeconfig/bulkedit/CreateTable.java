@@ -1,25 +1,12 @@
 package org.jevis.jeconfig.bulkedit;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -29,12 +16,9 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.Pair;
-import org.controlsfx.control.spreadsheet.GridBase;
-import org.controlsfx.control.spreadsheet.GridChange;
-import org.controlsfx.control.spreadsheet.SpreadsheetCell;
-import org.controlsfx.control.spreadsheet.SpreadsheetCellType;
-import org.controlsfx.control.spreadsheet.SpreadsheetColumn;
-import org.controlsfx.control.spreadsheet.SpreadsheetView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.spreadsheet.*;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -42,8 +26,13 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.ImageConverter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
- *
  * @author Zeyd Bilal Calis
  */
 // CreateTable wurde um eine neue Tabelle zu erzeugen implementiert.
@@ -51,6 +40,7 @@ import org.jevis.jeconfig.tool.ImageConverter;
 // CreateNewDataTable wurde nur fuer das "Data" Objekt implementiert. Wenn man in JEConfig ein Data Objekt definiert,wird diese
 // Klasse aufgerufen, fuer die alle andere definierte Objekten wird die CreateNewTable Klasse aufgeruden.
 public class CreateTable {
+    private static final Logger logger = LogManager.getLogger(CreateTable.class);
 
     //declarations
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
@@ -70,21 +60,6 @@ public class CreateTable {
     //Die Unitsymbols kommen aus der addSymbols()
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
 
-    public static enum Type {
-
-        NEW, RENAME, EDIT
-    };
-
-    public static enum Response {
-
-        NO, YES, CANCEL
-    };
-
-    private Response response = Response.CANCEL;
-
-    public CreateTable() {
-    }
-
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
         try {
@@ -92,9 +67,9 @@ public class CreateTable {
                 options = FXCollections.observableArrayList(parent.getAllowedChildrenClasses());
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
-        //cellFactory for the ComboBox 
+        //cellFactory for the ComboBox
         Callback<ListView<JEVisClass>, ListCell<JEVisClass>> cellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
             @Override
             public ListCell<JEVisClass> call(ListView<JEVisClass> param) {
@@ -116,7 +91,7 @@ public class CreateTable {
                                 box.getChildren().setAll(icon, cName);
 
                             } catch (JEVisException ex) {
-                                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+                                logger.fatal(ex);
                             }
 
                             setGraphic(box);
@@ -149,7 +124,7 @@ public class CreateTable {
                 new CreateNewTable();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         BorderPane root = new BorderPane();
@@ -182,7 +157,7 @@ public class CreateTable {
             public void handle(ActionEvent t) {
                 stage.close();
                 for (int i = 0; i < grid.getRowCount(); i++) {
-                    //Schritt1 : In der ersten Spalte steht der Objektname. 
+                    //Schritt1 : In der ersten Spalte steht der Objektname.
                     String spcObjectName = rows.get(i).get(0).getText();
                     //Schritt2 : Wenn der Objektname nicht leer ist werden die Attribute gelesen.
                     if (!spcObjectName.equals("")) {
@@ -194,7 +169,7 @@ public class CreateTable {
                             attributes.add(spcAttribut.getText());
                         }
                         //Schritt4 : Objektname und die Attribute werden in die pairList abgepeichert.
-                        //Diese Liste wird in der fireEventCreateTable() Methode von der Klasse ObjectTree.java aufgerufen.                     
+                        //Diese Liste wird in der fireEventCreateTable() Methode von der Klasse ObjectTree.java aufgerufen.
                         pairList.add(new Pair(spcObjectName, attributes));
                     }
                 }
@@ -230,7 +205,7 @@ public class CreateTable {
                         root.setCenter(spv);
                     }
                 } catch (JEVisException ex) {
-                    Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         });
@@ -256,6 +231,21 @@ public class CreateTable {
         return response;
     }
 
+    public enum Type {
+
+        NEW, RENAME, EDIT
+    }
+
+    private Response response = Response.CANCEL;
+
+    public CreateTable() {
+    }
+
+    public enum Response {
+
+        NO, YES, CANCEL
+    }
+
     public ObservableList<Pair<String, ArrayList<String>>> getPairList() {
         return pairList;
     }
@@ -279,7 +269,7 @@ public class CreateTable {
                 rowCount = 1000;
                 columnCount = createClass.getTypes().size() + 1;
             } catch (JEVisException ex) {
-                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
             //Ab hier wird die Tabelle und ihre Eigenschaften erzeugt.
             grid = new GridBase(rowCount, columnCount);
@@ -317,7 +307,7 @@ public class CreateTable {
                 }
 
             } catch (JEVisException ex) {
-                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNames);
         }
@@ -336,7 +326,7 @@ public class CreateTable {
                 int typeSize = createClass.getTypes().size() - 1;
                 columnCount = colNames.length + typeSize;
             } catch (JEVisException ex) {
-                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
             grid = new GridBase(rowCount, columnCount);
@@ -371,7 +361,7 @@ public class CreateTable {
                     }
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(EditTable.CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
 
             columnHeaderNamesDataTable.addAll(colNames);

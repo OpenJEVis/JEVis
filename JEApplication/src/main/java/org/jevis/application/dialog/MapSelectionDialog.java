@@ -1,27 +1,25 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.dialog;
 
-import java.util.HashMap;
-import java.util.Map;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -30,53 +28,27 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.TreePlugin;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
 import org.jevis.application.jevistree.plugin.MapPlugin;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class MapSelectionDialog {
-
-    public static enum Response {
-        OK, CANCEL
-    };
-    private Response _response = Response.CANCEL;
-
-    private final JEVisDataSource _ds;
-    private final String ICON = "1404313956_evolution-tasks.png";
-    private Map<String, MapPlugin.DataModel> data = new HashMap<>();
-    private Stage stage;
-    private boolean init = true;
-    private JEVisTree _tree;
-
-    public MapSelectionDialog(JEVisDataSource ds) {
-        _ds = ds;
-    }
-
-    public JEVisTree getTree() {
-        if (!init) {
-            return _tree;
-        }
-
-        _tree = JEVisTreeFactory.buildDefaultMapTree(_ds);
-        init = false;
-
-        return _tree;
-    }
+    private static final Logger logger = LogManager.getLogger(MapSelectionDialog.class);
 
     public Response show(Stage owner) {
         _response = Response.CANCEL;
@@ -101,7 +73,7 @@ public class MapSelectionDialog {
         VBox root = new VBox();
 
         DialogHeader header = new DialogHeader();
-        Node headerNode = header.getDialogHeader(ICON, "Selection Dialog");
+        Node headerNode = DialogHeader.getDialogHeader(ICON, "Selection Dialog");
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
 
@@ -137,10 +109,10 @@ public class MapSelectionDialog {
                 tree.setUserSelectionEnded();
                 _response = Response.OK;
 
-                System.out.println("Results");
+                logger.info("Results");
                 for (TreePlugin plugin : tree.getPlugins()) {
                     if (plugin instanceof MapPlugin) {
-                        System.out.println("Found Mapchart plugin");
+                        logger.info("Found Mapchart plugin");
                         MapPlugin bp = (MapPlugin) plugin;
 
                         data = bp.getSelectedData();
@@ -156,6 +128,34 @@ public class MapSelectionDialog {
         stage.showAndWait();
 
         return _response;
+    }
+
+    private Response _response = Response.CANCEL;
+
+    private final JEVisDataSource _ds;
+    private final String ICON = "1404313956_evolution-tasks.png";
+    private Map<String, MapPlugin.DataModel> data = new HashMap<>();
+    private Stage stage;
+    private boolean init = true;
+    private JEVisTree _tree;
+
+    public MapSelectionDialog(JEVisDataSource ds) {
+        _ds = ds;
+    }
+
+    public JEVisTree getTree() {
+        if (!init) {
+            return _tree;
+        }
+
+        _tree = JEVisTreeFactory.buildDefaultMapTree(_ds);
+        init = false;
+
+        return _tree;
+    }
+
+    public enum Response {
+        OK, CANCEL
     }
 
     public Map<String, MapPlugin.DataModel> getSelectedData() {

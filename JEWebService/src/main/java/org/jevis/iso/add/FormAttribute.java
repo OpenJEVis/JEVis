@@ -147,11 +147,11 @@ public class FormAttribute {
             case JEVisConstants.PrimitiveType.FILE:
                 //File
 //                    if (js != null) {
-//                        System.out.println("File found.");
+//                        logger.info("File found.");
 //                        String filename = "";
 //                        JEVisFile file = ds.getFile(obj.getId(), ja.getType(), null);
 //                        filename = file.getFilename();
-//                        System.out.println("Filename: " + filename);
+//                        logger.info("Filename: " + filename);
 //                        this.file = new File(filename);
 //                        this.setValue(js.getTs());
 //                    }

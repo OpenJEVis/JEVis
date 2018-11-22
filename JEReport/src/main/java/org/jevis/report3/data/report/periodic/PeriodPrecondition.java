@@ -5,19 +5,22 @@
  */
 package org.jevis.report3.data.report.periodic;
 
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.report3.DateHelper;
 import org.jevis.report3.data.report.Precondition;
 import org.jevis.report3.data.report.ReportConfiguration;
 import org.jevis.report3.data.report.ReportProperty;
+import org.jevis.report3.data.report.event.EventPrecondition;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
- *
  * @author broder
  */
 public class PeriodPrecondition implements Precondition {
@@ -38,6 +41,40 @@ public class PeriodPrecondition implements Precondition {
         DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
         DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule);
 
-        return endRecord != null;
+        String operator = samplesHandler.getLastSampleAsString(reportObject, "Operator");
+        String limit = samplesHandler.getLastSampleAsString(reportObject, "Limit");
+        Long jevisId = samplesHandler.getLastSampleAsLong(reportObject, "JEVis ID");
+        String attributeName = samplesHandler.getLastSampleAsString(reportObject, "Attribute Name");
+
+        boolean isFulfilled = true;
+
+        if (operator != null && limit != null && jevisId != null && attributeName != null) {
+            isFulfilled = false;
+
+            EventPrecondition.EventOperator eventOperator = EventPrecondition.EventOperator.getEventOperator(operator);
+
+            List<JEVisSample> samplesInPeriod = null;
+            try {
+                samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, new DateTime());
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+
+            for (JEVisSample sample : samplesInPeriod) {
+
+                String value = null;
+                try {
+                    value = sample.getValueAsString();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+
+                isFulfilled = eventOperator.isFulfilled(value, limit);
+
+                if (isFulfilled) break;
+            }
+        }
+
+        return ((endRecord != null) && (isFulfilled));
     }
 }

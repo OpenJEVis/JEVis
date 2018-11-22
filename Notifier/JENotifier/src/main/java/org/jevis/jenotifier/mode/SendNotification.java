@@ -4,17 +4,18 @@
  */
 package org.jevis.jenotifier.mode;
 
-import java.io.PrintWriter;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jenotifier.notifier.Notification;
 import org.jevis.jenotifier.notifier.NotificationDriver;
 
+import java.io.PrintWriter;
+
 /**
- *
  * @author gf
  */
 public class SendNotification implements Runnable {
+    private static final Logger logger = LogManager.getLogger(SendNotification.class);
 
     private Notification _noti;
     private NotificationDriver _driver;
@@ -33,12 +34,12 @@ public class SendNotification implements Runnable {
 
     @Override
     public void run() {
-        Logger.getLogger(Single.class.getName()).log(Level.DEBUG, "------- " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + " is configured: " + _driver.isDriverConfigured() + " -------"
+        logger.debug("------- " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + " is configured: " + _driver.isDriverConfigured() + " -------"
                 + "\n" + "------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " is configured: " + _noti.isNotiConfigured() + " -------"
                 + "\n" + "------- " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + " supports " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + ": " + _driver.isSupported(_noti) + " -------");
-//        System.out.println(_noti.isNotiConfigured());
-//        System.out.println(_driver.isDriverConfigured());
-//        System.out.println(_driver.isSupported(_noti));
+//        logger.info(_noti.isNotiConfigured());
+//        logger.info(_driver.isDriverConfigured());
+//        logger.info(_driver.isSupported(_noti));
         if (_noti.isNotiConfigured() && _driver.isDriverConfigured()) {
             if (_driver.isSupported(_noti)) {
 //                synchronized (SendNoti.class) {
@@ -46,13 +47,13 @@ public class SendNotification implements Runnable {
 //                }
                 if (_noti.isSendSuccessfully()) {
                     _driver.sendTimeRecorder(_noti);
-                    Logger.getLogger(Single.class.getName()).log(Level.INFO, "------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " Sent sucessfully by " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + "-------");
+                    logger.info("------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " Sent sucessfully by " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + "-------");
                     if (_writer != null) {
                         _writer.println("------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " Sent sucessfully by " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + "-------");
                         _writer.flush();
                     }
                 } else {
-                    Logger.getLogger(Single.class.getName()).log(Level.INFO, "------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " Send failed by " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + "-------");
+                    logger.info("------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " Send failed by " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + "-------");
                     if (_writer != null) {
                         _writer.println("------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " Send failed by " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + "-------");
                         _writer.flush();

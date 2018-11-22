@@ -58,7 +58,7 @@ public class SampleTable {
     public final static String COLUMN_FILE = "file";
     public final static String COLUMN_FILE_NAME = "filename";
     private SQLDataSource _connection;
-    private Logger logger = LogManager.getLogger(SampleTable.class);
+    private static final Logger logger = LogManager.getLogger(SampleTable.class);
 
     public SampleTable(SQLDataSource ds) {
         _connection = ds;
@@ -96,12 +96,11 @@ public class SampleTable {
                 + "," + COLUMN_VALUE + "," + COLUMN_MANID + "," + COLUMN_NOTE + "," + COLUMN_INSERT_TIMESTAMP
                 + ") VALUES";
 
-//        System.out.println("SQL raw: "+sql);
+//        logger.info("SQL raw: "+sql);
         PreparedStatement ps = null;
         int count = 0;
 
         try {
-            //SringBuilder is faster then a sql batch script
             StringBuilder build = new StringBuilder(sql);
 
             for (int i = 0; i < samples.size(); i++) {
@@ -141,9 +140,9 @@ public class SampleTable {
 //                        ps.setNull(++p, Types.VARCHAR);
 //                        break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
-                        if(sample.getValue().equals("1") || sample.getValue().equals("2")){
+                        if (sample.getValue().equals("1") || sample.getValue().equals("2")) {
                             ps.setBoolean(++p, "1".equals(sample.getValue()));
-                        }else{
+                        } else {
                             ps.setBoolean(++p, Boolean.valueOf(sample.getValue()));
                         }
                         break;
@@ -154,10 +153,10 @@ public class SampleTable {
                         ps.setString(++p, sample.getValue());
                         break;
                     case JEVisConstants.PrimitiveType.LONG:
-                        ps.setLong(++p, dv.validate(sample.getValue(),Locale.US).longValue());
+                        ps.setLong(++p, dv.validate(sample.getValue(), Locale.US).longValue());
                         break;
                     case JEVisConstants.PrimitiveType.DOUBLE:
-                        ps.setDouble(++p, dv.validate(sample.getValue(),Locale.US));
+                        ps.setDouble(++p, dv.validate(sample.getValue(), Locale.US));
                         break;
                     default:
                         ps.setString(++p, sample.getValue());
@@ -170,7 +169,7 @@ public class SampleTable {
                 ps.setTimestamp(++p, new Timestamp(now));
 
             }
-//            System.out.println("SamplDB.putSample SQL: \n" + ps);
+//            logger.info("SamplDB.putSample SQL: \n" + ps);
             logger.error("SQL: {}", ps);
             _connection.addQuery("Sample.insert()", ps.toString());
             count = ps.executeUpdate();
@@ -221,7 +220,7 @@ public class SampleTable {
             ByteArrayInputStream bis = new ByteArrayInputStream(file.getBytes());
             ps.setBlob(6, bis);
 
-//            System.out.println("SamplDB.putSample SQL: \n" + ps);
+//            logger.info("SamplDB.putSample SQL: \n" + ps);
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Sample.setFile()", ps.toString());
             count = ps.executeUpdate();
@@ -450,8 +449,8 @@ public class SampleTable {
         }
     }
 
-    public List<JsonSample> getAll(long object, String att) throws SQLException, JEVisException {
-//        System.out.println("SampleTable.getAll");
+    public List<JsonSample> getAll(long object, String att) throws SQLException {
+//        logger.info("SampleTable.getAll");
         List<JsonSample> samples = new ArrayList<>();
 
         String sql = "select * from " + TABLE
@@ -472,6 +471,53 @@ public class SampleTable {
         }
 
         return samples;
+    }
+
+    /**
+     * Check if this attribute has samples
+     *
+     * @param objectID
+     * @param attribute
+     * @return
+     */
+    public boolean hasSamples(long objectID, String attribute) throws Exception {
+        String sql = "" +
+                "select " + COLUMN_OBJECT + " from " + TABLE
+                + " where " + COLUMN_OBJECT + "=?"
+                + " and " + COLUMN_ATTRIBUTE + "=?"
+                + " limit 1";
+
+        PreparedStatement ps = null;
+
+        try {
+            ps = _connection.getConnection().prepareStatement(sql);
+
+            //insert
+            ps.setLong(1, objectID);
+            ps.setString(2, attribute);
+
+
+            logger.debug("SQL.hasSamples: {}", ps);
+            ResultSet rs = ps.executeQuery();
+            boolean hasSamples = false;
+            while (rs.next()) {
+                hasSamples = true;
+            }
+            return hasSamples;
+
+        } catch (Exception ex) {
+            logger.error(ex);
+            ex.printStackTrace();
+            throw ex;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    /*ignored*/
+                }
+            }
+        }
     }
 
     public JsonSample getLatest(long object, String att) throws JEVisException {

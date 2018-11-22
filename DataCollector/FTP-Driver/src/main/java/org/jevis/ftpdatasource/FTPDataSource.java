@@ -5,43 +5,27 @@
  */
 package org.jevis.ftpdatasource;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPSClient;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
-import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.DataSource;
-import org.jevis.commons.driver.DataSourceHelper;
-import org.jevis.commons.driver.Importer;
-import org.jevis.commons.driver.ImporterFactory;
-import org.jevis.commons.driver.JEVisImporterAdapter;
-import org.jevis.commons.driver.Parser;
-import org.jevis.commons.driver.ParserFactory;
-import org.jevis.commons.driver.Result;
+import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
  * @author bf
  */
 public class FTPDataSource implements DataSource {
 
+    private static final Logger logger = LogManager.getLogger(FTPDataSource.class);
     private Long _id;
     private String _name;
     private String _serverURL;
@@ -63,7 +47,7 @@ public class FTPDataSource implements DataSource {
 
     @Override
     public void parse(List<InputStream> input) {
-        _parser.parse(input,_timezone);
+        _parser.parse(input, _timezone);
         _result = _parser.getResult();
     }
 
@@ -94,7 +78,7 @@ public class FTPDataSource implements DataSource {
                     JEVisImporterAdapter.importResults(_result, _importer, channel);
                 }
             } catch (Exception ex) {
-                java.util.logging.Logger.getLogger(FTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                logger.error(ex);
             }
         }
     }
@@ -123,7 +107,7 @@ public class FTPDataSource implements DataSource {
         List<InputStream> answerList = new ArrayList<InputStream>();
         try {
             if (_ssl) {
-                System.out.println("ftps connection");
+                logger.info("ftps connection");
                 _fc = new FTPSClient();
             } else {
                 _fc = new FTPClient();
@@ -141,7 +125,7 @@ public class FTPDataSource implements DataSource {
 //            _fc.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
 
             if (_fc.login(_userName, _password) == false) {
-                org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ERROR, "No Login possible");
+                logger.error("No Login possible");
 //                throw new FetchingException(_id, FetchingExceptionType.CONNECTION_ERROR);
             }
 
@@ -159,18 +143,18 @@ public class FTPDataSource implements DataSource {
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
 //            String filePath = dp.getFilePath();
-            org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "SendSampleRequest2");
+            logger.info("SendSampleRequest2");
             List<String> fileNames = DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, filePath);
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
-            org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "Nr of Matched Files " + fileNames.size());
+            logger.info("Nr of Matched Files " + fileNames.size());
             for (String fileName : fileNames) {
-                org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "FileInputName: " + fileName);
+                logger.info("FileInputName: " + fileName);
 
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
 //                String query = Paths.get(fileName);
-                org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "FTPQuery " + fileName);
+                logger.info("FTPQuery " + fileName);
                 boolean retrieveFile = _fc.retrieveFile(fileName, out);
-                org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ALL, "Request status: " + retrieveFile);
+                logger.info("Request status: " + retrieveFile);
                 InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
                 answer = new BufferedInputStream(inputStream);
 //                InputHandler inputConverter = InputHandlerFactory.getInputConverter(answer);
@@ -179,15 +163,15 @@ public class FTPDataSource implements DataSource {
 
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(FTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         } catch (IOException ex) {
-            Logger.getLogger(FTPDataSource.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            logger.error(ex);
         }
 
         if (answerList.isEmpty()) {
-            org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ERROR, "Cant get any data from the device");
+            logger.error("Cant get any data from the device");
         }
 
         return answerList;
@@ -235,7 +219,7 @@ public class FTPDataSource implements DataSource {
             _enabled = DatabaseHelper.getObjectAsBoolean(ftpObject, enableType);
 
         } catch (JEVisException ex) {
-            org.apache.log4j.Logger.getLogger(this.getClass().getName()).log(org.apache.log4j.Level.ERROR, ex.getMessage());
+            logger.error(ex);
         }
     }
 
@@ -246,7 +230,7 @@ public class FTPDataSource implements DataSource {
             JEVisClass channelClass = ftpObject.getDataSource().getJEVisClass(DataCollectorTypes.Channel.FTPChannel.NAME);
             _channels = channelDir.getChildren(channelClass, false);
         } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(FTPDataSource.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 }

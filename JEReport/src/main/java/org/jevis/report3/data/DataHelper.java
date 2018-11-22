@@ -1,13 +1,9 @@
 package org.jevis.report3.data;
 
-import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jevis.api.JEVisObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.report3.data.report.ReportConfiguration;
 import org.jevis.report3.data.report.ReportProperty;
-import org.jevis.report3.data.reportlink.ReportLinkFactory;
-import org.jevis.report3.data.reportlink.ReportLinkProperty;
 import org.joda.time.format.DateTimeFormat;
 
 /*
@@ -20,6 +16,7 @@ import org.joda.time.format.DateTimeFormat;
  * @author broder
  */
 public class DataHelper {
+    private static final Logger logger = LogManager.getLogger(DataHelper.class);
 
     public static boolean checkAllObjectsNotNull(Object... objects) {
         boolean notNull = true;
@@ -36,7 +33,7 @@ public class DataHelper {
         try {
             ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
         } catch (IllegalArgumentException ex) {
-            Logger.getLogger(DataHelper.class.getName()).log(Level.ERROR, "Schedule string is invalid: " + scheduleString, ex);
+            logger.error("Schedule string is invalid: " + scheduleString, ex);
             return false;
         }
         return true;
@@ -46,7 +43,7 @@ public class DataHelper {
         try {
             DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
         } catch (IllegalArgumentException ex) {
-            Logger.getLogger(DataHelper.class.getName()).log(Level.ERROR, "Start record has non valid format: " + startRecordString, ex);
+            logger.error("Start record has non valid format: " + startRecordString, ex);
             return false;
         }
         return true;

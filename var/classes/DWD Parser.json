@@ -11,6 +11,21 @@
       "start": "DWD Parser",
       "end": "Parser",
       "type": 0
+    },
+    {
+      "start": "DWD Parser",
+      "end": "FTP Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Charset",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Parser"
     }
   ]
 }

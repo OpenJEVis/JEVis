@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.4.0</version>
+    <version>3.5.5</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -171,10 +171,10 @@
                     </jnlp>
 
                     <sign>
-                        <keystore>${project.parent.basedir}/etc/keystore.jks</keystore>
-                        <keypass>${key.password}</keypass>
-                        <storepass>${store.password}</storepass>
-                        <alias>jevis</alias>
+                        <keystore>key.jks</keystore>
+                        <keypass></keypass>
+                        <storepass>storepass</storepass>
+                        <alias>alias</alias>
 
                         <keystoreConfig>
                             <delete>false</delete>
@@ -186,7 +186,7 @@
                     <pack200>
                         <enabled>false</enabled>
                     </pack200>
-                    <gzip>true</gzip>
+                    <gzip>false</gzip>
                     <outputJarVersions>true</outputJarVersions>
                     <verbose>true</verbose>
 
@@ -235,11 +235,6 @@
             <version>1.4.0</version>
         </dependency>
         <dependency>
-            <groupId>org.gillius</groupId>
-            <artifactId>jfxutils</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.jevis.api</groupId>
             <artifactId>jeapi</artifactId>
         </dependency>
@@ -250,12 +245,10 @@
         <dependency>
             <groupId>org.jevis.application</groupId>
             <artifactId>jeapplication</artifactId>
-            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>8.40.12</version>
         </dependency>
         <dependency>
             <groupId>org.jxmapviewer</groupId>
@@ -269,13 +262,13 @@
         <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jfxtras-controls</artifactId>
-            <version>8.0-r5</version>
+            <version>8.0-r6</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.jfoenix</groupId>
             <artifactId>jfoenix</artifactId>
-            <version>1.9.0</version>
+            <version>8.0.7</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jeval</groupId>
@@ -283,6 +276,25 @@
             <version>0.9.4</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+        </dependency>
+        <!-- nice javafx stuff
+        <dependency>
+            <groupId>no.tornado</groupId>
+            <artifactId>tornadofx</artifactId>
+            <version>1.7.15</version>
+        </dependency>
+        -->
     </dependencies>
 
 </project>

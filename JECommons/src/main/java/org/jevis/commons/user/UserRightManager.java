@@ -1,45 +1,41 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.user;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisUser;
 
 /**
- *
  * @author fs
  */
 public class UserRightManager {
 
-    private List<JEVisRelationship> permissions = new ArrayList<>();
-    private Logger logger = LogManager.getLogger(UserRightManager.class);
     private final JEVisUser user;
+    private List<JEVisRelationship> permissions = new ArrayList<>();
+    private static final Logger logger = LogManager.getLogger(UserRightManager.class);
     private JEVisDataSource ds;
     private List<Long> readGIDS;
     private List<Long> createGIDS;
@@ -48,7 +44,7 @@ public class UserRightManager {
     private List<Long> writeGIDS;
     private List<JEVisObject> objects;
 
-    public UserRightManager(JEVisDataSource ds, JEVisUser user, List<JEVisRelationship> permissions) throws Exception {
+    public UserRightManager(JEVisDataSource ds, JEVisUser user, List<JEVisRelationship> permissions) {
         logger.trace("Init UserRightManager for user: [{}]{} {}", user.getUserID());
         this.user = user;
         this.ds = ds;
@@ -88,14 +84,14 @@ public class UserRightManager {
         return readGIDS;
     }
 
-    public void setObjects(List<JEVisObject> objs){
-        this.objects=objs;
+    public void setObjects(List<JEVisObject> objs) {
+        this.objects = objs;
     }
-    
-    public List<JEVisObject> getAllObjects(){
+
+    public List<JEVisObject> getAllObjects() {
         return objects;
     }
-    
+
     public List<Long> getAllObjectID(List<JEVisRelationship> rels) {
         List<Long> ids = new ArrayList<>();
         for (JEVisRelationship rel : rels) {
@@ -176,11 +172,19 @@ public class UserRightManager {
             deleteGIDS = new ArrayList<Long>();
             exeGIDS = new ArrayList<Long>();
 
+            logger.info("UserID: " + user.getUserID());
             for (JEVisRelationship or : permissions) {
 
                 try {
+                    logger.info("Type: " + or.getType());
+                    if (or.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ || or.getStartID() == user.getUserID()) {
+                        logger.info("Membership: " + or);
+                    }
+
+
                     //from user to group
                     if (or.getStartID() == user.getUserID()) {
+
 
                         switch (or.getType()) {
                             case JEVisConstants.ObjectRelationship.MEMBER_READ:
@@ -212,9 +216,8 @@ public class UserRightManager {
     }
 
     /**
-     *
      * @param object Object to check the permission for
-     * @param type type of the membership(read,write,exe...)
+     * @param type   type of the membership(read,write,exe...)
      * @return
      */
     private boolean checkMebershipForType(long object, int type) {

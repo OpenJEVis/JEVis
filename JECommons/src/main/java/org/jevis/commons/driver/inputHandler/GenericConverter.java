@@ -5,19 +5,23 @@ package org.jevis.commons.driver.inputHandler;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.commons.driver.Converter;
+import org.w3c.dom.Document;
+
+import javax.xml.soap.SOAPMessage;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
-import javax.xml.soap.SOAPMessage;
-import org.jevis.commons.driver.Converter;
-import org.w3c.dom.Document;
 
 /**
- *
  * @author broder
  */
 public class GenericConverter implements Converter {
+    private static final Logger logger = LogManager.getLogger(GenericConverter.class);
 
     private InputHandler _adapterHandler;
 
@@ -28,7 +32,7 @@ public class GenericConverter implements Converter {
     }
 
     private InputHandler initializeInputHandler(Object input, Charset charset) {
-        System.out.println("class," + input.getClass().toString());
+        logger.info("class," + input.getClass().toString());
         if (input instanceof List) {
             List tmp = (List) input;
             if (tmp.isEmpty()) {

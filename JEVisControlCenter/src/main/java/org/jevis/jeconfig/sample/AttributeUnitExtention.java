@@ -36,8 +36,8 @@ public class AttributeUnitExtention implements SampleEditorExtension {
 
     private final static String TITEL = I18n.getInstance().getString("attribute.editor.unit.title");
     private final BorderPane _view = new BorderPane();
-    private JEVisAttribute att;
     Stage owner = JEConfig.getStage();
+    private JEVisAttribute att;
     private AttributeSettingsDialog.Response response = AttributeSettingsDialog.Response.CANCEL;
     private JEVisAttribute _attribute;
     private UnitSelectUI upDisplay;
@@ -67,6 +67,11 @@ public class AttributeUnitExtention implements SampleEditorExtension {
     @Override
     public void setSamples(JEVisAttribute att, List<JEVisSample> samples) {
 
+    }
+
+    @Override
+    public void disableEditing(boolean disable) {
+        //TODO
     }
 
     @Override

@@ -32,7 +32,7 @@ public class ClassIconHandler {
     private List<File> files = new ArrayList<>();
     private boolean fileExists = false;
     private File tmpDir;
-    private final Logger logger = LogManager.getLogger(ClassIconHandler.class);
+    private static final Logger logger = LogManager.getLogger(ClassIconHandler.class);
     File zipFile;
 
     public ClassIconHandler(File tmpDir) {
@@ -110,7 +110,7 @@ public class ClassIconHandler {
                 newFile.deleteOnExit();
 //                files.add(newFile);
 
-//                System.out.println("file unzip : " + newFile.getAbsoluteFile());
+//                logger.info("file unzip : " + newFile.getAbsoluteFile());
                 //create all non exists folders
                 //else you will hit FileNotFoundException for compressed folder
                 new File(newFile.getParent()).mkdirs();

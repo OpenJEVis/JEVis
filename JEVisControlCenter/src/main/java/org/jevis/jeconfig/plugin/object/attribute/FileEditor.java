@@ -63,7 +63,7 @@ public class FileEditor implements AttributeEditor {
     private boolean _autoDownload = true;
 
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final Logger logger = LogManager.getLogger(FileEditor.class);
+    private static final Logger logger = LogManager.getLogger(FileEditor.class);
 
     public FileEditor(JEVisAttribute att) {
         _attribute = att;
@@ -71,7 +71,7 @@ public class FileEditor implements AttributeEditor {
 
     @Override
     public boolean hasChanged() {
-//        System.out.println(_attribute.getName() + " changed: " + _hasChanged);
+//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
         return _hasChanged;
     }
 
@@ -191,7 +191,7 @@ public class FileEditor implements AttributeEditor {
                             @Override
                             public void handle(WorkerStateEvent event) {
                                 pForm.getDialogStage().hide();
-                                System.out.println("Error while upload");
+                                logger.info("Error while upload");
                             }
                         });
 

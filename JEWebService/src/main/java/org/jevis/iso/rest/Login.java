@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -37,7 +38,7 @@ public class Login {
     public String getBasicAuth() throws UnsupportedEncodingException {
         String encoded = "Basic ";
         String b = dsUserName + ":" + dsPassword;
-        encoded += Base64.getEncoder().encodeToString(b.getBytes("UTF-8"));
+        encoded += Base64.getEncoder().encodeToString(b.getBytes(StandardCharsets.UTF_8));
         return encoded;
     }
 
@@ -158,15 +159,15 @@ public class Login {
         List<String> filenames = new ArrayList<>();
 
         //            InputStream is = getClass().getResourceAsStream(path);
-//            System.out.println("Inputstream: " + is.toString() + " from: " + path);
+//            logger.info("Inputstream: " + is.toString() + " from: " + path);
 //            InputStreamReader isr = new InputStreamReader(is);
-//            System.out.println("InputstreamREader: " + isr.toString());
+//            logger.info("InputstreamREader: " + isr.toString());
 //            BufferedReader br = new BufferedReader(isr);
-//            System.out.println("Buffered Reader: " + br.toString());
+//            logger.info("Buffered Reader: " + br.toString());
 //            String resource;
 //
 //            while ((resource = br.readLine()) != null) {
-//                System.out.println("Filename: " + resource);
+//                logger.info("Filename: " + resource);
 //                filenames.add(resource);
 //            }
 //

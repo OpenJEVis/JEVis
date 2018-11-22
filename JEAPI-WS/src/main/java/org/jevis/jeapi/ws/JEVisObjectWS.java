@@ -19,12 +19,10 @@
  */
 package org.jevis.jeapi.ws;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;
@@ -32,23 +30,18 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author fs
  */
 public class JEVisObjectWS implements JEVisObject {
+    private static final Logger logger = LogManager.getLogger(JEVisObjectWS.class);
 
+    private final EventListenerList listeners = new EventListenerList();
     private JEVisDataSourceWS ds;
     private List<JEVisObject> parents = null;
-    private List<JEVisObject> children = null;
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisObjectWS.class);
+    //    private List<JEVisObject> children = null;
     private JsonObject json;
-    private final EventListenerList listeners = new EventListenerList();
-    private Cache<String, List> attributeCache;
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
         this.ds = ds;
@@ -67,10 +60,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public synchronized void notifyListeners(JEVisEvent event) {
-//        if (event.getType() == JEVisEvent.TYPE.OBJECT_NEW_CHILD) {
-//            children = null;
-//        }
-
+        logger.error("Object event[{}] listeners: {} event:", getID(), listeners.getListenerCount(), event.getType());
         for (JEVisEventListener l : listeners.getListeners(JEVisEventListener.class)) {
             l.fireEvent(event);
         }
@@ -118,29 +108,29 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisObject> getChildren() throws JEVisException {
-//        if (children == null) {
-        children = new ArrayList<>();
+        List<JEVisObject> children = new ArrayList<>();
         for (JEVisRelationship rel : getRelationships()) {
             try {
-                if (rel.getType() == 1 && rel.getEndObject().equals(this)) {
+                if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && rel.getEndID() == getID()) {
                     children.add(rel.getStartObject());
                 }
             } catch (NullPointerException ex) {
-
+                logger.error(ex);
             }
         }
-//        }
+
         logger.trace("Child.size: {}", children.size());
         return children;
     }
 
+
     @Override
     public List<JEVisObject> getChildren(JEVisClass jclass, boolean inherit) throws JEVisException {
         List<JEVisObject> filterLIst = new ArrayList<>();
-        if (children == null) {
-            getChildren();
-        }
-        for (JEVisObject obj : children) {
+//        if (children == null) {
+//            getChildren();
+//        }
+        for (JEVisObject obj : getChildren()) {
             //TODO: also get inherit
 
             JEVisClass oClass = obj.getJEVisClass();
@@ -162,32 +152,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisAttribute> getAttributes() {
-        //temp cache for attributes because a lot of clients call a obj.getAttribute(type) 
-        if (attributeCache == null) {
-            attributeCache = CacheBuilder.newBuilder()
-                    .expireAfterWrite(3, TimeUnit.SECONDS)
-                    .build();
-
-        }
-        try {
-            List<JEVisAttribute> list = attributeCache.get("egal", new Callable<List>() {
-                        @Override
-                        public List call() {
-                            return getAttributesWS();
-                        }
-                    }
-            );
-            if (list == null) {
-                return new ArrayList<>();
-            } else {
-                return list;
-            }
-
-        } catch (Exception ex) {
-            logger.error(ex);
-            return new ArrayList<>();
-        }
-
+        return getAttributesWS();
     }
 
     public List<JEVisAttribute> getAttributesWS() {
@@ -202,20 +167,6 @@ public class JEVisObjectWS implements JEVisObject {
                 return att;
             }
         }
-        /**
-         * Workaround, the webservice will not check for missing attributes, because of performance.
-         * We also dont use type.equals() because its does not check inherit types.
-         */
-//        for(JEVisType exitingType: getJEVisClass().getTypes()){
-//            if(exitingType.getName().equals(type.getName())){
-//                JsonAttribute att = new JsonAttribute();
-//                att.setType(type.getName());
-//                att.setPrimitiveType(type.getPrimitiveType());
-//                getAttributes().add(att);
-//                return new JEVisAttributeWS(ds,att,getID());
-//            }
-//        }
-
         return null;
     }
 
@@ -250,6 +201,7 @@ public class JEVisObjectWS implements JEVisObject {
         newJson.setParent(getID());
 
         JEVisObject newObj = new JEVisObjectWS(ds, newJson);
+
 
         return newObj;
     }
@@ -372,16 +324,19 @@ public class JEVisObjectWS implements JEVisObject {
             //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
 
             JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
-            logger.trace("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
+            logger.error("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
 
+            ds.reloadRelationships();
             if (update) {
                 notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
             } else {
-                ds.reloadRelationships();
-
                 if (!getParents().isEmpty()) {
-                    getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+                    try {
+                        getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
 
@@ -405,7 +360,8 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public int compareTo(JEVisObject o) {
-        return getName().compareTo(o.getName());
+
+        return getID().compareTo(o.getID());
     }
 
     @Override
@@ -433,7 +389,7 @@ public class JEVisObjectWS implements JEVisObject {
                 return getInheritanceClasses(hashSet, inheritance);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(JEVisObjectWS.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
         return hashSet;
     }
@@ -448,4 +404,9 @@ public class JEVisObjectWS implements JEVisObject {
         json.setisPublic(ispublic);
     }
 
+
+    @Override
+    public String toString() {
+        return "JEVisObjectWS [ id: '" + getID() + "' name: '" + getName() + "' jclass: '" + getJEVisClassName() + "']";
+    }
 }

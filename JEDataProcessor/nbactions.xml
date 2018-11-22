@@ -11,7 +11,7 @@
         </goals>
         <properties>
             <exec.args>-Dlogback.configurationFile=/Users/broder/NetBeansProjects/JEDataProcessor/logback.xml -classpath
-                %classpath org.jevis.jecalc.Launcher
+                %classpath org.jevis.jedataprocessor.Launcher
                 --jevis-config=/Users/broder/NetBeansProjects/JEDataProcessor/JEVis_Config_test --jevis-single=5343
             </exec.args>
             <exec.executable>java</exec.executable>
@@ -29,7 +29,7 @@
         <properties>
             <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}
                 -Dlogback.configurationFile=/Users/broder/NetBeansProjects/JEDataProcessor/logback.xml -classpath
-                %classpath org.jevis.jecalc.Launcher
+                %classpath org.jevis.jedataprocessor.Launcher
                 --jevis-config=/Users/broder/NetBeansProjects/JEDataProcessor/JEVis_Config_test --jevis-single=5343
             </exec.args>
             <exec.executable>java</exec.executable>
@@ -47,7 +47,7 @@
         </goals>
         <properties>
             <exec.args>-Dlogback.configurationFile=/Users/broder/NetBeansProjects/JEDataProcessor/logback.xml -classpath
-                %classpath org.jevis.jecalc.Launcher
+                %classpath org.jevis.jedataprocessor.Launcher
                 --jevis-config=/Users/broder/NetBeansProjects/JEDataProcessor/JEVis_Config_test --jevis-single=5343
             </exec.args>
             <exec.executable>java</exec.executable>

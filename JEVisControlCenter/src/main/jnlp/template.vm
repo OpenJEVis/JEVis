@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <jnlp
     spec="1.0+"
-    codebase="http://$jevisserver/jevis/jeviscc"
+    codebase="http://$jevisserver/jeviscc/"
     href="$outputFile?nocache=true">
 
 <information>
@@ -40,7 +40,7 @@
           <fx:param name="datasource.host" value="http://$jevisserver:8000"/>
           <fx:param name="fxlogin.logo" value="http://$jevisserver/images/logo.jpg"/>
           <fx:param name="fxlogin.css" value="http://$jevisserver/css/fxlogin.css"/>
-          <fx:param name="fxlogin.register" value="none"/>
+          <fx:param name="fxlogin.register" value="off"/>
           <fx:param name="jeconfig.welcomeurl" value="http://www.openjevis.org"/>       
   </jfx:javafx-desc>
 

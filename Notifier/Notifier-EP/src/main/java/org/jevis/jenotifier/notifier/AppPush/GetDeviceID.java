@@ -5,18 +5,22 @@
  */
 package org.jevis.jenotifier.notifier.AppPush;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Ulrich
  */
 public class GetDeviceID {
+    private static final Logger logger = LogManager.getLogger(GetDeviceID.class);
 
     public static final String ADD_URL = "https://office.cap3.de:53303/cmns/v1/devices";
     public static final String Bundle_URL = "https://office.cap3.de:53303/cmns/v1/bundles";
@@ -49,12 +53,12 @@ public class GetDeviceID {
         connection.connect();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String lines;
-        StringBuffer sb = new StringBuffer("");
+        StringBuffer sb = new StringBuffer();
         while ((lines = reader.readLine()) != null) {
-            lines = new String(lines.getBytes(), "utf-8");
+            lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
             sb.append(lines);
         }
-        System.out.println(sb);
+        logger.info(sb);
         reader.close();
         connection.disconnect();
         return ids;

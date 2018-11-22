@@ -1,33 +1,27 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JENotifier-EP.
- *
+ * <p>
  * JENotifier-EP is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JENotifier-EP is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JENotifier-EP. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JENotifier-EP is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jenotifier.notifier.SQL;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -36,11 +30,18 @@ import org.jevis.jenotifier.notifier.Notification;
 import org.jevis.jenotifier.notifier.NotificationDriver;
 import org.joda.time.DateTime;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
- *
  * @author jb
  */
 public class SQLNotificationDriver implements NotificationDriver {
+    private static final Logger logger = LogManager.getLogger(SQLNotificationDriver.class);
 
     private JEVisObject _jeDri;
     private final String _type = "SQL Plugin";
@@ -62,11 +63,11 @@ public class SQLNotificationDriver implements NotificationDriver {
             try {
                 successful = sendSQLNotification(sqlnoti);
             } catch (JEVisException ex) {
-                java.util.logging.Logger.getLogger(SQLNotificationDriver.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         } else {
-            Logger.getLogger(SQLNotificationDriver.class.getName()).log(Level.INFO, "This Notification is not the SQLNotification.");
-            Logger.getLogger(SQLNotificationDriver.class.getName()).log(Level.INFO, "This Notification is" + jenoti.getType() + ".");
+            logger.info("This Notification is not the SQLNotification.");
+            logger.info("This Notification is" + jenoti.getType() + ".");
         }
         return successful;
     }
@@ -97,11 +98,11 @@ public class SQLNotificationDriver implements NotificationDriver {
                 preparedstatement.close();
             }
             con.close();
-             sqlnoti.setSuccessfulSend(true, new DateTime(new Date()));
+            sqlnoti.setSuccessfulSend(true, new DateTime(new Date()));
             return true;
         } catch (SQLException ex) {
-            java.util.logging.Logger.getLogger(SQLNotificationDriver.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-             return false;
+            logger.fatal(ex);
+            return false;
         }
     }
 
@@ -145,7 +146,7 @@ public class SQLNotificationDriver implements NotificationDriver {
         if (notiObj.getJEVisClass().getName().equals(_type)) {
             _jeDri = notiObj;
         } else {
-            Logger.getLogger(SQLNotificationDriver.class.getName()).log(Level.INFO, notiObj + " is not suitable for SQL Notification Driver");
+            logger.info(notiObj + " is not suitable for SQL Notification Driver");
         }
     }
 
@@ -169,10 +170,10 @@ public class SQLNotificationDriver implements NotificationDriver {
                     recorder.addSamples(ts);
                     re = true;
                 } else {
-                    Logger.getLogger(SQLNotificationDriver.class.getName()).log(Level.INFO, "The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
+                    logger.info("The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(SQLNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+                logger.error(ex);
             }
         }
         return re;
@@ -189,7 +190,7 @@ public class SQLNotificationDriver implements NotificationDriver {
         try {
             return driverObj.getJEVisClass().getName().equals(_type);
         } catch (JEVisException ex) {
-            Logger.getLogger(SQLNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         return false;
     }

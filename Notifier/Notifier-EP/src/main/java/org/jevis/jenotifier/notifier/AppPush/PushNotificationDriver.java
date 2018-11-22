@@ -4,20 +4,10 @@
  */
 package org.jevis.jenotifier.notifier.AppPush;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -26,12 +16,23 @@ import org.jevis.jenotifier.notifier.Notification;
 import org.jevis.jenotifier.notifier.NotificationDriver;
 import org.joda.time.DateTime;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
- *
  * @author gf
  */
 public class PushNotificationDriver implements NotificationDriver {
-
+    private static final Logger logger = LogManager.getLogger(PushNotificationDriver.class);
     private JEVisObject _jeDri;
     private URL _url;
     private int _port;
@@ -193,6 +194,7 @@ public class PushNotificationDriver implements NotificationDriver {
 //            _ip = ip;
 //        }
 //    }
+
     /**
      * return the global variable _jeDri.
      *
@@ -283,6 +285,7 @@ public class PushNotificationDriver implements NotificationDriver {
 //    public String getIP() {
 //        return _ip;
 //    }
+
     /**
      * To send the Notification, the Notification must have the type: Push
      * Notification. If the notification is sucessfully sent, returns true.
@@ -298,18 +301,18 @@ public class PushNotificationDriver implements NotificationDriver {
             try {
                 successful = sendPushNotification(pnoti);
             } catch (IOException ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+                logger.error(ex);
             } catch (JSONException ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+                logger.error(ex);
             } catch (Exception ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+                logger.error(ex);
             }
             return successful;
         } else {
-            Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.INFO, "This Notification is not the PushNotification.");
-            Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.INFO, "This Notification is" + jenoti.getType() + ".");
-//            System.out.println("This Notification is not the PushNotification.");
-//            System.out.println("This Notification is" + jenoti.getType() + ".");
+            logger.info("This Notification is not the PushNotification.");
+            logger.info("This Notification is" + jenoti.getType() + ".");
+//            logger.info("This Notification is not the PushNotification.");
+//            logger.info("This Notification is" + jenoti.getType() + ".");
             return successful;
         }
     }
@@ -341,25 +344,25 @@ public class PushNotificationDriver implements NotificationDriver {
         if (statuscode == 200) { //only means:the request is commit. But whether the push is really sent and Whether the user receives the push, can not be known.
             pnoti.setSuccessfulSend(true, new DateTime(new Date()));
             success = true;
-//            System.out.println("Ok - Broadcast was sent");
+//            logger.info("Ok - Broadcast was sent");
         }
 //        else if (statuscode == 400) {
-//            System.out.println("Bad Request - Check JSON syntax");
+//            logger.info("Bad Request - Check JSON syntax");
 //        } else if (statuscode == 401) {
-//            System.out.println("Unauthorized - No 'Api-Key' supplied");
+//            logger.info("Unauthorized - No 'Api-Key' supplied");
 //        } else if (statuscode == 500) {
-//            System.out.println("Internal server error - Please report the problem");
+//            logger.info("Internal server error - Please report the problem");
 //        }
 // read the returned message
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String lines;
-        StringBuffer sb = new StringBuffer("");
+        StringBuffer sb = new StringBuffer();
         while ((lines = reader.readLine()) != null) {
-            lines = new String(lines.getBytes(), "utf-8");
+            lines = new String(lines.getBytes(), StandardCharsets.UTF_8);
             sb.append(lines);
         }
-        Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.INFO, sb);
-//        System.out.println(sb);
+        logger.info(sb);
+//        logger.info(sb);
         reader.close();
 // disconnect
         connection.disconnect();
@@ -413,11 +416,7 @@ public class PushNotificationDriver implements NotificationDriver {
         boolean support;
         if (jenoti.getType().equals(APPLICATIVE_NOTI_TYPE)) {
             PushNotification pnoti = (PushNotification) jenoti;
-            if (pnoti.getPushWay().equals(getPushWay().toLowerCase())) {
-                support = true;
-            } else {
-                support = false;
-            }
+            support = pnoti.getPushWay().equals(getPushWay().toLowerCase());
         } else {
             support = false;
         }
@@ -450,7 +449,7 @@ public class PushNotificationDriver implements NotificationDriver {
     /**
      * To get the value of the attribute of a JevisObject
      *
-     * @param obj the JEVis Object
+     * @param obj     the JEVis Object
      * @param attName the name of the attribute
      * @return the value of the attribute
      * @throws JEVisException
@@ -489,47 +488,47 @@ public class PushNotificationDriver implements NotificationDriver {
             try {
                 setURL(String.valueOf(getAttribute(notiObj, URL)));
             } catch (Exception ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setAPIKey(String.valueOf(getAttribute(notiObj, API_KEY)));
             } catch (Exception ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setPort(Integer.valueOf(String.valueOf(getAttribute(notiObj, PORT))));
             } catch (Exception ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setHost(String.valueOf(getAttribute(notiObj, HOST)));
             } catch (Exception ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setPath(String.valueOf(getAttribute(notiObj, PATH)));
             } catch (Exception ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setSchema(String.valueOf(getAttribute(notiObj, SCHEMA)));
             } catch (Exception ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             if (_url == null) {
                 try {
                     setURL(getSchema(), getHost(), getPort(), getPath());
                 } catch (MalformedURLException ex) {
-                    Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                    logger.error(ex);
                 }
             }
             try {
                 setPushWay(String.valueOf(getAttribute(notiObj, PUSH_WAY)));
             } catch (Exception ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
         } else {
-            Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.INFO, notiObj + " is not suitable for Push Notification Driver");
+            logger.info(notiObj + " is not suitable for Push Notification Driver");
         }
     }
 
@@ -537,7 +536,7 @@ public class PushNotificationDriver implements NotificationDriver {
         try {
             setURL(str.get(0));
         } catch (MalformedURLException ex) {
-            Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         setAPIKey(str.get(1));
         setPort(Integer.valueOf(str.get(2)));
@@ -568,13 +567,13 @@ public class PushNotificationDriver implements NotificationDriver {
                     recorder.addSamples(ts);
                     re = true;
                 } else {
-                    Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.INFO, "The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
+                    logger.info("The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+                logger.error(ex);
             }
         } else {
-            Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.DEBUG, "The Notification " + noti.getJEVisObjectNoti().getID() + " has not been sent successfully.");
+            logger.debug("The Notification " + noti.getJEVisObjectNoti().getID() + " has not been sent successfully.");
         }
         return re;
     }
@@ -590,7 +589,7 @@ public class PushNotificationDriver implements NotificationDriver {
         try {
             return driverObj.getJEVisClass().getName().equals(_type);
         } catch (JEVisException ex) {
-            Logger.getLogger(PushNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         return false;
     }

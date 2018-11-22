@@ -20,6 +20,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
@@ -27,35 +28,34 @@ import org.jevis.application.jevistree.TreePlugin;
 import org.jevis.application.jevistree.UserSelection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- *
  * @author fs
  */
 public class SimpleTargetPlugin implements TreePlugin {
-
+    private static final Logger logger = LogManager.getLogger(SimpleTargetPlugin.class);
+    public static String TARGET_COLUMN_ID = "targetcolumn";
     private JEVisTree _tree;
-    private List<JEVisObject> _selected = new ArrayList<>();
     private List<UserSelection> _preselect = new ArrayList<>();
     private List<SimpleTargetPluginData> _data = new ArrayList<>();
     private boolean allowMultySelection = false;
     private BooleanProperty validProperty = new SimpleBooleanProperty(false);
-    public static Logger LOGGER = LogManager.getLogger(SimpleTargetPlugin.class);
-
-    public enum MODE {
-        OBJECT, ATTRIBUTE
-    }
-
     private MODE mode = MODE.OBJECT;
+    private SimpleFilter filter = null;
+
 
     @Override
     public void setTree(JEVisTree tree) {
         _tree = tree;
+
+
     }
 
-    public void setModus(MODE mode) {
-        this.mode = mode;
+    public void setModus(MODE mode, SimpleFilter filter) {
+        this.filter = filter;
+//        this.mode = mode;
     }
 
     @Override
@@ -69,6 +69,7 @@ public class SimpleTargetPlugin implements TreePlugin {
         pluginHeader.getColumns().add(selectColumn);
 
         list.add(pluginHeader);
+
 
         return list;
     }
@@ -97,6 +98,7 @@ public class SimpleTargetPlugin implements TreePlugin {
             }
         }
         SimpleTargetPluginData data = new SimpleTargetPluginData(row);
+        data.setSelected(false);
         _data.add(data);
         return data;
     }
@@ -115,12 +117,13 @@ public class SimpleTargetPlugin implements TreePlugin {
                 }
             });
 
-            System.out.println(data.getBox().isSelected());
+            logger.info(data.getBox().isSelected());
         }
     }
 
     private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, String columnName) {
         TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(columnName);
+        column.setId(TARGET_COLUMN_ID);
         column.setPrefWidth(90);
         column.setEditable(true);
 
@@ -148,54 +151,59 @@ public class SimpleTargetPlugin implements TreePlugin {
                     protected void updateItem(Boolean item, boolean empty) {
                         super.updateItem(item, empty);
                         if (!empty) {
-                            StackPane hbox = new StackPane();
+
                             setText(null);
                             setGraphic(null);
 
                             try {
-                                if (getTreeTableRow().getItem() != null
-                                        && tree != null
-                                        && ((mode == MODE.ATTRIBUTE && getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.ATTRIBUTE)
-                                        || (mode == MODE.OBJECT && getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT))) {
+                                if (getTreeTableRow() != null && getTreeTableRow().getItem() != null && tree != null) {
+                                    System.out.println("sectionColumn.update: " + getTreeTableRow().getItem().getID());
 
-                                    StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
+                                    boolean show = _tree.getFilter().showCell(column, getTreeTableRow().getItem());
+                                    System.out.println("ShowCell = " + show);
+                                    if (show) {
 
-                                    CheckBox box = getData(getTreeTableRow().getItem()).getBox();
-                                    hbox.getChildren().setAll(box);//fehler?!
-                                    setGraphic(hbox);
+                                        StackPane hbox = new StackPane();
+                                        StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
+                                        CheckBox box = new CheckBox();
+                                        hbox.getChildren().setAll(box);
+                                        setGraphic(hbox);
 
-                                    box.setOnAction(new EventHandler<ActionEvent>() {
+                                        box.setOnAction(new EventHandler<ActionEvent>() {
 
-                                        @Override
-                                        public void handle(ActionEvent event) {
-                                            if (!allowMultySelection && box.isSelected()) {
-                                                unselectAllBut(getTreeTableRow().getItem());
-                                                commitEdit(box.isSelected());
-                                                for (SimpleTargetPluginData data : _data) {
-                                                    if (data.isSelected()) {
-                                                        validProperty.setValue(true);
+                                            @Override
+                                            public void handle(ActionEvent event) {
+                                                SimpleTargetPluginData sdata = getData(getTreeTableRow().getItem());
+
+                                                if (!allowMultySelection && box.isSelected()) {
+                                                    unselectAllBut(getTreeTableRow().getItem());
+                                                    commitEdit(box.isSelected());
+                                                    for (SimpleTargetPluginData data : _data) {
+                                                        if (data.isSelected()) {
+                                                            validProperty.setValue(true);
+                                                        }
                                                     }
+
                                                 }
+                                                getData(getTreeTableRow().getItem()).setSelected(box.isSelected());
 
                                             }
-                                            getData(getTreeTableRow().getItem()).setSelected(box.isSelected());
+                                        });
 
+                                        if (isPreselected(getTreeTableRow().getItem())) {
+                                            box.setSelected(true);
                                         }
-                                    });
-
-                                    if (isPreselected(getTreeTableRow().getItem())) {
-                                        box.setSelected(true);
                                     }
-//                                    if (isPreselected(getTreeTableRow().getItem().getJEVisObject())) {
-//                                        box.setSelected(true);
-//                                    }
+
 
                                 }
                             } catch (Exception ex) {
-
+                                logger.error(ex);
+                                ex.printStackTrace();
                             }
 
                         } else {
+                            setText(null);
                             setGraphic(null);
                         }
 
@@ -212,18 +220,18 @@ public class SimpleTargetPlugin implements TreePlugin {
     }
 
     private boolean isPreselected(JEVisTreeRow row) {
-        for (UserSelection us : _preselect) {
-            if (mode == MODE.OBJECT) {
-                if (us.getSelectedObject().equals(row.getJEVisObject())) {
-                    return true;
-                }
-            } else if (mode == MODE.ATTRIBUTE) {
-                if (us.getSelectedAttribute().equals(row.getJEVisAttribute())) {
-                    return true;
-                }
-            }
-
-        }
+//        for (UserSelection us : _preselect) {
+//            if (mode == MODE.OBJECT) {
+//                if (us.getSelectedObject().equals(row.getJEVisObject())) {
+//                    return true;
+//                }
+//            } else if (mode == MODE.ATTRIBUTE) {
+//                if (us.getSelectedAttribute().equals(row.getJEVisAttribute())) {
+//                    return true;
+//                }
+//            }
+//
+//        }
         return false;
     }
 
@@ -236,23 +244,135 @@ public class SimpleTargetPlugin implements TreePlugin {
         return false;
     }
 
+    public List<UserSelection> getUserSelection() {
+//        List<UserSelection> result = new ArrayList<>();
+//        for (SimpleTargetPluginData data : _data) {
+//            if (data.isSelected()) {
+////                _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
+//                if (mode == MODE.OBJECT) {
+//                    result.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
+//                } else {
+//                    result.add(new UserSelection(UserSelection.SelectionType.Attribute, data.getAtt(), null, null));
+//                }
+//            }
+//        }
+//
+//        return result;
+        return new ArrayList<>();//TODO
+    }
+
     public void setUserSelection(List<UserSelection> list) {
         _preselect = list;
     }
 
-    public List<UserSelection> getUserSelection() {
-        for (SimpleTargetPluginData data : _data) {
-            if (data.isSelected()) {
-//                _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
-                if (mode == MODE.OBJECT) {
-                    _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
-                } else {
-                    _preselect.add(new UserSelection(UserSelection.SelectionType.Attribute, data.getAtt(), null, null));
-                }
-            }
+
+    public enum MODE {
+        OBJECT, ATTRIBUTE, FILTER
+    }
+
+    private class AttributeFilter {
+        private List<String> attributes = new ArrayList<>();
+
+        public AttributeFilter(String... attributes) {
+            this.attributes = Arrays.asList(attributes);
         }
 
-        return _preselect;
+        public List<String> getAttributes() {
+            return attributes;
+        }
     }
+
+    public class ObjectFilter {
+        public final String ALL = "*";
+        public final String NONE = "NONE";
+        private boolean includeInheritance = false;
+        private List<AttributeFilter> attributeFilter = new ArrayList<>();
+        private boolean objectFilter = false;
+        private String className = "";
+
+        public ObjectFilter(String className, boolean includeInheritance, boolean objectFilter, List<AttributeFilter> attributeFilter) {
+            this.includeInheritance = includeInheritance;
+            this.attributeFilter = attributeFilter;
+            this.objectFilter = objectFilter;
+            this.className = className;
+        }
+
+
+        public boolean isIncludeInheritance() {
+            return includeInheritance;
+        }
+
+        public List<AttributeFilter> getAttributeFilter() {
+            return attributeFilter;
+        }
+
+        public boolean isObjectFilter() {
+            return objectFilter;
+        }
+
+        public void setObjectFilter(boolean objectFilter) {
+            this.objectFilter = objectFilter;
+        }
+
+        public boolean match(JEVisObject obj) {
+            try {
+                return obj.getJEVisClassName().equals(className);
+            } catch (Exception ex) {
+                return false;
+            }
+        }
+    }
+
+    public class SimpleFilter {
+
+        List<ObjectFilter> filter = new ArrayList<>();
+
+
+        public SimpleFilter(List<ObjectFilter> filter) {
+            this.filter = filter;
+        }
+
+        public List<ObjectFilter> getFilter() {
+            return filter;
+        }
+
+        public boolean show(Object object) {
+            if (object instanceof JEVisObject) {
+                return showObject((JEVisObject) object);
+            } else if (object instanceof JEVisAttribute) {
+                return showAttribute((JEVisAttribute) object);
+            }
+            return false;
+        }
+
+        public boolean showObject(JEVisObject jevisClass) {
+
+            for (ObjectFilter oFilter : filter) {
+                if (oFilter.isObjectFilter()
+                        && oFilter.match(jevisClass)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public boolean showAttribute(JEVisAttribute jevisClass) {
+            for (ObjectFilter oFilter : filter) {
+                if (!oFilter.isObjectFilter()) {
+                    for (AttributeFilter aFilter : oFilter.getAttributeFilter()) {
+                        if (aFilter.getAttributes().contains(jevisClass.getName())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+
+    }
+
 
 }

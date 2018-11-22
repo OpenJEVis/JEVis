@@ -7,19 +7,20 @@ package org.jevis.iso.add;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
  */
 public class TemplateChooser {
+    private static final Logger logger = LogManager.getLogger(TemplateChooser.class);
 
     private String Output = new String();
 
@@ -301,7 +302,7 @@ public class TemplateChooser {
             Output = writer.toString();
 
         } catch (IOException | TemplateException ex) {
-            Logger.getLogger(TemplateChooser.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 

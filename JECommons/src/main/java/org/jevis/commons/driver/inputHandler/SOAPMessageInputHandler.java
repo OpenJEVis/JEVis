@@ -4,18 +4,19 @@
  */
 package org.jevis.commons.driver.inputHandler;
 
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import java.nio.charset.Charset;
+import java.util.List;
 
 /**
- *
  * @author bf
  */
 public class SOAPMessageInputHandler extends InputHandler {
+    private static final Logger logger = LogManager.getLogger(SOAPMessageInputHandler.class);
 
     public SOAPMessageInputHandler(List<SOAPMessage> input, Charset charset) {
         super(input, charset);
@@ -29,7 +30,7 @@ public class SOAPMessageInputHandler extends InputHandler {
             try {
                 _document.add(m.getSOAPBody().extractContentAsDocument());
             } catch (SOAPException ex) {
-                Logger.getLogger(SOAPMessageInputHandler.class.getName()).log(Level.SEVERE, null, ex);
+                logger.fatal(ex);
             }
         }
     }

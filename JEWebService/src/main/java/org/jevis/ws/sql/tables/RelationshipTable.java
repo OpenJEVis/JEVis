@@ -219,7 +219,7 @@ public class RelationshipTable {
     }
 
     public boolean deleteAll(List<Long> ids) {
-        System.out.println("delete rel for: " + Arrays.toString(ids.toArray()));
+        //      logger.info("delete rel for: " + Arrays.toString(ids.toArray()));
         //TODO make it save with a prepared or so
         PreparedStatement ps = null;
 

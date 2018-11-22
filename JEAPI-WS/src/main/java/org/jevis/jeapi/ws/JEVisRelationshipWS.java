@@ -34,7 +34,7 @@ public class JEVisRelationshipWS implements JEVisRelationship {
     private JEVisObject endObject = null;
     private int type;
     private JEVisDataSourceWS ds;
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisRelationshipWS.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisRelationshipWS.class);
     JsonRelationship json;
 
     public JEVisRelationshipWS(JEVisDataSourceWS ds, JsonRelationship json) {

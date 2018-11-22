@@ -20,7 +20,7 @@ public class ScheduleIntervalCalc implements IntervalCalculator {
 
 
     @Override
-    public Interval getInterval(PeriodModus modus) {
+    public Interval getInterval(PeriodMode modus) {
         return interval;
     }
 

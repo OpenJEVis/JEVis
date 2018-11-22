@@ -5,6 +5,8 @@
  */
 package org.jevis.report3.data.attribute;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -16,14 +18,14 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
  * @author broder
  */
 public class ReportAttributeProperty {
+    private static final Logger logger = LogManager.getLogger(ReportAttributeProperty.class);
 
     private String attributeName;
     private List<AttributeConfiguration> attributeConfigurations;
@@ -98,7 +100,7 @@ public class ReportAttributeProperty {
         try {
             attributeName = sample.getValueAsString();
         } catch (JEVisException ex) {
-            Logger.getLogger(ReportAttributeProperty.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 

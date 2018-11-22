@@ -5,11 +5,8 @@
  */
 package org.jevis.jecalc;
 
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -19,17 +16,23 @@ import org.jevis.jecalc.calculation.Sample;
 import org.jevis.jecalc.calculation.SampleMerger;
 import org.joda.time.DateTime;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- *
  * @author broder
  */
 class CalcJob {
 
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CalcJobFactory.class);
-    private final List<CalcInputObject> calcObjects;
-    private final String expression;
-    private final List<JEVisAttribute> outputs;
-    private final long calcObjID;
+    private static final Logger logger = LogManager.getLogger(CalcJob.class);
+    private List<CalcInputObject> calcObjects;
+    private String expression;
+    private List<JEVisAttribute> outputs;
+    private long calcObjID;
+    private boolean processedAllInputSamples = false;
+
+    CalcJob() {
+    }
 
     CalcJob(List<CalcInputObject> calcObjects, String expression, List<JEVisAttribute> outputObjects, long calcObjID) {
         this.calcObjects = calcObjects;
@@ -42,7 +45,7 @@ class CalcJob {
         SampleMerger sampleMerger = new SampleMerger();
         for (CalcInputObject calcObject : calcObjects) {
             sampleMerger.addSamples(calcObject.getSamples(), calcObject.getIdentifier(), calcObject.getInputType());
-            logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples(), calcObject.getIdentifier());
+            logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples().size(), calcObject.getIdentifier());
         }
         Map<DateTime, List<Sample>> mergedSamples = sampleMerger.merge();
         logger.debug("{} mergable calculations found", mergedSamples.size());
@@ -60,12 +63,35 @@ class CalcJob {
                 output.addSamples(calculateResult);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CalcJob.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
-    
-    long getCalcObjectID(){
+
+    long getCalcObjectID() {
         return calcObjID;
     }
 
+    public void setHasProcessedAllInputSamples(boolean b) {
+        processedAllInputSamples = b;
+    }
+
+    public boolean hasProcessedAllInputSamples() {
+        return processedAllInputSamples;
+    }
+
+    public void setCalcInputObjects(List<CalcInputObject> calcInputObjects) {
+        this.calcObjects = calcInputObjects;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+
+    public void setOutputAttributes(List<JEVisAttribute> outputAttributes) {
+        this.outputs = outputAttributes;
+    }
+
+    public void setCalcObjID(long calcObjID) {
+        this.calcObjID = calcObjID;
+    }
 }

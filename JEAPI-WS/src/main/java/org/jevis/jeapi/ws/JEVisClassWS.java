@@ -48,7 +48,7 @@ import java.util.List;
  */
 public class JEVisClassWS implements JEVisClass {
 
-    private Logger logger = LogManager.getLogger(JEVisClassWS.class);
+    private static final Logger logger = LogManager.getLogger(JEVisClassWS.class);
     private final EventListenerList listeners = new EventListenerList();
     //    private String name = "";
     private JEVisDataSourceWS ds = null;
@@ -86,7 +86,7 @@ public class JEVisClassWS implements JEVisClass {
         try {
             return new Image(JEVisClassWS.class.getResourceAsStream("/" + icon));
         } catch (Exception ex) {
-            System.out.println("Could not load icon: " + "/icons/   " + icon);
+            logger.info("Could not load icon: " + "/icons/   " + icon);
             return new Image(JEVisClassWS.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
         }
     }
@@ -176,7 +176,7 @@ public class JEVisClassWS implements JEVisClass {
         try {
             this.image = ImageIO.read(icon);
             iconChanged = true;
-//            System.out.println("set icon from file: " + _icon.getWidth());
+//            logger.info("set icon from file: " + _icon.getWidth());
         } catch (IOException ex) {
             logger.catching(ex);
         }
@@ -384,7 +384,7 @@ public class JEVisClassWS implements JEVisClass {
 
     private void commitIcontoWS() {
         try {
-            System.out.println("post icon");
+            logger.info("post icon");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(getIcon(), "png", baos);
             baos.flush();
@@ -470,7 +470,7 @@ public class JEVisClassWS implements JEVisClass {
                 }
             }
         } catch (Exception ex) {
-            System.out.println("error, cannot compare objects");
+            logger.info("error, cannot compare objects");
             return false;
         }
         return false;

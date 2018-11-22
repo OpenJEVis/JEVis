@@ -1,27 +1,28 @@
 /**
  * Copyright (C) 2015 - 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEVis CSV-Driver.
- *
+ * <p>
  * JEVis CSV-Driver is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEVis CSV-Driver is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEVis CSV-Driver. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEVis CSV-Driver is part of the OpenJEVis project, further project
  * information are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.csvparser;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -41,14 +42,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- *
  * @author broder
  */
 public class JEVisCSVParser implements Parser {
-
+    private static final Logger logger = LogManager.getLogger(JEVisCSVParser.class);
     private DateTimeZone timeZone;
     public static final String VERSION = "Version 1.2.1 2017-08-28";
-    
+
     public static void main(String[] args) throws FileNotFoundException {
         InputStream is = new FileInputStream("/home/bi/Downloads/CineStar_Kundenexport_senkrecht_5Tage_2017.08.28_093043.CSV");
         CSVParser parser = new CSVParser();
@@ -75,11 +75,11 @@ public class JEVisCSVParser implements Parser {
             if (onlineID != null && onlineID == 10) {
             }
         }
-        
+
         InputStream is2 = new FileInputStream("/home/bi/Downloads/CineStar_Kundenexport_senkrecht_5Tage_2017.08.24_093055.CSV");
         CSVParser np = new CSVParser();
         np.setConverter(new GenericConverter());
-        
+
         DataPoint dpy = new DataPoint();
         dpy.setValueIndex(7);
         dpy.setTarget(10l);
@@ -91,7 +91,7 @@ public class JEVisCSVParser implements Parser {
         np.setDelim(";");
         np.setHeaderLines(10);
         np.setDecimalSeperator(",");
-        
+
         np.parse(Arrays.asList(is2), DateTimeZone.forID("Europe/Berlin"));
         List<Result> otherResult = np.getResult();
         for (Result r : otherResult) {
@@ -148,10 +148,10 @@ public class JEVisCSVParser implements Parser {
 
             String charset = DatabaseHelper.getObjectAsString(parserObject, charsetType);
             Charset cset;
-            if(charset==null || charset.equals("")){
-               cset = Charset.defaultCharset();
+            if (charset == null || charset.equals("")) {
+                cset = Charset.defaultCharset();
             } else {
-               cset = Charset.forName(charset);
+                cset = Charset.forName(charset);
             }
 
             String dateFormat = DatabaseHelper.getObjectAsString(parserObject, dateFormatType);
@@ -177,8 +177,7 @@ public class JEVisCSVParser implements Parser {
             _csvParser.setCharset(cset);
 
         } catch (JEVisException ex) {
-            Logger.getLogger(org.jevis.csvparser.JEVisCSVParser.class
-                    .getName()).log(Level.ERROR, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -201,7 +200,7 @@ public class JEVisCSVParser implements Parser {
                 try {
                     target = Long.parseLong(targetString);
                 } catch (Exception ex) {
-                    Logger.getLogger(this.getClass().getName()).log(Level.INFO, "DataPoint target error: " + ex.getMessage());
+                    logger.info("DataPoint target error: " + ex.getMessage());
 //                    ex.printStackTrace();
                 }
                 String valueString = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
@@ -210,7 +209,7 @@ public class JEVisCSVParser implements Parser {
                     valueIndex = Integer.parseInt(valueString);
                     valueIndex--;
                 } catch (Exception ex) {
-                    Logger.getLogger(this.getClass().getName()).log(Level.INFO, "DataPoint ValueIdentidier error: " + ex.getMessage());
+                    logger.info("DataPoint ValueIdentidier error: " + ex.getMessage());
 //                    ex.printStackTrace();
                 }
                 DataPoint csvdp = new DataPoint();
@@ -221,7 +220,7 @@ public class JEVisCSVParser implements Parser {
             }
             _csvParser.setDataPoints(csvdatapoints);
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(JEVisCSVParser.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.error(ex);
         }
     }
 
@@ -259,7 +258,7 @@ public class JEVisCSVParser implements Parser {
 
     @Override
     public void initialize(JEVisObject parserObject) {
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Initialize JEVisCSVParser build: " + VERSION);
+        logger.info("Initialize JEVisCSVParser build: " + VERSION);
 
         initializeAttributes(parserObject);
 

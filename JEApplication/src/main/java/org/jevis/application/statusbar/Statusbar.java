@@ -1,29 +1,25 @@
 /**
  * Copyright (C) 2014-2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.application.statusbar;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -37,11 +33,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.commons.config.CommonOptions;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 /**
  * Status bar with user and connection infos.
@@ -49,23 +50,22 @@ import org.jevis.commons.config.CommonOptions;
  * @author Florian Simon
  */
 public class Statusbar extends ToolBar {
+    private static final Logger logger = LogManager.getLogger(Statusbar.class);
 
     private final int ICON_SIZE = 20;
-    private JEVisDataSource _ds;
-    private String lastUsername = "";
-    private String lastPassword = "";
-
     private final int WAIT_TIME = 10000;//MSEC
     private final int RETRY_COUNT = 720;//count
-
+    public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
     Label userName = new Label("");
     Label onlineInfo = new Label("Online");
     HBox conBox = new HBox();
     ImageView connectIcon = ResourceLoader.getImage("network-connected.png", ICON_SIZE, ICON_SIZE);
     ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", ICON_SIZE, ICON_SIZE);
+    private JEVisDataSource _ds;
+    private String lastUsername = "";
+    private String lastPassword = "";
     private Tooltip tt = new Tooltip("Warning:\nConnection to server lost. Trying to reconnect...  ");
     private int retryCount = 0;
-    public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
 
     public Statusbar(JEVisDataSource ds) {
         super();
@@ -128,7 +128,7 @@ public class Statusbar extends ToolBar {
             lastName = _ds.getCurrentUser().getLastName();
             lastUsername = _ds.getCurrentUser().getAccountName();
         } catch (Exception ex) {
-//            Logger.getLogger(Statusbar.class.getName()).log(Level.SEVERE, "Cound not fetch Username", ex);
+            logger.fatal("Could not fetch Username", ex);
         }
 
         if (name.isEmpty() && lastName.isEmpty()) {
@@ -144,11 +144,12 @@ public class Statusbar extends ToolBar {
                 try {
                     while (true) {
                         sleep(WAIT_TIME);
+                        System.gc();
                         if (_ds.isConnectionAlive()) {
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
-//                                    System.out.println("still online");
+//                                    logger.info("still online");
                                     onlineInfo.setText("Online");
                                     onlineInfo.setTextFill(Color.BLACK);
                                     conBox.getChildren().setAll(connectIcon);
@@ -164,7 +165,7 @@ public class Statusbar extends ToolBar {
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
-//                                    System.out.println("whaa were are offline");
+//                                    logger.info("whaa were are offline");
                                     onlineInfo.setText("Offline");
                                     onlineInfo.setTextFill(Color.web("#D62748"));//red
                                     conBox.getChildren().setAll(notConnectIcon);
@@ -184,9 +185,9 @@ public class Statusbar extends ToolBar {
 
                     //TODO checlk is alive
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(Statusbar.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(Statusbar.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
 
             }
@@ -203,14 +204,14 @@ public class Statusbar extends ToolBar {
             public void run() {
                 try {
                     if (retryCount < RETRY_COUNT) {
-                        System.out.println("try Reconnect");
+                        logger.info("try Reconnect");
                         _ds.reconnect();
                         ++retryCount;
                     } else {
-                        System.out.println("No Connection Possible .. giving up");
+                        logger.error("No Connection Possible .. giving up");
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.fatal(ex);
                 }
             }
         };

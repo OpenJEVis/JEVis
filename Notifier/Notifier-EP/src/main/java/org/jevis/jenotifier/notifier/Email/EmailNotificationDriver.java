@@ -4,33 +4,8 @@
  */
 package org.jevis.jenotifier.notifier.Email;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.security.Security;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.Address;
-import javax.mail.Authenticator;
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -39,11 +14,28 @@ import org.jevis.jenotifier.notifier.Notification;
 import org.jevis.jenotifier.notifier.NotificationDriver;
 import org.joda.time.DateTime;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
- *
  * @author gf
  */
 public class EmailNotificationDriver implements NotificationDriver {
+    private static final Logger logger = LogManager.getLogger(EmailNotificationDriver.class);
 
     private JEVisObject _jeDri;
     private String _SMTPServer;
@@ -104,7 +96,7 @@ public class EmailNotificationDriver implements NotificationDriver {
     /**
      * To get the value of the attribute of a JevisObject
      *
-     * @param obj the JEVis Object
+     * @param obj     the JEVis Object
      * @param attName the name of the attribute
      * @return the value of the attribute
      * @throws JEVisException
@@ -144,42 +136,42 @@ public class EmailNotificationDriver implements NotificationDriver {
                 setSMTPServer(String.valueOf(getAttribute(notiObj, SMTP_SERVER))); //the second parameter should one to one correspondance with the name in JEConfig
             } catch (Exception ex) {
                 setSMTPServer(null);
-                Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setPort(Long.valueOf(String.valueOf(getAttribute(notiObj, PORT))));
             } catch (Exception ex) {
                 setPort(0);
-                Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setUser(String.valueOf(getAttribute(notiObj, SENDER)));
             } catch (Exception ex) {
                 setUser(null);
-                Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setPassword(String.valueOf(getAttribute(notiObj, PASSWORD)));
             } catch (Exception ex) {
                 setPassword(null);
-                Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.ERROR, ex);
+                logger.error(ex);
             }
             try {
                 setTransportSecurity(String.valueOf(getAttribute(notiObj, TRANSPORT_SECURITY)));
             } catch (Exception ex) {
                 setTransportSecurity("SSL/TLS");
-                Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, ex);
+                logger.info(ex);
             }
             setDefaultAuthenticator();
 //            try {
 //                _message = configureMessage(this);
 //            } catch (UnsupportedEncodingException ex) {
-//                java.util.logging.Logger.getLogger(EmailNotificationDriver.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//                logger.error(EmailNotificationDriver.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 //            } catch (MessagingException ex) {
-//                java.util.logging.Logger.getLogger(EmailNotificationDriver.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//                logger.error(EmailNotificationDriver.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 //            }
         } else {
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, notiObj + "is not suitable for the Driver(Email)");
+            logger.info(notiObj + "is not suitable for the Driver(Email)");
         }
 
     }
@@ -268,7 +260,6 @@ public class EmailNotificationDriver implements NotificationDriver {
     }
 
     /**
-     *
      * @param ts
      */
     public void setTransportSecurity(String ts) {
@@ -369,14 +360,14 @@ public class EmailNotificationDriver implements NotificationDriver {
             try {
                 successful = sendEmailNotification(emnoti);
             } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+                logger.error(ex);
             }
             return successful;
         } else {
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, "This Notification is not the EmailNotification.");
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, "This Notification is" + jenoti.getType() + ".");
-//            System.out.println("This Notification is not the EmailNotification.");
-//            System.out.println("This Notification is" + jenoti.getType() + ".");
+            logger.info("This Notification is not the EmailNotification.");
+            logger.info("This Notification is" + jenoti.getType() + ".");
+//            logger.info("This Notification is not the EmailNotification.");
+//            logger.info("This Notification is" + jenoti.getType() + ".");
             return successful;
         }
     }
@@ -402,25 +393,25 @@ public class EmailNotificationDriver implements NotificationDriver {
             }
             message = configureMessage(session, emnoti);
 
-            
+
 //            synchronized (EmailNotificationDriver.class) {
 //                message = configureMessage(this);
-//                System.out.println("finish first config " + this.getJEVisObjectDriver().getID());
+//                logger.info("finish first config " + this.getJEVisObjectDriver().getID());
 //                message.saveChanges();
 //            }
 //            message = configureMessage(message, emnoti); //configure the Email
-//            System.out.println("finish second config " + this.getJEVisObjectDriver().getID());
+//            logger.info("finish second config " + this.getJEVisObjectDriver().getID());
 
 
 //            Transport.send(message);// send the notification
-        
+
             tr.sendMessage(message, message.getAllRecipients());
             tr.close();
 
             emnoti.setSuccessfulSend(true, new DateTime(new Date()));//set the send time
             return true;
         } catch (MessagingException mex) {
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.ERROR, mex);
+            logger.error(mex);
             return false;
         }
 
@@ -432,10 +423,8 @@ public class EmailNotificationDriver implements NotificationDriver {
      *
      * @param driver
      * @return
-     * @throws UnsupportedEncodingException
-     * @throws MessagingException
      */
-    public Session setServer(EmailNotificationDriver driver) throws UnsupportedEncodingException, MessagingException {
+    public Session setServer(EmailNotificationDriver driver) {
 
         synchronized (EmailNotificationDriver.class) {//EmailNotificationDriver.class
             Properties properties = System.getProperties();
@@ -446,7 +435,7 @@ public class EmailNotificationDriver implements NotificationDriver {
             properties.setProperty(PROTERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
             if (driver.getTransportSecurity().equals(TansportSecurity.NO)) {
             } else if (driver.getTransportSecurity().equals(TansportSecurity.STARTTLS)) { //set the transport security as STARTTLS
-                    properties.put(PROTERTY_SMTP_STARTTLS, "true");
+                properties.put(PROTERTY_SMTP_STARTTLS, "true");
             } else {
                 properties.setProperty(PROTERTY_SMTP_SSL, "true"); //set the transport security as SSL
             }
@@ -468,7 +457,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      * EmailNotification and EmailNotificationDriver.
      *
      * @param session the Session created by setServer()
-     * @param emnoti the EmailNotification to be sent
+     * @param emnoti  the EmailNotification to be sent
      * @return the configured Email: the variable of type MimeMessage
      * @throws MessagingException
      * @throws UnsupportedEncodingException
@@ -479,8 +468,8 @@ public class EmailNotificationDriver implements NotificationDriver {
         if (getUser() != null) { //set the sender
             message.setFrom(new InternetAddress(getUser()));
         } else {
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, "The address of sender is empty.");
-//            System.out.println("The address of sender is empty.");
+            logger.info("The address of sender is empty.");
+//            logger.info("The address of sender is empty.");
         }
 
         if (emnoti.getReceivers() != null) {
@@ -488,8 +477,8 @@ public class EmailNotificationDriver implements NotificationDriver {
 
             message.addRecipients(Message.RecipientType.TO, addresses);
         } else {
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, "The address of receiver is empty.");
-//            System.out.println("The address of receiver is empty.");
+            logger.info("The address of receiver is empty.");
+//            logger.info("The address of receiver is empty.");
         }
 
         if (emnoti.getCarbonCopys() != null) { //set the CCs
@@ -505,8 +494,8 @@ public class EmailNotificationDriver implements NotificationDriver {
         if (emnoti.getSubject() != null) { //set the subject
             message.setSubject(emnoti.getSubject());
         } else {
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, "Send without Subject!");
-//            System.out.println("Send without Subject!");
+            logger.info("Send without Subject!");
+//            logger.info("Send without Subject!");
         }
         //set the Email Body (contains message and attachments)
         BodyPart messageBodyPart = new MimeBodyPart();
@@ -524,7 +513,7 @@ public class EmailNotificationDriver implements NotificationDriver {
             if (emnoti.getAttachments() != null && !emnoti.getAttachments().isEmpty()) { //If attachment is not null and empty, it will be setted
                 messageBodyPart = new MimeBodyPart(); //must instantiate a new Instance
                 for (File file : emnoti.getAttachmentsAsFile()) {
-//                    System.out.println("*********************" + file.exists());
+//                    logger.info("*********************" + file.exists());
                     DataSource source = new FileDataSource(file);
                     messageBodyPart.setDataHandler(new DataHandler(source));
                     messageBodyPart.setFileName(file.getName());
@@ -534,8 +523,8 @@ public class EmailNotificationDriver implements NotificationDriver {
         } else {
             messageBodyPart.setText("");
             multipart.addBodyPart(messageBodyPart);
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, "There is no message and no attachment!");
-//            System.out.println("There is no message and no attachment!");
+            logger.info("There is no message and no attachment!");
+//            logger.info("There is no message and no attachment!");
         }
 
         message.setContent(multipart);
@@ -571,8 +560,8 @@ public class EmailNotificationDriver implements NotificationDriver {
             isEmail = false;
         }
         if (!isEmail) {
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, "User name is illegal.");
-//            System.out.println(emailAddress + "User name is illegal.");
+            logger.info("User name is illegal.");
+//            logger.info(emailAddress + "User name is illegal.");
         }
         return isEmail;
     }
@@ -625,7 +614,7 @@ public class EmailNotificationDriver implements NotificationDriver {
         try {
             return driverObj.getJEVisClass().getName().equals(_type);
         } catch (JEVisException ex) {
-            Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+            logger.error(ex);
         }
         return false;
     }
@@ -642,7 +631,7 @@ public class EmailNotificationDriver implements NotificationDriver {
             try {
                 List<JEVisSample> ts = new ArrayList<JEVisSample>();
                 JEVisAttribute recorder = noti.getJEVisObjectNoti().getAttribute(Notification.SENT_TIME);
-//                System.out.println(recorder);
+//                logger.info(recorder);
                 if (recorder != null) {
                     for (DateTime time : noti.getSendTime()) {
                         JEVisSample t = recorder.buildSample(time, noti.getJEVisObjectNoti().getID(), "Sent by Driver" + getJEVisObjectDriver().getID()); //
@@ -651,10 +640,10 @@ public class EmailNotificationDriver implements NotificationDriver {
                     recorder.addSamples(ts);
                     re = true;
                 } else {
-                    Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.INFO, "The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
+                    logger.info("The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(EmailNotificationDriver.class.getName()).log(Level.ERROR, null, ex);
+                logger.error(ex);
             }
         }
         return re;

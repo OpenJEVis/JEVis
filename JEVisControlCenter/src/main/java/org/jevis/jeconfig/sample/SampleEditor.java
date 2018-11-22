@@ -19,7 +19,10 @@
  */
 package org.jevis.jeconfig.sample;
 
+import com.jfoenix.controls.JFXDatePicker;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -36,23 +39,20 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.dialog.DialogHeader;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
-import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
-import org.jevis.jeconfig.tool.datepicker.DatePicker;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.joda.time.Period;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * GUI Dialog to configure attributes and there sample.
@@ -61,34 +61,22 @@ import java.util.logging.Logger;
  * @TODO: rename it to Attribute editor or something?!
  */
 public class SampleEditor {
-
+    private static final Logger logger = LogManager.getLogger(SampleEditor.class);
     public static String ICON = "1415314386_Graph.png";
+    final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
+    private final List<SampleEditorExtension> extensions = new ArrayList<>();
+    List<JEVisSample> samples = new ArrayList<>();
     private boolean _dataChanged = false;
     private SampleEditorExtension _visibleExtension = null;
     private DateTime _from = null;
     private DateTime _until = null;
-    private final List<SampleEditorExtension> extensions = new ArrayList<>();
     private JEVisAttribute _attribute;
     private Process _dataProcessor;
     private List<JEVisObject> _dataProcessors = new ArrayList<>();
-
-    private enum AGGREGATION {
-
-        None, Daily, Weekly, Monthly,
-        Yearly
-    }
-
-    private AGGREGATION _mode = AGGREGATION.None;
-
-    //    final Label passL = new Label("New Password:");
-//    final Label confirmL = new Label("Comfirm Password:");
-//    final PasswordField pass = new PasswordField();
-//    final PasswordField comfirm = new PasswordField();
-    final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
-
-    List<JEVisSample> samples = new ArrayList<>();
-
+    private AggregationPeriod _period = AggregationPeriod.NONE;
     private Response response = Response.CANCEL;
+    private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
+
 
     /**
      * @param owner
@@ -99,6 +87,13 @@ public class SampleEditor {
         final Stage stage = new Stage();
 
         _attribute = attribute;
+        try {
+            _attribute.getDataSource().reloadAttribute(_attribute);
+        } catch (Exception ex) {
+            logger.error("Update failed", ex);
+        }
+        
+
         stage.setTitle(I18n.getInstance().getString("attribute.editor.title"));
         stage.initModality(Modality.NONE);
         stage.initOwner(owner);
@@ -123,7 +118,6 @@ public class SampleEditor {
 
         ok.setDefaultButton(true);
 
-//        Button export = new Button("Export");
         Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
         cancel.setCancelButton(true);
 
@@ -131,42 +125,21 @@ public class SampleEditor {
         spacer.setMaxWidth(2000);
 
         Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
-        DatePicker startdate = new DatePicker();
 
-        startdate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-//        startdate.getCalendarView().todayButtonTextProperty().set("Today");
-        startdate.getCalendarView().setShowWeeks(false);
-        startdate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
+        JFXDatePicker startdate = new JFXDatePicker();
+        JFXDatePicker enddate = new JFXDatePicker();
+        startdate.setMaxWidth(120);
+        enddate.setMaxWidth(120);
+
 
         Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
-        DatePicker enddate = new DatePicker();
-
-        enddate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-        enddate.getCalendarView().todayButtonTextProperty().set("Today");
-        enddate.getCalendarView().setShowWeeks(true);
-        enddate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
-
-//        SampleTableExtension tabelExtension = new SampleTableExtension(attribute, stage);//Default plugin
-
-//        final List<JEVisSample> samples = attribute.getAllSamples();
         if (attribute.hasSample()) {
             _from = attribute.getTimestampFromLastSample().minus(Duration.standardDays(1));
             _until = attribute.getTimestampFromLastSample();
 
-            startdate = new DatePicker(Locale.getDefault(), _from.toDate());
-            startdate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-            startdate.setSelectedDate(_from.toDate());
-            startdate.getCalendarView().setShowWeeks(false);
-            startdate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
-            startdate.setMaxWidth(100d);
+            startdate.valueProperty().set(LocalDate.of(_from.getYear(), _from.getMonthOfYear(), _from.getDayOfMonth()));
+            enddate.valueProperty().set(LocalDate.of(_until.getYear(), _until.getMonthOfYear(), _until.getDayOfMonth()));
 
-//            enddate.setSelectedDate(_until.toDate());
-            enddate.selectedDateProperty().setValue(_until.toDate());
-            enddate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-            enddate.setSelectedDate(_until.toDate());
-            enddate.getCalendarView().setShowWeeks(true);
-            enddate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
-            enddate.setMaxWidth(100d);
 
         }
 
@@ -194,6 +167,7 @@ public class SampleEditor {
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(cancel, Priority.NEVER);
 
+
         extensions.add(new SampleTableExtension(attribute, stage));
         extensions.add(new SampleGraphExtension(attribute)); // we now habe an graph plugin
         extensions.add(new AttributeStatesExtension(attribute));
@@ -202,15 +176,7 @@ public class SampleEditor {
 
         final List<Tab> tabs = new ArrayList<>();
 
-//        boolean fistEx = true;
         for (SampleEditorExtension ex : extensions) {
-//            _dataChanged
-//            if (fistEx) {
-//                System.out.println("is first");
-//                ex.setSamples(attribute, samples);
-//                ex.update();
-//                fistEx = false;
-//            }
 
             Tab tabEditor = new Tab();
             tabEditor.setText(ex.getTitel());
@@ -218,8 +184,17 @@ public class SampleEditor {
             tabs.add(tabEditor);
 
         }
+
+        disableEditing.addListener((observable, oldValue, newValue) -> {
+            extensions.forEach(sampleEditorExtension -> {
+                logger.info("Diabled editing in: " + sampleEditorExtension.getTitel());
+                sampleEditorExtension.disableEditing(newValue);
+
+            });
+        });
+
         _visibleExtension = extensions.get(0);
-        updateSamples(attribute, _from, _until, extensions);
+        updateSamples(_from, _until);
 
         final TabPane tabPane = new TabPane();
 //        tabPane.setMaxWidth(2000);
@@ -261,7 +236,7 @@ public class SampleEditor {
 
             @Override
             public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
-//                System.out.println("tabPane.getSelectionModel(): " + t1.getText());
+//                logger.info("tabPane.getSelectionModel(): " + t1.getText());
 
                 for (SampleEditorExtension ex : extensions) {
                     if (ex.getTitel().equals(t1.getText())) {
@@ -273,26 +248,13 @@ public class SampleEditor {
             }
         });
 
-        startdate.selectedDateProperty().addListener(new ChangeListener<Date>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Date> ov, Date t, Date t1) {
-                DateTime from = new DateTime(t1.getTime());
-                _from = from;
-//                _visibleExtension.setSamples(attribute, attribute.getSamples(_from, _until));
-                updateSamples(attribute, _from, _until, extensions);
-            }
+        startdate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            _from = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);
+            updateSamples(_from, _until);
         });
-
-        enddate.selectedDateProperty().addListener(new ChangeListener<Date>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Date> ov, Date t, Date t1) {
-                DateTime until = new DateTime(t1.getTime());
-                _until = until;
-//                _visibleExtension.setSamples(attribute, attribute.getSamples(_from, _until));
-                updateSamples(attribute, _from, _until, extensions);
-            }
+        enddate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            _until = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);
+            updateSamples(_from, _until);
         });
 
         cancel.setOnAction(new EventHandler<ActionEvent>() {
@@ -305,7 +267,7 @@ public class SampleEditor {
             }
         });
 
-        //TODO: replace Workaround.., without it the first tab will be emty
+        //TODO: replace Workaround.., without it the first tab will be empty
 //        tabPane.getSelectionModel().selectLast();
 //        tabPane.getSelectionModel().selectFirst();
         Platform.runLater(new Runnable() {
@@ -319,6 +281,10 @@ public class SampleEditor {
         stage.showAndWait();
 
         return response;
+    }
+
+    private void disableEditing(boolean disable) {
+        disableEditing.setValue(true);
     }
 
     private Node buildProcessorBox(final JEVisObject parentObj) {
@@ -339,7 +305,7 @@ public class SampleEditor {
             }
 
         } catch (Exception ex) {
-            Logger.getLogger(SampleTableExtension.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
 
         ChoiceBox processorBox = new ChoiceBox();
@@ -356,6 +322,7 @@ public class SampleEditor {
 
                     if (newValue.equals("None")) {
                         _dataProcessor = null;
+                        disableEditing.setValue(true);
                         update();
                     } else {
 
@@ -371,53 +338,60 @@ public class SampleEditor {
                     }
 
                 } catch (JEVisException ex) {
-                    Logger.getLogger(SampleTableExtension.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
-
             }
         });
-//
+
         List<String> aggList = new ArrayList<>();
-        //TODO: i18n
-        aggList.add("None");
-        aggList.add("Daily");
-        aggList.add("Weekly");
-        aggList.add("Monthly");
-        aggList.add("Yearly");
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.none"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.hourly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.daily"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.weekly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.monthly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.quarterly"));
+        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.yearly"));
 
-        ChoiceBox aggrigate = new ChoiceBox();
-        aggrigate.setItems(FXCollections.observableArrayList(aggList));
-        aggrigate.getSelectionModel().selectFirst();
-        aggrigate.valueProperty().addListener(new ChangeListener<String>() {
+        ChoiceBox aggregate = new ChoiceBox();
+        aggregate.setItems(FXCollections.observableArrayList(aggList));
+        aggregate.getSelectionModel().selectFirst();
+        aggregate.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                if (oldValue != newValue) {
+                    disableEditing.setValue(true);
+                }
 
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                //TODO:replace this quick and dirty workaround
-
-                switch (newValue) {
-                    case "None":
-                        _mode = AGGREGATION.None;
+                switch (newValue.intValue()) {
+                    case 0:
+                        _period = AggregationPeriod.NONE;
+                        logger.info("Processor disable");
+                        disableEditing.setValue(false);/** only original DB data can be edited **/
                         break;
-                    case "Daily":
-                        _mode = AGGREGATION.Daily;
+                    case 1:
+                        _period = AggregationPeriod.HOURLY;
                         break;
-                    case "Weekly":
-                        _mode = AGGREGATION.Weekly;
+                    case 2:
+                        _period = AggregationPeriod.DAILY;
                         break;
-                    case "Monthly":
-                        _mode = AGGREGATION.Monthly;
+                    case 3:
+                        _period = AggregationPeriod.WEEKLY;
                         break;
-                    case "Yearly":
-                        _mode = AGGREGATION.Yearly;
+                    case 4:
+                        _period = AggregationPeriod.MONTHLY;
+                        break;
+                    case 5:
+                        _period = AggregationPeriod.QUARTERLY;
+                        break;
+                    case 6:
+                        _period = AggregationPeriod.YEARLY;
                         break;
                 }
                 update();
-
             }
         });
 
         processorBox.setMinWidth(150);
-        aggrigate.setMinWidth(150);
+        aggregate.setMinWidth(150);
 //        aggrigate.prefWidthProperty().bind(processorBox.prefWidthProperty());
 //        aggrigate.prefHeightProperty()
 //        Bindings.add(aggrigate.prefWidthProperty(), processorBox.prefWidthProperty());
@@ -443,105 +417,48 @@ public class SampleEditor {
         grid.add(aggregation, 0, 2, 1, 1); // column=1 row=0
 
 //        grid.add(hbox, 1, 1, 1, 1); // column=1 row=0
-        grid.add(aggrigate, 1, 2, 1, 1); // column=1 row=0
+        grid.add(aggregate, 1, 2, 1, 1); // column=1 row=0
 
         return grid;
     }
 
-    public enum Response {
-
-        YES, CANCEL
-    }
-
-    private void update() {
-        updateSamples(_attribute, _from, _until, extensions);
-    }
-
     /**
-     * @param att
      * @param from
      * @param until
-     * @param extensions
      */
-    private void updateSamples(final JEVisAttribute att, final DateTime from, final DateTime until, List<SampleEditorExtension> extensions) {
+    private void updateSamples(final DateTime from, final DateTime until) {
         try {
             samples.clear();
 
             _from = from;
             _until = until;
 
-            if (_dataProcessor != null) {
-                ProcessOptions.setStartEnd(_dataProcessor, _from, _until, true, true);
-                _dataProcessor.restResult();
-            }
+            SampleGenerator sg;
+            if (_period.equals(AggregationPeriod.NONE))
+                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, AggregationMode.NONE, _period);
+            else
+                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, AggregationMode.TOTAL, _period);
 
-            Process aggrigate = null;
-            if (_mode == AGGREGATION.None) {
-
-            } else if (_mode == AGGREGATION.Daily) {
-                aggrigate = new BasicProcess();
-                aggrigate.setJEVisDataSource(att.getDataSource());
-                aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggrigatorFunction());
-
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
-            } else if (_mode == AGGREGATION.Monthly) {
-                aggrigate = new BasicProcess();
-                aggrigate.setJEVisDataSource(att.getDataSource());
-                aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggrigatorFunction());
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
-//                aggrigate.addOption(Options.PERIOD, Period.months(1).toString());
-            } else if (_mode == AGGREGATION.Weekly) {
-                aggrigate = new BasicProcess();
-                aggrigate.setJEVisDataSource(att.getDataSource());
-                aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggrigatorFunction());
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
-//                aggrigate.addOption(Options.PERIOD, Period.weeks(1).toString());
-            } else if (_mode == AGGREGATION.Yearly) {
-                System.out.println("year.....  " + Period.years(1).toString());
-                aggrigate = new BasicProcess();
-                aggrigate.setJEVisDataSource(att.getDataSource());
-                aggrigate.setID("Dynamic");
-                aggrigate.setFunction(new AggrigatorFunction());
-                aggrigate.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
-//                aggrigate.addOption(Options.PERIOD, Period.years(1).toString());
-            }
-
-            if (_dataProcessor == null) {
-                if (aggrigate != null) {
-                    Process input = new BasicProcess();
-                    input.setJEVisDataSource(att.getDataSource());
-                    input.setID("Dynamic Input");
-                    input.setFunction(new InputFunction());
-
-                    input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, _attribute.getName()));
-                    input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, _attribute.getObject().getID() + ""));
-//                    input.getOptions().put(InputFunction.ATTRIBUTE_ID, _attribute.getName());
-//                    input.getOptions().put(InputFunction.OBJECT_ID, _attribute.getObject().getID() + "");
-                    aggrigate.setSubProcesses(Arrays.asList(input));
-                    samples.addAll(aggrigate.getResult());
-                } else {
-                    samples.addAll(att.getSamples(from, until));
-                }
-
-            } else if (aggrigate != null) {
-                aggrigate.setSubProcesses(Arrays.asList(_dataProcessor));
-                samples.addAll(aggrigate.getResult());
-            } else {
-                samples.addAll(_dataProcessor.getResult());
-            }
+            samples = sg.generateSamples();
+            samples = sg.getAggregatedSamples(samples);
 
             for (SampleEditorExtension ex : extensions) {
-                ex.setSamples(att, samples);
+                ex.setSamples(_attribute, samples);
             }
 
             _dataChanged = true;
             _visibleExtension.update();
         } catch (JEVisException ex) {
-            ex.printStackTrace();
+            logger.error(ex);
         }
     }
 
+    private void update() {
+        updateSamples(_from, _until);
+    }
+
+    public enum Response {
+
+        YES, CANCEL
+    }
 }

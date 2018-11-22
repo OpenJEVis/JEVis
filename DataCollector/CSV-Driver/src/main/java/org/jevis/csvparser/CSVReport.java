@@ -20,12 +20,14 @@
  */
 package org.jevis.csvparser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
 
 /**
  * The CSVPreport controls the logging for the CSVParser.
@@ -34,6 +36,7 @@ import org.apache.log4j.Logger;
  */
 public class CSVReport {
 
+    private static final Logger logger = LogManager.getLogger(CSVReport.class);
     private Map<Integer, List<LineError>> errorMap = new HashMap<>();
     private int total = 0;
     private int totalOK = 0;
@@ -66,7 +69,7 @@ public class CSVReport {
     public void print() {
 //        Level level = Logger.getLogger(this.getClass().getName()).getLevel();
 
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, total + " errors total in " + errorMap.size() + " lines");
+        logger.info(total + " errors total in " + errorMap.size() + " lines");
 
         //all other
 //        if (!level.equals(Level.INFO) && !level.equals(Level.OFF)) {
@@ -77,8 +80,7 @@ public class CSVReport {
             List<LineError> lineErrors = entrySet.getValue();
 
             if (lineErrors != null && !lineErrors.isEmpty()) {
-                Logger.getLogger(this.getClass().getName()).log(Level.DEBUG,
-                        "[" + key + "] Total errors:  " + lineErrors.size()
+                logger.debug("[" + key + "] Total errors:  " + lineErrors.size()
                         + " First error: " + lineErrors.get(0).getMessage() + " Detail:" + lineErrors.get(0).getError().toString());
             }
 
@@ -86,7 +88,7 @@ public class CSVReport {
 //        }
 
         //TODO debug level with all errors
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, totalOK + " Values are OK");
+        logger.info(totalOK + " Values are OK");
 
     }
 

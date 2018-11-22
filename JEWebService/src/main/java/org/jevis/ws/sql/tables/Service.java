@@ -31,7 +31,7 @@ import java.sql.PreparedStatement;
  */
 public class Service {
 
-    private Logger logger = LogManager.getLogger(Service.class);
+    private static final Logger logger = LogManager.getLogger(Service.class);
 
     private final SQLDataSource _connection;
 
@@ -42,7 +42,7 @@ public class Service {
 
     //TODO: try-catch-finally
     public void cleanup() {
-//        System.out.println("AttributeTable.insert");
+//        logger.info("AttributeTable.insert");
         String sql = "delete from relationship where startobject in (select id from object\n"
                 + "where deletets is not null) or endobject in (select id from object where\n"
                 + "deletets is not null);\n"

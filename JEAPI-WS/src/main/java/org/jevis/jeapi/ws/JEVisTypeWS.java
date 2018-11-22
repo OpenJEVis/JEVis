@@ -31,7 +31,7 @@ import javax.measure.unit.Unit;
  */
 public class JEVisTypeWS implements JEVisType {
 
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisDataSourceWS.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisTypeWS.class);
     private String jclass = null;
     private JEVisDataSourceWS ds;
     private JsonType json;
@@ -90,7 +90,7 @@ public class JEVisTypeWS implements JEVisType {
     }
 
     @Override
-    public JEVisClass getJEVisClass() throws JEVisException {
+    public JEVisClass getJEVisClass() {
         return ds.getJEVisClass(jclass);
     }
 

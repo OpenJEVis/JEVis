@@ -25,6 +25,8 @@ import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -47,6 +49,7 @@ import java.util.regex.Pattern;
  * @author Broder
  */
 public class DataSourceHelper {
+    private static final Logger logger = LogManager.getLogger(DataSourceHelper.class);
 
     public static void test() {
 
@@ -76,7 +79,7 @@ public class DataSourceHelper {
         HostnameVerifier hv = new HostnameVerifier() {
             public boolean verify(String urlHostName, SSLSession session) {
                 if (!urlHostName.equalsIgnoreCase(session.getPeerHost())) {
-                    System.out.println("Warning: URL host '" + urlHostName + "' is different to SSLSession host '" + session.getPeerHost() + "'.");
+                    logger.warn("Warning: URL host '" + urlHostName + "' is different to SSLSession host '" + session.getPeerHost() + "'.");
                 }
                 return true;
             }
@@ -94,11 +97,11 @@ public class DataSourceHelper {
         }
 
         List<String> folderPathes = getMatchingPathes(startPath, pathStream, new ArrayList<String>(), fc, lastReadout, new DateTimeFormatterBuilder());
-//        System.out.println("foldersize,"+folderPathes.size());
+//        logger.info("foldersize,"+folderPathes.size());
         List<String> fileNames = new ArrayList<String>();
 
         if (folderPathes.isEmpty()) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Cant find suitable folder on the device");
+            logger.error("Cant find suitable folder on the device");
             return fileNames;
         }
 
@@ -108,10 +111,10 @@ public class DataSourceHelper {
         try {
             for (String folder : folderPathes) {
                 //                fc.changeWorkingDirectory(folder);
-                //                System.out.println("currentFolder,"+folder);
+                //                logger.info("currentFolder,"+folder);
                 currentfolder = folder;
 //                for (FTPFile file : fc.listFiles(folder)) {
-//                    System.out.println(file.getName());
+//                    logger.info(file.getName());
 //                }
                 fc.changeWorkingDirectory(folder);
                 for (FTPFile file : fc.listFiles()) {
@@ -125,7 +128,7 @@ public class DataSourceHelper {
                         continue;
                     }
                     boolean match = false;
-                    System.out.println(file.getName());
+                    logger.info(file.getName());
                     if (DataSourceHelper.containsTokens(fileNameScheme)) {
                         boolean matchDate = matchDateString(file.getName(), fileNameScheme);
                         DateTime folderTime = getFileTime(folder + file.getName(), pathStream);
@@ -144,17 +147,17 @@ public class DataSourceHelper {
                 }
             }
         } catch (IOException ex) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, ex.getMessage());
+            logger.error(ex.getMessage());
         } catch (Exception ex) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Error while searching a matching file");
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Folder: " + currentfolder);
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "FileName: " + fileNameScheme);
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, ex.getMessage());
+            logger.error("Error while searching a matching file");
+            logger.error("Folder: " + currentfolder);
+            logger.error("FileName: " + fileNameScheme);
+            logger.error(ex.getMessage());
         }
         if (folderPathes.isEmpty()) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Cant find suitable files on the device");
+            logger.error("Cant find suitable files on the device");
         }
-//        System.out.println("filenamesize"+fileNames.size());
+//        logger.info("filenamesize"+fileNames.size());
         return fileNames;
     }
 
@@ -205,7 +208,7 @@ public class DataSourceHelper {
 
     private static String removeFoler(String fileName, String folder) {
         if (fileName.startsWith(folder)) {
-            return fileName.substring(folder.length(), fileName.length());
+            return fileName.substring(folder.length());
         }
         return fileName;
     }
@@ -238,23 +241,23 @@ public class DataSourceHelper {
                     if (!matchDateString(folder.getName(), nextToken)) {
                         continue;
                     }
-//                    System.out.println("listdir," + folder.getName());
+//                    logger.info("listdir," + folder.getName());
 //                    if (containsDate(folder.getName(), ftmTemp)) {
                     DateTime folderTime = getFolderTime(path + folder.getName() + "/", pathStream);
                     if (folderTime.isAfter(lastReadout)) {
                         nextFolder = folder.getName();
-//                        System.out.println("dateFolder," + nextFolder);
+//                        logger.info("dateFolder," + nextFolder);
                         getMatchingPathes(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
                     }
 //                    }
                 }
             } else {
                 nextFolder = nextToken;
-//                System.out.println("normalFolder," + nextFolder);
+//                logger.info("normalFolder," + nextFolder);
                 getMatchingPathes(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
             }
         } catch (IOException ex) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, ex.getMessage());
+            logger.error(ex.getMessage());
         }
         return arrayList;
     }
@@ -269,7 +272,7 @@ public class DataSourceHelper {
         String[] tokens = StringUtils.split(filePath, "/");
 //         String[] tokens = filePath.trim().split("\\%");
         for (int i = 0; i < tokens.length; i++) {
-            System.out.println(tokens[i]);
+            logger.info(tokens[i]);
         }
         return tokens;
     }
@@ -279,7 +282,7 @@ public class DataSourceHelper {
         int startindex = template.indexOf("${DF:");
         int endindex = template.indexOf("}") + 1;
         String first = template.substring(0, startindex);
-        String last = template.substring(endindex, template.length());
+        String last = template.substring(endindex);
         return first + date.toString(dtf) + last;
     }
 
@@ -288,7 +291,7 @@ public class DataSourceHelper {
         int startindex = template.indexOf("${DU:");
         int endindex = template.indexOf("}") + 1;
         String first = template.substring(0, startindex);
-        String last = template.substring(endindex, template.length());
+        String last = template.substring(endindex);
         return first + date.toString(dtf) + last;
     }
 
@@ -370,15 +373,15 @@ public class DataSourceHelper {
         }
 
         List<String> folderPathes = getSFTPMatchingPathes(startPath, pathStream, new ArrayList<String>(), _channel, lastReadout, new DateTimeFormatterBuilder());
-//        System.out.println("foldersize,"+folderPathes.size());
+//        logger.info("foldersize,"+folderPathes.size());
         List<String> fileNames = new ArrayList<String>();
         if (folderPathes.isEmpty()) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Cant find suitable folder on the device");
+            logger.error("Cant find suitable folder on the device");
             return fileNames;
         }
 
         if (folderPathes.isEmpty()) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Cant find suitable folder on the device");
+            logger.error("Cant find suitable folder on the device");
             return fileNames;
         }
 
@@ -387,10 +390,10 @@ public class DataSourceHelper {
         try {
             for (String folder : folderPathes) {
                 //                fc.changeWorkingDirectory(folder);
-                //                System.out.println("currentFolder,"+folder);
+                //                logger.info("currentFolder,"+folder);
                 currentfolder = folder;
                 //                for (FTPFile file : fc.listFiles(folder)) {
-                //                    System.out.println(file.getName());
+                //                    logger.info(file.getName());
                 //                }
 //                Vector ls = _channel.ls(folder);
                 for (Object fileName : _channel.ls(folder)) {
@@ -416,13 +419,13 @@ public class DataSourceHelper {
                 }
             }
         } catch (Exception ex) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Error while searching a matching file");
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Folder: " + currentfolder);
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "FileName: " + fileNameScheme);
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, ex.getMessage());
+            logger.error("Error while searching a matching file");
+            logger.error("Folder: " + currentfolder);
+            logger.error("FileName: " + fileNameScheme);
+            logger.error(ex.getMessage());
         }
         if (folderPathes.isEmpty()) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Cant find suitable files on the device");
+            logger.error("Cant find suitable files on the device");
         }
         return fileNames;
     }
@@ -458,7 +461,7 @@ public class DataSourceHelper {
                 getSFTPMatchingPathes(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
             }
         } catch (SftpException ex) {
-            org.apache.log4j.Logger.getLogger(DataSourceHelper.class).log(org.apache.log4j.Level.ERROR, "Cant find suitable files on the device");
+            logger.error("Cant find suitable files on the device");
         }
         return arrayList;
     }

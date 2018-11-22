@@ -4,18 +4,19 @@
  */
 package org.jevis.jenotifier;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jenotifier.config.JENotifierConfig;
 import org.jevis.jenotifier.mode.Service;
 import org.jevis.jenotifier.mode.Single;
 import org.jevis.jenotifier.mode.SingleAll;
 
 /**
- *
  * @author gf
  */
 public class JENotifierOption {
+    private static final Logger logger = LogManager.getLogger(JENotifierOption.class);
 
     public void runJENotifier(String[] commands) {
 
@@ -23,22 +24,22 @@ public class JENotifierOption {
         config.parser(commands);
 
 //        JENotifierHelper.initializeLogger(Level.INFO);
-//        System.out.println(config.getDebugLevel());
+//        logger.info(config.getDebugLevel());
 
         if (config.getMode().equalsIgnoreCase("single")) {
-            Logger.getLogger(JENotifierOption.class.getName()).log(Level.INFO, "-------Operation Mode: Single-------");
+            logger.info("-------Operation Mode: Single-------");
             Single single = new Single(config);
             single.start();
         } else if (config.getMode().equalsIgnoreCase("singleAll")) {
-            Logger.getLogger(JENotifierOption.class.getName()).log(Level.INFO, "-------Operation Mode: SingleAll-------");
+            logger.info("-------Operation Mode: SingleAll-------");
             SingleAll singleall = new SingleAll(config);
             singleall.start();
         } else if (config.getMode().equalsIgnoreCase("Service")) {
-            Logger.getLogger(JENotifierOption.class.getName()).log(Level.INFO, "-------Operation Mode: Service-------");
+            logger.info("-------Operation Mode: Service-------");
             Service service = new Service(config);
             service.start();
         } else {
-            Logger.getLogger(JENotifierOption.class.getName()).log(Level.INFO, "-------The Operation Mode: " + config.getMode() + " doesn't exist!-------");
+            logger.info("-------The Operation Mode: " + config.getMode() + " doesn't exist!-------");
         }
 
     }

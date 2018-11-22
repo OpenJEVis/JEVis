@@ -5,10 +5,8 @@
  */
 package org.jevis.report3.data.report.schedule;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jevis.api.JEVisAttribute;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
@@ -16,11 +14,13 @@ import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.List;
+
 /**
- *
  * @author broder
  */
 public class JEVisIntervalParser {
+    private static final Logger logger = LogManager.getLogger(JEVisIntervalParser.class);
 
     private final DateTimeFormatter pattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static JEVisSample lastNotUpdatedSample;
@@ -46,7 +46,7 @@ public class JEVisIntervalParser {
                     break;
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(JEVisIntervalParser.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             }
         }
     }

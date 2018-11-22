@@ -1,36 +1,32 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-SQL.
- *
+ * <p>
  * JEAPI-SQL is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-SQL is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-SQL. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-SQL is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.relationship;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisConstants;
+import org.jevis.api.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisUser;
 
 /**
  * This class helps handling the Relationship
@@ -41,7 +37,7 @@ import org.jevis.api.JEVisUser;
  */
 public class RelationsManagment {
 
-    static private Logger logger = LogManager.getLogger(RelationsManagment.class);
+    private static final Logger logger = LogManager.getLogger(RelationsManagment.class);
 
     /**
      *
@@ -105,7 +101,7 @@ public class RelationsManagment {
         try {
             return user.getDataSource().getCurrentUser().isSysAdmin();
         } catch (Exception ex) {
-            System.out.println("Error while checking Sys Admin status:  " + ex);
+            logger.info("Error while checking Sys Admin status:  " + ex);
             logger.error("Error while checking Sys Admin status:  {}", ex.getMessage());//ToDO there is some error here
         }
 
@@ -231,18 +227,18 @@ public class RelationsManagment {
 
         try {
             for (JEVisRelationship objOwner : obj.getRelationships(JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD)) {
-//                System.out.println("objOwner: " + objOwner);
+//                logger.info("objOwner: " + objOwner);
                 try {
                     for (JEVisRelationship groupMemeber : objOwner.getEndObject().getRelationships(type, JEVisConstants.Direction.BACKWARD)) {
-//                        System.out.println("groupMember: " + groupMemeber);
+//                        logger.info("groupMember: " + groupMemeber);
                         owners.add(groupMemeber.getStartObject());
                     }
                 } catch (JEVisException ex) {
-                    java.util.logging.Logger.getLogger(RelationsManagment.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.fatal(ex);
                 }
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(RelationsManagment.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         return owners;
@@ -258,13 +254,13 @@ public class RelationsManagment {
      * when not. returns false if the type is not an membership
      */
     public static boolean canDeleteMembership(JEVisRelationship rel) {
-        System.out.println("canDeleteMembership: "+rel);
+        logger.info("canDeleteMembership: " + rel);
         try {
             JEVisUser juser = rel.getStartObject().getDataSource().getCurrentUser();
 
 
-            if(juser.isSysAdmin()){
-                System.out.println("is sysadmin");
+            if (juser.isSysAdmin()) {
+                logger.info("is sysadmin");
                 return true;
             }
 
@@ -276,21 +272,20 @@ public class RelationsManagment {
 
 
                 if (rel.getStartID() == juser.getUserID()) {
-                    System.out.println("UserID: "+juser.getUserID()+ " Rel.start: "+rel.getStartID());
+                    logger.info("UserID: " + juser.getUserID() + " Rel.start: " + rel.getStartID());
                     return false;
 //                    throw new JEVisException("Insufficient rights, user cannot delete its own user right", JEVisExceptionCodes.UNAUTHORIZED);
                 }
 
 
-
                 if (getObjectOwner(rel.getStartObject(), JEVisConstants.ObjectRelationship.MEMBER_DELETE).contains(juser.getUserObject())) {
-//                    System.out.println("is owner-owner: " + rel);
+//                    logger.info("is owner-owner: " + rel);
                     return true;
                 }
 
             }
         } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(RelationsManagment.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         return false;
@@ -315,7 +310,7 @@ public class RelationsManagment {
                 }
             }
 
-//            System.out.println("My Groups: " + Arrays.toString(userGroups.toArray()));
+//            logger.info("My Groups: " + Arrays.toString(userGroups.toArray()));
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
 
                 //get Owner Group
@@ -324,7 +319,7 @@ public class RelationsManagment {
 
                 //User cannot delte his own permission
                 if (groups.contains(relOwner)) {
-//                    System.out.println("cannot delete my own right");
+//                    logger.info("cannot delete my own right");
                     return false;
                 }
 
@@ -332,10 +327,10 @@ public class RelationsManagment {
                 for (JEVisRelationship relOwnerRel : relOwner.getRelationships(JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD)) {
                     try {
                         JEVisObject groupOwnerOwner = relOwnerRel.getEndObject();
-//                        System.out.println("groupOwnerOwner: " + groupOwnerOwner.getName());
+//                        logger.info("groupOwnerOwner: " + groupOwnerOwner.getName());
 
                         if (groups.contains(groupOwnerOwner)) {
-//                            System.out.println("im the owner of the owner so its ok");
+//                            logger.info("im the owner of the owner so its ok");
                             return true;
                         }
 
@@ -346,7 +341,7 @@ public class RelationsManagment {
 
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(RelationsManagment.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         return false;

@@ -44,6 +44,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "SOAP Server"
+    },
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "SOAP Server"
     }
   ]
 }

@@ -27,6 +27,9 @@ package org.jevis.ws.sql;
   POSSIBILITY OF SUCH DAMAGE.
  */
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
@@ -41,6 +44,7 @@ import java.security.spec.InvalidKeySpecException;
  */
 public class PasswordHash {
 
+    private static final Logger logger = LogManager.getLogger(PasswordHash.class);
     public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
     // The following constants may be changed without breaking existing hashes.
     public static final int SALT_BYTE_SIZE = 24;
@@ -83,7 +87,7 @@ public class PasswordHash {
     /**
      * Validates a password using a hash.
      *
-     * @param password the password to check
+     * @param password    the password to check
      * @param correctHash the hash of the valid password
      * @return true if the password is correct, false if not
      */
@@ -95,7 +99,7 @@ public class PasswordHash {
     /**
      * Validates a password using a hash.
      *
-     * @param password the password to check
+     * @param password    the password to check
      * @param correctHash the hash of the valid password
      * @return true if the password is correct, false if not
      */
@@ -134,10 +138,10 @@ public class PasswordHash {
     /**
      * Computes the PBKDF2 hash of a password.
      *
-     * @param password the password to hash.
-     * @param salt the salt
+     * @param password   the password to hash.
+     * @param salt       the salt
      * @param iterations the iteration count (slowness factor)
-     * @param bytes the length of the hash to compute in bytes
+     * @param bytes      the length of the hash to compute in bytes
      * @return the PBDKF2 hash of the password
      */
     private static byte[] pbkdf2(char[] password, byte[] salt, int iterations, int bytes)
@@ -187,37 +191,37 @@ public class PasswordHash {
         try {
             // Print out 10 hashes
             for (int i = 0; i < 10; i++) {
-                System.out.println(PasswordHash.createHash("p\r\nassw0Rd!"));
+                logger.info(PasswordHash.createHash("p\r\nassw0Rd!"));
             }
 
             // Test password validation
             boolean failure = false;
-            System.out.println("Running tests...");
+            logger.info("Running tests...");
             for (int i = 0; i < 100; i++) {
                 String password = "" + i;
                 String hash = createHash(password);
                 String secondHash = createHash(password);
                 if (hash.equals(secondHash)) {
-                    System.out.println("FAILURE: TWO HASHES ARE EQUAL!");
+                    logger.info("FAILURE: TWO HASHES ARE EQUAL!");
                     failure = true;
                 }
                 String wrongPassword = "" + (i + 1);
                 if (validatePassword(wrongPassword, hash)) {
-                    System.out.println("FAILURE: WRONG PASSWORD ACCEPTED!");
+                    logger.info("FAILURE: WRONG PASSWORD ACCEPTED!");
                     failure = true;
                 }
                 if (!validatePassword(password, hash)) {
-                    System.out.println("FAILURE: GOOD PASSWORD NOT ACCEPTED!");
+                    logger.info("FAILURE: GOOD PASSWORD NOT ACCEPTED!");
                     failure = true;
                 }
             }
             if (failure) {
-                System.out.println("TESTS FAILED!");
+                logger.info("TESTS FAILED!");
             } else {
-                System.out.println("TESTS PASSED!");
+                logger.info("TESTS PASSED!");
             }
         } catch (Exception ex) {
-            System.out.println("ERROR: " + ex);
+            logger.info("ERROR: " + ex);
         }
     }
 }

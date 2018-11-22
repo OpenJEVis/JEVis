@@ -5,41 +5,33 @@
  */
 package org.jevis.application.unit;
 
-import java.io.UnsupportedEncodingException;
-import java.text.Normalizer;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.regex.Pattern;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.Callback;
-import javax.measure.Measure;
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.NonSI;
-import static javax.measure.unit.NonSI.MILE;
-import javax.measure.unit.SI;
-import static javax.measure.unit.SI.KILOMETER;
-import javax.measure.unit.Unit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.UnitManager;
 
+import javax.measure.unit.Unit;
+import java.text.Normalizer;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
 /**
- *
  * @author fs
  */
 public class UnitChooserPanel {
+    private static final Logger logger = LogManager.getLogger(UnitChooserPanel.class);
 
     private JEVisUnit _unit = null;
     private TextField altSymbolField = new TextField("");
@@ -154,11 +146,19 @@ public class UnitChooserPanel {
         });
     }
 
+    public static String buildName(String type, Unit<?> unit) {
+        String s = unit.toString();
+        String s1 = Normalizer.normalize(s, Normalizer.Form.NFKD);
+        String regex = Pattern.quote("[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
+
+        return type + " (" + s1 + ")";
+    }
+
     private void setUnit() {
         try {
-            System.out.println("set Unit: " + _unit);
-            System.out.println("set alt Unit: " + altSymbolField);
-            System.out.println("Unit.one: " + Unit.ONE);
+            logger.info("set Unit: " + _unit);
+            logger.info("set alt Unit: " + altSymbolField);
+            logger.info("Unit.one: " + Unit.ONE);
 
             if (_unit != null) {
 //                boxQuantity.getSelectionModel().select(_unit.getStandardUnit());
@@ -169,7 +169,7 @@ public class UnitChooserPanel {
                 }
 
             } else {
-                System.out.println("no unit create new default unit");
+                logger.info("no unit create new default unit");
                 Unit newUnit = Unit.ONE;
 //                boxQuantity.getSelectionModel().select(newUnit.getStandardUnit());
 //                boxUnit.getSelectionModel().select(newUnit.getStandardUnit());
@@ -181,25 +181,8 @@ public class UnitChooserPanel {
 
     }
 
-    public static String buildName(String type, Unit<?> unit) {
-        String s = unit.toString();
-        String s1 = Normalizer.normalize(s, Normalizer.Form.NFKD);
-        String regex = Pattern.quote("[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
-
-        try {
-            String s2 = new String(s1.replaceAll(regex, "").getBytes("ascii"), "ascii");
-            s2 = s2.replace("?", "");
-            return type + " (" + s2 + ")";
-
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return type + " (" + s1 + ")";
-    }
-
     private void fillUnits(JEVisUnit unit) {
-        System.out.println("fill units");
+        logger.info("fill units");
         boxUnit.setButtonCell(new UnitListCell());
         boxUnit.setCellFactory(new Callback<ListView<JEVisUnit>, ListCell<JEVisUnit>>() {
             @Override
@@ -215,19 +198,19 @@ public class UnitChooserPanel {
 //        boxUnit.getItems().clear();
 //        boxUnit.getSelectionModel().clearSelection();
 //
-//        System.out.println("watt: " + SI.WATT);
-//        System.out.println("Jule: " + SI.JOULE);
-//        System.out.println("Wh: " + SI.WATT.times(NonSI.HOUR));
+//        logger.info("watt: " + SI.WATT);
+//        logger.info("Jule: " + SI.JOULE);
+//        logger.info("Wh: " + SI.WATT.times(NonSI.HOUR));
 //        Unit kWh = SI.KILO(SI.WATT.times(NonSI.HOUR));
-//        System.out.println("kWh1: " + kWh.getStandardUnit());
-//        System.out.println("kWh2: " + kWh.getDimension());
-//        System.out.println("kWh3: " + SI.WATT.times(NonSI.HOUR).divide(NonSI.HOUR));
+//        logger.info("kWh1: " + kWh.getStandardUnit());
+//        logger.info("kWh2: " + kWh.getDimension());
+//        logger.info("kWh3: " + SI.WATT.times(NonSI.HOUR).divide(NonSI.HOUR));
 //
-//        System.out.println("True1: " + kWh.isCompatible(SI.WATT));
-//        System.out.println("True2: " + kWh.isCompatible(SI.JOULE));
+//        logger.info("True1: " + kWh.isCompatible(SI.WATT));
+//        logger.info("True2: " + kWh.isCompatible(SI.JOULE));
 //
-//        System.out.println("kWh: " + kWh);
-//        System.out.println("kWh.name: " + buildName("Energy", kWh));
+//        logger.info("kWh: " + kWh);
+//        logger.info("kWh.name: " + buildName("Energy", kWh));
 //
 //        boxUnit.getItems().addAll(siList);
 //        boxUnit.getItems().addAll(nonSIList);
@@ -237,7 +220,7 @@ public class UnitChooserPanel {
     }
 
     private void fillPrifix() {
-        System.out.println("fill prefix");
+        logger.info("fill prefix");
         ObservableList<String> list = FXCollections.observableList(um.getPrefixes());
 
         boxPrefix.getItems().clear();
@@ -247,7 +230,7 @@ public class UnitChooserPanel {
     }
 
     private void fillQuantitys() {
-        System.out.println("fill quantitys");
+        logger.info("fill quantitys");
         boxQuantity.setButtonCell(new QuantitiesListCell());
         boxQuantity.setCellFactory(new Callback<ListView<JEVisUnit>, ListCell<JEVisUnit>>() {
             @Override
@@ -295,8 +278,8 @@ public class UnitChooserPanel {
             prefixUnit = (String) prefixObj;
         }
 
-        System.out.println("altSymbolField: " + altSymbolField);
-        System.out.println("altSymbolField.text: " + altSymbolField.getText());
+        logger.info("altSymbolField: " + altSymbolField);
+        logger.info("altSymbolField.text: " + altSymbolField.getText());
         //check altSymbol
         if (altSymbolField.getText() != null && !altSymbolField.getText().isEmpty() && baseUnit != null) {
             try {
@@ -335,7 +318,7 @@ public class UnitChooserPanel {
             boxQuantity.getSelectionModel().selectFirst();
             boxUnit.getSelectionModel().selectFirst();
 
-            System.out.println("standart Unit: " + searchUnit.getStandardUnit());
+            logger.info("standart Unit: " + searchUnit.getStandardUnit());
             Iterator<JEVisUnit> iterator = boxQuantity.getItems().iterator();
             while (iterator.hasNext()) {
                 Object obj = iterator.next();
@@ -343,7 +326,7 @@ public class UnitChooserPanel {
                     //TOTO: disabled because of unit change
 //                    JEVisUnit unit = (JEVisUnit) obj;
 //                    if (unit.getStandardUnit().equals(searchUnit)) {
-//                        System.out.println("found unit");
+//                        logger.info("found unit");
 //                        boxQuantity.getSelectionModel().select(unit);
 //
 //                        Iterator<JEVisUnit> iterator2 = boxUnit.getItems().iterator();
@@ -362,7 +345,7 @@ public class UnitChooserPanel {
             searchField.setStyle("-fx-text-fill: black;");
 
         } catch (Exception ex) {
-            System.out.println("Unkown Unit");
+            logger.info("Unkown Unit");
             ex.printStackTrace();
             searchField.setStyle("-fx-text-fill: red;");
 

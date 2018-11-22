@@ -9,8 +9,8 @@
 //import java.util.HashMap;
 //import java.util.List;
 //import java.util.Map;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
+//
+//
 //import org.jevis.api.JEVisException;
 //import org.jevis.api.JEVisObject;
 //import org.jevis.report3.DateHelper;
@@ -39,7 +39,7 @@
 //
 //    @Override
 //    public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
-//        IntervalCalculator.PeriodModus modus = IntervalCalculator.PeriodModus.valueOf(modusName.toUpperCase());
+//        IntervalCalculator.PeriodMode modus = IntervalCalculator.PeriodMode.valueOf(modusName.toUpperCase());
 //        Interval interval = intervalCalc.getInterval(modus);
 //        
 //        

@@ -5,13 +5,8 @@
  */
 package org.jevis.report3.data.reportlink;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
@@ -31,25 +26,35 @@ import org.jevis.report3.data.report.ReportProperty;
 import org.jevis.report3.process.SampleGenerator;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+
 /**
- *
  * @author broder
  */
 public class ReportLinkProperty implements ReportData {
+    private static final Logger logger = LogManager.getLogger(ReportLinkProperty.class);
 
     private String templateVariableName;
-//    private Long jevisID;
-    private JEVisObject dataObject;
-//    private JEVisObject linkObject;
+    //    private JEVisObject linkObject;
     private final List<JEVisObject> attributePropertyObjects = new ArrayList<>();
+    //    private Long jevisID;
+    private JEVisObject dataObject;
     private final List<ReportAttributeProperty> attributeProperties = new ArrayList<>();
     private final List<ReportAttributeProperty> defaultAttributeProperties = new ArrayList<>();
     private final SampleFactory sampleFactory = new SampleFactory();
 
-//    private DateTime latestTimestamp;
+    //    private DateTime latestTimestamp;
     public static ReportLinkProperty buildFromJEVisObject(JEVisObject reportLinkObject) {
         return new ReportLinkProperty(reportLinkObject);
     }
+
     private JEVisObject linkObject;
 
     private ReportLinkProperty(JEVisObject reportLinkObject) {
@@ -107,7 +112,7 @@ public class ReportLinkProperty implements ReportData {
         return templateVariableName;
     }
 
-//    public Long getJevisID() {
+    //    public Long getJevisID() {
 //        return jevisID;
 //    }
     @Override
@@ -115,7 +120,7 @@ public class ReportLinkProperty implements ReportData {
         return dataObject;
     }
 
-//    public JEVisObject getLinkObject() {
+    //    public JEVisObject getLinkObject() {
 //        return linkObject;
 //    }
 //    public DateTime getLatestTimestamp() {
@@ -141,7 +146,7 @@ public class ReportLinkProperty implements ReportData {
                 }
             }
         } catch (JEVisException ex) {
-            java.util.logging.Logger.getLogger(ReportLinkProperty.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
     }
 
@@ -157,31 +162,32 @@ public class ReportLinkProperty implements ReportData {
         return templateMap;
     }
 
-    Map<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
-        Map<String, Object> linkMap = new HashMap<>();
+    private Map<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
+        Map<String, Object> linkMap = new ConcurrentHashMap<>();
         List<ReportAttributeProperty> attributeProperties = linkProperty.getAttributeProperties();
-        attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
-        for (ReportAttributeProperty attributeProperty : attributeProperties) {
+        //attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
+        attributeProperties.parallelStream().forEach(attributeProperty -> {
             List<AttributeConfiguration> attributeConfigs = attributeProperty.getAttributeConfigurations();
             SampleGenerator sampleGenerator = sampleFactory.getSampleGenerator(attributeConfigs, intervalCalc);
             Map<String, Object> attributeMap = sampleGenerator.work(linkProperty, attributeProperty, property);
             addAttributeMapToLinkMap(linkMap, attributeMap);
-        }
-        String objectName = linkProperty.getDataObject().getName();
-        Map<String, Object> tmpMap = new HashMap<>();
-        tmpMap.put("name", objectName);
-        addAttributeMapToLinkMap(linkMap, tmpMap);
+            logger.debug("added link map " + linkMap.entrySet() + " to attribute map");
+        });
+
         return linkMap;
     }
 
-//    public void setIntervalCalculator(IntervalCalculator intervalCalc) {
+    //    public void setIntervalCalculator(IntervalCalculator intervalCalc) {
 //        this.intervalCalc = intervalCalc;
 //    }
-    void addAttributeMapToLinkMap(Map<String, Object> linkMap, Map<String, Object> attributeMap) {
+    private void addAttributeMapToLinkMap(Map<String, Object> linkMap, Map<String, Object> attributeMap) {
+        Lock lock = new ReentrantLock();
+        lock.lock();
         linkMap.putAll(attributeMap);
+        lock.unlock();
     }
 
-//    @Override
+    //    @Override
 //    public JEVisObject getLinkObject() {
 //        return linkObject
 //    }
@@ -193,7 +199,7 @@ public class ReportLinkProperty implements ReportData {
                 optional = linkObject.getAttribute("Optional").getLatestSample().getValueAsBoolean();
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ReportLinkProperty.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
 
         if (attributeProperties.isEmpty() || optional) {
@@ -203,14 +209,23 @@ public class ReportLinkProperty implements ReportData {
             String attributeName = curProperty.getAttributeName();
             if (attributeName.equals("Value")) {
                 try {
-                    DateTime timestampFromLastSample = dataObject.getAttribute("Value").getTimestampFromLastSample();
-                    if (timestampFromLastSample.isAfter(end)) {
-                        return new LinkStatus(true, "ok");
+                    if (dataObject.getAttribute("Value") != null) {
+                        JEVisAttribute att = dataObject.getAttribute("Value");
+                        if (att.getTimestampFromLastSample() != null) {
+                            DateTime timestampFromLastSample = att.getTimestampFromLastSample();
+                            if (timestampFromLastSample.isAfter(end)) {
+                                return new LinkStatus(true, "ok");
+                            } else {
+                                return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+                            }
+                        } else {
+                            return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+                        }
                     } else {
                         return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
                     }
                 } catch (JEVisException ex) {
-                    Logger.getLogger(ReportLinkProperty.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error(ex);
                 }
             }
         }

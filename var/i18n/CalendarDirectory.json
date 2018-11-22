@@ -1,0 +1,14 @@
+{
+  "jevisclass": "Calendar Directory",
+  "names": {
+    "de": "Kalender",
+    "ru": "Calendar",
+    "en": "Calendar"
+  },
+  "descriptions": {
+    "de": "Im Kalender werden die Kalenderspezifischen Einstellungen verwaltet.",
+    "ru": "The calendar manages the calendar-specific settings.",
+    "en": "The calendar manages the calendar-specific settings."
+  },
+  "types": []
+}

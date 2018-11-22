@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.tool;
 
 import org.apache.commons.beanutils.locale.LocaleBeanUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -12,6 +14,7 @@ import java.util.ResourceBundle;
  */
 public class I18n {
 
+    private static final Logger logger = LogManager.getLogger(I18n.class);
     private static I18n i18n;
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
     private ResourceBundle bundle;
@@ -27,12 +30,16 @@ public class I18n {
 
     }
 
-    public void loadBundel(Locale local){
-        this.locale=local;
+    public ResourceBundle getBundle() {
+        return bundle;
+    }
+
+    public void loadBundel(Locale local) {
+        this.locale = local;
         bundle = ResourceBundle.getBundle("JEVisCC", local);
     }
 
-    public Locale getLocale(){
+    public Locale getLocale() {
         return this.locale;
     }
 
@@ -40,26 +47,26 @@ public class I18n {
     /**
      * Format the string using MessagePattern
      *
-     * @see java.text.MessageFormat
      * @param key
      * @param arguments
      * @return
+     * @see java.text.MessageFormat
      */
-    public String getString(String key, Object... arguments){
-        try{
-            return MessageFormat.format(bundle.getString(key),arguments);
+    public String getString(String key, Object... arguments) {
+        try {
+            return MessageFormat.format(bundle.getString(key), arguments);
         } catch (NullPointerException | java.util.MissingResourceException np) {
-            System.out.println("Missing translation ["+locale.getISO3Country()+"] Key: "+key);
-            return "*"+key+"*";
+            logger.info("Missing translation [" + locale.getISO3Country() + "] Key: " + key);
+            return "*" + key + "*";
         }
     }
 
-    public String getString(String key){
-        try{
+    public String getString(String key) {
+        try {
             return bundle.getString(key);
         } catch (NullPointerException | java.util.MissingResourceException np) {
-            System.out.println("Missing translation ["+locale.getISO3Country()+"] Key: "+key);
-            return "*"+key+"*";
+            logger.info("Missing translation [" + locale.getISO3Country() + "] Key: " + key);
+            return "*" + key + "*";
         }
     }
 

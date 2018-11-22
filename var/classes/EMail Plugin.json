@@ -26,12 +26,13 @@
     },
     {
       "name": "Password",
-      "primitiveType": 0,
-      "guiType": "Text",
+      "primitiveType": 7,
+      "guiType": "Password PBKDF2",
       "GUIPosition": 0,
       "validity": 0,
+      "description": "Password for this user.",
       "inherited": false,
-      "jevisClass": "EMail Plugin"
+      "jevisClass": "User"
     },
     {
       "name": "Port",

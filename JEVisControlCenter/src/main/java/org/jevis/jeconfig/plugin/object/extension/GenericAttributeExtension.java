@@ -55,7 +55,7 @@ import org.jevis.jeconfig.tool.I18n;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
+import static org.jevis.jeconfig.JEConfig.PROGRAM_INFO;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -63,14 +63,14 @@ import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 public class GenericAttributeExtension implements ObjectEditorExtension {
 
     private static final String TITEL = I18n.getInstance().getString("plugin.object.attribute.title");
+    public static DoubleProperty editorWhith = new SimpleDoubleProperty(350);
     private final BorderPane _view = new BorderPane();
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     private JEVisObject _obj;
     private boolean _needSave = false;
     private List<AttributeEditor> _attributesEditor;
-    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     private JEVisTree tree;
-    public static DoubleProperty editorWhith = new SimpleDoubleProperty(350);
 
     public GenericAttributeExtension(JEVisObject obj, JEVisTree tree) {
         this.tree = tree;
@@ -130,8 +130,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
         boolean allValid = true;
         for (AttributeEditor editor : _attributesEditor) {
-            if(!editor.isValid()){
-                allValid=false;
+            if (!editor.isValid()) {
+                allValid = false;
             }
         }
 
@@ -141,7 +141,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
          */
 
 //        if(!allValid){
-//            System.out.println("Show warning");
+//            logger.info("Show warning");
 //            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 //            alert.setTitle("Save Dialog");
 //            alert.setHeaderText("Invalid value");
@@ -161,7 +161,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     }
 
-    private boolean saveAll(){
+    private boolean saveAll() {
         for (AttributeEditor editor : _attributesEditor) {
             try {
                 logger.debug("{}.save(): {}", this.getTitle(), editor.getAttribute().getName());
@@ -172,7 +172,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                 ExceptionDialog dia = new ExceptionDialog();
                 ExceptionDialog.Response re = dia.show(JEConfig.getStage(),
                         I18n.getInstance().getString("dialog.error.title"),
-                        I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAMM_INFO);
+                        I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAM_INFO);
                 if (re == ExceptionDialog.Response.CANCEL) {
                     return false;
                 }
@@ -200,7 +200,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
         boolean readOnly = true;
         try {
-            readOnly=false;
+            readOnly = false;
             /**
              * TODO: implement write access check
              * Read check is disabled for now, the problem is that if the user has ne read access to his UserGroup he can not
@@ -244,7 +244,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
                                         editor = new StringEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
-                                        editor = new StringMultyLine(att);
+                                        editor = new StringMultiLine(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                                         editor = new DateEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_OBJECT.getId())) {
@@ -255,6 +255,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                         editor = new ReadablePasswordEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DATE_TIME.getId())) {
                                         editor = new DateTimeEditor2(att);
+                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_TIME.getId())) {
+                                        editor = new TimeEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.SCHEDULE.getId())) {
                                         editor = new ScheduleEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TIME_ZONE.getId())) {
@@ -266,7 +268,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.GAP_FILLING_CONFIG.getId())) {
                                         editor = new GapFillingEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LIMITS_CONFIG.getId())) {
-                                        editor = new LimitsEditor(att);
+                                        editor = new LimitEditor(att);
                                     }
                                 } catch (Exception e) {
                                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());
@@ -280,7 +282,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                 } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_BOOLEAN.getId())) {
                                     editor = new BooleanValueEditor(att);
                                 } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BOOLEAN_BUTTON.getId())) {
-                                    editor = new BooleanButton(att);
+                                    editor = new BooleanValueEditor(att);
                                 }
                                 break;
                             case JEVisConstants.PrimitiveType.FILE:

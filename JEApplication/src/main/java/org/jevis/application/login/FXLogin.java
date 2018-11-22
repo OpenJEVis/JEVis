@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 20156Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -44,6 +44,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PopOver;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
@@ -62,8 +63,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -74,10 +73,10 @@ import static java.util.Locale.UK;
  * The FXLogin represents the common JEVis login dialog with all necessary
  * parameters like username, password, server and so on.
  *
- *
  * @author Florian Simon
  */
 public class FXLogin extends AnchorPane {
+    private static final Logger logger = LogManager.getLogger(FXLogin.class);
 
     private final Stage mainStage;
     private final Button loginButton = new Button("Login");
@@ -88,10 +87,10 @@ public class FXLogin extends AnchorPane {
     private final GridPane authGrid = new GridPane();
     private JEVisDataSource _ds;
     private final Preferences jevisPref = Preferences.userRoot().node("JEVis");
-//    private final Preferences serverPref = Preferences.userRoot().node("JEVis.Server");
+    //    private final Preferences serverPref = Preferences.userRoot().node("JEVis.Server");
     private List<JEVisObject> rootObjects = new ArrayList<>();
     private List<JEVisClass> classes = new ArrayList<>();
-//    private final ComboBox<JEVisConfiguration> serverSelection = new ComboBox<>();
+    //    private final ComboBox<JEVisConfiguration> serverSelection = new ComboBox<>();
     private String css = "";
 
     private int lastServer = -1;
@@ -103,7 +102,7 @@ public class FXLogin extends AnchorPane {
     private SimpleBooleanProperty loginStatus = new SimpleBooleanProperty(false);
 //    private final String URL_SYNTAX = "user:password@server:port/jevis";
 
-//    private final ObservableList<JEVisConfiguration> serverConfigurations = FXCollections.observableList(new ArrayList<>());
+    //    private final ObservableList<JEVisConfiguration> serverConfigurations = FXCollections.observableList(new ArrayList<>());
     private VBox mainHBox = new VBox();
     private ProgressIndicator progress = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
 
@@ -116,7 +115,6 @@ public class FXLogin extends AnchorPane {
     private JEVisOption fxoptions;
     private boolean useCSSFile = false;
     private ApplicationInfo app = new ApplicationInfo("tata", "");
-    private org.apache.logging.log4j.Logger logger = LogManager.getLogger(FXLogin.class);
     private Locale selectedLocale = Locale.getDefault();
 
 
@@ -213,11 +211,11 @@ public class FXLogin extends AnchorPane {
             _ds = loadDataSource(configuration);
 
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(FXLogin.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         } catch (InstantiationException ex) {
-            Logger.getLogger(FXLogin.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         } catch (IllegalAccessException ex) {
-            Logger.getLogger(FXLogin.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
         setStyleSheet();
@@ -228,7 +226,7 @@ public class FXLogin extends AnchorPane {
     /**
      * Create an new Loginpanel
      *
-     * @param stage The Stage will be used of eventuell dialogs
+     * @param stage      The Stage will be used of eventuell dialogs
      * @param parameters
      */
     public FXLogin(Stage stage, Application.Parameters parameters) {
@@ -432,9 +430,9 @@ public class FXLogin extends AnchorPane {
             logo = new ImageView(new Image(defaultLogo));
         }
         logo.setPreserveRatio(true);
-       
-        logo.fitWidthProperty().bind(mainStage.widthProperty()); 
-        
+
+        logo.fitWidthProperty().bind(mainStage.widthProperty());
+
         header.getChildren().add(logo);
         AnchorPane.setBottomAnchor(logo, 0.0);
         AnchorPane.setLeftAnchor(logo, 0.0);
@@ -753,13 +751,12 @@ public class FXLogin extends AnchorPane {
      * Load usersettings from Prederence.
      *
      * @param showServer
-     * @param defaultServer
      */
     private void loadPreference(boolean showServer) {
-//        System.out.println("load from disk");
+//        logger.info("load from disk");
         if (!jevisPref.get("JEVisUser", "").isEmpty()) {
             storeConfig.setSelected(true);
-//            System.out.println("username: " + jevisPref.get("JEVisUser", ""));
+//            logger.info("username: " + jevisPref.get("JEVisUser", ""));
             userName.setText(jevisPref.get("JEVisUser", ""));
             userPassword.setText(jevisPref.get("JEVisPW", ""));
         } else {
@@ -777,7 +774,7 @@ public class FXLogin extends AnchorPane {
         String LIGHT_GREY2 = "#f4f4f4";
     }
 
-    public Locale getSelectedLocale(){
+    public Locale getSelectedLocale() {
         return selectedLocale;
     }
 
@@ -809,7 +806,8 @@ public class FXLogin extends AnchorPane {
                 url = "http://openjevis.org/account/register";
             }
         } else {
-            url = "http://openjevis.org/account/register";
+            link.setVisible(false);
+            url = "";
 
         }
 
@@ -817,7 +815,7 @@ public class FXLogin extends AnchorPane {
             try {
                 Desktop.getDesktop().browse(new URI(url));
             } catch (IOException | URISyntaxException e1) {
-                e1.printStackTrace();
+                logger.fatal(e1);
             }
         }).start());
 
@@ -833,7 +831,7 @@ public class FXLogin extends AnchorPane {
     public Node buldBuildInfos() {
         VBox vbox = new VBox();
         setDefaultStyle(vbox, "-fx-background-color: transparent;");
-        System.out.println(app.toString());
+        logger.info(app.toString());
         Label coypLeft = new Label(app.getName() + " " + app.getVersion());//©Envidatec GmbH 2014-2016");
         Label java = new Label("Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
 
@@ -867,7 +865,7 @@ public class FXLogin extends AnchorPane {
         try {
             jevisPref.sync();
         } catch (BackingStoreException ex) {
-            Logger.getLogger(FXLogin.class.getName()).log(Level.SEVERE, null, ex);
+            logger.fatal(ex);
         }
 
     }
@@ -876,10 +874,11 @@ public class FXLogin extends AnchorPane {
      * Temporary solution the get the clear text password. The JEConfig will use this
      * to login into the ISO 50001 webservice. Will be relofed if an better plays way
      * is found. Maybe the JEVisDataSource will give acces to it.
-     * @return 
+     *
+     * @return
      */
-    public String getUserPassword(){
+    public String getUserPassword() {
         return userPassword.getText();
     }
-    
+
 }

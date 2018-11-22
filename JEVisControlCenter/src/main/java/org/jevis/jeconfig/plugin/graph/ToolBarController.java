@@ -9,25 +9,19 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.dialog.GraphSelectionDialog;
-import org.jevis.application.jevistree.plugin.BarChartDataModel;
-import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
+import org.jevis.application.Chart.data.GraphDataModel;
+import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 /**
- *
  * @author broder
  */
 public class ToolBarController implements EventHandler {
 
+    private final JEVisDataSource ds;
     private GraphDataModel model;
     private ToolBarView view;
-    private final JEVisDataSource ds;
-    private GraphSelectionDialog selectionDialog;
+    private ChartSelectionDialog selectionDialog;
 
     public ToolBarController(ToolBarView view, GraphDataModel model, JEVisDataSource ds) {
         this.model = model;
@@ -38,19 +32,12 @@ public class ToolBarController implements EventHandler {
     @Override
     public void handle(Event event) {
         if (selectionDialog == null) {
-            selectionDialog = new GraphSelectionDialog(ds);
+            selectionDialog = new ChartSelectionDialog(ds, model, view.getSelectionTree());
         }
 
-        if (selectionDialog.show(new Stage()) == GraphSelectionDialog.Response.OK) {
+        if (selectionDialog.show(new Stage()) == ChartSelectionDialog.Response.OK) {
 
-            Set<BarChartDataModel> selectedData = new HashSet<>();
-            for (Map.Entry<String, BarChartDataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
-                BarChartDataModel value = entrySet.getValue();
-                if (value.getSelected()) {
-                    selectedData.add(value);
-                }
-            }
-            model.setSelectedData(selectedData);
+
         }
     }
 

@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+
 
 /**
  *
@@ -112,7 +112,7 @@ public class ReportHandler //implements Pluggable //{
         List<RegTreeNode> registryFiltered = nm.getRegistryFiltered(include, true, exclude, true);
 
         _logger.info("Loglevel: " + cp.getLogLevel());
-        System.out.println("loglevel " + cp.getLogLevel());
+        logger.info("loglevel " + cp.getLogLevel());
         _logger.log(Level.FINER, "Reportlistsize: " + registryFiltered.size());
         ReportGenerator rg;
         Property prop;
@@ -198,7 +198,7 @@ public class ReportHandler //implements Pluggable //{
             c.setTimeZone(TimeZone.getTimeZone("UTC"));
             _logger.log(Level.INFO, "Nodeid " + id);
             if (!nm.getRegistryNode(id).isPropertyNode() & !bool) {
-//                System.out.println("MAXTS CreationDate" + c);
+//                logger.info("MAXTS CreationDate" + c);
                 if (getMaxTSOfOnlineNode(
                         nm.getRegistryNode(id)).before(c)) {
 
@@ -220,7 +220,7 @@ public class ReportHandler //implements Pluggable //{
 
 //    public boolean isReport(Property prop) {
 //        JevCalendar c = prop.getNextCreationDate();
-//        System.out.println(c.before(new JevCalendar()));
+//        logger.info(c.before(new JevCalendar()));
 //        return c.before(new JevCalendar());
 //    }
     /**
@@ -238,7 +238,7 @@ public class ReportHandler //implements Pluggable //{
         Date now = new Date();
 
         _logger.log(Level.FINER, "Startzeit Report " + now);
-        System.out.println("Endzeit Report " + periodEnd);
+        logger.info("Endzeit Report " + periodEnd);
         if (periodEnd.getTime() > now.getTime()) {
             _logger.log(Level.INFO, "next cycle starts in {0}"
                     + " msec" + " at {1}", new Object[]{
@@ -283,7 +283,7 @@ public class ReportHandler //implements Pluggable //{
             RegTreeNode tmp = (RegTreeNode) r.getParent();
             while (r.getRoot().getID() != tmp.getID()) {
                 if (tmp.getTypeID() == 96) {
-//                    System.out.println("MAXTS onlineNode" + tmp.getMaxTS());
+//                    logger.info("MAXTS onlineNode" + tmp.getMaxTS());
                     return tmp.getMaxTS();
                 } else {
                     tmp = (RegTreeNode) tmp.getParent();
@@ -305,7 +305,7 @@ public class ReportHandler //implements Pluggable //{
 
     private boolean newReportNecessary(Property prop) {
         JevCalendar c = prop.getNextCreationDate();
-//        System.out.println(c.before(new JevCalendar()));
+//        logger.info(c.before(new JevCalendar()));
         _logger.log(Level.FINER, "Creation Data: " + c);
         return c.before(new JevCalendar());
     }
