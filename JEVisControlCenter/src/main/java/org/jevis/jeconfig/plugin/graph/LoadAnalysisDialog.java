@@ -47,7 +47,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private JEVisDataSource ds;
     private DateHelper dateHelper = new DateHelper();
     private ComboBox<String> comboBoxPresetDates;
-    private Boolean programmaticallySetPresetDate[] = new Boolean[4];
+    private Boolean[] programmaticallySetPresetDate = new Boolean[4];
     private ComboBox<String> aggregationBox;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
@@ -182,9 +182,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 AggregationPeriod oldAggregation = AggregationPeriod.parseAggregation(aggregationBox.valueProperty().toString());
 
                 graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
-                AnalysisTimeFrame last7 = new AnalysisTimeFrame();
-                last7.setTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
-                graphDataModel.setAnalysisTimeFrame(last7);
+                AnalysisTimeFrame preview = new AnalysisTimeFrame();
+                preview.setTimeFrame(AnalysisTimeFrame.TimeFrame.preview);
+                graphDataModel.setAnalysisTimeFrame(preview);
 
                 toolBarView.select(newValue);
 

@@ -6,11 +6,13 @@ import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.jevistree.JEVisTreeRow;
 
+import java.util.Observer;
+
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
  */
 
-public interface ChartPluginColumn {
+public interface ChartPluginColumn extends Observer {
 
     default ChartDataModel getData(JEVisTreeRow row) {
         Long id = Long.parseLong(row.getID());

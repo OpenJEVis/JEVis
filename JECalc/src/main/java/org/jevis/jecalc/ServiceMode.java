@@ -25,14 +25,12 @@ public class ServiceMode {
         this.cycleTime = cycleTime;
         this.ds = ds;
 
-        getCycleTimeFromService();
         initializeThreadPool();
     }
 
     public ServiceMode(JEVisDataSource ds) {
         this.ds = ds;
 
-        getCycleTimeFromService();
         initializeThreadPool();
     }
 
@@ -49,15 +47,11 @@ public class ServiceMode {
         forkJoinPool = new ForkJoinPool(threadCount);
     }
 
-    private void getCycleTimeFromService() {
-        try {
-            JEVisClass calcClass = ds.getJEVisClass("JECalc");
-            List<JEVisObject> listCalcObjects = ds.getObjects(calcClass, false);
-            cycleTime = listCalcObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
-            logger.info("Service cycle time from service: " + cycleTime);
-        } catch (Exception e) {
-
-        }
+    private void getCycleTimeFromService() throws JEVisException {
+        JEVisClass calcClass = ds.getJEVisClass("JECalc");
+        List<JEVisObject> listCalcObjects = ds.getObjects(calcClass, false);
+        cycleTime = listCalcObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
+        logger.info("Service cycle time from service: " + cycleTime);
     }
 
     public void run() {
@@ -82,6 +76,13 @@ public class ServiceMode {
 
     private void runServiceHelp() {
 
+        try {
+            ds.reloadAttributes();
+            getCycleTimeFromService();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
         if (checkServiceStatus()) {
             logger.info("Service is enabled.");
             this.runProcesses();
@@ -90,11 +91,6 @@ public class ServiceMode {
         }
         try {
             Thread.sleep(cycleTime);
-            try {
-                ds.reloadAttributes();
-            } catch (JEVisException e) {
-            }
-            getCycleTimeFromService();
 
             runServiceHelp();
         } catch (InterruptedException e) {
@@ -108,7 +104,6 @@ public class ServiceMode {
             JEVisClass calcClass = ds.getJEVisClass("JECalc");
             List<JEVisObject> listCalcObjects = ds.getObjects(calcClass, false);
             enabled = listCalcObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
-            logger.info("Service is enabled is " + enabled);
         } catch (Exception e) {
 
         }
@@ -119,7 +114,6 @@ public class ServiceMode {
         if (runningJobs.isEmpty()) {
             List<JEVisObject> jevisObjects = new ArrayList<>();
             try {
-                ds.reloadAttributes();
                 JEVisClass calcClass = ds.getJEVisClass(CalcJobFactory.Calculation.CLASS.getName());
                 jevisObjects = ds.getObjects(calcClass, false);
             } catch (JEVisException ex) {

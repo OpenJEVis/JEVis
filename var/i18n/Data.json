@@ -14,14 +14,14 @@
     {
       "type": "Value",
       "descriptions": {
-        "de": "Werte der Datenreihe",
-        "ru": "Values of the data series",
-        "en": "Values of the data series"
+        "de": "Wert der Datenreihe",
+        "ru": "Value of the data series",
+        "en": "Value of the data series"
       },
       "names": {
-        "de": "Werte",
-        "ru": "Values",
-        "en": "Values"
+        "de": "Wert",
+        "ru": "Value",
+        "en": "Value"
       }
     }
   ]

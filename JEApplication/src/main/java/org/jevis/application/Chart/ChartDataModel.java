@@ -63,8 +63,7 @@ public class ChartDataModel {
             if (getSelectedStart().isBefore(getSelectedEnd())) {
                 try {
 
-                    if (getDataProcessor() != null) {
-                        _dataProcessorObject = getDataProcessor();
+                    if (_dataProcessorObject != null) {
                         _attribute = _dataProcessorObject.getAttribute("Value");
                     } else {
                         _attribute = _object.getAttribute("Value");

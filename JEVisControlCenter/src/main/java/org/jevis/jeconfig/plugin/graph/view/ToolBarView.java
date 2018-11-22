@@ -269,7 +269,7 @@ public class ToolBarView {
 
     public JEVisTree getSelectionTree() {
         if (selectionTree == null) {
-            selectionTree = JEVisTreeFactory.buildDefaultGraphTree(ds);
+            selectionTree = JEVisTreeFactory.buildDefaultGraphTree(ds, model);
         }
 
         return selectionTree;

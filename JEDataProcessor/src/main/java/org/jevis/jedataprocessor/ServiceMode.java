@@ -23,7 +23,6 @@ public class ServiceMode {
     }
 
     public ServiceMode() {
-        getCycleTimeFromService();
     }
 
     private void getCycleTimeFromService() throws JEVisException {
@@ -33,6 +32,7 @@ public class ServiceMode {
         logger.info("Service cycle time from service: " + cycleTime);
     }
 
+
     public void run() {
 
 
@@ -41,7 +41,7 @@ public class ServiceMode {
                 try {
                     runEndlessService();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.fatal("Error in Thread: " + e);
                 }
             });
             Runtime.getRuntime().addShutdownHook(
@@ -50,12 +50,14 @@ public class ServiceMode {
 
             service.start();
         } catch (Exception e) {
+            logger.fatal("Error in Thread: " + e);
             throw new RuntimeException(e);
         }
         try {
             logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (InterruptedException e) {
+            logger.fatal("Service was stopped.");
             throw new RuntimeException(e);
         }
     }
