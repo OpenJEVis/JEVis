@@ -37,10 +37,10 @@ public class PeriodAlignmentStep implements ProcessStep {
 
         //align the raw samples to the intervals
         int currentSamplePointer = 0;
-        for (int i = 0; i < intervals.size(); i++) {
+        for (CleanInterval interval1 : intervals) {
             boolean samplesInInterval = true;
             while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
-                CleanInterval currentInterval = intervals.get(i);
+                CleanInterval currentInterval = interval1;
                 JEVisSample rawSample = rawSamples.get(currentSamplePointer);
                 try {
                     DateTime timestamp = rawSample.getTimestamp().plusSeconds(periodOffset);
@@ -58,7 +58,6 @@ public class PeriodAlignmentStep implements ProcessStep {
                 }
             }
         }
-
 
         List<JEVisSample> listConversionToDifferential = calcAttribute.getConversionDifferential();
         Boolean valueIsQuantity = calcAttribute.getValueIsQuantity();

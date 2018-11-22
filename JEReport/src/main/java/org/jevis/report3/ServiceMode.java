@@ -12,6 +12,7 @@ import org.jevis.report3.data.report.ReportExecutor;
 import org.jevis.report3.policy.ReportPolicy;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 
 public class ServiceMode {
@@ -19,12 +20,12 @@ public class ServiceMode {
     private Long cycleTime = 900000L;
     private JEVisDataSource _ds;
     private ForkJoinPool forkJoinPool;
+    private ConcurrentHashMap<String, String> runningJobs = new ConcurrentHashMap();
 
     public ServiceMode(JEVisDataSource ds, ForkJoinPool forkJoinPool, Long cycleTime) {
         this.cycleTime = cycleTime;
         this._ds = ds;
 
-        getCycleTimeFromService();
         this.forkJoinPool = forkJoinPool;
     }
 
@@ -47,27 +48,41 @@ public class ServiceMode {
 
             service.start();
         } catch (Exception e) {
+            logger.fatal("Error in Thread: " + e);
             throw new RuntimeException(e);
         }
         try {
             logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (InterruptedException e) {
+            logger.fatal("Service was stopped.");
             throw new RuntimeException(e);
         }
     }
 
     private void runServiceHelp() throws JEVisException {
 
-        this.runProcesses();
         try {
-            logger.info("finished all report objects, entering sleep mode for " + cycleTime + " ms.");
-            Thread.sleep(cycleTime);
             _ds.reloadAttributes();
             getCycleTimeFromService();
+        } catch (JEVisException e) {
+        }
+
+        if (checkServiceStatus()) {
+            this.runProcesses();
+
+            logger.info("Queued all report objects, entering sleep mode for " + cycleTime + " ms.");
+
+        } else {
+            logger.info("Service was disabled.");
+        }
+
+        try {
+            Thread.sleep(cycleTime);
+
             runServiceHelp();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.fatal("Thread was interrupted: " + e);
         }
     }
 
@@ -84,27 +99,26 @@ public class ServiceMode {
         return enabled;
     }
 
-    private void getCycleTimeFromService() {
-        try {
-            JEVisClass dataProcessorClass = _ds.getJEVisClass("JEReport");
-            List<JEVisObject> listDataProcessorObjects = _ds.getObjects(dataProcessorClass, false);
-            cycleTime = listDataProcessorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong();
-            logger.info("Service cycle time from service: " + cycleTime);
-        } catch (Exception e) {
-
-        }
+    private void getCycleTimeFromService() throws JEVisException {
+        JEVisClass dataProcessorClass = _ds.getJEVisClass("JEReport");
+        List<JEVisObject> listDataProcessorObjects = _ds.getObjects(dataProcessorClass, false);
+        cycleTime = listDataProcessorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong();
+        logger.info("Service cycle time from service: " + cycleTime);
     }
 
     private void runProcesses() throws JEVisException {
 
-        if (checkServiceStatus()) {
-            JEVisClass reportClass = _ds.getJEVisClass(ReportAttributes.NAME);
-            final List<JEVisObject> reportObjects = _ds.getObjects(reportClass, true);
 
-            //execute the report objects
-            logger.info("nr of reports " + reportObjects.size());
-            forkJoinPool.submit(
-                    () -> reportObjects.parallelStream().forEach(reportObject -> {
+        JEVisClass reportClass = _ds.getJEVisClass(ReportAttributes.NAME);
+        final List<JEVisObject> reportObjects = _ds.getObjects(reportClass, true);
+
+        //execute the report objects
+        logger.info("Number of reports " + reportObjects.size());
+        forkJoinPool.submit(
+                () -> reportObjects.parallelStream().forEach(reportObject -> {
+                    if (!runningJobs.containsKey(reportObject.getName() + ":" + reportObject.getID())) {
+
+                        runningJobs.put(reportObject.getName() + ":" + reportObject.getID(), "true");
                         try {
                             logger.info("---------------------------------------------------------------------");
                             logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
@@ -124,7 +138,11 @@ public class ServiceMode {
                         } catch (Exception e) {
                             logger.error("Error while creating report", e);
                         }
-                    }));
-        }
+                        runningJobs.remove(reportObject.getName());
+
+                    } else {
+                        logger.error("Still processing Job " + reportObject.getName() + ":" + reportObject.getID());
+                    }
+                }));
     }
 }
