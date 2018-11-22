@@ -70,7 +70,7 @@ public class ChartDataModel {
                         _attribute = _object.getAttribute("Value");
                     }
 
-                    _attribute.getDataSource().reloadAttribute(_attribute);
+//                    _attribute.getDataSource().reloadAttribute(_attribute);
 
                     SampleGenerator sg;
                     if (aggregationPeriod.equals(AggregationPeriod.NONE))

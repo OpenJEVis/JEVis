@@ -132,7 +132,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         } catch (Exception ex) {
             //** TODO: @Gerrit fix this nullpointer **/
             System.out.println("Gerrit Fix me!!!");
-            ex.printStackTrace();
+//            ex.printStackTrace();
         }
         return new ChoiceBox();
     }

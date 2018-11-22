@@ -212,7 +212,7 @@ public class GraphDataModel extends Observable {
                 //ds.reloadAttributes();
                 if (getCurrentAnalysis() != null) {
                     if (Objects.nonNull(getCurrentAnalysis().getAttribute("Charts"))) {
-                        ds.reloadAttribute(getCurrentAnalysis().getAttribute("Charts"));
+//                        ds.reloadAttribute(getCurrentAnalysis().getAttribute("Charts"));
                         if (getCurrentAnalysis().getAttribute("Charts").hasSample()) {
                             String str = getCurrentAnalysis().getAttribute("Charts").getLatestSample().getValueAsString();
                             try {
@@ -599,7 +599,7 @@ public class GraphDataModel extends Observable {
             }
             if (getCurrentAnalysis() != null) {
                 if (Objects.nonNull(getCurrentAnalysis().getAttribute("Data Model"))) {
-                    ds.reloadAttribute(getCurrentAnalysis().getAttribute("Data Model"));
+//                    ds.reloadAttribute(getCurrentAnalysis().getAttribute("Data Model"));
                     if (getCurrentAnalysis().getAttribute("Data Model").hasSample()) {
                         String str = getCurrentAnalysis().getAttribute("Data Model").getLatestSample().getValueAsString();
                         try {
