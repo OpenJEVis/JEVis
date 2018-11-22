@@ -52,6 +52,8 @@ public class AnalysisTimeFrame {
                 return TimeFrame.lastMonth;
             case "customStartEnd":
                 return TimeFrame.customStartEnd;
+            case "preview":
+                return TimeFrame.preview;
         }
         return TimeFrame.last7Days;
     }
@@ -64,7 +66,8 @@ public class AnalysisTimeFrame {
         yesterday("yesterday"),
         lastWeek("lastWeek"),
         lastMonth("lastMonth"),
-        customStartEnd("customStartEnd");
+        customStartEnd("customStartEnd"),
+        preview("preview");
 
         private final String name;
 

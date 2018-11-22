@@ -380,6 +380,29 @@ public class GraphDataModel extends Observable {
                         }
                         break;
                     }
+                case preview:
+                    try {
+                        AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now());
+                        AtomicReference<DateTime> end = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
+                        getSelectedData().forEach(chartDataModel -> {
+                            if (chartDataModel.getSelectedStart() != null && chartDataModel.getSelectedEnd() != null) {
+                                if (chartDataModel.getSelectedEnd().isAfter(end.get()))
+                                    end.set(chartDataModel.getSelectedEnd());
+                            }
+                        });
+                        start.set(end.get().minusDays(7));
+
+                        getSelectedData().forEach(chartDataModel -> {
+                            if (chartDataModel.getSelected()) {
+                                chartDataModel.setSelectedStart(start.get());
+                                chartDataModel.setSelectedEnd(end.get());
+                                chartDataModel.setSomethingChanged(true);
+                            }
+                        });
+                    } catch (Exception e) {
+                        logger.error("Error: " + e);
+                    }
+                    break;
             }
         }
     }

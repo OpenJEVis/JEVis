@@ -15,6 +15,7 @@ import org.jevis.application.jevistree.JEVisTreeRow;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -72,6 +73,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     @Override
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
+        this.data.addObserver(this);
         update();
     }
 
@@ -143,5 +145,10 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        update();
     }
 }

@@ -18,6 +18,7 @@ import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
+import java.util.Observable;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -38,7 +39,6 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
         this.tree = tree;
         this.columnName = columnName;
         this.type = type;
-
     }
 
     private DatePicker buildDatePicker(ChartDataModel data, DATE_TYPE type) {
@@ -106,6 +106,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
     @Override
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
+        this.data.addObserver(this);
         update();
     }
 
@@ -234,6 +235,11 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        update();
     }
 
     public enum DATE_TYPE {

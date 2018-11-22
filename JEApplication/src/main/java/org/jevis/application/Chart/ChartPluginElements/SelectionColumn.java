@@ -21,6 +21,7 @@ import org.jevis.application.tools.DisabledItemsComboBox;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Observable;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -42,7 +43,6 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
         this.colorColumn = colorColumn;
         this.chartName = chartName;
         this.selectionColumnIndex = selectionColumnIndex;
-
     }
 
 
@@ -53,6 +53,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     @Override
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
+        this.data.addObserver(this);
         update();
     }
 
@@ -197,73 +198,73 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                     @Override
                     protected void updateItem(Boolean item, boolean empty) {
                         super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
                         if (!empty) {
+                            try {
+                                if (getTreeTableRow().getItem() != null
+                                        && tree != null
+                                        && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
 
-                            if (getTreeTableRow().getItem() != null
-                                    && tree != null
-                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    CheckBox cbox = new CheckBox();
+                                    StackPane hbox = new StackPane();
+                                    Tooltip debugTT = new Tooltip("ID: " + cbox.getId());//Debug, remove
 
-                                CheckBox cbox = new CheckBox();
-                                StackPane hbox = new StackPane();
-                                Tooltip debugTT = new Tooltip("ID: " + cbox.getId());//Debug, remove
+                                    ChartDataModel data = getData(getTreeTableRow().getItem());
 
-                                ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    hbox.getChildren().setAll(cbox);
+                                    StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
 
-                                hbox.getChildren().setAll(cbox);
-                                StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
+                                    cbox.setOnAction(event -> {
+                                        try {
+                                            commitEdit(cbox.isSelected());
+                                            setFieldsEditable(textFieldChartName, comboBoxChartType, cbox.isSelected());
 
-                                cbox.setOnAction(event -> {
-                                    try {
-                                        commitEdit(cbox.isSelected());
-                                        setFieldsEditable(textFieldChartName, comboBoxChartType, cbox.isSelected());
-
-                                        if (cbox.isSelected()) {
-                                            for (Color c : colorColumn.getColorList()) {
-                                                if (!colorColumn.getUsedColors().contains(c)) {
-                                                    data.setColor(c);
-                                                    colorColumn.getUsedColors().add(c);
-                                                    Platform.runLater(() -> {
-                                                        JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
-                                                        getTreeTableRow().getTreeItem().setValue(sobj);
-                                                    });
-                                                    break;
+                                            if (cbox.isSelected()) {
+                                                for (Color c : colorColumn.getColorList()) {
+                                                    if (!colorColumn.getUsedColors().contains(c)) {
+                                                        data.setColor(c);
+                                                        colorColumn.getUsedColors().add(c);
+                                                        Platform.runLater(() -> {
+                                                            JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                            getTreeTableRow().getTreeItem().setValue(sobj);
+                                                        });
+                                                        break;
+                                                    }
                                                 }
+                                            } else {
+                                                colorColumn.getUsedColors().remove(data.getColor());
+                                                data.setColor(Color.LIGHTBLUE);
+                                                Platform.runLater(() -> {
+                                                    JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                    getTreeTableRow().getTreeItem().setValue(sobj);
+                                                });
                                             }
-                                        } else {
-                                            colorColumn.getUsedColors().remove(data.getColor());
-                                            data.setColor(Color.LIGHTBLUE);
-                                            Platform.runLater(() -> {
-                                                JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
-                                                getTreeTableRow().getTreeItem().setValue(sobj);
-                                            });
+                                        } catch (Exception ex) {
+                                            ex.printStackTrace();
                                         }
-                                    } catch (Exception ex) {
-                                        ex.printStackTrace();
+                                    });
+
+                                    cbox.setTooltip(debugTT);
+                                    cbox.setSelected(item);
+                                    setFieldsEditable(textFieldChartName, comboBoxChartType, cbox.isSelected());
+
+                                    if (data.getAttribute() != null && data.getAttribute().hasSample()) {
+                                        cbox.setDisable(false);
+                                    } else {
+                                        cbox.setDisable(true);
                                     }
-                                });
 
-                                cbox.setTooltip(debugTT);
-                                cbox.setSelected(item);
-                                setFieldsEditable(textFieldChartName, comboBoxChartType, cbox.isSelected());
 
-                                if (data.getAttribute() != null && data.getAttribute().hasSample()) {
-                                    cbox.setDisable(false);
-                                } else {
-                                    cbox.setDisable(true);
+                                    setText(null);
+                                    setGraphic(hbox);
                                 }
-
-
-                                setText(null);
-                                setGraphic(hbox);
-                            } else {
-                                setText(null);
-                                setGraphic(null);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        } else {
-                            setText(null);
-                            setGraphic(null);
                         }
-
                     }
 
                     private void setFieldsEditable(TextField textFieldChartName, DisabledItemsComboBox<String> comboBoxChartType, Boolean item) {
@@ -300,5 +301,10 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        update();
     }
 }
