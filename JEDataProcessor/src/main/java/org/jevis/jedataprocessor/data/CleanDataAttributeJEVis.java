@@ -281,15 +281,24 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
 
         logger.error("[{}] get last raw counter: " + timestampFromLastSample);
         JEVisAttribute rawValuesAtt = rawDataObject.getAttribute(VALUE_ATTRIBUTE_NAME);
-
+        rawDataObject.getDataSource().reloadAttribute(rawValuesAtt);
         /**
          * getFirstDate() gives us the next new clean data timestamp and we want the the last used
          * raw sample before this. because of the chaotic nature of raw values we cannot be sure which it is
          * so we load more an take the second last for now.
          * TODO: we may have to store the last used clean sample or make this function more intelligent
          */
-        List<JEVisSample> rawSamples = rawValuesAtt.getSamples(getFirstDate().minus(getPeriodAlignment().multipliedBy(3)), getFirstDate());
-        return rawSamples.get(rawSamples.size() - 2).getValueAsDouble();
+//        List<JEVisSample> rawSamples = rawValuesAtt.getSamples(getFirstDate().minus(getPeriodAlignment().multipliedBy(3)), getFirstDate());
+//        return rawSamples.get(rawSamples.size() - 2).getValueAsDouble();
+        DateTime firstDate = getFirstDate();
+        Integer period = (int) getPeriodAlignment().toStandardDuration().getMillis();
+        Integer halfPeriod = period / 2;
+        DateTime start = firstDate.minusMillis(period + halfPeriod);
+        firstDate = firstDate.plusMillis(halfPeriod);
+        List<JEVisSample> samples = rawValuesAtt.getSamples(start, firstDate);
+
+        double d = samples.get(0).getValueAsDouble();
+        return d;
 
     }
 
