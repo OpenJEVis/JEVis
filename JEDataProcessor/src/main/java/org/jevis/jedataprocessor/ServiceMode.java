@@ -22,15 +22,15 @@ public class ServiceMode {
         this.cycleTime = cycleTime;
     }
 
+    public ServiceMode() {
+        getCycleTimeFromService();
+    }
+
     private void getCycleTimeFromService() throws JEVisException {
         JEVisClass dataProcessorClass = ProcessManagerFactory.jevisDataSource.getJEVisClass("JEDataProcessor");
         List<JEVisObject> listDataProcessorObjects = ProcessManagerFactory.jevisDataSource.getObjects(dataProcessorClass, false);
         cycleTime = listDataProcessorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
         logger.info("Service cycle time from service: " + cycleTime);
-    }
-
-    public ServiceMode() {
-        getCycleTimeFromService();
     }
 
     public void run() {

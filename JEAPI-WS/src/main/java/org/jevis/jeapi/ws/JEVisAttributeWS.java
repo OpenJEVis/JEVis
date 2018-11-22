@@ -47,13 +47,19 @@ public class JEVisAttributeWS implements JEVisAttribute {
     private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private static final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
     private JEVisDataSourceWS ds;
-    private long objectID;
+    //    private long objectID;
     private JsonAttribute json;
 
 
     public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json, Long obj) {
         this.ds = ds;
-        this.objectID = obj;
+        this.json = json;
+
+        this.json.setObjectID(obj);
+    }
+
+    public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json) {
+        this.ds = ds;
         this.json = json;
     }
 
@@ -69,13 +75,13 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public JEVisType getType() throws JEVisException {
-        return ds.getObject(objectID).getJEVisClass().getType(getName());
+        return ds.getObject(getObjectID()).getJEVisClass().getType(getName());
     }
 
     @Override
     public JEVisObject getObject() {
         try {
-            return ds.getObject(objectID);
+            return ds.getObject(getObjectID());
         } catch (Exception ex) {
             return null;
         }
@@ -379,7 +385,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public Long getObjectID() {
-        return objectID;
+        return json.getObjectID();
     }
 
     @Override
@@ -437,9 +443,26 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public int compareTo(JEVisAttribute o
-    ) {
-        return o.getName().compareTo(json.getType());
+    public int compareTo(JEVisAttribute otherObject) {
+        return otherObject.getName().compareTo(json.getType());
     }
 
+    @Override
+    public boolean equals(Object otherObject) {
+        if (otherObject instanceof JEVisAttribute) {
+            JEVisAttribute otherAttribute = (JEVisAttribute) otherObject;
+            if (otherAttribute.getObjectID().equals(getObjectID())) {
+                return otherAttribute.getName().equals(otherAttribute.getName());
+            }
+        }
+
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "JEVisAttributeWS [ type: '" + json.getType() + "' object: '" + json.getObjectID() + "' basicType: '"
+                + json.getPrimitiveType() + "' maxTS: '" + json.getEnds() + "']";
+    }
 }

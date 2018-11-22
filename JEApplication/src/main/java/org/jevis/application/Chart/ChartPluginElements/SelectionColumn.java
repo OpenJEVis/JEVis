@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 
 public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> implements ChartPluginColumn {
+    public static String COLUMN_ID = "SelectionColumn";
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private TreeTableColumn<JEVisTreeRow, Boolean> selectionColumn;
     private GraphDataModel data;
@@ -40,6 +41,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
         this.colorColumn = colorColumn;
         this.chartName = chartName;
         this.selectionColumnIndex = selectionColumnIndex;
+
     }
 
 
@@ -61,6 +63,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
         else chartName.set(chartTitle);
 
         TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn("selection" + selectionColumnIndex);
+        column.setId(COLUMN_ID);
         column.setPrefWidth(120);
         column.setEditable(true);
 
@@ -197,7 +200,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
 
                             if (getTreeTableRow().getItem() != null
                                     && tree != null
-                                    && tree.getFilter().showColumn(getTreeTableRow().getItem(), "selection" + selectionColumnIndex)) {
+                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
 
                                 CheckBox cbox = new CheckBox();
                                 StackPane hbox = new StackPane();

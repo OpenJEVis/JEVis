@@ -56,8 +56,8 @@ public class AttributeTable {
     public final static String COLUMN_DISPLAY_UNIT = "displayunit";
     public final static String COLUMN_DISPLAY_RATE = "displayrate";
     public final static String COLUMN_OPTION = "opt";//option and options are already sql keywords
-    private final SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(AttributeTable.class);
+    private final SQLDataSource _connection;
 
     public AttributeTable(SQLDataSource ds) {
         _connection = ds;
@@ -110,17 +110,8 @@ public class AttributeTable {
         logger.trace("getAttributes ");
         List<JsonAttribute> attributes = new ArrayList<>();
 
-
-//        String sqlOrig = "select t.name,t.primitivtype,t.jevisclass,a.*,s.*"
-//                + " FROM jevis.type t"
-//                + " left join object o on (o.type=t.jevisclass)"
-//                + " left join attribute a on (a.name=t.name and a.object=o.id)"
-//                + " left join sample s on(s.object=o.id and s.attribute=a.name and s.timestamp=a.maxts )"
-//                + " where o.id=?";
-//        logger.info("Original SQL: " + sqlOrig);
-
         String sql = "select o.type,a.*,s.*"
-                + "FROM attribute a"
+                + " FROM attribute a"
                 + " left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts )"
                 + " left join object o on (o.id=a.object)"
                 + " where a.object=?;";
@@ -158,91 +149,46 @@ public class AttributeTable {
         return attributes;
     }
 
-    //    public List<JsonAttribute> getAttributesWithType(JEVisObject object, JEVisUser user) throws JEVisException {
-//        logger.trace("getAttributesWithType2 ");
-//        List<JsonAttribute> attributes = new ArrayList<>();
-//
-//        String sql;
-//        boolean retry = false;
-//
-//        String columns = "a.*,t.*,o.*,t.name as typename";// + ObjectTable.COLUMN_ID + " as " + ObjectTable.COLUMN_ID;
-//
-//        sql = "select " + columns + " from " + ObjectTable.TABLE + " o"
-//                + " left join " + TypeTable.TABLE + " t ON ( o." + ObjectTable.COLUMN_CLASS + "=t." + TypeTable.COLUMN_CLASS + ")"
-//                + " left join " + TABLE + " a ON ( o." + ObjectTable.COLUMN_ID + "=a." + COLUMN_OBJECT + " AND t." + TypeTable.COLUMN_NAME + "=a." + COLUMN_NAME + ")"
-//                + " WHERE o." + ObjectTable.COLUMN_ID + "=?";
-//
-//        try {
-//            PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
-//
-//            ps.setLong(1, object.getID());
-//            logger.trace("SQL {}", ps);
-//            _connection.addQuery("Attribute.withType2()", ps.toString());
-//            ResultSet rs = ps.executeQuery();
-//
-//            while (rs.next()) {
-//                JsonAttribute newAtt = SQLtoJsonFactory.buildAttribute(rs);
-//
-//                attributes.add(newAtt);
-//
-//            }
-//            logger.trace("done build attributes");
-//
-//        } catch (Exception ex) {
-//            logger.error(ex);
-//            throw new JEVisException("Error while fetching Attributes ", 85675, ex);
-//
-//        }
-////        Collections.sort(attributes);
-//        if (retry) {
-//            return getAttributesWithType(object, user);
-//        }
-//
-//        return attributes;
-//    }
-//
-//    public List<JsonAttribute> getAttributesWithType(long object, JEVisUser user) throws JEVisException {
-//        logger.trace("getAttributesWithType ");
-//        List<JsonAttribute> attributes = new ArrayList<>();
-//
-//        String sql;
-//        boolean retry = false;
-//
-//        String columns = "a.*,t.*,o.*,t.name as typename";// + ObjectTable.COLUMN_ID + " as " + ObjectTable.COLUMN_ID;
-//
-//        sql = "select " + columns + " from " + ObjectTable.TABLE + " o"
-//                + " left join " + TypeTable.TABLE + " t ON ( o." + ObjectTable.COLUMN_CLASS + "=t." + TypeTable.COLUMN_CLASS + ")"
-//                + " left join " + TABLE + " a ON ( o." + ObjectTable.COLUMN_ID + "=a." + COLUMN_OBJECT + " AND t." + TypeTable.COLUMN_NAME + "=a." + COLUMN_NAME + ")"
-//                + " WHERE o." + ObjectTable.COLUMN_ID + "=?";
-//
-//        try {
-//            PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
-//
-//            ps.setLong(1, object);
-//
-//            logger.trace("SQL {}", ps);
-//            _connection.addQuery("Attribute.withType1()", ps.toString());
-//            ResultSet rs = ps.executeQuery();
-//
-//            while (rs.next()) {
-//                JsonAttribute newAtt = SQLtoJsonFactory.buildAttribute(rs);
-//                attributes.add(newAtt);
-//
-//            }
-//            logger.trace("done build attributes");
-//
-//        } catch (Exception ex) {
-//            logger.error(ex);
-//            throw new JEVisException("Error while fetching Attributes ", 85675, ex);
-//
-//        }
-////        Collections.sort(attributes);
-//        if (retry) {
-//            return getAttributesWithType(object, user);
-//        }
-//
-//        return attributes;
-//    }
+    public List<JsonAttribute> getAllAttributes() throws JEVisException {
+        logger.trace("getAllAttributes ");
+        List<JsonAttribute> attributes = new ArrayList<>();
+
+        String sql = "select o.type,a.*,s.*"
+                + " FROM attribute a"
+                + " left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts )"
+                + " left join object o on (o.id=a.object)";
+
+
+        try {
+            PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
+
+//            logger.info("SQL: " + ps);
+            logger.trace("SQL {}", ps);
+            _connection.addQuery("Attribute.get(long)", ps.toString());
+            //logger.info("SQL: " + ps);
+            ResultSet rs = ps.executeQuery();
+
+
+            while (rs.next()) {
+                try {
+                    JsonAttribute att = SQLtoJsonFactory.buildAttributeThisLastValue(rs);
+                    if (att != null) {
+                        attributes.add(SQLtoJsonFactory.buildAttributeThisLastValue(rs));
+                    }
+
+                } catch (Exception ex) {
+                    logger.trace(ex);
+                }
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+            throw new JEVisException("Error while fetching Attributes ", 85675, ex);
+
+        }
+//        Collections.sort(attributes);
+
+        return attributes;
+    }
 
 
     /**

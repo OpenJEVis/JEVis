@@ -19,10 +19,11 @@
  */
 package org.jevis.application.dialog;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -30,7 +31,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -40,13 +42,19 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.jevistree.ColumnFactory;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.application.jevistree.UserSelection;
+import org.jevis.application.jevistree.filter.BasicCellFilter;
+import org.jevis.application.jevistree.filter.FilterFactory;
+import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.application.resource.ResourceLoader;
 
 import java.util.List;
+
+import static org.jevis.application.jevistree.plugin.SimpleTargetPlugin.TARGET_COLUMN_ID;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -105,65 +113,111 @@ public class SelectTargetDialog2 {
         VBox content = new VBox();
 
         tree = JEVisTreeFactory.buildBasicDefault(ds);
-        if (mode == MODE.ATTRIBUTE) {
-            tree.getFilter().showAttributes(true);
-        }
+//        if (mode == MODE.ATTRIBUTE) {
+//            tree.getFilter().showAttributes(true);
+//        }
 
         tree.getPlugins().add(stp);
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         content.getChildren().setAll(tree);
 
+        ObservableList<ObjectAttributeFilter> filterTypes = FXCollections.observableArrayList();
+        BasicCellFilter cellFilter = new BasicCellFilter();
 
-        CheckBox advanced = new CheckBox("Advanced");
-        System.out.println("Filtermode: " + filterMode.getValue());
-        switch (filterMode.getValue()) {
-            case ATTRIBUTE:
-                advanced.setSelected(true);
-                break;
-            case OBJECT:
-                advanced.setSelected(false);
-                break;
-        }
+        FilterFactory.defaultAttributeTreeFilter().forEach(objectAttributeFilter -> {
+            cellFilter.addFilter(tree.getColumn(ColumnFactory.OBJECT_NAME), objectAttributeFilter);
+        });
+
+
+        ObjectAttributeFilter onlyAttFilter = new ObjectAttributeFilter("All Attributes", ObjectAttributeFilter.NONE, ObjectAttributeFilter.ALL);
+        ObjectAttributeFilter objAndAttFilter = new ObjectAttributeFilter("All Attributes", ObjectAttributeFilter.ALL, ObjectAttributeFilter.ALL);
+        ObjectAttributeFilter f2 = new ObjectAttributeFilter("All Data Objects", "Data", ObjectAttributeFilter.ALL);
+        cellFilter.addFilter(tree.getColumn(TARGET_COLUMN_ID), onlyAttFilter);
+        cellFilter.addFilter(tree.getColumn(ColumnFactory.OBJECT_NAME), objAndAttFilter);
+        cellFilter.addFilter(tree.getColumn(BasicCellFilter.TREE_ITEM_COLUMN), objAndAttFilter);
+
+
+//        cellFilter.addFilter(tree.getColumn(TARGET_COLUMN_ID), f2);
+        tree.setFilter(cellFilter);
+//        tree.getFilter().showAttributes(true);
+
+        filterTypes.add(onlyAttFilter);
+        filterTypes.add(f2);
+
+        ComboBox<ObjectAttributeFilter> filterBox = new ComboBox<>(filterTypes);
+        filterBox.setButtonCell(new ListCell<ObjectAttributeFilter>() {
+            @Override
+            protected void updateItem(ObjectAttributeFilter item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(item.getFilterName());
+                }
+            }
+        });
+        filterBox.setCellFactory(param -> new ListCell<ObjectAttributeFilter>() {
+            @Override
+            protected void updateItem(ObjectAttributeFilter item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && !empty) {
+                    setText(item.getFilterName());
+                }
+
+            }
+        });
+        filterBox.getSelectionModel().selectFirst();
+
+
+//        CheckBox advanced = new CheckBox("Advanced");
+
+//        System.out.println("Filtermode: " + filterMode.getValue());
+//        switch (filterMode.getValue()) {
+//            case ATTRIBUTE:
+//                advanced.setSelected(true);
+//                break;
+//            case OBJECT:
+//                advanced.setSelected(false);
+//                break;
+//        }
 
 
         tree.openUserSelection(uselection);
         stp.setUserSelection(uselection);
 
-        filterMode.addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                tree.setVisible(false);
-                switch (newValue) {
+//        filterMode.addListener((observable, oldValue, newValue) -> {
+//            Platform.runLater(() -> {
+//                tree.setVisible(false);
+//                switch (newValue) {
+//
+//                    case OBJECT:
+//
+//
+//                        stp.setModus(SimpleTargetPlugin.MODE.OBJECT, null);
+//                        tree.getFilter().showAttributes(false);
+//                        break;
+//                    case ATTRIBUTE:
+//                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE, null);
+//                        tree.getFilter().showAttributes(true);
+//                        break;
+//                    case FILTER:
+//                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE, filter);
+//                        break;
+//
+//
+//                }
+//                tree.reload();
+//                tree.setVisible(true);
+//            });
+//
+//        });
 
-                    case OBJECT:
-
-
-                        stp.setModus(SimpleTargetPlugin.MODE.OBJECT, null);
-                        tree.getFilter().showAttributes(false);
-                        break;
-                    case ATTRIBUTE:
-                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE, null);
-                        tree.getFilter().showAttributes(true);
-                        break;
-                    case FILTER:
-                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE, filter);
-                        break;
-
-
-                }
-                tree.reload();
-                tree.setVisible(true);
-            });
-
-        });
-
-        advanced.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                filterMode.set(MODE.ATTRIBUTE);
-            } else {
-                filterMode.set(MODE.OBJECT);
-            }
-
-        });
+//        advanced.selectedProperty().addListener((observable, oldValue, newValue) -> {
+//            if (newValue) {
+//                filterMode.set(MODE.ATTRIBUTE);
+//            } else {
+//                filterMode.set(MODE.OBJECT);
+//            }
+//
+//        });
 
         tree.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
 
@@ -206,7 +260,7 @@ public class SelectTargetDialog2 {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        buttonPanel.getChildren().setAll(advanced, spacer, cancel, ok);
+        buttonPanel.getChildren().setAll(filterBox, spacer, cancel, ok);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(5));
 

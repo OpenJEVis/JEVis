@@ -425,6 +425,7 @@ public class TreeHelper {
      * @param parent
      */
     public static void EventNew(final JEVisTree tree, JEVisObject parent) {
+        System.out.println("Event New");
         NewObjectDialog dia = new NewObjectDialog();
 
         if (parent != null) {
@@ -439,7 +440,9 @@ public class TreeHelper {
                         }
 
                         JEVisObject newObject = parent.buildObject(name, dia.getCreateClass());
+                        System.out.println("New Object: " + newObject);
                         newObject.commit();
+                        System.out.println("Commit");
 
                     } catch (JEVisException ex) {
                         logger.catching(ex);

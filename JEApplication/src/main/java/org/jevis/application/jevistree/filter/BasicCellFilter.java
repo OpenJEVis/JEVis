@@ -1,8 +1,13 @@
 package org.jevis.application.jevistree.filter;
 
 import javafx.scene.control.TreeTableColumn;
-import org.jevis.api.JEVisException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisType;
 import org.jevis.application.jevistree.JEVisTree;
+import org.jevis.application.jevistree.JEVisTreeItem;
 import org.jevis.application.jevistree.JEVisTreeRow;
 
 import java.util.ArrayList;
@@ -10,19 +15,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import java.util.HashMap;
+/**
+ * Basic implementation of the JEVisTreeFilter. THis filter can filter based on the JEVIsObject.getJEVisClass
+ * and Attribute.getName
+ */
+public class BasicCellFilter implements JEVisTReeFilter {
 
-public class BasicCellFilter implements CellFilter {
+    private static final Logger logger = LogManager.getLogger(BasicCellFilter.class);
+    /**
+     * Identifier for the TreeItem filter which is not a real column but will be
+     * handled like one.
+     */
+    public static String TREE_ITEM_COLUMN = "TREE_ITEM_COLUMN";
+    private Map<String, List<ObjectAttributeFilter>> filters = new HashMap();
+    private List<ObjectAttributeFilter> itemFilters = new ArrayList<>();
 
-    private Map<TreeTableColumn<JEVisTreeRow, String>, List<ObjectAttributeFilter>> filters = new HashMap();
-//    private ObservableList<ObjectAttributeFilter> filters = FXCollections.observableArrayList();
 
-
+    /**
+     * Create an new empty filter
+     */
     public BasicCellFilter() {
-        this.filters = filters;
     }
 
-    private List<ObjectAttributeFilter> getColumnFilter(TreeTableColumn column) {
+    private List<ObjectAttributeFilter> getColumnFilter(String column) {
         if (!filters.containsKey(column)) {
             filters.put(column, new ArrayList<>());
         }
@@ -30,33 +45,133 @@ public class BasicCellFilter implements CellFilter {
         return filters.get(column);
     }
 
-    public void addFilter(TreeTableColumn column, String filterName, String objectClass, String attribute) {
+    private List<ObjectAttributeFilter> getColumnFilter(TreeTableColumn column) {
+        return getColumnFilter(column.getId());
+    }
+
+    public void addFilter(String column, String filterName, String objectClass, String attribute) {
         getColumnFilter(column).add(new ObjectAttributeFilter(filterName, objectClass, attribute));
     }
 
-    public void addFilter(TreeTableColumn column, ObjectAttributeFilter filter) {
+
+    public void addFilter(TreeTableColumn column, String filterName, String objectClass, String attribute) {
+        addFilter(column.getId(), filterName, objectClass, attribute);
+    }
+
+    public void addFilter(String column, ObjectAttributeFilter filter) {
         getColumnFilter(column).add(filter);
+    }
+
+    public void addFilter(TreeTableColumn column, ObjectAttributeFilter filter) {
+        logger.trace("Add new filter column: {} filter: {}" + column.getId(), filter);
+        getColumnFilter(column).add(filter);
+    }
+
+    /**
+     * Filter to decide which JEVisObject/JEVisAttribute will have an JEVisTreeItem in the JEVisTree
+     * <p>
+     * Used by the showItem and showRow functions
+     *
+     * @param filter
+     */
+    public void addItemFilter(ObjectAttributeFilter filter) {
+        itemFilters.add(filter);
     }
 
 
     @Override
-    public boolean showCell(TreeTableColumn<JEVisTreeRow, String> column, JEVisTreeRow row) throws JEVisException {
-        for (ObjectAttributeFilter objectAttributeFilter : filters.get(column)) {
-            try {
-                if (objectAttributeFilter.showCell(row)) {
-                    return true;
+    public boolean showCell(TreeTableColumn column, JEVisTreeRow row) {
+        try {
+//            System.out.println("showCell?: \n-- '" + column.getId() + "' " + column.getClass() + " --- " + row);
+            List<ObjectAttributeFilter> fLtst = filters.get(column.getId());
+            if (fLtst != null) {
+                for (ObjectAttributeFilter objectAttributeFilter : fLtst) {
+                    try {
+                        if (objectAttributeFilter.showCell(row)) {
+                            return true;
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } else {
+                logger.warn("No filter for column: {}", column);
             }
-        }
 
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
         return false;
     }
 
+    @Override
+    public boolean showItem(JEVisAttribute attribute) {
+        for (ObjectAttributeFilter objectAttributeFilter : itemFilters) {
+            try {
+                if (objectAttributeFilter.showAttribute(attribute.getName())) {
+                    return true;
+                }
+            } catch (Exception ex) {
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean showItem(JEVisType type) {
+        for (ObjectAttributeFilter objectAttributeFilter : itemFilters) {
+            try {
+                if (objectAttributeFilter.showAttribute(type.getName())) {
+                    return true;
+                }
+            } catch (Exception ex) {
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean showItem(JEVisObject object) {
+        for (ObjectAttributeFilter objectAttributeFilter : itemFilters) {
+            try {
+                if (objectAttributeFilter.showClass(object.getJEVisClassName())) {
+                    return true;
+                }
+            } catch (Exception ex) {
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean showRow(JEVisTreeItem item) {
+        try {
+            for (ObjectAttributeFilter objectAttributeFilter : itemFilters) {
+                try {
+                    if (item.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
+                        if (objectAttributeFilter.showAttribute(item.getValue().getJEVisAttribute().getName())) {
+                            return true;
+                        }
+                    }
+
+                    if (item.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
+                        if (objectAttributeFilter.showAttribute(item.getValue().getJEVisObject().getJEVisClassName())) {
+                            return true;
+                        }
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+        return false;
+    }
 
     public void registerFilter(JEVisTree tree) {
-        tree.setCellFilter(this);
+        tree.setFilter(this);
     }
 
 }

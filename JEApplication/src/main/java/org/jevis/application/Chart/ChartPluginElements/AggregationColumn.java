@@ -25,6 +25,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
  */
 
 public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, AggregationPeriod> implements ChartPluginColumn {
+    public static String COLUMN_ID = "AggregationColumn";
     private final Image imgMarkAll = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private final Tooltip tpMarkAll = new Tooltip(rb.getString("plugin.graph.dialog.changesettings.tooltip.forall"));
@@ -36,6 +37,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
     public AggregationColumn(JEVisTree tree, String columnName) {
         this.tree = tree;
         this.columnName = columnName;
+
     }
 
 
@@ -55,6 +57,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
         TreeTableColumn<JEVisTreeRow, AggregationPeriod> column = new TreeTableColumn(columnName);
         column.setPrefWidth(120);
         column.setMinWidth(100);
+        column.setId(COLUMN_ID);
 
         column.setCellValueFactory(param -> {
 
@@ -81,7 +84,8 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
                         if (!empty) {
                             StackPane stackPane = new StackPane();
 
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null
+                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
 
                                 AggregationBox aggBox = new AggregationBox(data);

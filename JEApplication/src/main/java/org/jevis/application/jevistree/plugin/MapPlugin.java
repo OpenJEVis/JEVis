@@ -42,11 +42,6 @@ public class MapPlugin implements TreePlugin {
     private Map<Long, List<JEVisSample>> _samples = new HashMap<>();
     private Map<String, DataModel> _data = new HashMap<>();
 
-    private enum DATE_TYPE {
-
-        START, END
-    }
-
     @Override
     public void setTree(JEVisTree tree) {
         _tree = tree;
@@ -85,13 +80,13 @@ public class MapPlugin implements TreePlugin {
 
     }
 
-    public void setTitle(String title) {
-        _title = title;
-    }
-
     @Override
     public String getTitle() {
         return _title;
+    }
+
+    public void setTitle(String title) {
+        _title = title;
     }
 
     private DataModel getData(JEVisTreeRow row) {
@@ -143,7 +138,8 @@ public class MapPlugin implements TreePlugin {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                         if (!empty) {
                             StackPane hbox = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null
+                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 MapPlugin.DataModel data = getData(getTreeTableRow().getItem());
                                 ColorPicker colorPicker = new ColorPicker();
                                 hbox.getChildren().setAll(colorPicker);
@@ -288,7 +284,7 @@ public class MapPlugin implements TreePlugin {
                         super.updateItem(item, empty); //To change body of generated methods, choose Tools | Templates.
                         if (!empty) {
                             StackPane hbox = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 DataModel data = getData(getTreeTableRow().getItem());
                                 DatePicker dp = buildDatePicker(data, type);
 
@@ -363,7 +359,7 @@ public class MapPlugin implements TreePlugin {
                             StackPane hbox = new StackPane();
                             CheckBox cbox = new CheckBox();
 
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 DataModel data = getData(getTreeTableRow().getItem());
                                 hbox.getChildren().setAll(cbox);
                                 StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
@@ -408,6 +404,11 @@ public class MapPlugin implements TreePlugin {
         return _data;
     }
 
+    private enum DATE_TYPE {
+
+        START, END
+    }
+
     public class DataModel {
 
         private DateTime _selectedStart;
@@ -450,16 +451,16 @@ public class MapPlugin implements TreePlugin {
 //            return _selectedStart;
         }
 
+        public void setSelectedStart(DateTime selectedStart) {
+            this._selectedStart = selectedStart;
+        }
+
         public Color getColor() {
             return _color;
         }
 
         public void setColor(Color _color) {
             this._color = _color;
-        }
-
-        public void setSelectedStart(DateTime selectedStart) {
-            this._selectedStart = selectedStart;
         }
 
         public DateTime getSelectedEnd() {

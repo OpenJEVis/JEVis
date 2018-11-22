@@ -60,6 +60,7 @@ public class TableViewUntils {
 
     }
 
+
     public static void allToMinButColumn(TableView<?> view, List<TableColumn<?, ?>> column) {
         boolean needResize = false;
         double totalColSize = 0;

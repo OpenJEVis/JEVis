@@ -24,10 +24,10 @@ import java.time.LocalDate;
  */
 
 public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implements ChartPluginColumn {
+    public static String COLUMN_ID = "DateColumn";
     private final Image imgMarkAll = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private final Tooltip tpMarkAll = new Tooltip(rb.getString("plugin.graph.dialog.changesettings.tooltip.forall"));
-
     private TreeTableColumn<JEVisTreeRow, DateTime> dateColumn;
     private GraphDataModel data;
     private JEVisTree tree;
@@ -38,6 +38,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
         this.tree = tree;
         this.columnName = columnName;
         this.type = type;
+
     }
 
     private DatePicker buildDatePicker(ChartDataModel data, DATE_TYPE type) {
@@ -112,6 +113,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
     public void buildColumn() {
         TreeTableColumn<JEVisTreeRow, DateTime> column = new TreeTableColumn(columnName);
         column.setPrefWidth(160);
+        column.setId(COLUMN_ID);
         column.setCellValueFactory(param -> {
             try {
                 ChartDataModel data = getData(param.getValue().getValue());
@@ -153,7 +155,8 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
                         super.updateItem(item, empty);
                         if (!empty) {
                             StackPane stackPane = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null
+                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 DatePicker dp = buildDatePicker(data, type);
 

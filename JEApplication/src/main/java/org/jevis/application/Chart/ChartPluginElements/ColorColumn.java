@@ -21,6 +21,7 @@ import java.util.List;
  */
 
 public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements ChartPluginColumn {
+    public static String COLUMN_ID = "ColorColumn";
     private final Color[] color_list = {
             Color.web("0xFFB300"),    // Vivid Yellow
             Color.web("0x803E75"),    // Strong Purple
@@ -78,6 +79,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     public void buildColumn() {
         TreeTableColumn<JEVisTreeRow, Color> column = new TreeTableColumn(columnName);
         column.setPrefWidth(80);
+        column.setId(COLUMN_ID);
         column.setCellValueFactory(param -> {
             ChartDataModel data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getColor());
@@ -105,7 +107,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                             StackPane hbox = new StackPane();
                             if (getTreeTableRow().getItem() != null
                                     && tree != null
-                                    && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ColorPicker colorPicker = new ColorPicker();
 

@@ -306,24 +306,24 @@ public class SQLDataSource {
         JsonObject ob = oTable.getObject(id);
         if (ob != null) {
             allObjects.add(ob);
-        }
 
-        if (children) {
-            ob.setObjects(new ArrayList<>());
-            getRelationshipTable().getAllForObject(ob.getId()).forEach(rel -> {
-                if (rel.getTo() == ob.getId() && rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
-                    try {
-                        JsonObject child = getObject(rel.getFrom(), false);
-                        if (getUserManager().canRead(child)) {
-                            ob.getObjects().add(child);
+            if (children) {
+                ob.setObjects(new ArrayList<>());
+                getRelationshipTable().getAllForObject(ob.getId()).forEach(rel -> {
+                    if (rel.getTo() == ob.getId() && rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
+                        try {
+                            JsonObject child = getObject(rel.getFrom(), false);
+                            if (getUserManager().canRead(child)) {
+                                ob.getObjects().add(child);
+                            }
+
+                        } catch (Exception ex) {
+
                         }
-
-                    } catch (Exception ex) {
-
                     }
-                }
-            });
+                });
 
+            }
         }
 
 
@@ -491,6 +491,16 @@ public class SQLDataSource {
         return getSampleTable().deleteSamples(object, attribute, startDate, endDate);
     }
 
+    public List<JsonAttribute> getAttributes() {
+        //TODO userright check
+        try {
+            return getAttributeTable().getAllAttributes();
+        } catch (Exception ex) {
+            logger.error("Error while loading AllAttributes", ex);
+        }
+        return new ArrayList<>();
+    }
+
     public List<JsonAttribute> getAttributes(long objectID) {
         try {
             JsonObject ob = getObject(objectID);
@@ -545,23 +555,62 @@ public class SQLDataSource {
         return true;
     }
 
-    public JsonObject buildObject(JsonObject obj, long parent) throws JEVisException {
-        return getObjectTable().insertObject(obj.getName(), obj.getJevisClass(), parent, obj.getisPublic());
+    /**
+     * Build an new object and copy the user right relationships from the parent
+     * <p>
+     * TODO: if something failed rollback?
+     *
+     * @param newObjecrequest
+     * @param parent
+     * @return
+     * @throws JEVisException
+     */
+    public JsonObject buildObject(JsonObject newObjecrequest, long parent) throws JEVisException {
+        JsonObject newObj = getObjectTable().insertObject(newObjecrequest.getName(), newObjecrequest.getJevisClass(), parent, newObjecrequest.getisPublic());
+//        copyOwnerPermissions(parent, newObj.getId());
+//        JsonRelationship parentRelationship = new JsonRelationship();
+//        parentRelationship.setType(JEVisConstants.ObjectRelationship.PARENT);
+//        parentRelationship.setFrom(newObj.getId());
+//        parentRelationship.setTo(parent);
+//        setRelationships(parentRelationship);
+
+        return newObj;
+    }
+
+    /**
+     * Copy all user rights related relationships from an object to an other.
+     *
+     * @param sourceObj
+     * @param targetObj
+     */
+    public void copyOwnerPermissions(long sourceObj, long targetObj) throws JEVisException {
+        List<JsonRelationship> relationships = getRelationships(sourceObj);
+        for (JsonRelationship rel : relationships) {
+            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
+                JsonRelationship newRelationship = new JsonRelationship();
+                newRelationship.setType(rel.getType());
+                newRelationship.setFrom(targetObj);
+                newRelationship.setTo(rel.getTo());
+                System.out.println("Add ower rel: " + newRelationship);
+                setRelationships(newRelationship);
+            }
+        }
     }
 
     public void moveObject(long original, long newParentID) throws JEVisException {
         JsonObject newParent = getObject(newParentID);
 
-        deleteRelationshipsRerecursion(original);
-        addRelationshipsRerecursio(getRelationships(newParentID), original, newParentID);
+        deleteRelationshipsRecursion(original);
+        addRelationshipsRecursion(getRelationships(newParentID), original, newParentID);
 
         buildRelationship(original, newParentID, JEVisConstants.ObjectRelationship.PARENT);
     }
 
-    private void addRelationshipsRerecursio(List<JsonRelationship> rels, long oID, long oldID) throws JEVisException {
+
+    private void addRelationshipsRecursion(List<JsonRelationship> rels, long oID, long oldID) throws JEVisException {
         for (JsonRelationship rel : getRelationships(oID)) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && rel.getTo() == oID) {
-                addRelationshipsRerecursio(rels, rel.getFrom(), oID);
+                addRelationshipsRecursion(rels, rel.getFrom(), oID);
                 for (JsonRelationship copyRel : rels) {
                     Integer[] rightsTypes = new Integer[]{
                             JEVisConstants.ObjectRelationship.MEMBER_READ, JEVisConstants.ObjectRelationship.MEMBER_WRITE,
@@ -581,12 +630,12 @@ public class SQLDataSource {
         }
     }
 
-    private void deleteRelationshipsRerecursion(long oID) {
+    private void deleteRelationshipsRecursion(long oID) {
         for (JsonRelationship rel : getRelationships(oID)) {
             if (rel.getType() != JEVisConstants.ObjectRelationship.PARENT) {
                 getRelationshipTable().delete(rel);
             } else if (rel.getTo() == oID) {
-                deleteRelationshipsRerecursion(rel.getFrom());
+                deleteRelationshipsRecursion(rel.getFrom());
             }
         }
     }
