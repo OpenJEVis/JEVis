@@ -31,6 +31,7 @@ public interface Constants {
 
         interface Command {
 
+
             int SAVE = 0;
             int DELTE = 1;
             int NEW = 2;
@@ -45,6 +46,7 @@ public interface Constants {
             int FIND_OBJECT = 11;
             int RENAME = 12;
             int FIND_AGAIN = 13;
+
         }
     }
 
