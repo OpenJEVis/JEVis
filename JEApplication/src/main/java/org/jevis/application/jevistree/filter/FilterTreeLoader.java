@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class FilterTreeLoader {
 
-    private JEVisTReeFilter filter = null;
+    private JEVisTreeFilter filter = null;
     private JEVisTree tree;
 
     public void setTree(JEVisTree tree) {

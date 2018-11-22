@@ -33,7 +33,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.filter.JEVisItemLoader;
-import org.jevis.application.jevistree.filter.JEVisTReeFilter;
+import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,8 @@ public class JEVisTree extends TreeTableView {
     private JEVisTreeRow dragItem;
     private SaveResourceBundle rb;
     private UUID uuid = UUID.randomUUID();
-    private JEVisTReeFilter cellFilter;
+    private JEVisTreeFilter cellFilter;
+    private JEVisItemLoader itemLoader;
 
     /**
      * Create an default Tree for the given JEVisDatasource by using all accessable JEVisOBjects starting by the
@@ -61,10 +62,10 @@ public class JEVisTree extends TreeTableView {
      *
      * @param ds
      */
-    public JEVisTree(JEVisDataSource ds, JEVisTReeFilter filter) {
+    public JEVisTree(JEVisDataSource ds, JEVisTreeFilter filter) {
         super();
         this.ds = ds;
-        rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
+        this.rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 //        cellFilter = FilterFactory.buildDefaultItemFilter();
         this.cellFilter = filter;
         init();
@@ -84,8 +85,7 @@ public class JEVisTree extends TreeTableView {
      */
     private void init() {
         try {
-            ds.getAttributes();
-            JEVisItemLoader itemLoader = new JEVisItemLoader(this, ds.getObjects(), ds.getRootObjects());
+            itemLoader = new JEVisItemLoader(this, ds.getObjects(), ds.getRootObjects());
             itemLoader.filterTree(cellFilter);
             setShowRoot(false);
 
@@ -211,12 +211,13 @@ public class JEVisTree extends TreeTableView {
         }
     }
 
-    public JEVisTReeFilter getFilter() {
+    public JEVisTreeFilter getFilter() {
         return this.cellFilter;
     }
 
-    public void setFilter(JEVisTReeFilter filter) {
+    public void setFilter(JEVisTreeFilter filter) {
         this.cellFilter = filter;
+        this.itemLoader.filterTree(filter);
     }
 
     public JEVisObject getCopyObject() {

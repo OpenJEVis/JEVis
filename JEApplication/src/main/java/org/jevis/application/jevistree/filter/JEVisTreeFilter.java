@@ -7,7 +7,7 @@ import org.jevis.api.JEVisType;
 import org.jevis.application.jevistree.JEVisTreeItem;
 import org.jevis.application.jevistree.JEVisTreeRow;
 
-public interface JEVisTReeFilter {
+public interface JEVisTreeFilter {
 
 
     boolean showCell(TreeTableColumn column, JEVisTreeRow row);
@@ -19,6 +19,8 @@ public interface JEVisTReeFilter {
     boolean showItem(JEVisType type);
 
     boolean showItem(JEVisObject attribute);
+
+    String getName();
 
 
 }

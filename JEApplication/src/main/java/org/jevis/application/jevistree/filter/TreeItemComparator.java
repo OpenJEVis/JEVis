@@ -12,7 +12,7 @@ import java.util.Comparator;
  * <p>
  * Default JEVisTree sort.
  * Order:
- * 1. Objects before Attributes
+ * 1. Attributes before Objects
  * 2. Directory's before other JEVisClasses
  * 3. objects compared by JEVisClasses
  * 4. Objects compared by name
@@ -68,9 +68,9 @@ public class TreeItemComparator implements Comparator<TreeItem<JEVisTreeRow>> {
 
             } else {/** one is object the other attribute, Object before attribute **/
                 if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-                    return -1;
-                } else {
                     return 1;
+                } else {
+                    return -1;
                 }
             }
         } catch (Exception ex) {

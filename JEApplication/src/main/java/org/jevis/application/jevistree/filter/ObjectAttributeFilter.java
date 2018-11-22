@@ -12,16 +12,10 @@ public class ObjectAttributeFilter {
 
     private String attributeName = "";
     private String objectName = "";
-    private String filterName = "Filter";
 
-    public ObjectAttributeFilter(String filterName, String objectName, String attributeName) {
+    public ObjectAttributeFilter(String objectName, String attributeName) {
         this.attributeName = attributeName;
         this.objectName = objectName;
-        this.filterName = filterName;
-    }
-
-    public String getFilterName() {
-        return filterName;
     }
 
     public boolean showClass(String jevisclass) {
@@ -90,7 +84,6 @@ public class ObjectAttributeFilter {
         return "ObjectAttributeFilter{" +
                 "attributeName='" + attributeName + '\'' +
                 ", objectName='" + objectName + '\'' +
-                ", filterName='" + filterName + '\'' +
                 '}';
     }
 

@@ -42,6 +42,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.application.application.I18nWS;
 import org.jevis.application.resource.ResourceLoader;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -63,6 +64,7 @@ public class ColumnFactory {
     private static final Logger logger = LogManager.getLogger(ColumnFactory.class);
     private static final Map<String, Image> icons = new HashMap<>();
     private static final DateTimeFormatter TS_DATES_FORMATE = DateTimeFormat.forPattern("yyyy-MM-dd HH:MM");
+    private static final Image ATTRIBUTE_ICON = ResourceLoader.getImage("graphic-design.png");
     private static String fallbackIcon = "b86bebea-1880-11e8-accf-0ed5f89f718b";
     private static Map<String, Image> classIconCache = new HashMap<>();
 
@@ -122,31 +124,28 @@ public class ColumnFactory {
 
 
                                                   try {
-                                                      HBox hbox = new HBox();//10
+                                                      JEVisObject object = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
+                                                      HBox hbox = new HBox();
                                                       Label nameLabel = new Label();
                                                       Node icon = new Region();
 
                                                       JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
                                                       JEVisObject obj = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
-
-//                                                      boolean showCell = tree.getFilter().showCell(getTableColumn(), getTreeTableRow().getTreeItem().getValue());
-//                                                      showCell = true;
-
                                                       setContextMenu(new JEVisTreeContextMenu(obj, tree));
 
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
 
-                                                      nameLabel.setText(item);
+
                                                       nameLabel.setPadding(new Insets(0, 0, 0, 8));
 
 
                                                       if (getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT) {
+                                                          nameLabel.setText(object.getName());
                                                           try {
                                                               if (getTreeTableRow().getItem().getJEVisObject().getJEVisClassName().equals("Link")) {
                                                                   JEVisObject linkedObject = getTreeTableRow().getItem().getJEVisObject().getLinkedObject();
                                                                   icon = getClassIcon(linkedObject.getJEVisClass(), 18, 18);
-
                                                               } else {
                                                                   icon = getClassIcon(getTreeTableRow().getItem().getJEVisObject().getJEVisClass(), 18, 18);
                                                               }
@@ -155,14 +154,22 @@ public class ColumnFactory {
                                                           }
                                                       } else {//Attribute
 
-                                                          HBox hbox2 = new HBox(10);
+                                                          nameLabel.setText(I18nWS.getInstance().getAttributeName(getTreeTableRow().getTreeItem().getValue().getJEVisAttribute()));
+                                                          HBox hbox2 = new HBox();
                                                           Region spacer = new Region();
                                                           spacer.setPrefWidth(12);
-                                                          hbox2.getChildren().setAll(spacer, ResourceLoader.getImage("down_right-24.png", 10, 10));
+//                                                          hbox2.getChildren().setAll(spacer, ResourceLoader.getImage("down_right-24.png", 10, 10));
+                                                          ImageView image = new ImageView(ATTRIBUTE_ICON);
+                                                          image.fitHeightProperty().set(18);
+                                                          image.fitWidthProperty().set(18);
+
+                                                          hbox2.getChildren().setAll(spacer, image);
                                                           icon = hbox2;
                                                       }
 
                                                       hbox.getChildren().setAll(icon, nameLabel);
+                                                      Tooltip debugTip = new Tooltip(getTreeTableRow().getTreeItem().getValue().toString());
+                                                      setTooltip(debugTip);
                                                       setGraphic(hbox);
 
                                                   } catch (Exception ex) {

@@ -152,6 +152,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //        logger.trace("Get all attributes Objects");
 
         try {
+
+            if (attributeCache.isEmpty()) {
+                System.out.println("Start get attributes");
+                Collection<List<JEVisAttribute>> attributes = attributeCache.values();
+                List<JEVisAttribute> result = new ArrayList<>();
+                attributes.forEach(jeVisAttributes -> {
+                    result.addAll(jeVisAttributes);
+                });
+                System.out.println("end get attributes");
+                return result;
+            }
             /**
              * temporary solution for the problem that some objects does not have attributes
              * an the cache will not know this so we add empty list for all objects.
@@ -179,6 +190,16 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 attributeCache.get(newAttribute.getObjectID()).add(newAttribute);
                 attributeList.add(newAttribute);
             }
+
+//            System.out.println("Print Debug Attribute structure");
+//            attributeCache.forEach((aLong, jeVisAttributes) -> {
+//                System.out.println("Object: " + aLong);
+//                jeVisAttributes.forEach(jeVisAttribute -> {
+//                    System.out.println("-> [" + jeVisAttribute.getObjectID() + "] " + jeVisAttribute.getName());
+//                });
+//
+//            });
+
             return attributeList;
 
         } catch (ProtocolException ex) {
@@ -404,11 +425,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.warn("Reload Attribute: " + attribute);
             attributeCache.remove(attribute.getObjectID());
             List<JEVisAttribute> newAttributes = getAttributes(attribute.getObjectID());
-            for (JEVisAttribute jeVisAttribute : newAttributes) {
-                if (jeVisAttribute.getName().equals(attribute.getName())) {
-                    attribute = jeVisAttribute;
-                }
-            }
+//            for (JEVisAttribute jeVisAttribute : newAttributes) {
+//                if (jeVisAttribute.getName().equals(attribute.getName())) {
+//                    attribute = jeVisAttribute;
+//                }
+//            }
         } catch (Exception ex) {
             logger.error("Error, can not reload attribute", ex);
         }
@@ -460,7 +481,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.fatal(ex);
             //TODO: throw excption?! so the other function can handel it?
             return new ArrayList<>();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             logger.fatal(ex);
             return new ArrayList<>();
         }

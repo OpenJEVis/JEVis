@@ -30,9 +30,9 @@ public class JEVisItemLoader {
     final List<JEVisTreeItem> treeObjectItems = new ArrayList<>();
     final List<JEVisTreeItem> treeAttributeItems = new ArrayList<>();
     final Map<JEVisObject, JEVisTreeItem> itemObjectLinker = new TreeMap<>();
-    final Map<JEVisAttribute, JEVisTreeItem> itemAttributeLinker = new HashMap<>();
+    final Map<String, JEVisTreeItem> itemAttributeLinker = new HashMap<>();
     private Comparator<JEVisTreeItem> comperator;
-    private JEVisTReeFilter activFilter = null;
+    private JEVisTreeFilter activFilter = null;
 
 
     /**
@@ -59,6 +59,12 @@ public class JEVisItemLoader {
             item.setParentForFilter(false);
             item.setFilterd(false);
         }
+
+        for (JEVisTreeItem item : treeAttributeItems) {
+            item.getChildren().clear();
+            item.setParentForFilter(false);
+            item.setFilterd(false);
+        }
     }
 
     /**
@@ -69,9 +75,10 @@ public class JEVisItemLoader {
             item = null;
         }
         treeObjectItems.clear();
+        itemObjectLinker.clear();
         treeAttributeItems.clear();
         itemAttributeLinker.clear();
-        itemObjectLinker.clear();
+
     }
 
 
@@ -95,7 +102,8 @@ public class JEVisItemLoader {
 //                        logger.error("Create item for attribute: {}", attribute.getName());
                         JEVisTreeItem attributeItem = new JEVisTreeItem(jeVisTree, attribute);
                         treeAttributeItems.add(attributeItem);
-                        itemAttributeLinker.put(attribute, attributeItem);
+                        itemAttributeLinker.put(attributeKey(attribute), attributeItem);
+//                        System.out.println("#### " + attributeKey(attribute) + " " + attribute);
                     } catch (Exception aex) {
                         logger.error("Error while loading type {}", attribute.getName(), aex);
                     }
@@ -104,6 +112,10 @@ public class JEVisItemLoader {
                 logger.error("Error while loading object {}", object.getID(), ex);
             }
         }
+    }
+
+    private String attributeKey(JEVisAttribute attribute) {
+        return attribute.getObjectID() + ":" + attribute.getName();
     }
 
     /**
@@ -162,11 +174,13 @@ public class JEVisItemLoader {
      * @param filter
      * @return
      */
-    public void filterTree(JEVisTReeFilter filter) {
+    public void filterTree(JEVisTreeFilter filter) {
         System.out.println("===== Start treeFilter ======");
         this.activFilter = filter;
-        Benchmark benchmark = new Benchmark();
+        System.out.println("Filter: " + filter.getName());
         cleanFilter();
+        Benchmark benchmark = new Benchmark();
+
         Set<JEVisObject> neededParents = new HashSet<>();
 
         /** find matching objects **/
@@ -183,10 +197,13 @@ public class JEVisItemLoader {
         /** find matching attributes **/
         for (JEVisTreeItem item : treeAttributeItems) {
             boolean show = filter.showItem(item.getValue().getJEVisAttribute());
-            item.setFilterd(show);
             if (show) {
-                item.setParentForFilter(true);
+                System.out.println("* is Visible: " + item.getValue().getJEVisAttribute().getName());
+                item.setFilterd(true);
+//                item.setParentForFilter(true);
                 parentCheck(neededParents, item.getValue().getJEVisObject());
+            } else {
+                System.out.println("* is inVisible: " + item.getValue().getJEVisAttribute().getName());
             }
         }
         benchmark.printBenchmarkDetail("find matching attributes");
@@ -197,14 +214,11 @@ public class JEVisItemLoader {
                 item.setParentForFilter(true);
             }
         }
-//        printItemDebug();
 
         benchmark.printBenchmarkDetail("find parents");
         /** build children lists **/
         for (JEVisTreeItem item : treeObjectItems) {
             if ((item.isFilterd() || item.isParentForFilter()) && item.isObject()) {
-
-                ObservableList<JEVisTreeItem> newChildrenList = FXCollections.observableArrayList();
                 try {
                     update(item.getValue().getJEVisObject());
                 } catch (Exception ex) {
@@ -212,9 +226,8 @@ public class JEVisItemLoader {
                 }
             }
         }
-        benchmark.printBenchmarkDetail("build chindren");
+        benchmark.printBenchmarkDetail("build children");
 
-//        Arrays.sort();
 
         /** create an fake rootItem and add the root objects ad children if visible **/
         JEVisTreeItem rootItem = new JEVisTreeItem(jeVisTree);
@@ -246,6 +259,7 @@ public class JEVisItemLoader {
      */
     public void update(JEVisObject object) {
         try {
+            System.out.println("-> Update: " + object.getID());
             JEVisTreeItem item = itemObjectLinker.get(object);
             ObservableList<JEVisTreeItem> newChildrenList = FXCollections.observableArrayList();
 
@@ -256,20 +270,26 @@ public class JEVisItemLoader {
                     if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
                         newChildrenList.add(itemChild);
                     }
-
                 }
-                /** add attributes children **/
-                for (JEVisAttribute attribute : object.getAttributes()) {
-                    if (itemAttributeLinker.containsKey(attribute)) {
-                        JEVisTreeItem itemChild = itemAttributeLinker.get(attribute);
-                        if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
-                            newChildrenList.add(itemChild);
-                        }
+            }
+            /** add attributes children **/
+            for (JEVisAttribute attribute : object.getAttributes()) {
+//                    System.out.println(" ~~~> " + attribute.getName());
+                if (itemAttributeLinker.containsKey(attributeKey(attribute))) {
+                    JEVisTreeItem itemChild = itemAttributeLinker.get(attributeKey(attribute));
+                    if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
+                        System.out.println("---- > " + itemChild.getValue().getID());
+                        newChildrenList.add(itemChild);
+                    } else {
+                        System.out.println("-----> not visible");
                     }
                 }
             }
             newChildrenList.sort(TreeItemComparator.getInstance());
             item.getChildren().setAll(newChildrenList);
+//            item.getChildren().forEach(jeVisTreeRowTreeItem -> {
+//                System.out.println(" +++++> " + jeVisTreeRowTreeItem.getValue().getID());
+//            });
 
         } catch (Exception ex) {
             logger.error(ex);

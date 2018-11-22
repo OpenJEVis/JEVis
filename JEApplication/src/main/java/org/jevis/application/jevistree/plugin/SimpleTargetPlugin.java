@@ -127,6 +127,7 @@ public class SimpleTargetPlugin implements TreePlugin {
         column.setPrefWidth(90);
         column.setEditable(true);
 
+        column.setText(columnName);
         column.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<JEVisTreeRow, Boolean>, ObservableValue<Boolean>>() {
 
             @Override
@@ -157,10 +158,8 @@ public class SimpleTargetPlugin implements TreePlugin {
 
                             try {
                                 if (getTreeTableRow() != null && getTreeTableRow().getItem() != null && tree != null) {
-                                    System.out.println("sectionColumn.update: " + getTreeTableRow().getItem().getID());
 
                                     boolean show = _tree.getFilter().showCell(column, getTreeTableRow().getItem());
-                                    System.out.println("ShowCell = " + show);
                                     if (show) {
 
                                         StackPane hbox = new StackPane();
