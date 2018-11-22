@@ -191,6 +191,12 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 attributeList.add(newAttribute);
             }
 
+
+//            attributeCache.keySet().forEach(aLong -> {
+//                JEVisObject object.get
+//            });
+
+
 //            System.out.println("Print Debug Attribute structure");
 //            attributeCache.forEach((aLong, jeVisAttributes) -> {
 //                System.out.println("Object: " + aLong);
