@@ -59,7 +59,7 @@ import java.util.List;
 
 
 /**
- * Theis JEConfig plugin allowes the user con work with the Objects in the JEVis
+ * This JEConfig plugin allows the user con work with the Objects in the JEVis
  * System.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -97,8 +97,11 @@ public class ObjectPlugin implements Plugin {
         try {
             if (tree.getSelectionModel().getSelectedItem() == null) {
                 Platform.runLater(() -> {
-                    tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
-                    tree.getSelectionModel().selectFirst();
+                    try {
+                        tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
+                        tree.getSelectionModel().selectFirst();
+                    } catch (Exception ex) {
+                    }
                 });
             }
 
@@ -106,7 +109,7 @@ public class ObjectPlugin implements Plugin {
                 tree.requestFocus();
             });
 
-        } catch (NullPointerException np) {
+        } catch (Exception np) {
             logger.error("Empty tree can focus first object", np);
         }
 //        }
@@ -134,13 +137,13 @@ public class ObjectPlugin implements Plugin {
     }
 
     @Override
-    public String getToolTip() {
-        return tooltip;
+    public void setUUID(String newid) {
+        id.set(newid);
     }
 
     @Override
-    public void setUUID(String newid) {
-        id.set(newid);
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

@@ -39,8 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class GraphDataModel extends Observable {
 
-    private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private static final Logger logger = LogManager.getLogger(GraphDataModel.class);
+    private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private Set<ChartSettings> charts = new HashSet<>();
     private Boolean hideShowIcons = true;
@@ -209,9 +209,10 @@ public class GraphDataModel extends Observable {
     private void updateCharts() {
         if (charts == null || charts.isEmpty()) {
             try {
-                ds.reloadAttributes();
+                //ds.reloadAttributes();
                 if (getCurrentAnalysis() != null) {
                     if (Objects.nonNull(getCurrentAnalysis().getAttribute("Charts"))) {
+//                        ds.reloadAttribute(getCurrentAnalysis().getAttribute("Charts"));
                         if (getCurrentAnalysis().getAttribute("Charts").hasSample()) {
                             String str = getCurrentAnalysis().getAttribute("Charts").getLatestSample().getValueAsString();
                             try {
@@ -575,7 +576,7 @@ public class GraphDataModel extends Observable {
 
         }
         try {
-            ds.reloadAttributes();
+//            ds.reloadAttributes();
             listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis", e);
@@ -591,13 +592,14 @@ public class GraphDataModel extends Observable {
 
         JsonChartDataModel tempModel = null;
         try {
-            ds.reloadAttributes();
+//            ds.reloadAttributes();
 
-            if (charts == null) {
+            if (charts == null || charts.isEmpty()) {
                 updateCharts();
             }
             if (getCurrentAnalysis() != null) {
                 if (Objects.nonNull(getCurrentAnalysis().getAttribute("Data Model"))) {
+//                    ds.reloadAttribute(getCurrentAnalysis().getAttribute("Data Model"));
                     if (getCurrentAnalysis().getAttribute("Data Model").hasSample()) {
                         String str = getCurrentAnalysis().getAttribute("Data Model").getLatestSample().getValueAsString();
                         try {
@@ -642,7 +644,10 @@ public class GraphDataModel extends Observable {
         }
         this.currentAnalysis = currentAnalysis;
 
-        if (listAnalysisModel == null) getListAnalysisModel();
+        if (listAnalysisModel == null) {
+            getListAnalysisModel();
+            updateSelectedData();
+        }
     }
 
     public void removeUnusedCharts() {

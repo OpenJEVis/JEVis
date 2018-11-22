@@ -172,6 +172,8 @@ public interface JEVisDataSource {
 
     List<JEVisClassRelationship> getClassRelationships(String jclass) throws JEVisException;
 
+    List<JEVisAttribute> getAttributes() throws JEVisException;
+
     /**
      * Connect to the DataSource as a JEVis user
      *

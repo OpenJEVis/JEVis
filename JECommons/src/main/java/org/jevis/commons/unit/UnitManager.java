@@ -54,6 +54,12 @@ public class UnitManager {
     private HashMap<Unit, String> dimNames;
     private HashMap<JEVisUnit, String> _dimNamesJUnit;
 
+    /* A private Constructor prevents any other
+     * class from instantiating.
+     */
+    private UnitManager() {
+    }
+
     public static JEVisUnit cloneUnit(JEVisUnit unit) {
 
         JEVisUnit clone = new JEVisUnitImp();
@@ -61,12 +67,6 @@ public class UnitManager {
         clone.setLabel(unit.getLabel());
         clone.setPrefix(unit.getPrefix());
         return clone;
-    }
-
-    /* A private Constructor prevents any other
-     * class from instantiating.
-     */
-    private UnitManager() {
     }
 
     public static UnitManager getInstance() {
@@ -596,12 +596,18 @@ public class UnitManager {
     }
 
     public String formate(JEVisUnit junit) {
-        String uString = junit.getFormula().replace("·", "");
-        uString = uString.replace("(", "");
-        uString = uString.replace(")", "");
-        //uString = uString.replace("/", "");
-        String withPrefix = getPrefixChar(junit.getPrefix()) + uString;
-        return withPrefix;
+        if (junit != null && junit.getFormula() != null) {
+            String uString = junit.getFormula().replace("·", "");
+            uString = uString.replace("(", "");
+            uString = uString.replace(")", "");
+            //uString = uString.replace("/", "");
+            String withPrefix = getPrefixChar(junit.getPrefix()) + uString;
+            return withPrefix;
+        } else {
+            logger.warn("No unit for formate");
+            return "";
+        }
+
     }
 
     public String formate(Unit unit) {

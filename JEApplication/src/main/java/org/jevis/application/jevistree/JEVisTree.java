@@ -23,20 +23,17 @@ package org.jevis.application.jevistree;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
-import javafx.scene.input.*;
-import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
-import org.jevis.application.jevistree.filter.CellFilter;
+import org.jevis.application.jevistree.filter.JEVisItemLoader;
+import org.jevis.application.jevistree.filter.JEVisTReeFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,29 +41,35 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
+ * The Central tree representation of the JEVisSystem.
+ *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEVisTree extends TreeTableView {
     private static final Logger logger = LogManager.getLogger(JEVisTree.class);
-
-    private static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
-    private ViewFilter _filter = ViewFilterFactory.createDefaultGraphFilter();
     private ObservableList<TreePlugin> plugins = FXCollections.observableArrayList();
     private JEVisDataSource ds;
-    //    public final DataFormat JEVisTreeRowFormate = new DataFormat("JEVisTreeRow");
-//    private ObservableList<ViewFilter> filter = FXCollections.observableArrayList();
     private JEVisObject copyObject;
     private JEVisTreeRow dragItem;
     private SaveResourceBundle rb;
     private UUID uuid = UUID.randomUUID();
-    private CellFilter cellFilter;
+    private JEVisTReeFilter cellFilter;
 
-    public JEVisTree(JEVisDataSource ds) {
+    /**
+     * Create an default Tree for the given JEVisDatasource by using all accessable JEVisOBjects starting by the
+     * root objects.
+     *
+     * @param ds
+     */
+    public JEVisTree(JEVisDataSource ds, JEVisTReeFilter filter) {
         super();
         this.ds = ds;
         rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
+//        cellFilter = FilterFactory.buildDefaultItemFilter();
+        this.cellFilter = filter;
         init();
     }
+
 
     public UUID getUUID() {
         return uuid;
@@ -76,12 +79,14 @@ public class JEVisTree extends TreeTableView {
         init();
     }
 
+    /**
+     * Initialize the jevis tree
+     */
     private void init() {
         try {
-            JEVisTreeItem root = new JEVisTreeItem(this, ds);
-            root.setExpanded(true);
-
-            setRoot(root);
+            ds.getAttributes();
+            JEVisItemLoader itemLoader = new JEVisItemLoader(this, ds.getObjects(), ds.getRootObjects());
+            itemLoader.filterTree(cellFilter);
             setShowRoot(false);
 
             setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
@@ -97,6 +102,7 @@ public class JEVisTree extends TreeTableView {
                                 plugin.setTree(JEVisTree.this);
                                 for (TreeTableColumn<JEVisTreeRow, Long> column : plugin.getColumns()) {
                                     JEVisTree.this.getColumns().add(column);
+                                    System.out.println("Add plugin column to tree: " + column.getText());
                                 }
                             }
 
@@ -105,128 +111,6 @@ public class JEVisTree extends TreeTableView {
 
                 }
             });
-
-            setRowFactory(new Callback<TreeTableView, TreeTableRow>() {
-                @Override
-                public TreeTableRow<JEVisTreeRow> call(TreeTableView param) {
-
-                    final TreeTableRow<JEVisTreeRow> row = new TreeTableRow<JEVisTreeRow>();
-
-                    if (row.getOnDragDetected() != null) {
-                        row.getOnDragDetected().toString();
-                    }
-
-                    row.setOnDragDetected(event -> {
-                        logger.info("setOnDragDetected: " + event.toString());
-
-                        Dragboard db = row.startDragAndDrop(TransferMode.ANY);
-                        ClipboardContent content = new ClipboardContent();
-                        content.putString("Test");
-                        db.setContent(content);
-//                        event.setDragDetect(true);
-//                        startFullDrag();
-                        startDragAndDrop(TransferMode.ANY);
-                        event.consume();
-                    });
-
-                    row.addEventHandler(DragEvent.ANY, new EventHandler<DragEvent>() {
-                        @Override
-                        public void handle(DragEvent event) {
-                            logger.info("AllDragEvents: " + event.toString());
-                        }
-                    });
-
-                    row.setOnDragEntered(event -> {
-
-                        logger.info("setOnDragEntered: " + event.toString());
-                    });
-
-                    row.setOnDragDone(event -> {
-                        logger.info("setOnDragDone: " + event.toString());
-                    });
-
-                    row.setOnDragDropped(event -> {
-                        logger.info("setOnDragDropped: " + event.toString());
-                    });
-
-                    row.setOnDragExited(event -> {
-                        logger.info("setOnDragExited: " + event.toString());
-                    });
-
-                    row.setOnDragOver(event -> {
-                        logger.info("setOnDragOver: " + event.toString());
-                    });
-
-
-                    return row;
-                }
-            });
-
-//            setRowFactory(new Callback<TreeTableView, TreeTableRow<JEVisTreeRow>>() {
-//                @Override
-//                public TreeTableRow<JEVisTreeRow> call(final TreeTableView param) {
-//                    final TreeTableRow<JEVisTreeRow> row = new TreeTableRow<JEVisTreeRow>();
-//
-//                    row.setOnDragDetected(event -> {
-//                        try {
-//                            if (!row.isEmpty()) {
-//                                logger.info("drag detect: " + row.getTreeItem().getValue().getID());
-//                                logger.info("is not null");
-//                                Dragboard db = row.startDragAndDrop(TransferMode.ANY);
-////                            db.setDragView(row.snapshot(null, null));
-//                                try {
-//                                    db.setDragView(SwingFXUtils.toFXImage(row.getTreeItem().getValue().getJEVisObject().getJEVisClass().getIcon(), null));
-//                                } catch (Exception ex) {
-//                                    ex.printStackTrace();
-//                                }
-//                                ClipboardContent cc = new ClipboardContent();
-//                                cc.putString(row.getIndex() + "");
-//                                db.setContent(cc);
-//                                event.consume();
-//                            }
-//                        } catch (Exception ex) {
-//                            ex.printStackTrace();
-//                        }
-//                    });
-//
-//                    row.setOnDragOver(event -> {
-//                        try {
-//                            logger.info("drag over");
-//                            Dragboard db = event.getDragboard();
-//                            if (acceptable(db, row)) {
-//                                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-//                                event.consume();
-//                            }
-//                        } catch (Exception ex) {
-//                            ex.printStackTrace();
-//                        }
-//                    });
-//
-//                    row.setOnDragDropped(event -> {
-//                        logger.info("drag dropped");
-//                        Dragboard db = event.getDragboard();
-//                        logger.info("Dropped: " + row.getTreeItem().getValue().getID());
-//                        if (acceptable(db, row)) {
-//                            int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
-////                            TreeItem item = getTreeItem(index);
-////                            item.getParent().getChildren().remove(item);
-//
-//
-////                            getTarget(row).getChildren().add(item);
-//                            event.setDropCompleted(true);
-////                            tree.getSelectionModel().select(item);
-//                            event.consume();
-//                        }
-//                    });
-//                    row.setOnDragEntered(event -> {
-//                        logger.info("Drag enterd");
-//                    });
-//                    row.setOnDragDone(event -> {
-//                        logger.info("Drag done");
-//                    });
-//                    return row;
-//                }
-//            });
 
         } catch (Exception ex) {
             logger.fatal(ex);
@@ -327,21 +211,11 @@ public class JEVisTree extends TreeTableView {
         }
     }
 
-    public void setFiler(ViewFilter filter) {
-        _filter = filter;
-    }
-
-    @Deprecated
-    public ViewFilter getFilter() {
-        return _filter;
-    }
-
-
-    public CellFilter getCellFilter() {
+    public JEVisTReeFilter getFilter() {
         return this.cellFilter;
     }
 
-    public void setCellFilter(CellFilter filter) {
+    public void setFilter(JEVisTReeFilter filter) {
         this.cellFilter = filter;
     }
 
@@ -351,6 +225,40 @@ public class JEVisTree extends TreeTableView {
 
     public void setCopyObject(JEVisObject obj) {
         copyObject = obj;
+    }
+
+
+    private TreeTableColumn findColumn(TreeTableColumn parentColumn, String columnName) {
+        for (Object col : parentColumn.getColumns()) {
+            TreeTableColumn column = (TreeTableColumn) col;
+            if (column.getId() != null && column.getId().equals(columnName)) {
+                return column;
+            }
+            TreeTableColumn childCol = findColumn(column, columnName);
+            if (childCol != null) {
+                return childCol;
+            }
+        }
+        return null;
+    }
+
+    public TreeTableColumn getColumn(String columnName) {
+        System.out.println("getColumn: " + columnName + " liste: " + getColumns().size());
+        for (Object col : getColumns()) {
+            TreeTableColumn column = (TreeTableColumn) col;
+
+            if (column.getId() != null && column.getId().equals(columnName)) {
+                return column;
+            }
+
+            TreeTableColumn childCol = findColumn(column, columnName);
+            if (childCol != null) {
+                return childCol;
+            }
+        }
+        System.out.println("Did not found Column: " + columnName);
+        return null;
+
     }
 
 }

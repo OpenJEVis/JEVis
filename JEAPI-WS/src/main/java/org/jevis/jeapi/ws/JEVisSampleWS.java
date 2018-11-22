@@ -39,10 +39,10 @@ import java.util.Locale;
 public class JEVisSampleWS implements JEVisSample {
 
     public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
+    private static final Logger logger = LogManager.getLogger(JEVisSampleWS.class);
     private JEVisAttribute attribute;
     private JsonSample json;
     private JEVisDataSourceWS ds;
-    private static final Logger logger = LogManager.getLogger(JEVisSampleWS.class);
     private JEVisFile file = null;
 
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att) {
@@ -89,7 +89,7 @@ public class JEVisSampleWS implements JEVisSample {
             json.setValue(value.toString());
 
         } catch (Exception ex) {
-            throw new ClassCastException("Value object does not match the PrimitiveType of the Attribute");
+            throw new ClassCastException("Value object does not match the PrimitiveType of the Attribute: " + this.toString());
         }
     }
 

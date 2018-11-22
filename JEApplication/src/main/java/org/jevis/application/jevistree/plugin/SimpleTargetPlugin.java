@@ -36,6 +36,7 @@ import java.util.List;
  */
 public class SimpleTargetPlugin implements TreePlugin {
     private static final Logger logger = LogManager.getLogger(SimpleTargetPlugin.class);
+    public static String TARGET_COLUMN_ID = "targetcolumn";
     private JEVisTree _tree;
     private List<UserSelection> _preselect = new ArrayList<>();
     private List<SimpleTargetPluginData> _data = new ArrayList<>();
@@ -44,9 +45,12 @@ public class SimpleTargetPlugin implements TreePlugin {
     private MODE mode = MODE.OBJECT;
     private SimpleFilter filter = null;
 
+
     @Override
     public void setTree(JEVisTree tree) {
         _tree = tree;
+
+
     }
 
     public void setModus(MODE mode, SimpleFilter filter) {
@@ -65,6 +69,7 @@ public class SimpleTargetPlugin implements TreePlugin {
         pluginHeader.getColumns().add(selectColumn);
 
         list.add(pluginHeader);
+
 
         return list;
     }
@@ -118,6 +123,7 @@ public class SimpleTargetPlugin implements TreePlugin {
 
     private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, String columnName) {
         TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(columnName);
+        column.setId(TARGET_COLUMN_ID);
         column.setPrefWidth(90);
         column.setEditable(true);
 
@@ -150,28 +156,13 @@ public class SimpleTargetPlugin implements TreePlugin {
                             setGraphic(null);
 
                             try {
-                                if (getTreeTableRow().getItem() != null && tree != null) {
+                                if (getTreeTableRow() != null && getTreeTableRow().getItem() != null && tree != null) {
+                                    System.out.println("sectionColumn.update: " + getTreeTableRow().getItem().getID());
 
-//                                        && ((mode == MODE.ATTRIBUTE && getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.ATTRIBUTE)
-//                                        || (mode == MODE.OBJECT && getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT))) {
-
-                                    boolean show = false;
-                                    if (getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.ATTRIBUTE
-                                            &&
-                                            (mode == MODE.ATTRIBUTE
-                                                    || filter.showAttribute((JEVisAttribute) getTreeTableRow().getItem()))) {
-                                        show = true;
-                                    } else if (getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT
-                                            &&
-                                            (mode == MODE.OBJECT
-                                                    || filter.showObject((JEVisObject) getTreeTableRow().getItem()))) {
-                                        show = true;
-                                    }
-
+                                    boolean show = _tree.getFilter().showCell(column, getTreeTableRow().getItem());
+                                    System.out.println("ShowCell = " + show);
                                     if (show) {
 
-
-//                                        CheckBox box = getData(getTreeTableRow().getItem()).getBox();
                                         StackPane hbox = new StackPane();
                                         StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
                                         CheckBox box = new CheckBox();
@@ -208,6 +199,7 @@ public class SimpleTargetPlugin implements TreePlugin {
                                 }
                             } catch (Exception ex) {
                                 logger.error(ex);
+                                ex.printStackTrace();
                             }
 
                         } else {

@@ -8,11 +8,10 @@ package org.jevis.api;
 import java.util.EventListener;
 
 /**
- *
  * @author fs
  */
-public interface JEVisEventListener extends EventListener{
-    
+public interface JEVisEventListener extends EventListener {
+
     void fireEvent(JEVisEvent event);
-        
+
 }

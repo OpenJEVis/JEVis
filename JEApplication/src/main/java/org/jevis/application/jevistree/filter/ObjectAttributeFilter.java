@@ -44,6 +44,12 @@ public class ObjectAttributeFilter {
         return showClass(obj.getJEVisClassName());
     }
 
+    /**
+     * TODO: need additional parmether object to see if its the right object-attribute combo?
+     *
+     * @param attributeName
+     * @return
+     */
     public boolean showAttribute(String attributeName) {
         if (this.attributeName.equals(ALL)) {
             return true;
@@ -53,8 +59,13 @@ public class ObjectAttributeFilter {
             return false;
         }
 
+
         if (attributeName.equals(this.attributeName)) {
             return true;
+//            if(objectName.equals(ALL)){
+//                return true;
+//            }
+
         }
 
         return false;
@@ -74,9 +85,16 @@ public class ObjectAttributeFilter {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "ObjectAttributeFilter{" +
+                "attributeName='" + attributeName + '\'' +
+                ", objectName='" + objectName + '\'' +
+                ", filterName='" + filterName + '\'' +
+                '}';
+    }
 
     public enum TYPE {
         OBJECT, ATTRIBUTE, TYPE
     }
-
 }

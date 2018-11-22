@@ -30,20 +30,20 @@ public class ChartPlugin implements TreePlugin {
     private static final Logger logger = LogManager.getLogger(ChartPlugin.class);
     private final Image img = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "list-add.png"));
     private final ImageView image = new ImageView(img);
-    private JEVisTree _tree;
+    private JEVisTree jeVisTree;
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private final String chartTitle = rb.getString("graph.title");
-    private GraphDataModel _data;
+    private GraphDataModel data;
 
     public JEVisTree getTree() {
-        return _tree;
+        return jeVisTree;
     }
 
     @Override
     public void setTree(JEVisTree tree) {
-        _tree = tree;
-        if (_data == null)
-            _data = new GraphDataModel(_tree.getJEVisDataSource());
+        jeVisTree = tree;
+        if (data == null)
+            data = new GraphDataModel(jeVisTree.getJEVisDataSource());
     }
 
     @Override
@@ -67,20 +67,20 @@ public class ChartPlugin implements TreePlugin {
         Button addChart = new Button(rb.getString("graph.table.addchart"), image);
         if (getData().getChartsList().isEmpty()) {
             getData().getChartsList().add(chartTitle);
-            _data.getCharts().add(new ChartSettings(chartTitle));
+            data.getCharts().add(new ChartSettings(chartTitle));
         }
 
-        ColorColumn colorColumn = new ColorColumn(_tree, rb.getString("graph.table.color"));
-        colorColumn.setGraphDataModel(_data);
+        ColorColumn colorColumn = new ColorColumn(jeVisTree, rb.getString("graph.table.color"));
+        colorColumn.setGraphDataModel(data);
 
         addChart.setOnAction(event -> {
-            if (_data.getCharts().size() < 4) {
+            if (data.getCharts().size() < 4) {
                 String newName = chartTitle + " " + getData().getChartsList().size();
 
-                _data.getCharts().add(new ChartSettings(newName));
+                data.getCharts().add(new ChartSettings(newName));
                 getData().getChartsList().add(newName);
-                SelectionColumn selectColumn = new SelectionColumn(_tree, colorColumn, getData().getChartsList().size() - 1, newName);
-                selectColumn.setGraphDataModel(_data);
+                SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, getData().getChartsList().size() - 1, newName);
+                selectColumn.setGraphDataModel(data);
                 column.getColumns().add(column.getColumns().size() - 6, selectColumn.getSelectionColumn());
             }
         });
@@ -91,24 +91,24 @@ public class ChartPlugin implements TreePlugin {
         List<TreeTableColumn> selectionColumns = new ArrayList<>();
 
         for (int i = 0; i < getData().getChartsList().size(); i++) {
-            SelectionColumn selectColumn = new SelectionColumn(_tree, colorColumn, i, getData().getChartsList().get(i));
-            selectColumn.setGraphDataModel(_data);
+            SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, i, getData().getChartsList().get(i));
+            selectColumn.setGraphDataModel(data);
             selectionColumns.add(selectColumn.getSelectionColumn());
         }
 
-        AggregationColumn aggregationColumn = new AggregationColumn(_tree, rb.getString("graph.table.interval"));
-        aggregationColumn.setGraphDataModel(_data);
+        AggregationColumn aggregationColumn = new AggregationColumn(jeVisTree, rb.getString("graph.table.interval"));
+        aggregationColumn.setGraphDataModel(data);
 
-        DataProcessorColumn dataProcessorColumn = new DataProcessorColumn(_tree, rb.getString("graph.table.cleaning"));
-        dataProcessorColumn.setGraphDataModel(_data);
+        DataProcessorColumn dataProcessorColumn = new DataProcessorColumn(jeVisTree, rb.getString("graph.table.cleaning"));
+        dataProcessorColumn.setGraphDataModel(data);
 
-        DateColumn startDateColumn = new DateColumn(_tree, rb.getString("graph.table.startdate"), DateColumn.DATE_TYPE.START);
-        startDateColumn.setGraphDataModel(_data);
-        DateColumn endDateColumn = new DateColumn(_tree, rb.getString("graph.table.enddate"), DateColumn.DATE_TYPE.END);
-        endDateColumn.setGraphDataModel(_data);
+        DateColumn startDateColumn = new DateColumn(jeVisTree, rb.getString("graph.table.startdate"), DateColumn.DATE_TYPE.START);
+        startDateColumn.setGraphDataModel(data);
+        DateColumn endDateColumn = new DateColumn(jeVisTree, rb.getString("graph.table.enddate"), DateColumn.DATE_TYPE.END);
+        endDateColumn.setGraphDataModel(data);
 
-        UnitColumn unitColumn = new UnitColumn(_tree, rb.getString("graph.table.unit"));
-        unitColumn.setGraphDataModel(_data);
+        UnitColumn unitColumn = new UnitColumn(jeVisTree, rb.getString("graph.table.unit"));
+        unitColumn.setGraphDataModel(data);
 
         for (TreeTableColumn ttc : selectionColumns) column.getColumns().add(ttc);
         column.getColumns().addAll(colorColumn.getColorColumn(), aggregationColumn.getAggregationColumn(),
@@ -117,19 +117,20 @@ public class ChartPlugin implements TreePlugin {
 
         allColumns.add(column);
 
+
         return allColumns;
     }
 
     public GraphDataModel getData() {
-        return _data;
+        return data;
     }
 
     public void setData(GraphDataModel data) {
-        this._data = data;
+        this.data = data;
     }
 
     public void selectNone() {
-        _data.selectNone();
-        _tree.refresh();
+        data.selectNone();
+        jeVisTree.refresh();
     }
 }

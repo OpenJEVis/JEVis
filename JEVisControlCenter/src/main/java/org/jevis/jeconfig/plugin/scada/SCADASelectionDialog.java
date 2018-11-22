@@ -104,7 +104,7 @@ public class SCADASelectionDialog {
 
         tree = JEVisTreeFactory.buildBasicDefault(ds);
         if (mode == MODE.ATTRIBUTE) {
-            tree.getFilter().showAttributes(true);
+//            tree.getFilter().showAttributes(true);
         }
 
         tree.getPlugins().add(stp);
@@ -130,7 +130,7 @@ public class SCADASelectionDialog {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 Platform.runLater(() -> {
                     tree.setVisible(false);
-                    tree.getFilter().showAttributes(newValue);
+//                    tree.getFilter().showAttributes(newValue);
                     tree.reload();
                     tree.openUserSelection(stp.getUserSelection());
                     tree.setVisible(true);

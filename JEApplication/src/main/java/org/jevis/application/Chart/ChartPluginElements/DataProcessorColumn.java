@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> implements ChartPluginColumn {
+    public static String COLUMN_ID = "DataProcessorColumn";
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn;
     private GraphDataModel data;
@@ -36,6 +37,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
     public DataProcessorColumn(JEVisTree tree, String columnName) {
         this.tree = tree;
         this.columnName = columnName;
+
     }
 
     private ChoiceBox buildProcessorBox(ChartDataModel data) throws JEVisException {
@@ -89,6 +91,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
         TreeTableColumn<JEVisTreeRow, JEVisObject> column = new TreeTableColumn(columnName);
         column.setPrefWidth(140);
         column.setEditable(true);
+        column.setId(COLUMN_ID);
 
         column.setCellValueFactory(param -> {
             ChartDataModel data = getData(param.getValue().getValue());
@@ -113,7 +116,8 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
                         if (!empty) {
                             StackPane hbox = new StackPane();
 
-                            if (getTreeTableRow().getItem() != null && tree != null && tree.getFilter().showColumn(getTreeTableRow().getItem(), columnName)) {
+                            if (getTreeTableRow().getItem() != null && tree != null
+                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                 ChartDataModel data = getData(getTreeTableRow().getItem());
                                 ChoiceBox box = null;
                                 try {

@@ -66,8 +66,11 @@ public class ChartDataModel {
                     if (getDataProcessor() != null) {
                         _dataProcessorObject = getDataProcessor();
                         _attribute = _dataProcessorObject.getAttribute("Value");
-                    } else _attribute = _object.getAttribute("Value");
+                    } else {
+                        _attribute = _object.getAttribute("Value");
+                    }
 
+//                    _attribute.getDataSource().reloadAttribute(_attribute);
 
                     SampleGenerator sg;
                     if (aggregationPeriod.equals(AggregationPeriod.NONE))
