@@ -86,23 +86,38 @@ public class JEVisTreeRow {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj != null && obj instanceof JEVisTreeRow) {
-            JEVisTreeRow otherRow = (JEVisTreeRow) obj;
-            if (otherRow.getJEVisObject().equals(getJEVisObject())) {
-                if (getType() == TYPE.ATTRIBUTE) {
-                    return otherRow.getJEVisAttribute().equals(getJEVisAttribute());
-                } else {
-                    return true;
-                }
+        try {
+            if (obj != null && obj instanceof JEVisTreeRow) {
+                JEVisTreeRow otherRow = (JEVisTreeRow) obj;
+                if (otherRow.getJEVisObject().equals(getJEVisObject())) {
+                    if (getType() == TYPE.ATTRIBUTE && otherRow.getJEVisAttribute() != null && getJEVisAttribute() != null) {
+                        return otherRow.getJEVisAttribute().equals(getJEVisAttribute());
+                    } else {
+                        return true;
+                    }
 
+                }
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return "JEVisTreeRow [type: '" + getType() + "' Object: '" + getJEVisObject() + "' Attribute: '" + getJEVisAttribute() + "']";
+        String objectName = "JEVisTreeRow [type: '" + getType() + " NoName";
+        try {
+            objectName = "ObjectID: '" + getJEVisObject().getID() + "'";
+            if (getType() == TYPE.OBJECT) {
+                objectName += " Name: '" + getJEVisObject().getName() + "' (" + getJEVisObject().getJEVisClassName() + ")";
+            } else {
+                objectName += " Attribute: '" + getJEVisAttribute().getName() + "'";
+            }
+        } catch (Exception ex) {
+
+        }
+        return objectName + "]";
     }
 
     public enum TYPE {

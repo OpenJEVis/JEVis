@@ -114,9 +114,10 @@ public class JEVisTreeFactory {
         idCol.setVisible(false);
         minTS.setVisible(false);
         maxTS.setVisible(false);
+        nameCol.setPrefWidth(450);
 
-        BasicCellFilter cellFilter = new BasicCellFilter();
-        cellFilter.addItemFilter(new ObjectAttributeFilter("", ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
+        BasicCellFilter cellFilter = new BasicCellFilter("All");
+        cellFilter.addItemFilter(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
 
         FilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
         FilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
@@ -141,8 +142,8 @@ public class JEVisTreeFactory {
         minTS.setVisible(false);
         maxTS.setVisible(false);
 
-        BasicCellFilter cellFilter = new BasicCellFilter();
-        ObjectAttributeFilter dataFilter = new ObjectAttributeFilter("Data Filter", "Data", ObjectAttributeFilter.NONE);
+        BasicCellFilter cellFilter = new BasicCellFilter("Data");
+        ObjectAttributeFilter dataFilter = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
         cellFilter.addItemFilter(dataFilter);
 
         cellFilter.addFilter(SelectionColumn.COLUMN_ID, dataFilter);

@@ -9,14 +9,14 @@ public class FilterFactory {
 
     public static List<ObjectAttributeFilter> defaultObjectTreeFilter() {
         List<ObjectAttributeFilter> filter = new ArrayList<>();
-        filter.add(new ObjectAttributeFilter("All Objects", ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
+        filter.add(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
 
         return filter;
     }
 
     public static List<ObjectAttributeFilter> defaultAttributeTreeFilter() {
         List<ObjectAttributeFilter> filter = new ArrayList<>();
-        filter.add(new ObjectAttributeFilter("All Objects", ObjectAttributeFilter.ALL, ObjectAttributeFilter.ALL));
+        filter.add(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.ALL));
 
         return filter;
     }
@@ -34,10 +34,10 @@ public class FilterFactory {
     }
 
     public static BasicCellFilter buildDefaultItemFilter() {
-        BasicCellFilter basicFilter = new BasicCellFilter();
+        BasicCellFilter basicFilter = new BasicCellFilter("Default");
 //        basicFilter.addItemFilter(new ObjectAttributeFilter(BasicCellFilter.TREE_ITEM_COLUMN, ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
 
-        basicFilter.addItemFilter(new ObjectAttributeFilter(BasicCellFilter.TREE_ITEM_COLUMN, "Data", ObjectAttributeFilter.NONE));
+        basicFilter.addItemFilter(new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE));
 
         return basicFilter;
     }

@@ -19,7 +19,7 @@ import java.util.Map;
  * Basic implementation of the JEVisTreeFilter. THis filter can filter based on the JEVIsObject.getJEVisClass
  * and Attribute.getName
  */
-public class BasicCellFilter implements JEVisTReeFilter {
+public class BasicCellFilter implements JEVisTreeFilter {
 
     private static final Logger logger = LogManager.getLogger(BasicCellFilter.class);
     /**
@@ -29,12 +29,19 @@ public class BasicCellFilter implements JEVisTReeFilter {
     public static String TREE_ITEM_COLUMN = "TREE_ITEM_COLUMN";
     private Map<String, List<ObjectAttributeFilter>> filters = new HashMap();
     private List<ObjectAttributeFilter> itemFilters = new ArrayList<>();
+    private String name = "";
 
 
     /**
      * Create an new empty filter
      */
-    public BasicCellFilter() {
+    public BasicCellFilter(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     private List<ObjectAttributeFilter> getColumnFilter(String column) {
@@ -49,13 +56,13 @@ public class BasicCellFilter implements JEVisTReeFilter {
         return getColumnFilter(column.getId());
     }
 
-    public void addFilter(String column, String filterName, String objectClass, String attribute) {
-        getColumnFilter(column).add(new ObjectAttributeFilter(filterName, objectClass, attribute));
+    public void addFilter(String column, String objectClass, String attribute) {
+        getColumnFilter(column).add(new ObjectAttributeFilter(objectClass, attribute));
     }
 
 
-    public void addFilter(TreeTableColumn column, String filterName, String objectClass, String attribute) {
-        addFilter(column.getId(), filterName, objectClass, attribute);
+    public void addFilter(TreeTableColumn column, String objectClass, String attribute) {
+        addFilter(column.getId(), objectClass, attribute);
     }
 
     public void addFilter(String column, ObjectAttributeFilter filter) {
