@@ -1,5 +1,6 @@
 package org.jevis.application.Chart.ChartPluginElements;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -221,12 +222,20 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                 if (!colorColumn.getUsedColors().contains(c)) {
                                                     data.setColor(c);
                                                     colorColumn.getUsedColors().add(c);
+                                                    Platform.runLater(() -> {
+                                                        JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                        getTreeTableRow().getTreeItem().setValue(sobj);
+                                                    });
                                                     break;
                                                 }
                                             }
                                         } else {
                                             colorColumn.getUsedColors().remove(data.getColor());
                                             data.setColor(Color.LIGHTBLUE);
+                                            Platform.runLater(() -> {
+                                                JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                getTreeTableRow().getTreeItem().setValue(sobj);
+                                            });
                                         }
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
