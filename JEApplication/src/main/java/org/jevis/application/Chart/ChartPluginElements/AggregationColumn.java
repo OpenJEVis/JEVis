@@ -20,6 +20,8 @@ import org.jevis.application.jevistree.JEVisTreeRow;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 
+import java.util.Observable;
+
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
  */
@@ -37,7 +39,6 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
     public AggregationColumn(JEVisTree tree, String columnName) {
         this.tree = tree;
         this.columnName = columnName;
-
     }
 
 
@@ -48,6 +49,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
     @Override
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
+        this.data.addObserver(this);
 
         update();
     }
@@ -139,5 +141,10 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        update();
     }
 }

@@ -23,7 +23,6 @@ public class ServiceMode {
     }
 
     public ServiceMode() {
-        getCycleTimeFromService();
     }
 
     private void getCycleTimeFromService() throws JEVisException {
@@ -32,6 +31,7 @@ public class ServiceMode {
         cycleTime = listDataProcessorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
         logger.info("Service cycle time from service: " + cycleTime);
     }
+
 
     public void run() {
 

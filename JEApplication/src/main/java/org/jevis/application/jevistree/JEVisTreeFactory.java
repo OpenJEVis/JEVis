@@ -31,6 +31,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.Chart.ChartPluginElements.*;
+import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
 import org.jevis.application.jevistree.filter.FilterFactory;
 import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
@@ -129,7 +130,7 @@ public class JEVisTreeFactory {
 
     }
 
-    public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds) {
+    public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, GraphDataModel graphDataModel) {
 
 
         TreeTableColumn nameCol = ColumnFactory.buildName();
@@ -154,6 +155,7 @@ public class JEVisTreeFactory {
         JEVisTree tree = new JEVisTree(ds, cellFilter);
 
         TreePlugin bp = new ChartPlugin();
+        ((ChartPlugin) bp).setData(graphDataModel);
         tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
         tree.getPlugins().add(bp);
         addGraphKeys(tree);

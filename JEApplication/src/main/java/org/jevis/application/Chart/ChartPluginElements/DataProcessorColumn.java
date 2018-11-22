@@ -21,6 +21,7 @@ import org.jevis.application.jevistree.JEVisTreeRow;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> implements ChartPluginColumn {
     public static String COLUMN_ID = "DataProcessorColumn";
@@ -37,7 +38,6 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
     public DataProcessorColumn(JEVisTree tree, String columnName) {
         this.tree = tree;
         this.columnName = columnName;
-
     }
 
     private ChoiceBox buildProcessorBox(ChartDataModel data) throws JEVisException {
@@ -83,6 +83,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
     @Override
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
+        this.data.addObserver(this);
         update();
     }
 
@@ -154,5 +155,10 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        update();
     }
 }
