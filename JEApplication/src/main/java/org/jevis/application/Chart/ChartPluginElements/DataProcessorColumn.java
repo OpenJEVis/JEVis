@@ -70,7 +70,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
             }
         });
 
-        if (!_dataProcessors.isEmpty()) processorBox.getSelectionModel().select(1);
+        if (data.getDataProcessor() != null) processorBox.getSelectionModel().select(1);
         else processorBox.getSelectionModel().selectFirst();
 
         return processorBox;
