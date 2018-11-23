@@ -55,6 +55,8 @@ public class JEVisTree extends TreeTableView {
     private UUID uuid = UUID.randomUUID();
     private JEVisTreeFilter cellFilter;
     private JEVisItemLoader itemLoader;
+    private ObservableList<JEVisObject> highliterList = FXCollections.observableArrayList();
+    private List<JEVisObject> objects = new ArrayList<>();
 
     /**
      * Create an default Tree for the given JEVisDatasource by using all accessable JEVisOBjects starting by the
@@ -80,12 +82,49 @@ public class JEVisTree extends TreeTableView {
         init();
     }
 
+    public List<JEVisObject> getObjects() {
+        return objects;
+    }
+
+    public List<JEVisObject> getVisibleObjects() {
+        return itemLoader.getVisibleObjects();
+    }
+
+    public JEVisTreeItem getItemForObject(JEVisObject obj) {
+        return itemLoader.getItemForObject(obj);
+    }
+
+    public void openPathToObject(JEVisObject obj) {
+        isParentSelect(getRoot(), obj);
+    }
+
+    private boolean isParentSelect(TreeItem<JEVisTreeRow> parent, JEVisObject obj) {
+        for (TreeItem<JEVisTreeRow> child : parent.getChildren()) {
+            if (child.getValue().getJEVisObject().equals(obj)) {
+                parent.setExpanded(true);
+                return true;
+            }
+            if (!parent.getChildren().isEmpty()) {
+                if (isParentSelect(child, obj)) {
+                    parent.setExpanded(true);
+                    return true;
+                }
+            } else {
+                return false;
+            }
+
+        }
+        return false;
+
+    }
+
     /**
      * Initialize the jevis tree
      */
     private void init() {
         try {
-            itemLoader = new JEVisItemLoader(this, ds.getObjects(), ds.getRootObjects());
+            objects = ds.getObjects();
+            itemLoader = new JEVisItemLoader(this, objects, ds.getRootObjects());
             itemLoader.filterTree(cellFilter);
             setShowRoot(false);
 
@@ -136,6 +175,10 @@ public class JEVisTree extends TreeTableView {
 
     public JEVisDataSource getJEVisDataSource() {
         return ds;
+    }
+
+    public ObservableList<JEVisObject> getHighliterList() {
+        return highliterList;
     }
 
     public void openUserSelection(List<UserSelection> selection) {

@@ -20,8 +20,11 @@
  */
 package org.jevis.application.jevistree;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -111,6 +114,24 @@ public class ColumnFactory {
                                               super.commitEdit(newValue);
                                           }
 
+                                          private void highlight(ObservableList<JEVisObject> objects, JEVisObject obj, Label node) {
+                                              Platform.runLater(() -> {
+                                                  try {
+                                                      if (objects.contains(obj)) {
+//                                                          System.out.println("+Object event: " + obj);
+//                                                          node.setStyle("-fx-background-color: yellow;");
+                                                          node.setTextFill(Color.valueOf("#6495ED"));
+
+                                                      } else {
+//                                                          node.setStyle("-fx-background-color: transparent;");
+//                                                          System.out.println("-Object event: " + obj);
+                                                          node.setTextFill(Color.BLACK);
+                                                      }
+                                                  } catch (Exception ex) {
+                                                  }
+                                              });
+                                          }
+
                                           @Override
                                           protected void updateItem(String item, boolean empty) {
                                               super.updateItem(item, empty);
@@ -136,9 +157,31 @@ public class ColumnFactory {
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
 
-
                                                       nameLabel.setPadding(new Insets(0, 0, 0, 8));
 
+                                                      highlight(tree.getHighliterList(), obj, nameLabel);
+
+                                                      /** if this object is positive in the search highlight the cell **/
+                                                      tree.getHighliterList().addListener(new ListChangeListener<JEVisObject>() {
+                                                          @Override
+                                                          public void onChanged(Change<? extends JEVisObject> c) {
+                                                              highlight(tree.getHighliterList(), obj, nameLabel);
+                                                          }
+                                                      });
+//                                                      tree.getHighliterList().addListener(new WeakListChangeListener<>(c -> {//
+//                                                          Platform.runLater(() -> {
+//                                                              try {
+//                                                                  if (c.getList().contains(obj)) {
+//                                                                      System.out.println("+Object event: " + obj);
+//                                                                      nameLabel.setStyle("-fx-background-color: yellow;");
+//                                                                  } else {
+//                                                                      nameLabel.setStyle("-fx-background-color: transparent;");
+//                                                                      System.out.println("-Object event: " + obj);
+//                                                                  }
+//                                                              } catch (Exception ex) {
+//                                                              }
+//                                                          });
+//                                                      }));
 
                                                       if (getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT) {
                                                           nameLabel.setText(object.getName());

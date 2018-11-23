@@ -36,11 +36,9 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.dialog.ConfirmDialog;
-import org.jevis.application.dialog.ExceptionDialog;
-import org.jevis.application.dialog.InfoDialog;
-import org.jevis.application.dialog.ProgressForm;
+import org.jevis.application.dialog.*;
 import org.jevis.application.jevistree.*;
+import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.Constants;
@@ -55,6 +53,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import javax.measure.unit.Unit;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -70,7 +69,7 @@ public class ObjectPlugin implements Plugin {
     private StringProperty name = new SimpleStringProperty("*NO_NAME*");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
-    private BorderPane border;
+    private BorderPane viewPane;
     //    private ObjectTree tf;
 //    private ObjectTree tree;
     private JEVisTree tree;
@@ -153,7 +152,7 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        if (border == null) {
+        if (viewPane == null) {
 
             tree = JEVisTreeFactory.buildBasicDefault(ds);
             tree.setId("objecttree");
@@ -162,13 +161,26 @@ public class ObjectPlugin implements Plugin {
             //tree.getSelectionModel().selectFirst();
 
             VBox left = new VBox();
+            left.setPrefWidth(460);
             left.setStyle("-fx-background-color: #E2E2E2;");
-            left.getChildren().addAll(tree);
+
             VBox.setVgrow(tree, Priority.ALWAYS);
 //            VBox.setVgrow(search, Priority.NEVER);
 
-            treeLodingPane.setContent(tree);
+
+            List<JEVisTreeFilter> allObjects = new ArrayList<>();
+            allObjects.add(SelectTargetDialog.buildAllObjects());
+            allObjects.add(SelectTargetDialog.buildAllDataFilter());
+            allObjects.add(SelectTargetDialog.buildAllAttributesFilter());
+            allObjects.add(SelectTargetDialog.buildCalanderFilter());
+
+            Finder finder = new Finder(tree);
+            SearchFilterBar searchBar = new SearchFilterBar(tree, allObjects, finder);
+
+
+            treeLodingPane.setContent(left);
             editorLodingPane.setContent(_editor.getView());
+            left.getChildren().addAll(tree, searchBar);
 
             SplitPane sp = new SplitPane();
             sp.setDividerPositions(.3d);
@@ -181,9 +193,9 @@ public class ObjectPlugin implements Plugin {
             treeLodingPane.endLoading();
             editorLodingPane.endLoading();
 
-            border = new BorderPane();
-            border.setCenter(sp);
-            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+            viewPane = new BorderPane();
+            viewPane.setCenter(sp);
+            viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
             //public void changed(ObservableValue<? extends TreeItem<JEVisObject>> ov, TreeItem<JEVisObject> t, TreeItem<JEVisObject> t1) {
             //TreeItem<JEVisTreeRow>
@@ -227,7 +239,7 @@ public class ObjectPlugin implements Plugin {
 
         }
 
-        return border;
+        return viewPane;
     }
 
     @Override

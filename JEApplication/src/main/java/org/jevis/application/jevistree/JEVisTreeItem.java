@@ -50,18 +50,15 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
      */
     public JEVisTreeItem(JEVisTree tree) {
         super();
-//        logger.trace("== init1 for root node==");
         JEVisObject _obj = new JEVisRootObject();
         JEVisTreeRow sobj = new JEVisTreeRow(_obj);
         setValue(sobj);
 
         jevisTree = tree;
-//        addEventHandler();
     }
 
     public JEVisTreeItem(JEVisTree tree, JEVisObject obj) {
         super();
-//        logger.trace("== init2 == {}", obj.getID());
         JEVisTreeRow sobj = new JEVisTreeRow(obj);
         setValue(sobj);
         jevisTree = tree;
@@ -75,7 +72,6 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
         JEVisTreeRow sobj = new JEVisTreeRow(att);
         setValue(sobj);
         jevisTree = tree;
-//        addEventHandler();
     }
 
 

@@ -39,8 +39,9 @@ import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.dialog.SelectTargetDialog2;
+import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.jevistree.UserSelection;
+import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
@@ -51,17 +52,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class RootExtension implements ObjectEditorExtension {
     private static final Logger logger = LogManager.getLogger(RootExtension.class);
 
     private static final String TITEL = I18n.getInstance().getString("plugin.object.root.title");
-    private JEVisObject _obj;
-
-    private BorderPane _view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private JEVisObject _obj;
+    private BorderPane _view = new BorderPane();
 
     public RootExtension(JEVisObject obj) {
         this._obj = obj;
@@ -255,16 +254,19 @@ public class RootExtension implements ObjectEditorExtension {
             @Override
             public void handle(ActionEvent t) {
                 try {
-                    SelectTargetDialog2 dia = new SelectTargetDialog2();
+                    List<JEVisTreeFilter> allFilter = new ArrayList<>();
 
-                    SelectTargetDialog2.Response re = dia.show(
+                    allFilter.add(SelectTargetDialog.buildAllObjects());
+
+                    SelectTargetDialog dia = new SelectTargetDialog(allFilter, null);
+
+                    SelectTargetDialog.Response re = dia.show(
                             JEConfig.getStage(),
                             obj.getDataSource(),
-                            "Select Entrypoint",
-                            new ArrayList<>(),
-                            SelectTargetDialog2.MODE.OBJECT);
+                            "Select entry point",
+                            new ArrayList<>());
 
-                    if (re == SelectTargetDialog2.Response.OK) {
+                    if (re == SelectTargetDialog.Response.OK) {
                         for (UserSelection selection : dia.getUserSelection()) {
                             obj.buildRelationship(selection.getSelectedObject(), JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
                         }

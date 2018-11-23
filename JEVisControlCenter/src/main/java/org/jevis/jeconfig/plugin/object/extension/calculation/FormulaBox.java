@@ -11,8 +11,9 @@ import net.sourceforge.jeval.Evaluator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.dialog.SelectTargetDialog2;
+import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.jevistree.UserSelection;
+import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.application.tools.CalculationNameFormater;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
@@ -188,17 +189,18 @@ public class FormulaBox extends HBox {
                     openList.add(new UserSelection(UserSelection.SelectionType.Attribute, th.getAttribute(), null, null));
                 }
             }
+            List<JEVisTreeFilter> allFilter = new ArrayList<>();
+            allFilter.add(SelectTargetDialog.buildAllDataFilter());
 
-            SelectTargetDialog2 selectionDialog = new SelectTargetDialog2();
+            SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
 
 
             if (selectionDialog.show(
                     JEConfig.getStage(),
                     this.calcObj.getDataSource(),
                     I18n.getInstance().getString("plugin.object.attribute.target.selection"),
-                    openList,
-                    SelectTargetDialog2.MODE.ATTRIBUTE
-            ) == SelectTargetDialog2.Response.OK) {
+                    openList
+            ) == SelectTargetDialog.Response.OK) {
                 for (UserSelection us : selectionDialog.getUserSelection()) {
 
                     TargetHelper th = new TargetHelper(this.calcObj.getDataSource(), us.getSelectedObject(), us.getSelectedAttribute());
