@@ -38,6 +38,7 @@ import org.jevis.api.*;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.dialog.*;
+import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.application.tools.CalculationNameFormater;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
@@ -465,14 +466,17 @@ public class TreeHelper {
     }
 
     public static void EventExportTree(JEVisObject obj) throws JEVisException {
-        SelectTargetDialog2 dia = new SelectTargetDialog2();
+        List<JEVisTreeFilter> allFilter = new ArrayList<>();
+        allFilter.add(SelectTargetDialog.buildAllDataFilter());
+        SelectTargetDialog dia = new SelectTargetDialog(allFilter, null);
         dia.allowMultySelect(true);
         List<UserSelection> userSeclection = new ArrayList<>();
         userSeclection.add(new UserSelection(UserSelection.SelectionType.Object, obj));
 
-        SelectTargetDialog2.Response response = dia.show(null, obj.getDataSource(), "Export", userSeclection, SelectTargetDialog2.MODE.OBJECT);
 
-        if (response == SelectTargetDialog2.Response.OK) {
+        SelectTargetDialog.Response response = dia.show(null, obj.getDataSource(), "Export", userSeclection);
+
+        if (response == SelectTargetDialog.Response.OK) {
             List<JEVisObject> objects = new ArrayList<>();
 
             for (UserSelection us : dia.getUserSelection()) {
@@ -505,15 +509,20 @@ public class TreeHelper {
 
     public static void createCalcInput(JEVisObject calcObject) throws JEVisException {
         logger.info("Event Create new Input");
-        SelectTargetDialog2 dia = new SelectTargetDialog2();
+
+        List<JEVisTreeFilter> allFilter = new ArrayList<>();
+
+        allFilter.add(SelectTargetDialog.buildAllDataFilter());
+
+        SelectTargetDialog dia = new SelectTargetDialog(allFilter, null);
         dia.allowMultySelect(true);
         List<UserSelection> userSeclection = new ArrayList<>();
         JEVisClass inputClass = calcObject.getDataSource().getJEVisClass("Input");
 
-        SelectTargetDialog2.Response response = dia.show(null,
-                calcObject.getDataSource(), "Input Selection", userSeclection, SelectTargetDialog2.MODE.OBJECT);
+        SelectTargetDialog.Response response = dia.show(null,
+                calcObject.getDataSource(), "Input Selection", userSeclection);
 
-        if (response == SelectTargetDialog2.Response.OK) {
+        if (response == SelectTargetDialog.Response.OK) {
             for (UserSelection us : dia.getUserSelection()) {
                 JEVisAttribute valueAttribute = us.getSelectedAttribute();
 

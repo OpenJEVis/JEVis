@@ -42,7 +42,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.application.application.I18nWS;
 import org.jevis.application.dialog.ExceptionDialog;
-import org.jevis.application.dialog.SelectTargetDialog2;
+import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.type.GUIConstants;
 import org.jevis.jeconfig.Constants;
@@ -63,10 +63,10 @@ import static org.jevis.jeconfig.JEConfig.PROGRAM_INFO;
 public class GenericAttributeExtension implements ObjectEditorExtension {
 
     private static final String TITEL = I18n.getInstance().getString("plugin.object.attribute.title");
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     public static DoubleProperty editorWhith = new SimpleDoubleProperty(350);
     private final BorderPane _view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     private JEVisObject _obj;
     private boolean _needSave = false;
     private List<AttributeEditor> _attributesEditor;
@@ -248,9 +248,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                                         editor = new DateEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_OBJECT.getId())) {
-                                        editor = new TargetEditor(att, SelectTargetDialog2.MODE.OBJECT, tree);
+                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.OBJECT, tree);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_ATTRIBUTE.getId())) {
-                                        editor = new TargetEditor(att, SelectTargetDialog2.MODE.ATTRIBUTE, tree);
+                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.ATTRIBUTE, tree);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_PASSWORD.getId())) {
                                         editor = new ReadablePasswordEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DATE_TIME.getId())) {

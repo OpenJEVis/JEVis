@@ -19,9 +19,6 @@
  */
 package org.jevis.application.dialog;
 
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -31,8 +28,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -42,9 +37,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.jevistree.JEVisTree;
-import org.jevis.application.jevistree.JEVisTreeFactory;
-import org.jevis.application.jevistree.UserSelection;
+import org.jevis.application.jevistree.*;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
 import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
@@ -56,7 +49,7 @@ import java.util.List;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class SelectTargetDialog2 {
+public class SelectTargetDialog {
 
     private Button ok = new Button("OK");
     private String ICON = "1404313956_evolution-tasks.png";
@@ -65,16 +58,57 @@ public class SelectTargetDialog2 {
     private Response _response = Response.CANCEL;
     private JEVisTree tree;
     private SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
-    private MODE mode = MODE.OBJECT;
-    private SimpleObjectProperty<MODE> filterMode = new SimpleObjectProperty<>(MODE.OBJECT);
-    private SimpleTargetPlugin.SimpleFilter filter;
+    private ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
+    private JEVisTreeFilter selectedFilter = null;
 
-    public Response show(Stage owner, JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
-        System.out.println("SelectTargetDialog2.start: " + mode);
-        this.filter = filter;
+    /**
+     * @param filter
+     * @param selected Filter who should selected by default, if null the first will be taken.
+     */
+    public SelectTargetDialog(List<JEVisTreeFilter> filter, JEVisTreeFilter selected) {
+        this.filterTypes.addAll(filter);
+        this.selectedFilter = selected;
+    }
+
+    public static JEVisTreeFilter buildCalanderFilter() {
+        BasicCellFilter onlyCalender = new BasicCellFilter("Calender");
+        ObjectAttributeFilter c1 = new ObjectAttributeFilter("Custom Period", ObjectAttributeFilter.NONE);
+        onlyCalender.addItemFilter(c1);
+        onlyCalender.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, c1);
+        return onlyCalender;
+    }
+
+    public static JEVisTreeFilter buildAllObjects() {
+        BasicCellFilter onlyData = new BasicCellFilter("ALL");
+        ObjectAttributeFilter d1 = new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE);
+        onlyData.addItemFilter(d1);
+        onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
+        return onlyData;
+    }
+
+    public static JEVisTreeFilter buildAllDataFilter() {
+        BasicCellFilter onlyData = new BasicCellFilter("Data");
+        ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
+        ObjectAttributeFilter d2 = new ObjectAttributeFilter("Clean Data", ObjectAttributeFilter.NONE);
+        onlyData.addItemFilter(d1);
+        onlyData.addItemFilter(d2);
+        onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
+        onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d2);
+        return onlyData;
+    }
+
+    public static JEVisTreeFilter buildAllAttributesFilter() {
+        BasicCellFilter allAttributes = new BasicCellFilter("All Attributes");
+        ObjectAttributeFilter a1 = new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.ALL);
+        ObjectAttributeFilter a2 = new ObjectAttributeFilter(ObjectAttributeFilter.NONE, ObjectAttributeFilter.ALL);
+        allAttributes.addItemFilter(a1);
+        allAttributes.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, a2);
+        return allAttributes;
+    }
+
+    public Response show(Stage owner, JEVisDataSource ds, String title, List<UserSelection> uselection) {
         stage = new Stage();
         _ds = ds;
-        filterMode = new SimpleObjectProperty<>(mode);
 
         stage.setTitle("Selection");
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -101,7 +135,6 @@ public class SelectTargetDialog2 {
         simpleTargetPlugin.setAllowMultySelection(allowMulty);
     }
 
-
     private VBox build(JEVisDataSource ds, String title, List<UserSelection> uselection) {
         VBox root = new VBox(0);
 //        root.setPadding(new Insets(10));
@@ -109,85 +142,64 @@ public class SelectTargetDialog2 {
         HBox buttonPanel = new HBox(8);
         VBox content = new VBox();
 
-
-        ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
-
-
-        BasicCellFilter allAttributes = new BasicCellFilter("All Attributes");
-        ObjectAttributeFilter a1 = new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.ALL);
-        ObjectAttributeFilter a2 = new ObjectAttributeFilter(ObjectAttributeFilter.NONE, ObjectAttributeFilter.ALL);
-        allAttributes.addItemFilter(a1);
-        allAttributes.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, a2);
-
-        BasicCellFilter onlyData = new BasicCellFilter("Data");
-        ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
-        ObjectAttributeFilter d2 = new ObjectAttributeFilter("Clean Data", ObjectAttributeFilter.NONE);
-        onlyData.addItemFilter(d1);
-        onlyData.addItemFilter(d2);
-        onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
-        onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d2);
-
-        BasicCellFilter onlyCalender = new BasicCellFilter("Calender");
-        ObjectAttributeFilter c1 = new ObjectAttributeFilter("Custom Period", ObjectAttributeFilter.NONE);
-        onlyCalender.addItemFilter(c1);
-        onlyCalender.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, c1);
-
-        filterTypes.addAll(allAttributes, onlyData, onlyCalender);
-
-
         tree = JEVisTreeFactory.buildBasicDefault(ds);
         tree.getPlugins().add(simpleTargetPlugin);
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         content.getChildren().setAll(tree);
 
 
-        tree.setFilter(allAttributes);
+//        ComboBox<JEVisTreeFilter> filterBox = new ComboBox<>(filterTypes);
+//        filterBox.setButtonCell(new ListCell<JEVisTreeFilter>() {
+//            @Override
+//            protected void updateItem(JEVisTreeFilter item, boolean empty) {
+//                super.updateItem(item, empty);
+//                if (item != null && !empty) {
+//                    setText(item.getName());
+//                }
+//            }
+//        });
+//        filterBox.setCellFactory(param -> new ListCell<JEVisTreeFilter>() {
+//            @Override
+//            protected void updateItem(JEVisTreeFilter item, boolean empty) {
+//                super.updateItem(item, empty);
+//                if (item != null && !empty) {
+//                    setText(item.getName());
+//                }
+//            }
+//        });
+//        filterBox.getSelectionModel().selectFirst();
+//        filterBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//            if (!oldValue.equals(newValue) && newValue != null) {
+//                tree.setFilter(newValue);
+//            }
+//        });
 
-
-        ComboBox<JEVisTreeFilter> filterBox = new ComboBox<>(filterTypes);
-        filterBox.setButtonCell(new ListCell<JEVisTreeFilter>() {
-            @Override
-            protected void updateItem(JEVisTreeFilter item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item != null && !empty) {
-                    setText(item.getName());
-                }
-            }
-        });
-        filterBox.setCellFactory(param -> new ListCell<JEVisTreeFilter>() {
-            @Override
-            protected void updateItem(JEVisTreeFilter item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item != null && !empty) {
-                    setText(item.getName());
-                }
-            }
-        });
-        filterBox.getSelectionModel().selectFirst();
-        filterBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (!oldValue.equals(newValue) && newValue != null) {
-                tree.setFilter(newValue);
-            }
-        });
-
-        tree.openUserSelection(uselection);
+//        tree.openUserSelection(uselection);
+//        if (selectedFilter != null) {
+//            filterBox.getSelectionModel().select(selectedFilter);
+//        } else {
+//            filterBox.getSelectionModel().selectFirst();
+//        }
         simpleTargetPlugin.setUserSelection(uselection);
 
+        Finder finder = new Finder(tree);
+        SearchFilterBar searchBar = new SearchFilterBar(tree, filterTypes, finder);
 
-        tree.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
 
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
-                ok.setDisable(false);
-            }
-        });
-
-        simpleTargetPlugin.getValidProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-//                ok.setDisable(newValue);
-            }
-        });
+//        tree.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+//
+//            @Override
+//            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
+//                ok.setDisable(false);
+//            }
+//        });
+//
+//        simpleTargetPlugin.getValidProperty().addListener(new ChangeListener<Boolean>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+////                ok.setDisable(newValue);
+//            }
+//        });
 
         ok.setDefaultButton(true);
 //        ok.setDisable(true);
@@ -215,7 +227,7 @@ public class SelectTargetDialog2 {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        buttonPanel.getChildren().setAll(filterBox, spacer, cancel, ok);
+        buttonPanel.getChildren().setAll(searchBar, spacer, cancel, ok);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(5));
 

@@ -43,8 +43,9 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
-import org.jevis.application.dialog.SelectTargetDialog2;
+import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.jevistree.UserSelection;
+import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.application.unit.UnitChooserDialog;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
@@ -59,30 +60,24 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class CSVColumnHeader {
 
     private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
-
+    private static double FIELD_WIDTH = 210;
+    private static double ROW_HIGHT = 25;
+    final Button unitButton = new Button(I18n.getInstance().getString("csv.table.unit"));
     private final VBox root = new VBox(5);
-
     Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
     Label formateL = new Label(I18n.getInstance().getString("csv.table.format"));
+    DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
     private JEVisAttribute _target = null;
     private ComboBox<String> meaning;
     private HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
     private HashMap<Integer, SimpleObjectProperty<Node>> _valuePropertys = new HashMap<Integer, SimpleObjectProperty<Node>>();
     private HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
-
     private TimeZone _selectedTimeZone = TimeZone.getDefault();
-    DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
-
-    private static double FIELD_WIDTH = 210;
-    private static double ROW_HIGHT = 25;
-
-    final Button unitButton = new Button(I18n.getInstance().getString("csv.table.unit"));
     private CSVTable _table;
     private String _currentFormate;
 
@@ -90,6 +85,18 @@ public class CSVColumnHeader {
     private char _decimalSeparator;
 
     private SimpleDateFormat _dateFormater = new SimpleDateFormat();
+    private Meaning currentMeaning = Meaning.Ignore;
+    private int coloumNr = -1;
+
+    public CSVColumnHeader(CSVTable table, int column) {
+        coloumNr = column;
+        _table = table;
+
+        root.setPrefHeight(110);
+
+        buildMeaningButton();
+        buildIgnoreGraphic();
+    }
 
     public double getValueAsDouble(String value) {
 //        DecimalFormat df = new DecimalFormat("#.#", symbols);
@@ -162,19 +169,6 @@ public class CSVColumnHeader {
 //                _table.setLastScrollPosition();
 //            }
 //        });
-    }
-
-    private Meaning currentMeaning = Meaning.Ignore;
-    private int coloumNr = -1;
-
-    public CSVColumnHeader(CSVTable table, int column) {
-        coloumNr = column;
-        _table = table;
-
-        root.setPrefHeight(110);
-
-        buildMeaningButton();
-        buildIgnoreGraphic();
     }
 
     public int getColumn() {
@@ -262,7 +256,6 @@ public class CSVColumnHeader {
     }
 
     /**
-     *
      * @param value
      * @return
      * @throws ParseException
@@ -276,13 +269,7 @@ public class CSVColumnHeader {
         }
     }
 
-    public enum Meaning {
-
-        Ignore, Date, DateTime, Time, Value, Text, Index
-    }
-
     /**
-     *
      * @param value
      * @return
      * @throws ParseException
@@ -360,11 +347,6 @@ public class CSVColumnHeader {
             return false;
         }
         return false;
-    }
-
-    public enum DateTimeMode {
-
-        Date, DateTime, Time
     }
 
     public TimeZone getTimeZone() {
@@ -689,7 +671,8 @@ public class CSVColumnHeader {
     /**
      * Try to find an matching DateTime pattern for the given Date String. This
      * implemtaion is very basic.
-     *s
+     * s
+     *
      * @return
      */
     private String findDateTimePattern() {
@@ -744,15 +727,19 @@ public class CSVColumnHeader {
             @Override
             public void handle(ActionEvent t) {
 
-                SelectTargetDialog2 selectionDialog = new SelectTargetDialog2();
+                List<JEVisTreeFilter> allFilter = new ArrayList<>();
+                allFilter.add(SelectTargetDialog.buildAllDataFilter());
+                allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
+
+
+                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
                 selectionDialog.allowMultySelect(false);
                 if (selectionDialog.show(
                         (Stage) _table.getScene().getWindow(),//JEConfig.getStage()
                         _table.getDataSource(),
                         I18n.getInstance().getString("csv.target.title"),
-                        new ArrayList<UserSelection>(),
-                        SelectTargetDialog2.MODE.ATTRIBUTE
-                ) == SelectTargetDialog2.Response.OK) {
+                        new ArrayList<UserSelection>()
+                ) == SelectTargetDialog.Response.OK) {
                     logger.trace("Selection Done");
                     for (UserSelection us : selectionDialog.getUserSelection()) {
                         try {
@@ -886,6 +873,16 @@ public class CSVColumnHeader {
 //        root.getChildren().setAll(header, webBox, buttonbox);
 //
 //        stage.show();
+    }
+
+    public enum Meaning {
+
+        Ignore, Date, DateTime, Time, Value, Text, Index
+    }
+
+    public enum DateTimeMode {
+
+        Date, DateTime, Time
     }
 
 }
