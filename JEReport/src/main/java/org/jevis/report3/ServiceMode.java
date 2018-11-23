@@ -138,7 +138,7 @@ public class ServiceMode {
                         } catch (Exception e) {
                             logger.error("Error while creating report", e);
                         }
-                        runningJobs.remove(reportObject.getName());
+                        runningJobs.remove(reportObject.getName() + ":" + reportObject.getID());
 
                     } else {
                         logger.error("Still processing Job " + reportObject.getName() + ":" + reportObject.getID());
