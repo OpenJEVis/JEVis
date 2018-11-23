@@ -105,32 +105,36 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                     @Override
                     protected void updateItem(Color item, boolean empty) {
                         super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
                         if (!empty) {
-                            StackPane hbox = new StackPane();
-                            if (getTreeTableRow().getItem() != null
-                                    && tree != null
-                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
-                                ChartDataModel data = getData(getTreeTableRow().getItem());
-                                ColorPicker colorPicker = new ColorPicker();
+                            try {
+                                StackPane stackPane = new StackPane();
+                                if (getTreeTableRow().getItem() != null
+                                        && tree != null
+                                        && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ColorPicker colorPicker = new ColorPicker();
 
-                                StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
-                                colorPicker.setValue(item);
-                                if (!usedColors.contains(item)) usedColors.add(item);
-                                colorPicker.setStyle("-fx-color-label-visible: false ;");
+                                    StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
+                                    colorPicker.setValue(item);
+                                    if (!usedColors.contains(item)) usedColors.add(item);
+                                    colorPicker.setStyle("-fx-color-label-visible: false ;");
 
-                                colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
+                                    colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
 
-                                colorPicker.setDisable(!data.isSelectable());
-                                hbox.getChildren().setAll(colorPicker);
+                                    colorPicker.setDisable(!data.isSelectable());
+                                    stackPane.getChildren().setAll(colorPicker);
+                                }
+
+                                setText(null);
+                                setGraphic(stackPane);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-
-                            setText(null);
-                            setGraphic(hbox);
-                        } else {
-                            setText(null);
-                            setGraphic(null);
                         }
-
                     }
 
                 };
