@@ -47,4 +47,5 @@ public interface ChartPluginColumn extends Observer {
     }
 
     GraphDataModel getData();
+
 }

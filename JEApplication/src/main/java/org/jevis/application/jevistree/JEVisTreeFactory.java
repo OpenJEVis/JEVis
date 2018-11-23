@@ -135,6 +135,8 @@ public class JEVisTreeFactory {
 
 
         TreeTableColumn nameCol = ColumnFactory.buildName();
+        nameCol.setPrefWidth(500);
+        nameCol.setMinWidth(250);
         TreeTableColumn idCol = ColumnFactory.buildID();
         TreeTableColumn minTS = ColumnFactory.buildDataTS(false);
         TreeTableColumn maxTS = ColumnFactory.buildDataTS(true);

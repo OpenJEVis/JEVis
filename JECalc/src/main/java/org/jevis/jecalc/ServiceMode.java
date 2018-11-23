@@ -153,7 +153,7 @@ public class ServiceMode {
                             } catch (Exception ex) {
                                 logger.error("error with calculation job, aborted", ex);
                             }
-                            runningJobs.remove(object.getName());
+                            runningJobs.remove(object.getName() + ":" + object.getID());
                         } else {
                             logger.error("Still calculating Job " + object.getName() + ":" + object.getID());
                         }

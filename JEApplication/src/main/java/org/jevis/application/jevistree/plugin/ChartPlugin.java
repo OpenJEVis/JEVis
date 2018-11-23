@@ -34,6 +34,7 @@ public class ChartPlugin implements TreePlugin {
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private final String chartTitle = rb.getString("graph.title");
     private GraphDataModel data;
+    private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
 
     public JEVisTree getTree() {
         return jeVisTree;
@@ -58,6 +59,16 @@ public class ChartPlugin implements TreePlugin {
 
     @Override
     public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns() {
+        if (allColumns == null) buildColumns();
+
+        return allColumns;
+    }
+
+    private void buildColumns() {
+        if (allColumns == null)
+            allColumns = new ArrayList<>();
+        else allColumns.clear();
+
         TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn();
         column.setEditable(true);
 
@@ -75,11 +86,13 @@ public class ChartPlugin implements TreePlugin {
 
         addChart.setOnAction(event -> {
             if (data.getCharts().size() < 4) {
-                String newName = chartTitle + " " + getData().getChartsList().size();
+                String newName = chartTitle + " " + getData().getCharts().size();
+                if (getData().getChartsList().contains(newName))
+                    newName = chartTitle + " " + (getData().getCharts().size() + 1);
 
                 data.getCharts().add(new ChartSettings(newName));
                 getData().getChartsList().add(newName);
-                SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, getData().getChartsList().size() - 1, newName);
+                SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, getData().getCharts().size() - 1, newName);
                 selectColumn.setGraphDataModel(data);
                 column.getColumns().add(column.getColumns().size() - 6, selectColumn.getSelectionColumn());
             }
@@ -87,7 +100,7 @@ public class ChartPlugin implements TreePlugin {
 
         column.setGraphic(addChart);
 
-        List<TreeTableColumn<JEVisTreeRow, Long>> allColumns = new ArrayList<>();
+
         List<TreeTableColumn> selectionColumns = new ArrayList<>();
 
         for (int i = 0; i < getData().getChartsList().size(); i++) {
@@ -116,9 +129,6 @@ public class ChartPlugin implements TreePlugin {
                 unitColumn.getUnitColumn());
 
         allColumns.add(column);
-
-
-        return allColumns;
     }
 
     public GraphDataModel getData() {

@@ -291,7 +291,6 @@ public class GraphDataModel extends Observable {
     }
 
     public ObservableList<String> getChartsList() {
-
         return selectedDataNames;
     }
 

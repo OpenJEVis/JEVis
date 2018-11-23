@@ -83,48 +83,53 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
                     @Override
                     protected void updateItem(AggregationPeriod item, boolean empty) {
                         super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
                         if (!empty) {
-                            StackPane stackPane = new StackPane();
+                            try {
+                                StackPane stackPane = new StackPane();
 
-                            if (getTreeTableRow().getItem() != null && tree != null
-                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
-                                ChartDataModel data = getData(getTreeTableRow().getItem());
+                                if (getTreeTableRow().getItem() != null && tree != null
+                                        && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    ChartDataModel data = getData(getTreeTableRow().getItem());
 
-                                AggregationBox aggBox = new AggregationBox(data);
+                                    AggregationBox aggBox = new AggregationBox(data);
 
-                                ImageView imageMarkAll = new ImageView(imgMarkAll);
-                                imageMarkAll.fitHeightProperty().set(12);
-                                imageMarkAll.fitWidthProperty().set(12);
+                                    ImageView imageMarkAll = new ImageView(imgMarkAll);
+                                    imageMarkAll.fitHeightProperty().set(12);
+                                    imageMarkAll.fitWidthProperty().set(12);
 
-                                Button tb = new Button("", imageMarkAll);
+                                    Button tb = new Button("", imageMarkAll);
 
-                                tb.setTooltip(tpMarkAll);
+                                    tb.setTooltip(tpMarkAll);
 
-                                tb.setOnAction(event -> {
-                                    AggregationPeriod selection = AggregationPeriod.parseAggregation(aggBox.getAggregationBox().getSelectionModel().getSelectedItem().toString());
-                                    getData().getSelectedData().forEach(mdl -> {
-                                        if (mdl.getSelected()) {
-                                            mdl.setAggregationPeriod(selection);
-                                        }
+                                    tb.setOnAction(event -> {
+                                        AggregationPeriod selection = AggregationPeriod.parseAggregation(aggBox.getAggregationBox().getSelectionModel().getSelectedItem().toString());
+                                        getData().getSelectedData().forEach(mdl -> {
+                                            if (mdl.getSelected()) {
+                                                mdl.setAggregationPeriod(selection);
+                                            }
+                                        });
+
+                                        tree.refresh();
                                     });
 
-                                    tree.refresh();
-                                });
+                                    HBox hbox = new HBox();
+                                    hbox.getChildren().addAll(aggBox.getAggregationBox(), tb);
+                                    stackPane.getChildren().add(hbox);
+                                    StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
-                                HBox hbox = new HBox();
-                                hbox.getChildren().addAll(aggBox.getAggregationBox(), tb);
-                                stackPane.getChildren().add(hbox);
-                                StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
+                                    aggBox.getAggregationBox().setDisable(!data.isSelectable());
+                                    tb.setDisable(!data.isSelectable());
+                                }
 
-                                aggBox.getAggregationBox().setDisable(!data.isSelectable());
-
+                                setText(null);
+                                setGraphic(stackPane);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-
-                            setText(null);
-                            setGraphic(stackPane);
-                        } else {
-                            setText(null);
-                            setGraphic(null);
                         }
 
                     }

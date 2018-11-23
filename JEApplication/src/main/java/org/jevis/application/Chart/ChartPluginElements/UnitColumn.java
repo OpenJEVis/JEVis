@@ -170,66 +170,69 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                     @Override
                     protected void updateItem(JEVisUnit item, boolean empty) {
                         super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
                         if (!empty) {
+                            try {
+                                StackPane stackPane = new StackPane();
 
-                            StackPane stackPane = new StackPane();
+                                if (getTreeTableRow().getItem() != null && tree != null
+                                        && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChoiceBox box = buildUnitBox(data);
 
-                            if (getTreeTableRow().getItem() != null && tree != null
-                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
-                                ChartDataModel data = getData(getTreeTableRow().getItem());
-                                ChoiceBox box = buildUnitBox(data);
+                                    if (data.getUnit() != null)
+                                        if (!data.getUnit().equals(Unit.ONE)) {
+                                            String selection = UnitManager.getInstance().formate(data.getUnit());
+                                            if (!selection.equals("")) box.getSelectionModel().select(selection);
+                                            else box.getSelectionModel().selectFirst();
+                                        } else {
+                                            box.getSelectionModel().selectFirst();
+                                        }
 
-                                if (data.getUnit() != null)
-                                    if (!data.getUnit().equals(Unit.ONE)) {
-                                        String selection = UnitManager.getInstance().formate(data.getUnit());
-                                        if (!selection.equals("")) box.getSelectionModel().select(selection);
-                                        else box.getSelectionModel().selectFirst();
-                                    } else {
-                                        box.getSelectionModel().selectFirst();
-                                    }
-
-                                box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-                                    if (oldValue == null || newValue != oldValue) {
-                                        JEVisUnit jeVisUnit = ChartUnits.parseUnit(String.valueOf(newValue));
-                                        commitEdit(jeVisUnit);
-                                        data.setUnit(jeVisUnit);
-                                    }
-                                });
-
-                                ImageView imageMarkAll = new ImageView(imgMarkAll);
-                                imageMarkAll.fitHeightProperty().set(12);
-                                imageMarkAll.fitWidthProperty().set(12);
-
-                                Button tb = new Button("", imageMarkAll);
-
-                                tb.setTooltip(tpMarkAll);
-
-                                tb.setOnAction(event -> {
-                                    JEVisUnit u = ChartUnits.parseUnit(box.getSelectionModel().getSelectedItem().toString());
-                                    getData().getSelectedData().forEach(mdl -> {
-                                        if (mdl.getSelected()) {
-                                            mdl.setUnit(u);
+                                    box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+                                        if (oldValue == null || newValue != oldValue) {
+                                            JEVisUnit jeVisUnit = ChartUnits.parseUnit(String.valueOf(newValue));
+                                            commitEdit(jeVisUnit);
+                                            data.setUnit(jeVisUnit);
                                         }
                                     });
 
-                                    tree.refresh();
-                                });
+                                    ImageView imageMarkAll = new ImageView(imgMarkAll);
+                                    imageMarkAll.fitHeightProperty().set(12);
+                                    imageMarkAll.fitWidthProperty().set(12);
 
-                                HBox hbox = new HBox();
-                                hbox.getChildren().addAll(box, tb);
-                                stackPane.getChildren().add(hbox);
-                                StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
+                                    Button tb = new Button("", imageMarkAll);
+                                    tb.setTooltip(tpMarkAll);
 
-                                box.setDisable(!data.isSelectable());
+                                    tb.setOnAction(event -> {
+                                        JEVisUnit u = ChartUnits.parseUnit(box.getSelectionModel().getSelectedItem().toString());
+                                        getData().getSelectedData().forEach(mdl -> {
+                                            if (mdl.getSelected()) {
+                                                mdl.setUnit(u);
+                                            }
+                                        });
+
+                                        tree.refresh();
+                                    });
+
+                                    HBox hbox = new HBox();
+                                    hbox.getChildren().addAll(box, tb);
+                                    stackPane.getChildren().add(hbox);
+                                    StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
+
+                                    box.setDisable(!data.isSelectable());
+                                    tb.setDisable(!data.isSelectable());
+                                }
+
+                                setText(null);
+                                setGraphic(stackPane);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-
-                            setText(null);
-                            setGraphic(stackPane);
-                        } else {
-                            setText(null);
-                            setGraphic(null);
                         }
-
                     }
 
                 };
