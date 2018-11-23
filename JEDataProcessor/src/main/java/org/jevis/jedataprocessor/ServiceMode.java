@@ -65,7 +65,7 @@ public class ServiceMode {
     private void runEndlessService() throws Exception {
 
         try {
-            ProcessManagerFactory.jevisDataSource.reloadAttributes();
+            ProcessManagerFactory.getJevisDataSource().reloadAttributes();
             getCycleTimeFromService();
         } catch (JEVisException e) {
             logger.error(e);
@@ -97,7 +97,7 @@ public class ServiceMode {
                                 } catch (Exception ex) {
                                     logger.debug(ex);
                                 }
-                                runningJobs.remove(currentProcess.getName());
+                                runningJobs.remove(currentProcess.getName() + ":" + currentProcess.getId());
 
                             } else {
                                 logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());

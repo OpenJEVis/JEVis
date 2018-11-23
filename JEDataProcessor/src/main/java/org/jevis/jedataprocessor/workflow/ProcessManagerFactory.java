@@ -300,6 +300,13 @@ public class ProcessManagerFactory {
         clean, functional
     }
 
+    public static JEVisDataSource getJevisDataSource() {
+        if (jevisDataSource == null) {
+            establishConnection();
+        }
+        return jevisDataSource;
+    }
+
     public static ForkJoinPool getForkJoinPool() {
         return forkJoinPool;
     }
