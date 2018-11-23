@@ -141,6 +141,11 @@ public class ToolBarView {
         reload.setOnAction(event -> {
             String currentAnalysis = listAnalysesComboBoxHidden.getSelectionModel().getSelectedItem().toString();
             select(null);
+            try {
+                ds.reloadAttributes();
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
             select(currentAnalysis);
         });
 
