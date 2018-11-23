@@ -52,8 +52,8 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
         }
 
         ChoiceBox processorBox = new ChoiceBox();
-        processorBox.setPrefWidth(120);
-        processorBox.setMinWidth(100);
+        processorBox.setPrefWidth(140);
+        processorBox.setMinWidth(120);
         processorBox.setItems(FXCollections.observableArrayList(proNames));
 
         processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
@@ -90,7 +90,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
     @Override
     public void buildColumn() {
         TreeTableColumn<JEVisTreeRow, JEVisObject> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(140);
+        column.setPrefWidth(160);
         column.setEditable(true);
         column.setId(COLUMN_ID);
 
@@ -114,31 +114,36 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
                     @Override
                     protected void updateItem(JEVisObject item, boolean empty) {
                         super.updateItem(item, empty);
-                        if (!empty) {
-                            StackPane hbox = new StackPane();
 
-                            if (getTreeTableRow().getItem() != null && tree != null
-                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
-                                ChartDataModel data = getData(getTreeTableRow().getItem());
-                                ChoiceBox box = null;
-                                try {
-                                    box = buildProcessorBox(data);
-                                } catch (JEVisException e) {
-                                    e.printStackTrace();
+                        setText(null);
+                        setGraphic(null);
+
+                        if (!empty) {
+                            try {
+                                StackPane stackPane = new StackPane();
+
+                                if (getTreeTableRow().getItem() != null && tree != null
+                                        && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChoiceBox box = null;
+                                    try {
+                                        box = buildProcessorBox(data);
+                                    } catch (JEVisException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    stackPane.getChildren().setAll(box);
+
+                                    StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
+
+                                    box.setDisable(!data.isSelectable());
                                 }
 
-                                hbox.getChildren().setAll(box);
-
-                                StackPane.setAlignment(hbox, Pos.CENTER_LEFT);
-
-                                box.setDisable(!data.isSelectable());
+                                setText(null);
+                                setGraphic(stackPane);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-
-                            setText(null);
-                            setGraphic(hbox);
-                        } else {
-                            setText(null);
-                            setGraphic(null);
                         }
 
                     }

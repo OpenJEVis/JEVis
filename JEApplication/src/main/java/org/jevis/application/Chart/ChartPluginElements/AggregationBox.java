@@ -35,7 +35,9 @@ public class AggregationBox {
         aggList.add(keyYearly);
 
         ChoiceBox aggregate = new ChoiceBox(FXCollections.observableArrayList(aggList));
+
         aggregate.setMinWidth(80);
+
         aggregate.getSelectionModel().selectFirst();
         switch (data.getAggregationPeriod()) {
             case NONE:

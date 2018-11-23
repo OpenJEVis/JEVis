@@ -154,73 +154,74 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
                     @Override
                     protected void updateItem(DateTime item, boolean empty) {
                         super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
                         if (!empty) {
-                            StackPane stackPane = new StackPane();
-                            if (getTreeTableRow().getItem() != null && tree != null
-                                    && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
-                                ChartDataModel data = getData(getTreeTableRow().getItem());
-                                DatePicker dp = buildDatePicker(data, type);
+                            try {
+                                StackPane stackPane = new StackPane();
 
-                                ImageView imageMarkAll = new ImageView(imgMarkAll);
-                                imageMarkAll.fitHeightProperty().set(12);
-                                imageMarkAll.fitWidthProperty().set(12);
+                                if (getTreeTableRow().getItem() != null && tree != null
+                                        && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    DatePicker dp = buildDatePicker(data, type);
 
-                                Button tb = new Button("", imageMarkAll);
+                                    ImageView imageMarkAll = new ImageView(imgMarkAll);
+                                    imageMarkAll.fitHeightProperty().set(12);
+                                    imageMarkAll.fitWidthProperty().set(12);
 
-                                tb.setTooltip(tpMarkAll);
+                                    Button tb = new Button("", imageMarkAll);
+                                    tb.setTooltip(tpMarkAll);
 
-                                tb.setOnAction(event -> {
-                                    if (type == DATE_TYPE.START) {
-                                        LocalDate ld = dp.valueProperty().get();
-                                        DateTime newDateTimeStart = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
-                                        getData().getSelectedData().forEach(mdl -> {
-                                            if (mdl.getSelected()) {
-                                                mdl.setSelectedStart(newDateTimeStart);
-                                            }
-                                        });
-                                    } else if (type == DATE_TYPE.END) {
-                                        LocalDate ld = dp.valueProperty().get();
-                                        DateTime newDateTimeEnd = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
-                                        getData().getSelectedData().forEach(mdl -> {
-                                            if (mdl.getSelected()) {
-                                                mdl.setSelectedEnd(newDateTimeEnd);
-                                            }
-                                        });
-                                    }
-                                    tree.refresh();
-                                });
+                                    tb.setOnAction(event -> {
+                                        if (type == DATE_TYPE.START) {
+                                            LocalDate ld = dp.valueProperty().get();
+                                            DateTime newDateTimeStart = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
+                                            getData().getSelectedData().forEach(mdl -> {
+                                                if (mdl.getSelected()) {
+                                                    mdl.setSelectedStart(newDateTimeStart);
+                                                }
+                                            });
+                                        } else if (type == DATE_TYPE.END) {
+                                            LocalDate ld = dp.valueProperty().get();
+                                            DateTime newDateTimeEnd = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
+                                            getData().getSelectedData().forEach(mdl -> {
+                                                if (mdl.getSelected()) {
+                                                    mdl.setSelectedEnd(newDateTimeEnd);
+                                                }
+                                            });
+                                        }
+                                        tree.refresh();
+                                    });
 
-                                HBox hbox = new HBox();
-                                hbox.getChildren().addAll(dp, tb);
-                                stackPane.getChildren().add(hbox);
-                                StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
+                                    HBox hbox = new HBox();
+                                    hbox.getChildren().addAll(dp, tb);
+                                    stackPane.getChildren().add(hbox);
+                                    StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
-                                dp.setOnAction(event -> {
-                                    LocalDate ld = dp.getValue();
-                                    DateTime jodaTime = null;
-                                    if (type == DATE_TYPE.START) {
-                                        jodaTime = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
-                                    } else if (type == DATE_TYPE.END) {
-                                        jodaTime = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
-                                    }
-                                    commitEdit(jodaTime);
-                                });
+                                    dp.setOnAction(event -> {
+                                        LocalDate ld = dp.getValue();
+                                        DateTime jodaTime = null;
+                                        if (type == DATE_TYPE.START) {
+                                            jodaTime = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
+                                        } else if (type == DATE_TYPE.END) {
+                                            jodaTime = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
+                                        }
+                                        commitEdit(jodaTime);
+                                    });
 
-                                if (data.getAttribute() != null && data.getAttribute().hasSample()) {
-                                    stackPane.setDisable(false);
-                                } else {
-                                    stackPane.setDisable(true);
+                                    dp.setDisable(!data.isSelectable());
+                                    tb.setDisable(!data.isSelectable());
                                 }
+
+
+                                setText(null);
+                                setGraphic(stackPane);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-
-
-                            setText(null);
-                            setGraphic(stackPane);
-                        } else {
-                            setText(null);
-                            setGraphic(null);
                         }
-
                     }
 
                 };
