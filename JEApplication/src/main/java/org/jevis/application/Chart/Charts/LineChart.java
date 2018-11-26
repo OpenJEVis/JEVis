@@ -241,7 +241,7 @@ public class LineChart implements Chart {
                         tableEntry.setDate(new DateTime(Math.round(nearest)).toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                         tableEntry.setNote(formattedNote.getNote());
                         String unit = UnitManager.getInstance().formate(singleRow.getUnit());
-                        if (unit.equals("")) singleRow.getUnit().getLabel();
+                        if (unit.equals("")) unit = singleRow.getUnit().getLabel();
                         tableEntry.setValue(formattedDouble + " " + unit);
                         tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale())));
                         tableData.add(tableEntry);
