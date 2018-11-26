@@ -22,8 +22,6 @@ import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
-import org.jevis.application.jevistree.JEVisTree;
-import org.jevis.application.jevistree.JEVisTreeFactory;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
@@ -57,7 +55,6 @@ public class ToolBarView {
     private Boolean _initialized = false;
     private LoadAnalysisDialog dialog;
     private ObservableList<String> chartsList = FXCollections.observableArrayList();
-    private JEVisTree selectionTree = null;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, ChartView chartView, List<ChartView> listChartViews) {
         this.model = model;
@@ -241,7 +238,7 @@ public class ToolBarView {
 
                         newModel.setAnalysisTimeFrame(atf);
 
-                        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel, null);
+                        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel);
 
                         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
@@ -272,16 +269,8 @@ public class ToolBarView {
         return listAnalysesComboBoxHidden;
     }
 
-    public JEVisTree getSelectionTree() {
-        if (selectionTree == null) {
-            selectionTree = JEVisTreeFactory.buildDefaultGraphTree(ds, model);
-        }
-
-        return selectionTree;
-    }
-
     private void changeSettings(ActionEvent event) {
-        ChartSelectionDialog dia = new ChartSelectionDialog(ds, model, getSelectionTree());
+        ChartSelectionDialog dia = new ChartSelectionDialog(ds, model);
 
         if (dia.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 

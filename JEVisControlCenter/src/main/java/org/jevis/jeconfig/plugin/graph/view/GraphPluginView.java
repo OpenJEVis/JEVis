@@ -185,7 +185,7 @@ public class GraphPluginView implements Plugin, Observer {
 
     private void newAnalysis() {
 
-        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel, null);
+        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel);
 
         AnalysisTimeFrame atf = new AnalysisTimeFrame();
         atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);

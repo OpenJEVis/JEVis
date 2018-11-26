@@ -20,7 +20,6 @@
  */
 package org.jevis.application.dialog;
 
-import com.beust.jcommander.internal.Nullable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -69,9 +68,8 @@ public class ChartSelectionDialog {
     /**
      * @param ds
      * @param data
-     * @param tree JEVisTree tu ise or new default if null
      */
-    public ChartSelectionDialog(JEVisDataSource ds, GraphDataModel data, @Nullable JEVisTree tree) {
+    public ChartSelectionDialog(JEVisDataSource ds, GraphDataModel data) {
         this._ds = ds;
         this.data = data;
 

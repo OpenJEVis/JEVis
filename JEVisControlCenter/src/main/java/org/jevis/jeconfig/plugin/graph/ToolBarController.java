@@ -32,7 +32,7 @@ public class ToolBarController implements EventHandler {
     @Override
     public void handle(Event event) {
         if (selectionDialog == null) {
-            selectionDialog = new ChartSelectionDialog(ds, model, view.getSelectionTree());
+            selectionDialog = new ChartSelectionDialog(ds, model);
         }
 
         if (selectionDialog.show(new Stage()) == ChartSelectionDialog.Response.OK) {
