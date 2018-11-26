@@ -143,7 +143,6 @@ public class JEVisTreeFactory {
 
     public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, GraphDataModel graphDataModel) {
 
-
         TreeTableColumn nameCol = ColumnFactory.buildName();
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(250);

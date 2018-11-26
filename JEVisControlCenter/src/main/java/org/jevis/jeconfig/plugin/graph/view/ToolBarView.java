@@ -277,6 +277,10 @@ public class ToolBarView {
             model.setCharts(dia.getChartPlugin().getData().getCharts());
             model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
         }
+
+        dia = null;
+
+        System.gc();
     }
 
     public List<ChartView> getChartViews() {

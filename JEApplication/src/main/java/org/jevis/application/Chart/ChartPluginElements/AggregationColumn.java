@@ -3,24 +3,17 @@ package org.jevis.application.Chart.ChartPluginElements;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.data.GraphDataModel;
-import org.jevis.application.application.AppLocale;
-import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
-import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
-
-import java.util.Observable;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -28,9 +21,6 @@ import java.util.Observable;
 
 public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, AggregationPeriod> implements ChartPluginColumn {
     public static String COLUMN_ID = "AggregationColumn";
-    private final Image imgMarkAll = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
-    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
-    private final Tooltip tpMarkAll = new Tooltip(rb.getString("plugin.graph.dialog.changesettings.tooltip.forall"));
     private TreeTableColumn<JEVisTreeRow, AggregationPeriod> aggregationColumn;
     private GraphDataModel data;
     private JEVisTree tree;
@@ -49,7 +39,6 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
     @Override
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
-        this.data.addObserver(this);
 
         update();
     }
@@ -148,8 +137,4 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
         return this.data;
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        update();
-    }
 }

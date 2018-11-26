@@ -12,11 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AggregationBox {
-    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private ChoiceBox aggregationBox;
 
     public AggregationBox(final ChartDataModel data) {
         List<String> aggList = new ArrayList<>();
+
+        SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 
         final String keyPreset = rb.getString("graph.interval.preset");
         String keyHourly = rb.getString("graph.interval.hourly");
