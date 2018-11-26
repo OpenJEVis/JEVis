@@ -63,13 +63,6 @@ public class SearchFilterBar extends HBox {
 
 
         searchField.getStyleClass().add(Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
-//        searchField.valueProperty().addListener((observable, oldValue, newValue) -> {
-//            System.out.println("New value: " + newValue);
-//            if (!newValue.isEmpty() && newValue.length() > 2) {
-//                System.out.println("Find: " + newValue);
-//                finder.findMatch(newValue);
-//            }
-//        });
         Background originalBackground = searchField.getEditor().getBackground();
         searchField.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("New value: " + newValue);
@@ -103,11 +96,6 @@ public class SearchFilterBar extends HBox {
         searchField.setValueFactory(spinnerFactory);
         searchField.setEditable(true);
 
-//        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-//            if (!newValue.isEmpty() && newValue.length() > 2) {
-//                finder.findMatch(newValue);
-//            }
-//        });
 
         this.setAlignment(Pos.BASELINE_LEFT);
         this.getChildren().addAll(labelFilter, filterBox, labelSearch, searchField);

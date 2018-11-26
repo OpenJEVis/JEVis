@@ -74,7 +74,7 @@ public class ColumnFactory {
     public static TreeTableColumn<JEVisTreeRow, String> buildName() {
         TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn(OBJECT_NAME);
         column.setId(OBJECT_NAME);
-        column.setPrefWidth(300);
+        column.setPrefWidth(460);
         column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, String> p) -> {
             try {
                 if (p != null && p.getValue() != null && p.getValue().getValue() != null && p.getValue().getValue().getJEVisObject() != null) {

@@ -68,6 +68,7 @@ public class TreeHelper {
      * @param tree
      */
     public static void EventDelete(JEVisTree tree) {
+        logger.error("EventDelete");
         if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
             String question = tree.getRB().getString("jevistree.dialog.delete.message");
             ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
@@ -101,7 +102,7 @@ public class TreeHelper {
                 // ... user chose CANCEL or closed the dialog
             }
         }
-
+        System.out.println("Done delete");
     }
 
     public static void openPath(JEVisTree tree, List<JEVisObject> toOpen, TreeItem<JEVisTreeRow> root, JEVisObject target) {

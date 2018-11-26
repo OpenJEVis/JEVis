@@ -288,7 +288,6 @@ public class JEVisItemLoader {
                 if (itemAttributeLinker.containsKey(attributeKey(attribute))) {
                     JEVisTreeItem itemChild = itemAttributeLinker.get(attributeKey(attribute));
                     if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
-                        System.out.println("---- > " + itemChild.getValue().getID());
                         newChildrenList.add(itemChild);
                     }
                 }
@@ -312,7 +311,6 @@ public class JEVisItemLoader {
      * @param object
      */
     public void registerEventHandler(JEVisObject object) {
-
         /** TODO: an weak listener would be better **/
         object.addEventListener(event -> {
             logger.error("Object Event [{}]: object {}", event.getType(), object.getID());
@@ -326,6 +324,8 @@ public class JEVisItemLoader {
                     if (newObject != null && itemObjectLinker.containsKey(newObject)) {
                         Platform.runLater(() -> {
                             update(object);
+                            JEVisTreeItem newItem = itemObjectLinker.get(object);
+                            newItem.setExpanded(true);
                             jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
                         });
                     }

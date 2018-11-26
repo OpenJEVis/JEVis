@@ -370,6 +370,7 @@ public class ObjectPlugin implements Plugin {
     @Override
     public void handleRequest(int cmdType) {
         try {
+            logger.error("handleRequest: " + cmdType);
             final TreeItem<JEVisTreeRow> parent = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
@@ -418,6 +419,7 @@ public class ObjectPlugin implements Plugin {
         } catch (Exception ex) {
         }
 
+        System.out.println("bug finder");
     }
 
     @Override

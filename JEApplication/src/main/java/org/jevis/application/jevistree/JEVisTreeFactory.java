@@ -34,6 +34,7 @@ import org.jevis.application.Chart.ChartPluginElements.*;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
 import org.jevis.application.jevistree.filter.FilterFactory;
+import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.application.jevistree.plugin.MapPlugin;
@@ -59,11 +60,12 @@ public class JEVisTreeFactory {
         final KeyCombination delete = new KeyCodeCombination(KeyCode.DELETE);
         final KeyCombination pageDown = new KeyCodeCombination(KeyCode.PAGE_DOWN);
 
+        logger.error("Add Tree Hotkeys to: " + tree);
         tree.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
 
             @Override
             public void handle(KeyEvent t) {
-                logger.trace("TreeEvent: {}", t.getCode());
+                logger.error("TreeEvent: {} source: {}", t.getCode(), t.getSource());
 
                 final TreeItem<JEVisTreeRow> selectedObj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
 
@@ -107,6 +109,14 @@ public class JEVisTreeFactory {
 
     public static JEVisTree buildBasicDefault(JEVisDataSource ds) {
 
+        BasicCellFilter cellFilter = new BasicCellFilter("All");
+        cellFilter.addItemFilter(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
+
+        return buildBasicDefault(ds, cellFilter);
+    }
+
+    public static JEVisTree buildBasicDefault(JEVisDataSource ds, JEVisTreeFilter filter) {
+
         TreeTableColumn nameCol = ColumnFactory.buildName();
         TreeTableColumn idCol = ColumnFactory.buildID();
         TreeTableColumn minTS = ColumnFactory.buildDataTS(false);
@@ -115,21 +125,21 @@ public class JEVisTreeFactory {
         idCol.setVisible(false);
         minTS.setVisible(false);
         maxTS.setVisible(false);
-        nameCol.setPrefWidth(450);
+        nameCol.setPrefWidth(460);
 
-        BasicCellFilter cellFilter = new BasicCellFilter("All");
-        cellFilter.addItemFilter(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
-
-        FilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
-        FilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
-        JEVisTree tree = new JEVisTree(ds, cellFilter);
+//        BasicCellFilter cellFilter = new BasicCellFilter("All");
+//        cellFilter.addItemFilter(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
+//
+//        FilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
+//        FilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
+        JEVisTree tree = new JEVisTree(ds, filter);
 
         tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
         addDefaultKeys(tree);
 
         return tree;
-
     }
+
 
     public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, GraphDataModel graphDataModel) {
 
