@@ -78,6 +78,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
         VBox vbox = new VBox();
 
         TextField textFieldChartName = new TextField(chartName.get());
+        textFieldChartName.setPrefWidth(120);
         textFieldChartName.setText(chartName.get());
         textFieldChartName.setEditable(false);
         textFieldChartName.setDisable(true);

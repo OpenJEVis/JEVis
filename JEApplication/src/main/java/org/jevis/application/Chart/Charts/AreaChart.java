@@ -34,6 +34,7 @@ import org.joda.time.format.PeriodFormat;
 
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AreaChart implements Chart {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
@@ -58,10 +59,13 @@ public class AreaChart implements Chart {
     }
 
     private void init() {
+        AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+        AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
+        final Boolean[] changedBoth = {false, false};
+
         chartDataModels.forEach(singleRow -> {
             if (singleRow.getSelected()) {
                 try {
-
                     XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
                     hexColors.add(singleRow.getColor());
@@ -71,6 +75,16 @@ public class AreaChart implements Chart {
                     if (currentUnit.equals("")) currentUnit = singleRow.getUnit().getLabel();
                     if (!unit.contains(currentUnit)) {
                         unit.add(currentUnit);
+                    }
+
+                    if (serie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
+                        timeStampOfFirstSample.set(serie.getTimeStampFromFirstSample());
+                        changedBoth[0] = true;
+                    }
+
+                    if (serie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
+                        timeStampOfLastSample.set(serie.getTimeStampFromLastSample());
+                        changedBoth[1] = true;
                     }
 
                 } catch (JEVisException e) {
@@ -99,11 +113,13 @@ public class AreaChart implements Chart {
 
         areaChart.getXAxis().setAutoRanging(true);
 
-        Period period = new Period(getStartDateTime(), getEndDateTime().plus(getPeriod()).plusSeconds(1)).minus(this.period);
-        period = period.minusSeconds(period.getSeconds());
-        period = period.minusMillis(period.getMillis());
-        String overall = period.toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale()));
-
+        String overall = "-";
+        if (changedBoth[0] && changedBoth[1]) {
+            Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
+            period = period.minusSeconds(period.getSeconds());
+            period = period.minusMillis(period.getMillis());
+            overall = period.toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale()));
+        }
 
         areaChart.getXAxis().setLabel(rb.getString("plugin.graph.chart.dateaxis.title") + " " + overall);
 
@@ -227,7 +243,7 @@ public class AreaChart implements Chart {
                         tableEntry.setDate(new DateTime(Math.round(nearest)).toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                         tableEntry.setNote(formattedNote.getNote());
                         String unit = UnitManager.getInstance().formate(singleRow.getUnit());
-                        if (unit.equals("")) singleRow.getUnit().getLabel();
+                        if (unit.equals("")) unit = singleRow.getUnit().getLabel();
                         tableEntry.setValue(formattedDouble + " " + unit);
                         tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale())));
                         tableData.add(tableEntry);
