@@ -14,18 +14,14 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.data.GraphDataModel;
-import org.jevis.application.application.AppLocale;
-import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 
 public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> implements ChartPluginColumn {
     public static String COLUMN_ID = "DataProcessorColumn";
-    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn;
     private GraphDataModel data;
     private JEVisTree tree;
@@ -83,7 +79,6 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
     @Override
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
-        this.data.addObserver(this);
         update();
     }
 
@@ -162,8 +157,4 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
         return this.data;
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        update();
-    }
 }

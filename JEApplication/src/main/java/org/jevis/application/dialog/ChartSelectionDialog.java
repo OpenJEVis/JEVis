@@ -55,7 +55,6 @@ import java.util.List;
 public class ChartSelectionDialog {
 
     private final JEVisDataSource _ds;
-    private final String ICON = "1404313956_evolution-tasks.png";
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private Response _response = Response.CANCEL;
     private GraphDataModel data;
@@ -108,6 +107,7 @@ public class ChartSelectionDialog {
 
         VBox root = new VBox();
 
+        String ICON = "1404313956_evolution-tasks.png";
         Node headerNode = DialogHeader.getDialogHeader(ICON, rb.getString("graph.selection.header"));
 
         Separator sep = new Separator(Orientation.HORIZONTAL);

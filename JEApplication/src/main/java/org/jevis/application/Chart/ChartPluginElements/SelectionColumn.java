@@ -12,13 +12,14 @@ import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
-import org.jevis.application.application.AppLocale;
-import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
 import org.jevis.application.tools.DisabledItemsComboBox;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -27,7 +28,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> implements ChartPluginColumn {
     public static String COLUMN_ID = "SelectionColumn";
-    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private TreeTableColumn<JEVisTreeRow, Boolean> selectionColumn;
     private GraphDataModel data;
     private JEVisTree tree;
@@ -50,7 +50,6 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     @Override
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
-        this.data.addObserver(this);
         update();
     }
 
@@ -329,8 +328,4 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
         return this.data;
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        update();
-    }
 }
