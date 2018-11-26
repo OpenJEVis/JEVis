@@ -74,10 +74,9 @@ public class ChartSelectionDialog {
     public ChartSelectionDialog(JEVisDataSource ds, GraphDataModel data, @Nullable JEVisTree tree) {
         this._ds = ds;
         this.data = data;
-        if (tree == null) {
-            tree = JEVisTreeFactory.buildDefaultGraphTree(ds, data);
-        }
-        this.tree = tree;
+
+        this.tree = JEVisTreeFactory.buildDefaultGraphTree(ds, data);
+
     }
 
     public Response show(Stage owner) {

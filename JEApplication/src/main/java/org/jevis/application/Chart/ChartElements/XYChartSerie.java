@@ -26,6 +26,8 @@ public class XYChartSerie implements Serie {
     private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<Double, JEVisSample>();
     private XYChart.Series<Number, Number> serie;
     private TableEntry tableEntry;
+    private DateTime timeStampFromFirstSample = DateTime.now();
+    private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
         String unit = UnitManager.getInstance().formate(singleRow.getUnit());
@@ -61,6 +63,21 @@ public class XYChartSerie implements Serie {
 //        if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
 
         List<JEVisSample> samples = singleRow.getSamples();
+
+        if (samples.size() > 0) {
+            try {
+
+                if (samples.get(0).getTimestamp().isBefore(getTimeStampFromFirstSample()))
+                    setTimeStampFromFirstSample(samples.get(0).getTimestamp());
+
+                if (samples.get(samples.size() - 1).getTimestamp().isAfter(getTimeStampFromLastSample()))
+                    setTimeStampFromLastSample(samples.get(samples.size() - 1).getTimestamp());
+
+            } catch (Exception e) {
+                logger.error("Couldn't get timestamps from samples. " + e);
+            }
+        }
+
         samples.forEach(sample -> {
             try {
                 DateTime dateTime = sample.getTimestamp();
@@ -100,12 +117,27 @@ public class XYChartSerie implements Serie {
     }
 
 
-
     public XYChart.Series getSerie() {
         return serie;
     }
 
     public TableEntry getTableEntry() {
         return tableEntry;
+    }
+
+    public DateTime getTimeStampFromFirstSample() {
+        return this.timeStampFromFirstSample;
+    }
+
+    public void setTimeStampFromFirstSample(DateTime timeStampFromFirstSample) {
+        this.timeStampFromFirstSample = timeStampFromFirstSample;
+    }
+
+    public DateTime getTimeStampFromLastSample() {
+        return this.timeStampFromLastSample;
+    }
+
+    public void setTimeStampFromLastSample(DateTime timeStampFromLastSample) {
+        this.timeStampFromLastSample = timeStampFromLastSample;
     }
 }
