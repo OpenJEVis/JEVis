@@ -78,13 +78,13 @@
             <dependency>
                 <groupId>org.jevis</groupId>
                 <artifactId>JEAPI-WS</artifactId>
-                <version>1.8</version>
+                <version>1.9</version>
             </dependency>
 
             <dependency>
                 <groupId>org.jevis.application</groupId>
                 <artifactId>jeapplication</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
 
             <dependency>
