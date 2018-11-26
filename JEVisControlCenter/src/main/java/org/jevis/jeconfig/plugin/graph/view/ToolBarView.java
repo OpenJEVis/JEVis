@@ -432,6 +432,7 @@ public class ToolBarView {
             List<JsonChartSettings> jsonChartSettings = new ArrayList<>();
             for (ChartSettings cset : chartSettings) {
                 JsonChartSettings set = new JsonChartSettings();
+                set.setId(cset.getId().toString());
                 set.setName(cset.getName());
                 set.setChartType(cset.getChartType().toString());
                 set.setHeight(cset.getHeight().toString());

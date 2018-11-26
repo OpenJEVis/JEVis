@@ -241,6 +241,7 @@ public class GraphDataModel extends Observable {
             if (listChartsSettings != null && !listChartsSettings.isEmpty()) {
                 for (JsonChartSettings settings : listChartsSettings) {
                     ChartSettings newSettings = new ChartSettings("");
+                    newSettings.setId(Long.parseLong(settings.getId()));
                     newSettings.setName(settings.getName());
                     newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
 

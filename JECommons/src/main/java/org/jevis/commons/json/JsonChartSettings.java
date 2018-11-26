@@ -32,11 +32,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "ChartSettings")
 public class JsonChartSettings {
 
+    private String id;
     private String name;
     private String chartType;
     private String height;
 
     public JsonChartSettings() {
+    }
+
+    @XmlElement(name = "id")
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @XmlElement(name = "name")
