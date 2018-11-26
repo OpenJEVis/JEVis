@@ -232,20 +232,19 @@ public class SimpleTargetPlugin implements TreePlugin {
     }
 
     public List<UserSelection> getUserSelection() {
-//        List<UserSelection> result = new ArrayList<>();
-//        for (SimpleTargetPluginData data : _data) {
-//            if (data.isSelected()) {
-////                _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
-//                if (mode == MODE.OBJECT) {
-//                    result.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
-//                } else {
-//                    result.add(new UserSelection(UserSelection.SelectionType.Attribute, data.getAtt(), null, null));
-//                }
-//            }
-//        }
-//
-//        return result;
-        return new ArrayList<>();//TODO
+        List<UserSelection> result = new ArrayList<>();
+        for (SimpleTargetPluginData data : _data) {
+            if (data.isSelected()) {
+//                _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
+                if (mode == MODE.OBJECT) {
+                    result.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
+                } else {
+                    result.add(new UserSelection(UserSelection.SelectionType.Attribute, data.getAtt(), null, null));
+                }
+            }
+        }
+
+        return result;
     }
 
     public void setUserSelection(List<UserSelection> list) {
