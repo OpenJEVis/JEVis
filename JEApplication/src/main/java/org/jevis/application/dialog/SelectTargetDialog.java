@@ -83,6 +83,8 @@ public class SelectTargetDialog {
         ObjectAttributeFilter d1 = new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE);
         onlyData.addItemFilter(d1);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
+
+
         return onlyData;
     }
 
@@ -94,6 +96,7 @@ public class SelectTargetDialog {
         onlyData.addItemFilter(d2);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d2);
+
         return onlyData;
     }
 
@@ -142,67 +145,19 @@ public class SelectTargetDialog {
         HBox buttonPanel = new HBox(8);
         VBox content = new VBox();
 
+
         tree = JEVisTreeFactory.buildBasicDefault(ds);
         tree.getPlugins().add(simpleTargetPlugin);
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         content.getChildren().setAll(tree);
 
-
-//        ComboBox<JEVisTreeFilter> filterBox = new ComboBox<>(filterTypes);
-//        filterBox.setButtonCell(new ListCell<JEVisTreeFilter>() {
-//            @Override
-//            protected void updateItem(JEVisTreeFilter item, boolean empty) {
-//                super.updateItem(item, empty);
-//                if (item != null && !empty) {
-//                    setText(item.getName());
-//                }
-//            }
-//        });
-//        filterBox.setCellFactory(param -> new ListCell<JEVisTreeFilter>() {
-//            @Override
-//            protected void updateItem(JEVisTreeFilter item, boolean empty) {
-//                super.updateItem(item, empty);
-//                if (item != null && !empty) {
-//                    setText(item.getName());
-//                }
-//            }
-//        });
-//        filterBox.getSelectionModel().selectFirst();
-//        filterBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//            if (!oldValue.equals(newValue) && newValue != null) {
-//                tree.setFilter(newValue);
-//            }
-//        });
-
-//        tree.openUserSelection(uselection);
-//        if (selectedFilter != null) {
-//            filterBox.getSelectionModel().select(selectedFilter);
-//        } else {
-//            filterBox.getSelectionModel().selectFirst();
-//        }
         simpleTargetPlugin.setUserSelection(uselection);
 
         Finder finder = new Finder(tree);
         SearchFilterBar searchBar = new SearchFilterBar(tree, filterTypes, finder);
 
 
-//        tree.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-//
-//            @Override
-//            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
-//                ok.setDisable(false);
-//            }
-//        });
-//
-//        simpleTargetPlugin.getValidProperty().addListener(new ChangeListener<Boolean>() {
-//            @Override
-//            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-////                ok.setDisable(newValue);
-//            }
-//        });
-
         ok.setDefaultButton(true);
-//        ok.setDisable(true);
 
         Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
@@ -242,6 +197,8 @@ public class SelectTargetDialog {
     }
 
     public List<UserSelection> getUserSelection() {
+        System.out.println("getUserSelection: " + simpleTargetPlugin.getUserSelection().size());
+
         return simpleTargetPlugin.getUserSelection();
     }
 

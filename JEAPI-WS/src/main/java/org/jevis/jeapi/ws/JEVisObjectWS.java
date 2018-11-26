@@ -61,7 +61,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public synchronized void notifyListeners(JEVisEvent event) {
-        logger.error("Object event[{}] listeners: {} event:", getID(), listeners.getListenerCount(), event.getType());
+        logger.trace("Object event[{}] listeners: {} event:", getID(), listeners.getListenerCount(), event.getType());
         for (JEVisEventListener l : listeners.getListeners(JEVisEventListener.class)) {
             l.fireEvent(event);
         }
@@ -360,6 +360,9 @@ public class JEVisObjectWS implements JEVisObject {
             if (!getAttributes().isEmpty()) {
                 ds.reloadAttribute(getAttributes().get(0));
             }
+
+            /** reload object to be sure all evens will be handelt and the cache is working correctly **/
+            ds.addToObjectCache(this);
 
             if (update) {
                 notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));

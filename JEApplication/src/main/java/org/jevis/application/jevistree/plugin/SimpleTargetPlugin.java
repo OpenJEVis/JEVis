@@ -10,8 +10,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TreeTableCell;
@@ -151,10 +149,10 @@ public class SimpleTargetPlugin implements TreePlugin {
                     @Override
                     protected void updateItem(Boolean item, boolean empty) {
                         super.updateItem(item, empty);
-                        if (!empty) {
+                        setText(null);
+                        setGraphic(null);
 
-                            setText(null);
-                            setGraphic(null);
+                        if (!empty) {
 
                             try {
                                 if (getTreeTableRow() != null && getTreeTableRow().getItem() != null && tree != null) {
@@ -168,25 +166,19 @@ public class SimpleTargetPlugin implements TreePlugin {
                                         hbox.getChildren().setAll(box);
                                         setGraphic(hbox);
 
-                                        box.setOnAction(new EventHandler<ActionEvent>() {
-
-                                            @Override
-                                            public void handle(ActionEvent event) {
-                                                SimpleTargetPluginData sdata = getData(getTreeTableRow().getItem());
-
-                                                if (!allowMultySelection && box.isSelected()) {
-                                                    unselectAllBut(getTreeTableRow().getItem());
-                                                    commitEdit(box.isSelected());
-                                                    for (SimpleTargetPluginData data : _data) {
-                                                        if (data.isSelected()) {
-                                                            validProperty.setValue(true);
-                                                        }
+                                        box.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                                            if (!allowMultySelection && box.isSelected()) {
+                                                unselectAllBut(getTreeTableRow().getItem());
+                                                commitEdit(box.isSelected());
+                                                for (SimpleTargetPluginData data : _data) {
+                                                    if (data.isSelected()) {
+                                                        validProperty.setValue(true);
                                                     }
-
                                                 }
-                                                getData(getTreeTableRow().getItem()).setSelected(box.isSelected());
 
                                             }
+                                            logger.error("Selection: {}", box.isSelected());
+                                            getData(getTreeTableRow().getItem()).setSelected(box.isSelected());
                                         });
 
                                         if (isPreselected(getTreeTableRow().getItem())) {
@@ -201,11 +193,7 @@ public class SimpleTargetPlugin implements TreePlugin {
                                 ex.printStackTrace();
                             }
 
-                        } else {
-                            setText(null);
-                            setGraphic(null);
                         }
-
                     }
 
                 };

@@ -621,7 +621,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public JEVisObject buildObject(long parentID, String jclass, String name) throws JEVisException {
-        logger.debug("ds.buildObject: {} {} {}", parentID, jclass, name);
+        logger.error("ds.buildObject: {} {} {}", parentID, jclass, name);
         JEVisObject parent = getObject(parentID);
         JEVisClass newObjClass = getJEVisClass(jclass);
         JEVisObject newObj = parent.buildObject(name, newObjClass);
@@ -1099,6 +1099,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return new ArrayList<>();
         }
 
+    }
+
+    public void addToObjectCache(JEVisObject obj) {
+        objectCache.put(obj.getID(), obj);
     }
 
 }
