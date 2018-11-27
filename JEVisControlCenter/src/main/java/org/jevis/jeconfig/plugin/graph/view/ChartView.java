@@ -25,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartElements.TableEntry;
+import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.Charts.*;
 import org.jevis.application.Chart.data.GraphDataModel;
@@ -243,54 +244,55 @@ public class ChartView implements Observer {
         return tableView;
     }
 
-    public void drawAreaChart(String chartName, ChartType chartType) {
+    public void drawAreaChart(Integer chartId, ChartType chartType) {
 
         chart = null;
 
-        Set<ChartDataModel> selectedData = dataModel.getSelectedData();
-
-        String title = I18n.getInstance().getString("plugin.graph.chart.title1");
-
-        List<ChartDataModel> chartDataModels = new ArrayList<>();
-
-        for (ChartDataModel singleRow : selectedData) {
-            if (Objects.isNull(chartName) || chartName.equals("") || singleRow.getSelectedcharts().contains(chartName)) {
-                if (chartName == "" || chartName == null) {
-                    if (singleRow.getSelectedcharts().size() == 1) title = singleRow.getSelectedcharts().get(0);
-                } else title = chartName;
-                chartDataModels.add(singleRow);
+        for (ChartSettings set : dataModel.getCharts()) {
+            if (set.getId() == chartId) {
+                chartName = set.getName();
+                break;
             }
         }
 
-        this.chartName = title;
+        List<ChartDataModel> chartDataModels = new ArrayList<>();
+
+        for (ChartDataModel singleRow : dataModel.getSelectedData()) {
+            for (int i : singleRow.getSelectedcharts()) {
+                if (i == chartId) {
+                    chartDataModels.add(singleRow);
+                }
+            }
+
+        }
 
         switch (chartType) {
             case AREA:
-                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
+                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
                 setTableStandard();
                 break;
             case LINE:
-                chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
+                chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
                 setTableStandard();
                 break;
             case BAR:
-                chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
+                chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
                 setTableStandard();
                 break;
             case BUBBLE:
-                chart = new BubbleChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
+                chart = new BubbleChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
                 setTableStandard();
                 break;
             case SCATTER:
-                chart = new ScatterChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
+                chart = new ScatterChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
                 setTableStandard();
                 break;
             case PIE:
-                chart = new PieChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
+                chart = new PieChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
                 disableTable();
                 break;
             default:
-                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), chartName);
+                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
                 setTableStandard();
                 break;
         }

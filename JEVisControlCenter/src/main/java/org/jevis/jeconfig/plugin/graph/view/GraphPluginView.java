@@ -23,7 +23,6 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -70,7 +69,6 @@ public class GraphPluginView implements Plugin, Observer {
     private BorderPane border;
     private ToolBar toolBar;
     private LoadAnalysisDialog dialog;
-    private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
 
@@ -260,7 +258,6 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public Node getContentNode() {
-        if (dataModel.getSelectedData() != null) chartsList = dataModel.getChartsList();
 
         if (border == null) {
             border = new BorderPane();
@@ -301,7 +298,6 @@ public class GraphPluginView implements Plugin, Observer {
         double autoMinSize = 220;
 
         if (dataModel.getSelectedData() != null) {
-            chartsList = dataModel.getChartsList();
 
             double maxHeight = border.getHeight();
             double totalPrefHeight = 0;
@@ -340,8 +336,8 @@ public class GraphPluginView implements Plugin, Observer {
                         /** Calculate maxsize based on the amount of Data **/
                         int dataSize = 0;
                         for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
-                            for (String name : chartDataModel.getSelectedcharts()) {
-                                if (name.equals(cv.getChartName())) {
+                            for (int i : chartDataModel.getSelectedcharts()) {
+                                if (i == cset.getId()) {
                                     dataSize++;
                                 }
                             }
@@ -381,8 +377,8 @@ public class GraphPluginView implements Plugin, Observer {
                 notActive.remove(cv);
                 ChartType chartType = cv.getChartType();
 
-                switch (chartType.toString()) {
-                    case ("AREA"):
+                switch (chartType) {
+                    case AREA:
                         cv.getChart().getChart().setOnMouseMoved(event -> {
                             cv.updateTablesSimultaneously(event, null);
                             notActive.parallelStream().forEach(na -> {
@@ -391,7 +387,7 @@ public class GraphPluginView implements Plugin, Observer {
                             });
                         });
                         break;
-                    case ("LINE"):
+                    case LINE:
                         cv.getChart().getChart().setOnMouseMoved(event -> {
                             cv.updateTablesSimultaneously(event, null);
                             notActive.parallelStream().forEach(na -> {
@@ -400,7 +396,7 @@ public class GraphPluginView implements Plugin, Observer {
                             });
                         });
                         break;
-                    case ("BAR"):
+                    case BAR:
 //                        cv.getBarChart().setOnMouseMoved(event -> {
 //                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
 //                            for (ChartView na : notActive) {
@@ -408,7 +404,7 @@ public class GraphPluginView implements Plugin, Observer {
 //                            }
 //                        });
                         break;
-                    case ("BUBBLE"):
+                    case BUBBLE:
 //                        cv.getBubbleChart().setOnMouseMoved(event -> {
 //                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
 //                            for (ChartView na : notActive) {
@@ -416,7 +412,7 @@ public class GraphPluginView implements Plugin, Observer {
 //                            }
 //                        });
                         break;
-                    case ("SCATTER"):
+                    case SCATTER:
 //                        cv.getScatterChart().setOnMouseMoved(event -> {
 //                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
 //                            for (ChartView na : notActive) {
@@ -424,7 +420,7 @@ public class GraphPluginView implements Plugin, Observer {
 //                            }
 //                        });
                         break;
-                    case ("PIE"):
+                    case PIE:
 //                        cv.getPieChart().setOnMouseMoved(event -> {
 //                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
 //                            for (ChartView na : notActive) {
@@ -449,7 +445,7 @@ public class GraphPluginView implements Plugin, Observer {
             /**
              * If auto size is on or if its only one chart sale the chart to maximize screen size
              */
-            if (chartsList.size() == 1 || dataModel.getAutoResize()) {
+            if (dataModel.getCharts().size() == 1 || dataModel.getAutoResize()) {
                 /**
                  * If all children take more space then the maximum available size
                  * set all on min size. after this the free space will be reallocate
@@ -490,6 +486,8 @@ public class GraphPluginView implements Plugin, Observer {
             border.setBottom(null);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
         }
+
+        System.gc();
     }
 
     private double calculationTotalPrefSize(Pane pane) {

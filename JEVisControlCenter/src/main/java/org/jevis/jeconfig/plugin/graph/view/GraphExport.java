@@ -109,9 +109,10 @@ public class GraphExport {
         selectDecimalSeparators.showAndWait().ifPresent(response -> {
             if (response.getButtonData().getTypeCode() == buttonOk.getButtonData().getTypeCode()) {
                 for (ChartDataModel mdl : model.getSelectedData()) {
-                    if (mdl.getSelected()) {
-                        for (String s : mdl.getSelectedcharts()) {
-                            if (charts.isEmpty() || !charts.contains(s)) charts.add(s);
+                    if (!mdl.getSelectedcharts().isEmpty()) {
+                        for (Integer i : mdl.getSelectedcharts()) {
+                            if (charts.isEmpty() || !charts.contains(model.getCharts().get(i).getName()))
+                                charts.add(model.getCharts().get(i).getName());
                         }
                     }
                 }

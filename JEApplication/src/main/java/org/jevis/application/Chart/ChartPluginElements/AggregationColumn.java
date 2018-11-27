@@ -97,7 +97,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
                                     tb.setOnAction(event -> {
                                         AggregationPeriod selection = AggregationPeriod.parseAggregation(aggBox.getAggregationBox().getSelectionModel().getSelectedItem().toString());
                                         getData().getSelectedData().forEach(mdl -> {
-                                            if (mdl.getSelected()) {
+                                            if (!mdl.getSelectedcharts().isEmpty()) {
                                                 mdl.setAggregationPeriod(selection);
                                             }
                                         });

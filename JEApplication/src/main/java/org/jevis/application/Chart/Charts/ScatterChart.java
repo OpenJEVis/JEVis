@@ -17,12 +17,17 @@ public class ScatterChart implements Chart {
     private javafx.scene.chart.ScatterChart<Number, Number> scatterChart;
     private List<Color> hexColors = new ArrayList<>();
 
-    public ScatterChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, String chartName) {
+    public ScatterChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
 
     }
 
     @Override
     public String getChartName() {
+        return null;
+    }
+
+    @Override
+    public Integer getChartId() {
         return null;
     }
 

@@ -9,6 +9,7 @@ import org.jevis.application.Chart.ChartUnits.ChartUnits;
 import org.jevis.commons.dataprocessing.AggregationMode;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.SampleGenerator;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 
@@ -33,7 +34,7 @@ public class ChartDataModel {
     private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<>();
     private boolean _somethingChanged = true;
     private JEVisUnit _unit;
-    private List<String> _selectedCharts = new ArrayList<>();
+    private List<Integer> _selectedCharts = new ArrayList<>();
 
     public ChartDataModel() {
     }
@@ -83,6 +84,26 @@ public class ChartDataModel {
                     samples = sg.getAggregatedSamples(samples);
                     samples = factorizeSamples(samples);
 
+                    /**
+                     * Checking for data incongruencies                     *
+                     */
+
+                    if (samples.size() > 0) {
+
+                        while (samples.get(0).getTimestamp().isAfter(getSelectedStart())) {
+                            DateTime newTS = samples.get(0).getTimestamp().minus(getAttribute().getDisplaySampleRate());
+                            JEVisSample smp = new VirtualSample(newTS, 0.0);
+                            smp.setNote("Empty");
+                            samples.add(0, smp);
+                        }
+
+                        while (samples.get(samples.size() - 1).getTimestamp().isBefore(getSelectedEnd())) {
+                            DateTime newTS = samples.get(samples.size() - 1).getTimestamp().plus(getAttribute().getDisplaySampleRate());
+                            JEVisSample smp = new VirtualSample(newTS, 0.0);
+                            smp.setNote("Empty");
+                            samples.add(smp);
+                        }
+                    }
 
                 } catch (Exception ex) {
                     //TODO: exception handling
@@ -167,16 +188,16 @@ public class ChartDataModel {
         this.aggregationPeriod = aggregationPeriod;
     }
 
-    public boolean getSelected() {
-
-        return _selected;
-    }
-
-    public void setSelected(boolean selected) {
-
-        _somethingChanged = true;
-        _selected = selected;
-    }
+//    public boolean getSelected() {
+//
+//        return _selected;
+//    }
+//
+//    public void setSelected(boolean selected) {
+//
+//        _somethingChanged = true;
+//        _selected = selected;
+//    }
 
     public String getTitle() {
         return _title;
@@ -282,11 +303,11 @@ public class ChartDataModel {
     }
 
 
-    public List<String> getSelectedcharts() {
+    public List<Integer> getSelectedcharts() {
         return _selectedCharts;
     }
 
-    public void setSelectedCharts(List<String> selectedCharts) {
+    public void setSelectedCharts(List<Integer> selectedCharts) {
 
         _somethingChanged = true;
         this._selectedCharts = selectedCharts;

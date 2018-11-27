@@ -58,6 +58,9 @@
         <Logger name="org.jevis.jecalc" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
+        <Logger name="org.jevis.jedataprocessor" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
         <Logger name="org.jevis.jenotifier" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>

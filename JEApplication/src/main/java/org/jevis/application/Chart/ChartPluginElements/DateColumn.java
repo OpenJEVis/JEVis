@@ -171,7 +171,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
                                             LocalDate ld = dp.valueProperty().get();
                                             DateTime newDateTimeStart = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 0, 0, 0, 0);
                                             getData().getSelectedData().forEach(mdl -> {
-                                                if (mdl.getSelected()) {
+                                                if (!mdl.getSelectedcharts().isEmpty()) {
                                                     mdl.setSelectedStart(newDateTimeStart);
                                                 }
                                             });
@@ -179,7 +179,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
                                             LocalDate ld = dp.valueProperty().get();
                                             DateTime newDateTimeEnd = new DateTime(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth(), 23, 59, 59, 999);
                                             getData().getSelectedData().forEach(mdl -> {
-                                                if (mdl.getSelected()) {
+                                                if (!mdl.getSelectedcharts().isEmpty()) {
                                                     mdl.setSelectedEnd(newDateTimeEnd);
                                                 }
                                             });

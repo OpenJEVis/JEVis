@@ -400,7 +400,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         LocalDate min = null;
                         LocalDate max = null;
                         for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
-                            if (mdl.getSelected()) {
+                            if (!mdl.getSelectedcharts().isEmpty()) {
                                 JEVisAttribute att = mdl.getAttribute();
 
                                 LocalDate min_check = LocalDate.of(

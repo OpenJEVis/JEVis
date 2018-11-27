@@ -37,6 +37,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.Chart.ChartDataModel;
+import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
@@ -167,8 +168,8 @@ public class ChartSelectionDialog {
         TabPane tabPaneCharts = new TabPane();
 
 //        chartsList = data.getChartsList();chartPlugin
-        for (String s : chartPlugin.getData().getChartsList()) {
-            tabPaneCharts.getTabs().add(getChartTab(s));
+        for (ChartSettings cset : chartPlugin.getData().getCharts()) {
+            tabPaneCharts.getTabs().add(getChartTab(cset));
         }
 
 
@@ -195,9 +196,12 @@ public class ChartSelectionDialog {
         if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
             List<UserSelection> listUS = new ArrayList<>();
             for (ChartDataModel cdm : data.getSelectedData()) {
-                if (cdm.getSelected())
-                    listUS.add(new UserSelection(UserSelection.SelectionType.Object, cdm.getObject()));
-
+                for (int i : cdm.getSelectedcharts()) {
+                    for (ChartSettings set : data.getCharts()) {
+                        if (set.getId() == i)
+                            listUS.add(new UserSelection(UserSelection.SelectionType.Object, cdm.getObject()));
+                    }
+                }
             }
 
             if (!listUS.isEmpty()) tree.openUserSelectionNoChildren(listUS);
@@ -214,6 +218,7 @@ public class ChartSelectionDialog {
             _response = Response.OK;
 
             stage.close();
+            stage = null;
 
         });
 
@@ -236,21 +241,20 @@ public class ChartSelectionDialog {
         if (!listUS.isEmpty()) tree.openUserSelection(listUS);
     }
 
-    private Tab getChartTab(String s) {
-        final String currentChart = s;
-        Tab newTab = new Tab(s);
+    private Tab getChartTab(ChartSettings cset) {
+        Tab newTab = new Tab(cset.getName());
         newTab.setClosable(false);
 
         GridPane gp = new GridPane();
 
         Label labelName = new Label(rb.getString("graph.tabs.tab.name"));
         TextField textFieldName = new TextField();
-        textFieldName.setText(s);
+        textFieldName.setText(cset.getName());
 
         textFieldName.textProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
-                for (String ch : data.getChartsList()) {
-                    if (ch.contains(currentChart)) ch = newValue;
+                for (ChartSettings c : data.getCharts()) {
+                    if (c.getName().contains(cset.getName())) c.setName(newValue);
                 }
             }
         });

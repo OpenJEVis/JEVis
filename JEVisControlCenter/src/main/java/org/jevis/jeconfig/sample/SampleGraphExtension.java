@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class SampleGraphExtension implements SampleEditorExtension {
 
-    private final static String TITEL = "Graph";
+    private final static String TITLE = "Graph";
     private final BorderPane _view = new BorderPane();
     private JEVisAttribute _att;
     private List<JEVisSample> _samples;
@@ -63,6 +63,10 @@ public class SampleGraphExtension implements SampleEditorExtension {
         } catch (JEVisException e) {
 
         }
+
+        List<Integer> list = new ArrayList<>();
+        list.add(0);
+        chartDataModel.setSelectedCharts(list);
         chartDataModel.setAttribute(obj);
         chartDataModel.setSamples(samples);
         chartDataModel.setColor(Color.BLUE);
@@ -71,7 +75,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
         List<ChartDataModel> chartDataModelList = new ArrayList<>();
         chartDataModelList.add(chartDataModel);
 
-        LineChart lc = new LineChart(chartDataModelList, false, "");
+        LineChart lc = new LineChart(chartDataModelList, false, 0, "");
 
         bp.setCenter(lc.getRegion());
         _view.setCenter(bp);
@@ -89,7 +93,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
     @Override
     public String getTitel() {
-        return TITEL;
+        return TITLE;
     }
 
     @Override

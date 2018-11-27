@@ -31,6 +31,7 @@ import java.util.*;
 public class BarChart implements Chart {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private static final Logger logger = LogManager.getLogger(BarChart.class);
+    private final Integer chartId;
     private String chartName;
     private String unit;
     private List<ChartDataModel> chartDataModels;
@@ -43,16 +44,17 @@ public class BarChart implements Chart {
     private Region barChartRegion;
     private Period period;
 
-    public BarChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, String chartName) {
+    public BarChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.hideShowIcons = hideShowIcons;
+        this.chartId = chartId;
         this.chartName = chartName;
         init();
     }
 
     private void init() {
         chartDataModels.forEach(singleRow -> {
-            if (singleRow.getSelected()) {
+            if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
 
@@ -151,6 +153,11 @@ public class BarChart implements Chart {
     @Override
     public String getChartName() {
         return chartName;
+    }
+
+    @Override
+    public Integer getChartId() {
+        return chartId;
     }
 
     @Override
