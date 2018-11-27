@@ -40,6 +40,7 @@ public class AreaChart implements Chart {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private static final Logger logger = LogManager.getLogger(AreaChart.class);
     private String chartName;
+    private Integer chartId;
     private List<String> unit = new ArrayList<>();
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
@@ -51,9 +52,10 @@ public class AreaChart implements Chart {
     private Region areaChartRegion;
     private Period period;
 
-    public AreaChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, String chartName) {
+    public AreaChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.hideShowIcons = hideShowIcons;
+        this.chartId = chartId;
         this.chartName = chartName;
         init();
     }
@@ -64,7 +66,7 @@ public class AreaChart implements Chart {
         final Boolean[] changedBoth = {false, false};
 
         chartDataModels.forEach(singleRow -> {
-            if (singleRow.getSelected()) {
+            if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
@@ -197,6 +199,11 @@ public class AreaChart implements Chart {
     }
 
     @Override
+    public Integer getChartId() {
+        return null;
+    }
+
+    @Override
     public void updateTable(MouseEvent mouseEvent, Number valueForDisplay) {
         Point2D mouseCoordinates = null;
         if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
@@ -215,7 +222,7 @@ public class AreaChart implements Chart {
             tableData = FXCollections.emptyObservableList();
             Number finalValueForDisplay = valueForDisplay;
             chartDataModels.parallelStream().forEach(singleRow -> {
-                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.getSelectedcharts().contains(chartName)) {
+                if (singleRow.getSelectedcharts().contains(chartId)) {
                     try {
                         TreeMap<Double, JEVisSample> sampleTreeMap = singleRow.getSampleMap();
                         Double higherKey = sampleTreeMap.higherKey(finalValueForDisplay.doubleValue());

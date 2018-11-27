@@ -12,6 +12,8 @@ public interface Chart {
 
     String getChartName();
 
+    Integer getChartId();
+
     void updateTable(MouseEvent mouseEvent, Number valueForDisplay);
 
     void showNote(MouseEvent mouseEvent);

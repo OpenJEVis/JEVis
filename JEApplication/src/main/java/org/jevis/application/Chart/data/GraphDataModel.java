@@ -42,10 +42,9 @@ public class GraphDataModel extends Observable {
     private static final Logger logger = LogManager.getLogger(GraphDataModel.class);
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private Set<ChartDataModel> selectedData = new HashSet<>();
-    private Set<ChartSettings> charts = new HashSet<>();
+    private List<ChartSettings> charts = new ArrayList<>();
     private Boolean hideShowIcons = true;
     private Boolean autoResize = true;
-    private ObservableList<String> selectedDataNames = FXCollections.observableArrayList(new ArrayList<>());
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame();
     private JEVisDataSource ds;
     private List<JEVisObject> listAnalyses = new ArrayList<>();
@@ -82,44 +81,21 @@ public class GraphDataModel extends Observable {
     }
 
     public void setSelectedData(Set<ChartDataModel> selectedData) {
-        this.selectedData = selectedData;
+        Set<ChartDataModel> data = new HashSet<>();
 
-        updateSelectedDataNames();
+        selectedData.forEach(chartDataModel -> {
+            if (!chartDataModel.getSelectedcharts().isEmpty())
+                data.add(chartDataModel);
+        });
+
+        this.selectedData = data;
+
+        System.gc();
 
         setChanged();
+
         notifyObservers();
-    }
 
-    private void updateSelectedDataNames() {
-        selectedDataNames.clear();
-
-        if (getSelectedData() != null) {
-            for (ChartDataModel mdl : getSelectedData()) {
-                if (mdl.getSelected()) {
-                    boolean found = false;
-                    for (String chartName : mdl.getSelectedcharts()) {
-                        for (ChartSettings set : getCharts()) {
-                            if (chartName.equals(set.getName())) {
-                                if (!selectedDataNames.contains(set.getName())) {
-
-                                    selectedDataNames.add(set.getName());
-                                    found = true;
-                                }
-                            }
-                        }
-                        if (!found) {
-                            if (!selectedDataNames.contains(chartName)) {
-                                getCharts().add(new ChartSettings(chartName));
-                                selectedDataNames.add(chartName);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        AlphanumComparator ac = new AlphanumComparator();
-        selectedDataNames.sort(ac);
     }
 
     public void updateSelectedData() {
@@ -143,7 +119,6 @@ public class GraphDataModel extends Observable {
                     start = DateTime.parse(mdl.getSelectedStart());
                     DateTime end;
                     end = DateTime.parse(mdl.getSelectedEnd());
-                    Boolean selected = Boolean.parseBoolean(mdl.getSelected());
                     newData.setObject(obj);
 
                     newData.setSelectedStart(start);
@@ -154,7 +129,6 @@ public class GraphDataModel extends Observable {
                     if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
                     newData.getAttribute();
                     newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
-                    newData.setSelected(selected);
                     newData.setSomethingChanged(true);
                     newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
                     newData.setUnit(unit);
@@ -166,7 +140,7 @@ public class GraphDataModel extends Observable {
 
             for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
                 ChartDataModel value = entrySet.getValue();
-                if (value.getSelected()) {
+                if (!value.getSelectedcharts().isEmpty()) {
                     selectedData.add(value);
                 }
             }
@@ -196,23 +170,22 @@ public class GraphDataModel extends Observable {
         notifyObservers();
     }
 
-    public Set<ChartSettings> getCharts() {
+    public List<ChartSettings> getCharts() {
         if (charts == null) updateCharts();
 
         return charts;
     }
 
-    public void setCharts(Set<ChartSettings> charts) {
+    public void setCharts(List<ChartSettings> charts) {
         this.charts = charts;
     }
 
     private void updateCharts() {
         if (charts == null || charts.isEmpty()) {
             try {
-                //ds.reloadAttributes();
                 if (getCurrentAnalysis() != null) {
                     if (Objects.nonNull(getCurrentAnalysis().getAttribute("Charts"))) {
-//                        ds.reloadAttribute(getCurrentAnalysis().getAttribute("Charts"));
+                        ds.reloadAttribute(getCurrentAnalysis().getAttribute("Charts"));
                         if (getCurrentAnalysis().getAttribute("Charts").hasSample()) {
                             String str = getCurrentAnalysis().getAttribute("Charts").getLatestSample().getValueAsString();
                             try {
@@ -235,25 +208,30 @@ public class GraphDataModel extends Observable {
                 logger.error("Error: could not get analysis model", e);
             }
 
-            Map<String, ChartSettings> chartSettingsHashMap = new HashMap<>();
-            Set<ChartSettings> chartSettings = new HashSet<>();
+            List<ChartSettings> chartSettings = new ArrayList<>();
 
             if (listChartsSettings != null && !listChartsSettings.isEmpty()) {
+                boolean needsIds = false;
                 for (JsonChartSettings settings : listChartsSettings) {
                     ChartSettings newSettings = new ChartSettings("");
-                    newSettings.setId(Long.parseLong(settings.getId()));
+                    if (settings.getId() != null)
+                        newSettings.setId(Integer.parseInt(settings.getId()));
+                    else needsIds = true;
+
                     newSettings.setName(settings.getName());
                     newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
 
                     if (settings.getHeight() != null)
                         newSettings.setHeight(Double.parseDouble(settings.getHeight()));
-                    chartSettingsHashMap.put(newSettings.getName(), newSettings);
+                    chartSettings.add(newSettings);
                 }
 
-                for (Map.Entry<String, ChartSettings> entrySet : chartSettingsHashMap.entrySet()) {
-                    ChartSettings value = entrySet.getValue();
-                    chartSettings.add(value);
+                if (needsIds) {
+                    AlphanumComparator ac = new AlphanumComparator();
+                    chartSettings.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+                    for (ChartSettings set : chartSettings) set.setId(chartSettings.indexOf(set));
                 }
+
                 charts = chartSettings;
             }
         }
@@ -291,10 +269,6 @@ public class GraphDataModel extends Observable {
         notifyObservers();
     }
 
-    public ObservableList<String> getChartsList() {
-        return selectedDataNames;
-    }
-
     public boolean containsId(Long id) {
         if (!getSelectedData().isEmpty()) {
             AtomicBoolean found = new AtomicBoolean(false);
@@ -308,13 +282,13 @@ public class GraphDataModel extends Observable {
     }
 
     public ChartDataModel get(Long id) {
-        AtomicReference<ChartDataModel> out = new AtomicReference<>();
-        getSelectedData().forEach(chartDataModel -> {
+        ChartDataModel out = null;
+        for (ChartDataModel chartDataModel : getSelectedData()) {
             if (chartDataModel.getObject().getID().equals(id)) {
-                out.set(chartDataModel);
+                return chartDataModel;
             }
-        });
-        return out.get();
+        }
+        return out;
     }
 
     public AnalysisTimeFrame getAnalysisTimeFrame() {
@@ -393,7 +367,7 @@ public class GraphDataModel extends Observable {
                         start.set(end.get().minusDays(7));
 
                         getSelectedData().forEach(chartDataModel -> {
-                            if (chartDataModel.getSelected()) {
+                            if (!chartDataModel.getSelectedcharts().isEmpty()) {
                                 chartDataModel.setSelectedStart(start.get());
                                 chartDataModel.setSelectedEnd(end.get());
                                 chartDataModel.setSomethingChanged(true);
@@ -411,7 +385,7 @@ public class GraphDataModel extends Observable {
         DateTime min = null;
         DateTime max = null;
         for (ChartDataModel mdl : selectedData) {
-            if (mdl.getSelected()) {
+            if (!mdl.getSelectedcharts().isEmpty()) {
                 JEVisAttribute att = mdl.getAttribute();
 
                 DateTime min_check = new DateTime(
@@ -506,7 +480,7 @@ public class GraphDataModel extends Observable {
 //        });
 
         getSelectedData().forEach(chartDataModel -> {
-            if (chartDataModel.getSelected()) {
+            if (!chartDataModel.getSelectedcharts().isEmpty()) {
                 chartDataModel.setSelectedStart(start);
                 chartDataModel.setSelectedEnd(end);
                 chartDataModel.setSomethingChanged(true);
@@ -622,7 +596,7 @@ public class GraphDataModel extends Observable {
             }
             if (getCurrentAnalysis() != null) {
                 if (Objects.nonNull(getCurrentAnalysis().getAttribute("Data Model"))) {
-//                    ds.reloadAttribute(getCurrentAnalysis().getAttribute("Data Model"));
+                    ds.reloadAttribute(getCurrentAnalysis().getAttribute("Data Model"));
                     if (getCurrentAnalysis().getAttribute("Data Model").hasSample()) {
                         String str = getCurrentAnalysis().getAttribute("Data Model").getLatestSample().getValueAsString();
                         try {
@@ -673,19 +647,6 @@ public class GraphDataModel extends Observable {
         }
     }
 
-    public void removeUnusedCharts() {
-        Set<ChartSettings> chartsNew = new HashSet<>();
-        selectedData.forEach(chartDataModel -> {
-            if (chartDataModel.getSelected())
-                chartDataModel.getSelectedcharts().forEach(s -> {
-                    charts.forEach(chartSettings -> {
-                        chartsNew.add(chartSettings);
-                    });
-                });
-        });
-        charts = chartsNew;
-    }
-
     public ObservableList<String> getObservableListAnalyses() {
         updateListAnalyses();
         return observableListAnalyses;
@@ -717,17 +678,36 @@ public class GraphDataModel extends Observable {
     }
 
 
-    private List<String> stringToList(String s) {
+    private List<Integer> stringToList(String s) {
         if (Objects.nonNull(s)) {
             List<String> tempList = new ArrayList<>(Arrays.asList(s.split(", ")));
+            List<Integer> idList = new ArrayList<>();
             for (String str : tempList) if (str.contains(", ")) str.replace(", ", "");
-            return tempList;
+
+            try {
+                for (String str : tempList) {
+                    idList.add(Integer.parseInt(str));
+                }
+            } catch (Exception e) {
+                logger.error("Old data model. Starting comparison.");
+                AlphanumComparator ac = new AlphanumComparator();
+                tempList.sort((o1, o2) -> ac.compare(o1, o2));
+
+                for (String str : tempList) {
+                    for (ChartSettings set : charts) {
+                        if (set.getName().equals(str))
+                            idList.add(set.getId());
+                    }
+                }
+            }
+
+            return idList;
         } else return new ArrayList<>();
     }
 
     public void selectNone() {
         getSelectedData().forEach(mdl -> {
-            mdl.setSelected(false);
+            mdl.setSelectedCharts(new ArrayList<>());
         });
     }
 

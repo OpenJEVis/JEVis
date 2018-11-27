@@ -4,7 +4,7 @@ import static org.jevis.application.Chart.ChartType.AREA;
 
 public class ChartSettings {
 
-    private Long id;
+    private Integer id;
     private String name;
     private ChartType chartType;
     private Double height;
@@ -14,11 +14,17 @@ public class ChartSettings {
         this.chartType = AREA;
     }
 
-    public Long getId() {
+    public ChartSettings(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+        this.chartType = AREA;
+    }
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

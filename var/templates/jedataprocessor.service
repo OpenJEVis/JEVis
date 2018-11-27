@@ -6,7 +6,7 @@ Description=JEDataCollector
 User=jevis
 Group=jevis
 Type=simple
-ExecStart=/home/jevis/jevis/bin/jedatacollector
+ExecStart=/home/jevis/jevis/bin/jedataprocessor
 
 
 [Install]

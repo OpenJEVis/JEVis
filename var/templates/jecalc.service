@@ -1,12 +1,12 @@
 [Unit]
-Description=JEDataCollector
+Description=JECalc
 
 
 [Service]
 User=jevis
 Group=jevis
 Type=simple
-ExecStart=/home/jevis/jevis/bin/jedatacollector
+ExecStart=/home/jevis/jevis/bin/jecalc
 
 
 [Install]

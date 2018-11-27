@@ -1,5 +1,5 @@
 [Unit]
-Description=JEWebservice
+Description=JEWebService
 After=network.target 
 
 [Service]

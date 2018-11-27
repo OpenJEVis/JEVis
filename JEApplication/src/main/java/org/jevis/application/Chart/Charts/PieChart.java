@@ -25,6 +25,7 @@ import java.util.List;
 public class PieChart implements Chart {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private static final Logger logger = LogManager.getLogger(PieChart.class);
+    private final Integer chartId;
     private String chartName;
     private String unit;
     private List<ChartDataModel> chartDataModels;
@@ -37,10 +38,11 @@ public class PieChart implements Chart {
     private Region pieChartRegion;
     private Period period;
 
-    public PieChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, String chartName) {
+    public PieChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.hideShowIcons = hideShowIcons;
         this.chartName = chartName;
+        this.chartId = chartId;
         init();
     }
 
@@ -56,7 +58,7 @@ public class PieChart implements Chart {
 
 
         chartDataModels.forEach(singleRow -> {
-            if (singleRow.getSelected()) {
+            if (!singleRow.getSelectedcharts().isEmpty()) {
                 Double sumPiePiece = 0d;
                 for (JEVisSample sample : singleRow.getSamples()) {
                     try {
@@ -111,6 +113,11 @@ public class PieChart implements Chart {
     @Override
     public String getChartName() {
         return chartName;
+    }
+
+    @Override
+    public Integer getChartId() {
+        return null;
     }
 
     @Override

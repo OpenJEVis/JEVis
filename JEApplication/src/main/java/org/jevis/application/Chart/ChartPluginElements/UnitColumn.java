@@ -204,7 +204,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                     tb.setOnAction(event -> {
                                         JEVisUnit u = ChartUnits.parseUnit(box.getSelectionModel().getSelectedItem().toString());
                                         getData().getSelectedData().forEach(mdl -> {
-                                            if (mdl.getSelected()) {
+                                            if (!mdl.getSelectedcharts().isEmpty()) {
                                                 mdl.setUnit(u);
                                             }
                                         });

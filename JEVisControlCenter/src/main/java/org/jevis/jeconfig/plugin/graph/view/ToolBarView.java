@@ -286,17 +286,12 @@ public class ToolBarView {
     public List<ChartView> getChartViews() {
         List<ChartView> charts = new ArrayList<>();
 
-        model.removeUnusedCharts();
-
         model.getCharts().forEach(chart -> {
             ChartView view = new ChartView(model);
-            ChartType type = ChartType.AREA;
-            if (model.getCharts() != null && !model.getCharts().isEmpty()) {
-                for (ChartSettings set : model.getCharts()) {
-                    if (set.getName().equals(chart.getName())) type = set.getChartType();
-                }
-            }
-            view.drawAreaChart(chart.getName(), type);
+
+            ChartType type = chart.getChartType();
+
+            view.drawAreaChart(chart.getId(), type);
 
             charts.add(view);
         });
@@ -397,17 +392,16 @@ public class ToolBarView {
 
     }
 
-    private void saveDataModel(Set<ChartDataModel> selectedData, Set<ChartSettings> chartSettings) {
+    private void saveDataModel(Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
         try {
             JEVisAttribute dataModel = model.getCurrentAnalysis().getAttribute("Data Model");
 
             JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
             List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
             for (ChartDataModel mdl : selectedData) {
-                if (mdl.getSelected()) {
+                if (!mdl.getSelectedcharts().isEmpty()) {
                     JsonAnalysisDataRow json = new JsonAnalysisDataRow();
                     json.setName(mdl.getObject().getName() + ":" + mdl.getObject().getID());
-                    json.setSelected(String.valueOf(mdl.getSelected()));
                     json.setColor(mdl.getColor().toString());
                     json.setObject(mdl.getObject().getID().toString());
                     if (mdl.getDataProcessor() != null)
@@ -432,7 +426,7 @@ public class ToolBarView {
             List<JsonChartSettings> jsonChartSettings = new ArrayList<>();
             for (ChartSettings cset : chartSettings) {
                 JsonChartSettings set = new JsonChartSettings();
-                set.setId(cset.getId().toString());
+                if (cset.getId() != null) set.setId(cset.getId().toString());
                 set.setName(cset.getName());
                 set.setChartType(cset.getChartType().toString());
                 set.setHeight(cset.getHeight().toString());
@@ -455,12 +449,12 @@ public class ToolBarView {
         }
     }
 
-    private String listToString(List<String> listString) {
+    private String listToString(List<Integer> listString) {
         if (listString != null) {
             StringBuilder sb = new StringBuilder();
             if (listString.size() > 1) {
-                for (String s : listString) {
-                    sb.append(s);
+                for (Integer i : listString) {
+                    sb.append(i.toString());
                     sb.append(", ");
                 }
             } else if (listString.size() == 1) sb.append(listString.get(0));
