@@ -28,7 +28,6 @@ import org.jevis.report3.data.reportlink.ReportLinkFactory;
 import org.jevis.report3.data.service.JEReportService;
 import org.jevis.report3.data.service.ReportServiceProperty;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 
 import javax.inject.Inject;
@@ -113,8 +112,10 @@ public class ReportExecutor {
 
         try {
             byte[] outputBytes = report.getReportFile();
-            Interval interval = intervalCalculator.getInterval(IntervalCalculator.PeriodMode.CURRENT);
-            String startDate = interval.getStart().toString(DateTimeFormat.forPattern("yyyyMMdd"));
+
+            DateTime start = new DateTime(reportObject.getAttribute(ReportAttributes.START_RECORD).getLatestSample().getValueAsString());
+            String startDate = start.toString(DateTimeFormat.forPattern("yyyyMMdd"));
+
             String reportName = reportObject.getName().replaceAll("\\s", "") + "_" + startDate;
             JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
             JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);

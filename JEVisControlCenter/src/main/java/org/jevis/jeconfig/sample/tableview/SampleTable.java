@@ -33,10 +33,7 @@ import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.application.dialog.ProgressForm;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
@@ -631,15 +628,22 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            Button downloadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
+                            String fileName = "";
                             TableSample tableSample = (TableSample) getTableRow().getItem();
+                            JEVisSample sample = tableSample.getJevisSample();
+                            try {
+                                fileName = sample.getValueAsString();
+
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+                            Button downloadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.download.title")
+                                    + " (" + fileName + ")");
 
                             downloadButton.setOnAction(event -> {
-                                JEVisSample sample = tableSample.getJevisSample();
 
                                 try {
                                     JEVisFile file = sample.getValueAsFile();
-
                                     FileChooser fileChooser = new FileChooser();
                                     fileChooser.setInitialFileName(file.getFilename());
                                     fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
