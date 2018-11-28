@@ -24,8 +24,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
-import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 
@@ -42,6 +42,7 @@ public class MathFunction implements ProcessFunction {
     private final String MIN = "min";
     private final String MAX = "max";
     private final String MEDIAN = "median";
+    private final String RUNNINGMEAN = "runningmean";
 
     public static final String NAME = "Math Processor";
     private final String mode;
@@ -72,18 +73,49 @@ public class MathFunction implements ProcessFunction {
         JEVisUnit unit = null;
         DateTime dateTime = null;
 
-        for (JEVisSample smp : allSamples) {
-            try {
-                Double currentValue = smp.getValueAsDouble();
-                value += currentValue;
-                min = Math.min(min, currentValue);
-                max = Math.max(max, currentValue);
-                listMedian.add(currentValue);
-                if (hasSamples == null) hasSamples = true;
-                if (unit == null) unit = smp.getUnit();
-                if (dateTime == null) dateTime = smp.getTimestamp();
-            } catch (JEVisException ex) {
-                logger.fatal(ex);
+        List<JEVisSample> listRunningMean = new ArrayList<>();
+
+        if (mode.equals(AVERAGE) || mode.equals(MIN) || mode.equals(MAX) || mode.equals(MEDIAN)) {
+            for (JEVisSample smp : allSamples) {
+                try {
+                    Double currentValue = smp.getValueAsDouble();
+                    value += currentValue;
+                    min = Math.min(min, currentValue);
+                    max = Math.max(max, currentValue);
+                    listMedian.add(currentValue);
+
+                    if (hasSamples == null) hasSamples = true;
+                    if (unit == null) unit = smp.getUnit();
+                    if (dateTime == null) dateTime = smp.getTimestamp();
+                } catch (JEVisException ex) {
+                    logger.fatal(ex);
+                }
+            }
+        } else if (mode.equals(RUNNINGMEAN)) {
+            if (allSamples.size() > 3) {
+                double lastValue;
+                for (int i = 0; i < allSamples.size(); i++) {
+                    if (i % 3 == 0) {
+                        try {
+                            Double currentValue =
+                                    1 / 3 * (allSamples.get(i - 2).getValueAsDouble()
+                                            + allSamples.get(i - 1).getValueAsDouble()
+                                            + allSamples.get(i).getValueAsDouble());
+
+                            DateTime newTS = allSamples.get(i - 1).getTimestamp();
+
+
+                            if (unit == null) unit = allSamples.get(i).getUnit();
+                            JEVisSample smp = new VirtualSample(newTS, currentValue, unit);
+                            listRunningMean.add(smp);
+
+                            if (hasSamples == null) hasSamples = true;
+
+                        } catch (JEVisException ex) {
+                            logger.fatal(ex);
+                        }
+                    }
+                }
             }
         }
 
@@ -101,7 +133,11 @@ public class MathFunction implements ProcessFunction {
             }
         }
 
-        result.add(new VirtualSample(dateTime, value, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null)));
+        if (!mode.equals(RUNNINGMEAN))
+            result.add(new VirtualSample(dateTime, value, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null)));
+        else {
+            result.addAll(listRunningMean);
+        }
         logger.info("Result is: " + dateTime + " : " + value + " " + UnitManager.getInstance().formate(unit));
 
         return result;

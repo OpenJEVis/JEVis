@@ -2,7 +2,7 @@ package org.jevis.commons.dataprocessing;
 
 public enum AggregationPeriod {
 
-    NONE, HOURLY, DAILY, MONTHLY, WEEKLY, QUARTERLY, YEARLY;
+    NONE, HOURLY, DAILY, MONTHLY, WEEKLY, QUARTERLY, YEARLY, RUNNINGMEAN;
 
     public static AggregationPeriod get(String modusName) {
         String period = modusName.split("_")[0];
@@ -25,6 +25,8 @@ public enum AggregationPeriod {
                 return QUARTERLY;
             case ("Yearly"):
                 return YEARLY;
+            case ("Runningmean"):
+                return RUNNINGMEAN;
             default:
                 return NONE;
         }

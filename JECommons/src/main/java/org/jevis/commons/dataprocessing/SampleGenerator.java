@@ -80,6 +80,10 @@ public class SampleGenerator {
                 aggregate.setFunction(new AggregatorFunction());
                 aggregate.setID(AggregationMode.TOTAL.toString());
                 break;
+            case RUNNINGMEAN:
+                aggregate.setFunction(new MathFunction(aggregationMode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.RUNNINGMEAN.toString());
+                break;
             case NONE:
                 aggregate.setFunction(new NullFunction());
                 aggregate.setID("Null");

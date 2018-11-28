@@ -253,6 +253,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         String keyMonthly = I18n.getInstance().getString("plugin.graph.interval.monthly");
         String keyQuarterly = I18n.getInstance().getString("plugin.graph.interval.quarterly");
         String keyYearly = I18n.getInstance().getString("plugin.graph.interval.yearly");
+        String keyRunningMean = "Centric Running Mean";
 
 
         aggList.add(keyPreset);
@@ -262,6 +263,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         aggList.add(keyMonthly);
         aggList.add(keyQuarterly);
         aggList.add(keyYearly);
+        aggList.add(keyRunningMean);
 
         ComboBox<String> aggregate = new ComboBox<>();
         aggregate.setItems(FXCollections.observableArrayList(aggList));
@@ -291,6 +293,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     case YEARLY:
                         aggregate.valueProperty().setValue(keyYearly);
                         break;
+                    case RUNNINGMEAN:
+                        aggregate.valueProperty().setValue(keyRunningMean);
                 }
                 break;
             }
@@ -313,6 +317,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     data.setAggregationPeriod(AggregationPeriod.QUARTERLY);
                 } else if (newValue.equals(keyYearly)) {
                     data.setAggregationPeriod(AggregationPeriod.YEARLY);
+                } else if (newValue.equals(keyRunningMean)) {
+                    data.setAggregationPeriod(AggregationPeriod.RUNNINGMEAN);
                 }
             });
 

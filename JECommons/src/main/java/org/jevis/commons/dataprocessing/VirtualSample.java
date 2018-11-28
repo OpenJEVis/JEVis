@@ -31,19 +31,25 @@ public class VirtualSample implements JEVisSample {
 
     JEVisDataSource _ds;
     private Double _value;
-    private DateTime _timeSatmp;
+    private DateTime _timeStamp;
     private JEVisAttribute _att;
     private String _note;
     private JEVisUnit _unit;
 
     public VirtualSample(DateTime ts, Double value) {
         _value = value;
-        _timeSatmp = ts;
+        _timeStamp = ts;
+    }
+
+    public VirtualSample(DateTime ts, Double value, JEVisUnit unit) {
+        _value = value;
+        _timeStamp = ts;
+        _unit = unit;
     }
 
     public VirtualSample(DateTime ts, Double value, JEVisDataSource ds, JEVisAttribute att) {
         _value = value;
-        _timeSatmp = ts;
+        _timeStamp = ts;
         _att = att;
         _ds = ds;
     }
@@ -51,14 +57,14 @@ public class VirtualSample implements JEVisSample {
     public VirtualSample(DateTime ts, Double value, JEVisUnit unit, JEVisDataSource ds, JEVisAttribute att) {
         _value = value;
         _unit = unit;
-        _timeSatmp = ts;
+        _timeStamp = ts;
         _att = att;
         _ds = ds;
     }
 
     @Override
     public DateTime getTimestamp() {
-        return _timeSatmp;
+        return _timeStamp;
     }
 
     @Override
@@ -175,7 +181,7 @@ public class VirtualSample implements JEVisSample {
     public String toString() {
         return "VirtualSample{" +
                 "value=" + _value +
-                ", timeSatmp=" + _timeSatmp +
+                ", timeSatmp=" + _timeStamp +
                 ", note='" + _note + '\'' +
                 '}';
     }
