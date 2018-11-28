@@ -111,13 +111,14 @@ public class Launcher extends AbstractCliApp {
     protected void runSingle(Long id) {
         logger.info("Start Single Mode");
 
-        List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
-
         try {
             logger.info("Try adding Single Mode for ID " + id);
-            dataSources.add(ds.getObject(id));
+            JEVisObject dataSourceObject = ds.getObject(id);
 
-            excecuteDataSources(dataSources);
+            DataSource dataSource = DataSourceFactory.getDataSource(dataSourceObject);
+
+            dataSource.initialize(dataSourceObject);
+            dataSource.run();
         } catch (Exception ex) {
             logger.error(ex);
         }
