@@ -30,6 +30,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -119,6 +121,22 @@ public class SimpleTreeUnitChooser {
 
                 stage.close();
 
+            }
+        });
+
+        uTree.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 2) {
+                        if (uTree.getSelectedObject() != null) {
+                            response = Response.YES;
+                            logger.info("UnitTree.OK: " + uTree.getSelectedObject().getUnit());
+                            _unit = uTree.getSelectedObject().getUnit();
+                            stage.close();
+                        }
+                    }
+                }
             }
         });
 
