@@ -282,7 +282,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         String keyMonthly = I18n.getInstance().getString("plugin.graph.interval.monthly");
         String keyQuarterly = I18n.getInstance().getString("plugin.graph.interval.quarterly");
         String keyYearly = I18n.getInstance().getString("plugin.graph.interval.yearly");
-        String keyRunningMean = "Centric Running Mean";
+        String keyRunningMean = I18n.getInstance().getString("plugin.graph.interval.centricrunningmean");
 
 
         aggList.add(keyPreset);

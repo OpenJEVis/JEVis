@@ -337,7 +337,7 @@ public class ToolBarView {
         Dialog<ButtonType> newAnalysis = new Dialog<>();
         newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
-        Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
+        Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
         TextField name = new TextField();
         ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(model.getObservableListAnalysesDirectories());
 
