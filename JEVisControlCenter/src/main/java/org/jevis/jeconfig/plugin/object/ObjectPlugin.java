@@ -173,6 +173,8 @@ public class ObjectPlugin implements Plugin {
             allObjects.add(SelectTargetDialog.buildAllDataFilter());
             allObjects.add(SelectTargetDialog.buildAllAttributesFilter());
             allObjects.add(SelectTargetDialog.buildCalanderFilter());
+            allObjects.add(SelectTargetDialog.buildAllDataSources(this.ds));
+
 
             Finder finder = new Finder(tree);
             SearchFilterBar searchBar = new SearchFilterBar(tree, allObjects, finder);

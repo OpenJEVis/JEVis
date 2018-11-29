@@ -154,13 +154,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         try {
 
             if (attributeCache.isEmpty()) {
-                System.out.println("Start get attributes");
+//                System.out.println("Start get attributes");
                 Collection<List<JEVisAttribute>> attributes = attributeCache.values();
                 List<JEVisAttribute> result = new ArrayList<>();
                 attributes.forEach(jeVisAttributes -> {
                     result.addAll(jeVisAttributes);
                 });
-                System.out.println("end get attributes");
+//                System.out.println("end get attributes");
                 return result;
             }
             /**
@@ -463,6 +463,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     + REQUEST.OBJECTS.ATTRIBUTES.PATH;
 //                    + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS;
             response = con.getRequest(resource);
+
+            if (response == null || response.toString().isEmpty()) {
+                logger.error("Empty response for {}.attributes ", objectID);
+                return new ArrayList<>();
+            }
 
             Type listType = new TypeToken<List<JsonAttribute>>() {
             }.getType();

@@ -156,27 +156,30 @@ public class JEVisObjectWS implements JEVisObject {
         List<JEVisAttribute> attributes = getAttributesWS();
         /** Check for missing Attribute/Types, maybe the WebService should take care of it? **/
         try {
-            getJEVisClass().getTypes().forEach(jeVisType -> {
-                boolean exists = false;
-                try {
-                    for (JEVisAttribute att : attributes) {
-                        if (att.getName().equals(jeVisType.getName())) exists = true;
-                    }
-                    if (!exists) {
-                        JsonAttribute json = new JsonAttribute();
-                        json.setObjectID(getID());
-                        json.setType(jeVisType.getName());
-                        json.setPrimitiveType(jeVisType.getPrimitiveType());
-                        json.setSampleCount(0);
+            if (getJEVisClass() != null && getJEVisClass().getTypes() != null) {
+                getJEVisClass().getTypes().forEach(jeVisType -> {
+                    boolean exists = false;
+                    try {
+                        for (JEVisAttribute att : attributes) {
+                            if (att.getName().equals(jeVisType.getName())) exists = true;
+                        }
+                        if (!exists) {
+                            JsonAttribute json = new JsonAttribute();
+                            json.setObjectID(getID());
+                            json.setType(jeVisType.getName());
+                            json.setPrimitiveType(jeVisType.getPrimitiveType());
+                            json.setSampleCount(0);
 
-                        JEVisAttribute newAttribute = new JEVisAttributeWS(ds, json);
-                        attributes.add(newAttribute);
+                            JEVisAttribute newAttribute = new JEVisAttributeWS(ds, json);
+                            attributes.add(newAttribute);
+                        }
+                    } catch (Exception ex) {
+                        logger.error(ex);
                     }
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
 
-            });
+                });
+            }
+
         } catch (Exception ex) {
             logger.error(ex);
         }
