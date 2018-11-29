@@ -80,6 +80,10 @@ public class SampleGenerator {
                 aggregate.setFunction(new AggregatorFunction());
                 aggregate.setID(AggregationMode.TOTAL.toString());
                 break;
+            case RUNNINGMEAN:
+                aggregate.setFunction(new MathFunction(aggregationMode.name().toLowerCase()));
+                aggregate.setID(AggregationMode.RUNNINGMEAN.toString());
+                break;
             case NONE:
                 aggregate.setFunction(new NullFunction());
                 aggregate.setID("Null");
@@ -121,6 +125,7 @@ public class SampleGenerator {
         input.setFunction(new InputFunction(samples));
         input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attribute.getName()));
         input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, object.getID().toString()));
+        input.getOptions().add(new BasicProcessOption(ProcessOptions.OFFSET, ""));
         aggregate.setSubProcesses(Collections.singletonList(input));
 
         return aggregate.getResult();

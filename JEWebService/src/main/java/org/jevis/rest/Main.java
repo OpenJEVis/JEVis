@@ -7,6 +7,7 @@ import org.glassfish.grizzly.ssl.SSLContextConfigurator;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.jevis.ws.sql.ConnectionFactory;
 
@@ -20,9 +21,8 @@ import java.sql.SQLException;
  * Main class.
  */
 public class Main {
-    private static final Logger logger = LogManager.getLogger(Main.class);
-
     public static final String VERSION = "JEWebService Version 2018-02-20";
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
     /**
      * Main method.
@@ -72,6 +72,7 @@ public class Main {
         final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest");
         rc.setApplicationName("JEWebservice");
         rc.register(MultiPartFeature.class);
+        rc.register(GZipEncoder.class);
 
         final HttpServer server;
 

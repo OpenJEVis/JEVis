@@ -90,7 +90,6 @@ public class UnitSelectUI {
         unitProperty.addListener(new ChangeListener<JEVisUnit>() {
             @Override
             public void changed(ObservableValue<? extends JEVisUnit> observable, JEVisUnit oldValue, JEVisUnit newValue) {
-                logger.info("ffffffffffffffffffffffffff");
             }
         });
 
@@ -98,7 +97,6 @@ public class UnitSelectUI {
 
             @Override
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                logger.info("ssssssssssssssss");
 //                unitProperty.getValue().setPrefix(prefix);
                 JEVisUnit cloneUnit = UnitManager.cloneUnit(unitProperty.getValue());
                 cloneUnit.setPrefix(UnitManager.getInstance().getPrefix(t1, Locale.getDefault()));
@@ -225,5 +223,4 @@ public class UnitSelectUI {
     public JEVisUnit getSelectedUnit() {
         return originalUnit;
     }
-
 }

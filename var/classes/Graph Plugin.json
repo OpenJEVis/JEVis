@@ -15,5 +15,14 @@
     }
   ],
   "types": [
+    {
+      "name": "Number of Charts per Analysis",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Graph Plugin"
+    }
   ]
 }

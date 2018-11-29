@@ -8,11 +8,10 @@ package org.jevis.jeconfig.plugin.graph.view;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -49,12 +48,12 @@ public class ToolBarView {
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
     private GraphDataModel model;
-    private ComboBox listAnalysesComboBoxHidden;
+    private ComboBox<JEVisObject> listAnalysesComboBoxHidden;
     private ChartView view;
     private List<ChartView> listView;
     private Boolean _initialized = false;
     private LoadAnalysisDialog dialog;
-    private ObservableList<String> chartsList = FXCollections.observableArrayList();
+    private JEVisObject currentAnalysisDirectory = null;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, ChartView chartView, List<ChartView> listChartViews) {
         this.model = model;
@@ -70,9 +69,9 @@ public class ToolBarView {
         double iconSize = 20;
         Label labelComboBox = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));
 
-        listAnalysesComboBoxHidden = new ComboBox();
+        listAnalysesComboBoxHidden = new ComboBox(model.getObservableListAnalyses());
         listAnalysesComboBoxHidden.setPrefWidth(300);
-        listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
+        setCellFactoryForComboBox();
 
         listAnalysesComboBoxHidden.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
@@ -83,7 +82,7 @@ public class ToolBarView {
                 AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
                 AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
 
-                model.setJEVisObjectForCurrentAnalysis(newValue.toString());
+                model.setCurrentAnalysis(newValue);
                 if (model.getAnalysisTimeFrame().getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
                     model.getSelectedData().forEach(chartDataModel -> {
                         if (chartDataModel.getSelectedStart() != null && chartDataModel.getSelectedEnd() != null) {
@@ -136,7 +135,7 @@ public class ToolBarView {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> {
-            String currentAnalysis = listAnalysesComboBoxHidden.getSelectionModel().getSelectedItem().toString();
+            JEVisObject currentAnalysis = listAnalysesComboBoxHidden.getSelectionModel().getSelectedItem();
             select(null);
             try {
                 ds.reloadAttributes();
@@ -222,6 +221,40 @@ public class ToolBarView {
         return toolBar;
     }
 
+    private void setCellFactoryForComboBox() {
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (empty || obj == null || obj.getName() == null) {
+                            setText("");
+                        } else {
+                            if (!model.getMultipleDirectories())
+                                setText(obj.getName());
+                            else {
+                                try {
+                                    int indexOfObj = model.getObservableListAnalyses().indexOf(obj);
+                                    String prefix = model.getListBuildingsParentOrganisations().get(indexOfObj).getName()
+                                            + " / "
+                                            + model.getListAnalysesParentBuildings().get(indexOfObj).getName();
+                                    setText(prefix + " / " + obj.getName());
+                                } catch (Exception e) {
+                                }
+                            }
+                        }
+
+                    }
+                };
+            }
+        };
+
+        listAnalysesComboBoxHidden.setCellFactory(cellFactory);
+        listAnalysesComboBoxHidden.setButtonCell(cellFactory.call(null));
+    }
+
     private void loadNewDialog() {
 
 
@@ -304,7 +337,57 @@ public class ToolBarView {
         Dialog<ButtonType> newAnalysis = new Dialog<>();
         newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
+        Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
         TextField name = new TextField();
+        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(model.getObservableListAnalysesDirectories());
+
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (empty || obj == null || obj.getName() == null) {
+                            setText("");
+                        } else {
+                            if (!model.getMultipleDirectories())
+                                setText(obj.getName());
+                            else {
+                                try {
+                                    int indexOfObj = model.getObservableListAnalysesDirectories().indexOf(obj);
+                                    String prefix = model.getListAnalysesDirectortiesBuildingsParentOrganisations().get(indexOfObj).getName()
+                                            + " / "
+                                            + model.getListAnalysesDirectoriesParentBuildings().get(indexOfObj).getName();
+                                    setText(prefix + " / " + obj.getName());
+                                } catch (Exception e) {
+                                }
+                            }
+                        }
+
+                    }
+                };
+            }
+        };
+        parentsDirectories.setCellFactory(cellFactory);
+        parentsDirectories.setButtonCell(cellFactory.call(null));
+
+        parentsDirectories.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                currentAnalysisDirectory = newValue;
+            }
+        });
+
+        if (model.getCurrentAnalysis() != null) {
+            try {
+                parentsDirectories.getSelectionModel().select(model.getCurrentAnalysis().getParents().get(0));
+            } catch (JEVisException e) {
+                logger.error("Couldn't select current Analysis Directory: " + e);
+            }
+        } else {
+            parentsDirectories.getSelectionModel().selectFirst();
+        }
+
         if (model.getCurrentAnalysis() != null && model.getCurrentAnalysis().getName() != null && model.getCurrentAnalysis().getName() != "")
             name.setText(model.getCurrentAnalysis().getName());
 
@@ -319,7 +402,7 @@ public class ToolBarView {
 
         VBox vbox = new VBox();
         vbox.setSpacing(4);
-        vbox.getChildren().addAll(newText, name);
+        vbox.getChildren().addAll(directoryText, parentsDirectories, newText, name);
 
         newAnalysis.getDialogPane().setContent(vbox);
         newAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
@@ -327,21 +410,30 @@ public class ToolBarView {
         newAnalysis.showAndWait()
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                        if (!model.getObservableListAnalyses().contains(name.getText())) {
+                        List<String> check = new ArrayList<>();
+                        try {
+                            currentAnalysisDirectory.getChildren().forEach(jeVisObject -> {
+                                if (!check.contains(jeVisObject.getName()))
+                                    check.add(jeVisObject.getName());
+
+                            });
+                        } catch (JEVisException e) {
+                            logger.error("Error in current analysis directory: " + e);
+                        }
+                        if (!check.contains(name.getText())) {
                             try {
-                                for (JEVisObject obj : ds.getObjects(ds.getJEVisClass("Analyses Directory"), false)) {
-                                    JEVisObject analysesDir = obj;
-                                    JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
-                                    model.setCurrentAnalysis(obj.buildObject(name.getText(), classAnalysis));
-                                    model.getCurrentAnalysis().commit();
-                                }
+                                JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
+                                model.setCurrentAnalysis(currentAnalysisDirectory.buildObject(name.getText(), classAnalysis));
+                                model.getCurrentAnalysis().commit();
+
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
                             saveDataModel(model.getSelectedData(), model.getCharts());
 
                             listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
-                            listAnalysesComboBoxHidden.getSelectionModel().select(model.getCurrentAnalysis().getName());
+                            setCellFactoryForComboBox();
+                            listAnalysesComboBoxHidden.getSelectionModel().select(model.getCurrentAnalysis());
                         } else {
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
                             dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
@@ -356,7 +448,8 @@ public class ToolBarView {
                                     saveDataModel(model.getSelectedData(), model.getCharts());
 
                                     listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
-                                    listAnalysesComboBoxHidden.getSelectionModel().select(model.getCurrentAnalysis().getName());
+                                    setCellFactoryForComboBox();
+                                    listAnalysesComboBoxHidden.getSelectionModel().select(model.getCurrentAnalysis());
                                 } else {
 
                                 }
@@ -386,6 +479,7 @@ public class ToolBarView {
 
                 model.updateListAnalyses();
                 listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
+                setCellFactoryForComboBox();
                 listAnalysesComboBoxHidden.getSelectionModel().selectFirst();
             }
         });
@@ -466,11 +560,13 @@ public class ToolBarView {
         if (!_initialized) {
             model.updateListAnalyses();
             listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
+            setCellFactoryForComboBox();
         }
         listAnalysesComboBoxHidden.getSelectionModel().selectFirst();
     }
 
-    public void select(String s) {
-        listAnalysesComboBoxHidden.getSelectionModel().select(s);
+    public void select(JEVisObject obj) {
+
+        listAnalysesComboBoxHidden.getSelectionModel().select(obj);
     }
 }

@@ -47,13 +47,18 @@ public class GraphDataModel extends Observable {
     private Boolean autoResize = true;
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame();
     private JEVisDataSource ds;
-    private List<JEVisObject> listAnalyses = new ArrayList<>();
-    private ObservableList<String> observableListAnalyses = FXCollections.observableArrayList();
+    private ObservableList<JEVisObject> observableListAnalyses = FXCollections.observableArrayList();
+    private List<JEVisObject> listAnalysesParentBuildings = new ArrayList<>();
+    private List<JEVisObject> listBuildingsParentOrganisations = new ArrayList<>();
     private JsonChartDataModel listAnalysisModel;
     private List<JsonChartSettings> listChartsSettings;
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis;
+    private Boolean multipleDirectories = false;
+    private ObservableList<JEVisObject> observableListAnalysesDirectories = FXCollections.observableArrayList();
+    private List<JEVisObject> listAnalysesDirectoriesParentBuildings = new ArrayList<>();
+    private List<JEVisObject> listAnalysesDirectortiesBuildingsParentOrganisations = new ArrayList<>();
 
     public GraphDataModel(JEVisDataSource ds) {
         this.ds = ds;
@@ -520,7 +525,7 @@ public class GraphDataModel extends Observable {
 
     public void updateWorkDaysFirstRun() {
         try {
-            JEVisObject site = listAnalyses.get(0).getParents().get(0).getParents().get(0);
+            JEVisObject site = observableListAnalyses.get(0).getParents().get(0).getParents().get(0);
             LocalTime start = null;
             LocalTime end = null;
             try {
@@ -553,6 +558,11 @@ public class GraphDataModel extends Observable {
         try {
             JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
             listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
+            observableListAnalysesDirectories = FXCollections.observableArrayList(listAnalysesDirectories);
+
+            if (listAnalysesDirectories.size() > 1) {
+                multipleDirectories = true;
+            }
         } catch (JEVisException e) {
             logger.error("Error: could not get analyses directories", e);
         }
@@ -573,16 +583,65 @@ public class GraphDataModel extends Observable {
 
         }
         try {
-//            ds.reloadAttributes();
-            listAnalyses = ds.getObjects(ds.getJEVisClass("Analysis"), false);
+            observableListAnalyses.clear();
+            observableListAnalyses.addAll(ds.getObjects(ds.getJEVisClass("Analysis"), false));
+
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis", e);
         }
-        observableListAnalyses.clear();
-        for (JEVisObject obj : listAnalyses) {
-            observableListAnalyses.add(obj.getName());
+
+        if (multipleDirectories) {
+            for (JEVisObject obj : observableListAnalyses) {
+                try {
+
+                    JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
+                    JEVisClass buildingClass = ds.getJEVisClass("Building");
+                    if (buildingParent.getJEVisClass().equals(buildingClass)) {
+                        listAnalysesParentBuildings.add(buildingParent);
+
+                        try {
+                            JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
+                            JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
+                                listBuildingsParentOrganisations.add(organisationParent);
+                            }
+                        } catch (JEVisException e) {
+                            logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+                        }
+                    }
+
+                } catch (JEVisException e) {
+                    logger.error("Could not get Building parent of " + obj.getName() + ":" + obj.getID());
+                }
+            }
+
+            for (JEVisObject obj : observableListAnalysesDirectories) {
+                try {
+
+                    JEVisObject buildingParent = obj.getParents().get(0);
+
+                    JEVisClass buildingClass = ds.getJEVisClass("Building");
+                    if (buildingParent.getJEVisClass().equals(buildingClass)) {
+                        listAnalysesDirectoriesParentBuildings.add(buildingParent);
+
+                        try {
+                            JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
+                            JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
+                                listAnalysesDirectortiesBuildingsParentOrganisations.add(organisationParent);
+                            }
+                        } catch (JEVisException e) {
+                            logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+                        }
+                    }
+
+                } catch (JEVisException e) {
+                    logger.error("Could not get Building parent of " + obj.getName() + ":" + obj.getID());
+                }
+            }
         }
-        Collections.sort(observableListAnalyses, new AlphanumComparator());
+        AlphanumComparator ac = new AlphanumComparator();
+        observableListAnalyses.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
     }
 
     public JsonChartDataModel getListAnalysisModel() {
@@ -633,8 +692,8 @@ public class GraphDataModel extends Observable {
 
     public void setJEVisObjectForCurrentAnalysis(String s) {
         JEVisObject currentAnalysis = null;
-        if (listAnalyses == null || listAnalyses.isEmpty()) updateListAnalyses();
-        for (JEVisObject obj : listAnalyses) {
+
+        for (JEVisObject obj : observableListAnalyses) {
             if (obj.getName().equals(s)) {
                 currentAnalysis = obj;
             }
@@ -647,14 +706,14 @@ public class GraphDataModel extends Observable {
         }
     }
 
-    public ObservableList<String> getObservableListAnalyses() {
-        updateListAnalyses();
+    public ObservableList<JEVisObject> getObservableListAnalyses() {
+        if (observableListAnalyses.isEmpty()) updateListAnalyses();
         return observableListAnalyses;
     }
 
-    public ObservableList<String> getListAnalyses() {
-        return observableListAnalyses;
-    }
+//    public ObservableList<String> getListAnalyses() {
+//        return observableListAnalyses;
+//    }
 
     public LocalTime getWorkdayStart() {
         return workdayStart;
@@ -675,6 +734,12 @@ public class GraphDataModel extends Observable {
 
     public void setCurrentAnalysis(JEVisObject currentAnalysis) {
         this.currentAnalysis = currentAnalysis;
+
+        if (observableListAnalyses == null || observableListAnalyses.isEmpty()) updateListAnalyses();
+        if (listAnalysisModel == null) {
+            getListAnalysisModel();
+            updateSelectedData();
+        }
     }
 
 
@@ -724,5 +789,29 @@ public class GraphDataModel extends Observable {
         if (getSelectedData() != null && !getSelectedData().isEmpty()) {
             getSelectedData().forEach(chartDataModel -> chartDataModel.setAggregationPeriod(aggregationPeriod));
         }
+    }
+
+    public Boolean getMultipleDirectories() {
+        return multipleDirectories;
+    }
+
+    public List<JEVisObject> getListAnalysesParentBuildings() {
+        return listAnalysesParentBuildings;
+    }
+
+    public List<JEVisObject> getListBuildingsParentOrganisations() {
+        return listBuildingsParentOrganisations;
+    }
+
+    public ObservableList<JEVisObject> getObservableListAnalysesDirectories() {
+        return observableListAnalysesDirectories;
+    }
+
+    public List<JEVisObject> getListAnalysesDirectoriesParentBuildings() {
+        return listAnalysesDirectoriesParentBuildings;
+    }
+
+    public List<JEVisObject> getListAnalysesDirectortiesBuildingsParentOrganisations() {
+        return listAnalysesDirectortiesBuildingsParentOrganisations;
     }
 }

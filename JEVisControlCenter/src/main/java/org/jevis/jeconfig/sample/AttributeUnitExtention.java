@@ -11,6 +11,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
@@ -21,6 +22,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.jevistree.plugin.AttributeSettingsDialog;
 import org.jevis.application.unit.SampleRateNode;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
@@ -28,6 +30,7 @@ import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.Period;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author fs
@@ -96,6 +99,48 @@ public class AttributeUnitExtention implements SampleEditorExtension {
             SamplingRateUI iuRate = new SamplingRateUI(att.getInputSampleRate());
             SamplingRateUI ouRate = new SamplingRateUI(att.getDisplaySampleRate());
 
+            Button applyToRight = new Button("", JEConfig.getImage("right.png", 12, 12));
+            Button applyToLeft = new Button("", JEConfig.getImage("left.png", 12, 12));
+
+            applyToRight.setOnAction(event -> {
+                try {
+                    att.setDisplayUnit(att.getInputUnit());
+                    att.setDisplaySampleRate(att.getInputSampleRate());
+
+                    ouUnit.unitProperty().setValue(att.getInputUnit());
+                    ouUnit.getUnitButton().setText(att.getInputUnit().getFormula());
+                    ouUnit.getPrefixBox().getSelectionModel().select(
+                            UnitManager.getInstance().getPrefixName(att.getInputUnit().getPrefix(), Locale.getDefault()));
+                    ouUnit.getLabelField().setText(UnitManager.getInstance().formate(att.getInputUnit()));
+
+                    ouRate.sampleingRateProperty().setValue(att.getInputSampleRate());
+                    ouRate.getSelectionModel().select(att.getInputSampleRate());
+
+
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            applyToLeft.setOnAction(event -> {
+                try {
+                    att.setInputUnit(att.getDisplayUnit());
+                    att.setInputSampleRate(att.getDisplaySampleRate());
+
+                    iuUnit.unitProperty().setValue(att.getDisplayUnit());
+                    iuUnit.getUnitButton().setText(att.getDisplayUnit().getFormula());
+                    iuUnit.getPrefixBox().getSelectionModel().select(
+                            UnitManager.getInstance().getPrefixName(att.getDisplayUnit().getPrefix(), Locale.getDefault()));
+                    iuUnit.getLabelField().setText(UnitManager.getInstance().formate(att.getDisplayUnit()));
+
+                    iuRate.sampleingRateProperty().setValue(att.getDisplaySampleRate());
+                    iuRate.getSelectionModel().select(att.getDisplaySampleRate());
+
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            });
+
             iuUnit.unitProperty().addListener(new ChangeListener<JEVisUnit>() {
                 @Override
                 public void changed(ObservableValue<? extends JEVisUnit> observable, JEVisUnit oldValue, JEVisUnit newValue) {
@@ -153,33 +198,38 @@ public class AttributeUnitExtention implements SampleEditorExtension {
             //                   x  Y  x+ y+
             gp.add(new Region(), 0, row, 1, 1);
             gp.add(l_dbUnit, 1, row, 1, 1);
-            gp.add(l_displayUnit, 3, row, 1, 1);
+            gp.add(l_displayUnit, 5, row, 1, 1);
 
 //            row++;
 //            gp.add(new Separator(Orientation.HORIZONTAL), 1, row, 2, 1);
             Separator sep = new Separator(Orientation.VERTICAL);
             sep.setOpacity(0.3);
             gp.add(sep, 2, 1, 1, 5);
+            Separator sep2 = new Separator(Orientation.VERTICAL);
+            sep2.setOpacity(0.3);
+            gp.add(sep2, 4, 1, 1, 5);
 
             row++;
             gp.add(l_prefixL, 0, row, 1, 1);
             gp.add(iuUnit.getPrefixBox(), 1, row, 1, 1);
-            gp.add(ouUnit.getPrefixBox(), 3, row, 1, 1);
+            gp.add(applyToRight, 3, row, 1, 1);
+            gp.add(ouUnit.getPrefixBox(), 5, row, 1, 1);
 
             row++;
             gp.add(l_unitL, 0, row, 1, 1);
             gp.add(iuUnit.getUnitButton(), 1, row, 1, 1);
-            gp.add(ouUnit.getUnitButton(), 3, row, 1, 1);
+            gp.add(ouUnit.getUnitButton(), 5, row, 1, 1);
 
             row++;
             gp.add(l_example, 0, row, 1, 1);
             gp.add(iuUnit.getLabelField(), 1, row, 1, 1);
-            gp.add(ouUnit.getLabelField(), 3, row, 1, 1);
+            gp.add(applyToLeft, 3, row, 1, 1);
+            gp.add(ouUnit.getLabelField(), 5, row, 1, 1);
 
             row++;
             gp.add(l_SampleRate, 0, row, 1, 1);
             gp.add(iuRate, 1, row, 1, 1);
-            gp.add(ouRate, 3, row, 1, 1);
+            gp.add(ouRate, 5, row, 1, 1);
 
             iuUnit.getPrefixBox().setPrefWidth(95);
             ouUnit.getPrefixBox().setPrefWidth(95);

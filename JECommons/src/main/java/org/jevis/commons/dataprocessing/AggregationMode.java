@@ -2,7 +2,7 @@ package org.jevis.commons.dataprocessing;
 
 public enum AggregationMode {
 
-    TOTAL, AVERAGE, MIN, MAX, MEDIAN, NONE;
+    TOTAL, AVERAGE, MIN, MAX, MEDIAN, RUNNINGMEAN, NONE;
 
     public static AggregationMode get(String modeName) {
         String[] modeArray = modeName.split("_");

@@ -31,6 +31,11 @@
       "start": "Report Link Directory",
       "end": "Periodic Report",
       "type": 3
+    },
+    {
+      "start": "Periodic Report",
+      "end": "Alarm Link",
+      "type": 3
     }
   ],
   "types": [
