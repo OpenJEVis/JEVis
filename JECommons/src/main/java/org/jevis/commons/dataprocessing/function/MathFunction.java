@@ -92,28 +92,25 @@ public class MathFunction implements ProcessFunction {
                 }
             }
         } else if (mode.equals(RUNNINGMEAN)) {
-            if (allSamples.size() > 3) {
-                double lastValue;
-                for (int i = 0; i < allSamples.size(); i++) {
-                    if (i % 3 == 0) {
-                        try {
-                            Double currentValue =
-                                    1 / 3 * (allSamples.get(i - 2).getValueAsDouble()
-                                            + allSamples.get(i - 1).getValueAsDouble()
-                                            + allSamples.get(i).getValueAsDouble());
+            if (allSamples.size() > 2) {
+                for (int i = 1; i < allSamples.size() - 1; i++) {
+                    try {
+                        Double currentValue =
+                                1 / 3 * (allSamples.get(i - 1).getValueAsDouble()
+                                        + allSamples.get(i).getValueAsDouble()
+                                        + allSamples.get(i + 1).getValueAsDouble());
 
-                            DateTime newTS = allSamples.get(i - 1).getTimestamp();
+                        DateTime newTS = allSamples.get(i).getTimestamp();
 
 
-                            if (unit == null) unit = allSamples.get(i).getUnit();
-                            JEVisSample smp = new VirtualSample(newTS, currentValue, unit);
-                            listRunningMean.add(smp);
+                        if (unit == null) unit = allSamples.get(i).getUnit();
+                        JEVisSample smp = new VirtualSample(newTS, currentValue, unit);
+                        listRunningMean.add(smp);
 
-                            if (hasSamples == null) hasSamples = true;
+                        if (hasSamples == null) hasSamples = true;
 
-                        } catch (JEVisException ex) {
-                            logger.fatal(ex);
-                        }
+                    } catch (JEVisException ex) {
+                        logger.fatal(ex);
                     }
                 }
             }

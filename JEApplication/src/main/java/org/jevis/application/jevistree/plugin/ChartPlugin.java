@@ -11,6 +11,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisObject;
 import org.jevis.application.Chart.ChartPluginElements.*;
 import org.jevis.application.Chart.ChartSettings;
 import org.jevis.application.Chart.data.GraphDataModel;
@@ -35,6 +39,7 @@ public class ChartPlugin implements TreePlugin {
     private final String chartTitle = rb.getString("graph.title");
     private GraphDataModel data;
     private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
+    private int numberOfChartsPerAnalysis = 5;
 
     public JEVisTree getTree() {
         return jeVisTree;
@@ -84,7 +89,7 @@ public class ChartPlugin implements TreePlugin {
         colorColumn.setGraphDataModel(data);
 
         addChart.setOnAction(event -> {
-            if (data.getCharts().size() < 4) {
+            if (data.getCharts().size() < 5) {
                 List<String> oldNames = new ArrayList<>();
                 for (ChartSettings set : data.getCharts()) {
                     oldNames.add(set.getName());
@@ -163,5 +168,22 @@ public class ChartPlugin implements TreePlugin {
     public void selectNone() {
         data.selectNone();
         jeVisTree.refresh();
+    }
+
+    public int getNumberOfChartsPerAnalysis() {
+        retrieveNumberOfChartsPerAnalysisFromJEVis();
+        return numberOfChartsPerAnalysis;
+    }
+
+    private void retrieveNumberOfChartsPerAnalysisFromJEVis() {
+        try {
+            JEVisDataSource ds = getTree().getJEVisDataSource();
+            JEVisClass graphClass = ds.getJEVisClass("Graph Plugin");
+            List<JEVisObject> listGraphPlugins = ds.getObjects(graphClass, false);
+            JEVisAttribute chartsPerAnalysisAttribute = listGraphPlugins.get(0).getAttribute("Number of Charts per Analysis");
+            numberOfChartsPerAnalysis = chartsPerAnalysisAttribute.getLatestSample().getValueAsLong().intValue();
+        } catch (Exception e) {
+
+        }
     }
 }

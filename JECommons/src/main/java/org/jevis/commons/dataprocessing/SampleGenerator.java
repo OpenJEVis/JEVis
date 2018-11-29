@@ -125,6 +125,7 @@ public class SampleGenerator {
         input.setFunction(new InputFunction(samples));
         input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attribute.getName()));
         input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, object.getID().toString()));
+        input.getOptions().add(new BasicProcessOption(ProcessOptions.OFFSET, ""));
         aggregate.setSubProcesses(Collections.singletonList(input));
 
         return aggregate.getResult();

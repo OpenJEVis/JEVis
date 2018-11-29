@@ -6,6 +6,11 @@
       "start": "Periodic Report",
       "end": "Report",
       "type": 0
+    },
+    {
+      "start": "Report",
+      "end": "Alarm Link",
+      "type": 3
     }
   ],
   "types": [
