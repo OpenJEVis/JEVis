@@ -18,6 +18,8 @@ import java.util.Map;
 /**
  * Basic implementation of the JEVisTreeFilter. THis filter can filter based on the JEVIsObject.getJEVisClass
  * and Attribute.getName
+ *
+ * @TODO: Add an feature to also positive filter objects under the objects we want so see, use case user want to see all DataSource and so all Objects under it.
  */
 public class BasicCellFilter implements JEVisTreeFilter {
 

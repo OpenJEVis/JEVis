@@ -49,27 +49,76 @@ import java.util.Date;
  */
 public class HTTPConnection {
 
-    private final String baseURL;
-    private final String username;
-    private final String password;
-    private static final Logger logger = LogManager.getLogger(HTTPConnection.class);
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
-
+    private static final Logger logger = LogManager.getLogger(HTTPConnection.class);
     /**
      *
      */
     public static String API_PATH_V1 = "JEWebService/v1/";
-
     public static String RESOURCE_OBJECTS = "objects";
     public static String RESOURCE_CLASSES = "classes";
     public static String RESOURCE_ATTRIBUTES = "attributes";
     public static String RESOURCE_TYPES = "types";
     public static String REAOURCE_I18N = "i18n";
+    private final String baseURL;
+    private final String username;
+    private final String password;
 
     public HTTPConnection(String baseurl, String username, String password) {
         this.baseURL = baseurl;
         this.username = username;
         this.password = password;
+    }
+
+    public static StringBuffer getPayload(HttpURLConnection conn) throws IOException {
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(conn.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+//            logger.trace("Payload: {}", response);
+
+        return response;
+    }
+
+    /**
+     * Its not save to trust all ssl certificats. Better use trusted keys but for now its better than simple http
+     */
+    public static void trustAllCertificates() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            X509Certificate[] myTrustedAnchors = new X509Certificate[0];
+                            return myTrustedAnchors;
+                        }
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
+                    }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+        }
     }
 
     private void addAuth(HttpURLConnection conn, String username, String password) {
@@ -163,7 +212,7 @@ public class HTTPConnection {
 
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
         logger.trace("responseCode {}", responseCode);
-      
+
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             byte[] bytes = IOUtils.toByteArray(conn.getInputStream());
@@ -285,21 +334,6 @@ public class HTTPConnection {
 
     }
 
-    public static StringBuffer getPayload(HttpURLConnection conn) throws IOException {
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-//            logger.trace("Payload: {}", response);
-
-        return response;
-    }
-
     /**
      * @param resource
      * @return
@@ -334,7 +368,6 @@ public class HTTPConnection {
         return conn;
 
     }
-
 
     /**
      * @param resource
@@ -383,6 +416,7 @@ public class HTTPConnection {
         addAuth(conn, username, password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
+        conn.setRequestProperty("Accept-Encoding", "gzip");
 
         logger.debug("HTTP request {}", conn.getURL());
 
@@ -411,41 +445,5 @@ public class HTTPConnection {
         logger.trace("resonseCode {}", responseCode);
         return conn;
 
-    }
-
-    /**
-     * Its not save to trust all ssl certificats. Better use trusted keys but for now its better than simple http
-     */
-    public static void trustAllCertificates() {
-        try {
-            TrustManager[] trustAllCerts = new TrustManager[]{
-                    new X509TrustManager() {
-                        @Override
-                        public X509Certificate[] getAcceptedIssuers() {
-                            X509Certificate[] myTrustedAnchors = new X509Certificate[0];
-                            return myTrustedAnchors;
-                        }
-
-                        @Override
-                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                        }
-
-                        @Override
-                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                        }
-                    }
-            };
-
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String arg0, SSLSession arg1) {
-                    return true;
-                }
-            });
-        } catch (Exception e) {
-        }
     }
 }

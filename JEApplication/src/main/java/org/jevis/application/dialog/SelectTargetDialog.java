@@ -36,9 +36,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.application.I18nWS;
 import org.jevis.application.jevistree.*;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
+import org.jevis.application.jevistree.filter.FilterFactory;
 import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.application.jevistree.plugin.SimpleTargetPlugin;
@@ -88,6 +91,25 @@ public class SelectTargetDialog {
         return onlyData;
     }
 
+    public static JEVisTreeFilter buildAllDataSources(JEVisDataSource ds) {
+        try {
+            JEVisClass dsClass = ds.getJEVisClass("Data Server");
+            BasicCellFilter onlyData = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
+            List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
+            filter.forEach(objectAttributeFilter -> {
+                System.out.println("Add filter: " + objectAttributeFilter);
+                onlyData.addItemFilter(objectAttributeFilter);
+                onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, objectAttributeFilter);
+            });
+
+            return onlyData;
+        } catch (Exception ex) {
+        }
+
+        return new BasicCellFilter("Data Server");
+    }
+
+
     public static JEVisTreeFilter buildAllDataFilter() {
         BasicCellFilter onlyData = new BasicCellFilter("Data");
         ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
@@ -99,6 +121,7 @@ public class SelectTargetDialog {
 
         return onlyData;
     }
+
 
     public static JEVisTreeFilter buildAllAttributesFilter() {
         BasicCellFilter allAttributes = new BasicCellFilter("All Attributes");

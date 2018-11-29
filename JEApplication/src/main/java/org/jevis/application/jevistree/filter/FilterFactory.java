@@ -1,11 +1,31 @@
 package org.jevis.application.jevistree.filter;
 
 import javafx.scene.control.TreeTableColumn;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.commons.classes.ClassHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FilterFactory {
+
+    public static List<ObjectAttributeFilter> buildFilterForHeirs(JEVisClass jclass, String attributeFilter) throws JEVisException {
+        List<ObjectAttributeFilter> filter = new ArrayList<>();
+        List<JEVisClass> heirs = new ArrayList<>();
+        ClassHelper.addAllHeir(heirs, jclass);
+
+        filter.add(new ObjectAttributeFilter(jclass.getName(), attributeFilter));
+        heirs.forEach(jeVisClass -> {
+            try {
+                filter.add(new ObjectAttributeFilter(jeVisClass.getName(), attributeFilter));
+            } catch (Exception ex) {
+            }
+        });
+
+        return filter;
+    }
+
 
     public static List<ObjectAttributeFilter> defaultObjectTreeFilter() {
         List<ObjectAttributeFilter> filter = new ArrayList<>();
