@@ -149,8 +149,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         GridPane.setHgrow(freeSpace, Priority.ALWAYS);
         GridPane.setFillWidth(comboBoxPresetDates, true);
         GridPane.setFillWidth(comboBoxCustomPeriods, true);
-        comboBoxPresetDates.setMinWidth(200);
-        comboBoxCustomPeriods.setMinWidth(200);
+        comboBoxPresetDates.setMaxWidth(200);
+        comboBoxCustomPeriods.setMaxWidth(200);
 
         GridPane gridLayout = new GridPane();
         gridLayout.setPadding(new Insets(10, 10, 10, 10));
@@ -182,7 +182,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         gridLayout.add(labelAggregation, 4, 4, 2, 1);
         aggregationBox = getAggregationBox();
         GridPane.setFillWidth(aggregationBox, true);
-        aggregationBox.setMinWidth(200);
+        aggregationBox.setMaxWidth(200);
         gridLayout.add(aggregationBox, 4, 5, 2, 1);
 
 
@@ -618,6 +618,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                                 graphDataModel.getAnalysisTimeFrame().setId(cpo.getObject().getID());
 
                                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                                setSelectedStart(dateHelper.getStartDate());
+                                setSelectedEnd(dateHelper.getEndDate());
                             }
                         }
                         comboBoxPresetDates.getSelectionModel().select(7);
