@@ -97,7 +97,6 @@ public class SelectTargetDialog {
             BasicCellFilter onlyData = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
             List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
             filter.forEach(objectAttributeFilter -> {
-                System.out.println("Add filter: " + objectAttributeFilter);
                 onlyData.addItemFilter(objectAttributeFilter);
                 onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, objectAttributeFilter);
             });

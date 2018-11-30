@@ -20,12 +20,15 @@
 package org.jevis.jeconfig.plugin.object;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -286,7 +289,30 @@ public class ObjectPlugin implements Plugin {
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(createWizard);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, createWizard, Constants.Plugin.Command.CREATE_WIZARD);
 
-            toolBar.getItems().addAll(save, newB, delete, reload, sep1);// addTable, editTable, createWizard);
+
+            ToggleButton collapseTree = new ToggleButton("", JEConfig.getImage("1404843819_node-tree.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(collapseTree);
+            GlobalToolBar.BuildEventhandler(ObjectPlugin.this, collapseTree, Constants.Plugin.Command.COLLAPSE);
+
+            final BooleanProperty toggleProperty = new SimpleBooleanProperty(false);
+            collapseTree.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent t) {
+                    toggleProperty.setValue(!toggleProperty.getValue());
+                    if (toggleProperty.getValue()) {
+                        handleRequest(Constants.Plugin.Command.COLLAPSE);
+                    } else {
+                        handleRequest(Constants.Plugin.Command.EXPAND);
+                    }
+                }
+            });
+
+            ToggleButton expandTree = new ToggleButton("", JEConfig.getImage("create_wizard.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(expandTree);
+            GlobalToolBar.BuildEventhandler(ObjectPlugin.this, expandTree, Constants.Plugin.Command.EXPAND);
+
+
+            toolBar.getItems().addAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
         }
 
         return toolBar;
@@ -385,7 +411,20 @@ public class ObjectPlugin implements Plugin {
                 case Constants.Plugin.Command.RENAME:
                     TreeHelper.EventRename(tree, parent.getValue().getJEVisObject());
                     break;
+                case Constants.Plugin.Command.COLLAPSE:
+                    tree.getSelectionModel().getSelectedItems().forEach(o -> {
+                        TreeItem item = (TreeItem) o;
+//                        tree.collapseAll(item, true);
+                        tree.toggleItemCollapse(item);
+                    });
+
+                    break;
                 case Constants.Plugin.Command.EXPAND:
+                    tree.getSelectionModel().getSelectedItems().forEach(o -> {
+                        TreeItem item = (TreeItem) o;
+//                        tree.collapseAll(item, false);
+                        tree.toggleItemCollapse(item);
+                    });
                     break;
                 case Constants.Plugin.Command.NEW:
                     TreeHelper.EventNew(tree);
@@ -421,7 +460,6 @@ public class ObjectPlugin implements Plugin {
         } catch (Exception ex) {
         }
 
-        System.out.println("bug finder");
     }
 
     @Override
