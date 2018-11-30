@@ -118,6 +118,24 @@ public class JEVisTree extends TreeTableView {
 
     }
 
+    public void collapseAll(TreeItem node, boolean collapse) {
+        if (!node.equals(getRoot())) {
+            node.setExpanded(collapse);
+        }
+
+        node.getChildren().forEach(o -> {
+            TreeItem item = (TreeItem) o;
+            collapseAll(item, collapse);
+        });
+    }
+
+    public void toggleItemCollapse(TreeItem node) {
+        System.out.println("toggleItemCollapse: " + !node.isExpanded());
+        collapseAll(node, !node.isExpanded());
+
+    }
+
+
     /**
      * Initialize the jevis tree
      */
