@@ -361,15 +361,25 @@ public class GraphDataModel extends Observable {
                     }
                 case preview:
                     try {
-                        AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now());
-                        AtomicReference<DateTime> end = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
+                        AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now().minusDays(7));
+                        AtomicReference<DateTime> end = new AtomicReference<>(DateTime.now());
                         getSelectedData().forEach(chartDataModel -> {
-                            if (chartDataModel.getSelectedStart() != null && chartDataModel.getSelectedEnd() != null) {
-                                if (chartDataModel.getSelectedEnd().isAfter(end.get()))
-                                    end.set(chartDataModel.getSelectedEnd());
+                            JEVisAttribute valueAtt = chartDataModel.getAttribute();
+                            if (valueAtt != null) {
+                                if (valueAtt.getTimestampFromLastSample().isBefore(end.get()))
+                                    end.set(valueAtt.getTimestampFromLastSample());
                             }
                         });
+
                         start.set(end.get().minusDays(7));
+
+                        getSelectedData().forEach(chartDataModel -> {
+                            JEVisAttribute valueAtt = chartDataModel.getAttribute();
+                            if (valueAtt != null) {
+                                if (valueAtt.getTimestampFromFirstSample().isAfter(start.get()))
+                                    start.set(valueAtt.getTimestampFromFirstSample());
+                            }
+                        });
 
                         getSelectedData().forEach(chartDataModel -> {
                             if (!chartDataModel.getSelectedcharts().isEmpty()) {
