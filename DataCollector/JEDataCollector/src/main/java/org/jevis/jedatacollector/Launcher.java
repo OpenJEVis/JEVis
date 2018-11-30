@@ -17,6 +17,7 @@ import org.jevis.commons.driver.DriverHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -31,6 +32,7 @@ public class Launcher extends AbstractCliApp {
     private int cycleTime = 900000;
     private final Command commands = new Command();
     private ForkJoinPool forkJoinPool;
+    private ConcurrentHashMap<String, String> runningJobs = new ConcurrentHashMap();
 
     /**
      * @param args the command line arguments
@@ -61,11 +63,24 @@ public class Launcher extends AbstractCliApp {
 
         forkJoinPool.submit(
                 () -> dataSources.parallelStream().forEach(object -> {
-                    logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
-                    DataSource dataSource = DataSourceFactory.getDataSource(object);
+                    if (!runningJobs.containsKey(object.getID().toString())) {
 
-                    dataSource.initialize(object);
-                    dataSource.run();
+                        runningJobs.put(object.getID().toString(), "true");
+
+                        try {
+                            logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
+                            DataSource dataSource = DataSourceFactory.getDataSource(object);
+
+                            dataSource.initialize(object);
+                            dataSource.run();
+                        } catch (Exception ex) {
+                            logger.debug(ex);
+                        }
+                        runningJobs.remove(object.getID().toString());
+
+                    } else {
+                        logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
+                    }
                 }));
 
         logger.info("---------------------finish------------------------");

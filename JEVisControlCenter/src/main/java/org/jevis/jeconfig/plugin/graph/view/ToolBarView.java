@@ -48,18 +48,13 @@ public class ToolBarView {
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
     private GraphDataModel model;
-    private ComboBox<JEVisObject> listAnalysesComboBoxHidden;
-    private ChartView view;
-    private List<ChartView> listView;
+    private ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean _initialized = false;
-    private LoadAnalysisDialog dialog;
     private JEVisObject currentAnalysisDirectory = null;
 
-    public ToolBarView(GraphDataModel model, JEVisDataSource ds, ChartView chartView, List<ChartView> listChartViews) {
+    public ToolBarView(GraphDataModel model, JEVisDataSource ds) {
         this.model = model;
         this.ds = ds;
-        this.view = chartView;
-        this.listView = listChartViews;
     }
 
     public ToolBar getToolbar(JEVisDataSource ds) {
@@ -69,11 +64,11 @@ public class ToolBarView {
         double iconSize = 20;
         Label labelComboBox = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));
 
-        listAnalysesComboBoxHidden = new ComboBox(model.getObservableListAnalyses());
-        listAnalysesComboBoxHidden.setPrefWidth(300);
+        listAnalysesComboBox = new ComboBox(model.getObservableListAnalyses());
+        listAnalysesComboBox.setPrefWidth(300);
         setCellFactoryForComboBox();
 
-        listAnalysesComboBoxHidden.valueProperty().addListener((observable, oldValue, newValue) -> {
+        listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
                 DateTime now = DateTime.now();
                 AtomicReference<DateTime> oldStart = new AtomicReference<>(now);
@@ -135,7 +130,7 @@ public class ToolBarView {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> {
-            JEVisObject currentAnalysis = listAnalysesComboBoxHidden.getSelectionModel().getSelectedItem();
+            JEVisObject currentAnalysis = listAnalysesComboBox.getSelectionModel().getSelectedItem();
             select(null);
             try {
                 ds.reloadAttributes();
@@ -216,7 +211,7 @@ public class ToolBarView {
 
         autoResize.setOnAction(event -> autoResizeInGraph());
 
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBoxHidden, sep1, loadNew, save, delete, sep2, select, exportCSV, sep3, disableIcons, autoResize, reload);
+        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, sep3, disableIcons, autoResize, reload);
         _initialized = true;
         return toolBar;
     }
@@ -251,14 +246,14 @@ public class ToolBarView {
             }
         };
 
-        listAnalysesComboBoxHidden.setCellFactory(cellFactory);
-        listAnalysesComboBoxHidden.setButtonCell(cellFactory.call(null));
+        listAnalysesComboBox.setCellFactory(cellFactory);
+        listAnalysesComboBox.setButtonCell(cellFactory.call(null));
     }
 
     private void loadNewDialog() {
 
 
-        dialog = new LoadAnalysisDialog(ds, model, this);
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, model, this);
 
         dialog.showAndWait()
                 .ifPresent(response -> {
@@ -298,8 +293,8 @@ public class ToolBarView {
         model.setAutoResize(!model.getAutoResize());
     }
 
-    public ComboBox getListAnalysesComboBoxHidden() {
-        return listAnalysesComboBoxHidden;
+    public ComboBox getListAnalysesComboBox() {
+        return listAnalysesComboBox;
     }
 
     private void changeSettings(ActionEvent event) {
@@ -431,9 +426,8 @@ public class ToolBarView {
                             }
                             saveDataModel(model.getSelectedData(), model.getCharts());
 
-                            listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
-                            setCellFactoryForComboBox();
-                            listAnalysesComboBoxHidden.getSelectionModel().select(model.getCurrentAnalysis());
+                            model.updateListAnalyses();
+                            listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                         } else {
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
                             dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
@@ -447,9 +441,8 @@ public class ToolBarView {
                                 if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
                                     saveDataModel(model.getSelectedData(), model.getCharts());
 
-                                    listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
-                                    setCellFactoryForComboBox();
-                                    listAnalysesComboBoxHidden.getSelectionModel().select(model.getCurrentAnalysis());
+                                    model.updateListAnalyses();
+                                    listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                                 } else {
 
                                 }
@@ -478,9 +471,7 @@ public class ToolBarView {
                 }
 
                 model.updateListAnalyses();
-                listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
-                setCellFactoryForComboBox();
-                listAnalysesComboBoxHidden.getSelectionModel().selectFirst();
+                listAnalysesComboBox.getSelectionModel().selectFirst();
             }
         });
 
@@ -559,14 +550,12 @@ public class ToolBarView {
     public void selectFirst() {
         if (!_initialized) {
             model.updateListAnalyses();
-            listAnalysesComboBoxHidden.setItems(model.getObservableListAnalyses());
-            setCellFactoryForComboBox();
         }
-        listAnalysesComboBoxHidden.getSelectionModel().selectFirst();
+        listAnalysesComboBox.getSelectionModel().selectFirst();
     }
 
     public void select(JEVisObject obj) {
 
-        listAnalysesComboBoxHidden.getSelectionModel().select(obj);
+        listAnalysesComboBox.getSelectionModel().select(obj);
     }
 }

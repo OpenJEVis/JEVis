@@ -618,20 +618,20 @@ public class GraphDataModel extends Observable {
             for (JEVisObject obj : observableListAnalysesDirectories) {
                 try {
 
-                    JEVisObject buildingParent = obj.getParents().get(0);
+                    JEVisObject buildingDirParent = obj.getParents().get(0);
 
                     JEVisClass buildingClass = ds.getJEVisClass("Building");
-                    if (buildingParent.getJEVisClass().equals(buildingClass)) {
-                        listAnalysesDirectoriesParentBuildings.add(buildingParent);
+                    if (buildingDirParent.getJEVisClass().equals(buildingClass)) {
+                        listAnalysesDirectoriesParentBuildings.add(buildingDirParent);
 
                         try {
-                            JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
+                            JEVisObject organisationParent = buildingDirParent.getParents().get(0).getParents().get(0);
                             JEVisClass organisationClass = ds.getJEVisClass("Organization");
                             if (organisationParent.getJEVisClass().equals(organisationClass)) {
                                 listAnalysesDirectortiesBuildingsParentOrganisations.add(organisationParent);
                             }
                         } catch (JEVisException e) {
-                            logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+                            logger.error("Could not get Organization parent of " + buildingDirParent.getName() + ":" + buildingDirParent.getID());
                         }
                     }
 

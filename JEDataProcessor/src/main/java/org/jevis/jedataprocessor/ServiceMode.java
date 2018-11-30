@@ -88,16 +88,16 @@ public class ServiceMode {
         ProcessManagerFactory.getForkJoinPool().submit(
                 () -> processes.parallelStream().forEach(
                         currentProcess -> {
-                            if (!runningJobs.containsKey(currentProcess.getName() + ":" + currentProcess.getId())) {
+                            if (!runningJobs.containsKey(currentProcess.getId().toString())) {
 
-                                runningJobs.put(currentProcess.getName() + ":" + currentProcess.getId(), "true");
+                                runningJobs.put(currentProcess.getId().toString(), "true");
 
                                 try {
                                     currentProcess.start();
                                 } catch (Exception ex) {
                                     logger.debug(ex);
                                 }
-                                runningJobs.remove(currentProcess.getName() + ":" + currentProcess.getId());
+                                runningJobs.remove(currentProcess.getId().toString());
 
                             } else {
                                 logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());

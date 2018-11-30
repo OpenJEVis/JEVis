@@ -42,8 +42,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private JFXDatePicker pickerDateEnd = new JFXDatePicker();
     private JFXTimePicker pickerTimeEnd = new JFXTimePicker();
     private jfxtras.scene.control.ListView<JEVisObject> analysisListView = new ListView<>();
-    private DateTime selectedStart = DateTime.now().minusDays(7);
-    private DateTime selectedEnd = DateTime.now();
     private JEVisDataSource ds;
     private DateHelper dateHelper = new DateHelper();
     private ComboBox<String> comboBoxPresetDates;
@@ -63,7 +61,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
     private void initialize() {
 
-        graphDataModel.updateListAnalyses();
+        //graphDataModel.updateListAnalyses();
+
         analysisListView.setItems(graphDataModel.getObservableListAnalyses());
 
         analysisListView.setCellFactory(param -> new ListCell<JEVisObject>() {

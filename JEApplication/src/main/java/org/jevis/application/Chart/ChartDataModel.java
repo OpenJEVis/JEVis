@@ -77,7 +77,8 @@ public class ChartDataModel {
                         sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
                                 getSelectedEnd(), AggregationMode.NONE, aggregationPeriod);
                     } else if (aggregationPeriod.equals(AggregationPeriod.RUNNINGMEAN)) {
-                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
+                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute,
+                                getSelectedStart().minus(_attribute.getDisplaySampleRate()),
                                 getSelectedEnd(), AggregationMode.RUNNINGMEAN, AggregationPeriod.NONE);
                     } else {
                         sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
@@ -92,7 +93,7 @@ public class ChartDataModel {
                      * Checking for data incongruencies                     *
                      */
 
-                    if (samples.size() > 0) {
+                    if (samples.size() > 0 && !aggregationPeriod.equals(AggregationPeriod.RUNNINGMEAN)) {
 
                         while (samples.get(0).getTimestamp().isAfter(_selectedStart)) {
                             DateTime newTS = samples.get(0).getTimestamp().minus(getAttribute().getDisplaySampleRate());
