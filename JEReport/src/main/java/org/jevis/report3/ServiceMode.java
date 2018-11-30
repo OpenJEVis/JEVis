@@ -116,9 +116,9 @@ public class ServiceMode {
         logger.info("Number of reports " + reportObjects.size());
         forkJoinPool.submit(
                 () -> reportObjects.parallelStream().forEach(reportObject -> {
-                    if (!runningJobs.containsKey(reportObject.getName() + ":" + reportObject.getID())) {
+                    if (!runningJobs.containsKey(reportObject.getID().toString())) {
 
-                        runningJobs.put(reportObject.getName() + ":" + reportObject.getID(), "true");
+                        runningJobs.put(reportObject.getID().toString(), "true");
                         try {
                             logger.info("---------------------------------------------------------------------");
                             logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
@@ -138,7 +138,7 @@ public class ServiceMode {
                         } catch (Exception e) {
                             logger.error("Error while creating report", e);
                         }
-                        runningJobs.remove(reportObject.getName() + ":" + reportObject.getID());
+                        runningJobs.remove(reportObject.getID().toString());
 
                     } else {
                         logger.error("Still processing Job " + reportObject.getName() + ":" + reportObject.getID());

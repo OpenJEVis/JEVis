@@ -95,16 +95,24 @@ public class MathFunction implements ProcessFunction {
             if (allSamples.size() > 2) {
                 for (int i = 1; i < allSamples.size() - 1; i++) {
                     try {
-                        Double currentValue =
-                                1 / 3 * (allSamples.get(i - 1).getValueAsDouble()
-                                        + allSamples.get(i).getValueAsDouble()
-                                        + allSamples.get(i + 1).getValueAsDouble());
 
+                        Double value0 = allSamples.get(i - 1).getValueAsDouble();
+                        Double value1 = allSamples.get(i).getValueAsDouble();
+                        Double value2 = allSamples.get(i + 1).getValueAsDouble();
+
+                        Double currentValue = 1d / 3d * (value0 + value1 + value2);
                         DateTime newTS = allSamples.get(i).getTimestamp();
 
 
                         if (unit == null) unit = allSamples.get(i).getUnit();
                         JEVisSample smp = new VirtualSample(newTS, currentValue, unit);
+
+                        String note = allSamples.get(i).getNote();
+                        if (note == null || note.equals(""))
+                            note = "math(" + RUNNINGMEAN + ")";
+                        else note += ",math(" + RUNNINGMEAN + ")";
+                        smp.setNote(note);
+
                         listRunningMean.add(smp);
 
                         if (hasSamples == null) hasSamples = true;

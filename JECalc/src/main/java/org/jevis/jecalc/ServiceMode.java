@@ -136,9 +136,9 @@ public class ServiceMode {
 
             forkJoinPool.submit(
                     () -> enabledObjects.parallelStream().forEach(object -> {
-                        if (!runningJobs.containsKey(object.getName() + ":" + object.getID())) {
+                        if (!runningJobs.containsKey(object.getID().toString())) {
 
-                            runningJobs.put(object.getName() + ":" + object.getID(), "true");
+                            runningJobs.put(object.getID().toString(), "true");
 
                             try {
                                 CalcJob calcJob;
@@ -153,7 +153,7 @@ public class ServiceMode {
                             } catch (Exception ex) {
                                 logger.error("error with calculation job, aborted", ex);
                             }
-                            runningJobs.remove(object.getName() + ":" + object.getID());
+                            runningJobs.remove(object.getID().toString());
                         } else {
                             logger.error("Still calculating Job " + object.getName() + ":" + object.getID());
                         }

@@ -62,13 +62,11 @@ public class GraphPluginView implements Plugin, Observer {
     private GraphDataModel dataModel;
     //private GraphController controller;
     private ChartView chartView;
-    private List<ChartView> listChartViews = null;
     private StringProperty name = new SimpleStringProperty("Graph");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane border;
     private ToolBar toolBar;
-    private LoadAnalysisDialog dialog;
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
 
@@ -77,7 +75,7 @@ public class GraphPluginView implements Plugin, Observer {
         this.dataModel.addObserver(this);
 
         //this.controller = new GraphController(this, dataModel);
-        this.toolBarView = new ToolBarView(dataModel, ds, chartView, listChartViews);
+        this.toolBarView = new ToolBarView(dataModel, ds);
         //this.chartView = new ChartView(dataModel);
 
         this.ds = ds;
@@ -128,7 +126,7 @@ public class GraphPluginView implements Plugin, Observer {
 
     private void openDialog() {
 
-        dialog = new LoadAnalysisDialog(ds, dataModel, toolBarView);
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, dataModel, toolBarView);
 
         dialog.showAndWait()
                 .ifPresent(response -> {
@@ -302,7 +300,7 @@ public class GraphPluginView implements Plugin, Observer {
             double maxHeight = border.getHeight();
             double totalPrefHeight = 0;
 
-            listChartViews = null;
+            List<ChartView> listChartViews = null;
             listChartViews = toolBarView.getChartViews();
             AlphanumComparator ac = new AlphanumComparator();
             try {
