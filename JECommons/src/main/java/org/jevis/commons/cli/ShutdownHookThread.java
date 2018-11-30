@@ -1,13 +1,13 @@
-package org.jevis.jecalc;
+package org.jevis.commons.cli;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
 
-public class JECalcShutdownHookThread extends Thread {
-    private static final Logger logger = LogManager.getLogger(JECalcShutdownHookThread.class);
-    public static final String THREAD_NAME = "JEDataProcessor Shutdown Hook";
+public class ShutdownHookThread extends Thread {
+    public static final String THREAD_NAME = "Shutdown Hook";
+    private static final Logger logger = LogManager.getLogger(ShutdownHookThread.class);
 
     public static final int GRACE_PERIOD = 0;
     public static final TimeUnit GRACE_PERIOD_TIME_UNIT = TimeUnit.SECONDS;
@@ -17,7 +17,7 @@ public class JECalcShutdownHookThread extends Thread {
     /**
      * @param service The Thread to shut down
      */
-    public JECalcShutdownHookThread(Thread service) {
+    public ShutdownHookThread(Thread service) {
         this.thread = service;
         setName(THREAD_NAME);
     }

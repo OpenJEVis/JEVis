@@ -887,7 +887,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public JEVisObject getObjectWS(Long id) {
-        logger.error("GetObject: {}", id);
+        logger.info("GetObject: {}", id);
         String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "/" + id
                 + "?"
                 + REQUEST.OBJECTS.OPTIONS.INCLUDE_CHILDREN + "true";

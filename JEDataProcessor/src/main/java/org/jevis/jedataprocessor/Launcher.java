@@ -7,51 +7,128 @@ package org.jevis.jedataprocessor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
+import org.jevis.commons.cli.AbstractCliApp;
+import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.jevis.jedataprocessor.workflow.ProcessManagerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author broder
  */
-public class Launcher {
+public class Launcher extends AbstractCliApp {
 
     private static final Logger logger = LogManager.getLogger(Launcher.class);
-    private int cycleTime = 1800000;
+    public static final String APP_INFO = "JEDataProcessor";
+    public static String KEY = "process-id";
+    private final String APP_SERVICE_CLASS_NAME = "JEDataProcessor";
+    private final Command commands = new Command();
 
-    public static void main(String[] args) throws Exception {
-        //parse Commandline
-        CommandLineParser cmd = CommandLineParser.getInstance();
-        cmd.parse(args);
+    public Launcher(String[] args, String appname) {
+        super(args, appname);
+    }
 
-        Launcher launcher = new Launcher();
+    public static void main(String[] args) {
 
-        if (!cmd.isServiceMode()) {
-            launcher.run();
-        } else {
-            if (cmd.getCycleTime() != null) {
-                ServiceMode sm = new ServiceMode(cmd.getCycleTime());
-                sm.run();
-            } else {
-                ServiceMode sm = new ServiceMode();
-                sm.run();
-            }
+        logger.info("-------Start JEDataProcessor-------");
+        Launcher app = new Launcher(args, APP_INFO);
+        app.execute();
+    }
+
+    private void excecuteProcesses(List<ProcessManager> processes) {
+
+        initializeThreadPool(APP_SERVICE_CLASS_NAME);
+
+        logger.info("{} cleaning task found starting", processes.size());
+
+        processes.parallelStream().forEach(currentProcess ->
+                forkJoinPool.submit(() -> {
+                    if (!runningJobs.containsKey(currentProcess.getId().toString())) {
+
+                        runningJobs.put(currentProcess.getId().toString(), "true");
+
+                        try {
+                            currentProcess.start();
+                        } catch (Exception ex) {
+                            logger.debug(ex);
+                        }
+                        runningJobs.remove(currentProcess.getId().toString());
+
+                    } else {
+                        logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());
+                    }
+
+                }));
+
+    }
+
+
+    @Override
+    protected void addCommands() {
+        comm.addObject(commands);
+    }
+
+    @Override
+    protected void handleAdditionalCommands() {
+
+    }
+
+    @Override
+    protected void runSingle(Long id) {
+        ProcessManagerFactory pmf = new ProcessManagerFactory(ds);
+
+        try {
+            List<ProcessManager> processList = pmf.initProcessManagersFromJEVisSingle(id);
+
+            excecuteProcesses(processList);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private void run() throws Exception {
-        List<ProcessManager> processes = ProcessManagerFactory.getProcessManagerList();
+    @Override
+    protected void runServiceHelp() {
+        List<ProcessManager> processManagerList = new ArrayList<>();
+        try {
+            ds.reloadAttributes();
+            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
 
-        logger.info("{} cleaning task found, starting now...", processes.size());
-        processes.parallelStream().forEach(
-                currentProcess -> {
-                    try {
-                        currentProcess.start();
-                    } catch (Exception ex) {
-                        logger.debug(ex);
-                    }
-                });
+        try {
+            ProcessManagerFactory pmf = new ProcessManagerFactory(ds);
+            processManagerList = pmf.initProcessManagersFromJEVisAll();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.excecuteProcesses(processManagerList);
+        try {
+            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            logger.info("Entering Sleep mode for " + cycleTime + "ms.");
+            Thread.sleep(cycleTime);
+            runServiceHelp();
+        } catch (InterruptedException e) {
+            logger.error("Interrupted sleep: ", e);
+        }
+    }
+
+    @Override
+    protected void runComplete() {
+        List<ProcessManager> processManagerList = new ArrayList<>();
+        try {
+            ProcessManagerFactory pmf = new ProcessManagerFactory(ds);
+            processManagerList = pmf.initProcessManagersFromJEVisAll();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.excecuteProcesses(processManagerList);
     }
 
 
