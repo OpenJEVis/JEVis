@@ -12,58 +12,39 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.cli.JEVisCommandLine;
-import org.jevis.commons.cli.JEVisServerConnectionCLI;
-import org.jevis.jeapi.ws.JEVisDataSourceWS;
+import org.jevis.commons.cli.AbstractCliApp;
+import org.jevis.report3.data.report.ReportAttributes;
 import org.jevis.report3.data.report.ReportExecutor;
 import org.jevis.report3.policy.ReportPolicy;
-import org.joda.time.DateTime;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 
 
 /**
  * @author broder
  */
-public class ReportLauncher {
+public class ReportLauncher extends AbstractCliApp {
 
     private static final Logger logger = LogManager.getLogger(ReportLauncher.class);
     public static JEVisDataSource jevisDataSource;
     private static Injector injector;
-    private boolean singleMode;
-    private static ForkJoinPool forkJoinPool;
+    public static final String APP_INFO = "JEReport";
+    private final String APP_SERVICE_CLASS_NAME = "JEReport";
+    private final Command commands = new Command();
 
-    public static void main(String[] args) throws JEVisException {
-        //parse Commandline
-        JEVisCommandLine cmd = JEVisCommandLine.getInstance();
-        cmd.parse(args);
-
-        initializeThreadPool();
-
-        //start report
-//        Injector injector = Guice.createInjector(new ReportLauncherInjector());
-        ReportLauncher launcher = new ReportLauncher();
-        launcher.run();
+    public ReportLauncher(String[] args, String appname) {
+        super(args, appname);
     }
 
-    private static void initializeThreadPool() {
-        Integer threadCount = 4;
-        try {
-            JEVisClass dataProcessorClass = jevisDataSource.getJEVisClass("JEReport");
-            List<JEVisObject> listDataProcessorObjects = jevisDataSource.getObjects(dataProcessorClass, false);
-            threadCount = listDataProcessorObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
-            logger.info("Set Thread count to: " + threadCount);
-        } catch (Exception e) {
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
 
-        }
-        forkJoinPool = new ForkJoinPool(threadCount);
+        logger.info("-------Start JEReport-------");
+        ReportLauncher app = new ReportLauncher(args, APP_INFO);
+        app.execute();
     }
 
     public static Injector getInjector() {
@@ -74,118 +55,125 @@ public class ReportLauncher {
         injector = inj;
     }
 
-    private void run() throws JEVisException {
-        logger.info("connect to jevis server");
-        establishConnection();
+    private void executeReports(List<JEVisObject> reportObjects) {
 
-        //createObjects();
+        initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
-        JEVisCommandLine cmd = JEVisCommandLine.getInstance();
-        List<JEVisObject> reportObjects = new ArrayList<>();
-        if (cmd.getSingleObject() != null) {
-            Long singleObject = cmd.getSingleObject();
-            JEVisObject reportbject = jevisDataSource.getObject(singleObject);
-            singleMode = reportObjects.add(reportbject);
 
-            //execute the report objects
-            logger.info("nr of reports " + reportObjects.size());
-            forkJoinPool.submit(
-                    () -> reportObjects.parallelStream().forEach(reportObject -> {
+        logger.info("Number of Reports: " + reportObjects.size());
+
+        reportObjects.parallelStream().forEach(reportObject ->
+                forkJoinPool.submit(() -> {
+                    if (!runningJobs.containsKey(reportObject.getID().toString())) {
+
+                        runningJobs.put(reportObject.getID().toString(), "true");
                         try {
                             logger.info("---------------------------------------------------------------------");
                             logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
                             //check if the report is enabled
                             ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
                             Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
-                            if (!reportEnabled & !singleMode) {
+                            if (!reportEnabled) {
                                 logger.info("Report is not enabled");
-
                             } else {
 
                                 ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
                                 executor.executeReport();
+
+                                logger.info("---------------------------------------------------------------------");
+                                logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
                             }
                         } catch (Exception e) {
                             logger.error("Error while creating report", e);
-                            e.printStackTrace();
                         }
-                    }));
-        } else {
+                        runningJobs.remove(reportObject.getID().toString());
 
-            if (cmd.getCycleSleepTime() != null) {
-                ServiceMode sm = new ServiceMode(jevisDataSource, forkJoinPool, cmd.getCycleSleepTime());
-                sm.run();
-            } else {
-                ServiceMode sm = new ServiceMode();
-                sm.run();
-            }
+                    } else {
+                        logger.error("Still processing Report " + reportObject.getName() + ":" + reportObject.getID());
+                    }
+                }));
 
-
-        }
-
-
+        logger.info("---------------------finish------------------------");
     }
 
     public static JEVisDataSource getDataSource() {
         return jevisDataSource;
     }
 
-
-    public boolean establishConnection() {
-        JEVisCommandLine cmd = JEVisCommandLine.getInstance();
-        String configFile = cmd.getConfigPath();
-        logger.info("Path to Config File: " + configFile);
-        JEVisServerConnectionCLI con = new JEVisServerConnectionCLI(configFile);
-        try {
-//            jevisDataSource = new JEVisDataSourceSQL("openjevis.org", "13306", "jevis", "jevis", "jevistest");
-//            return jevisDataSource.connect("", "");
-            jevisDataSource = new JEVisDataSourceWS("http://" + con.getDb() + ":" + con.getPort());
-            jevisDataSource.connect(con.getJevisUser(), con.getJevisPW());
-//            jevisDataSource = new JEVisDataSourceSQL(con.getDb(), con.getPort(), con.getSchema(), con.getUser(), con.getPw());
-//            return jevisDataSource.connect(con.getJevisUser(), con.getJevisPW());
-        } catch (JEVisException ex) {
-            logger.error("No Connection", ex);
-        }
-        return false;
+    @Override
+    protected void addCommands() {
+        comm.addObject(commands);
     }
 
-    private void createObjects() {
-        try {
-            Path path = Paths.get("");
-            List<String> lines = Files.readAllLines(path, StandardCharsets.ISO_8859_1);
-            int curLine = 0;
-            List<String> dps = new ArrayList<>();
-            for (String line : lines) {
-                if (curLine == 5) {
-                    String[] splitted = line.split(";");
-                    for (int i = 2; i < splitted.length; i++) {
-                        String mapping = splitted[i];
-                        createMapping(mapping);
-                    }
-                    break;
-                }
-                curLine++;
-            }
-        } catch (IOException ex) {
-            logger.error("", ex);
-        }
-        System.exit(0);
+    @Override
+    protected void handleAdditionalCommands() {
+
     }
 
-    private void createMapping(String mapping) {
+    @Override
+    protected void runSingle(Long id) {
+        logger.info("Start Single Mode");
+
         try {
-            logger.info(mapping);
-            JEVisObject object = jevisDataSource.getObject(7458l);
-            JEVisClass jeVisClass = jevisDataSource.getJEVisClass("Data");
-            JEVisObject buildObject = object.buildObject(mapping, jeVisClass);
-            JEVisObject channel = jevisDataSource.getObject(7457l);
-            JEVisClass jeVisClass2 = jevisDataSource.getJEVisClass("CSV Data Point");
-            JEVisObject buildObject1 = channel.buildObject(mapping, jeVisClass2);
-            buildObject1.getAttribute("Mapping Identifier").buildSample(new DateTime(), mapping).commit();
-            buildObject1.getAttribute("Target").buildSample(new DateTime(), buildObject.getID()).commit();
-        } catch (JEVisException ex) {
+            logger.info("Try adding Single Mode for ID " + id);
+            JEVisObject reportObject = ds.getObject(id);
+            List<JEVisObject> jeVisObjectList = new ArrayList<>();
+            jeVisObjectList.add(reportObject);
+
+            executeReports(jeVisObjectList);
+
+        } catch (Exception ex) {
             logger.error(ex);
-            ex.printStackTrace();
         }
+    }
+
+    @Override
+    protected void runServiceHelp() {
+        try {
+            ds.reloadAttributes();
+            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+        } catch (JEVisException e) {
+        }
+
+        if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+            List<JEVisObject> reports = getEnabledReports();
+            executeReports(reports);
+
+            logger.info("Queued all report objects, entering sleep mode for " + cycleTime + " ms.");
+
+        } else {
+            logger.info("Service was disabled.");
+        }
+
+        try {
+            Thread.sleep(cycleTime);
+
+            runServiceHelp();
+        } catch (InterruptedException e) {
+            logger.fatal("Thread was interrupted: " + e);
+        }
+    }
+
+    @Override
+    protected void runComplete() {
+
+    }
+
+    private List<JEVisObject> getEnabledReports() {
+        JEVisClass reportClass = null;
+        List<JEVisObject> reportObjects = null;
+        try {
+            reportClass = ds.getJEVisClass(ReportAttributes.NAME);
+            reportObjects = ds.getObjects(reportClass, true);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+        List<JEVisObject> enabledReports = new ArrayList<>();
+        reportObjects.forEach(jeVisObject -> {
+                    ReportPolicy reportPolicy = new ReportPolicy();
+                    if (reportPolicy.isReportEnabled(jeVisObject)) enabledReports.add(jeVisObject);
+                }
+        );
+        return enabledReports;
     }
 }

@@ -43,8 +43,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.dialog.DialogHeader;
-import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.dataprocessing.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -435,9 +435,9 @@ public class SampleEditor {
 
             SampleGenerator sg;
             if (_period.equals(AggregationPeriod.NONE))
-                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, AggregationMode.NONE, _period);
+                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.NONE, _period);
             else
-                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, AggregationMode.TOTAL, _period);
+                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.TOTAL, _period);
 
             samples = sg.generateSamples();
             samples = sg.getAggregatedSamples(samples);

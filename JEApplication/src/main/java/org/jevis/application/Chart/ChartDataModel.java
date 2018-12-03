@@ -6,8 +6,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.application.Chart.ChartElements.TableEntry;
 import org.jevis.application.Chart.ChartUnits.ChartUnits;
-import org.jevis.commons.dataprocessing.AggregationMode;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.unit.UnitManager;
@@ -29,6 +29,7 @@ public class ChartDataModel {
     private Color _color = Color.LIGHTBLUE;
     private boolean _selected = false;
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
+    private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject _dataProcessorObject = null;
     private List<JEVisSample> samples = new ArrayList<>();
     private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<>();
@@ -72,18 +73,8 @@ public class ChartDataModel {
 
 //                    _attribute.getDataSource().reloadAttribute(_attribute);
 
-                    SampleGenerator sg;
-                    if (aggregationPeriod.equals(AggregationPeriod.NONE)) {
-                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
-                                getSelectedEnd(), AggregationMode.NONE, aggregationPeriod);
-                    } else if (aggregationPeriod.equals(AggregationPeriod.RUNNINGMEAN)) {
-                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute,
-                                getSelectedStart().minus(_attribute.getDisplaySampleRate()),
-                                getSelectedEnd(), AggregationMode.RUNNINGMEAN, AggregationPeriod.NONE);
-                    } else {
-                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
-                                getSelectedEnd(), AggregationMode.TOTAL, aggregationPeriod);
-                    }
+                    SampleGenerator sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
+                            getSelectedEnd(), manipulationMode, aggregationPeriod);
 
                     samples = sg.generateSamples();
                     samples = sg.getAggregatedSamples(samples);
@@ -93,7 +84,7 @@ public class ChartDataModel {
                      * Checking for data incongruencies                     *
                      */
 
-                    if (samples.size() > 0 && !aggregationPeriod.equals(AggregationPeriod.RUNNINGMEAN)) {
+                    if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
 
                         while (samples.get(0).getTimestamp().isAfter(_selectedStart)) {
                             DateTime newTS = samples.get(0).getTimestamp().minus(getAttribute().getDisplaySampleRate());
@@ -109,9 +100,8 @@ public class ChartDataModel {
                             samples.add(smp);
                         }
                     }
-
                 } catch (Exception ex) {
-                    //TODO: exception handling
+                    ex.printStackTrace();
                 }
             } else {
                 if (getDataProcessor() != null) {
@@ -191,6 +181,15 @@ public class ChartDataModel {
     public void setAggregationPeriod(AggregationPeriod aggregationPeriod) {
         _somethingChanged = true;
         this.aggregationPeriod = aggregationPeriod;
+    }
+
+    public ManipulationMode getManipulationMode() {
+        return manipulationMode;
+    }
+
+    public void setManipulationMode(ManipulationMode manipulationMode) {
+        _somethingChanged = true;
+        this.manipulationMode = manipulationMode;
     }
 
 //    public boolean getSelected() {
@@ -339,4 +338,6 @@ public class ChartDataModel {
                 ", tableEntry=" + tableEntry +
                 '}';
     }
+
+
 }

@@ -78,7 +78,7 @@ public class XYChartSerie implements Serie {
             }
         }
 
-        samples.forEach(sample -> {
+        for (JEVisSample sample : samples) {
             try {
                 DateTime dateTime = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
@@ -105,14 +105,14 @@ public class XYChartSerie implements Serie {
             } catch (JEVisException e) {
 
             }
-        });
-
+        }
 
 //        if (isQuantitiy) {
         calcTableValues(tableEntry, samples, unit);
 //        }
 
         serie = new XYChart.Series<>(tableEntryName, seriesData);
+
         singleRow.setSampleMap(sampleMap);
     }
 

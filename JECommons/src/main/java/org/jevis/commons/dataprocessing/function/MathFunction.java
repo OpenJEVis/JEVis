@@ -28,6 +28,7 @@ import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,17 +39,18 @@ import java.util.List;
  */
 public class MathFunction implements ProcessFunction {
     private static final Logger logger = LogManager.getLogger(MathFunction.class);
-    private final String AVERAGE = "average";
-    private final String MIN = "min";
-    private final String MAX = "max";
-    private final String MEDIAN = "median";
-    private final String RUNNINGMEAN = "runningmean";
 
     public static final String NAME = "Math Processor";
-    private final String mode;
+    private ManipulationMode mode;
+
+    public MathFunction(ManipulationMode mode) {
+        this.mode = mode;
+    }
 
     public MathFunction(String mode) {
-        this.mode = mode;
+        /**
+         * TODO needs initializer? where is it used?
+         */
     }
 
     @Override
@@ -57,7 +59,7 @@ public class MathFunction implements ProcessFunction {
 
     @Override
     public List<JEVisSample> getResult(Process mainTask) {
-        logger.info("get Result for " + mainTask.getID() + " with function " + mode);
+        logger.info("get Result for " + mainTask.getID() + " with function " + mode.toString());
         List<JEVisSample> result = new ArrayList<>();
 
         List<JEVisSample> allSamples = new ArrayList<>();
@@ -65,7 +67,7 @@ public class MathFunction implements ProcessFunction {
             allSamples.addAll(task.getResult());
         }
 
-        Boolean hasSamples = null;
+        Boolean hasSamples = false;
         Double value = 0d;
         Double min = Double.MAX_VALUE;
         Double max = Double.MIN_VALUE;
@@ -73,9 +75,10 @@ public class MathFunction implements ProcessFunction {
         JEVisUnit unit = null;
         DateTime dateTime = null;
 
-        List<JEVisSample> listRunningMean = new ArrayList<>();
+        List<JEVisSample> listManipulation = new ArrayList<>();
 
-        if (mode.equals(AVERAGE) || mode.equals(MIN) || mode.equals(MAX) || mode.equals(MEDIAN)) {
+        if (mode.equals(ManipulationMode.AVERAGE) || mode.equals(ManipulationMode.MIN)
+                || mode.equals(ManipulationMode.MAX) || mode.equals(ManipulationMode.MEDIAN)) {
             for (JEVisSample smp : allSamples) {
                 try {
                     Double currentValue = smp.getValueAsDouble();
@@ -84,14 +87,43 @@ public class MathFunction implements ProcessFunction {
                     max = Math.max(max, currentValue);
                     listMedian.add(currentValue);
 
-                    if (hasSamples == null) hasSamples = true;
+                    if (!hasSamples) hasSamples = true;
                     if (unit == null) unit = smp.getUnit();
                     if (dateTime == null) dateTime = smp.getTimestamp();
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }
             }
-        } else if (mode.equals(RUNNINGMEAN)) {
+        } else if (mode.equals(ManipulationMode.RUNNING_MEAN)) {
+            if (allSamples.size() > 1) {
+                for (int i = 1; i < allSamples.size() - 1; i++) {
+                    try {
+
+                        Double value0 = allSamples.get(i - 1).getValueAsDouble();
+                        Double value1 = allSamples.get(i).getValueAsDouble();
+
+                        Double currentValue = 1d / 3d * (value0 + value1);
+                        DateTime newTS = allSamples.get(i).getTimestamp();
+
+                        if (unit == null) unit = allSamples.get(i).getUnit();
+                        JEVisSample smp = new VirtualSample(newTS, currentValue, unit);
+
+                        String note = allSamples.get(i).getNote();
+                        if (note == null || note.equals(""))
+                            note = "math(" + ManipulationMode.RUNNING_MEAN.toString() + ")";
+                        else note += ",math(" + ManipulationMode.RUNNING_MEAN.toString() + ")";
+                        smp.setNote(note);
+
+                        listManipulation.add(smp);
+
+                        if (!hasSamples) hasSamples = true;
+
+                    } catch (JEVisException ex) {
+                        logger.fatal(ex);
+                    }
+                }
+            }
+        } else if (mode.equals(ManipulationMode.CENTRIC_RUNNING_MEAN)) {
             if (allSamples.size() > 2) {
                 for (int i = 1; i < allSamples.size() - 1; i++) {
                     try {
@@ -109,39 +141,81 @@ public class MathFunction implements ProcessFunction {
 
                         String note = allSamples.get(i).getNote();
                         if (note == null || note.equals(""))
-                            note = "math(" + RUNNINGMEAN + ")";
-                        else note += ",math(" + RUNNINGMEAN + ")";
+                            note = "math(" + ManipulationMode.CENTRIC_RUNNING_MEAN.toString() + ")";
+                        else note += ",math(" + ManipulationMode.CENTRIC_RUNNING_MEAN.toString() + ")";
                         smp.setNote(note);
 
-                        listRunningMean.add(smp);
+                        listManipulation.add(smp);
 
-                        if (hasSamples == null) hasSamples = true;
+                        if (!hasSamples) hasSamples = true;
 
                     } catch (JEVisException ex) {
                         logger.fatal(ex);
                     }
                 }
             }
+        } else if (mode.equals(ManipulationMode.SORTED_MIN) || mode.equals(ManipulationMode.SORTED_MAX)) {
+            if (allSamples.size() > 1) {
+                DateTime firstDate = null;
+                Period period = null;
+                try {
+                    firstDate = allSamples.get(0).getTimestamp();
+                    period = new Period(allSamples.get(0).getTimestamp(), allSamples.get(1).getTimestamp());
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+
+                if (mode.equals(ManipulationMode.SORTED_MIN)) {
+                    allSamples.sort((o1, o2) -> {
+                        try {
+                            return o1.getValueAsDouble().compareTo(o2.getValueAsDouble());
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                        return 0;
+                    });
+                } else if (mode.equals(ManipulationMode.SORTED_MAX)) {
+                    allSamples.sort((o1, o2) -> {
+                        try {
+                            return o2.getValueAsDouble().compareTo(o1.getValueAsDouble());
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                        return 0;
+                    });
+                }
+
+                for (JEVisSample sample : allSamples) {
+                    JEVisSample smp = null;
+                    try {
+                        smp = new VirtualSample(firstDate.plus(allSamples.indexOf(sample) * period.toStandardDuration().getMillis()), sample.getValueAsDouble());
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                    listManipulation.add(smp);
+                }
+            }
         }
 
         if (hasSamples) {
-            if (mode.equals(AVERAGE)) {
+            if (mode.equals(ManipulationMode.AVERAGE)) {
                 value = value / (double) allSamples.size();
-            } else if (mode.equals(MIN)) {
+            } else if (mode.equals(ManipulationMode.MIN)) {
                 value = min;
-            } else if (mode.equals(MAX)) {
+            } else if (mode.equals(ManipulationMode.MAX)) {
                 value = max;
-            } else if (mode.equals(MEDIAN)) {
+            } else if (mode.equals(ManipulationMode.MEDIAN)) {
                 if (listMedian.size() > 1)
                     listMedian.sort(Comparator.naturalOrder());
                 value = listMedian.get((listMedian.size() - 1) / 2);
             }
         }
 
-        if (!mode.equals(RUNNINGMEAN))
+        if (!mode.equals(ManipulationMode.CENTRIC_RUNNING_MEAN) && !mode.equals(ManipulationMode.RUNNING_MEAN)
+                && !mode.equals(ManipulationMode.SORTED_MIN) && !mode.equals(ManipulationMode.SORTED_MAX)) {
             result.add(new VirtualSample(dateTime, value, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null)));
-        else {
-            result.addAll(listRunningMean);
+        } else {
+            result.addAll(listManipulation);
         }
         logger.info("Result is: " + dateTime + " : " + value + " " + UnitManager.getInstance().formate(unit));
 

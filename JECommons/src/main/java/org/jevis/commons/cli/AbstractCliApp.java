@@ -20,18 +20,20 @@
 package org.jevis.commons.cli;
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisOption;
+import org.jevis.api.*;
 import org.jevis.commons.datasource.DataSourceLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * @author Artur Iablokov
@@ -52,6 +54,10 @@ public abstract class AbstractCliApp {
     protected JCommander comm;
     protected BasicSettings settings = new BasicSettings();
     protected String[] args;
+    protected ForkJoinPool forkJoinPool;
+    protected int cycleTime = 900000;
+
+    protected ConcurrentHashMap<String, String> runningJobs = new ConcurrentHashMap();
 
     /**
      * @param args start params
@@ -188,11 +194,72 @@ public abstract class AbstractCliApp {
     /**
      * run for service mode business logic in this method
      */
-    protected abstract void runService(Integer cycle_time);
+    protected void runService(Integer cycle_time) {
+        logger.info("Start Service Mode");
+
+        Thread service = new Thread(() -> runServiceHelp());
+        Runtime.getRuntime().addShutdownHook(
+                new ShutdownHookThread(service)
+        );
+
+        if (cycle_time != null) cycleTime = cycle_time;
+
+        try {
+            service.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            logger.info("Press CTRL^C to exit..");
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected abstract void runServiceHelp();
 
     /**
      * run for complete mode business logic in this method
      */
     protected abstract void runComplete();
 
+
+    protected void initializeThreadPool(String JEVisClassName) {
+        Integer threadCount = 4;
+        try {
+            JEVisClass dataCollectorClass = ds.getJEVisClass(JEVisClassName);
+            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
+            threadCount = listDataCollectorObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
+            logger.info("Set Thread count to: " + threadCount);
+        } catch (Exception e) {
+
+        }
+        forkJoinPool = new ForkJoinPool(threadCount);
+    }
+
+    protected Boolean checkServiceStatus(String JEVisClassName) {
+        Boolean enabled = true;
+        try {
+            JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
+            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
+            enabled = listDataCollectorObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
+        } catch (JEVisException e) {
+
+        }
+        return enabled;
+    }
+
+    protected void getCycleTimeFromService(String JEVisClassName) throws JEVisException {
+        JEVisClass dataCollectorClass = ds.getJEVisClass(JEVisClassName);
+        List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
+        cycleTime = listDataCollectorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
+        logger.info("Service cycle time from service: " + cycleTime);
+    }
+
+    public class Command {
+
+        @Parameter(names = {"--driver-folder", "-df"}, description = "Sets the root folder for the driver structure")
+        public String driverFolder;
+    }
 }

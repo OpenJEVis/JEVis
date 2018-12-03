@@ -4,7 +4,6 @@
  */
 package org.jevis.jedatacollector;
 
-import com.beust.jcommander.Parameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -17,8 +16,6 @@ import org.jevis.commons.driver.DriverHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
 
 /**
  * @author broder
@@ -26,20 +23,19 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Launcher extends AbstractCliApp {
 
-    public static final String APP_INFO = "JEDataCollector 2018-02-21";
+    public static final String APP_INFO = "JEReport";
+    private final String APP_SERVICE_CLASS_NAME = "JEReport";
     public static String KEY = "process-id";
     private static final Logger logger = LogManager.getLogger(Launcher.class);
-    private int cycleTime = 900000;
     private final Command commands = new Command();
-    private ForkJoinPool forkJoinPool;
-    private ConcurrentHashMap<String, String> runningJobs = new ConcurrentHashMap();
+
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
 
-        logger.info("-------Start JEDataCollector 2018-02-01-------");
+        logger.info("-------Start JEDataCollector-------");
         Launcher app = new Launcher(args, APP_INFO);
         app.execute();
     }
@@ -57,12 +53,12 @@ public class Launcher extends AbstractCliApp {
      */
     private void excecuteDataSources(List<JEVisObject> dataSources) {
 
-        initializeThreadPool();
+        initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
         logger.info("Number of Requests: " + dataSources.size());
 
-        forkJoinPool.submit(
-                () -> dataSources.parallelStream().forEach(object -> {
+        dataSources.parallelStream().forEach(object ->
+                forkJoinPool.submit(() -> {
                     if (!runningJobs.containsKey(object.getID().toString())) {
 
                         runningJobs.put(object.getID().toString(), "true");
@@ -81,24 +77,13 @@ public class Launcher extends AbstractCliApp {
                     } else {
                         logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
                     }
-                }));
+                })
+        );
 
         logger.info("---------------------finish------------------------");
 
     }
 
-    private void initializeThreadPool() {
-        Integer threadCount = 4;
-        try {
-            JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
-            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
-            threadCount = listDataCollectorObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
-            logger.info("Set Thread count to: " + threadCount);
-        } catch (Exception e) {
-
-        }
-        forkJoinPool = new ForkJoinPool(threadCount);
-    }
 
     @Override
     protected void addCommands() {
@@ -110,18 +95,6 @@ public class Launcher extends AbstractCliApp {
         DriverHelper.loadDriver(ds, commands.driverFolder);
     }
 
-    private Boolean checkServiceStatus() {
-        Boolean enabled = true;
-        try {
-            JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
-            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
-            enabled = listDataCollectorObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
-        } catch (JEVisException e) {
-
-        }
-        return enabled;
-    }
-
     @Override
     protected void runSingle(Long id) {
         logger.info("Start Single Mode");
@@ -129,49 +102,26 @@ public class Launcher extends AbstractCliApp {
         try {
             logger.info("Try adding Single Mode for ID " + id);
             JEVisObject dataSourceObject = ds.getObject(id);
-
-            DataSource dataSource = DataSourceFactory.getDataSource(dataSourceObject);
-
-            dataSource.initialize(dataSourceObject);
-            dataSource.run();
+            List<JEVisObject> jeVisObjectList = new ArrayList<>();
+            jeVisObjectList.add(dataSourceObject);
+            excecuteDataSources(jeVisObjectList);
         } catch (Exception ex) {
             logger.error(ex);
         }
     }
 
-    protected void runService(Integer cycle_time) {
-        logger.info("Start Service Mode");
 
-        Thread service = new Thread(() -> runServiceHelp());
-        Runtime.getRuntime().addShutdownHook(
-                new JEDataCollectorShutdownHookThread(service)
-        );
-
-        if (cycle_time != null) cycleTime = cycle_time;
-
-        try {
-            service.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            logger.info("Press CTRL^C to exit..");
-            Thread.currentThread().join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void runServiceHelp() {
+    @Override
+    protected void runServiceHelp() {
 
         try {
             ds.reloadAttributes();
-            getCycleTimeFromService();
+            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
         } catch (JEVisException e) {
             logger.error(e);
         }
 
-        if (checkServiceStatus()) {
+        if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
             logger.info("Service is enabled.");
             List<JEVisObject> dataSources = getEnabledDataSources(ds);
             excecuteDataSources(dataSources);
@@ -197,11 +147,6 @@ public class Launcher extends AbstractCliApp {
         excecuteDataSources(dataSources);
     }
 
-    protected class Command {
-
-        @Parameter(names = {"--driver-folder", "-df"}, description = "Sets the root folder for the driver structure")
-        private String driverFolder;
-    }
 
     private List<JEVisObject> getEnabledDataSources(JEVisDataSource client) {
         List<JEVisObject> enabledDataSources = new ArrayList<JEVisObject>();
@@ -225,11 +170,5 @@ public class Launcher extends AbstractCliApp {
         return enabledDataSources;
     }
 
-    private void getCycleTimeFromService() throws JEVisException {
-        JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
-        List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
-        cycleTime = listDataCollectorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
-        logger.info("Service cycle time from service: " + cycleTime);
-    }
 
 }

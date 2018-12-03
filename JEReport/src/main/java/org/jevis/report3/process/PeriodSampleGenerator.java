@@ -96,27 +96,27 @@ public class PeriodSampleGenerator implements SampleGenerator {
         BasicProcess aggregate = new BasicProcess();
         aggregate.setJEVisDataSource(ReportLauncher.getDataSource());
 
-        AggregationMode mode = AggregationMode.get(modeName.toUpperCase());
+        ManipulationMode mode = ManipulationMode.get(modeName.toUpperCase());
         switch (mode) {
             case MIN:
                 aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
-                aggregate.setID(AggregationMode.MIN.toString());
+                aggregate.setID(ManipulationMode.MIN.toString());
                 break;
             case MAX:
                 aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
-                aggregate.setID(AggregationMode.MAX.toString());
+                aggregate.setID(ManipulationMode.MAX.toString());
                 break;
             case MEDIAN:
                 aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
-                aggregate.setID(AggregationMode.MEDIAN.toString());
+                aggregate.setID(ManipulationMode.MEDIAN.toString());
                 break;
             case AVERAGE:
                 aggregate.setFunction(new MathFunction(mode.name().toLowerCase()));
-                aggregate.setID(AggregationMode.AVERAGE.toString());
+                aggregate.setID(ManipulationMode.AVERAGE.toString());
                 break;
             case TOTAL:
                 aggregate.setFunction(new AggregatorFunction());
-                aggregate.setID(AggregationMode.TOTAL.toString());
+                aggregate.setID(ManipulationMode.TOTAL.toString());
                 break;
             default:
                 aggregate.setFunction(new NullFunction());
