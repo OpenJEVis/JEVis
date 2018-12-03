@@ -23,23 +23,23 @@ public class SampleGenerator {
     private JEVisDataSource ds;
     private JEVisAttribute attribute;
     private JEVisObject object;
-    private AggregationMode aggregationMode;
+    private ManipulationMode manipulationMode;
     private AggregationPeriod aggregationPeriod;
 
-    public SampleGenerator(JEVisDataSource ds, JEVisObject object, JEVisAttribute attribute, DateTime from, DateTime until, AggregationMode aggregationMode, AggregationPeriod aggregationPeriod) {
+    public SampleGenerator(JEVisDataSource ds, JEVisObject object, JEVisAttribute attribute, DateTime from, DateTime until, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod) {
         this.ds = ds;
         this.object = object;
         this.attribute = attribute;
-        this.aggregationMode = aggregationMode;
+        this.manipulationMode = manipulationMode;
         this.aggregationPeriod = aggregationPeriod;
         this.interval = new Interval(from, until);
     }
 
-    public SampleGenerator(JEVisDataSource ds, JEVisObject object, JEVisAttribute attribute, Interval interval, AggregationMode aggregationMode, AggregationPeriod aggregationPeriod) {
+    public SampleGenerator(JEVisDataSource ds, JEVisObject object, JEVisAttribute attribute, Interval interval, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod) {
         this.ds = ds;
         this.object = object;
         this.attribute = attribute;
-        this.aggregationMode = aggregationMode;
+        this.manipulationMode = manipulationMode;
         this.aggregationPeriod = aggregationPeriod;
         this.interval = interval;
     }
@@ -59,30 +59,51 @@ public class SampleGenerator {
         BasicProcess aggregate = new BasicProcess();
         aggregate.setJEVisDataSource(ds);
 
-        switch (aggregationMode) {
+        BasicProcess input = new BasicProcess();
+        input.setJEVisDataSource(ds);
+        input.setID("Dynamic Input");
+        input.setFunction(new InputFunction(samples));
+        input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attribute.getName()));
+        input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, object.getID().toString()));
+        input.getOptions().add(new BasicProcessOption(ProcessOptions.OFFSET, ""));
+        aggregate.setSubProcesses(Collections.singletonList(input));
+
+        switch (manipulationMode) {
             case MIN:
-                aggregate.setFunction(new MathFunction(aggregationMode.name().toLowerCase()));
-                aggregate.setID(AggregationMode.MIN.toString());
+                aggregate.setFunction(new MathFunction(ManipulationMode.MIN));
+                aggregate.setID(ManipulationMode.MIN.toString());
                 break;
             case MAX:
-                aggregate.setFunction(new MathFunction(aggregationMode.name().toLowerCase()));
-                aggregate.setID(AggregationMode.MAX.toString());
+                aggregate.setFunction(new MathFunction(ManipulationMode.MAX));
+                aggregate.setID(ManipulationMode.MAX.toString());
                 break;
             case MEDIAN:
-                aggregate.setFunction(new MathFunction(aggregationMode.name().toLowerCase()));
-                aggregate.setID(AggregationMode.MEDIAN.toString());
+                aggregate.setFunction(new MathFunction(ManipulationMode.MEDIAN));
+                aggregate.setID(ManipulationMode.MEDIAN.toString());
                 break;
             case AVERAGE:
-                aggregate.setFunction(new MathFunction(aggregationMode.name().toLowerCase()));
-                aggregate.setID(AggregationMode.AVERAGE.toString());
+                aggregate.setFunction(new MathFunction(ManipulationMode.AVERAGE));
+                aggregate.setID(ManipulationMode.AVERAGE.toString());
                 break;
             case TOTAL:
                 aggregate.setFunction(new AggregatorFunction());
-                aggregate.setID(AggregationMode.TOTAL.toString());
+                aggregate.setID(ManipulationMode.TOTAL.toString());
                 break;
-            case RUNNINGMEAN:
-                aggregate.setFunction(new MathFunction(aggregationMode.name().toLowerCase()));
-                aggregate.setID(AggregationMode.RUNNINGMEAN.toString());
+            case RUNNING_MEAN:
+                aggregate.setFunction(new MathFunction(ManipulationMode.RUNNING_MEAN));
+                aggregate.setID(ManipulationMode.RUNNING_MEAN.toString());
+                break;
+            case CENTRIC_RUNNING_MEAN:
+                aggregate.setFunction(new MathFunction(ManipulationMode.CENTRIC_RUNNING_MEAN));
+                aggregate.setID(ManipulationMode.CENTRIC_RUNNING_MEAN.toString());
+                break;
+            case SORTED_MIN:
+                aggregate.setFunction(new MathFunction(ManipulationMode.SORTED_MIN));
+                aggregate.setID(ManipulationMode.SORTED_MIN.toString());
+                break;
+            case SORTED_MAX:
+                aggregate.setFunction(new MathFunction(ManipulationMode.SORTED_MAX));
+                aggregate.setID(ManipulationMode.SORTED_MAX.toString());
                 break;
             case NONE:
                 aggregate.setFunction(new NullFunction());
@@ -118,15 +139,6 @@ public class SampleGenerator {
             default:
                 break;
         }
-
-        BasicProcess input = new BasicProcess();
-        input.setJEVisDataSource(ds);
-        input.setID("Dynamic Input");
-        input.setFunction(new InputFunction(samples));
-        input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attribute.getName()));
-        input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, object.getID().toString()));
-        input.getOptions().add(new BasicProcessOption(ProcessOptions.OFFSET, ""));
-        aggregate.setSubProcesses(Collections.singletonList(input));
 
         return aggregate.getResult();
     }

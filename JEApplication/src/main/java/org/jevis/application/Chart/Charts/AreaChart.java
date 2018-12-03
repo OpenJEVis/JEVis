@@ -26,6 +26,7 @@ import org.jevis.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.dialog.NoteDialog;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -51,6 +52,8 @@ public class AreaChart implements Chart {
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region areaChartRegion;
     private Period period;
+    private boolean asDuration = false;
+    private AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
 
     public AreaChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -61,11 +64,11 @@ public class AreaChart implements Chart {
     }
 
     private void init() {
-        AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+
         AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
         final Boolean[] changedBoth = {false, false};
 
-        chartDataModels.forEach(singleRow -> {
+        for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
@@ -89,22 +92,38 @@ public class AreaChart implements Chart {
                         changedBoth[1] = true;
                     }
 
+                    if (singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
+                            || singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MAX)) {
+                        asDuration = true;
+                    }
+
                 } catch (JEVisException e) {
                     logger.error("Error: Cant create series for data rows: ", e);
                 }
             }
-        });
+        }
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
 
             if (unit.isEmpty()) unit.add(rb.getString("plugin.graph.chart.valueaxis.nounit"));
-            period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
+
+            if (chartDataModels.get(0).getSamples().size() > 1) {
+                try {
+                    period = new Period(chartDataModels.get(0).getSamples().get(0).getTimestamp(),
+                            chartDataModels.get(0).getSamples().get(1).getTimestamp());
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         NumberAxis numberAxis = new NumberAxis();
-        Axis dateAxis = new DateValueAxis();
+        Axis dateAxis;
+        if (!asDuration) dateAxis = new DateValueAxis();
+        else dateAxis = new DateValueAxis(true, timeStampOfFirstSample.get());
 
         areaChart = new javafx.scene.chart.AreaChart<>(dateAxis, numberAxis, series);
+
         areaChart.applyCss();
 
         applyColors();
@@ -247,7 +266,13 @@ public class AreaChart implements Chart {
                         Note formattedNote = new Note(note, singleRow.getColor());
                         String formattedDouble = nf.format(valueAsDouble);
                         TableEntry tableEntry = singleRow.getTableEntry();
-                        tableEntry.setDate(new DateTime(Math.round(nearest)).toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                        if (!asDuration) {
+                            tableEntry.setDate(new DateTime(Math.round(nearest))
+                                    .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                        } else {
+                            tableEntry.setDate(String.valueOf((new DateTime(Math.round(nearest)).getMillis() -
+                                    timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60));
+                        }
                         tableEntry.setNote(formattedNote.getNote());
                         String unit = UnitManager.getInstance().formate(singleRow.getUnit());
                         if (unit.equals("")) unit = singleRow.getUnit().getLabel();

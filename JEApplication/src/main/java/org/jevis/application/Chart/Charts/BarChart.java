@@ -72,7 +72,14 @@ public class BarChart implements Chart {
         if (chartDataModels != null && chartDataModels.size() > 0) {
             unit = UnitManager.getInstance().formate(chartDataModels.get(0).getUnit());
             if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
-            period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
+            if (chartDataModels.get(0).getSamples().size() > 1) {
+                try {
+                    period = new Period(chartDataModels.get(0).getSamples().get(0).getTimestamp(),
+                            chartDataModels.get(0).getSamples().get(1).getTimestamp());
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         NumberAxis numberAxis = new NumberAxis();

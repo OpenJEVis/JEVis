@@ -20,6 +20,7 @@ import org.jevis.application.Chart.data.DateHelper;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -47,6 +48,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private ComboBox<String> comboBoxPresetDates;
     private Boolean[] programmaticallySetPresetDate = new Boolean[4];
     private ComboBox<String> aggregationBox;
+    private ComboBox<String> mathBox;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
@@ -138,6 +140,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
         Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
         Label labelAggregation = new Label(I18n.getInstance().getString("plugin.graph.interval.label"));
+        Label labelMath = new Label(I18n.getInstance().getString("plugin.graph.manipulation.label"));
         final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
         final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
@@ -185,6 +188,11 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         aggregationBox.setMaxWidth(200);
         gridLayout.add(aggregationBox, 4, 5, 2, 1);
 
+        gridLayout.add(labelMath, 4, 6, 2, 1);
+        mathBox = getMathBox();
+        GridPane.setFillWidth(mathBox, true);
+        mathBox.setMaxWidth(200);
+        gridLayout.add(mathBox, 4, 7, 2, 1);
 
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
@@ -211,8 +219,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
              */
             comboBoxPresetDates.getSelectionModel().select(3);
             applySelectedDatePresetToDataModel(3);
-        }
-        else {
+        } else {
             switch (graphDataModel.getAnalysisTimeFrame().getTimeFrame()) {
                 case custom:
                     comboBoxPresetDates.getSelectionModel().select(0);
@@ -281,7 +288,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         String keyMonthly = I18n.getInstance().getString("plugin.graph.interval.monthly");
         String keyQuarterly = I18n.getInstance().getString("plugin.graph.interval.quarterly");
         String keyYearly = I18n.getInstance().getString("plugin.graph.interval.yearly");
-        String keyRunningMean = I18n.getInstance().getString("plugin.graph.interval.centricrunningmean");
 
 
         aggList.add(keyPreset);
@@ -291,7 +297,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         aggList.add(keyMonthly);
         aggList.add(keyQuarterly);
         aggList.add(keyYearly);
-        aggList.add(keyRunningMean);
 
         ComboBox<String> aggregate = new ComboBox<>();
         aggregate.setItems(FXCollections.observableArrayList(aggList));
@@ -321,8 +326,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     case YEARLY:
                         aggregate.valueProperty().setValue(keyYearly);
                         break;
-                    case RUNNINGMEAN:
-                        aggregate.valueProperty().setValue(keyRunningMean);
                 }
                 break;
             }
@@ -335,23 +338,106 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     data.setAggregationPeriod(AggregationPeriod.NONE);
                 } else if (newValue.equals(keyHourly)) {
                     data.setAggregationPeriod(AggregationPeriod.HOURLY);
+                    mathBox.getSelectionModel().select(1);
                 } else if (newValue.equals(keyDaily)) {
                     data.setAggregationPeriod(AggregationPeriod.DAILY);
+                    mathBox.getSelectionModel().select(1);
                 } else if (newValue.equals(keyWeekly)) {
                     data.setAggregationPeriod(AggregationPeriod.WEEKLY);
+                    mathBox.getSelectionModel().select(1);
                 } else if (newValue.equals(keyMonthly)) {
                     data.setAggregationPeriod(AggregationPeriod.MONTHLY);
+                    mathBox.getSelectionModel().select(1);
                 } else if (newValue.equals(keyQuarterly)) {
                     data.setAggregationPeriod(AggregationPeriod.QUARTERLY);
+                    mathBox.getSelectionModel().select(1);
                 } else if (newValue.equals(keyYearly)) {
                     data.setAggregationPeriod(AggregationPeriod.YEARLY);
-                } else if (newValue.equals(keyRunningMean)) {
-                    data.setAggregationPeriod(AggregationPeriod.RUNNINGMEAN);
+                    mathBox.getSelectionModel().select(1);
                 }
             });
 
         });
         return aggregate;
+    }
+
+    private ComboBox<String> getMathBox() {
+        List<String> mathList = new ArrayList<>();
+
+        String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
+
+        String keyTotal = I18n.getInstance().getString("plugin.graph.manipulation.total");
+        String keyRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.runningmean");
+        String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
+        String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
+        String keySortedMax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
+
+        mathList.add(keyPreset);
+        mathList.add(keyTotal);
+        mathList.add(keyRunningMean);
+        mathList.add(keyCentricRunningMean);
+        mathList.add(keySortedMin);
+        mathList.add(keySortedMax);
+
+        ComboBox<String> math = new ComboBox<>();
+        math.setItems(FXCollections.observableArrayList(mathList));
+        math.getSelectionModel().selectFirst();
+
+        if (!graphDataModel.getSelectedData().isEmpty()) {
+            for (ChartDataModel chartDataModel : graphDataModel.getSelectedData()) {
+                switch (chartDataModel.getManipulationMode()) {
+                    case NONE:
+                        math.valueProperty().setValue(keyPreset);
+                        break;
+                    case TOTAL:
+                        math.valueProperty().setValue(keyPreset);
+                        break;
+                    case RUNNING_MEAN:
+                        math.valueProperty().setValue(keyRunningMean);
+                        aggregationBox.getSelectionModel().select(0);
+                        break;
+                    case CENTRIC_RUNNING_MEAN:
+                        math.valueProperty().setValue(keyCentricRunningMean);
+                        aggregationBox.getSelectionModel().select(0);
+                        break;
+                    case SORTED_MAX:
+                        math.valueProperty().setValue(keySortedMax);
+                        aggregationBox.getSelectionModel().select(0);
+                        break;
+                    case SORTED_MIN:
+                        math.valueProperty().setValue(keySortedMin);
+                        aggregationBox.getSelectionModel().select(0);
+                        break;
+                }
+                break;
+            }
+        }
+
+        math.valueProperty().addListener((observable, oldValue, newValue) -> {
+
+            graphDataModel.getSelectedData().forEach(data -> {
+                if (newValue.equals(keyPreset)) {
+                    data.setManipulationMode(ManipulationMode.NONE);
+                } else if (newValue.equals(keyTotal)) {
+                    data.setManipulationMode(ManipulationMode.TOTAL);
+                } else if (newValue.equals(keyRunningMean)) {
+                    data.setManipulationMode(ManipulationMode.RUNNING_MEAN);
+                    aggregationBox.getSelectionModel().select(0);
+                } else if (newValue.equals(keyCentricRunningMean)) {
+                    data.setManipulationMode(ManipulationMode.CENTRIC_RUNNING_MEAN);
+                    aggregationBox.getSelectionModel().select(0);
+                } else if (newValue.equals(keySortedMax)) {
+                    data.setManipulationMode(ManipulationMode.SORTED_MAX);
+                    aggregationBox.getSelectionModel().select(0);
+                } else if (newValue.equals(keySortedMin)) {
+                    data.setManipulationMode(ManipulationMode.SORTED_MIN);
+                    aggregationBox.getSelectionModel().select(0);
+                }
+
+            });
+
+        });
+        return math;
     }
 
     private void applySelectedDatePresetToDataModel(Integer newValue) {

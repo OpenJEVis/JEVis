@@ -20,6 +20,7 @@ import javafx.util.converter.TimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.application.Chart.ReflectionUtils;
+import org.joda.time.DateTime;
 
 import java.util.*;
 
@@ -32,6 +33,8 @@ import java.util.*;
  */
 public class DateValueAxis extends ValueAxis<Long> {
     private static final Logger logger = LogManager.getLogger(DateValueAxis.class);
+    private DateTime firstTS;
+    private boolean asDuration = false;
 
     /**
      * We use these for auto ranging to pick a user friendly tick unit. (must be increasingly bigger)
@@ -379,6 +382,12 @@ public class DateValueAxis extends ValueAxis<Long> {
         forceZeroInRange.set(false);
     }
 
+    public DateValueAxis(Boolean asDuration, DateTime firstTS) {
+        this.asDuration = asDuration;
+        this.firstTS = firstTS;
+        forceZeroInRange.set(false);
+    }
+
     public final double getTickUnit() {
         return tickUnit.get();
     }
@@ -401,9 +410,14 @@ public class DateValueAxis extends ValueAxis<Long> {
      */
     @Override
     protected String getTickMarkLabel(Long value) {
-        StringConverter<Long> formatter = getTickLabelFormatter();
-        if (formatter == null) formatter = defaultFormatter;
-        return formatter.toString(value);
+        if (!asDuration) {
+            StringConverter<Long> formatter = getTickLabelFormatter();
+            if (formatter == null) formatter = defaultFormatter;
+            return formatter.toString(value);
+        } else {
+            DateTime ts = new DateTime(value);
+            return String.valueOf((ts.getMillis() - firstTS.getMillis()) / 1000 / 60 / 60);
+        }
     }
 
     /**
