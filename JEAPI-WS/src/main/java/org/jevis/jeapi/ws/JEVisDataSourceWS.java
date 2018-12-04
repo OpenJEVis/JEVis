@@ -465,7 +465,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             response = con.getRequest(resource);
 
             if (response == null || response.toString().isEmpty()) {
-                logger.error("Empty response for {}.attributes ", objectID);
+                logger.debug("Empty response for {}.attributes ", objectID);
                 return new ArrayList<>();
             }
 
