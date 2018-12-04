@@ -360,12 +360,14 @@ public class JEVisObjectWS implements JEVisObject {
             this.json = newJson;
 
             ds.reloadRelationships();
+
             if (!getAttributes().isEmpty()) {
                 ds.reloadAttribute(getAttributes().get(0));
             }
 
             /** reload object to be sure all evens will be handelt and the cache is working correctly **/
             ds.addToObjectCache(this);
+
 
             if (update) {
                 notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));

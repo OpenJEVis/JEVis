@@ -61,7 +61,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private String host = "http://localhost";
     private HTTPConnection con;
     private Gson gson = new Gson();
-    private JEVisObject currentUser = null;
+    //    private JEVisObject currentUser = null;
     private boolean fetchedAllClasses = false;
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
@@ -325,6 +325,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
             }
 
+
             orLoaded = true;
         }
 
@@ -333,6 +334,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
 
     private void removeRelationshipFromCache(long startID, long endID, int type) {
+        getRelationships();
         List<JEVisRelationship> startRels = objectRelMapCache.get(startID);
         List<JEVisRelationship> endRels = objectRelMapCache.get(endID);
 
@@ -522,7 +524,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public synchronized void reloadRelationships() {
+        logger.error("reloadRelationships()");
         orLoaded = false;
+        if (this.user != null) {
+            ((JEVisUserWS) this.user).reload();
+        }
     }
 
     @Override
