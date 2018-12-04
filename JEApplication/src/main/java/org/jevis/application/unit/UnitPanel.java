@@ -137,7 +137,7 @@ public class UnitPanel extends GridPane {
                 SimpleTreeUnitChooser stc = new SimpleTreeUnitChooser();
                 if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {//TODO: replace tjis hardcode position
                     _returnUnit.setFormula(stc.getUnit().getFormula());
-                    _returnUnit.setLabel(UnitManager.getInstance().formate(stc.getUnit()));
+                    _returnUnit.setLabel(UnitManager.getInstance().format(stc.getUnit()));
 
                     changeBaseUnit.setText(_returnUnit.toString());
                     printExample(labelField, _returnUnit);
@@ -154,7 +154,7 @@ public class UnitPanel extends GridPane {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                tf.setText(UnitManager.getInstance().formate(unit));
+                tf.setText(UnitManager.getInstance().format(unit));
             }
         });
 

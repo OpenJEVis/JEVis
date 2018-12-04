@@ -81,16 +81,30 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         setText(obj.getName());
                     else {
                         try {
-                            int indexOfObj = graphDataModel.getObservableListAnalyses().indexOf(obj);
-                            String prefix = graphDataModel.getListBuildingsParentOrganisations().get(indexOfObj).getName()
-                                    + " / "
-                                    + graphDataModel.getListAnalysesParentBuildings().get(indexOfObj).getName();
+                            String prefix = "";
+
+                            JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
+                            JEVisClass buildingClass = ds.getJEVisClass("Building");
+                            if (buildingParent.getJEVisClass().equals(buildingClass)) {
+
+                                try {
+                                    JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
+                                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                    if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                        prefix += organisationParent.getName() + " / " + buildingParent.getName();
+                                    }
+                                } catch (JEVisException e) {
+                                    logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+
+                                    prefix += buildingParent.getName();
+                                }
+                            }
                             setText(prefix + " / " + obj.getName());
                         } catch (Exception e) {
                         }
                     }
                 }
-
             }
         });
 
@@ -747,10 +761,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     endFromModel = mdl.getSelectedEnd();
             }
 
-            pickerDateStart.valueProperty().setValue(LocalDate.of(startFromModel.getYear(), startFromModel.getMonthOfYear(), startFromModel.getDayOfMonth()));
-            pickerDateEnd.valueProperty().setValue(LocalDate.of(endFromModel.getYear(), endFromModel.getMonthOfYear(), endFromModel.getDayOfMonth()));
-            pickerTimeStart.valueProperty().setValue(LocalTime.of(startFromModel.getHourOfDay(), startFromModel.getMinuteOfHour(), startFromModel.getSecondOfMinute()));
-            pickerTimeEnd.valueProperty().setValue(LocalTime.of(endFromModel.getHourOfDay(), endFromModel.getMinuteOfHour(), endFromModel.getSecondOfMinute()));
+            if (startFromModel != null && endFromModel != null) {
+                pickerDateStart.valueProperty().setValue(LocalDate.of(startFromModel.getYear(), startFromModel.getMonthOfYear(), startFromModel.getDayOfMonth()));
+                pickerDateEnd.valueProperty().setValue(LocalDate.of(endFromModel.getYear(), endFromModel.getMonthOfYear(), endFromModel.getDayOfMonth()));
+                pickerTimeStart.valueProperty().setValue(LocalTime.of(startFromModel.getHourOfDay(), startFromModel.getMinuteOfHour(), startFromModel.getSecondOfMinute()));
+                pickerTimeEnd.valueProperty().setValue(LocalTime.of(endFromModel.getHourOfDay(), endFromModel.getMinuteOfHour(), endFromModel.getSecondOfMinute()));
+            }
         }
     }
 

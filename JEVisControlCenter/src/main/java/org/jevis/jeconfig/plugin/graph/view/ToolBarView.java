@@ -8,6 +8,7 @@ package org.jevis.jeconfig.plugin.graph.view;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -252,17 +253,28 @@ public class ToolBarView {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (!model.getMultipleDirectories())
-                                setText(obj.getName());
-                            else {
-                                try {
-                                    int indexOfObj = model.getObservableListAnalyses().indexOf(obj);
-                                    String prefix = model.getListBuildingsParentOrganisations().get(indexOfObj).getName()
-                                            + " / "
-                                            + model.getListAnalysesParentBuildings().get(indexOfObj).getName();
-                                    setText(prefix + " / " + obj.getName());
-                                } catch (Exception e) {
+                            try {
+                                String prefix = "";
+
+                                JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
+                                JEVisClass buildingClass = ds.getJEVisClass("Building");
+                                if (buildingParent.getJEVisClass().equals(buildingClass)) {
+
+                                    try {
+                                        JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
+                                        JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                            prefix += organisationParent.getName() + " / " + buildingParent.getName();
+                                        }
+                                    } catch (JEVisException e) {
+                                        logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+
+                                        prefix += buildingParent.getName();
+                                    }
                                 }
+                                setText(prefix + " / " + obj.getName());
+                            } catch (Exception e) {
                             }
                         }
 
@@ -294,6 +306,7 @@ public class ToolBarView {
 
                         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
+                            model.setCurrentAnalysis(null);
                             model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
                             model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
 
@@ -358,7 +371,17 @@ public class ToolBarView {
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
         TextField name = new TextField();
-        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(model.getObservableListAnalysesDirectories());
+
+        JEVisClass analysesDirectory = null;
+        List<JEVisObject> listAnalysesDirectories = null;
+        try {
+            analysesDirectory = ds.getJEVisClass("Analyses Directory");
+            listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
 
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
@@ -374,10 +397,28 @@ public class ToolBarView {
                                 setText(obj.getName());
                             else {
                                 try {
-                                    int indexOfObj = model.getObservableListAnalysesDirectories().indexOf(obj);
-                                    String prefix = model.getListAnalysesDirectortiesBuildingsParentOrganisations().get(indexOfObj).getName()
-                                            + " / "
-                                            + model.getListAnalysesDirectoriesParentBuildings().get(indexOfObj).getName();
+                                    String prefix = "";
+
+                                    JEVisObject buildingDirParent = obj.getParents().get(0);
+
+                                    JEVisClass buildingClass = ds.getJEVisClass("Building");
+                                    if (buildingDirParent.getJEVisClass().equals(buildingClass)) {
+
+                                        try {
+                                            JEVisObject organisationParent = buildingDirParent.getParents().get(0).getParents().get(0);
+                                            JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                                prefix += organisationParent.getName() + " / " + buildingDirParent.getName();
+                                            }
+                                        } catch (JEVisException e) {
+                                            logger.error("Could not get Organization parent of " + buildingDirParent.getName() + ":" + buildingDirParent.getID());
+
+                                            prefix += buildingDirParent.getName();
+                                        }
+                                    }
+
+
                                     setText(prefix + " / " + obj.getName());
                                 } catch (Exception e) {
                                 }

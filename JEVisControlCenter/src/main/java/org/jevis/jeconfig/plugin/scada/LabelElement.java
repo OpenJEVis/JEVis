@@ -352,7 +352,7 @@ public class LabelElement extends MoveableNode implements SCADAElement {
         try {
             logger.info("Show Unit: " + showUnit + " " + attribute.getDisplayUnit());
             if (showUnit && attribute.getDisplayUnit() != null) {
-                value += UnitManager.getInstance().formate(attribute.getDisplayUnit());
+                value += UnitManager.getInstance().format(attribute.getDisplayUnit());
             }
         } catch (JEVisException e) {
             e.printStackTrace();

@@ -218,7 +218,7 @@ public class MathFunction implements ProcessFunction {
         } else {
             result.addAll(listManipulation);
         }
-        logger.info("Result is: " + dateTime + " : " + value + " " + UnitManager.getInstance().formate(unit));
+        logger.info("Result is: " + dateTime + " : " + value + " " + UnitManager.getInstance().format(unit));
 
         return result;
 

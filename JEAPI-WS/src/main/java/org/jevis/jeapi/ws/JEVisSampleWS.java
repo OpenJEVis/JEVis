@@ -102,7 +102,7 @@ public class JEVisSampleWS implements JEVisSample {
     @Override
     public Long getValueAsLong(JEVisUnit unit) throws JEVisException {
         double lValue = getValueAsLong().doubleValue();
-        Double dValue = getUnit().converteTo(unit, lValue);
+        Double dValue = getUnit().convertTo(unit, lValue);
         return dValue.longValue();
 
     }
@@ -115,7 +115,7 @@ public class JEVisSampleWS implements JEVisSample {
     @Override
     public Double getValueAsDouble(JEVisUnit unit) throws JEVisException {
         Double dValue = Double.parseDouble(getValueAsString());
-        return getUnit().converteTo(unit, dValue);
+        return getUnit().convertTo(unit, dValue);
     }
 
     @Override
@@ -176,9 +176,9 @@ public class JEVisSampleWS implements JEVisSample {
     @Override
     public void setValue(Object value, JEVisUnit unit) throws JEVisException, ClassCastException {
         if (value instanceof Double) {
-            json.setValue(unit.converteTo(getUnit(), Double.parseDouble(value.toString())) + "");
+            json.setValue(unit.convertTo(getUnit(), Double.parseDouble(value.toString())) + "");
         } else if (value instanceof Long) {
-            json.setValue(unit.converteTo(getUnit(), Long.parseLong(value.toString())) + "");
+            json.setValue(unit.convertTo(getUnit(), Long.parseLong(value.toString())) + "");
         } else {
             throw new ClassCastException();
         }

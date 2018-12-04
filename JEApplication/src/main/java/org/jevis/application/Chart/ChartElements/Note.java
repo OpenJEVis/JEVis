@@ -6,18 +6,19 @@ import com.sun.javafx.jmx.MXNodeAlgorithm;
 import com.sun.javafx.jmx.MXNodeAlgorithmContext;
 import com.sun.javafx.sg.prism.NGNode;
 import javafx.scene.Node;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import org.jevis.application.resource.ResourceLoader;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.SaveResourceBundle;
 
 public class Note extends Node {
     private Node node = null;
-    private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
-    private static final Image limit = ResourceLoader.getImage("rodentia-icons_dialog-warning.png");
-    private static final Image exception = ResourceLoader.getImage("rodentia-icons_process-stop.png");
-    private static final Image infinity = ResourceLoader.getImage("32423523543543_error_div0.png");
+    private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
+//    private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
+//    private static final Image limit = ResourceLoader.getImage("rodentia-icons_dialog-warning.png");
+//    private static final Image exception = ResourceLoader.getImage("rodentia-icons_process-stop.png");
+//    private static final Image infinity = ResourceLoader.getImage("32423523543543_error_div0.png");
 
     public Note(String note, Color color) {
         if (note != null) {
@@ -27,43 +28,69 @@ public class Note extends Node {
 
             if (note.contains("limit(Step1)")) {
                 try {
-                    ImageView warning = new ImageView(Note.warning);
-                    warning.fitHeightProperty().set(iconSize);
-                    warning.fitWidthProperty().set(iconSize);
+//                    ImageView warning = new ImageView(Note.warning);
+//                    warning.fitHeightProperty().set(iconSize);
+//                    warning.fitWidthProperty().set(iconSize);
 
-                    BorderPane warningWrapper = new BorderPane(warning);
-                    warningWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                    hbox.getChildren().add(warningWrapper);
+//                    BorderPane warningWrapper = new BorderPane(warning);
+//                    warningWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                    hbox.getChildren().add(warningWrapper);
+
+                    Label labelLimit1 = new Label(rb.getString("plugin.graph.chart.note.limit1"));
+                    hbox.getChildren().add(labelLimit1);
+
                     changed = true;
                 } catch (Exception e) {
                 }
             }
-            if (note.contains("gap(") || note.contains("limit(Default)") || note.contains("limit(Static)") || note.contains("limit(Average)")
+//            if (note.contains("gap(") || note.contains("limit(Default)") || note.contains("limit(Static)") || note.contains("limit(Average)")
+//                    || note.contains("limit(Median)") || note.contains("limit(Interpolation)") || note.contains("limit(Min)") || note.contains("limit(Max)")) {
+            if (note.contains("limit(Default)") || note.contains("limit(Static)") || note.contains("limit(Average)")
                     || note.contains("limit(Median)") || note.contains("limit(Interpolation)") || note.contains("limit(Min)") || note.contains("limit(Max)")) {
                 try {
-                    ImageView limit = new ImageView(Note.limit);
-                    limit.fitHeightProperty().set(iconSize);
-                    limit.fitWidthProperty().set(iconSize);
+//                    ImageView limit = new ImageView(Note.limit);
+//                    limit.fitHeightProperty().set(iconSize);
+//                    limit.fitWidthProperty().set(iconSize);
+//
+//                    BorderPane limitWrapper = new BorderPane(limit);
+//                    limitWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//
+//                    hbox.getChildren().add(limitWrapper);
 
-                    BorderPane limitWrapper = new BorderPane(limit);
-                    limitWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                    Label labelLimit2 = new Label(rb.getString("plugin.graph.chart.note.limit2"));
+                    hbox.getChildren().add(labelLimit2);
 
-                    hbox.getChildren().add(limitWrapper);
                     changed = true;
                 } catch (Exception e) {
                 }
             }
+
+            if (note.contains("gap")) {
+                try {
+
+                    Label labelGap = new Label(rb.getString("plugin.graph.chart.note.gap"));
+                    hbox.getChildren().add(labelGap);
+                    changed = true;
+
+                } catch (Exception e) {
+                }
+            }
+
 
             if (note.contains("calc(infinite)")) {
                 try {
-                    ImageView infinity = new ImageView(Note.infinity);
-                    infinity.fitHeightProperty().set(iconSize);
-                    infinity.fitWidthProperty().set(iconSize);
+//                    ImageView infinity = new ImageView(Note.infinity);
+//                    infinity.fitHeightProperty().set(iconSize);
+//                    infinity.fitWidthProperty().set(iconSize);
+//
+//                    BorderPane infinityWrapper = new BorderPane(infinity);
+//                    infinityWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//
+//                    hbox.getChildren().add(infinityWrapper);
 
-                    BorderPane infinityWrapper = new BorderPane(infinity);
-                    infinityWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                    Label labelDiv0 = new Label(rb.getString("plugin.graph.chart.note.div0"));
+                    hbox.getChildren().add(labelDiv0);
 
-                    hbox.getChildren().add(infinityWrapper);
                     changed = true;
                 } catch (Exception e) {
                 }
@@ -72,15 +99,19 @@ public class Note extends Node {
             if (hbox.getChildren().size() >= 2) {
                 hbox.getChildren().clear();
                 try {
-                    ImageView exception = new ImageView(Note.exception);
-                    exception.fitHeightProperty().set(iconSize);
-                    exception.fitWidthProperty().set(iconSize);
+//                    ImageView exception = new ImageView(Note.exception);
+//                    exception.fitHeightProperty().set(iconSize);
+//                    exception.fitWidthProperty().set(iconSize);
+//
+//                    BorderPane exceptionWrapper = new BorderPane(exception);
+//                    exceptionWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+//                            BorderWidths.DEFAULT)));
+//
+//                    hbox.getChildren().add(exceptionWrapper);
 
-                    BorderPane exceptionWrapper = new BorderPane(exception);
-                    exceptionWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-                            BorderWidths.DEFAULT)));
+                    Label labelMultiple = new Label(rb.getString("plugin.graph.chart.note.multiple"));
+                    hbox.getChildren().add(labelMultiple);
 
-                    hbox.getChildren().add(exceptionWrapper);
                     changed = true;
                 } catch (Exception e) {
                 }

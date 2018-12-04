@@ -614,9 +614,9 @@ public class ClassEditor {
             if (type.getUnit().equals(Unit.ONE)) {
 //                button.setText("None");
             } else {
-//                logger.info(UnitManager.getInstance().formate(type.getUnit()));
+//                logger.info(UnitManager.getInstance().format(type.getUnit()));
 //                button.setText(type.getUnit().toString());
-//                button.setText(UnitManager.getInstance().formate(type.getUnit()));
+//                button.setText(UnitManager.getInstance().format(type.getUnit()));
             }
 
         }

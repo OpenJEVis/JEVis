@@ -31,7 +31,7 @@ public class XYChartSerie implements Serie {
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+        String unit = UnitManager.getInstance().format(singleRow.getUnit());
         if (unit.equals("")) unit = singleRow.getUnit().getLabel();
         if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
 

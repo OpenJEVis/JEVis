@@ -70,7 +70,7 @@ public class BarChart implements Chart {
         });
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
-            unit = UnitManager.getInstance().formate(chartDataModels.get(0).getUnit());
+            unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
             if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
             if (chartDataModels.get(0).getSamples().size() > 1) {
                 try {
@@ -213,7 +213,7 @@ public class BarChart implements Chart {
 //                            TableEntry tableEntry = singleRow.getTableEntry();
 //                            tableEntry.setDate(new DateTime(Math.round(nearest)).toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
 //                            tableEntry.setNote(formattedNote.getNote());
-//                            String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+//                            String unit = UnitManager.getInstance().format(singleRow.getUnit());
 //                            tableEntry.setValue(formattedDouble + " " + unit);
 //                            tableData.add(tableEntry);
 //                        } catch (Exception ex) {

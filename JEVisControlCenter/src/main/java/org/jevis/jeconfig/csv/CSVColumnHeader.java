@@ -238,7 +238,7 @@ public class CSVColumnHeader {
                         logger.info("Value with unit: " + df.format(getValueAsDouble(value)) + unit.getLabel());
                         return df.format(getValueAsDouble(value)) + unit.getLabel();
                     }
-//                    logger.info("unit.formate: " + unit);
+//                    logger.info("unit.format: " + unit);
 
 //                    return df.format(getValueAsDouble(value)) + unit;
                     return getValueAsDouble(value) + "";
@@ -580,7 +580,7 @@ public class CSVColumnHeader {
 
                 formate.setText(findDateTimePattern());
                 _dateFormater = new SimpleDateFormat(formate.getText());
-//                formate.setText("yyyy-MM-dd HH:mm:ss");
+//                format.setText("yyyy-MM-dd HH:mm:ss");
 //                _dateFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 break;
             case Date:

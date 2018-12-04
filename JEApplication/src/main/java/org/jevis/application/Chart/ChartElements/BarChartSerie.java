@@ -30,7 +30,7 @@ public class BarChartSerie implements Serie {
     private TableEntry tableEntry;
 
     public BarChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+        String unit = UnitManager.getInstance().format(singleRow.getUnit());
         if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
 
         String tableEntryName = singleRow.getObject().getName();

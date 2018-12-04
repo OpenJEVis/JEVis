@@ -68,7 +68,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         }
 
         for (EnergyUnit eu : EnergyUnit.values()) {
-            if (eu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+            if (eu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isEnergyUnit = true;
             }
 
@@ -78,7 +78,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         }
 
         for (VolumeUnit vu : VolumeUnit.values()) {
-            if (vu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+            if (vu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isVolumeUnit = true;
             }
         }
@@ -87,7 +87,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         }
 
         for (MassUnit mu : MassUnit.values()) {
-            if (mu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+            if (mu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isMassUnit = true;
             }
         }
@@ -96,7 +96,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         }
 
         for (PressureUnit pu : PressureUnit.values()) {
-            if (pu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+            if (pu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isPressureUnit = true;
             }
         }
@@ -105,7 +105,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         }
 
         for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
-            if (vfu.toString().equals(UnitManager.getInstance().formate(currentUnit))) {
+            if (vfu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isVolumeFlowUnit = true;
             }
         }
@@ -179,7 +179,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
 
                                     if (data.getUnit() != null)
                                         if (!data.getUnit().equals(Unit.ONE)) {
-                                            String selection = UnitManager.getInstance().formate(data.getUnit());
+                                            String selection = UnitManager.getInstance().format(data.getUnit());
                                             if (!selection.equals("")) box.getSelectionModel().select(selection);
                                             else box.getSelectionModel().selectFirst();
                                         } else {

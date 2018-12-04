@@ -55,7 +55,7 @@ public class AttributeSettingsDialog {
     public void saveInDataSource() {
 //        logger.info("Save");
         try {
-//            logger.info("Display unit: " + UnitManager.getInstance().formate(upDisplay.getSelectedUnit()));
+//            logger.info("Display unit: " + UnitManager.getInstance().format(upDisplay.getSelectedUnit()));
 //            logger.info("Display sample rate: " + _displaySampleRate.getPeriod());
 
             _attribute.setDisplayUnit(upDisplay.getSelectedUnit());

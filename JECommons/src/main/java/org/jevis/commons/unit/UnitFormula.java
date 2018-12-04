@@ -209,7 +209,7 @@ public class UnitFormula {
     }
 
     public String printUnit() {
-        return UnitManager.getInstance().formate(getUnit());
+        return UnitManager.getInstance().format(getUnit());
     }
 
     private int[] getNextSubPartRange(String formula) {

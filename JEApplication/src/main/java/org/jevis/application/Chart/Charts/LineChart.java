@@ -81,7 +81,7 @@ public class LineChart implements Chart {
                     hexColors.add(singleRow.getColor());
                     series.add(serie.getSerie());
                     tableData.add(serie.getTableEntry());
-                    String currentUnit = UnitManager.getInstance().formate(singleRow.getUnit());
+                    String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
                     if (currentUnit.equals("")) currentUnit = singleRow.getUnit().getLabel();
                     if (!unit.contains(currentUnit)) unit.add(currentUnit);
 
@@ -314,7 +314,7 @@ public class LineChart implements Chart {
                                     timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60));
                         }
                         tableEntry.setNote(formattedNote.getNote());
-                        String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                        String unit = UnitManager.getInstance().format(singleRow.getUnit());
                         if (unit.equals("")) unit = singleRow.getUnit().getLabel();
                         tableEntry.setValue(formattedDouble + " " + unit);
                         tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale())));

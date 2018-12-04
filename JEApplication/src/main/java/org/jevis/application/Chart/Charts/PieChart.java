@@ -51,7 +51,7 @@ public class PieChart implements Chart {
         List<String> listTableEntryNames = new ArrayList<>();
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
-            unit = UnitManager.getInstance().formate(chartDataModels.get(0).getUnit());
+            unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
             if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
             period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
         }

@@ -244,7 +244,7 @@ public class SQLDataSource {
                         throw new AuthenticationException("Username/Password is not correct.");
                     }
                 } else {
-                    throw ErrorBuilder.ErrorBuilder(Response.Status.BAD_REQUEST.getStatusCode(), 2002, "The HTML authorization header is not correct formate");
+                    throw ErrorBuilder.ErrorBuilder(Response.Status.BAD_REQUEST.getStatusCode(), 2002, "The HTML authorization header is not correct format");
                 }
             } catch (NullPointerException nex) {
                 throw new AuthenticationException("Username/Password is not correct.");
