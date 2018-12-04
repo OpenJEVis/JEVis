@@ -1,5 +1,6 @@
 package org.jevis.application.jevistree;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -59,7 +60,6 @@ public class SearchFilterBar extends HBox {
                 tree.setFilter(newValue);
             }
         });
-        filterBox.getSelectionModel().selectFirst();
 
 
         searchField.getStyleClass().add(Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
@@ -99,6 +99,16 @@ public class SearchFilterBar extends HBox {
 
         this.setAlignment(Pos.BASELINE_LEFT);
         this.getChildren().addAll(labelFilter, filterBox, labelSearch, searchField);
+
+        Platform.runLater(() -> {
+//            filterBox.getSelectionModel().selectLast();
+//            System.out.println("select Filter: " + filterBox.getSelectionModel().getSelectedItem().getName());
+//            filterBox.getSelectionModel().selectFirst();
+            if (!filter.isEmpty()) {
+                tree.setFilter(filter.get(0));
+            }
+
+        });
 
     }
 

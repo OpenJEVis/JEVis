@@ -241,6 +241,7 @@ public class JEVisItemLoader {
 
 
         /** create an fake rootItem and add the root objects ad children if visible **/
+        /** TODO: does not always work with all users. bug #455 **/
         JEVisTreeItem rootItem = new JEVisTreeItem(jeVisTree);
         rootItem.setExpanded(true);
         for (JEVisObject rooObject : roots) {
