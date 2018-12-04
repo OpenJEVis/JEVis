@@ -38,7 +38,9 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.I18nWS;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.*;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
 import org.jevis.application.jevistree.filter.FilterFactory;
@@ -54,6 +56,7 @@ import java.util.List;
  */
 public class SelectTargetDialog {
 
+    private static SaveResourceBundle bundle = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private Button ok = new Button("OK");
     private String ICON = "1404313956_evolution-tasks.png";
     private JEVisDataSource _ds;
@@ -63,6 +66,7 @@ public class SelectTargetDialog {
     private SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
     private ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
     private JEVisTreeFilter selectedFilter = null;
+
 
     /**
      * @param filter
@@ -74,7 +78,7 @@ public class SelectTargetDialog {
     }
 
     public static JEVisTreeFilter buildCalanderFilter() {
-        BasicCellFilter onlyCalender = new BasicCellFilter("Calender");
+        BasicCellFilter onlyCalender = new BasicCellFilter(bundle.getString("tree.filter.calender"));
         ObjectAttributeFilter c1 = new ObjectAttributeFilter("Custom Period", ObjectAttributeFilter.NONE);
         onlyCalender.addItemFilter(c1);
         onlyCalender.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, c1);
@@ -82,7 +86,7 @@ public class SelectTargetDialog {
     }
 
     public static JEVisTreeFilter buildAllObjects() {
-        BasicCellFilter onlyData = new BasicCellFilter("ALL");
+        BasicCellFilter onlyData = new BasicCellFilter(bundle.getString("tree.filter.nofilter"));
         ObjectAttributeFilter d1 = new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE);
         onlyData.addItemFilter(d1);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
@@ -110,7 +114,7 @@ public class SelectTargetDialog {
 
 
     public static JEVisTreeFilter buildAllDataFilter() {
-        BasicCellFilter onlyData = new BasicCellFilter("Data");
+        BasicCellFilter onlyData = new BasicCellFilter(bundle.getString("tree.filter.data"));
         ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
         ObjectAttributeFilter d2 = new ObjectAttributeFilter("Clean Data", ObjectAttributeFilter.NONE);
         onlyData.addItemFilter(d1);
@@ -123,7 +127,7 @@ public class SelectTargetDialog {
 
 
     public static JEVisTreeFilter buildAllAttributesFilter() {
-        BasicCellFilter allAttributes = new BasicCellFilter("All Attributes");
+        BasicCellFilter allAttributes = new BasicCellFilter(bundle.getString("tree.filter.allattributes"));
         ObjectAttributeFilter a1 = new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.ALL);
         ObjectAttributeFilter a2 = new ObjectAttributeFilter(ObjectAttributeFilter.NONE, ObjectAttributeFilter.ALL);
         allAttributes.addItemFilter(a1);
@@ -135,7 +139,7 @@ public class SelectTargetDialog {
         stage = new Stage();
         _ds = ds;
 
-        stage.setTitle("Selection");
+        stage.setTitle(bundle.getString("dialog.selection.title"));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
 
@@ -181,7 +185,7 @@ public class SelectTargetDialog {
 
         ok.setDefaultButton(true);
 
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button(bundle.getString("dialog.selection.cancel"));
         cancel.setCancelButton(true);
         cancel.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -219,8 +223,6 @@ public class SelectTargetDialog {
     }
 
     public List<UserSelection> getUserSelection() {
-        System.out.println("getUserSelection: " + simpleTargetPlugin.getUserSelection().size());
-
         return simpleTargetPlugin.getUserSelection();
     }
 
