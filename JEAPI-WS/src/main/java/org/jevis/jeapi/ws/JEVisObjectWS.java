@@ -360,6 +360,7 @@ public class JEVisObjectWS implements JEVisObject {
             this.json = newJson;
 
             ds.reloadRelationships();
+
             if (!getAttributes().isEmpty()) {
                 ds.reloadAttribute(getAttributes().get(0));
             }
