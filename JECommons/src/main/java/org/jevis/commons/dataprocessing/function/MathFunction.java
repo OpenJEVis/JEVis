@@ -102,7 +102,7 @@ public class MathFunction implements ProcessFunction {
                         Double value0 = allSamples.get(i - 1).getValueAsDouble();
                         Double value1 = allSamples.get(i).getValueAsDouble();
 
-                        Double currentValue = 1d / 3d * (value0 + value1);
+                        Double currentValue = 1d / 2d * (value0 + value1);
                         DateTime newTS = allSamples.get(i).getTimestamp();
 
                         if (unit == null) unit = allSamples.get(i).getUnit();
@@ -193,6 +193,7 @@ public class MathFunction implements ProcessFunction {
                         e.printStackTrace();
                     }
                     listManipulation.add(smp);
+                    if (!hasSamples) hasSamples = true;
                 }
             }
         }

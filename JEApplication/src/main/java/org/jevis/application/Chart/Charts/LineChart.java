@@ -54,18 +54,23 @@ public class LineChart implements Chart {
     private Period period;
     private boolean asDuration = false;
     private AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+    private ManipulationMode addSeriesOfType;
 
-    public LineChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public LineChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.hideShowIcons = hideShowIcons;
         this.chartId = chartId;
         this.chartName = chartName;
+        this.addSeriesOfType = addSeriesOfType;
         init();
     }
 
     private void init() {
         AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
         final Boolean[] changedBoth = {false, false};
+
+        boolean addManipulationToTitle = false;
+        ManipulationMode manipulationMode = ManipulationMode.NONE;
 
         for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
@@ -80,6 +85,10 @@ public class LineChart implements Chart {
                     if (currentUnit.equals("")) currentUnit = singleRow.getUnit().getLabel();
                     if (!unit.contains(currentUnit)) unit.add(currentUnit);
 
+                    /**
+                     * check if timestamps are in serie
+                     */
+
                     if (serie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
                         timeStampOfFirstSample.set(serie.getTimeStampFromFirstSample());
                         changedBoth[0] = true;
@@ -90,10 +99,33 @@ public class LineChart implements Chart {
                         changedBoth[1] = true;
                     }
 
+                    /**
+                     * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
+                     */
+
                     if (singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
                             || singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MAX)) {
                         asDuration = true;
                     }
+
+                    if (singleRow.getManipulationMode().equals(ManipulationMode.RUNNING_MEAN)
+                            || singleRow.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN)) {
+                        addManipulationToTitle = true;
+                        manipulationMode = singleRow.getManipulationMode();
+                    }
+
+                    if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
+                        ManipulationMode oldMode = singleRow.getManipulationMode();
+                        singleRow.setManipulationMode(addSeriesOfType);
+                        XYChartSerie serie2 = new XYChartSerie(singleRow, hideShowIcons);
+
+                        hexColors.add(singleRow.getColor().brighter());
+                        series.add(serie2.getSerie());
+                        tableData.add(serie2.getTableEntry());
+
+                        singleRow.setManipulationMode(oldMode);
+                    }
+
 
                 } catch (JEVisException e) {
                     e.printStackTrace();
@@ -126,7 +158,17 @@ public class LineChart implements Chart {
 
         applyColors();
 
-        lineChart.setTitle(chartName);
+        if (!addManipulationToTitle) lineChart.setTitle(chartName);
+        else {
+            switch (manipulationMode) {
+                case RUNNING_MEAN:
+                    lineChart.setTitle(chartName + rb.getString("plugin.graph.chart.titles.runningmean"));
+                    break;
+                case CENTRIC_RUNNING_MEAN:
+                    lineChart.setTitle(chartName + rb.getString("plugin.graph.chart.titles.centricrunningmean"));
+                    break;
+            }
+        }
         lineChart.setLegendVisible(false);
         lineChart.setCreateSymbols(true);
 

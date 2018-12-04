@@ -192,17 +192,6 @@ public class ChartDataModel {
         this.manipulationMode = manipulationMode;
     }
 
-//    public boolean getSelected() {
-//
-//        return _selected;
-//    }
-//
-//    public void setSelected(boolean selected) {
-//
-//        _somethingChanged = true;
-//        _selected = selected;
-//    }
-
     public String getTitle() {
         return _title;
     }

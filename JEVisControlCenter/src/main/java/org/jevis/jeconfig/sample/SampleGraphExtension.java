@@ -28,6 +28,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.Charts.LineChart;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +76,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
         List<ChartDataModel> chartDataModelList = new ArrayList<>();
         chartDataModelList.add(chartDataModel);
 
-        LineChart lc = new LineChart(chartDataModelList, false, 0, "");
+        LineChart lc = new LineChart(chartDataModelList, false, ManipulationMode.NONE, 0, "");
 
         bp.setCenter(lc.getRegion());
         _view.setCenter(bp);

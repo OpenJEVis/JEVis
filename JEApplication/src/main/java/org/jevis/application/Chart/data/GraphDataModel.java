@@ -22,6 +22,7 @@ import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
@@ -44,6 +45,7 @@ public class GraphDataModel extends Observable {
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private List<ChartSettings> charts = new ArrayList<>();
     private Boolean hideShowIcons = true;
+    private ManipulationMode addSeries = ManipulationMode.NONE;
     private Boolean autoResize = true;
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame();
     private JEVisDataSource ds;
@@ -258,6 +260,17 @@ public class GraphDataModel extends Observable {
 
     public void setHideShowIcons(Boolean hideShowIcons) {
         this.hideShowIcons = hideShowIcons;
+
+        setChanged();
+        notifyObservers();
+    }
+
+    public ManipulationMode getAddSeries() {
+        return addSeries;
+    }
+
+    public void setAddSeries(ManipulationMode addSeries) {
+        this.addSeries = addSeries;
 
         setChanged();
         notifyObservers();
