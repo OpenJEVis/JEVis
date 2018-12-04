@@ -95,6 +95,23 @@ public class SelectTargetDialog {
         return onlyData;
     }
 
+    public static JEVisTreeFilter buildClassFilter(JEVisDataSource ds, String jevisClass) {
+        try {
+            JEVisClass dsClass = ds.getJEVisClass(jevisClass);
+            BasicCellFilter onlyData = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
+            List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
+            filter.forEach(objectAttributeFilter -> {
+                onlyData.addItemFilter(objectAttributeFilter);
+                onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, objectAttributeFilter);
+            });
+
+            return onlyData;
+        } catch (Exception ex) {
+        }
+
+        return new BasicCellFilter(jevisClass);
+    }
+
     public static JEVisTreeFilter buildAllDataSources(JEVisDataSource ds) {
         try {
             JEVisClass dsClass = ds.getJEVisClass("Data Server");

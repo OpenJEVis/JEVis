@@ -31,6 +31,7 @@ public class SearchFilterBar extends HBox {
 
     public SearchFilterBar(JEVisTree tree, List<JEVisTreeFilter> filter, Finder finder) {
         super(10);
+        setPadding(new Insets(8));
 
         this.finder = finder;
 

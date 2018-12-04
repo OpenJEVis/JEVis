@@ -367,6 +367,7 @@ public class JEVisObjectWS implements JEVisObject {
             /** reload object to be sure all evens will be handelt and the cache is working correctly **/
             ds.addToObjectCache(this);
 
+
             if (update) {
                 notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
             } else {
