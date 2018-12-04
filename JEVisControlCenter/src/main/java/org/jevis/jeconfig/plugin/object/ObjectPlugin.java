@@ -180,7 +180,7 @@ public class ObjectPlugin implements Plugin {
             allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Calculation"));
             allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "User"));
             allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Group"));
-            allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Analyses"));
+            allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Analysis"));
             allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Report"));
 
 

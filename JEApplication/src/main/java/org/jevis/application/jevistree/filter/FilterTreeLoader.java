@@ -27,7 +27,6 @@ public class FilterTreeLoader {
         try {
             for (JEVisObject object : parent.getChildren()) {
                 if (filter.showItem(object)) {
-                    System.out.println("Found the search filter object: " + object);
                     foundItems.add(object);
                 }
                 findFilterItems(foundItems, object);
@@ -54,11 +53,9 @@ public class FilterTreeLoader {
     }
 
     private JEVisTreeItem buildItem(Set<JEVisObject> filterdObjs, JEVisObject object) throws JEVisException {
-        System.out.println("BuildItem: " + object.getName());
         JEVisTreeItem newItem = new JEVisTreeItem(tree, object);
 
         if (newItem != null) {// && filter.showItem(object)) {
-            System.out.println("filter.showItem: " + object);
 
 
             List<JEVisTreeItem> childeren = new ArrayList<>();
@@ -83,7 +80,6 @@ public class FilterTreeLoader {
             return newItem;
 
         } else {
-            System.out.println("not.filter.showItem: " + object);
             for (JEVisObject child : object.getChildren()) {
                 buildItem(filterdObjs, child);
             }
@@ -93,7 +89,6 @@ public class FilterTreeLoader {
     }
 
     public ObservableList<JEVisTreeItem> loadTreeItems(List<JEVisObject> rootItems) {
-        System.out.println("loadTreeItems: " + rootItems.size());
         ObservableList<JEVisTreeItem> allItems = FXCollections.observableArrayList();
 
         Set<JEVisObject> foundItems = new HashSet<>();
@@ -101,7 +96,6 @@ public class FilterTreeLoader {
             findFilterItems(foundItems, jeVisObject);
 
         });
-        System.out.println("foundItems: " + rootItems.size());
 
         rootItems.forEach(jeVisObject -> {
             try {
