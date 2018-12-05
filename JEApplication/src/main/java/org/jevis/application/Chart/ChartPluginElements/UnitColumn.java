@@ -5,7 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.ImageView;
@@ -21,7 +21,6 @@ import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.JEVisTreeRow;
 import org.jevis.commons.unit.UnitManager;
 
-import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         this.columnName = columnName;
     }
 
-    private ChoiceBox buildUnitBox(ChartDataModel singleRow) {
+    private ComboBox<String> buildUnitBox(ChartDataModel singleRow) {
 
         List<String> proNames = new ArrayList<>();
 
@@ -70,8 +69,9 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         for (EnergyUnit eu : EnergyUnit.values()) {
             if (eu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isEnergyUnit = true;
+            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(eu.toString())) {
+                isEnergyUnit = true;
             }
-
         }
         if (isEnergyUnit) for (EnergyUnit eu : EnergyUnit.values()) {
             proNames.add(eu.toString());
@@ -80,6 +80,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         for (VolumeUnit vu : VolumeUnit.values()) {
             if (vu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isVolumeUnit = true;
+            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vu.toString())) {
+                isEnergyUnit = true;
             }
         }
         if (isVolumeUnit) for (VolumeUnit vu : VolumeUnit.values()) {
@@ -89,6 +91,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         for (MassUnit mu : MassUnit.values()) {
             if (mu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isMassUnit = true;
+            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
+                isEnergyUnit = true;
             }
         }
         if (isMassUnit) for (MassUnit mu : MassUnit.values()) {
@@ -98,6 +102,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         for (PressureUnit pu : PressureUnit.values()) {
             if (pu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isPressureUnit = true;
+            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(pu.toString())) {
+                isEnergyUnit = true;
             }
         }
         if (isPressureUnit) for (PressureUnit pu : PressureUnit.values()) {
@@ -107,6 +113,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
             if (vfu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
                 isVolumeFlowUnit = true;
+            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vfu.toString())) {
+                isEnergyUnit = true;
             }
         }
         if (isVolumeFlowUnit) {
@@ -120,13 +128,17 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 proNames.add(singleRow.getUnit().getLabel());
         }
 
-        ChoiceBox processorBox;
+        ComboBox<String> processorBox;
         if (proNames.isEmpty()) {
-            processorBox = new ChoiceBox();
-        } else processorBox = new ChoiceBox(FXCollections.observableArrayList(proNames));
+            processorBox = new ComboBox<>();
+        } else processorBox = new ComboBox<>(FXCollections.observableArrayList(proNames));
 
-        processorBox.setPrefWidth(80);
-        processorBox.setMinWidth(60);
+        processorBox.setPrefWidth(90);
+        processorBox.setMinWidth(70);
+
+        if (currentUnit != null) {
+            processorBox.getSelectionModel().select(currentUnit.getLabel());
+        }
 
         return processorBox;
 
@@ -156,10 +168,16 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, JEVisUnit>, TreeTableCell<JEVisTreeRow, JEVisUnit>>() {
 
+
             @Override
             public TreeTableCell<JEVisTreeRow, JEVisUnit> call(TreeTableColumn<JEVisTreeRow, JEVisUnit> param) {
 
+
                 TreeTableCell<JEVisTreeRow, JEVisUnit> cell = new TreeTableCell<JEVisTreeRow, JEVisUnit>() {
+                    @Override
+                    public void commitEdit(JEVisUnit unit) {
+                        super.commitEdit(unit);
+                    }
 
                     @Override
                     protected void updateItem(JEVisUnit item, boolean empty) {
@@ -175,16 +193,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                 if (getTreeTableRow().getItem() != null && tree != null
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     ChartDataModel data = getData(getTreeTableRow().getItem());
-                                    ChoiceBox box = buildUnitBox(data);
-
-                                    if (data.getUnit() != null)
-                                        if (!data.getUnit().equals(Unit.ONE)) {
-                                            String selection = UnitManager.getInstance().format(data.getUnit());
-                                            if (!selection.equals("")) box.getSelectionModel().select(selection);
-                                            else box.getSelectionModel().selectFirst();
-                                        } else {
-                                            box.getSelectionModel().selectFirst();
-                                        }
+                                    ComboBox box = buildUnitBox(data);
 
                                     box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
                                         if (oldValue == null || newValue != oldValue) {

@@ -33,6 +33,7 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.PeriodFormat;
 
+import javax.measure.unit.Unit;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -82,7 +83,8 @@ public class AreaChart implements Chart {
                     series.add(serie.getSerie());
                     tableData.add(serie.getTableEntry());
                     String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
-                    if (currentUnit.equals("")) currentUnit = singleRow.getUnit().getLabel();
+                    if (currentUnit.equals("") || currentUnit.equals(Unit.ONE))
+                        currentUnit = singleRow.getUnit().getLabel();
                     if (!unit.contains(currentUnit)) {
                         unit.add(currentUnit);
                     }

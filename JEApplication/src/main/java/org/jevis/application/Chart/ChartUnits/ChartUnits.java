@@ -39,13 +39,7 @@ public class ChartUnits {
         Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
         Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
 
-        Unit _va = SI.WATT.alternate("va");
-        Unit _var = SI.WATT.alternate("var");
-
-        Unit _vah = SI.JOULE.alternate("vah");
-        Unit _varh = SI.JOULE.alternate("vahr");
-
-        Unit _cal = SI.JOULE.alternate("cal");
+        Unit _one = Unit.ONE;
 
         final JEVisUnit kg = new JEVisUnitImp(_kg);
         final JEVisUnit t = new JEVisUnitImp(_t);
@@ -75,13 +69,30 @@ public class ChartUnits {
         final JEVisUnit MWh = new JEVisUnitImp(_MWh);
         final JEVisUnit GWh = new JEVisUnitImp(_GWh);
 
-        final JEVisUnit va = new JEVisUnitImp(_va);
-        final JEVisUnit var = new JEVisUnitImp(_var);
+        final JEVisUnit va = new JEVisUnitImp(_one);
+        va.setLabel("va");
+        final JEVisUnit kva = new JEVisUnitImp(_one);
+        kva.setLabel("kva");
 
-        final JEVisUnit vah = new JEVisUnitImp(_vah);
-        final JEVisUnit varh = new JEVisUnitImp(_varh);
+        final JEVisUnit var = new JEVisUnitImp(_one);
+        var.setLabel("var");
+        final JEVisUnit kvar = new JEVisUnitImp(_one);
+        kvar.setLabel("kvar");
 
-        final JEVisUnit cal = new JEVisUnitImp(_cal);
+        final JEVisUnit vah = new JEVisUnitImp(_one);
+        vah.setLabel("vah");
+        final JEVisUnit kvah = new JEVisUnitImp(_one);
+        kvah.setLabel("kvah");
+
+        final JEVisUnit varh = new JEVisUnitImp(_one);
+        varh.setLabel("varh");
+        final JEVisUnit kvarh = new JEVisUnitImp(_one);
+        kvarh.setLabel("kvarh");
+
+        final JEVisUnit cal = new JEVisUnitImp(_one);
+        cal.setLabel("cal");
+        final JEVisUnit kcal = new JEVisUnitImp(_one);
+        kcal.setLabel("kcal");
 
         switch (unit) {
             case "kg":
@@ -144,8 +155,35 @@ public class ChartUnits {
             case "bar":
                 result = bar;
                 break;
-            case "atm":
-                result = atm;
+            case "va":
+                result = va;
+                break;
+            case "kva":
+                result = kva;
+                break;
+            case "var":
+                result = var;
+                break;
+            case "kvar":
+                result = kvar;
+                break;
+            case "vah":
+                result = vah;
+                break;
+            case "kvah":
+                result = kvah;
+                break;
+            case "varh":
+                result = varh;
+                break;
+            case "kvarh":
+                result = kvarh;
+                break;
+            case "cal":
+                result = cal;
+                break;
+            case "kcal":
+                result = kcal;
                 break;
             default:
                 break;
@@ -527,12 +565,50 @@ public class ChartUnits {
                     case "vah":
                         factor = 4d;
                         break;
+                    case "kva":
+                        factor = 1000d;
+                        break;
+                    case "kvah":
+                        factor = 4d / 1000d;
+                        break;
+                }
+                break;
+            case "kva":
+                switch (inputUnit) {
+                    case "vah":
+                        factor = 4d / 1000d;
+                        break;
+                    case "va":
+                        factor = 1d / 1000d;
+                        break;
+                    case "kvah":
+                        factor = 4d;
+                        break;
                 }
                 break;
             case "vah":
                 switch (inputUnit) {
                     case "va":
                         factor = 0.25d;
+                        break;
+                    case "kva":
+                        factor = 1000d / 4d;
+                        break;
+                    case "kvah":
+                        factor = 1000d;
+                        break;
+                }
+                break;
+            case "kvah":
+                switch (inputUnit) {
+                    case "va":
+                        factor = 1d / 4000d;
+                        break;
+                    case "kva":
+                        factor = 1000d / 4d;
+                        break;
+                    case "vah":
+                        factor = 1d / 1000d;
                         break;
                 }
                 break;
@@ -541,12 +617,50 @@ public class ChartUnits {
                     case "varh":
                         factor = 4d;
                         break;
+                    case "kvar":
+                        factor = 1000d;
+                        break;
+                    case "kvarh":
+                        factor = 4d / 1000d;
+                        break;
+                }
+                break;
+            case "kvar":
+                switch (inputUnit) {
+                    case "varh":
+                        factor = 4d / 1000d;
+                        break;
+                    case "var":
+                        factor = 1d / 1000d;
+                        break;
+                    case "kvarh":
+                        factor = 4d;
+                        break;
                 }
                 break;
             case "varh":
                 switch (inputUnit) {
                     case "var":
                         factor = 0.25;
+                        break;
+                    case "kvar":
+                        factor = 1000d / 4d;
+                        break;
+                    case "kvarh":
+                        factor = 1000d;
+                        break;
+                }
+                break;
+            case "kvarh":
+                switch (inputUnit) {
+                    case "var":
+                        factor = 1d / 4000d;
+                        break;
+                    case "kvar":
+                        factor = 1d / 4d;
+                        break;
+                    case "varh":
+                        factor = 1d / 1000d;
                         break;
                 }
                 break;
