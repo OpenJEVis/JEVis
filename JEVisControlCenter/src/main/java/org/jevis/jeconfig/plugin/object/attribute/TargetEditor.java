@@ -21,18 +21,14 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.dialog.SelectTargetDialog.MODE;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.TreeHelper;
-import org.jevis.application.jevistree.UserSelection;
-import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -116,66 +112,15 @@ public class TargetEditor implements AttributeEditor {
                                     @Override
                                     public void handle(ActionEvent t) {
                                         try {
-                                            List<JEVisTreeFilter> allFilter = new ArrayList<>();
-                                            allFilter.add(SelectTargetDialog.buildAllDataFilter());
-                                            allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
-
-                                            SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
-                                            List<UserSelection> openList = new ArrayList<>();
-
-                                            try {
-                                                TargetHelper th;
-                                                if (newSample != null) {
-                                                    th = new TargetHelper(_attribute.getDataSource(), newSample.getValueAsString());
-                                                } else {
-                                                    th = new TargetHelper(_attribute.getDataSource(), _attribute);
-                                                }
-
-                                                if (th.isValid()) {
-                                                    if (mode == MODE.ATTRIBUTE) {
-                                                        if (th.hasAttribute() && th.targetAccessable()) {
-                                                            logger.trace("th.Att: {}", th.getAttribute());
-                                                            UserSelection us = new UserSelection(UserSelection.SelectionType.Attribute, th.getAttribute(), null, null);
-                                                            openList.add(us);
-                                                        }
-                                                    } else if (mode == MODE.OBJECT) {
-                                                        if (th.hasObject() && th.targetAccessable()) {
-                                                            logger.trace("th.object: {}", th.getObject());
-                                                            UserSelection us = new UserSelection(UserSelection.SelectionType.Object, th.getObject());
-                                                            openList.add(us);
-                                                        }
-
-                                                    }
-
-                                                }
-
-                                            } catch (Exception jex) {
-                                                logger.catching(jex);
+                                            JEVisAttribute newTargetAttribute = TreeHelper.newDataTarget(_attribute.getDataSource());
+                                            TargetHelper th = new TargetHelper(_attribute.getDataSource(), newTargetAttribute.getObject(), newTargetAttribute);
+                                            if (th.isValid() && th.targetAccessable()) {
+                                                logger.info("Target Is valid");
+                                                newSample = _attribute.buildSample(new DateTime(), th.getSourceString());
+                                                newSample.commit();
+                                                setButtonText();
                                             }
 
-                                            if (selectionDialog.show(
-                                                    JEConfig.getStage(),
-                                                    _attribute.getObject().getDataSource(),
-                                                    I18n.getInstance().getString("plugin.object.attribute.target.selection"),
-                                                    openList
-                                            ) == SelectTargetDialog.Response.OK) {
-                                                logger.trace("Selection Done");
-                                                for (UserSelection us : selectionDialog.getUserSelection()) {
-                                                    logger.trace("us: {}", us.getSelectedObject());
-
-                                                    TargetHelper th = new TargetHelper(_attribute.getDataSource(), us.getSelectedObject(), us.getSelectedAttribute());
-
-                                                    if (th.isValid() && th.targetAccessable()) {
-                                                        newSample = _attribute.buildSample(new DateTime(), th.getSourceString());
-                                                        setButtonText();
-                                                    }
-
-                                                    logger.trace("New Target: [{}] {}", _attribute, newSample.getValueAsString());
-                                                    _changed.setValue(true);
-
-                                                }
-
-                                            }
                                         } catch (Exception ex) {
                                             logger.catching(ex);
                                         }

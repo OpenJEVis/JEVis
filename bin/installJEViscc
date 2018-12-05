@@ -1,0 +1,8 @@
+#!/bin/bash
+
+destination=$1
+version=`xmllint --xpath '/*[local-name()="project"]/*[local-name()="version"]/text()' $JEVIS_HOME/JEVisControlCenter/pom.xml`
+
+mkdir $destination/version
+
+

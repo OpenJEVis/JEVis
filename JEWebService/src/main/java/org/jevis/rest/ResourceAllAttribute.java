@@ -47,7 +47,7 @@ public class ResourceAllAttribute {
 
     @GET
     @Logged
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, "application/zip"})
     public Response getAll(
             @Context HttpHeaders httpHeaders,
             @Context Request request,

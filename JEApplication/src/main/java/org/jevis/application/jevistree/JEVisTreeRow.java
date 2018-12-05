@@ -106,7 +106,7 @@ public class JEVisTreeRow {
 
     @Override
     public String toString() {
-        String objectName = "JEVisTreeRow [type: '" + getType() + " NoName";
+        String objectName = "JEVisTreeRow [type: '" + getType() + " NoName" + "]";
         try {
             objectName = "ObjectID: '" + getJEVisObject().getID() + "'";
             if (getType() == TYPE.OBJECT) {
@@ -117,7 +117,7 @@ public class JEVisTreeRow {
         } catch (Exception ex) {
 
         }
-        return objectName + "]";
+        return objectName;
     }
 
     public enum TYPE {

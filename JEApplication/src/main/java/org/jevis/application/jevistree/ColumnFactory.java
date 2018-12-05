@@ -119,13 +119,16 @@ public class ColumnFactory {
                                                   try {
                                                       if (objects.contains(obj)) {
 //                                                          System.out.println("+Object event: " + obj);
-//                                                          node.setStyle("-fx-background-color: yellow;");
-                                                          node.setTextFill(Color.valueOf("#6495ED"));
+                                                          node.setStyle("-fx-background-color: yellow;");
+//                                                          node.setTextFill(Color.valueOf("#6495ED"));
+//                                                          node.setTextFill(Color.valueOf("#248f24"));//green
+
 
                                                       } else {
 //                                                          node.setStyle("-fx-background-color: transparent;");
 //                                                          System.out.println("-Object event: " + obj);
-                                                          node.setTextFill(Color.BLACK);
+//                                                          node.setTextFill(Color.BLACK);
+                                                          node.setStyle("-fx-background-color: transparent;");
                                                       }
                                                   } catch (Exception ex) {
                                                   }
@@ -157,7 +160,10 @@ public class ColumnFactory {
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
 
-                                                      nameLabel.setPadding(new Insets(0, 0, 0, 8));
+//                                                      ((Region) icon).setPadding(new Insets(0, 8, 0, 0));
+                                                      nameLabel.setPadding(new Insets(0, 0, 0, 0));
+                                                      Region spaceBetween = new Region();
+                                                      spaceBetween.setMinWidth(8);
 
                                                       highlight(tree.getHighliterList(), obj, nameLabel);
 
@@ -210,7 +216,7 @@ public class ColumnFactory {
                                                           icon = hbox2;
                                                       }
 
-                                                      hbox.getChildren().setAll(icon, nameLabel);
+                                                      hbox.getChildren().setAll(icon, spaceBetween, nameLabel);
                                                       Tooltip debugTip = new Tooltip(getTreeTableRow().getTreeItem().getValue().toString());
                                                       setTooltip(debugTip);
                                                       setGraphic(hbox);

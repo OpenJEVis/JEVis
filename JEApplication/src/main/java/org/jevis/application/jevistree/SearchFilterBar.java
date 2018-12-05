@@ -1,5 +1,6 @@
 package org.jevis.application.jevistree;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -10,21 +11,27 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 
 import java.util.List;
 
 public class SearchFilterBar extends HBox {
 
+    private static SaveResourceBundle bundle = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
+
+
     private final Finder finder;
-    private Label labelFilter = new Label("Filter:");
-    private Label labelSearch = new Label("Suche:");
+    private Label labelFilter = new Label(bundle.getString("searchbar.filter"));
+    private Label labelSearch = new Label(bundle.getString("searchbar.search"));
     //    private TextField searchField = new TextField();
     private Spinner<String> searchField = new Spinner<>();
     private ComboBox<JEVisTreeFilter> filterBox;
 
     public SearchFilterBar(JEVisTree tree, List<JEVisTreeFilter> filter, Finder finder) {
         super(10);
+        setPadding(new Insets(8));
 
         this.finder = finder;
 
@@ -59,19 +66,16 @@ public class SearchFilterBar extends HBox {
                 tree.setFilter(newValue);
             }
         });
-        filterBox.getSelectionModel().selectFirst();
 
 
         searchField.getStyleClass().add(Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
         Background originalBackground = searchField.getEditor().getBackground();
         searchField.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("New value: " + newValue);
             if (newValue.equals(oldValue)) {
                 return;
             }
 
             if (!newValue.isEmpty() && newValue.length() > 0) {
-                System.out.println("Find: " + newValue);
                 if (finder.findMatch(newValue)) {
                     searchField.getEditor().setBackground(originalBackground);
                 } else {
@@ -99,6 +103,16 @@ public class SearchFilterBar extends HBox {
 
         this.setAlignment(Pos.BASELINE_LEFT);
         this.getChildren().addAll(labelFilter, filterBox, labelSearch, searchField);
+
+        Platform.runLater(() -> {
+//            filterBox.getSelectionModel().selectLast();
+//            System.out.println("select Filter: " + filterBox.getSelectionModel().getSelectedItem().getName());
+//            filterBox.getSelectionModel().selectFirst();
+            if (!filter.isEmpty()) {
+                tree.setFilter(filter.get(0));
+            }
+
+        });
 
     }
 
