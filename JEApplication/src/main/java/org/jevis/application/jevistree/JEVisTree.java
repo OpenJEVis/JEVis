@@ -57,6 +57,8 @@ public class JEVisTree extends TreeTableView {
     private JEVisItemLoader itemLoader;
     private ObservableList<JEVisObject> highliterList = FXCollections.observableArrayList();
     private List<JEVisObject> objects = new ArrayList<>();
+    private boolean isCut = false;
+    private SearchFilterBar searchBar;
 
     /**
      * Create an default Tree for the given JEVisDatasource by using all accessable JEVisOBjects starting by the
@@ -285,10 +287,14 @@ public class JEVisTree extends TreeTableView {
         return copyObject;
     }
 
-    public void setCopyObject(JEVisObject obj) {
-        copyObject = obj;
+    public void setCopyObject(JEVisObject obj, boolean cut) {
+        this.copyObject = obj;
+        this.isCut = cut;
     }
 
+    public boolean isCut() {
+        return isCut;
+    }
 
     private TreeTableColumn findColumn(TreeTableColumn parentColumn, String columnName) {
         for (Object col : parentColumn.getColumns()) {
@@ -321,6 +327,14 @@ public class JEVisTree extends TreeTableView {
         System.out.println("Did not found Column: " + columnName);
         return null;
 
+    }
+
+    public SearchFilterBar getSearchFilterBar() {
+        return searchBar;
+    }
+
+    public void setSearchFilterBar(SearchFilterBar searchBar) {
+        this.searchBar = searchBar;
     }
 
 }

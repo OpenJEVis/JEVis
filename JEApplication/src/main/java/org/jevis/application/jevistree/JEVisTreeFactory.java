@@ -41,6 +41,9 @@ import org.jevis.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.application.jevistree.plugin.ChartPlugin;
 import org.jevis.application.jevistree.plugin.MapPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -49,7 +52,6 @@ public class JEVisTreeFactory {
     public final static KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
     public final static KeyCombination findAgain = new KeyCodeCombination(KeyCode.F3);
     private static final Logger logger = LogManager.getLogger(JEVisTreeFactory.class);
-    private static KeyCombination lastCombination = null;
     private static SaveResourceBundle bundle = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
 
 
@@ -74,37 +76,31 @@ public class JEVisTreeFactory {
                 final TreeItem<JEVisTreeRow> selectedObj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
 
                 if (findNode.match(t)) {
-                    TreeHelper.EventOpenObject(tree, findNode);
-                    lastCombination = findNode;
+//                    TreeHelper.EventOpenObject(tree, findNode);
+                    tree.getSearchFilterBar().requestCursor();
                 } else if (findAgain.match(t)) {
-                    if (lastCombination.equals(findNode) || lastCombination.equals(findAgain)) {
-                        TreeHelper.EventOpenObject(tree, findAgain);
-                        lastCombination = findAgain;
+                    if (tree.getSearchFilterBar() != null) {
+                        tree.getSearchFilterBar().goNext();
                     }
                 } else if (add.match(t)) {
                     TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
-                    lastCombination = add;
                 } else if (delete.match(t)) {
                     TreeHelper.EventDelete(tree);
-                    lastCombination = delete;
                 } else if (copyObj.match(t)) {
-                    tree.setCopyObject(selectedObj.getValue().getJEVisObject());
-                    lastCombination = copyObj;
+                    tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
                 } else if (cutObj.match(t)) {
-                    tree.setCopyObject(selectedObj.getValue().getJEVisObject());
-                    lastCombination = cutObj;
+                    tree.setCopyObject(selectedObj.getValue().getJEVisObject(), true);
                 } else if (pasteObj.match(t)) {
-                    if (lastCombination.equals(copyObj)) {
+                    if (tree.getCopyObject() != null) {
                         final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
-                        TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
-                    } else if (lastCombination.equals(cutObj)) {
-                        final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
-                        TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
+                        if (tree.isCut()) {
+                            TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
+                        } else {
+                            TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
+                        }
                     }
-                    lastCombination = pasteObj;
                 } else if (rename.match(t)) {
                     TreeHelper.EventRename(tree, selectedObj.getValue().getJEVisObject());
-                    lastCombination = rename;
                 }
             }
         });
@@ -160,6 +156,7 @@ public class JEVisTreeFactory {
 
         BasicCellFilter cellFilter = new BasicCellFilter("Data");
         ObjectAttributeFilter dataFilter = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
+
         cellFilter.addItemFilter(dataFilter);
 
         cellFilter.addFilter(SelectionColumn.COLUMN_ID, dataFilter);
@@ -169,13 +166,22 @@ public class JEVisTreeFactory {
         cellFilter.addFilter(DataProcessorColumn.COLUMN_ID, dataFilter);
         cellFilter.addFilter(AggregationColumn.COLUMN_ID, dataFilter);
 
+
         JEVisTree tree = new JEVisTree(ds, cellFilter);
+
+        List<JEVisTreeFilter> allFilter = new ArrayList<>();
+        allFilter.add(cellFilter);
+
+        Finder finder = new Finder(tree);
+        SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
+        tree.setSearchFilterBar(searchBar);
 
         TreePlugin bp = new ChartPlugin();
         ((ChartPlugin) bp).setData(graphDataModel);
         tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
         tree.getPlugins().add(bp);
-        addGraphKeys(tree);
+//        addGraphKeys(tree);
+        addDefaultKeys(tree);
 
         return tree;
 
