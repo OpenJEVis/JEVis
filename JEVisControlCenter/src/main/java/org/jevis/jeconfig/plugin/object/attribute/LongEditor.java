@@ -34,7 +34,7 @@ public class LongEditor extends BasicEditor {
             long newValue = validator.validate(value, I18n.getInstance().getLocale());
 
             if (attribute.getInputUnit() != null && attribute.getDisplayUnit() != null) {
-                Double doubleWithUnit = Double.valueOf(attribute.getDisplayUnit().converteTo(attribute.getInputUnit(), newValue));
+                Double doubleWithUnit = Double.valueOf(attribute.getDisplayUnit().convertTo(attribute.getInputUnit(), newValue));
                 return doubleWithUnit.longValue();
             } else {
                 return newValue;

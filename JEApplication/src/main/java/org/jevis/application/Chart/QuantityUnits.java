@@ -28,9 +28,13 @@ public class QuantityUnits {
     final JEVisUnit MWh = new JEVisUnitImp(_MWh);
     Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
     final JEVisUnit GWh = new JEVisUnitImp(_GWh);
+    Unit _vah = Unit.ONE.alternate("vah");
+    final JEVisUnit vah = new JEVisUnitImp(_vah);
+    Unit _varh = Unit.ONE.alternate("varh");
+    final JEVisUnit varh = new JEVisUnitImp(_varh);
 
     public List<JEVisUnit> get() {
-        return new ArrayList<>(Arrays.asList(kg, t, l, m3, Wh, kWh, MWh, GWh));
+        return new ArrayList<>(Arrays.asList(kg, t, l, m3, Wh, kWh, MWh, GWh, vah, varh));
     }
 
 }

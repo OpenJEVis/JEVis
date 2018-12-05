@@ -163,7 +163,7 @@ public class JEVisUnitImp implements JEVisUnit {
     }
 
     @Override
-    public double converteTo(JEVisUnit unit, double number) {
+    public double convertTo(JEVisUnit unit, double number) {
         //TODo check if unit is compatible
         try {
             Unit targetUnit = UnitManager.getInstance().getUnitWithPrefix(((JEVisUnitImp) unit).getUnit(), unit.getPrefix());
@@ -220,7 +220,7 @@ public class JEVisUnitImp implements JEVisUnit {
 
     @Override
     public String toString() {
-        return UnitManager.getInstance().formate(this);
+        return UnitManager.getInstance().format(this);
     }
 
     @Override

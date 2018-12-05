@@ -263,16 +263,15 @@ public class ChartView implements Observer {
                     chartDataModels.add(singleRow);
                 }
             }
-
         }
 
         switch (chartType) {
             case AREA:
-                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
+                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, chartName);
                 setTableStandard();
                 break;
             case LINE:
-                chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
+                chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, chartName);
                 setTableStandard();
                 break;
             case BAR:
@@ -292,7 +291,7 @@ public class ChartView implements Observer {
                 disableTable();
                 break;
             default:
-                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
+                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, chartName);
                 setTableStandard();
                 break;
         }

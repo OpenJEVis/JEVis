@@ -12,6 +12,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 
@@ -30,13 +31,17 @@ public class XYChartSerie implements Serie {
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+        String unit = UnitManager.getInstance().format(singleRow.getUnit());
         if (unit.equals("")) unit = singleRow.getUnit().getLabel();
         if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
 
         String tableEntryName = singleRow.getObject().getName();
+        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE))
+            tableEntryName += "(" + singleRow.getManipulationMode().toString() + ")";
+
         tableEntry = new TableEntry(tableEntryName);
-        tableEntry.setColor(singleRow.getColor());
+        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE)) tableEntry.setColor(singleRow.getColor());
+        else tableEntry.setColor(singleRow.getColor().darker());
 
         singleRow.setTableEntry(tableEntry);
         tableData.add(tableEntry);

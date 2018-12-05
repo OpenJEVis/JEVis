@@ -44,4 +44,5 @@ public interface Chart {
     DateTime getStartDateTime();
 
     DateTime getEndDateTime();
+
 }

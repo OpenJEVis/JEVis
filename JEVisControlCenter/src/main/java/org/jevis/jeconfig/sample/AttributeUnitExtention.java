@@ -111,7 +111,7 @@ public class AttributeUnitExtention implements SampleEditorExtension {
                     ouUnit.getUnitButton().setText(att.getInputUnit().getFormula());
                     ouUnit.getPrefixBox().getSelectionModel().select(
                             UnitManager.getInstance().getPrefixName(att.getInputUnit().getPrefix(), Locale.getDefault()));
-                    ouUnit.getLabelField().setText(UnitManager.getInstance().formate(att.getInputUnit()));
+                    ouUnit.getLabelField().setText(UnitManager.getInstance().format(att.getInputUnit()));
 
                     ouRate.sampleingRateProperty().setValue(att.getInputSampleRate());
                     ouRate.getSelectionModel().select(att.getInputSampleRate());
@@ -131,7 +131,7 @@ public class AttributeUnitExtention implements SampleEditorExtension {
                     iuUnit.getUnitButton().setText(att.getDisplayUnit().getFormula());
                     iuUnit.getPrefixBox().getSelectionModel().select(
                             UnitManager.getInstance().getPrefixName(att.getDisplayUnit().getPrefix(), Locale.getDefault()));
-                    iuUnit.getLabelField().setText(UnitManager.getInstance().formate(att.getDisplayUnit()));
+                    iuUnit.getLabelField().setText(UnitManager.getInstance().format(att.getDisplayUnit()));
 
                     iuRate.sampleingRateProperty().setValue(att.getDisplaySampleRate());
                     iuRate.getSelectionModel().select(att.getDisplaySampleRate());

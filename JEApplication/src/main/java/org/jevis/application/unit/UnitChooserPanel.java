@@ -255,9 +255,9 @@ public class UnitChooserPanel {
     public void printExample() {
         Unit finalUnit = getFinalUnit();
         if (_altSymbol != null && !_altSymbol.equals("")) {
-            example.setText("1245.67 " + UnitManager.getInstance().formate(finalUnit.alternate(_altSymbol)));
+            example.setText("1245.67 " + UnitManager.getInstance().format(finalUnit.alternate(_altSymbol)));
         } else {
-            example.setText("1245.67 " + UnitManager.getInstance().formate(finalUnit));
+            example.setText("1245.67 " + UnitManager.getInstance().format(finalUnit));
         }
     }
 

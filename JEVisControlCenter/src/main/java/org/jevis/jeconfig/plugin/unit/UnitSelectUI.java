@@ -84,7 +84,7 @@ public class UnitSelectUI {
             }
         });
         prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefixName(unit.getPrefix(), Locale.getDefault()));
-        changeBaseUnit.setText(UnitManager.getInstance().formate(unit));
+        changeBaseUnit.setText(UnitManager.getInstance().format(unit));
         labelField.setText(unit.getLabel());
 
         unitProperty.addListener(new ChangeListener<JEVisUnit>() {
@@ -102,7 +102,7 @@ public class UnitSelectUI {
                 cloneUnit.setPrefix(UnitManager.getInstance().getPrefix(t1, Locale.getDefault()));
                 unitProperty.setValue(cloneUnit);
 
-                labelField.setText(UnitManager.getInstance().formate(unitProperty.getValue()));
+                labelField.setText(UnitManager.getInstance().format(unitProperty.getValue()));
             }
         });
 
@@ -136,7 +136,7 @@ public class UnitSelectUI {
 
 //                        unitProperty.getValue().setFormula(stc.getUnit().getFormula());
                     changeBaseUnit.setText(unitProperty.getValue().getFormula());
-                    labelField.setText(UnitManager.getInstance().formate(unitProperty.getValue()));//proble: the unitChang event cone tow times
+                    labelField.setText(UnitManager.getInstance().format(unitProperty.getValue()));//proble: the unitChang event cone tow times
                 }
 
             }

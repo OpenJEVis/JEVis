@@ -8,9 +8,11 @@ package org.jevis.jeconfig.plugin.graph.view;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +24,7 @@ import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
@@ -203,17 +206,40 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
+        ToggleButton addSeriesRunningMean = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
+        Tooltip addSeriesRunningMeanTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
+        addSeriesRunningMean.setTooltip(addSeriesRunningMeanTooltip);
+        addSeriesRunningMean.styleProperty().bind(
+                Bindings
+                        .when(addSeriesRunningMean.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(addSeriesRunningMean.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
         select.setOnAction(event -> changeSettings(event));
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
 
         disableIcons.setOnAction(event -> hideShowIconsInGraph());
 
+        addSeriesRunningMean.setOnAction(event -> addSeriesRunningMean());
+
         autoResize.setOnAction(event -> autoResizeInGraph());
 
+        /**
+         * addSeriesRunningMean disabled for now
+         */
         toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, sep3, disableIcons, autoResize, reload);
         _initialized = true;
         return toolBar;
+    }
+
+    private void addSeriesRunningMean() {
+        model.setAddSeries(ManipulationMode.RUNNING_MEAN);
     }
 
     private void setCellFactoryForComboBox() {
@@ -227,17 +253,28 @@ public class ToolBarView {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (!model.getMultipleDirectories())
-                                setText(obj.getName());
-                            else {
-                                try {
-                                    int indexOfObj = model.getObservableListAnalyses().indexOf(obj);
-                                    String prefix = model.getListBuildingsParentOrganisations().get(indexOfObj).getName()
-                                            + " / "
-                                            + model.getListAnalysesParentBuildings().get(indexOfObj).getName();
-                                    setText(prefix + " / " + obj.getName());
-                                } catch (Exception e) {
+                            try {
+                                String prefix = "";
+
+                                JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
+                                JEVisClass buildingClass = ds.getJEVisClass("Building");
+                                if (buildingParent.getJEVisClass().equals(buildingClass)) {
+
+                                    try {
+                                        JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
+                                        JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                            prefix += organisationParent.getName() + " / " + buildingParent.getName();
+                                        }
+                                    } catch (JEVisException e) {
+                                        logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+
+                                        prefix += buildingParent.getName();
+                                    }
                                 }
+                                setText(prefix + " / " + obj.getName());
+                            } catch (Exception e) {
                             }
                         }
 
@@ -251,7 +288,6 @@ public class ToolBarView {
     }
 
     private void loadNewDialog() {
-
 
         LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, model, this);
 
@@ -270,6 +306,7 @@ public class ToolBarView {
 
                         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
 
+                            model.setCurrentAnalysis(null);
                             model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
                             model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
 
@@ -334,7 +371,17 @@ public class ToolBarView {
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
         TextField name = new TextField();
-        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(model.getObservableListAnalysesDirectories());
+
+        JEVisClass analysesDirectory = null;
+        List<JEVisObject> listAnalysesDirectories = null;
+        try {
+            analysesDirectory = ds.getJEVisClass("Analyses Directory");
+            listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
 
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
@@ -350,10 +397,28 @@ public class ToolBarView {
                                 setText(obj.getName());
                             else {
                                 try {
-                                    int indexOfObj = model.getObservableListAnalysesDirectories().indexOf(obj);
-                                    String prefix = model.getListAnalysesDirectortiesBuildingsParentOrganisations().get(indexOfObj).getName()
-                                            + " / "
-                                            + model.getListAnalysesDirectoriesParentBuildings().get(indexOfObj).getName();
+                                    String prefix = "";
+
+                                    JEVisObject buildingDirParent = obj.getParents().get(0);
+
+                                    JEVisClass buildingClass = ds.getJEVisClass("Building");
+                                    if (buildingDirParent.getJEVisClass().equals(buildingClass)) {
+
+                                        try {
+                                            JEVisObject organisationParent = buildingDirParent.getParents().get(0).getParents().get(0);
+                                            JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                                prefix += organisationParent.getName() + " / " + buildingDirParent.getName();
+                                            }
+                                        } catch (JEVisException e) {
+                                            logger.error("Could not get Organization parent of " + buildingDirParent.getName() + ":" + buildingDirParent.getID());
+
+                                            prefix += buildingDirParent.getName();
+                                        }
+                                    }
+
+
                                     setText(prefix + " / " + obj.getName());
                                 } catch (Exception e) {
                                 }
@@ -395,11 +460,18 @@ public class ToolBarView {
         final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        VBox vbox = new VBox();
-        vbox.setSpacing(4);
-        vbox.getChildren().addAll(directoryText, parentsDirectories, newText, name);
+        GridPane gridLayout = new GridPane();
+        gridLayout.setPadding(new Insets(10, 10, 10, 10));
+        gridLayout.setVgap(10);
 
-        newAnalysis.getDialogPane().setContent(vbox);
+        gridLayout.add(directoryText, 0, 0);
+        gridLayout.add(parentsDirectories, 0, 1, 2, 1);
+        parentsDirectories.setMaxWidth(200);
+        gridLayout.add(newText, 0, 2);
+        gridLayout.add(name, 0, 3, 2, 1);
+        name.setMaxWidth(200);
+
+        newAnalysis.getDialogPane().setContent(gridLayout);
         newAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
 
         newAnalysis.showAndWait()

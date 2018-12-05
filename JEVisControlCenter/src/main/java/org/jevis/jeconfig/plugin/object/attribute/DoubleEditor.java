@@ -34,7 +34,7 @@ public class DoubleEditor extends BasicEditor {
             double newVal = validator.validate(value, I18n.getInstance().getLocale());
 
             if (attribute.getInputUnit() != null && attribute.getDisplayUnit() != null) {
-                return attribute.getDisplayUnit().converteTo(attribute.getInputUnit(), newVal);
+                return attribute.getDisplayUnit().convertTo(attribute.getInputUnit(), newVal);
             } else {
                 return newVal;
             }

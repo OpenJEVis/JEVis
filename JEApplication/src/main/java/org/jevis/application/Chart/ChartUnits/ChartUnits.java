@@ -39,6 +39,14 @@ public class ChartUnits {
         Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
         Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
 
+        Unit _va = SI.WATT.alternate("va");
+        Unit _var = SI.WATT.alternate("var");
+
+        Unit _vah = SI.JOULE.alternate("vah");
+        Unit _varh = SI.JOULE.alternate("vahr");
+
+        Unit _cal = SI.JOULE.alternate("cal");
+
         final JEVisUnit kg = new JEVisUnitImp(_kg);
         final JEVisUnit t = new JEVisUnitImp(_t);
 
@@ -66,6 +74,14 @@ public class ChartUnits {
         final JEVisUnit kWh = new JEVisUnitImp(_kWh);
         final JEVisUnit MWh = new JEVisUnitImp(_MWh);
         final JEVisUnit GWh = new JEVisUnitImp(_GWh);
+
+        final JEVisUnit va = new JEVisUnitImp(_va);
+        final JEVisUnit var = new JEVisUnitImp(_var);
+
+        final JEVisUnit vah = new JEVisUnitImp(_vah);
+        final JEVisUnit varh = new JEVisUnitImp(_varh);
+
+        final JEVisUnit cal = new JEVisUnitImp(_cal);
 
         switch (unit) {
             case "kg":
@@ -503,6 +519,34 @@ public class ChartUnits {
                         break;
                     case "l/min":
                         factor = 60d;
+                        break;
+                }
+                break;
+            case "va":
+                switch (inputUnit) {
+                    case "vah":
+                        factor = 4d;
+                        break;
+                }
+                break;
+            case "vah":
+                switch (inputUnit) {
+                    case "va":
+                        factor = 0.25d;
+                        break;
+                }
+                break;
+            case "var":
+                switch (inputUnit) {
+                    case "varh":
+                        factor = 4d;
+                        break;
+                }
+                break;
+            case "varh":
+                switch (inputUnit) {
+                    case "var":
+                        factor = 0.25;
                         break;
                 }
                 break;

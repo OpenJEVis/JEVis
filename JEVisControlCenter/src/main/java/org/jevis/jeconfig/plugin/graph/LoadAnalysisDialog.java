@@ -6,7 +6,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.stage.Screen;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import jfxtras.scene.control.ListView;
@@ -78,16 +81,30 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         setText(obj.getName());
                     else {
                         try {
-                            int indexOfObj = graphDataModel.getObservableListAnalyses().indexOf(obj);
-                            String prefix = graphDataModel.getListBuildingsParentOrganisations().get(indexOfObj).getName()
-                                    + " / "
-                                    + graphDataModel.getListAnalysesParentBuildings().get(indexOfObj).getName();
+                            String prefix = "";
+
+                            JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
+                            JEVisClass buildingClass = ds.getJEVisClass("Building");
+                            if (buildingParent.getJEVisClass().equals(buildingClass)) {
+
+                                try {
+                                    JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
+                                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                    if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                        prefix += organisationParent.getName() + " / " + buildingParent.getName();
+                                    }
+                                } catch (JEVisException e) {
+                                    logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+
+                                    prefix += buildingParent.getName();
+                                }
+                            }
                             setText(prefix + " / " + obj.getName());
                         } catch (Exception e) {
                         }
                     }
                 }
-
             }
         });
 
@@ -95,13 +112,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         //checkForCustomizedWorkdayTimeFrame();
 
-        HBox hbox_list = new HBox();
-        hbox_list.getChildren().add(analysisListView);
         if (graphDataModel.getCurrentAnalysis() != null && graphDataModel.getCurrentAnalysis().getName() != null
                 && !graphDataModel.getCurrentAnalysis().getName().equals(""))
             analysisListView.getSelectionModel().select(graphDataModel.getCurrentAnalysis());
-
-        HBox.setHgrow(analysisListView, Priority.ALWAYS);
 
         final Callback<DatePicker, DateCell> dayCellFactory = getAllowedTimeFrameForDataRows();
 
@@ -144,55 +157,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
         final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
-
-
-        Region freeSpace = new Region();
-        freeSpace.setPrefWidth(40);
-        GridPane.setFillWidth(freeSpace, true);
-        GridPane.setHgrow(freeSpace, Priority.ALWAYS);
-        GridPane.setFillWidth(comboBoxPresetDates, true);
-        GridPane.setFillWidth(comboBoxCustomPeriods, true);
-        comboBoxPresetDates.setMaxWidth(200);
-        comboBoxCustomPeriods.setMaxWidth(200);
-
-        GridPane gridLayout = new GridPane();
-        gridLayout.setPadding(new Insets(10, 10, 10, 10));
-        gridLayout.setVgap(10);
-
-        /** column 0**/
-        gridLayout.add(timeRange, 0, 0, 2, 1);
-        gridLayout.add(startText, 0, 1);
-        gridLayout.add(endText, 0, 3);
-
-        /** Column 1 **/
-        gridLayout.add(pickerDateStart, 1, 1);
-        gridLayout.add(pickerDateEnd, 1, 3); // column=1 row=0
-
-
-        /** Column 2 **/
-        gridLayout.add(pickerTimeStart, 2, 1);
-        gridLayout.add(pickerTimeEnd, 2, 3);
-
-        /** Column 3 **/
-        gridLayout.add(freeSpace, 3, 0);
-
-        /** Column 3 **/
-        gridLayout.add(standardSelectionsLabel, 4, 0);
-        gridLayout.add(comboBoxPresetDates, 4, 1);
-        gridLayout.add(customSelectionsLabel, 4, 2);
-        gridLayout.add(comboBoxCustomPeriods, 4, 3);
-
-        gridLayout.add(labelAggregation, 4, 4, 2, 1);
-        aggregationBox = getAggregationBox();
-        GridPane.setFillWidth(aggregationBox, true);
-        aggregationBox.setMaxWidth(200);
-        gridLayout.add(aggregationBox, 4, 5, 2, 1);
-
-        gridLayout.add(labelMath, 4, 6, 2, 1);
-        mathBox = getMathBox();
-        GridPane.setFillWidth(mathBox, true);
-        mathBox.setMaxWidth(200);
-        gridLayout.add(mathBox, 4, 7, 2, 1);
 
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
@@ -268,13 +232,70 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         setupPickerListener();
 
         this.setTitle(I18n.getInstance().getString("plugin.graph.analysis.dialog.title"));
+        this.setResizable(true);
 
         this.getDialogPane().getButtonTypes().addAll(newGraph, loadGraph);
 
-        VBox vbox = new VBox();
-        vbox.getChildren().addAll(analysisListView, gridLayout);
+        Region freeSpace = new Region();
+        freeSpace.setPrefWidth(40);
 
-        this.getDialogPane().setContent(vbox);
+        GridPane gridLayout = new GridPane();
+        gridLayout.setPadding(new Insets(10, 10, 10, 10));
+        gridLayout.setVgap(10);
+        GridPane.setFillWidth(freeSpace, true);
+
+        /** Column 0 */
+        gridLayout.add(analysisListView, 0, 0, 1, 16);
+
+        /** Column 1 **/
+        gridLayout.add(freeSpace, 1, 0, 1, 16);
+
+        /** column 2**/
+        gridLayout.add(timeRange, 2, 0, 2, 1);
+        gridLayout.add(startText, 2, 1);
+        gridLayout.add(endText, 2, 3);
+
+        /** Column 3 **/
+        gridLayout.add(pickerDateStart, 3, 1);
+        gridLayout.add(pickerDateEnd, 3, 3); // column=1 row=0
+
+
+        /** Column 4 **/
+        gridLayout.add(pickerTimeStart, 4, 1);
+        gridLayout.add(pickerTimeEnd, 4, 3);
+
+        /** Column 2 - 4 **/
+        gridLayout.add(standardSelectionsLabel, 2, 5, 3, 1);
+        GridPane.setFillWidth(comboBoxPresetDates, true);
+        comboBoxPresetDates.setMaxWidth(200);
+        gridLayout.add(comboBoxPresetDates, 2, 6, 3, 1);
+
+        gridLayout.add(customSelectionsLabel, 2, 8, 3, 1);
+        GridPane.setFillWidth(comboBoxCustomPeriods, true);
+        comboBoxCustomPeriods.setMaxWidth(200);
+        gridLayout.add(comboBoxCustomPeriods, 2, 9, 3, 1);
+
+        gridLayout.add(labelAggregation, 2, 11, 3, 1);
+        aggregationBox = getAggregationBox();
+        GridPane.setFillWidth(aggregationBox, true);
+        aggregationBox.setMaxWidth(200);
+        gridLayout.add(aggregationBox, 2, 12, 3, 1);
+
+        gridLayout.add(labelMath, 2, 14, 3, 1);
+        mathBox = getMathBox();
+        GridPane.setFillWidth(mathBox, true);
+        mathBox.setMaxWidth(200);
+        gridLayout.add(mathBox, 2, 15, 3, 1);
+
+        GridPane.setFillWidth(analysisListView, true);
+        GridPane.setFillHeight(analysisListView, true);
+        analysisListView.setMinWidth(600d);
+        GridPane.setHgrow(analysisListView, Priority.ALWAYS);
+
+        this.getDialogPane().setContent(gridLayout);
+
+        double maxScreenWidth = Screen.getPrimary().getBounds().getWidth();
+        this.getDialogPane().setPrefWidth(maxScreenWidth - 250);
 
     }
 
@@ -732,16 +753,20 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             DateTime endFromModel = null;
             for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
                 if (startFromModel == null) startFromModel = mdl.getSelectedStart();
-                else if (mdl.getSelectedStart().isBefore(startFromModel)) startFromModel = mdl.getSelectedStart();
+                else if (mdl.getSelectedStart() != null && mdl.getSelectedStart().isBefore(startFromModel))
+                    startFromModel = mdl.getSelectedStart();
 
                 if (endFromModel == null) endFromModel = mdl.getSelectedEnd();
-                else if (mdl.getSelectedEnd().isAfter(endFromModel)) endFromModel = mdl.getSelectedEnd();
+                else if (mdl.getSelectedEnd() != null && mdl.getSelectedEnd().isAfter(endFromModel))
+                    endFromModel = mdl.getSelectedEnd();
             }
 
-            pickerDateStart.valueProperty().setValue(LocalDate.of(startFromModel.getYear(), startFromModel.getMonthOfYear(), startFromModel.getDayOfMonth()));
-            pickerDateEnd.valueProperty().setValue(LocalDate.of(endFromModel.getYear(), endFromModel.getMonthOfYear(), endFromModel.getDayOfMonth()));
-            pickerTimeStart.valueProperty().setValue(LocalTime.of(startFromModel.getHourOfDay(), startFromModel.getMinuteOfHour(), startFromModel.getSecondOfMinute()));
-            pickerTimeEnd.valueProperty().setValue(LocalTime.of(endFromModel.getHourOfDay(), endFromModel.getMinuteOfHour(), endFromModel.getSecondOfMinute()));
+            if (startFromModel != null && endFromModel != null) {
+                pickerDateStart.valueProperty().setValue(LocalDate.of(startFromModel.getYear(), startFromModel.getMonthOfYear(), startFromModel.getDayOfMonth()));
+                pickerDateEnd.valueProperty().setValue(LocalDate.of(endFromModel.getYear(), endFromModel.getMonthOfYear(), endFromModel.getDayOfMonth()));
+                pickerTimeStart.valueProperty().setValue(LocalTime.of(startFromModel.getHourOfDay(), startFromModel.getMinuteOfHour(), startFromModel.getSecondOfMinute()));
+                pickerTimeEnd.valueProperty().setValue(LocalTime.of(endFromModel.getHourOfDay(), endFromModel.getMinuteOfHour(), endFromModel.getSecondOfMinute()));
+            }
         }
     }
 

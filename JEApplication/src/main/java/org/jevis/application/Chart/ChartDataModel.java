@@ -125,8 +125,8 @@ public class ChartDataModel {
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {
         if (_unit != null) {
-            final String outputUnit = UnitManager.getInstance().formate(_unit);
-            final String inputUnit = UnitManager.getInstance().formate(_attribute.getDisplayUnit());
+            final String outputUnit = UnitManager.getInstance().format(_unit);
+            final String inputUnit = UnitManager.getInstance().format(_attribute.getDisplayUnit());
 
             ChartUnits cu = new ChartUnits();
             Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
@@ -191,17 +191,6 @@ public class ChartDataModel {
         _somethingChanged = true;
         this.manipulationMode = manipulationMode;
     }
-
-//    public boolean getSelected() {
-//
-//        return _selected;
-//    }
-//
-//    public void setSelected(boolean selected) {
-//
-//        _somethingChanged = true;
-//        _selected = selected;
-//    }
 
     public String getTitle() {
         return _title;

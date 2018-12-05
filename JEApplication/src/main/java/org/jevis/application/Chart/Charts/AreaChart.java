@@ -54,12 +54,14 @@ public class AreaChart implements Chart {
     private Period period;
     private boolean asDuration = false;
     private AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+    private ManipulationMode addSeriesOfType;
 
-    public AreaChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public AreaChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.hideShowIcons = hideShowIcons;
         this.chartId = chartId;
         this.chartName = chartName;
+        this.addSeriesOfType = addSeriesOfType;
         init();
     }
 
@@ -67,6 +69,9 @@ public class AreaChart implements Chart {
 
         AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
         final Boolean[] changedBoth = {false, false};
+
+        boolean addManipulationToTitle = false;
+        ManipulationMode manipulationMode = ManipulationMode.NONE;
 
         for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
@@ -76,11 +81,15 @@ public class AreaChart implements Chart {
                     hexColors.add(singleRow.getColor());
                     series.add(serie.getSerie());
                     tableData.add(serie.getTableEntry());
-                    String currentUnit = UnitManager.getInstance().formate(singleRow.getUnit());
+                    String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
                     if (currentUnit.equals("")) currentUnit = singleRow.getUnit().getLabel();
                     if (!unit.contains(currentUnit)) {
                         unit.add(currentUnit);
                     }
+
+                    /**
+                     * check if timestamps are in serie
+                     */
 
                     if (serie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
                         timeStampOfFirstSample.set(serie.getTimeStampFromFirstSample());
@@ -92,9 +101,31 @@ public class AreaChart implements Chart {
                         changedBoth[1] = true;
                     }
 
+                    /**
+                     * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
+                     */
+
                     if (singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
                             || singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MAX)) {
                         asDuration = true;
+                    }
+
+                    if (singleRow.getManipulationMode().equals(ManipulationMode.RUNNING_MEAN)
+                            || singleRow.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN)) {
+                        addManipulationToTitle = true;
+                        manipulationMode = singleRow.getManipulationMode();
+                    }
+
+                    if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
+                        ManipulationMode oldMode = singleRow.getManipulationMode();
+                        singleRow.setManipulationMode(addSeriesOfType);
+                        XYChartSerie serie2 = new XYChartSerie(singleRow, hideShowIcons);
+
+                        hexColors.add(singleRow.getColor().darker());
+                        series.add(serie2.getSerie());
+                        tableData.add(serie2.getTableEntry());
+
+                        singleRow.setManipulationMode(oldMode);
                     }
 
                 } catch (JEVisException e) {
@@ -128,7 +159,17 @@ public class AreaChart implements Chart {
 
         applyColors();
 
-        areaChart.setTitle(chartName);
+        if (!addManipulationToTitle) areaChart.setTitle(chartName);
+        else {
+            switch (manipulationMode) {
+                case RUNNING_MEAN:
+                    areaChart.setTitle(chartName + rb.getString("plugin.graph.chart.titles.runningmean"));
+                    break;
+                case CENTRIC_RUNNING_MEAN:
+                    areaChart.setTitle(chartName + rb.getString("plugin.graph.chart.titles.centricrunningmean"));
+                    break;
+            }
+        }
         areaChart.setLegendVisible(false);
         areaChart.setCreateSymbols(true);
 
@@ -274,7 +315,7 @@ public class AreaChart implements Chart {
                                     timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60));
                         }
                         tableEntry.setNote(formattedNote.getNote());
-                        String unit = UnitManager.getInstance().formate(singleRow.getUnit());
+                        String unit = UnitManager.getInstance().format(singleRow.getUnit());
                         if (unit.equals("")) unit = singleRow.getUnit().getLabel();
                         tableEntry.setValue(formattedDouble + " " + unit);
                         tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale())));

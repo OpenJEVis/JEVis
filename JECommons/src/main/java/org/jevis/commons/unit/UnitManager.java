@@ -595,7 +595,7 @@ public class UnitManager {
         return nonSI;
     }
 
-    public String formate(JEVisUnit junit) {
+    public String format(JEVisUnit junit) {
         if (junit != null && junit.getFormula() != null) {
             String uString = junit.getFormula().replace("·", "");
             uString = uString.replace("(", "");
@@ -604,17 +604,17 @@ public class UnitManager {
             String withPrefix = getPrefixChar(junit.getPrefix()) + uString;
             return withPrefix;
         } else {
-            logger.warn("No unit for formate");
+            logger.warn("No unit for format");
             return "";
         }
 
     }
 
-    public String formate(Unit unit) {
-        return formate(unit, "");
+    public String format(Unit unit) {
+        return format(unit, "");
     }
 
-    public String formate(Unit unit, String altSymbol) {
+    public String format(Unit unit, String altSymbol) {
 //        logger.info("Formate unit: " + unit + "  AltUnit: " + altSymbol);
 //        String u1 = unit.getStandardUnit().toString().replace("·", "");
         String u1 = unit.toString().replace("·", "");
@@ -648,7 +648,7 @@ public class UnitManager {
         additionalUnits.add(Money.BASE_UNIT.alternate("₦"));
         additionalUnits.add(Money.BASE_UNIT.alternate("₹"));
 
-        additionalUnits.add(SI.WATT.alternate("var"));
+
         additionalUnits.add(SI.WATT.divide(SI.SQUARE_METRE));
         additionalUnits.add(SI.METER.divide(SI.SECOND));
 
@@ -670,14 +670,18 @@ public class UnitManager {
 
 
         try {
-            additionalUnits.add(SI.WATT.alternate("va"));
             /**
              * Workaround, should be Watt.time(hour) but this somehow does not work with .alternativ
              */
             //additionalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
-            additionalUnits.add(Unit.ONE.alternate("vah"));
-            additionalUnits.add(Unit.ONE.alternate("cal"));
-            additionalUnits.add(Unit.ONE.alternate("vahr"));
+
+            additionalUnits.add(SI.WATT.alternate("va"));
+            additionalUnits.add(SI.WATT.alternate("var"));
+
+            additionalUnits.add(SI.JOULE.alternate("vah"));
+            additionalUnits.add(SI.JOULE.alternate("vahr"));
+
+            additionalUnits.add(SI.JOULE.alternate("cal"));
 
 //            additionalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
 //            logger.info("1: " + SI.WATT.times(NonSI.HOUR).alternate("vahr"));
@@ -706,14 +710,14 @@ public class UnitManager {
             }
             if (!hasQuantitiy) {
 //                try {
-//                    logger.info("Cutom unit has NO Qulity: " + formate(unit));
+//                    logger.info("Cutom unit has NO Qulity: " + format(unit));
 //                } catch (JEVisException ex) {
 //                    Logger.getLogger(UnitManager.class.getName()).log(Level.SEVERE, null, ex);
 //                }
                 customUnits.add(unit);
             } else {
 //                try {
-//                    logger.info("Cutom unit has Qulity: " + formate(unit));
+//                    logger.info("Cutom unit has Qulity: " + format(unit));
 //                } catch (JEVisException ex) {
 //                    Logger.getLogger(UnitManager.class.getName()).log(Level.SEVERE, null, ex);
 //                }
@@ -1058,8 +1062,8 @@ public class UnitManager {
     }
 
     /**
-     * Ask the JEADPI localization feature for the correct name of the unit.
-     * Unit is identyfiyed by its symbole(this should be unitq?)
+     * Ask the JEAPI localization feature for the correct name of the unit.
+     * Unit is identified by its symbol(this should be unitq?)
      * <p>
      * TODO: The functionality is hardcoded in the moment....
      *

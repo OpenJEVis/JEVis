@@ -28,12 +28,13 @@ package org.jevis.api;
 public interface JEVisUnit {
 
     /**
-     * SI prefixes and NONE if no prefix is set
+     * Convert a double value with this unit into the given unit.
+     *
+     * @param unit unit to convert to
+     * @param number number to convert
+     * @return
      */
-    public static enum Prefix {
-
-        NONE, ZETTA, EXA, PETA, TERA, GIGA, MEGA, NANO, PICO, KILO, HECTO, DEKA, DECI, CENTI, MILLI, MICRO, NANOPICO, FEMTO, ATTO, ZEPTO, YOCTO
-    }
+    double convertTo(JEVisUnit unit, double number);
 
     /**
      * Returns the label of this unit.
@@ -50,13 +51,12 @@ public interface JEVisUnit {
     void setLabel(String label);
 
     /**
-     * Convert a double value with this unit into the given unit.
-     *
-     * @param unit unit to convert to
-     * @param number number to convert
-     * @return
+     * SI prefixes and NONE if no prefix is set
      */
-    double converteTo(JEVisUnit unit, double number);
+    enum Prefix {
+
+        NONE, ZETTA, EXA, PETA, TERA, GIGA, MEGA, NANO, PICO, KILO, HECTO, DEKA, DECI, CENTI, MILLI, MICRO, NANOPICO, FEMTO, ATTO, ZEPTO, YOCTO
+    }
 
     /**
      * Add an offset to this unit.
