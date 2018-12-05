@@ -116,6 +116,21 @@ public class SearchFilterBar extends HBox {
 
     }
 
+    public void requestCursor() {
+        Platform.runLater(() -> {
+            searchField.requestFocus();
+        });
+
+    }
+
+    public void goPrevious() {
+        finder.goPrevious();
+    }
+
+    public void goNext() {
+        finder.goNext();
+    }
+
     public void hideFilter(boolean hide) {
         labelFilter.setVisible(!hide);
         filterBox.setVisible(!hide);

@@ -186,7 +186,7 @@ public class ObjectPlugin implements Plugin {
 
             Finder finder = new Finder(tree);
             SearchFilterBar searchBar = new SearchFilterBar(tree, allObjects, finder);
-
+            tree.setSearchFilterBar(searchBar);
 
             treeLodingPane.setContent(left);
             editorLodingPane.setContent(_editor.getView());
@@ -457,7 +457,7 @@ public class ObjectPlugin implements Plugin {
                     TreeHelper.EventDrop(tree, tree.getCopyObject(), parent.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
                     break;
                 case Constants.Plugin.Command.COPY:
-                    tree.setCopyObject(parent.getValue().getJEVisObject());
+                    tree.setCopyObject(parent.getValue().getJEVisObject(), false);
                     break;
                 default:
                     logger.info("Unknown command ignore...");

@@ -124,6 +124,8 @@ public class ChartSelectionDialog {
                 }
             }
         }
+
+
         treePane.getChildren().setAll(tree);
         AnchorPane.setTopAnchor(tree, 0d);
         AnchorPane.setRightAnchor(tree, 0d);
@@ -142,7 +144,7 @@ public class ChartSelectionDialog {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setMargin(removeAllSelections, new Insets(10));
         HBox.setMargin(ok, new Insets(10));
-        buttonBox.getChildren().setAll(spacer, removeAllSelections, ok);
+        buttonBox.getChildren().setAll(tree.getSearchFilterBar(), spacer, removeAllSelections, ok);
         root.getChildren().setAll(headerNode, treePane, sep, buttonBox);
 
         VBox.setVgrow(treePane, Priority.ALWAYS);

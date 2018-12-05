@@ -297,14 +297,14 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                             case JEVisConstants.PrimitiveType.DOUBLE:
 
                                 if (guiDisplayType == null) {
-                                    editor = new FileEditor(att);
+                                    editor = new DoubleEditor(att);
                                 } else {
                                     editor = new DoubleEditor(att);
                                 }
                                 break;
                             case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
                                 if (guiDisplayType == null) {
-                                    editor = new FileEditor(att);
+                                    editor = new PasswordEditor(att);
                                 } else {
                                     editor = new PasswordEditor(att);
                                 }
