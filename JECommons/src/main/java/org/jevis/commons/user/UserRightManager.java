@@ -33,9 +33,9 @@ import java.util.List;
  */
 public class UserRightManager {
 
+    private static final Logger logger = LogManager.getLogger(UserRightManager.class);
     private final JEVisUser user;
     private List<JEVisRelationship> permissions = new ArrayList<>();
-    private static final Logger logger = LogManager.getLogger(UserRightManager.class);
     private JEVisDataSource ds;
     private List<Long> readGIDS;
     private List<Long> createGIDS;
@@ -162,6 +162,7 @@ public class UserRightManager {
             logger.catching(ex);
         }
     }
+
 
     private void getGroupPermissions() {
         if (readGIDS == null) {

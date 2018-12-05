@@ -32,6 +32,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.application.Chart.ChartPluginElements.*;
 import org.jevis.application.Chart.data.GraphDataModel;
+import org.jevis.application.application.AppLocale;
+import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.jevistree.filter.BasicCellFilter;
 import org.jevis.application.jevistree.filter.FilterFactory;
 import org.jevis.application.jevistree.filter.JEVisTreeFilter;
@@ -48,6 +50,8 @@ public class JEVisTreeFactory {
     public final static KeyCombination findAgain = new KeyCodeCombination(KeyCode.F3);
     private static final Logger logger = LogManager.getLogger(JEVisTreeFactory.class);
     private static KeyCombination lastCombination = null;
+    private static SaveResourceBundle bundle = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
+
 
     public static void addDefaultKeys(JEVisTree tree) {
 
@@ -109,7 +113,7 @@ public class JEVisTreeFactory {
 
     public static JEVisTree buildBasicDefault(JEVisDataSource ds) {
 
-        BasicCellFilter cellFilter = new BasicCellFilter("All");
+        BasicCellFilter cellFilter = new BasicCellFilter(bundle.getString("tree.filter.nofilter"));
         cellFilter.addItemFilter(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
 
         return buildBasicDefault(ds, cellFilter);
@@ -164,6 +168,7 @@ public class JEVisTreeFactory {
         cellFilter.addFilter(ColorColumn.COLUMN_ID, dataFilter);
         cellFilter.addFilter(DataProcessorColumn.COLUMN_ID, dataFilter);
         cellFilter.addFilter(AggregationColumn.COLUMN_ID, dataFilter);
+
         JEVisTree tree = new JEVisTree(ds, cellFilter);
 
         TreePlugin bp = new ChartPlugin();
