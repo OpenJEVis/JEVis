@@ -1,5 +1,6 @@
 package org.jevis.application.Chart.ChartUnits;
 
 public enum EnergyUnit {
-    W, kW, MW, GW, Wh, kWh, MWh, GWh, vah, varh, va, var
+    W, kW, MW, GW, Wh, kWh, MWh, GWh,
+    va, var, vah, varh, kvah, kvarh, kva, kvar
 }

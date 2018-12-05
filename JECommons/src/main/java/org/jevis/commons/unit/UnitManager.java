@@ -675,13 +675,13 @@ public class UnitManager {
              */
             //additionalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
 
-            additionalUnits.add(SI.WATT.alternate("va"));
-            additionalUnits.add(SI.WATT.alternate("var"));
-
-            additionalUnits.add(SI.JOULE.alternate("vah"));
-            additionalUnits.add(SI.JOULE.alternate("vahr"));
-
-            additionalUnits.add(SI.JOULE.alternate("cal"));
+//            additionalUnits.add(SI.WATT.alternate("va"));
+//            additionalUnits.add(SI.WATT.alternate("var"));
+//
+//            additionalUnits.add(SI.JOULE.alternate("vah"));
+//            additionalUnits.add(SI.JOULE.alternate("vahr"));
+//
+//            additionalUnits.add(SI.JOULE.alternate("cal"));
 
 //            additionalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
 //            logger.info("1: " + SI.WATT.times(NonSI.HOUR).alternate("vahr"));

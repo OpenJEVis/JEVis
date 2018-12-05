@@ -47,7 +47,7 @@ public class GraphDataModel extends Observable {
     private Boolean hideShowIcons = true;
     private ManipulationMode addSeries = ManipulationMode.NONE;
     private Boolean autoResize = true;
-    private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.today);
+    private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
     private JEVisDataSource ds;
     private ObservableList<JEVisObject> observableListAnalyses = FXCollections.observableArrayList();
     private JsonChartDataModel listAnalysisModel = new JsonChartDataModel();
@@ -369,7 +369,7 @@ public class GraphDataModel extends Observable {
                     }
                 case preview:
                     try {
-                        AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now().minusDays(7));
+                        AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now().minusDays(1));
                         AtomicReference<DateTime> end = new AtomicReference<>(DateTime.now());
                         getSelectedData().forEach(chartDataModel -> {
                             JEVisAttribute valueAtt = chartDataModel.getAttribute();
@@ -379,7 +379,7 @@ public class GraphDataModel extends Observable {
                             }
                         });
 
-                        start.set(end.get().minusDays(7));
+                        start.set(end.get().minusDays(1));
 
                         getSelectedData().forEach(chartDataModel -> {
                             JEVisAttribute valueAtt = chartDataModel.getAttribute();

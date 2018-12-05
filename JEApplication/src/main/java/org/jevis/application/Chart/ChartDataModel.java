@@ -42,7 +42,7 @@ public class ChartDataModel {
 
     public JEVisUnit getUnit() {
         try {
-            if (_unit == null || _somethingChanged) {
+            if (_unit == null) {
                 if (getAttribute() != null) {
                     _unit = getAttribute().getDisplayUnit();
                 }
@@ -125,8 +125,11 @@ public class ChartDataModel {
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {
         if (_unit != null) {
-            final String outputUnit = UnitManager.getInstance().format(_unit);
-            final String inputUnit = UnitManager.getInstance().format(_attribute.getDisplayUnit());
+            String outputUnit = UnitManager.getInstance().format(_unit);
+            if (outputUnit.equals("")) outputUnit = _unit.getLabel();
+
+            String inputUnit = UnitManager.getInstance().format(_attribute.getDisplayUnit());
+            if (inputUnit.equals("")) inputUnit = _attribute.getDisplayUnit().getLabel();
 
             ChartUnits cu = new ChartUnits();
             Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
