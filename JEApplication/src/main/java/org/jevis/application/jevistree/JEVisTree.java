@@ -72,6 +72,7 @@ public class JEVisTree extends TreeTableView {
         this.rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
 //        cellFilter = FilterFactory.buildDefaultItemFilter();
         this.cellFilter = filter;
+        this.getStylesheets().add(JEVisTree.class.getResource("/styles/JEVisTree.css").toExternalForm());
         init();
     }
 
