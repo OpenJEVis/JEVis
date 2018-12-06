@@ -71,4 +71,25 @@ public class LogTaskManager {
         });
 
     }
+
+    public String getShortErrorMessage(Exception ex) {
+//        System.out.println("getShortErrorMessage: " + ex);
+        try {
+            for (StackTraceElement te : ex.getStackTrace()) {
+                if (te.getClassName().startsWith("org.jevis")) {
+                    String shortClassName = "";
+                    if (te.getClassName().lastIndexOf(".") != -1) {
+                        shortClassName = te.getClassName().substring(te.getClassName().lastIndexOf(".") + 1);
+                    } else {
+                        shortClassName = te.getClassName();
+                    }
+                    return shortClassName + ":" + te.getLineNumber() + ":" + te.getMethodName();
+                }
+            }
+            return ex.toString();
+        } catch (Exception exp2) {
+            return ex.toString();
+        }
+
+    }
 }

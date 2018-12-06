@@ -46,7 +46,6 @@ public abstract class AbstractCliApp {
     private static final String DS = "datasource";
     private static final String JEVUSER = "jevisuser";
     private static final String JEVPW = "jevispass";
-    private static final String DS_CACHE = "org.jevis.application.cache.JEVisDataSourceCache";
 
     private final Map<String, JEVisOption> optMap;
     private boolean active = false;
@@ -86,7 +85,7 @@ public abstract class AbstractCliApp {
             if (settings.servicemode.equals(BasicSettings.SINGLE)) {
                 runSingle(settings.jevisid);
             } else if (settings.servicemode.equals(BasicSettings.SERVICE)) {
-                runService(settings.cycle_time);
+                runService();
             } else if (settings.servicemode.equals(BasicSettings.COMPLETE)) {
                 runComplete();
             }
@@ -137,22 +136,6 @@ public abstract class AbstractCliApp {
                 logger.fatal("JEVisDataSource not created. Сheck the configuration file data.", ex);
             }
 
-            /**
-             * Caching is not supported by JEAPI-WS. JEVisDataSourceCache is deprecated.
-             */
-//            if (settings.cache) {
-//                Class[] argsClass = new Class[]{JEVisDataSource.class};
-//                try {
-//                    Class cacheClass = Class.forName(DS_CACHE);
-//                    Constructor ctor = cacheClass.getConstructor(argsClass);
-//                    ds = JEVisDataSource.class.cast(ctor.newInstance(ds));
-//                } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-//                    Logger.getLogger(AbstractCliApp.class.getName()).log(Level.SEVERE, "Failed to create the cache.", ex);
-//                } catch (ClassNotFoundException ex) {
-//                    Logger.getLogger(AbstractCliApp.class.getName()).log(Level.SEVERE, "JEVisDataSourceCache class not found. Show org.jevis.application.cache for more info.", ex);
-//                }
-//            }
-
             ds.setConfiguration(new ArrayList<>(optMap.values()));
 
             try {
@@ -192,17 +175,15 @@ public abstract class AbstractCliApp {
     protected abstract void runSingle(Long id);
 
     /**
-     * run for service mode business logic in this method
+     * runs the service mode of the current service
      */
-    protected void runService(Integer cycle_time) {
+    protected void runService() {
         logger.info("Start Service Mode");
 
         Thread service = new Thread(() -> runServiceHelp());
         Runtime.getRuntime().addShutdownHook(
                 new ShutdownHookThread(service)
         );
-
-        if (cycle_time != null) cycleTime = cycle_time;
 
         try {
             service.start();
@@ -217,6 +198,9 @@ public abstract class AbstractCliApp {
         }
     }
 
+    /**
+     * used for override in extended apps for service mode
+     */
     protected abstract void runServiceHelp();
 
     /**
@@ -224,37 +208,58 @@ public abstract class AbstractCliApp {
      */
     protected abstract void runComplete();
 
+    /**
+     * Initializes the thread pool used for processing jobs of the current service
+     *
+     * @param serviceClassName
+     */
+    protected void initializeThreadPool(String serviceClassName) {
 
-    protected void initializeThreadPool(String JEVisClassName) {
         Integer threadCount = 4;
         try {
-            JEVisClass dataCollectorClass = ds.getJEVisClass(JEVisClassName);
-            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
-            threadCount = listDataCollectorObjects.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
+            JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
+            List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
+            threadCount = listServices.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
             logger.info("Set Thread count to: " + threadCount);
         } catch (Exception e) {
-
+            logger.error("Couldn't get Service thread count from the JEVis System");
         }
         forkJoinPool = new ForkJoinPool(threadCount);
     }
 
-    protected Boolean checkServiceStatus(String JEVisClassName) {
+    /**
+     * checks the service status of the JEVis Service
+     *
+     * @param serviceClassName
+     * @return Boolean
+     */
+    protected Boolean checkServiceStatus(String serviceClassName) {
         Boolean enabled = true;
         try {
-            JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
-            List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
-            enabled = listDataCollectorObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
+            JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
+            List<JEVisObject> listServiceObjects = ds.getObjects(serviceClass, false);
+            enabled = listServiceObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
         } catch (JEVisException e) {
-
+            logger.error("Couldn't get Service status from the JEVis System");
         }
         return enabled;
     }
 
-    protected void getCycleTimeFromService(String JEVisClassName) throws JEVisException {
-        JEVisClass dataCollectorClass = ds.getJEVisClass(JEVisClassName);
-        List<JEVisObject> listDataCollectorObjects = ds.getObjects(dataCollectorClass, false);
-        cycleTime = listDataCollectorObjects.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
-        logger.info("Service cycle time from service: " + cycleTime);
+    /**
+     * retrieves the cycle time for the JEVis Service
+     *
+     * @param serviceClassName
+     * @return Boolean
+     */
+    protected void getCycleTimeFromService(String serviceClassName) {
+        try {
+            JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
+            List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
+            cycleTime = listServices.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
+            logger.info("Service cycle time from service: " + cycleTime);
+        } catch (JEVisException e) {
+            logger.error("Couldn't get Service cycle time from the JEVis System");
+        }
     }
 
     public class Command {

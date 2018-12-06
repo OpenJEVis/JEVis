@@ -12,9 +12,13 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.Task;
+import org.jevis.commons.task.TaskPrinter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author broder
@@ -56,6 +60,7 @@ public class CalcLauncher extends AbstractCliApp {
             logger.info("Service is disabled.");
         }
         try {
+            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
 
@@ -70,31 +75,46 @@ public class CalcLauncher extends AbstractCliApp {
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
         logger.info("Number of Calc Jobs: " + enabledCalcObject.size());
+        try {
+            forkJoinPool.submit(() -> enabledCalcObject.parallelStream().forEach(object -> {
+                if (!runningJobs.containsKey(object.getID().toString())) {
 
-        forkJoinPool.submit(
-                () -> enabledCalcObject.parallelStream().forEach(object -> {
-                    if (!runningJobs.containsKey(object.getID().toString())) {
+                    runningJobs.put(object.getID().toString(), "true");
 
-                        runningJobs.put(object.getID().toString(), "true");
-
-                        try {
-                            CalcJob calcJob;
-                            CalcJobFactory calcJobCreator = new CalcJobFactory();
-                            do {
-                                ds.reloadAttributes();
-                                calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
-                                calcJob.execute();
-                            } while (!calcJob.hasProcessedAllInputSamples());
-                        } catch (Exception ex) {
-                            logger.error("error with calculation job, aborted", ex);
+                    try {
+                        LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
+                        CalcJob calcJob;
+                        CalcJobFactory calcJobCreator = new CalcJobFactory();
+                        do {
+                            ds.reloadAttributes();
+                            calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                            calcJob.execute();
+                        } while (!calcJob.hasProcessedAllInputSamples());
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+                    } catch (Exception e) {
+                        if (logger.isDebugEnabled() || logger.isTraceEnabled()) {
+                            logger.error("[{}] Error in process: \n {} \n ", object.getID(), org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
+                        } else {
+                            logger.error("[{}] Error in process: \n {} message: {}", object.getID(), LogTaskManager.getInstance().getShortErrorMessage(e), e.getMessage());
                         }
-                        runningJobs.remove(object.getID().toString());
-
-                    } else {
-                        logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
+                        LogTaskManager.getInstance().getTask(object.getID()).setExeption(e);
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
                     }
-                }));
+                    runningJobs.remove(object.getID().toString());
 
+                } else {
+                    logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
+                }
+            })).get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Thread Pool was interrupted or execution was stopped: " + e);
+        } finally {
+            if (forkJoinPool != null) {
+                forkJoinPool.shutdown();
+                System.gc();
+            }
+        }
         logger.info("---------------------finish------------------------");
     }
 
