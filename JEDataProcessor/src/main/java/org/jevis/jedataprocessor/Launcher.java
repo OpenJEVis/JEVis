@@ -16,6 +16,7 @@ import org.jevis.jedataprocessor.workflow.ProcessManagerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author broder
@@ -45,25 +46,33 @@ public class Launcher extends AbstractCliApp {
 
         logger.info("{} cleaning task found starting", processes.size());
 
-        processes.parallelStream().forEach(currentProcess ->
-                forkJoinPool.submit(() -> {
-                    if (!runningJobs.containsKey(currentProcess.getId().toString())) {
+        try {
+            forkJoinPool.submit(() -> processes.parallelStream().forEach(currentProcess -> {
+                if (!runningJobs.containsKey(currentProcess.getId().toString())) {
 
-                        runningJobs.put(currentProcess.getId().toString(), "true");
+                    runningJobs.put(currentProcess.getId().toString(), "true");
 
-                        try {
-                            currentProcess.start();
-                        } catch (Exception ex) {
-                            logger.debug(ex);
-                        }
-                        runningJobs.remove(currentProcess.getId().toString());
-
-                    } else {
-                        logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());
+                    try {
+                        currentProcess.start();
+                    } catch (Exception ex) {
+                        logger.debug(ex);
                     }
+                    runningJobs.remove(currentProcess.getId().toString());
 
-                }));
+                } else {
+                    logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());
+                }
 
+            })).get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Thread Pool was interrupted or execution was stopped: " + e);
+        } finally {
+            if (forkJoinPool != null) {
+                forkJoinPool.shutdown();
+                System.gc();
+            }
+        }
+        logger.info("---------------------finish------------------------");
     }
 
 
@@ -100,14 +109,19 @@ public class Launcher extends AbstractCliApp {
             logger.error(e);
         }
 
-        try {
-            ProcessManagerFactory pmf = new ProcessManagerFactory(ds);
-            processManagerList = pmf.initProcessManagersFromJEVisAll();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+            try {
+                ProcessManagerFactory pmf = new ProcessManagerFactory(ds);
+                processManagerList = pmf.initProcessManagersFromJEVisAll();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            this.excecuteProcesses(processManagerList);
+        } else {
+            logger.info("Service is disabled.");
         }
 
-        this.excecuteProcesses(processManagerList);
         try {
             TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             logger.info("Entering Sleep mode for " + cycleTime + "ms.");

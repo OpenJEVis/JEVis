@@ -59,31 +59,10 @@ public class ProcessManager {
             if (logger.isDebugEnabled() || logger.isTraceEnabled()) {
                 logger.error("[{}] Error in process: \n {} \n ", id, org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
             } else {
-                logger.error("[{}] Error in process: \n {} message: {}", id, getShortErrorMessage(e), e.getMessage());
+                logger.error("[{}] Error in process: \n {} message: {}", id, LogTaskManager.getInstance().getShortErrorMessage(e), e.getMessage());
             }
             LogTaskManager.getInstance().getTask(id).setExeption(e);
             LogTaskManager.getInstance().getTask(id).setStatus(Task.Status.FAILED);
-        }
-
-    }
-
-    private String getShortErrorMessage(Exception ex) {
-//        System.out.println("getShortErrorMessage: " + ex);
-        try {
-            for (StackTraceElement te : ex.getStackTrace()) {
-                if (te.getClassName().startsWith("org.jevis")) {
-                    String shortClassName = "";
-                    if (te.getClassName().lastIndexOf(".") != -1) {
-                        shortClassName = te.getClassName().substring(te.getClassName().lastIndexOf(".") + 1);
-                    } else {
-                        shortClassName = te.getClassName();
-                    }
-                    return shortClassName + ":" + te.getLineNumber() + ":" + te.getMethodName();
-                }
-            }
-            return ex.toString();
-        } catch (Exception exp2) {
-            return ex.toString();
         }
 
     }
