@@ -466,13 +466,17 @@ public class ToolBarView {
 
         gridLayout.add(directoryText, 0, 0);
         gridLayout.add(parentsDirectories, 0, 1, 2, 1);
-        parentsDirectories.setMaxWidth(200);
+        GridPane.setFillWidth(parentsDirectories, true);
+        parentsDirectories.setMinWidth(200);
         gridLayout.add(newText, 0, 2);
         gridLayout.add(name, 0, 3, 2, 1);
-        name.setMaxWidth(200);
+        GridPane.setFillWidth(name, true);
+        name.setMinWidth(200);
 
         newAnalysis.getDialogPane().setContent(gridLayout);
         newAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
+        newAnalysis.getDialogPane().setPrefWidth(450d);
+        newAnalysis.initOwner(JEConfig.getStage());
 
         newAnalysis.showAndWait()
                 .ifPresent(response -> {

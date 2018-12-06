@@ -24,6 +24,7 @@ import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -57,6 +58,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         this.graphDataModel = data;
         this.toolBarView = toolBarView;
         this.ds = ds;
+        this.initOwner(JEConfig.getStage());
         for (int i = 0; i < 4; i++) {
             programmaticallySetPresetDate[i] = false;
         }
