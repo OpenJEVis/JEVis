@@ -1,23 +1,35 @@
 package org.jevis.application.dialog;
 
-import javafx.beans.property.SimpleStringProperty;
+/**
+ * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
+ */
+
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
+import javafx.util.Callback;
+import org.jevis.api.JEVisException;
+import org.jevis.application.Chart.data.RowNote;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
+import org.jevis.application.jevistree.plugin.ChartPlugin;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Map;
 
 public class NoteDialog extends Dialog<ButtonType> {
-    private Map<String, String> noteMap;
+    private final Image imgExpand = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "if_ExpandMore.png"));
     private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
-    private ObservableList<rowNote> observableList = FXCollections.observableArrayList();
-    private TableView tv;
+    private Map<String, RowNote> noteMap;
+    private ObservableList<RowNote> observableList = FXCollections.observableArrayList();
 
-    public NoteDialog(Map<String, String> map) {
+    public NoteDialog(Map<String, RowNote> map) {
         this.noteMap = map;
 
         init();
@@ -29,23 +41,108 @@ public class NoteDialog extends Dialog<ButtonType> {
         this.setTitle(rb.getString("graph.dialog.note"));
 
 
-        for (Map.Entry<String, String> entry : noteMap.entrySet()) {
-            rowNote rn = new rowNote(entry.getKey(), entry.getValue());
-            observableList.add(rn);
+        for (Map.Entry<String, RowNote> entry : noteMap.entrySet()) {
+
+            observableList.add(entry.getValue());
         }
 
-        TableColumn<rowNote, String> columnName = new TableColumn(rb.getString("graph.dialog.column.name"));
+        TableColumn<RowNote, String> columnName = new TableColumn(rb.getString("graph.dialog.column.name"));
+        columnName.setSortable(false);
         columnName.setCellValueFactory(param -> {
-            return new SimpleStringProperty(param.getValue().getName());
+            String name = param.getValue().getName();
+            return new ReadOnlyObjectWrapper<>(name);
         });
 
-        TableColumn<rowNote, String> columnNote = new TableColumn(rb.getString("graph.dialog.column.note"));
+
+        TableColumn<RowNote, String> columnTimeStamp = new TableColumn(rb.getString("graph.dialog.column.timestamp"));
+        columnTimeStamp.setSortable(false);
+        columnTimeStamp.setCellValueFactory(param -> {
+            DateTime timestamp = null;
+            try {
+                timestamp = param.getValue().getSample().getTimestamp();
+            } catch (JEVisException e) {
+            }
+            DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+            String s = timestamp.toString(dtf);
+            return new ReadOnlyObjectWrapper<>(s);
+        });
+
+        TableColumn<RowNote, String> columnNote = new TableColumn(rb.getString("graph.dialog.column.note"));
         columnNote.setCellValueFactory(param -> {
-            return new SimpleStringProperty(param.getValue().getNote());
+            String note = param.getValue().getNote();
+            return new ReadOnlyObjectWrapper<>(note);
         });
 
-        tv = new TableView(observableList);
-        tv.getColumns().addAll(columnName, columnNote);
+        TableColumn<RowNote, String> columnUserNote = new TableColumn(rb.getString("graph.dialog.column.usernote"));
+        columnUserNote.setSortable(false);
+        columnUserNote.setEditable(true);
+        columnUserNote.setMinWidth(310d);
+        columnUserNote.setCellValueFactory(param -> {
+            String userNote = param.getValue().getUserNote();
+            return new ReadOnlyObjectWrapper<>(userNote);
+        });
+
+        columnUserNote.setCellFactory(new Callback<TableColumn<RowNote, String>, TableCell<RowNote, String>>() {
+            @Override
+            public TableCell<RowNote, String> call(TableColumn<RowNote, String> param) {
+
+                TableCell<RowNote, String> stringTableCell = new TableCell<RowNote, String>() {
+
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            RowNote rowNote = (RowNote) getTableRow().getItem();
+                            TextArea textArea = new TextArea(rowNote.getUserNote());
+
+                            Button expand = new Button(null);
+                            expand.setBackground(new Background(new BackgroundImage(
+                                    imgExpand,
+                                    BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
+                                    new BackgroundSize(expand.getWidth(), expand.getHeight(),
+                                            true, true, true, false))));
+
+                            expand.setOnAction(event -> {
+                                Platform.runLater(() -> {
+                                    if (textArea.getPrefRowCount() == 20) {
+                                        textArea.setPrefRowCount(1);
+                                        textArea.setWrapText(false);
+                                    } else {
+                                        textArea.setPrefRowCount(20);
+                                        textArea.setWrapText(true);
+                                    }
+
+                                });
+
+                            });
+
+                            textArea.setWrapText(false);
+                            textArea.setPrefRowCount(1);
+                            textArea.autosize();
+
+                            textArea.textProperty().addListener((observable, oldValue, newValue) -> {
+
+                                rowNote.setUserNote(newValue);
+                                rowNote.setChanged(true);
+
+                            });
+
+                            HBox box = new HBox(5, textArea, expand);
+
+                            setGraphic(box);
+                        }
+                    }
+                };
+                return stringTableCell;
+            }
+        });
+
+        TableView tv = new TableView(observableList);
+        tv.getColumns().addAll(columnName, columnTimeStamp, columnNote, columnUserNote);
 
         hbox.getChildren().add(tv);
         HBox.setHgrow(tv, Priority.ALWAYS);
@@ -61,128 +158,7 @@ public class NoteDialog extends Dialog<ButtonType> {
         this.getDialogPane().setPrefWidth(1220);
     }
 
-    class rowNote {
-        private SimpleStringProperty name;
-        private SimpleStringProperty note;
-
-        public rowNote(String name, String note) {
-            StringBuilder formattedNote = new StringBuilder();
-            if (note.contains("alignment(yes")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.alignedtrue"));
-                formattedNote.append(System.getProperty("line.separator"));
-            } else if (note.contains("alignment(no")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.alignedfalse"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("diff")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.diff"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-            if (note.contains("scale")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.scale"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("limit(Step1)")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.limit1"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("gap(Default")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.gap.default"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-            if (note.contains("gap(Static")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.gap.static"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("gap(Average")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.gap.average"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("gap(Median")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.gap.median"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("gap(Interpolation")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.gap.interpolation"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("gap(Min")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.gap.min"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("gap(Max")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.gap.max"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("limit(Default)")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.default"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-            if (note.contains("limit(Static)")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.static"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-            if (note.contains("limit(Average)")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.average"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-            if (note.contains("limit(Median)")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.median"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-            if (note.contains("limit(Interpolation)")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.interpolation"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-            if (note.contains("limit(Min)")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.min"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-            if (note.contains("limit(Max)")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.limit2.max"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            if (note.contains("calc(infinite)")) {
-                formattedNote.append(rb.getString("graph.dialog.note.text.calc.infinity"));
-                formattedNote.append(System.getProperty("line.separator"));
-            }
-
-            this.name = new SimpleStringProperty(name);
-            this.note = new SimpleStringProperty(formattedNote.toString());
-        }
-
-        public String getName() {
-            return name.get();
-        }
-
-        public void setName(String name) {
-            this.name.set(name);
-        }
-
-        public SimpleStringProperty nameProperty() {
-            return name;
-        }
-
-        public String getNote() {
-            return note.get();
-        }
-
-        public void setNote(String note) {
-            this.note.set(note);
-        }
-
-        public SimpleStringProperty noteProperty() {
-            return note;
-        }
+    public Map<String, RowNote> getNoteMap() {
+        return noteMap;
     }
 }

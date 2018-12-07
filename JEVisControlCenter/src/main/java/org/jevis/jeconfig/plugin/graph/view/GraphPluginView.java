@@ -28,10 +28,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -66,6 +63,7 @@ public class GraphPluginView implements Plugin, Observer {
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane border;
+    private StackPane stackPane = new StackPane();
     private ToolBar toolBar;
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
@@ -80,6 +78,7 @@ public class GraphPluginView implements Plugin, Observer {
 
         this.ds = ds;
         this.name.set(newname);
+
         getContentNode();
     }
 
@@ -119,7 +118,6 @@ public class GraphPluginView implements Plugin, Observer {
 
             loadAnalysis.setOnAction(event -> openDialog());
 
-
             border.setCenter(vBox);
         }
     }
@@ -127,6 +125,7 @@ public class GraphPluginView implements Plugin, Observer {
     private void openDialog() {
 
         LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, dataModel, toolBarView);
+        toolBarView.setDisableToolBarIcons(false);
 
         dialog.showAndWait()
                 .ifPresent(response -> {
@@ -189,6 +188,7 @@ public class GraphPluginView implements Plugin, Observer {
         dataModel.setAnalysisTimeFrame(atf);
 
         if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
+            toolBarView.setDisableToolBarIcons(false);
 
             dataModel.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
             dataModel.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
@@ -262,7 +262,7 @@ public class GraphPluginView implements Plugin, Observer {
 
             /**
              * If scene size changes and old value is not 0.0 (firsts draw) redraw
-             * TODO: resizing an window manually will cause a lot of resize changes and so redraws, handel this clever
+             * TODO: resizing an window manually will cause a lot of resize changes and so redraws, solve this better
              */
             border.heightProperty().addListener((observable, oldValue, newValue) -> {
                 if (!oldValue.equals(0.0)) {
@@ -287,7 +287,9 @@ public class GraphPluginView implements Plugin, Observer {
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
         }
 
-        return border;
+        if (!stackPane.getChildren().contains(border)) stackPane.getChildren().add(border);
+
+        return stackPane;
 
     }
 
@@ -436,7 +438,6 @@ public class GraphPluginView implements Plugin, Observer {
                 vBox.getChildren().add(bp);
                 vBox.getChildren().add(sep);
 
-
             }
 
 
@@ -483,6 +484,7 @@ public class GraphPluginView implements Plugin, Observer {
             border.setCenter(sp);
             border.setBottom(null);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+
         }
 
         System.gc();

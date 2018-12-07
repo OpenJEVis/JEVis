@@ -1,0 +1,28 @@
+{
+  "name": "Data Notes",
+  "description": "The class Data Notes is used to store user notes for values in data rows like 'Data' and 'Clean Data'",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Data Notes",
+      "end": "Data",
+      "type": 3
+    },
+    {
+      "start": "Data Notes",
+      "end": "Data Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "User Notes",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Notes"
+    }
+  ]
+}

@@ -44,4 +44,5 @@ public interface Serie {
             te.setSum(nf_out.format(sum) + " " + unit);
         }
     }
+
 }

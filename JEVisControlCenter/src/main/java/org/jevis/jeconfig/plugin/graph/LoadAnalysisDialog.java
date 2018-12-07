@@ -24,6 +24,7 @@ import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -57,6 +58,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         this.graphDataModel = data;
         this.toolBarView = toolBarView;
         this.ds = ds;
+        this.initOwner(JEConfig.getStage());
         for (int i = 0; i < 4; i++) {
             programmaticallySetPresetDate[i] = false;
         }
@@ -80,8 +82,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     if (!graphDataModel.getMultipleDirectories())
                         setText(obj.getName());
                     else {
+                        String prefix = "";
                         try {
-                            String prefix = "";
 
                             JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
                             JEVisClass buildingClass = ds.getJEVisClass("Building");
@@ -92,17 +94,18 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                                     JEVisClass organisationClass = ds.getJEVisClass("Organization");
                                     if (organisationParent.getJEVisClass().equals(organisationClass)) {
 
-                                        prefix += organisationParent.getName() + " / " + buildingParent.getName();
+                                        prefix += organisationParent.getName() + " / " + buildingParent.getName() + " / ";
                                     }
                                 } catch (JEVisException e) {
                                     logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
 
-                                    prefix += buildingParent.getName();
+                                    prefix += buildingParent.getName() + " / ";
                                 }
                             }
-                            setText(prefix + " / " + obj.getName());
+
                         } catch (Exception e) {
                         }
+                        setText(prefix + obj.getName());
                     }
                 }
             }
