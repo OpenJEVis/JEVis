@@ -1,0 +1,28 @@
+{
+  "jevisclass": "Data Notes",
+  "names": {
+    "de": "Daten Notizen",
+    "ru": "Data Notes",
+    "en": "Data Notes"
+  },
+  "descriptions": {
+    "de": "Hier werden die Notizen zu den paralellen Datenreihen gespeichert",
+    "ru": "Storage of of notes of concurrent data rows.",
+    "en": "Storage of of notes of concurrent data rows."
+  },
+  "types": [
+    {
+      "type": "User Notes",
+      "descriptions": {
+        "de": "Benutzernotiz der zugehörigen Datenreihe",
+        "ru": "User notes of respective Data Rows",
+        "en": "User notes of respective Data Rows"
+      },
+      "names": {
+        "de": "Benutzer Notiz",
+        "ru": "User Note",
+        "en": "User Note"
+      }
+    }
+  ]
+}

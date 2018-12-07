@@ -82,8 +82,8 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     if (!graphDataModel.getMultipleDirectories())
                         setText(obj.getName());
                     else {
+                        String prefix = "";
                         try {
-                            String prefix = "";
 
                             JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
                             JEVisClass buildingClass = ds.getJEVisClass("Building");
@@ -94,17 +94,18 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                                     JEVisClass organisationClass = ds.getJEVisClass("Organization");
                                     if (organisationParent.getJEVisClass().equals(organisationClass)) {
 
-                                        prefix += organisationParent.getName() + " / " + buildingParent.getName();
+                                        prefix += organisationParent.getName() + " / " + buildingParent.getName() + " / ";
                                     }
                                 } catch (JEVisException e) {
                                     logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
 
-                                    prefix += buildingParent.getName();
+                                    prefix += buildingParent.getName() + " / ";
                                 }
                             }
-                            setText(prefix + " / " + obj.getName());
+
                         } catch (Exception e) {
                         }
+                        setText(prefix + obj.getName());
                     }
                 }
             }

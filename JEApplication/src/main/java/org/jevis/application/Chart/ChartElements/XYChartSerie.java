@@ -91,9 +91,10 @@ public class XYChartSerie implements Serie {
 
                 XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
 
-                Note note = new Note(sample.getNote(), singleRow.getColor());
+                Note note = new Note(sample.getNote());
+
                 if (note.getNote() != null && hideShowIcons) {
-                    note.setVisible(true);
+                    note.getNote().setVisible(true);
                     data.setNode(note.getNote());
                 } else {
                     Rectangle rect = new Rectangle(0, 0);
@@ -105,7 +106,6 @@ public class XYChartSerie implements Serie {
 
                 sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
                 seriesData.add(data);
-
 
             } catch (JEVisException e) {
 

@@ -672,6 +672,7 @@ public class UnitManager {
         try {
             /**
              * Workaround, should be Watt.time(hour) but this somehow does not work with .alternativ
+             * doesnt work properly either, use dimension
              */
             //additionalUnits.add(SI.WATT.times(NonSI.HOUR).alternate("ws"));
 

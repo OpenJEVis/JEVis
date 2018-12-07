@@ -17,12 +17,14 @@ import org.apache.logging.log4j.Logger;
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.application.Chart.ChartElements.Note;
 import org.jevis.application.Chart.ChartElements.TableEntry;
 import org.jevis.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.application.Chart.data.RowNote;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 import org.jevis.application.dialog.NoteDialog;
@@ -36,6 +38,7 @@ import org.joda.time.format.PeriodFormat;
 import javax.measure.unit.Unit;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LineChart implements Chart {
@@ -70,10 +73,10 @@ public class LineChart implements Chart {
         AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
         final Boolean[] changedBoth = {false, false};
 
-        boolean addManipulationToTitle = false;
-        ManipulationMode manipulationMode = ManipulationMode.NONE;
+        AtomicBoolean addManipulationToTitle = new AtomicBoolean(false);
+        AtomicReference<ManipulationMode> manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        for (ChartDataModel singleRow : chartDataModels) {
+        chartDataModels.parallelStream().forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
 
@@ -112,8 +115,8 @@ public class LineChart implements Chart {
 
                     if (singleRow.getManipulationMode().equals(ManipulationMode.RUNNING_MEAN)
                             || singleRow.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN)) {
-                        addManipulationToTitle = true;
-                        manipulationMode = singleRow.getManipulationMode();
+                        addManipulationToTitle.set(true);
+                        manipulationMode.set(singleRow.getManipulationMode());
                     }
 
                     if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
@@ -133,7 +136,7 @@ public class LineChart implements Chart {
                     e.printStackTrace();
                 }
             }
-        }
+        });
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
             if (unit.isEmpty()) unit.add(rb.getString("plugin.graph.chart.valueaxis.nounit"));
@@ -160,9 +163,9 @@ public class LineChart implements Chart {
 
         applyColors();
 
-        if (!addManipulationToTitle) lineChart.setTitle(chartName);
+        if (!addManipulationToTitle.get()) lineChart.setTitle(chartName);
         else {
-            switch (manipulationMode) {
+            switch (manipulationMode.get()) {
                 case RUNNING_MEAN:
                     lineChart.setTitle(chartName + rb.getString("plugin.graph.chart.titles.runningmean"));
                     break;
@@ -305,7 +308,7 @@ public class LineChart implements Chart {
                         nf.setMaximumFractionDigits(2);
                         Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
                         String note = sampleTreeMap.get(nearest).getNote();
-                        Note formattedNote = new Note(note, singleRow.getColor());
+                        Note formattedNote = new Note(note);
                         String formattedDouble = nf.format(valueAsDouble);
                         TableEntry tableEntry = singleRow.getTableEntry();
                         if (!asDuration) {
@@ -336,11 +339,11 @@ public class LineChart implements Chart {
         Double x = lineChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
 
         if (x != null) {
-            Map<String, String> map = new HashMap<>();
+            Map<String, RowNote> map = new HashMap<>();
             Number valueForDisplay = null;
             valueForDisplay = lineChart.getXAxis().getValueForDisplay(x);
             for (ChartDataModel singleRow : chartDataModels) {
-                if (Objects.isNull(chartName) || chartName.equals("") || singleRow.getSelectedcharts().contains(chartName)) {
+                if (singleRow.getSelectedcharts().contains(chartId)) {
                     try {
                         Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
                         Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
@@ -355,12 +358,20 @@ public class LineChart implements Chart {
                                 nearest = lowerKey;
                             }
 
-                            String note = singleRow.getSampleMap().get(nearest).getNote();
+                            JEVisSample nearestSample = singleRow.getSampleMap().get(nearest);
 
                             String title = "";
                             title += singleRow.getObject().getName();
 
-                            map.put(title, note);
+                            JEVisObject dataObject;
+                            if (singleRow.getDataProcessor() != null) dataObject = singleRow.getDataProcessor();
+                            else dataObject = singleRow.getObject();
+
+                            String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
+
+                            RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote);
+
+                            map.put(title, rowNote);
                         }
                     } catch (Exception ex) {
                         logger.error("Error: could not get note", ex);
@@ -372,7 +383,7 @@ public class LineChart implements Chart {
 
             nd.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-
+                    saveUserNotes(nd.getNoteMap());
                 } else if (response.getButtonData().getTypeCode() == ButtonType.CANCEL.getButtonData().getTypeCode()) {
 
                 }

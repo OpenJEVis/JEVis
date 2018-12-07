@@ -54,6 +54,14 @@ public class ToolBarView {
     private ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean _initialized = false;
     private JEVisObject currentAnalysisDirectory = null;
+    private ToggleButton save;
+    private ToggleButton loadNew;
+    private ToggleButton exportCSV;
+    private ToggleButton reload;
+    private ToggleButton delete;
+    private ToggleButton autoResize;
+    private ToggleButton select;
+    private ToggleButton disableIcons;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds) {
         this.model = model;
@@ -111,23 +119,23 @@ public class ToolBarView {
             }
         });
 
-        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+        save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
         Tooltip saveTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.save"));
         save.setTooltip(saveTooltip);
 
-        ToggleButton loadNew = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        loadNew = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
         Tooltip loadNewTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.loadNew"));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadNew);
         loadNew.setTooltip(loadNewTooltip);
 
-        ToggleButton exportCSV = new ToggleButton("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
+        exportCSV = new ToggleButton("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
         Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
         exportCSV.setTooltip(exportCSVTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportCSV);
 
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
@@ -158,12 +166,12 @@ public class ToolBarView {
 
         loadNew.setOnAction(event -> loadNewDialog());
 
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
+        delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
         Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
         delete.setTooltip(deleteTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
 
-        ToggleButton autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
+        autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
         Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
         autoResize.setTooltip(autoResizeTip);
         autoResize.setSelected(true);
@@ -186,12 +194,12 @@ public class ToolBarView {
         save.setDisable(false);
         delete.setDisable(false);
 
-        ToggleButton select = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        select = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
         Tooltip selectTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
         select.setTooltip(selectTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
 
-        ToggleButton disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
+        disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
         Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         disableIcons.setTooltip(disableIconsTooltip);
         disableIcons.setSelected(true);
@@ -234,7 +242,9 @@ public class ToolBarView {
          * addSeriesRunningMean disabled for now
          */
         toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, sep3, disableIcons, autoResize, reload);
+        setDisableToolBarIcons(true);
         _initialized = true;
+
         return toolBar;
     }
 
@@ -253,8 +263,8 @@ public class ToolBarView {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
+                            String prefix = "";
                             try {
-                                String prefix = "";
 
                                 JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
                                 JEVisClass buildingClass = ds.getJEVisClass("Building");
@@ -265,17 +275,18 @@ public class ToolBarView {
                                         JEVisClass organisationClass = ds.getJEVisClass("Organization");
                                         if (organisationParent.getJEVisClass().equals(organisationClass)) {
 
-                                            prefix += organisationParent.getName() + " / " + buildingParent.getName();
+                                            prefix += organisationParent.getName() + " / " + buildingParent.getName() + " / ";
                                         }
                                     } catch (JEVisException e) {
                                         logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
 
-                                        prefix += buildingParent.getName();
+                                        prefix += buildingParent.getName() + " / ";
                                     }
                                 }
-                                setText(prefix + " / " + obj.getName());
+
                             } catch (Exception e) {
                             }
+                            setText(prefix + obj.getName());
                         }
 
                     }
@@ -633,5 +644,17 @@ public class ToolBarView {
     public void select(JEVisObject obj) {
 
         listAnalysesComboBox.getSelectionModel().select(obj);
+    }
+
+    public void setDisableToolBarIcons(boolean bool) {
+        listAnalysesComboBox.setDisable(bool);
+        save.setDisable(bool);
+        loadNew.setDisable(bool);
+        exportCSV.setDisable(bool);
+        reload.setDisable(bool);
+        delete.setDisable(bool);
+        autoResize.setDisable(bool);
+        select.setDisable(bool);
+        disableIcons.setDisable(bool);
     }
 }

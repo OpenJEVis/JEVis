@@ -1,18 +1,12 @@
 package org.jevis.application.Chart.ChartElements;
 
-import com.sun.javafx.geom.BaseBounds;
-import com.sun.javafx.geom.transform.BaseTransform;
-import com.sun.javafx.jmx.MXNodeAlgorithm;
-import com.sun.javafx.jmx.MXNodeAlgorithmContext;
-import com.sun.javafx.sg.prism.NGNode;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.HBox;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
 
-public class Note extends Node {
+public class Note {
     private Node node = null;
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
 //    private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
@@ -20,7 +14,7 @@ public class Note extends Node {
 //    private static final Image exception = ResourceLoader.getImage("rodentia-icons_process-stop.png");
 //    private static final Image infinity = ResourceLoader.getImage("32423523543543_error_div0.png");
 
-    public Note(String note, Color color) {
+    public Note(String note) {
         if (note != null) {
             HBox hbox = new HBox();
             double iconSize = 12;
@@ -28,14 +22,6 @@ public class Note extends Node {
 
             if (note.contains("limit(Step1)")) {
                 try {
-//                    ImageView warning = new ImageView(Note.warning);
-//                    warning.fitHeightProperty().set(iconSize);
-//                    warning.fitWidthProperty().set(iconSize);
-
-//                    BorderPane warningWrapper = new BorderPane(warning);
-//                    warningWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-//                    hbox.getChildren().add(warningWrapper);
-
                     Label labelLimit1 = new Label(rb.getString("plugin.graph.chart.note.limit1"));
                     hbox.getChildren().add(labelLimit1);
 
@@ -43,20 +29,10 @@ public class Note extends Node {
                 } catch (Exception e) {
                 }
             }
-//            if (note.contains("gap(") || note.contains("limit(Default)") || note.contains("limit(Static)") || note.contains("limit(Average)")
-//                    || note.contains("limit(Median)") || note.contains("limit(Interpolation)") || note.contains("limit(Min)") || note.contains("limit(Max)")) {
+
             if (note.contains("limit(Default)") || note.contains("limit(Static)") || note.contains("limit(Average)")
                     || note.contains("limit(Median)") || note.contains("limit(Interpolation)") || note.contains("limit(Min)") || note.contains("limit(Max)")) {
                 try {
-//                    ImageView limit = new ImageView(Note.limit);
-//                    limit.fitHeightProperty().set(iconSize);
-//                    limit.fitWidthProperty().set(iconSize);
-//
-//                    BorderPane limitWrapper = new BorderPane(limit);
-//                    limitWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-//
-//                    hbox.getChildren().add(limitWrapper);
-
                     Label labelLimit2 = new Label(rb.getString("plugin.graph.chart.note.limit2"));
                     hbox.getChildren().add(labelLimit2);
 
@@ -79,17 +55,18 @@ public class Note extends Node {
 
             if (note.contains("calc(infinite)")) {
                 try {
-//                    ImageView infinity = new ImageView(Note.infinity);
-//                    infinity.fitHeightProperty().set(iconSize);
-//                    infinity.fitWidthProperty().set(iconSize);
-//
-//                    BorderPane infinityWrapper = new BorderPane(infinity);
-//                    infinityWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-//
-//                    hbox.getChildren().add(infinityWrapper);
-
                     Label labelDiv0 = new Label(rb.getString("plugin.graph.chart.note.div0"));
                     hbox.getChildren().add(labelDiv0);
+
+                    changed = true;
+                } catch (Exception e) {
+                }
+            }
+
+            if (note.contains("userNotes")) {
+                try {
+                    Label labNote = new Label("N");
+                    hbox.getChildren().add(labNote);
 
                     changed = true;
                 } catch (Exception e) {
@@ -99,16 +76,6 @@ public class Note extends Node {
             if (hbox.getChildren().size() >= 2) {
                 hbox.getChildren().clear();
                 try {
-//                    ImageView exception = new ImageView(Note.exception);
-//                    exception.fitHeightProperty().set(iconSize);
-//                    exception.fitWidthProperty().set(iconSize);
-//
-//                    BorderPane exceptionWrapper = new BorderPane(exception);
-//                    exceptionWrapper.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-//                            BorderWidths.DEFAULT)));
-//
-//                    hbox.getChildren().add(exceptionWrapper);
-
                     Label labelMultiple = new Label(rb.getString("plugin.graph.chart.note.multiple"));
                     hbox.getChildren().add(labelMultiple);
 
@@ -117,7 +84,7 @@ public class Note extends Node {
                 }
             }
 
-            hbox.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderWidths.EMPTY)));
+            //hbox.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderWidths.EMPTY)));
 
             if (changed) this.node = hbox;
         }
@@ -125,26 +92,5 @@ public class Note extends Node {
 
     public Node getNote() {
         return node;
-    }
-
-
-    @Override
-    protected NGNode impl_createPeer() {
-        return null;
-    }
-
-    @Override
-    public BaseBounds impl_computeGeomBounds(BaseBounds bounds, BaseTransform tx) {
-        return null;
-    }
-
-    @Override
-    protected boolean impl_computeContains(double localX, double localY) {
-        return false;
-    }
-
-    @Override
-    public Object impl_processMXNode(MXNodeAlgorithm alg, MXNodeAlgorithmContext ctx) {
-        return null;
     }
 }
