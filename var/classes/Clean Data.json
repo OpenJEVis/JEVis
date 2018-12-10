@@ -12,6 +12,11 @@
       "start": "Clean Data",
       "end": "Data",
       "type": 3
+    },
+    {
+      "start": "Clean Data",
+      "end": "Clean Data",
+      "type": 3
     }
   ],
   "types": [

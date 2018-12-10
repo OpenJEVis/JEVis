@@ -51,6 +51,8 @@ public class ChartView implements Observer {
     private AlphanumComparator alphanumComparator = new AlphanumComparator();
     private ChartType chartType = ChartType.AREA;
     private String chartName = "";
+    private boolean changed = false;
+    private Integer chartId;
 
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
@@ -170,7 +172,11 @@ public class ChartView implements Observer {
         TableColumn<TableEntry, Color> column = new TableColumn(columnName);
 
 
-        column.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getColor()));
+        column.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getColor() != null)
+                return new SimpleObjectProperty<>(param.getValue().getColor());
+            else return new SimpleObjectProperty<>();
+        });
 
         column.setCellFactory(new Callback<TableColumn<TableEntry, Color>, TableCell<TableEntry, Color>>() {
             @Override
@@ -245,15 +251,9 @@ public class ChartView implements Observer {
     }
 
     public void drawAreaChart(Integer chartId, ChartType chartType) {
+        this.chartId = chartId;
 
         chart = null;
-
-        for (ChartSettings set : dataModel.getCharts()) {
-            if (set.getId() == chartId) {
-                chartName = set.getName();
-                break;
-            }
-        }
 
         List<ChartDataModel> chartDataModels = new ArrayList<>();
 
@@ -265,13 +265,19 @@ public class ChartView implements Observer {
             }
         }
 
+        generateChart(chartId, chartType, chartDataModels);
+
+        tableView.sort();
+    }
+
+    private void generateChart(Integer chartId, ChartType chartType, List<ChartDataModel> chartDataModels) {
         switch (chartType) {
             case AREA:
-                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, chartName);
+                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
                 break;
             case LINE:
-                chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, chartName);
+                chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
                 break;
             case BAR:
@@ -291,12 +297,10 @@ public class ChartView implements Observer {
                 disableTable();
                 break;
             default:
-                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, chartName);
+                chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
                 break;
         }
-
-        tableView.sort();
     }
 
     public void updateTablesSimultaneously(MouseEvent mouseEvent, Number valueForDisplay) {
@@ -318,13 +322,58 @@ public class ChartView implements Observer {
     }
 
     public String getChartName() {
-        if (chartName == null) {
-            this.chartName = chart.getChartName();
+
+        for (ChartSettings set : dataModel.getCharts()) {
+            if (set.getId() == chartId) {
+                chartName = set.getName();
+                break;
+            }
         }
+
         return this.chartName;
     }
 
     public AlphanumComparator getAlphanumComparator() {
         return alphanumComparator;
+    }
+
+    public void updateChart() {
+        if (chart != null) {
+            List<ChartDataModel> chartDataModels = new ArrayList<>();
+
+            for (ChartDataModel singleRow : dataModel.getSelectedData()) {
+                for (int i : singleRow.getSelectedcharts()) {
+                    if (i == chartId) {
+                        chartDataModels.add(singleRow);
+                    }
+                }
+            }
+            if (!getChanged()) {
+                chart.setTitle(getChartName());
+                chart.setDataModels(chartDataModels);
+
+                chart.updateChart();
+            } else {
+
+                generateChart(chartId, chartType, chartDataModels);
+            }
+
+            tableView.sort();
+        }
+    }
+
+    public void setType(ChartType chartType) {
+        if (!this.chartType.equals(chartType))
+            this.setChanged(true);
+
+        this.chartType = chartType;
+    }
+
+    public boolean getChanged() {
+        return changed;
+    }
+
+    public void setChanged(boolean changed) {
+        this.changed = changed;
     }
 }

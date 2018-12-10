@@ -5,6 +5,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.jevis.api.*;
+import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartElements.TableEntry;
 import org.jevis.application.Chart.data.RowNote;
 import org.joda.time.DateTime;
@@ -16,6 +17,8 @@ import java.util.Map;
 public interface Chart {
 
     String getChartName();
+
+    void setTitle(String s);
 
     Integer getChartId();
 
@@ -165,4 +168,7 @@ public interface Chart {
 
     DateTime getEndDateTime();
 
+    void updateChart();
+
+    void setDataModels(List<ChartDataModel> chartDataModels);
 }

@@ -9,7 +9,6 @@ import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
-import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.Chart.ChartDataModel;
@@ -36,13 +35,35 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
         this.columnName = columnName;
     }
 
+    List<JEVisObject> getAllChildrenOf(JEVisObject parent) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+        String cleanDataClassName = "Clean Data";
+
+        list = getAllChildren(parent, cleanDataClassName);
+
+        return list;
+    }
+
+    private List<JEVisObject> getAllChildren(JEVisObject parent, String cleanDataClassName) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+
+        for (JEVisObject obj : parent.getChildren()) {
+            if (obj.getJEVisClassName().equals(cleanDataClassName)) {
+                list.add(obj);
+                list.addAll(getAllChildren(obj, cleanDataClassName));
+            }
+        }
+
+        return list;
+    }
+
     private ChoiceBox buildProcessorBox(ChartDataModel data) throws JEVisException {
         List<String> proNames = new ArrayList<>();
         final List<JEVisObject> _dataProcessors = new ArrayList<JEVisObject>();
         proNames.add(rb.getString("graph.processing.raw"));
 
-        JEVisClass dpClass = data.getObject().getDataSource().getJEVisClass("Clean Data");
-        _dataProcessors.addAll(data.getObject().getChildren(dpClass, true));
+        if (data.getObject() != null)
+            _dataProcessors.addAll(getAllChildrenOf(data.getObject()));
         for (JEVisObject configObject : _dataProcessors) {
             proNames.add(configObject.getName());
         }

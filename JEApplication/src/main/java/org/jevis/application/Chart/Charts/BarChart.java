@@ -21,6 +21,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.application.Chart.ChartElements.TableEntry;
+import org.jevis.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.application.Chart.data.RowNote;
 import org.jevis.application.application.AppLocale;
 import org.jevis.application.application.SaveResourceBundle;
@@ -43,6 +44,7 @@ public class BarChart implements Chart {
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
     private ObservableList<javafx.scene.chart.BarChart.Series<String, Number>> series = FXCollections.observableArrayList();
+    private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
     private javafx.scene.chart.BarChart<String, Number> barChart;
     private List<Color> hexColors = new ArrayList<>();
     private Number valueForDisplay;
@@ -164,8 +166,23 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public void updateChart() {
+
+    }
+
+    @Override
+    public void setDataModels(List<ChartDataModel> chartDataModels) {
+        this.chartDataModels = chartDataModels;
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
+    }
+
+    @Override
+    public void setTitle(String s) {
+
     }
 
     @Override
@@ -241,11 +258,10 @@ public class BarChart implements Chart {
             Number valueForDisplay = null;
             valueForDisplay = Double.parseDouble(barChart.getXAxis().getValueForDisplay(x));
             //valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
-            for (ChartDataModel singleRow : chartDataModels) {
-                if (singleRow.getSelectedcharts().contains(chartId)) {
+            for (XYChartSerie serie : xyChartSerieList) {
                     try {
-                        Double higherKey = singleRow.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                        Double lowerKey = singleRow.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+                        Double higherKey = serie.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                        Double lowerKey = serie.getSampleMap().lowerKey(valueForDisplay.doubleValue());
 
                         Double nearest = higherKey;
                         if (nearest == null) nearest = lowerKey;
@@ -257,14 +273,15 @@ public class BarChart implements Chart {
                                 nearest = lowerKey;
                             }
 
-                            JEVisSample nearestSample = singleRow.getSampleMap().get(nearest);
+                            JEVisSample nearestSample = serie.getSampleMap().get(nearest);
 
                             String title = "";
-                            title += singleRow.getObject().getName();
+                            title += serie.getSingleRow().getObject().getName();
 
                             JEVisObject dataObject;
-                            if (singleRow.getDataProcessor() != null) dataObject = singleRow.getDataProcessor();
-                            else dataObject = singleRow.getObject();
+                            if (serie.getSingleRow().getDataProcessor() != null)
+                                dataObject = serie.getSingleRow().getDataProcessor();
+                            else dataObject = serie.getSingleRow().getObject();
 
                             String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
@@ -275,7 +292,6 @@ public class BarChart implements Chart {
                     } catch (Exception ex) {
                         logger.error("Error: could not get note", ex);
                     }
-                }
             }
 
             NoteDialog nd = new NoteDialog(map);
