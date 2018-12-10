@@ -716,11 +716,10 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
-//                            TextField textField = new TextField(item.toString());
+
                             TextArea textField = new TextArea(tableSample.getValue().toString());
-//                            textField.setDisable(!SampleTable.this.isEditable());
-//                            this.disableProperty().bind(textField.disableProperty());
-//                            Button expand = new Button(null, JEConfig.getImage("if_ExpandMore.png", 8, 8));
+
+
                             Button expand = new Button(null);
                             expand.setBackground(new Background(new BackgroundImage(
                                     JEConfig.getImage("if_ExpandMore.png"),
@@ -773,6 +772,50 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         };
     }
 
+    /**
+     * Create an Callback cell for String based passwords. Text will be shown as ****
+     * @return
+     */
+    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> valueCellStringPassword() {
+        return new Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>>() {
+            @Override
+            public TableCell<TableSample, Object> call(TableColumn<TableSample, Object> param) {
+                return new TableCell<TableSample, Object>() {
+
+                    @Override
+                    protected void updateItem(Object item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+
+                            PasswordField textField = new PasswordField();
+                            textField.setText(tableSample.getValue().toString());
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
+                                    setDefaultCellStyle(this);
+                                    tableSample.setValue(newValue + "");
+
+                                } catch (Exception ex) {
+                                    setErrorCellStyle(this, ex);
+                                    logger.error("Error in string text", ex);
+                                }
+                            });
+
+                            HBox box = new HBox(5, textField);
+                            HBox.setHgrow(textField,Priority.ALWAYS);
+                            setGraphic(box);
+
+                        }
+
+                    }
+                };
+            }
+
+        };
+    }
 
     /**
      * Create an callback cell for integer values
@@ -866,7 +909,12 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                     column.setCellFactory(valueCellFile());
                     break;
                 default:
-                    column.setCellFactory(valueCellString());
+                    if(attribute.getName().equalsIgnoreCase("Password") || attribute.getPrimitiveType()==JEVisConstants.PrimitiveType.PASSWORD_PBKDF2){
+                        column.setCellFactory(valueCellStringPassword());
+                    }else{
+                        column.setCellFactory(valueCellString());
+                    }
+
                     break;
 
             }
