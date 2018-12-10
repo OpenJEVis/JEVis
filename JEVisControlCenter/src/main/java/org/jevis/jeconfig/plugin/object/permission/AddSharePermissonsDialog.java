@@ -95,7 +95,7 @@ public class AddSharePermissonsDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button("Add");
+        Button ok = new Button(I18n.getInstance().getString("plugin.object.permission.add"));
         ok.setDefaultButton(true);
 
         final CheckBox includeChildren = new CheckBox(I18n.getInstance().getString("plugin.object.permission.includechildren"));

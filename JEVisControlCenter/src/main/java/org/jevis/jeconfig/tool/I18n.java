@@ -54,7 +54,7 @@ public class I18n {
      */
     public String getString(String key, Object... arguments) {
         try {
-            return MessageFormat.format(bundle.getString(key), arguments);
+            return String.format(bundle.getString(key),arguments);
         } catch (NullPointerException | java.util.MissingResourceException np) {
             logger.info("Missing translation [" + locale.getISO3Country() + "] Key: " + key);
             return "*" + key + "*";
