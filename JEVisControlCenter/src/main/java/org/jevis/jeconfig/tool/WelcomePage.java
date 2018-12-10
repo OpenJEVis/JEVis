@@ -49,6 +49,7 @@ import java.net.URI;
 import java.util.prefs.Preferences;
 
 /**
+ * The WelcomePage is an dialog to show an URL as an welcome for the user.#
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -56,7 +57,7 @@ public class WelcomePage {
     private static final Logger logger = LogManager.getLogger(WelcomePage.class);
 
     private Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
-    CheckBox remember = new CheckBox("Don't show this again");
+    CheckBox remember = new CheckBox(I18n.getInstance().getString("welcome.dontshow"));
     private boolean isLoading = true;
 
     public WelcomePage() {
@@ -133,7 +134,7 @@ public class WelcomePage {
         bot.setAlignment(Pos.BOTTOM_RIGHT);
         bot.setSpacing(5);
         bot.setPadding(new Insets(10));
-        Button close = new Button("Close");
+        Button close = new Button(I18n.getInstance().getString("welcome.close"));
         close.setCancelButton(true);
         close.setDefaultButton(true);
 
