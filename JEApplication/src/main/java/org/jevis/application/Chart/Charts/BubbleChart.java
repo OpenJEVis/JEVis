@@ -27,6 +27,11 @@ public class BubbleChart implements Chart {
     }
 
     @Override
+    public void setTitle(String s) {
+
+    }
+
+    @Override
     public Integer getChartId() {
         return null;
     }
@@ -44,6 +49,16 @@ public class BubbleChart implements Chart {
     @Override
     public DateTime getEndDateTime() {
         return null;
+    }
+
+    @Override
+    public void updateChart() {
+
+    }
+
+    @Override
+    public void setDataModels(List<ChartDataModel> chartDataModels) {
+
     }
 
     @Override

@@ -37,7 +37,7 @@ public class BarChartSerie implements Serie {
         tableEntry = new TableEntry(tableEntryName);
         tableEntry.setColor(singleRow.getColor());
 
-        singleRow.setTableEntry(tableEntry);
+        //singleRow.setTableEntry(tableEntry);
         tableData.add(tableEntry);
 
 //        boolean isQuantitiy = false;
@@ -85,7 +85,7 @@ public class BarChartSerie implements Serie {
 //        }
 
         serie = new BarChart.Series<>(tableEntryName, seriesData);
-        singleRow.setSampleMap(sampleMap);
+        //TODO: singleRow.setSampleMap(sampleMap);
     }
 
     public XYChart.Series getSerie() {

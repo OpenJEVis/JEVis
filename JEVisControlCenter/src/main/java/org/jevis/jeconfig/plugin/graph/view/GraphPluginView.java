@@ -45,6 +45,7 @@ import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.tool.I18n;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -67,6 +68,7 @@ public class GraphPluginView implements Plugin, Observer {
     private ToolBar toolBar;
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
+    private final List<ChartView> charts = new ArrayList<>();
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new GraphDataModel(ds);
@@ -303,7 +305,7 @@ public class GraphPluginView implements Plugin, Observer {
             double totalPrefHeight = 0;
 
             List<ChartView> listChartViews = null;
-            listChartViews = toolBarView.getChartViews();
+            listChartViews = getChartViews();
             AlphanumComparator ac = new AlphanumComparator();
             try {
                 listChartViews.sort((s1, s2) -> ac.compare(s1.getChartName(), s2.getChartName()));
@@ -501,5 +503,56 @@ public class GraphPluginView implements Plugin, Observer {
             }
         }
         return totalPrefHight;
+    }
+
+    private List<ChartView> getChartViews() {
+
+        if (charts.isEmpty()) {
+
+            dataModel.getCharts().forEach(chart -> {
+                ChartView view = new ChartView(dataModel);
+
+                ChartType type = chart.getChartType();
+
+                view.drawAreaChart(chart.getId(), type);
+
+                charts.add(view);
+            });
+        } else {
+            if (dataModel.getCharts().size() <= charts.size()) {
+
+                if (dataModel.getCharts().size() < charts.size()) {
+                    for (int i = charts.size(); i > dataModel.getCharts().size(); i--) {
+                        charts.remove(i - 1);
+                    }
+                }
+
+                for (ChartView chartView : charts) {
+                    chartView.setType(dataModel.getCharts().get(charts.indexOf(chartView)).getChartType());
+                    chartView.updateChart();
+                }
+            } else {
+                for (ChartView chartView : charts) {
+                    chartView.setType(dataModel.getCharts().get(charts.indexOf(chartView)).getChartType());
+                    chartView.updateChart();
+                }
+
+                if (dataModel.getCharts().size() > charts.size()) {
+                    for (int i = charts.size(); i < dataModel.getCharts().size(); i++) {
+                        ChartView view = new ChartView(dataModel);
+
+                        ChartType type = dataModel.getCharts().get(i).getChartType();
+
+                        view.drawAreaChart(dataModel.getCharts().get(i).getId(), type);
+
+                        charts.add(view);
+                    }
+                }
+
+            }
+
+        }
+
+        return charts;
     }
 }

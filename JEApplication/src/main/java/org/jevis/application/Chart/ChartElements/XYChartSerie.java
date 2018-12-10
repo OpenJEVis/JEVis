@@ -22,29 +22,20 @@ import java.util.TreeMap;
 public class XYChartSerie implements Serie {
     private static SaveResourceBundle rb = new SaveResourceBundle(AppLocale.BUNDLE_ID, AppLocale.getInstance().getLocale());
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
-    private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-    private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<Double, JEVisSample>();
     private XYChart.Series<Number, Number> serie;
     private TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
+    private ChartDataModel singleRow;
+    private Boolean hideShowIcons;
+    private List<JEVisSample> samples;
+    private TreeMap<Double, JEVisSample> sampleMap;
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        String unit = UnitManager.getInstance().format(singleRow.getUnit());
-        if (unit.equals("")) unit = singleRow.getUnit().getLabel();
-        if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
-
-        String tableEntryName = singleRow.getObject().getName();
-        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE))
-            tableEntryName += "(" + singleRow.getManipulationMode().toString() + ")";
-
-        tableEntry = new TableEntry(tableEntryName);
-        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE)) tableEntry.setColor(singleRow.getColor());
-        else tableEntry.setColor(singleRow.getColor().darker());
-
-        singleRow.setTableEntry(tableEntry);
-        tableData.add(tableEntry);
+        this.singleRow = singleRow;
+        this.hideShowIcons = hideShowIcons;
+        this.serie = new XYChart.Series<>(getTableEntryName(), seriesData);
 
 //        boolean isQuantitiy = false;
 
@@ -67,8 +58,19 @@ public class XYChartSerie implements Serie {
 //        QuantityUnits qu = new QuantityUnits();
 //        if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
 
-        List<JEVisSample> samples = singleRow.getSamples();
 
+        generateSeriesFromSamples();
+    }
+
+    public void generateSeriesFromSamples() throws JEVisException {
+        tableEntry = new TableEntry(getTableEntryName());
+
+        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE)) tableEntry.setColor(singleRow.getColor());
+        else tableEntry.setColor(singleRow.getColor().darker());
+
+        samples = singleRow.getSamples();
+
+        seriesData.clear();
         if (samples.size() > 0) {
             try {
 
@@ -83,6 +85,7 @@ public class XYChartSerie implements Serie {
             }
         }
 
+        sampleMap = new TreeMap<Double, JEVisSample>();
         for (JEVisSample sample : samples) {
             try {
                 DateTime dateTime = sample.getTimestamp();
@@ -113,12 +116,8 @@ public class XYChartSerie implements Serie {
         }
 
 //        if (isQuantitiy) {
-        calcTableValues(tableEntry, samples, unit);
+        calcTableValues(tableEntry, samples, getUnit());
 //        }
-
-        serie = new XYChart.Series<>(tableEntryName, seriesData);
-
-        singleRow.setSampleMap(sampleMap);
     }
 
 
@@ -144,5 +143,36 @@ public class XYChartSerie implements Serie {
 
     public void setTimeStampFromLastSample(DateTime timeStampFromLastSample) {
         this.timeStampFromLastSample = timeStampFromLastSample;
+    }
+
+    public ChartDataModel getSingleRow() {
+        return singleRow;
+    }
+
+    public void setSingleRow(ChartDataModel singleRow) {
+        this.singleRow = singleRow;
+    }
+
+    public String getTableEntryName() {
+        String tableEntryName = singleRow.getObject().getName();
+
+        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE))
+            tableEntryName += "(" + singleRow.getManipulationMode().toString() + ")";
+
+        return tableEntryName;
+    }
+
+    public String getUnit() {
+
+        String unit = UnitManager.getInstance().format(singleRow.getUnit());
+
+        if (unit.equals("")) unit = singleRow.getUnit().getLabel();
+        if (unit.equals("")) unit = rb.getString("plugin.graph.chart.valueaxis.nounit");
+
+        return unit;
+    }
+
+    public TreeMap<Double, JEVisSample> getSampleMap() {
+        return sampleMap;
     }
 }

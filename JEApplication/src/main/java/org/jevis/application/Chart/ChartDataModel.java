@@ -4,7 +4,6 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.Chart.ChartElements.TableEntry;
 import org.jevis.application.Chart.ChartUnits.ChartUnits;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -15,24 +14,20 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 public class ChartDataModel {
     private static final Logger logger = LogManager.getLogger(ChartDataModel.class);
 
-    private TableEntry tableEntry;
     private String _title;
     private DateTime _selectedStart;
     private DateTime _selectedEnd;
     private JEVisObject _object;
     private JEVisAttribute _attribute;
     private Color _color = Color.LIGHTBLUE;
-    private boolean _selected = false;
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject _dataProcessorObject = null;
     private List<JEVisSample> samples = new ArrayList<>();
-    private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<>();
     private boolean _somethingChanged = true;
     private JEVisUnit _unit;
     private List<Integer> _selectedCharts = new ArrayList<>();
@@ -150,22 +145,6 @@ public class ChartDataModel {
 
             return inputList;
         } else return inputList;
-    }
-
-    public TableEntry getTableEntry() {
-        return tableEntry;
-    }
-
-    public void setTableEntry(TableEntry tableEntry) {
-        this.tableEntry = tableEntry;
-    }
-
-    public TreeMap<Double, JEVisSample> getSampleMap() {
-        return sampleMap;
-    }
-
-    public void setSampleMap(TreeMap<Double, JEVisSample> sampleMap) {
-        this.sampleMap = sampleMap;
     }
 
     public JEVisObject getDataProcessor() {
@@ -323,11 +302,9 @@ public class ChartDataModel {
                 ", _object=" + _object +
                 ", _attribute=" + _attribute +
                 ", _color=" + _color +
-                ", _selected=" + _selected +
                 ", _somethingChanged=" + _somethingChanged +
                 ", _unit=" + _unit +
                 ", _selectedCharts=" + _selectedCharts +
-                ", tableEntry=" + tableEntry +
                 '}';
     }
 

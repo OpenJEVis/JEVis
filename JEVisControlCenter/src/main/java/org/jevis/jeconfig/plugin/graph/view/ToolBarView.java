@@ -20,7 +20,6 @@ import org.jevis.api.*;
 import org.jevis.application.Chart.AnalysisTimeFrame;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartSettings;
-import org.jevis.application.Chart.ChartType;
 import org.jevis.application.Chart.data.GraphDataModel;
 import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -357,22 +356,6 @@ public class ToolBarView {
         dia = null;
 
         System.gc();
-    }
-
-    public List<ChartView> getChartViews() {
-        List<ChartView> charts = new ArrayList<>();
-
-        model.getCharts().forEach(chart -> {
-            ChartView view = new ChartView(model);
-
-            ChartType type = chart.getChartType();
-
-            view.drawAreaChart(chart.getId(), type);
-
-            charts.add(view);
-        });
-
-        return charts;
     }
 
     private void saveCurrentAnalysis() {

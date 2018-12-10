@@ -111,8 +111,23 @@ public class PieChart implements Chart {
     }
 
     @Override
+    public void updateChart() {
+
+    }
+
+    @Override
+    public void setDataModels(List<ChartDataModel> chartDataModels) {
+        this.chartDataModels = chartDataModels;
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
+    }
+
+    @Override
+    public void setTitle(String s) {
+
     }
 
     @Override
