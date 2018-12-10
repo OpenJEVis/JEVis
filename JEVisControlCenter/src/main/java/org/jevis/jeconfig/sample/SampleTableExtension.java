@@ -43,6 +43,9 @@ import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import java.util.List;
 
@@ -183,13 +186,15 @@ public class SampleTableExtension implements SampleEditorExtension {
 
                         ConfirmDialog dia = new ConfirmDialog();
 
+                        DateTime[] minMax=  table.findSelectedMinMaxDate();
+                        DateTime firstDate = minMax[0];
+                        DateTime endDate = minMax[1];
+                        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+                        String message = String.format(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message1"),fmt.print(firstDate), fmt.print(endDate));
+
                         if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.title"),
                                 I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.titlelong"),
-                                I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message1") + "\n "
-//                                        + ISODateTimeFormat.dateTime().print(startDate)
-                                        + " " + I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message2") +
-//                                        + ISODateTimeFormat.dateTime().print(endDate) +
-                                        I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message3")) == ConfirmDialog.Response.YES) {
+                                message) == ConfirmDialog.Response.YES) {
 
                             taskWithAnimation(new Task<Void>() {
                                 @Override

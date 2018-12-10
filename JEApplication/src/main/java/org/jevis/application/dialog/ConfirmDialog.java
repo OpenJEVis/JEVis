@@ -23,20 +23,17 @@ package org.jevis.application.dialog;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -72,7 +69,7 @@ public class ConfirmDialog {
         stage.setWidth(500);
         stage.setHeight(250);
         stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.setAlwaysOnTop(true);
 
         BorderPane header = new BorderPane();
@@ -113,20 +110,29 @@ public class ConfirmDialog {
         buttonPanel.setMaxHeight(25);
 
         HBox messagePanel = new HBox();
-        messagePanel.setPadding(new Insets(30, 30, 30, 30));
+        messagePanel.setPadding(new Insets(30, 0, 30, 30));
 
-        Label mewssage = new Label(message);
-        messagePanel.getChildren().add(mewssage);
-        mewssage.setWrapText(true);
-        mewssage.setAlignment(Pos.CENTER_LEFT);
+        TextArea messageLabel = new TextArea(message);
+        messageLabel.getStylesheets().add(ConfirmDialog.class.getResource("/styles/TransparentTextArea.css").toExternalForm());
+//        messagePanel.getChildren().add(messageLabel);
+        messageLabel.setPrefRowCount(5);
+        messageLabel.setWrapText(true);
+        messageLabel.setEditable(false);
+
+
+//        messageLabel.setAlignment(Pos.CENTER_LEFT);
+        messageLabel.setStyle(" .text-area, .text-area .viewport, .text-area .content {\n" +
+                "    -fx-background-color: transparent ;\n" +
+                "}");
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
 
-        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), messagePanel, buttonPanel);
-        VBox.setVgrow(messagePanel, Priority.ALWAYS);
+        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), messageLabel, buttonPanel);
+        VBox.setVgrow(messageLabel, Priority.ALWAYS);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
+        VBox.setVgrow( root,Priority.ALWAYS);
 
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override

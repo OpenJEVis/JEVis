@@ -217,11 +217,31 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         }
     }
 
+    public DateTime[] findSelectedMinMaxDate(){
+        DateTime[] minMax = new DateTime[2];
+        DateTime firstDate = null;
+        DateTime secondDate = null;
+        for (TableSample tableSample : changedSamples) {
+            if (firstDate == null) {
+                firstDate = tableSample.getTimeStamp();
+            } else if (firstDate.isBefore(tableSample.getTimeStamp())) {
+                secondDate = tableSample.getTimeStamp();
+            } else {
+                secondDate = firstDate;
+                firstDate = tableSample.getTimeStamp();
+            }
+        }
+        minMax[0]=firstDate;
+        minMax[1]=secondDate;
+        return minMax;
+    }
+
     /**
      * Delete all samples in between the two selected including the two selected
      */
     public void deleteInBetween() {
         if (deleteInBetween.getValue()) {
+            /**
             DateTime firstDate = null;
             DateTime secondDate = null;
             for (TableSample tableSample : changedSamples) {
@@ -234,6 +254,11 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                     firstDate = tableSample.getTimeStamp();
                 }
             }
+             **/
+            DateTime[] minMax=  findSelectedMinMaxDate();
+            DateTime firstDate = minMax[0];
+            DateTime secondDate = minMax[1];
+
             try {
                 if (firstDate != null && secondDate != null) {
                     attribute.deleteSamplesBetween(firstDate, secondDate);
