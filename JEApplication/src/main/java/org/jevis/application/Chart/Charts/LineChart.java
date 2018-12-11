@@ -112,7 +112,7 @@ public class LineChart implements Chart {
 
         applyColors();
 
-        setTitle(chartName);
+        setTitle(getUpdatedChartName());
 
         lineChart.setLegendVisible(false);
         lineChart.setCreateSymbols(true);
@@ -175,17 +175,7 @@ public class LineChart implements Chart {
 
     @Override
     public void setTitle(String chartName) {
-        if (!addManipulationToTitle.get()) lineChart.setTitle(chartName);
-        else {
-            switch (manipulationMode.get()) {
-                case RUNNING_MEAN:
-                    lineChart.setTitle(chartName + rb.getString("plugin.graph.chart.titles.runningmean"));
-                    break;
-                case CENTRIC_RUNNING_MEAN:
-                    lineChart.setTitle(chartName + rb.getString("plugin.graph.chart.titles.centricrunningmean"));
-                    break;
-            }
-        }
+        lineChart.setTitle(chartName);
     }
 
     private void generateYAxis() {
@@ -328,6 +318,16 @@ public class LineChart implements Chart {
 
                     tableData.add(xyChartSerie.getTableEntry());
 
+                    if (xyChartSerie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
+                        timeStampOfFirstSample.set(xyChartSerie.getTimeStampFromFirstSample());
+                        changedBoth[0] = true;
+                    }
+
+                    if (xyChartSerie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
+                        timeStampOfLastSample.set(xyChartSerie.getTimeStampFromLastSample());
+                        changedBoth[1] = true;
+                    }
+
                     try {
                         checkManipulation(chartDataModels.get(i));
                     } catch (JEVisException e) {
@@ -344,8 +344,6 @@ public class LineChart implements Chart {
                         e.printStackTrace();
                     }
                 }
-
-
             }
 
             applyColors();
@@ -354,11 +352,43 @@ public class LineChart implements Chart {
 
             generateYAxis();
 
+            setTitle(getUpdatedChartName());
+
             lineChart.getXAxis().layout();
             lineChart.getYAxis().layout();
             lineChart.layout();
         }
+    }
 
+    private String getUpdatedChartName() {
+        String newName = chartName;
+        switch (manipulationMode.get()) {
+            case CENTRIC_RUNNING_MEAN:
+                newName += " [" + rb.getString("plugin.graph.manipulation.centricrunningmean") + "]";
+                break;
+            case RUNNING_MEAN:
+                newName += " [" + rb.getString("plugin.graph.manipulation.runningmean") + "]";
+                break;
+            case MAX:
+                break;
+            case MIN:
+                break;
+            case AVERAGE:
+                break;
+            case NONE:
+                break;
+            case TOTAL:
+                break;
+            case SORTED_MAX:
+                newName += " [" + rb.getString("plugin.graph.manipulation.sortedmax") + "]";
+                break;
+            case SORTED_MIN:
+                newName += " [" + rb.getString("plugin.graph.manipulation.sortedmin") + "]";
+                break;
+            case MEDIAN:
+                break;
+        }
+        return newName;
     }
 
     @Override
@@ -439,60 +469,62 @@ public class LineChart implements Chart {
 
     @Override
     public void showNote(MouseEvent mouseEvent) {
+        if (manipulationMode.get().equals(ManipulationMode.NONE)) {
 
-        Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        Double x = lineChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+            Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+            Double x = lineChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
 
-        if (x != null) {
-            Map<String, RowNote> map = new HashMap<>();
-            Number valueForDisplay = null;
-            valueForDisplay = lineChart.getXAxis().getValueForDisplay(x);
+            if (x != null) {
+                Map<String, RowNote> map = new HashMap<>();
+                Number valueForDisplay = null;
+                valueForDisplay = lineChart.getXAxis().getValueForDisplay(x);
 
-            for (XYChartSerie serie : xyChartSerieList) {
-                try {
-                    Double higherKey = serie.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                    Double lowerKey = serie.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+                for (XYChartSerie serie : xyChartSerieList) {
+                    try {
+                        Double higherKey = serie.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                        Double lowerKey = serie.getSampleMap().lowerKey(valueForDisplay.doubleValue());
 
-                    Double nearest = higherKey;
-                    if (nearest == null) nearest = lowerKey;
+                        Double nearest = higherKey;
+                        if (nearest == null) nearest = lowerKey;
 
-                    if (lowerKey != null && higherKey != null) {
-                        Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
-                        Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
-                        if (lower < higher) {
-                            nearest = lowerKey;
+                        if (lowerKey != null && higherKey != null) {
+                            Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
+                            Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
+                            if (lower < higher) {
+                                nearest = lowerKey;
+                            }
+
+                            JEVisSample nearestSample = serie.getSampleMap().get(nearest);
+
+                            String title = "";
+                            title += serie.getSingleRow().getObject().getName();
+
+                            JEVisObject dataObject;
+                            if (serie.getSingleRow().getDataProcessor() != null)
+                                dataObject = serie.getSingleRow().getDataProcessor();
+                            else dataObject = serie.getSingleRow().getObject();
+
+                            String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
+
+                            RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote);
+
+                            map.put(title, rowNote);
                         }
-
-                        JEVisSample nearestSample = serie.getSampleMap().get(nearest);
-
-                        String title = "";
-                        title += serie.getSingleRow().getObject().getName();
-
-                        JEVisObject dataObject;
-                        if (serie.getSingleRow().getDataProcessor() != null)
-                            dataObject = serie.getSingleRow().getDataProcessor();
-                        else dataObject = serie.getSingleRow().getObject();
-
-                        String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
-
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote);
-
-                        map.put(title, rowNote);
+                    } catch (Exception ex) {
+                        logger.error("Error: could not get note", ex);
                     }
-                } catch (Exception ex) {
-                    logger.error("Error: could not get note", ex);
                 }
+
+                NoteDialog nd = new NoteDialog(map);
+
+                nd.showAndWait().ifPresent(response -> {
+                    if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                        saveUserNotes(nd.getNoteMap());
+                    } else if (response.getButtonData().getTypeCode() == ButtonType.CANCEL.getButtonData().getTypeCode()) {
+
+                    }
+                });
             }
-
-            NoteDialog nd = new NoteDialog(map);
-
-            nd.showAndWait().ifPresent(response -> {
-                if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                    saveUserNotes(nd.getNoteMap());
-                } else if (response.getButtonData().getTypeCode() == ButtonType.CANCEL.getButtonData().getTypeCode()) {
-
-                }
-            });
         }
     }
 
