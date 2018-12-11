@@ -66,8 +66,8 @@ public class AreaChart implements Chart {
     private AtomicBoolean addManipulationToTitle;
     private AtomicReference<ManipulationMode> manipulationMode;
     private Boolean[] changedBoth;
-    private NumberAxis numberAxis;
-    private Axis dateAxis;
+    private NumberAxis numberAxis = new NumberAxis();
+    private Axis dateAxis = new DateValueAxis();
 
     public AreaChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -97,13 +97,14 @@ public class AreaChart implements Chart {
             }
         });
 
-        if (!asDuration) dateAxis = new DateValueAxis();
-        else dateAxis = new DateValueAxis(true, timeStampOfFirstSample.get());
+        if (asDuration) {
+            ((DateValueAxis) dateAxis).setAsDuration(true);
+            ((DateValueAxis) dateAxis).setTimeStampFromFirstSample(timeStampOfFirstSample.get());
+        }
         dateAxis.setAutoRanging(true);
 
         generateXAxis(changedBoth);
 
-        numberAxis = new NumberAxis();
         numberAxis.setAutoRanging(true);
 
         generateYAxis();

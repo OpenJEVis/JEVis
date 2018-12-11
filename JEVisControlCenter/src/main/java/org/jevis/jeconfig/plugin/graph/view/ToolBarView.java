@@ -102,15 +102,15 @@ public class ToolBarView {
                 model.setCharts(null);
                 model.updateSelectedData();
 
-                if (!model.getAnalysisTimeFrame().getTimeFrame().equals(oldTimeFrame.getTimeFrame())) {
-                    model.getSelectedData().forEach(chartDataModel -> {
-                        if (!oldStart.get().equals(now)) chartDataModel.setSelectedStart(oldStart.get());
-                        if (!oldEnd.get().equals(new DateTime(2001, 1, 1, 0, 0, 0)))
-                            chartDataModel.setSelectedEnd(oldEnd.get());
-                    });
-                }
                 model.setAggregationPeriod(oldAggregationPeriod);
                 model.setAnalysisTimeFrame(oldTimeFrame);
+
+                model.getSelectedData().forEach(chartDataModel -> {
+                    if (!oldStart.get().equals(now)) chartDataModel.setSelectedStart(oldStart.get());
+                    if (!oldEnd.get().equals(new DateTime(2001, 1, 1, 0, 0, 0)))
+                        chartDataModel.setSelectedEnd(oldEnd.get());
+                });
+
                 model.updateSamples();
 
                 model.setCharts(model.getCharts());
