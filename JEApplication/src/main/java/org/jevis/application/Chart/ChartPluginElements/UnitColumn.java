@@ -188,10 +188,12 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
 
                         if (!empty) {
                             try {
-                                StackPane stackPane = new StackPane();
 
                                 if (getTreeTableRow().getItem() != null && tree != null
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+
+                                    StackPane stackPane = new StackPane();
+
                                     ChartDataModel data = getData(getTreeTableRow().getItem());
                                     ComboBox box = buildUnitBox(data);
 
@@ -208,7 +210,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                     imageMarkAll.fitWidthProperty().set(12);
 
                                     Button tb = new Button("", imageMarkAll);
-                                    tb.setTooltip(tpMarkAll);
+                                    tb.setTooltip(tooltipMarkAll);
 
                                     tb.setOnAction(event -> {
                                         JEVisUnit u = ChartUnits.parseUnit(box.getSelectionModel().getSelectedItem().toString());
@@ -228,10 +230,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
 
                                     box.setDisable(!data.isSelectable());
                                     tb.setDisable(!data.isSelectable());
+                                    setGraphic(stackPane);
                                 }
-
-                                setText(null);
-                                setGraphic(stackPane);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

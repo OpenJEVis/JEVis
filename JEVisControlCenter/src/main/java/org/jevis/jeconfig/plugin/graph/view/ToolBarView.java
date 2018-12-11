@@ -486,16 +486,18 @@ public class ToolBarView {
                             logger.error("Error in current analysis directory: " + e);
                         }
                         if (!check.contains(name.getText())) {
+                            JEVisObject newAnalysisObject = null;
                             try {
                                 JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
-                                model.setCurrentAnalysis(currentAnalysisDirectory.buildObject(name.getText(), classAnalysis));
-                                model.getCurrentAnalysis().commit();
+                                newAnalysisObject = currentAnalysisDirectory.buildObject(name.getText(), classAnalysis);
+                                newAnalysisObject.commit();
 
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
-                            saveDataModel(model.getSelectedData(), model.getCharts());
+                            saveDataModel(newAnalysisObject, model.getSelectedData(), model.getCharts());
 
+                            model.setCurrentAnalysis(newAnalysisObject);
                             model.updateListAnalyses();
                             listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                         } else {
@@ -509,7 +511,7 @@ public class ToolBarView {
 
                             dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
                                 if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                                    saveDataModel(model.getSelectedData(), model.getCharts());
+                                    saveDataModel(model.getCurrentAnalysis(), model.getSelectedData(), model.getCharts());
 
                                     model.updateListAnalyses();
                                     listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
@@ -547,9 +549,9 @@ public class ToolBarView {
 
     }
 
-    private void saveDataModel(Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
+    private void saveDataModel(JEVisObject analysis, Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
         try {
-            JEVisAttribute dataModel = model.getCurrentAnalysis().getAttribute("Data Model");
+            JEVisAttribute dataModel = analysis.getAttribute("Data Model");
 
             JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
             List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
@@ -577,7 +579,7 @@ public class ToolBarView {
 
             jsonChartDataModel.setAnalysisTimeFrame(jctf);
 
-            JEVisAttribute charts = model.getCurrentAnalysis().getAttribute("Charts");
+            JEVisAttribute charts = analysis.getAttribute("Charts");
             List<JsonChartSettings> jsonChartSettings = new ArrayList<>();
             for (ChartSettings cset : chartSettings) {
                 JsonChartSettings set = new JsonChartSettings();

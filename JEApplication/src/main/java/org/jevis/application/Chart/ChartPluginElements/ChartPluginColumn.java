@@ -18,7 +18,7 @@ import org.jevis.application.jevistree.plugin.ChartPlugin;
 public interface ChartPluginColumn {
     Image imgMarkAll = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
     SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
-    Tooltip tpMarkAll = new Tooltip(rb.getString("plugin.graph.dialog.changesettings.tooltip.forall"));
+    Tooltip tooltipMarkAll = new Tooltip(rb.getString("plugin.graph.dialog.changesettings.tooltip.forall"));
 
     default ChartDataModel getData(JEVisTreeRow row) {
         Long id = Long.parseLong(row.getID());
