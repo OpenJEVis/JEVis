@@ -66,6 +66,8 @@ public class LineChart implements Chart {
     private AtomicBoolean addManipulationToTitle;
     private AtomicReference<ManipulationMode> manipulationMode;
     private Boolean[] changedBoth;
+    private NumberAxis numberAxis;
+    private Axis dateAxis;
 
     public LineChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -95,14 +97,18 @@ public class LineChart implements Chart {
             }
         });
 
-
-        NumberAxis numberAxis = new NumberAxis();
-        Axis dateAxis;
         if (!asDuration) dateAxis = new DateValueAxis();
         else dateAxis = new DateValueAxis(true, timeStampOfFirstSample.get());
+        dateAxis.setAutoRanging(true);
 
-        lineChart = new javafx.scene.chart.LineChart<>(dateAxis, numberAxis, series);
+        generateXAxis(changedBoth);
 
+        numberAxis = new NumberAxis();
+        numberAxis.setAutoRanging(true);
+
+        generateYAxis();
+
+        lineChart = new javafx.scene.chart.LineChart<Number, Number>(dateAxis, numberAxis, series);
 
         applyColors();
 
@@ -110,13 +116,6 @@ public class LineChart implements Chart {
 
         lineChart.setLegendVisible(false);
         lineChart.setCreateSymbols(true);
-
-        lineChart.getXAxis().setAutoRanging(true);
-        lineChart.getYAxis().setAutoRanging(true);
-
-        generateXAxisTitle(changedBoth);
-
-        generateYAxisTitle();
 
         initializeZoom();
     }
@@ -146,16 +145,20 @@ public class LineChart implements Chart {
          * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
          */
 
-        if (singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
-                || singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MAX)) {
-            asDuration = true;
-        }
+        checkManipulation(singleRow);
+        return serie;
+    }
+
+    private void checkManipulation(ChartDataModel singleRow) throws JEVisException {
+        asDuration = singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
+                || singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MAX);
 
         if (singleRow.getManipulationMode().equals(RUNNING_MEAN)
                 || singleRow.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN)) {
             addManipulationToTitle.set(true);
-            manipulationMode.set(singleRow.getManipulationMode());
-        }
+        } else addManipulationToTitle.set(false);
+
+        manipulationMode.set(singleRow.getManipulationMode());
 
         if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
             ManipulationMode oldMode = singleRow.getManipulationMode();
@@ -168,7 +171,6 @@ public class LineChart implements Chart {
 
             singleRow.setManipulationMode(oldMode);
         }
-        return serie;
     }
 
     @Override
@@ -186,7 +188,8 @@ public class LineChart implements Chart {
         }
     }
 
-    private void generateYAxisTitle() {
+    private void generateYAxis() {
+
         for (ChartDataModel singleRow : chartDataModels) {
             String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
             if (currentUnit.equals("") || currentUnit.equals(Unit.ONE))
@@ -207,10 +210,15 @@ public class LineChart implements Chart {
             if (unit.indexOf(s) == 0) allUnits += s;
             else allUnits += ", " + s;
         }
-        lineChart.getYAxis().setLabel(allUnits);
+        numberAxis.setLabel(allUnits);
     }
 
-    private void generateXAxisTitle(Boolean[] changedBoth) {
+    private void generateXAxis(Boolean[] changedBoth) {
+        if (!asDuration) ((DateValueAxis) dateAxis).setAsDuration(false);
+        else {
+            ((DateValueAxis) dateAxis).setAsDuration(true);
+            ((DateValueAxis) dateAxis).setTimeStampFromFirstSample(timeStampOfFirstSample.get());
+        }
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
 
@@ -232,7 +240,7 @@ public class LineChart implements Chart {
             overall = period.toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale()));
         }
 
-        lineChart.getXAxis().setLabel(rb.getString("plugin.graph.chart.dateaxis.title") + " " + overall);
+        dateAxis.setLabel(rb.getString("plugin.graph.chart.dateaxis.title") + " " + overall);
     }
 
     @Override
@@ -299,46 +307,57 @@ public class LineChart implements Chart {
         tableData.clear();
         unit.clear();
         //hexColors.clear();
+        if (chartDataModels.size() > 0) {
+            if (chartDataModels.size() <= xyChartSerieList.size()) {
 
-        if (chartDataModels.size() <= xyChartSerieList.size()) {
-
-            if (chartDataModels.size() < xyChartSerieList.size()) {
-                for (int i = xyChartSerieList.size(); i > chartDataModels.size(); i--) {
-                    xyChartSerieList.remove(i - 1);
+                if (chartDataModels.size() < xyChartSerieList.size()) {
+                    for (int i = xyChartSerieList.size(); i > chartDataModels.size(); i--) {
+                        xyChartSerieList.remove(i - 1);
+                    }
                 }
+
+                xyChartSerieList.forEach(xyChartSerie -> {
+                    int i = xyChartSerieList.indexOf(xyChartSerie);
+                    hexColors.set(i, chartDataModels.get(i).getColor());
+                    xyChartSerie.setSingleRow(chartDataModels.get(i));
+                    try {
+                        xyChartSerie.generateSeriesFromSamples();
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+
+                    tableData.add(xyChartSerie.getTableEntry());
+
+                    try {
+                        checkManipulation(chartDataModels.get(i));
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                });
+
+            } else if (chartDataModels.size() > xyChartSerieList.size()) {
+
+                for (int i = xyChartSerieList.size() - 1; i < chartDataModels.size(); i++) {
+                    try {
+                        xyChartSerieList.add(generateSerie(changedBoth, chartDataModels.get(i)));
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
             }
 
-            xyChartSerieList.forEach(xyChartSerie -> {
-                int i = xyChartSerieList.indexOf(xyChartSerie);
-                hexColors.set(i, chartDataModels.get(i).getColor());
-                xyChartSerie.setSingleRow(chartDataModels.get(i));
-                try {
-                    xyChartSerie.generateSeriesFromSamples();
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
+            applyColors();
 
-                tableData.add(xyChartSerie.getTableEntry());
-            });
+            generateXAxis(changedBoth);
 
-        } else if (chartDataModels.size() > xyChartSerieList.size()) {
+            generateYAxis();
 
-            for (int i = xyChartSerieList.size() - 1; i < chartDataModels.size(); i++) {
-                try {
-                    xyChartSerieList.add(generateSerie(changedBoth, chartDataModels.get(i)));
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
+            lineChart.getXAxis().layout();
+            lineChart.getYAxis().layout();
+            lineChart.layout();
         }
-
-        applyColors();
-
-        generateXAxisTitle(changedBoth);
-
-        generateYAxisTitle();
 
     }
 
@@ -404,8 +423,8 @@ public class LineChart implements Chart {
                         tableEntry.setDate(new DateTime(Math.round(nearest))
                                 .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                     } else {
-                        tableEntry.setDate(String.valueOf((new DateTime(Math.round(nearest)).getMillis() -
-                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60));
+                        tableEntry.setDate((new DateTime(Math.round(nearest)).getMillis() -
+                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
                     }
                     tableEntry.setNote(formattedNote.getNote());
                     String unit = serie.getUnit();

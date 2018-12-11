@@ -45,6 +45,10 @@ public class ChartPlugin implements TreePlugin {
         return jeVisTree;
     }
 
+    public ChartPlugin(GraphDataModel data) {
+        this.data = data;
+    }
+
     @Override
     public void setTree(JEVisTree tree) {
         jeVisTree = tree;
@@ -161,9 +165,9 @@ public class ChartPlugin implements TreePlugin {
         return data;
     }
 
-    public void setData(GraphDataModel data) {
-        this.data = data;
-    }
+//    public void setData(GraphDataModel data) {
+//        this.data = data;
+//    }
 
     public void selectNone() {
         data.selectNone();

@@ -109,10 +109,11 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
 
                         if (!empty) {
                             try {
-                                StackPane stackPane = new StackPane();
                                 if (getTreeTableRow().getItem() != null
                                         && tree != null
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    StackPane stackPane = new StackPane();
+
                                     ChartDataModel data = getData(getTreeTableRow().getItem());
                                     ColorPicker colorPicker = new ColorPicker();
 
@@ -125,10 +126,8 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
 
                                     colorPicker.setDisable(!data.isSelectable());
                                     stackPane.getChildren().setAll(colorPicker);
+                                    setGraphic(stackPane);
                                 }
-
-                                setText(null);
-                                setGraphic(stackPane);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

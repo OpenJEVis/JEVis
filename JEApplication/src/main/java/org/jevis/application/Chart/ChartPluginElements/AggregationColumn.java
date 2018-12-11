@@ -78,10 +78,10 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
                         if (!empty) {
                             try {
-                                StackPane stackPane = new StackPane();
-
                                 if (getTreeTableRow().getItem() != null && tree != null
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    StackPane stackPane = new StackPane();
+
                                     ChartDataModel data = getData(getTreeTableRow().getItem());
 
                                     AggregationBox aggBox = new AggregationBox(data);
@@ -92,7 +92,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
                                     Button tb = new Button("", imageMarkAll);
 
-                                    tb.setTooltip(tpMarkAll);
+                                    tb.setTooltip(tooltipMarkAll);
 
                                     tb.setOnAction(event -> {
                                         AggregationPeriod selection = AggregationPeriod.parseAggregation(aggBox.getAggregationBox().getSelectionModel().getSelectedItem().toString());
@@ -112,10 +112,8 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
                                     aggBox.getAggregationBox().setDisable(!data.isSelectable());
                                     tb.setDisable(!data.isSelectable());
+                                    setGraphic(stackPane);
                                 }
-
-                                setText(null);
-                                setGraphic(stackPane);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

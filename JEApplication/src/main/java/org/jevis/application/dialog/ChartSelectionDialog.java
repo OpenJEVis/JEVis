@@ -120,7 +120,7 @@ public class ChartSelectionDialog {
             if (plugin instanceof ChartPlugin) {
                 chartPlugin = (ChartPlugin) plugin;
                 if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
-                    chartPlugin.setData(data);
+                    //chartPlugin.setData(data);
                 }
             }
         }

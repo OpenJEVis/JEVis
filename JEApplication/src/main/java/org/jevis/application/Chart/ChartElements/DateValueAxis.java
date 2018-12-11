@@ -158,6 +158,10 @@ public class DateValueAxis extends ValueAxis<Long> {
         }
     };
 
+    public void setAsDuration(boolean asDuration) {
+        this.asDuration = asDuration;
+    }
+
     /**
      * Create a non-auto-ranging DateValueAxis with the given upper bound, lower bound and tick unit
      *
@@ -416,7 +420,7 @@ public class DateValueAxis extends ValueAxis<Long> {
             return formatter.toString(value);
         } else {
             DateTime ts = new DateTime(value);
-            return String.valueOf((ts.getMillis() - firstTS.getMillis()) / 1000 / 60 / 60);
+            return (ts.getMillis() - firstTS.getMillis()) / 1000 / 60 / 60 + " h";
         }
     }
 
@@ -747,6 +751,10 @@ public class DateValueAxis extends ValueAxis<Long> {
     @Override
     public List<CssMetaData<? extends Styleable, ?>> getCssMetaData() {
         return getClassCssMetaData();
+    }
+
+    public void setTimeStampFromFirstSample(DateTime dateTime) {
+        this.firstTS = dateTime;
     }
 
     // -------------- INNER CLASSES ------------------------------------------------------------------------------------

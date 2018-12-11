@@ -218,6 +218,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     break;
                 case customStartEnd:
                     comboBoxPresetDates.getSelectionModel().select(7);
+                    applySelectedDatePresetToDataModel(7);
                     break;
             }
         }
@@ -530,8 +531,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case 7:
-                Long id = graphDataModel.getAnalysisTimeFrame().getId();
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd, id));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
@@ -725,14 +724,15 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                                 dateHelper.setStartTime(graphDataModel.getWorkdayStart());
                                 dateHelper.setEndTime(graphDataModel.getWorkdayEnd());
 
-                                graphDataModel.getAnalysisTimeFrame().setId(cpo.getObject().getID());
+                                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
+                                newTimeFrame.setTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd);
+                                newTimeFrame.setId(cpo.getObject().getID());
+                                graphDataModel.setAnalysisTimeFrame(newTimeFrame);
 
+                                comboBoxPresetDates.getSelectionModel().select(7);
                                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
-                                setSelectedStart(dateHelper.getStartDate());
-                                setSelectedEnd(dateHelper.getEndDate());
                             }
                         }
-                        comboBoxPresetDates.getSelectionModel().select(7);
                     }
                 }
             });

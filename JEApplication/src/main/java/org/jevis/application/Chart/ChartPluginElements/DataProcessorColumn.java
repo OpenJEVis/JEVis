@@ -136,10 +136,10 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
 
                         if (!empty) {
                             try {
-                                StackPane stackPane = new StackPane();
-
                                 if (getTreeTableRow().getItem() != null && tree != null
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    StackPane stackPane = new StackPane();
+
                                     ChartDataModel data = getData(getTreeTableRow().getItem());
                                     ChoiceBox box = null;
                                     try {
@@ -153,10 +153,8 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
                                     box.setDisable(!data.isSelectable());
+                                    setGraphic(stackPane);
                                 }
-
-                                setText(null);
-                                setGraphic(stackPane);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

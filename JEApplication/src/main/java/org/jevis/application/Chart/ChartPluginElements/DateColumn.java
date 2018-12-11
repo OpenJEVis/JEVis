@@ -152,10 +152,10 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
 
                         if (!empty) {
                             try {
-                                StackPane stackPane = new StackPane();
-
                                 if (getTreeTableRow().getItem() != null && tree != null
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
+                                    StackPane stackPane = new StackPane();
+
                                     ChartDataModel data = getData(getTreeTableRow().getItem());
                                     DatePicker dp = buildDatePicker(data, type);
 
@@ -164,7 +164,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
                                     imageMarkAll.fitWidthProperty().set(12);
 
                                     Button tb = new Button("", imageMarkAll);
-                                    tb.setTooltip(tpMarkAll);
+                                    tb.setTooltip(tooltipMarkAll);
 
                                     tb.setOnAction(event -> {
                                         if (type == DATE_TYPE.START) {
@@ -205,11 +205,8 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
 
                                     dp.setDisable(!data.isSelectable());
                                     tb.setDisable(!data.isSelectable());
+                                    setGraphic(stackPane);
                                 }
-
-
-                                setText(null);
-                                setGraphic(stackPane);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

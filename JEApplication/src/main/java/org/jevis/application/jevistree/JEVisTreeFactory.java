@@ -176,8 +176,8 @@ public class JEVisTreeFactory {
         SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
         tree.setSearchFilterBar(searchBar);
 
-        TreePlugin bp = new ChartPlugin();
-        ((ChartPlugin) bp).setData(graphDataModel);
+        TreePlugin bp = new ChartPlugin(graphDataModel);
+        //((ChartPlugin) bp).setData(graphDataModel);
         tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
         tree.getPlugins().add(bp);
 //        addGraphKeys(tree);
