@@ -157,7 +157,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
     @Override
     public void buildColumn() {
         TreeTableColumn<JEVisTreeRow, JEVisUnit> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(110);
+        column.setPrefWidth(130);
         column.setEditable(true);
         column.setId(COLUMN_ID);
 
@@ -206,8 +206,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                     });
 
                                     ImageView imageMarkAll = new ImageView(imgMarkAll);
-                                    imageMarkAll.fitHeightProperty().set(12);
-                                    imageMarkAll.fitWidthProperty().set(12);
+                                    imageMarkAll.fitHeightProperty().set(13);
+                                    imageMarkAll.fitWidthProperty().set(13);
 
                                     Button tb = new Button("", imageMarkAll);
                                     tb.setTooltip(tooltipMarkAll);

@@ -160,8 +160,8 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
                                     DatePicker dp = buildDatePicker(data, type);
 
                                     ImageView imageMarkAll = new ImageView(imgMarkAll);
-                                    imageMarkAll.fitHeightProperty().set(12);
-                                    imageMarkAll.fitWidthProperty().set(12);
+                                    imageMarkAll.fitHeightProperty().set(13);
+                                    imageMarkAll.fitWidthProperty().set(13);
 
                                     Button tb = new Button("", imageMarkAll);
                                     tb.setTooltip(tooltipMarkAll);
