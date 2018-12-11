@@ -47,6 +47,7 @@ public class JEVisItemLoader {
         this.roots = roots;
 
         buildItems(this.allObjects);
+        buildItems(this.roots);
     }
 
     /**
@@ -220,11 +221,14 @@ public class JEVisItemLoader {
 //        benchmark.printBenchmarkDetail("find matching attributes");
 
         /** set needed parents **/
-        for (JEVisTreeItem item : treeObjectItems) {
-            if (neededParents.contains(item.getValue().getJEVisObject())) {
-                item.setParentForFilter(true);
+        for (JEVisObject obj : neededParents) {
+            if (itemObjectLinker.containsKey(obj)) {
+                itemObjectLinker.get(obj).setParentForFilter(true);
+            } else {
+                logger.error("Parent item not found: " + obj);
             }
         }
+
 
 //        benchmark.printBenchmarkDetail("find parents");
         /** build children lists **/
