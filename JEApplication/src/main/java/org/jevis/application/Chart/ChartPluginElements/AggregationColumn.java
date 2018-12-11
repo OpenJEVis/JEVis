@@ -87,8 +87,8 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
                                     AggregationBox aggBox = new AggregationBox(data);
 
                                     ImageView imageMarkAll = new ImageView(imgMarkAll);
-                                    imageMarkAll.fitHeightProperty().set(12);
-                                    imageMarkAll.fitWidthProperty().set(12);
+                                    imageMarkAll.fitHeightProperty().set(13);
+                                    imageMarkAll.fitWidthProperty().set(13);
 
                                     Button tb = new Button("", imageMarkAll);
 
