@@ -354,6 +354,8 @@ public class AreaChart implements Chart {
 
             generateYAxis();
 
+            setTitle(getChartName());
+
             areaChart.getXAxis().layout();
             areaChart.getYAxis().layout();
             areaChart.layout();
@@ -368,7 +370,35 @@ public class AreaChart implements Chart {
 
     @Override
     public String getChartName() {
-        return chartName;
+        String newName = chartName;
+        switch (manipulationMode.get()) {
+            case CENTRIC_RUNNING_MEAN:
+                newName += " [" + rb.getString("plugin.graph.manipulation.centricrunningmean") + "]";
+                break;
+            case RUNNING_MEAN:
+                newName += " [" + rb.getString("plugin.graph.manipulation.runningmean") + "]";
+                break;
+            case MAX:
+                break;
+            case MIN:
+                break;
+            case AVERAGE:
+                break;
+            case NONE:
+                break;
+            case TOTAL:
+                break;
+            case SORTED_MAX:
+                newName += " [" + rb.getString("plugin.graph.manipulation.sortedmax") + "]";
+                break;
+            case SORTED_MIN:
+                newName += " [" + rb.getString("plugin.graph.manipulation.sortedmin") + "]";
+                break;
+            case MEDIAN:
+                break;
+        }
+
+        return newName;
     }
 
     @Override

@@ -156,8 +156,8 @@ public class XYChartSerie implements Serie {
     public String getTableEntryName() {
         String tableEntryName = singleRow.getObject().getName();
 
-        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE))
-            tableEntryName += "(" + singleRow.getManipulationMode().toString() + ")";
+//        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE))
+//            tableEntryName += " (" + singleRow.getManipulationMode().toString() + ")";
 
         return tableEntryName;
     }
