@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="error">
+    <!-- LogFile start parameter and the default value, to set the file use 'java -jar -DserviceLogFile=/var/log/jecalc.log'-->
+    <Properties>
+        <Property name="serviceLogFile">/var/log/jevis.log</Property>
+    </Properties>
+    <Appenders>
+        <File name="LogFile" fileName="${sys:serviceLogFile}">
+            <PatternLayout pattern="[%d{EEE HH:mm}|%-5p|%-20.20logger{1}] %msg%n"/>
+        </File>   
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="LogFile"/>
+        </Root>
+
+	<Logger name="org.jevis.rest" level="error" additivity="false">
+            <AppenderRef ref="LogFile"/>
+        </Logger>
+        <Logger name="org.jevis.jeapi" level="error" additivity="false">
+            <AppenderRef ref="LogFile"/>
+        </Logger>
+        <Logger name="org.jevis.commons" level="error" additivity="false">
+            <AppenderRef ref="LogFile"/>
+        </Logger>
+        <Logger name="org.jevis.ws" level="error" additivity="false">
+            <AppenderRef ref="LogFile"/>
+        </Logger>
+    </Loggers>
+</Configuration>
