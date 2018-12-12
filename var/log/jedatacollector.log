@@ -1,0 +1,13 @@
+[Mi 17:03|INFO |Launcher            ] -------Start JEDataCollector-------
+[Mi 17:03|INFO |Launcher            ] Service is enabled.
+[Mi 17:03|INFO |Launcher            ] Number of Requests: 21
+[Mi 17:03|INFO |Launcher            ] ----------------Execute DataSource Loytec XML-DL Server-----------------
+[Mi 17:03|INFO |oytecXmlDlDataSource] initialize called
+[Mi 17:03|INFO |oytecXmlDlDataSource] Importer created
+[Mi 17:03|INFO |oytecXmlDlDataSource] Init importer
+[Mi 17:03|INFO |oytecXmlDlDataSource] Init importer completed
+[Mi 17:03|INFO |oytecXmlDlDataSource] Initialization completed
+[Mi 17:03|INFO |oytecXmlDlDataSource] Running
+[Mi 17:03|INFO |SOAPDataSource      ] SOAP Uri: https://admin:envidatec4u@10.247.82.58:8000/DL/
+[Mi 17:03|ERROR|Launcher            ] Thread Pool was interrupted or execution was stopped: java.lang.InterruptedException
+[Mi 17:03|INFO |Launcher            ] ---------------------finish------------------------
