@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ../etc/jevis.env
+
 # Allways start jealarm before the alarming
 ${JEVIS_HOME}/bin/jecalc.sh
 
