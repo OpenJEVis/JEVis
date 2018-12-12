@@ -1,8 +1,10 @@
 #!/bin/bash
 
-source /home/jevis/.profile
+#source /home/jevis/.profile
 
 cd ${JEVIS_HOME}/JEWebService/target/
-java -jar ${JEVIS_HOME}/JEWebService/target/JEWebservice-1.6.jar ${JEVIS_HOME}/etc/webservice.xml &
+java 	-Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.xml \
+	-DserviceLogFile=${JEVIS_HOME}/var/log/jewebservice.log \
+	-jar ${JEVIS_HOME}/JEWebService/target/JEWebservice-1.6.jar ${JEVIS_HOME}/etc/webservice.xml &
 
 

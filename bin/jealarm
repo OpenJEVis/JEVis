@@ -3,7 +3,7 @@
 # Allways start jealarm before the alarming
 ${JEVIS_HOME}/bin/jecalc.sh
 
-java -jar ${JEVIS_HOME}/JEAlarm/target/SimpleAlarm.jar --config ${JEVIS_HOME}/etc/jevis.xml $?
+java -DserviceLogFile=/var/log/jealarm.log -jar ${JEVIS_HOME}/JEAlarm/target/SimpleAlarm.jar --config ${JEVIS_HOME}/etc/jevis.xml $?
 
 
 
