@@ -37,6 +37,7 @@ public class StringEditor extends BasicEditor {
 
     }
 
+
     @Override
     public String formatSample(JEVisSample value) throws JEVisException {
         return value.getValueAsString();

@@ -20,6 +20,7 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXTimePicker;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -48,12 +49,12 @@ import java.time.format.FormatStyle;
  */
 public class TimeEditor implements AttributeEditor {
 
+    private static final Logger logger = LogManager.getLogger(TimeEditor.class);
     private final JFXTimePicker pickerTime = new JFXTimePicker();
     //    private final LocalDateTimeTextField picker = new LocalDateTimeTextField();
     private final HBox editor = new HBox();
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private static final Logger logger = LogManager.getLogger(TimeEditor.class);
     private JEVisDataSource ds;
     private JEVisSample originalSample;
 
@@ -67,6 +68,16 @@ public class TimeEditor implements AttributeEditor {
     public boolean hasChanged() {
         return _changed.getValue();
     }
+
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            editor.getChildren().clear();
+            buildGUI();
+        });
+    }
+
 
     @Override
     public void commit() throws JEVisException {

@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.utils.Optimization;
 import org.jevis.commons.ws.json.JsonSample;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -49,6 +50,7 @@ public class JEVisSampleWS implements JEVisSample {
         this.attribute = att;
         this.ds = ds;
         this.json = json;
+        Optimization.getInstance().addSample(this);
 
     }
 
@@ -62,6 +64,8 @@ public class JEVisSampleWS implements JEVisSample {
         } catch (Exception ex) {
             logger.catching(ex);
         }
+
+        Optimization.getInstance().addSample(this);
 
     }
 
@@ -220,7 +224,13 @@ public class JEVisSampleWS implements JEVisSample {
         List<JEVisSample> tmp = new ArrayList<>();
         tmp.add(this);
         getAttribute().addSamples(tmp);
-        ds.reloadAttribute(getAttribute());
+//        ds.reloadAttribute(getAttribute());
+//        try {
+//            JEVisObjectWS obj = (JEVisObjectWS) getAttribute().getObject();
+//            obj.notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.ATTRIBUTE_UPDATE));
+//        } catch (Exception ex) {
+//            logger.error(ex);
+//        }
     }
 
     @Override

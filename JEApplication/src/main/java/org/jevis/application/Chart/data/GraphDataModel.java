@@ -66,12 +66,14 @@ public class GraphDataModel extends Observable {
 
             updateSelectedData();
 
-            if (selectedData != null && !selectedData.isEmpty() && getListAnalysisModel() != null && getListAnalysisModel().getAnalysisTimeFrame() != null
-                    && getListAnalysisModel().getAnalysisTimeFrame().getTimeframe() != null) {
+            JsonChartDataModel jsonChartDataModel = getListAnalysisModel();
+
+            if (selectedData != null && !selectedData.isEmpty() && jsonChartDataModel != null && jsonChartDataModel.getAnalysisTimeFrame() != null
+                    && jsonChartDataModel.getAnalysisTimeFrame().getTimeframe() != null) {
                 AnalysisTimeFrame newATF = new AnalysisTimeFrame();
                 try {
-                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(getListAnalysisModel().getAnalysisTimeFrame().getTimeframe()));
-                    newATF.setId(Long.parseLong(getListAnalysisModel().getAnalysisTimeFrame().getId()));
+                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(jsonChartDataModel.getAnalysisTimeFrame().getTimeframe()));
+                    newATF.setId(Long.parseLong(jsonChartDataModel.getAnalysisTimeFrame().getId()));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -103,10 +105,12 @@ public class GraphDataModel extends Observable {
     public void updateSelectedData() {
         Set<ChartDataModel> selectedData = new HashSet<>();
 
-        if (getListAnalysisModel() != null) {
+        JsonChartDataModel jsonChartDataModel = getListAnalysisModel();
+
+        if (jsonChartDataModel != null) {
             Map<String, ChartDataModel> data = new HashMap<>();
 
-            for (JsonAnalysisDataRow mdl : getListAnalysisModel().getListAnalyses()) {
+            for (JsonAnalysisDataRow mdl : jsonChartDataModel.getListAnalyses()) {
                 ChartDataModel newData = new ChartDataModel();
 
                 try {
@@ -147,11 +151,11 @@ public class GraphDataModel extends Observable {
                 }
             }
 
-            if (getListAnalysisModel().getAnalysisTimeFrame() != null) {
+            if (jsonChartDataModel.getAnalysisTimeFrame() != null) {
                 try {
                     AnalysisTimeFrame newATF = new AnalysisTimeFrame();
-                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(getListAnalysisModel().getAnalysisTimeFrame().getTimeframe()));
-                    newATF.setId(Long.parseLong(getListAnalysisModel().getAnalysisTimeFrame().getId()));
+                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(jsonChartDataModel.getAnalysisTimeFrame().getTimeframe()));
+                    newATF.setId(Long.parseLong(jsonChartDataModel.getAnalysisTimeFrame().getId()));
                     analysisTimeFrame = newATF;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -184,7 +188,7 @@ public class GraphDataModel extends Observable {
             try {
                 if (getCurrentAnalysis() != null) {
                     if (Objects.nonNull(getCurrentAnalysis().getAttribute("Charts"))) {
-                        ds.reloadAttribute(getCurrentAnalysis().getAttribute("Charts"));
+//                        ds.reloadAttribute(getCurrentAnalysis().getAttribute("Charts"));
                         if (getCurrentAnalysis().getAttribute("Charts").hasSample()) {
                             String str = getCurrentAnalysis().getAttribute("Charts").getLatestSample().getValueAsString();
                             try {
@@ -620,7 +624,7 @@ public class GraphDataModel extends Observable {
             }
             if (getCurrentAnalysis() != null) {
                 if (Objects.nonNull(getCurrentAnalysis().getAttribute("Data Model"))) {
-                    ds.reloadAttribute(getCurrentAnalysis().getAttribute("Data Model"));
+//                    ds.reloadAttribute(getCurrentAnalysis().getAttribute("Data Model"));
                     if (getCurrentAnalysis().getAttribute("Data Model").hasSample()) {
                         String str = getCurrentAnalysis().getAttribute("Data Model").getLatestSample().getValueAsString();
                         try {
@@ -676,11 +680,17 @@ public class GraphDataModel extends Observable {
     public void setCurrentAnalysis(JEVisObject currentAnalysis) {
         this.currentAnalysis = currentAnalysis;
 
-        if (observableListAnalyses == null || observableListAnalyses.isEmpty()) updateListAnalyses();
-        if (listAnalysisModel == null) {
-            getListAnalysisModel();
-            updateSelectedData();
+        try {
+            ds.reloadAttribute(currentAnalysis.getAttribute("Data Model"));
+        } catch (Exception ex) {
+            logger.error(ex);
         }
+
+        if (observableListAnalyses == null || observableListAnalyses.isEmpty()) updateListAnalyses();
+//        if (listAnalysisModel == null) {
+        getListAnalysisModel();
+        updateSelectedData();
+//        }
     }
 
 

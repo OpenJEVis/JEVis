@@ -27,11 +27,6 @@ import java.util.EventObject;
  */
 public class JEVisEvent extends EventObject {
 
-    public enum TYPE {
-        OBJECT_BUILD_CHILD, OBJECT_NEW_CHILD, OBJECT_DELETE, OBJECT_CHILD_DELETED, OBJECT_UPDATE, OBJECT_UPDATED, OBJECT_MOVED, OBJECT_COPIED, OBJECT_LINKED,
-        CLASS_DELETE, CLASS_CHILD_DELETE, CLASS_DELETE_TYPE, CLASS_BUILD_CHILD, CLASS_UPDATE
-    }
-
     private final TYPE type;
 
     public JEVisEvent(Object source, TYPE type) {
@@ -41,6 +36,11 @@ public class JEVisEvent extends EventObject {
 
     public TYPE getType() {
         return type;
+    }
+
+    public enum TYPE {
+        OBJECT_BUILD_CHILD, OBJECT_NEW_CHILD, OBJECT_DELETE, OBJECT_CHILD_DELETED, OBJECT_UPDATE, OBJECT_UPDATED, OBJECT_MOVED, OBJECT_COPIED, OBJECT_LINKED,
+        CLASS_DELETE, CLASS_CHILD_DELETE, CLASS_DELETE_TYPE, CLASS_BUILD_CHILD, CLASS_UPDATE, ATTRIBUTE_UPDATE
     }
 
 

@@ -207,7 +207,6 @@ public class ColumnFactory {
                                                           HBox hbox2 = new HBox();
                                                           Region spacer = new Region();
                                                           spacer.setPrefWidth(12);
-//                                                          hbox2.getChildren().setAll(spacer, ResourceLoader.getImage("down_right-24.png", 10, 10));
                                                           ImageView image = new ImageView(ATTRIBUTE_ICON);
                                                           image.fitHeightProperty().set(18);
                                                           image.fitWidthProperty().set(18);

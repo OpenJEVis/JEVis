@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.utils.Optimization;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 
@@ -47,6 +48,8 @@ public class JEVisObjectWS implements JEVisObject {
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
         this.ds = ds;
         this.json = json;
+
+        Optimization.getInstance().addObject(this);
     }
 
     @Override
@@ -327,7 +330,31 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public boolean isAllowedUnder(JEVisObject otherObject) throws JEVisException {
-        return getJEVisClass().isAllowedUnder(otherObject.getJEVisClass());
+        boolean classIsAllowedUnderClass = getJEVisClass().isAllowedUnder(otherObject.getJEVisClass());
+        boolean isDirectory = ds.getJEVisClass("Directory").getHeirs().contains(this);
+        boolean isUniqUnderParent = true;
+        if (getParents() != null) {
+            for (JEVisObject silvering : getParents().get(0).getChildren()) {
+                try {
+                    if (silvering.getJEVisClassName().equals(getJEVisClassName())) {
+                        isUniqUnderParent = false;
+                    }
+                } catch (Exception ex) {
+
+                }
+            }
+        }
+
+
+        if (classIsAllowedUnderClass && isUniqUnderParent) {
+            return true;
+        } else if (isDirectory && otherObject.getJEVisClassName().equals(getJEVisClassName())) {
+            return true;
+
+        }
+
+
+        return false;
     }
 
     @Override

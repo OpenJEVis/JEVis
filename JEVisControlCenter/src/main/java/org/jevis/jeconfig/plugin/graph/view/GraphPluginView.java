@@ -56,6 +56,7 @@ import java.util.Observer;
 public class GraphPluginView implements Plugin, Observer {
 
     private static final Logger logger = LogManager.getLogger(GraphPluginView.class);
+    private final List<ChartView> charts = new ArrayList<>();
     private ToolBarView toolBarView;
     private GraphDataModel dataModel;
     //private GraphController controller;
@@ -68,7 +69,6 @@ public class GraphPluginView implements Plugin, Observer {
     private ToolBar toolBar;
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
-    private final List<ChartView> charts = new ArrayList<>();
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new GraphDataModel(ds);
