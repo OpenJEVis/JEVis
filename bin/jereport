@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ../etc/jevis.env
+source /etc/jevis/jevis.env
 
 java -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.xml \
      -DserviceLogFile=${JEVIS_HOME}/var/log/jereport.log \
