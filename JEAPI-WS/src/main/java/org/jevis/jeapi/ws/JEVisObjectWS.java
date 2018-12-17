@@ -388,12 +388,13 @@ public class JEVisObjectWS implements JEVisObject {
 
             ds.reloadRelationships();
 
-            if (!getAttributes().isEmpty()) {
-                ds.reloadAttribute(getAttributes().get(0));
-            }
 
             /** reload object to be sure all evens will be handelt and the cache is working correctly **/
             ds.addToObjectCache(this);
+
+//            if (!getAttributes().isEmpty()) {
+//                ds.reloadAttribute(getAttributes().get(0));
+//            }
 
 
             if (update) {
