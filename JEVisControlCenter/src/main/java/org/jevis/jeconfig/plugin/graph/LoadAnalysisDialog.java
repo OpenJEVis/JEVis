@@ -53,6 +53,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
     private Boolean[] programmaticallySetPresetDate = new Boolean[4];
     private ComboBox<String> aggregationBox;
     private ComboBox<String> mathBox;
+    private CustomPeriodObject cpo;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
@@ -111,7 +112,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         });
 
-        if (!analysisListView.getItems().isEmpty()) graphDataModel.updateWorkDaysFirstRun();
+        if (!analysisListView.getItems().isEmpty()) {
+            graphDataModel.updateWorkDaysFirstRun();
+
+            dateHelper.setStartTime(graphDataModel.getWorkdayStart());
+            dateHelper.setEndTime(graphDataModel.getWorkdayEnd());
+        }
 
         //checkForCustomizedWorkdayTimeFrame();
 
@@ -164,10 +170,50 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
 
-                graphDataModel.setCurrentAnalysis(newValue);
-                AnalysisTimeFrame oldTimeFrame = graphDataModel.getAnalysisTimeFrame();
+                DateTime oldStart = new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
+                        pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond());
+                DateTime oldSEnd = new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),
+                        pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond());
+
+                AnalysisTimeFrame oldTimeFrame = null;
+                switch (comboBoxPresetDates.getSelectionModel().getSelectedIndex()) {
+                    //custom
+                    case 0:
+                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
+                        break;
+                    //today
+                    case 1:
+                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.today);
+                        break;
+                    //yesterday
+                    case 2:
+                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.yesterday);
+                        break;
+                    //last7days
+                    case 3:
+                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
+                        break;
+                    //last week
+                    case 4:
+                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastWeek);
+                        break;
+                    //last 30 days
+                    case 5:
+                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last30Days);
+                        break;
+                    //lastMonth
+                    case 6:
+                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth);
+                        break;
+                    //custom object
+                    case 7:
+                        if (cpo != null)
+                            oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd, cpo.getObject().getID());
+                        break;
+                }
                 AggregationPeriod oldAggregation = AggregationPeriod.parseAggregation(aggregationBox.valueProperty().toString());
 
+                graphDataModel.setCurrentAnalysis(newValue);
                 graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 AnalysisTimeFrame preview = new AnalysisTimeFrame();
                 preview.setTimeFrame(AnalysisTimeFrame.TimeFrame.preview);
@@ -176,7 +222,12 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 toolBarView.select(newValue);
 
                 graphDataModel.setAggregationPeriod(oldAggregation);
+                setSelectedStart(oldStart);
+                setSelectedEnd(oldSEnd);
                 graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
+                if (oldTimeFrame.getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
+                    setPicker(oldStart, oldSEnd);
+                }
             }
         });
 
@@ -187,6 +238,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             comboBoxPresetDates.getSelectionModel().select(3);
             applySelectedDatePresetToDataModel(3);
         } else {
+
             switch (graphDataModel.getAnalysisTimeFrame().getTimeFrame()) {
                 case custom:
                     comboBoxPresetDates.getSelectionModel().select(0);
@@ -720,6 +772,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                         for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
                             if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
                                 dateHelper.setCustomPeriodObject(cpo);
+                                this.cpo = cpo;
                                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
                                 dateHelper.setStartTime(graphDataModel.getWorkdayStart());
                                 dateHelper.setEndTime(graphDataModel.getWorkdayEnd());

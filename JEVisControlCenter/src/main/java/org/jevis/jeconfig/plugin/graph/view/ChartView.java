@@ -90,7 +90,7 @@ public class ChartView implements Observer {
         name.setPrefWidth(500);
         name.setMinWidth(100);
 
-        TableColumn colorCol = buildColorColumn("");
+        TableColumn colorCol = buildColorColumn("plugin.graph.table.color");
         colorCol.setSortable(false);
         colorCol.setPrefWidth(25);
         colorCol.setMinWidth(25);
@@ -190,6 +190,9 @@ public class ChartView implements Observer {
                     @Override
                     protected void updateItem(Color item, boolean empty) {
                         super.updateItem(item, empty);
+                        setText(null);
+                        setGraphic(null);
+
                         if (!empty && item != null) {
                             StackPane stackPane = new StackPane();
                             stackPane.setBackground(
@@ -199,13 +202,8 @@ public class ChartView implements Observer {
 
                             setText(null);
                             setGraphic(stackPane);
-                        } else {
-                            setText(null);
-                            setGraphic(null);
                         }
-
                     }
-
                 };
                 return cell;
             }
