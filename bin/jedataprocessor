@@ -2,7 +2,7 @@
 
 source /etc/jevis/jevis.env
 
-java -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2.xml \
+java -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.xml \
      -DserviceLogFile=${JEVIS_HOME}/var/log/jedataprocessor.log \
      -jar ${JEVIS_HOME}/JEDataProcessor/target/JEDataProcessor-1.5-jar-with-dependencies.jar \
      -c ${JEVIS_HOME}/etc/jevis.xml \
