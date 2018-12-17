@@ -19,12 +19,14 @@
  */
 package org.jevis.jeapi.ws;
 
+import com.carrotsearch.sizeof.RamUsageEstimator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.utils.Optimization;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonSample;
@@ -47,20 +49,33 @@ public class JEVisAttributeWS implements JEVisAttribute {
     private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private static final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
     private JEVisDataSourceWS ds;
-    //    private long objectID;
     private JsonAttribute json;
-
 
     public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json, Long obj) {
         this.ds = ds;
         this.json = json;
-
         this.json.setObjectID(obj);
+
+        Optimization.getInstance().addAttribute(this);
     }
 
     public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json) {
+        if (json.getObjectID() == 7921) {
+            System.out.println("Att2: " + RamUsageEstimator.humanSizeOf(json));
+        }
+
         this.ds = ds;
         this.json = json;
+
+
+        Optimization.getInstance().addAttribute(this);
+    }
+
+    public void update(JsonAttribute json) {
+        this.json = json;
+        /**
+         * TODO: may call event?
+         */
     }
 
     @Override
@@ -162,6 +177,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
 //
         }
         ds.reloadAttribute(this);
+
+        JEVisObjectWS obj = (JEVisObjectWS) getObject();
+        obj.notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.ATTRIBUTE_UPDATE));
+
+
         return 1;
     }
 

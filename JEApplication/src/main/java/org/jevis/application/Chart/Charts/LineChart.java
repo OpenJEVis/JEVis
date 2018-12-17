@@ -86,7 +86,7 @@ public class LineChart implements Chart {
         addManipulationToTitle = new AtomicBoolean(false);
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        chartDataModels.parallelStream().forEach(singleRow -> {
+        chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
@@ -102,13 +102,11 @@ public class LineChart implements Chart {
             ((DateValueAxis) dateAxis).setTimeStampFromFirstSample(timeStampOfFirstSample.get());
         }
 
+        generateXAxis(changedBoth);
         dateAxis.setAutoRanging(true);
 
-        generateXAxis(changedBoth);
-
-        numberAxis.setAutoRanging(true);
-
         generateYAxis();
+        numberAxis.setAutoRanging(true);
 
         lineChart = new javafx.scene.chart.LineChart<Number, Number>(dateAxis, numberAxis, series);
 
@@ -351,8 +349,10 @@ public class LineChart implements Chart {
             applyColors();
 
             generateXAxis(changedBoth);
+            dateAxis.setAutoRanging(true);
 
             generateYAxis();
+            numberAxis.setAutoRanging(true);
 
             setTitle(getUpdatedChartName());
 

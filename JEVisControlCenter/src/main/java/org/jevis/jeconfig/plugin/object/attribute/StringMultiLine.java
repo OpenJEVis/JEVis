@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
@@ -41,18 +42,16 @@ import org.joda.time.DateTime;
 
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class StringMultiLine implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(StringMultiLine.class);
-
-    private HBox box = new HBox();
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
+    private HBox box = new HBox();
     private TextArea _field;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
-    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private boolean _readOnly = true;
 
     public StringMultiLine(JEVisAttribute att) {
@@ -63,6 +62,17 @@ public class StringMultiLine implements AttributeEditor {
     public boolean hasChanged() {
 //        logger.info(_attribute.getName() + " changed: " + _hasChanged);
         return _changed.getValue();
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            try {
+                box.getChildren().clear();
+                buildEditor();
+            } catch (Exception ex) {
+            }
+        });
     }
 
     @Override

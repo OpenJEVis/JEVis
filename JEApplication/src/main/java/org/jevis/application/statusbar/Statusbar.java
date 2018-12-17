@@ -40,6 +40,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.commons.config.CommonOptions;
+import org.jevis.commons.utils.Optimization;
+import org.joda.time.DateTime;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -53,7 +55,7 @@ public class Statusbar extends ToolBar {
     private static final Logger logger = LogManager.getLogger(Statusbar.class);
 
     private final int ICON_SIZE = 20;
-    private final int WAIT_TIME = 10000;//MSEC
+    private final int WAIT_TIME = 30000;//MSEC
     private final int RETRY_COUNT = 720;//count
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
     Label userName = new Label("");
@@ -144,7 +146,10 @@ public class Statusbar extends ToolBar {
                 try {
                     while (true) {
                         sleep(WAIT_TIME);
-                        System.gc();
+//                        System.gc();
+                        System.out.println("Time: " + (new DateTime()));
+                        Optimization.getInstance().printStatistics();
+
                         if (_ds.isConnectionAlive()) {
                             Platform.runLater(new Runnable() {
                                 @Override

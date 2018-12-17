@@ -109,37 +109,6 @@ public class JEVisClassWS implements JEVisClass {
         }
     }
 
-    @Override
-    public List<JEVisClass> getValidChildren() throws JEVisException {
-        List<JEVisClass> validParents = new LinkedList<>();
-        for (JEVisClassRelationship rel : getRelationships()) {
-            try {
-                if (rel.isType(JEVisConstants.ClassRelationship.OK_PARENT)
-                        && rel.getEnd().equals(this)) {
-                    if (!validParents.contains(rel.getOtherClass(this))) {
-                        if (!validParents.contains(rel.getOtherClass(this))) {
-                            validParents.add(rel.getOtherClass(this));
-                        }
-                        //We do not want heirs, every class has added by rule to have more control
-                        //validParents.addAll(rel.getOtherClass(this).getHeirs());
-                    }
-
-                }
-
-
-            } catch (Exception ex) {
-                logger.error("An JEClassRelationship had an error for '{}': {}", getName(), ex);
-            }
-        }
-        //Special rule, for order purpose its allows to create on directory under him self.
-        if (ds.getJEVisClass("Directory").getHeirs().contains(this) && !validParents.contains(this)) {
-            validParents.add(this);
-        }
-
-
-        Collections.sort(validParents);
-        return validParents;
-    }
 
     @Override
     public boolean deleteType(String type) {
@@ -287,6 +256,38 @@ public class JEVisClassWS implements JEVisClass {
         Collections.sort(vaildParents);
 
         return vaildParents;
+    }
+
+    @Override
+    public List<JEVisClass> getValidChildren() throws JEVisException {
+        List<JEVisClass> validParents = new LinkedList<>();
+        for (JEVisClassRelationship rel : getRelationships()) {
+            try {
+                if (rel.isType(JEVisConstants.ClassRelationship.OK_PARENT)
+                        && rel.getEnd().equals(this)) {
+                    if (!validParents.contains(rel.getOtherClass(this))) {
+                        if (!validParents.contains(rel.getOtherClass(this))) {
+                            validParents.add(rel.getOtherClass(this));
+                        }
+                        //We do not want heirs, every class has added by rule to have more control
+                        //validParents.addAll(rel.getOtherClass(this).getHeirs());
+                    }
+
+                }
+
+
+            } catch (Exception ex) {
+                logger.error("An JEClassRelationship had an error for '{}': {}", getName(), ex);
+            }
+        }
+        //Special rule, for order purpose its allows to create on directory under him self.
+        if (ds.getJEVisClass("Directory").getHeirs().contains(this) && !validParents.contains(this)) {
+            validParents.add(this);
+        }
+
+
+        Collections.sort(validParents);
+        return validParents;
     }
 
     @Override

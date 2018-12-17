@@ -331,6 +331,7 @@ public class JEConfig extends Application {
                     ex.printStackTrace();
                 }
 
+
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
                 PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
                 PROGRAM_INFO.addLibrary(org.jevis.application.Info.INFO);

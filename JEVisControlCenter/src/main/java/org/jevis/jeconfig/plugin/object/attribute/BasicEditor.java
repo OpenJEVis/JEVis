@@ -7,6 +7,7 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.base.ValidatorBase;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -49,12 +50,18 @@ public abstract class BasicEditor implements AttributeEditor {
     public BasicEditor(JEVisAttribute att) {
         this.attribute = att;
         orgSample = att.getLatestSample();
+
+
     }
 
 
-    private void update() {
-        editorNode.getChildren().removeAll(editorNode.getChildren());
-        editorNode.getChildren().add(buildGui(attribute));
+    @Override
+    public void update() {
+        logger.trace("Update()");
+        Platform.runLater(() -> {
+            editorNode.getChildren().removeAll(editorNode.getChildren());
+            editorNode.getChildren().add(buildGui(attribute));
+        });
     }
 
 
@@ -158,7 +165,7 @@ public abstract class BasicEditor implements AttributeEditor {
     @Override
     public void setReadOnly(boolean canRead) {
         this.readonly = canRead;
-        update();
+//        update();
     }
 
     @Override

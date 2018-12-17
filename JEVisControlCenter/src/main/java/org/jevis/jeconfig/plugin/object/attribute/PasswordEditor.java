@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -38,17 +39,15 @@ import org.joda.time.DateTime;
 
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PasswordEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(PasswordEditor.class);
-
-    HBox box = new HBox();
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
+    HBox box = new HBox();
     private boolean _hasChanged = false;
     private Button _setPW;
-    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private boolean _readOnly = true;
 
     public PasswordEditor(JEVisAttribute att) {
@@ -59,6 +58,14 @@ public class PasswordEditor implements AttributeEditor {
     public boolean hasChanged() {
 //        logger.info(_attribute.getName() + " changed: " + _hasChanged);
         return _hasChanged;
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            box.getChildren().clear();
+            buildTextFild();
+        });
     }
 
     @Override

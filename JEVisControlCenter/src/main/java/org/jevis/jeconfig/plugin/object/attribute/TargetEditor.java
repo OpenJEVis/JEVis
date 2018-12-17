@@ -5,6 +5,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -53,6 +54,14 @@ public class TargetEditor implements AttributeEditor {
         _attribute = att;
         this.mode = mode;
         this.tree = tree;
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            box.getChildren().clear();
+            init();
+        });
     }
 
     @Override

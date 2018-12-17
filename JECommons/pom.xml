@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jevis.commons</groupId>
     <artifactId>JECommons</artifactId>
-    <version>3.10</version>
+    <version>3.11</version>
     <packaging>jar</packaging>
 
     <build>
@@ -152,6 +152,11 @@
             <version>0.3.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>java-sizeof</artifactId>
+            <version>0.0.5</version>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>com.fasterxml.jackson.datatype</groupId>-->
         <!--<artifactId>jackson-datatype-joda</artifactId>-->
