@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2013 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEWebService.
- *
+ * <p>
  * JEWebService is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEWebService is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEWebService. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -40,15 +40,15 @@ public class JsonObject {
     private List<JsonRelationship> relationships;
     private List<JsonObject> objects;
     private List<JsonAttribute> attributes;
-    private boolean isPublic;
+    private boolean isPublic = false;
 
     public JsonObject() {
     }
 
     @XmlElement(name = "attributes")
     public List<JsonAttribute> getAttributes() {
-        if(attributes==null){
-            attributes= new  ArrayList<>();
+        if (attributes == null) {
+            attributes = new ArrayList<>();
         }
         return attributes;
     }
@@ -107,6 +107,7 @@ public class JsonObject {
 
     /**
      * Returns true is the object has public access
+     *
      * @return
      */
     @XmlElement(name = "isPublic")
@@ -116,6 +117,7 @@ public class JsonObject {
 
     /**
      * Set if the objetc allows public access
+     *
      * @param isPublic
      */
     public void setisPublic(boolean isPublic) {
@@ -148,15 +150,14 @@ public class JsonObject {
      */
     @XmlElement(name = "relationships")
     public List<JsonRelationship> getRelationships() {
-        if(relationships==null){
-            relationships=  new ArrayList<>();
+        if (relationships == null) {
+            relationships = new ArrayList<>();
         }
         return relationships;
     }
 
     /**
      * Set the List of JEVisRelationships.
-     *
      *
      * @param relations
      */

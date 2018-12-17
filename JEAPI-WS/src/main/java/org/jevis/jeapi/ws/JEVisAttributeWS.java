@@ -19,7 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import com.carrotsearch.sizeof.RamUsageEstimator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
@@ -60,13 +59,8 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json) {
-        if (json.getObjectID() == 7921) {
-            System.out.println("Att2: " + RamUsageEstimator.humanSizeOf(json));
-        }
-
         this.ds = ds;
         this.json = json;
-
 
         Optimization.getInstance().addAttribute(this);
     }

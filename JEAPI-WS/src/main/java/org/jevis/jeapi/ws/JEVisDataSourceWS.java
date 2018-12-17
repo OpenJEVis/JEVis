@@ -323,6 +323,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             List<JsonObject> jsons = gson.fromJson(response.toString(), listType);
             logger.trace("JsonObject.count: {}", jsons.size());
             for (JsonObject obj : jsons) {
+                if (obj.getId() == 42) {
+                    System.out.println("#######Why 42?");
+                }
+
                 logger.trace("New obj: " + obj);
                 objects.add(new JEVisObjectWS(this, obj));
             }
@@ -781,6 +785,42 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisObject> getRootObjects() {
+        /**
+         * We now load the list from the cache to improve performance
+         */
+        List<JEVisObject> objs = new ArrayList<>();
+
+
+        List<Long> groupIds = new ArrayList<>();
+        for (JEVisRelationship rel : objectRelCache) {
+            try {
+                if (rel.isType(JEVisConstants.ObjectRelationship.MEMBER_READ)
+                        && getCurrentUser().getUserID() == rel.getStartID()) {
+                    
+                    groupIds.add(rel.getEndID());
+                }
+            } catch (Exception ex) {
+
+            }
+        }
+
+        for (JEVisRelationship rel : objectRelCache) {
+            try {
+                //group to root
+                if (rel.isType(JEVisConstants.ObjectRelationship.ROOT) && groupIds.contains(rel.getStartID())) {
+                    objs.add(rel.getEndObject());
+                }
+            } catch (Exception ex) {
+
+            }
+        }
+
+
+        return objs;
+
+    }
+
+    public List<JEVisObject> getRootObjectsWS() {
 
         try {
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "?root=true";
@@ -817,7 +857,30 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisObject> getObjects(JEVisClass jevisClass, boolean addheirs) throws JEVisException {
-        //TODO
+        /**
+         * We now load the list from the cache to improve performance
+         */
+        List<JEVisClass> filterClass = new ArrayList<>();
+        filterClass.add(jevisClass);
+        if (addheirs) {
+            filterClass.addAll(jevisClass.getHeirs());
+        }
+
+        List<JEVisObject> objs = new ArrayList<>();
+
+        for (JEVisObject obj : objectCache.values()) {
+            if (filterClass.contains(obj.getJEVisClass())) {
+                objs.add(obj);
+            }
+        }
+
+
+        return objs;
+    }
+
+
+    public List<JEVisObject> getObjectsWS(JEVisClass jevisClass, boolean addheirs) throws JEVisException {
+
         try {
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "?root=false&class=" + jevisClass.getName();
             if (addheirs) {
@@ -854,7 +917,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
         return new ArrayList<>();
     }
-
 
     /**
      * @param jclass
@@ -948,7 +1010,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public JEVisObject getObjectWS(Long id) {
-        logger.info("GetObject: {}", id);
+        logger.error("GetObject: {}", id);
         String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "/" + id
                 + "?"
                 + REQUEST.OBJECTS.OPTIONS.INCLUDE_CHILDREN + "true";

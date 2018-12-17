@@ -30,21 +30,19 @@ public class VariablesBox extends FlowPane {
     }
 
     public void bindVaribaleBox(FormulaBox expression, JEVisObject obj) {
-        this.calcObject=obj;
-        this.expression=expression;
+        this.calcObject = obj;
+        this.expression = expression;
         listVariables(calcObject);
     }
 
 
-
-
-    private void buildVarButton(JEVisObject inpuObject){
+    private void buildVarButton(JEVisObject inpuObject) {
 
         try {
             Button button = new Button();
             button.setFocusTraversable(false);
             JEVisAttribute id = inpuObject.getAttribute("Identifier");
-            if(id!=null) {
+            if (id != null) {
                 JEVisSample value = id.getLatestSample();
                 if (value != null && !value.getValueAsString().isEmpty()) {
                     String name = value.getValueAsString();
@@ -72,15 +70,15 @@ public class VariablesBox extends FlowPane {
     private void listVariables(JEVisObject obj) {
         getChildren().clear();
 
-        Button addInputButton = new Button("",ResourceLoader.getImage("list-add.png", 15, 15));
+        Button addInputButton = new Button("", ResourceLoader.getImage("list-add.png", 15, 15));
         addInputButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    TreeHelper.createCalcInput(obj);
+                    TreeHelper.createCalcInput(obj, null);
                     listVariables(obj);
                     expression.updateVariables();
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
