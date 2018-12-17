@@ -6,6 +6,7 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXComboBox;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -34,9 +35,9 @@ public class TimeZoneEditor implements AttributeEditor {
 
     private final JEVisAttribute _attribute;
     private final HBox _editor = new HBox(5);
-    private JEVisSample _newSample;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _readOnly = new SimpleBooleanProperty(true);
+    private JEVisSample _newSample;
 
     public TimeZoneEditor(JEVisAttribute att) {
         _editor.getStylesheets().add("/styles/TimeZoneEditor.css");
@@ -143,6 +144,14 @@ public class TimeZoneEditor implements AttributeEditor {
             _newSample.commit();
             _changed.setValue(false);
         }
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            _editor.getChildren().clear();
+            buildGUI();
+        });
     }
 
     @Override

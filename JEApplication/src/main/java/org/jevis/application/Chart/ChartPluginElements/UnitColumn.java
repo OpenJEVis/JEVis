@@ -12,7 +12,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.Chart.ChartDataModel;
 import org.jevis.application.Chart.ChartUnits.*;
@@ -50,21 +49,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         Boolean isPressureUnit = false;
         Boolean isVolumeFlowUnit = false;
 
-        JEVisUnit currentUnit = null;
-        try {
-            if (singleRow.getDataProcessor() != null
-                    && singleRow.getDataProcessor().getAttribute("Value") != null
-                    && singleRow.getDataProcessor().getAttribute("Value").getDisplayUnit() != null)
-                currentUnit = singleRow.getDataProcessor().getAttribute("Value").getDisplayUnit();
-            else {
-                if (singleRow.getObject() != null
-                        && singleRow.getObject().getAttribute("Value") != null
-                        && singleRow.getObject().getAttribute("Value").getDisplayUnit() != null)
-                    currentUnit = singleRow.getObject().getAttribute("Value").getDisplayUnit();
-            }
-        } catch (
-                JEVisException e) {
-        }
+        JEVisUnit currentUnit = singleRow.getUnit();
 
         for (EnergyUnit eu : EnergyUnit.values()) {
             if (eu.toString().equals(UnitManager.getInstance().format(currentUnit))) {
@@ -176,7 +161,10 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 TreeTableCell<JEVisTreeRow, JEVisUnit> cell = new TreeTableCell<JEVisTreeRow, JEVisUnit>() {
                     @Override
                     public void commitEdit(JEVisUnit unit) {
+
                         super.commitEdit(unit);
+                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        data.setUnit(unit);
                     }
 
                     @Override
@@ -201,7 +189,6 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                         if (oldValue == null || newValue != oldValue) {
                                             JEVisUnit jeVisUnit = ChartUnits.parseUnit(String.valueOf(newValue));
                                             commitEdit(jeVisUnit);
-                                            data.setUnit(jeVisUnit);
                                         }
                                     });
 

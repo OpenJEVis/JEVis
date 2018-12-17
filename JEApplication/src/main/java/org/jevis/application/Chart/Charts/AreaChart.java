@@ -86,7 +86,7 @@ public class AreaChart implements Chart {
         addManipulationToTitle = new AtomicBoolean(false);
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        chartDataModels.parallelStream().forEach(singleRow -> {
+        chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
@@ -101,13 +101,12 @@ public class AreaChart implements Chart {
             ((DateValueAxis) dateAxis).setAsDuration(true);
             ((DateValueAxis) dateAxis).setTimeStampFromFirstSample(timeStampOfFirstSample.get());
         }
-        dateAxis.setAutoRanging(true);
 
         generateXAxis(changedBoth);
-
-        numberAxis.setAutoRanging(true);
+        dateAxis.setAutoRanging(true);
 
         generateYAxis();
+        numberAxis.setAutoRanging(true);
 
         areaChart = new javafx.scene.chart.AreaChart<Number, Number>(dateAxis, numberAxis, series);
 
@@ -350,8 +349,10 @@ public class AreaChart implements Chart {
             applyColors();
 
             generateXAxis(changedBoth);
+            dateAxis.setAutoRanging(true);
 
             generateYAxis();
+            numberAxis.setAutoRanging(true);
 
             setTitle(getUpdatedChartName());
 

@@ -20,6 +20,7 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXPasswordField;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -39,14 +40,13 @@ import org.joda.time.DateTime;
 
 
 /**
- *
  * @author br
  */
 public class ReadablePasswordEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(ReadablePasswordEditor.class);
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JFXPasswordField passField = new JFXPasswordField();
     private HBox editor = new HBox();
-    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisDataSource ds;
     private JEVisAttribute att;
 
@@ -58,6 +58,14 @@ public class ReadablePasswordEditor implements AttributeEditor {
     @Override
     public boolean hasChanged() {
         return _changed.getValue();
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            editor.getChildren().clear();
+            builedGUI();
+        });
     }
 
     @Override

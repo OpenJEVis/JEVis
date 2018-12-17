@@ -170,7 +170,7 @@ public class SampleTable {
 
             }
 //            logger.info("SamplDB.putSample SQL: \n" + ps);
-            logger.error("SQL: {}", ps);
+            logger.info("SQL: {}", ps);
             _connection.addQuery("Sample.insert()", ps.toString());
             count = ps.executeUpdate();
 

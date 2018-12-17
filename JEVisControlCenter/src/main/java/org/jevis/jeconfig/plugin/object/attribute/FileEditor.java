@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
@@ -52,8 +53,10 @@ import java.io.File;
  */
 public class FileEditor implements AttributeEditor {
 
-    HBox box = new HBox();
+    private static final Logger logger = LogManager.getLogger(FileEditor.class);
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
+    HBox box = new HBox();
     private boolean _hasChanged = false;
     private Button _downloadButton;
     private Button _uploadButton;
@@ -61,9 +64,6 @@ public class FileEditor implements AttributeEditor {
     //Enable the automatic download of the smaple fo rthe filename
     //This function is suboptial and gives a abd user experience.
     private boolean _autoDownload = true;
-
-    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private static final Logger logger = LogManager.getLogger(FileEditor.class);
 
     public FileEditor(JEVisAttribute att) {
         _attribute = att;
@@ -87,6 +87,14 @@ public class FileEditor implements AttributeEditor {
 
     @Override
     public void commit() {
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            box.getChildren().clear();
+            init();
+        });
     }
 
     @Override
