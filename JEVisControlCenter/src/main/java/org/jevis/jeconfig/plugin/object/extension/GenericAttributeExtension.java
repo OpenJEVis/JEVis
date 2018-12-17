@@ -233,7 +233,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     try {
                         String guiDisplayType = type.getGUIDisplayType();
 
-                        //hier ClassTable.getObjectClass
                         switch (type.getPrimitiveType()) {
                             case JEVisConstants.PrimitiveType.STRING:
 
@@ -325,8 +324,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                 break;
 
                         }
-
                         editor.setReadOnly(readOnly);
+
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -361,7 +360,32 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     coloum++;
                     _attributesEditor.add(editor);
                     logger.trace("done: {}", obj.getID());
+
+//                    try {
+//                        AtomicReference<AttributeEditor> ediorReditor = new AtomicReference<>();
+//                        ediorReditor.set(editor);
+//                        att.getObject().addEventListener(new JEVisEventListener() {
+//                            @Override
+//                            public void fireEvent(JEVisEvent event) {
+//                                logger.error("Update: treeevent: " + event);
+//                                if (event.getType() == JEVisEvent.TYPE.ATTRIBUTE_UPDATE) {
+//
+//                                    JEVisAttribute source = (JEVisAttribute) event.getSource();
+//                                    if (att.equals(source)) {
+//                                        logger.error("Update attribute: " + att + " " + ediorReditor);
+//                                        ediorReditor.get().update();
+//                                    }
+//
+//
+//                                }
+//                            }
+//                        });
+//                    } catch (Exception ex) {
+//                        logger.catching(ex);
+//                    }
                 }
+
+
             }
 //
         } catch (Exception ex) {

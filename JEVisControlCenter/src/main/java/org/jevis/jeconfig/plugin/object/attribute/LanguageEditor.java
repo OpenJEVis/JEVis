@@ -6,6 +6,7 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXComboBox;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -36,8 +37,8 @@ public class LanguageEditor implements AttributeEditor {
 
     private final JEVisAttribute _attribute;
     private final HBox _editor = new HBox(5);
-    private JEVisSample _newSample;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private JEVisSample _newSample;
     private Locale orgLoca = Locale.getDefault();
 
     public LanguageEditor(JEVisAttribute att) {
@@ -60,6 +61,14 @@ public class LanguageEditor implements AttributeEditor {
         }
 
         buildGUI();
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            _editor.getChildren().clear();
+            buildGUI();
+        });
     }
 
     public ObservableList<Locale> getEnumList(JEVisAttribute att) {

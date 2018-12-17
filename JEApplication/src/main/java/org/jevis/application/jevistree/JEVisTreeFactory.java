@@ -71,7 +71,7 @@ public class JEVisTreeFactory {
 
             @Override
             public void handle(KeyEvent t) {
-                logger.error("TreeEvent: {} source: {}", t.getCode(), t.getSource());
+                logger.debug("TreeEvent: {} source: {}", t.getCode(), t.getSource());
 
                 final TreeItem<JEVisTreeRow> selectedObj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
 

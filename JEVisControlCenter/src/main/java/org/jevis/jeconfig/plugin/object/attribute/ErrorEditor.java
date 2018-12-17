@@ -12,7 +12,6 @@ import javafx.scene.control.Label;
 import org.jevis.api.JEVisAttribute;
 
 /**
- *
  * @author fs
  */
 public class ErrorEditor implements AttributeEditor {
@@ -27,6 +26,11 @@ public class ErrorEditor implements AttributeEditor {
 
     @Override
     public void commit() {
+    }
+
+    @Override
+    public void update() {
+
     }
 
     @Override

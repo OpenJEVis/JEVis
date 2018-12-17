@@ -20,7 +20,6 @@
 package org.jevis.jeapi.ws;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.utils.Benchmark;
+import org.jevis.commons.utils.Optimization;
 import org.jevis.commons.ws.json.*;
 import org.joda.time.DateTime;
 
@@ -72,6 +72,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private Map<Long, List<JEVisRelationship>> objectRelMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisRelationship>>());
 //    private Map<Long, List<JEVisAttribute>> attributeMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisAttribute>>());
 
+    private boolean allAttributesPreloaded = false;
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
@@ -147,66 +148,107 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
     }
 
+
+    /**
+     * Load all attributes for all objects.
+     *
+     * @return
+     * @throws JEVisException
+     */
     @Override
     public List<JEVisAttribute> getAttributes() throws JEVisException {
 //        logger.trace("Get all attributes Objects");
 
         try {
 
-            if (attributeCache.isEmpty()) {
-//                System.out.println("Start get attributes");
-                Collection<List<JEVisAttribute>> attributes = attributeCache.values();
-                List<JEVisAttribute> result = new ArrayList<>();
-                attributes.forEach(jeVisAttributes -> {
-                    result.addAll(jeVisAttributes);
-                });
-//                System.out.println("end get attributes");
-                return result;
-            }
-            /**
-             * temporary solution for the problem that some objects does not have attributes
-             * an the cache will not know this so we add empty list for all objects.
-             **/
-            for (JEVisObject obj : getObjects()) {
-                attributeCache.put(obj.getID(), new ArrayList<>());
-            }
-
             List<JEVisAttribute> attributeList = new ArrayList<>();
-            String resource = HTTPConnection.API_PATH_V1
-                    + REQUEST.ATTRIBUTES.PATH;
 
+            /**
+             * 1. case, attributes are loaded and need no update. Return list from cache.
+             */
+            if (!allAttributesPreloaded) {
 
-            StringBuffer response = con.getRequest(resource);
+                String resource = HTTPConnection.API_PATH_V1
+                        + REQUEST.ATTRIBUTES.PATH;
 
-            Type listType = new TypeToken<List<JsonAttribute>>() {
-            }.getType();
-            List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
-//            logger.trace("JsonAttribute.count: {}", jsons.size());
-            for (JsonAttribute jsonAttribute : jsons) {
-                JEVisAttribute newAttribute = new JEVisAttributeWS(this, jsonAttribute);
-                if (!attributeCache.containsKey(newAttribute.getObjectID())) {
-                    attributeCache.put(newAttribute.getObjectID(), new ArrayList<>());
+                StringBuffer response = con.getRequest(resource);
+
+                Type listType = new TypeToken<List<JsonAttribute>>() {
+                }.getType();
+                List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
+                logger.trace("JsonAttribute.count: {}", jsons.size());
+
+                for (JsonAttribute jsonAttribute : jsons) {
+                    attributeList.add(updateAttributeCache(jsonAttribute));
                 }
-                attributeCache.get(newAttribute.getObjectID()).add(newAttribute);
-                attributeList.add(newAttribute);
+
+                /**
+                 * Give objects which have no attributes an empty list
+                 */
+                objectCache.keySet().forEach(aLong -> {
+                    if (!attributeCache.containsKey(aLong)) {
+                        attributeCache.put(aLong, new ArrayList<>());
+                    }
+                });
+                allAttributesPreloaded = true;
+
+                return attributeList;
             }
 
+            /**
+             * Load from cache
+             */
+            Collection<List<JEVisAttribute>> attributes = attributeCache.values();
+            List<JEVisAttribute> result = new ArrayList<>();
+            attributes.forEach(jeVisAttributes -> {
+                result.addAll(jeVisAttributes);
+            });
+//                System.out.println("end get attributes");
+            return result;
 
-//            attributeCache.keySet().forEach(aLong -> {
-//                JEVisObject object.get
-//            });
-
-
-//            System.out.println("Print Debug Attribute structure");
-//            attributeCache.forEach((aLong, jeVisAttributes) -> {
-//                System.out.println("Object: " + aLong);
-//                jeVisAttributes.forEach(jeVisAttribute -> {
-//                    System.out.println("-> [" + jeVisAttribute.getObjectID() + "] " + jeVisAttribute.getName());
-//                });
 //
-//            });
-
-            return attributeList;
+//            //-------------------- Old
+//
+//            if (attributeCache.isEmpty()) {
+////                System.out.println("Start get attributes");
+//                Collection<List<JEVisAttribute>> attributes = attributeCache.values();
+//                List<JEVisAttribute> result = new ArrayList<>();
+//                attributes.forEach(jeVisAttributes -> {
+//                    result.addAll(jeVisAttributes);
+//                });
+////                System.out.println("end get attributes");
+//                return result;
+//            }
+//            /**
+//             * temporary solution for the problem that some objects does not have attributes
+//             * an the cache will not know this so we add empty list for all objects.
+//             **/
+//            for (JEVisObject obj : getObjects()) {
+//                attributeCache.put(obj.getID(), new ArrayList<>());
+//            }
+//
+//            List<JEVisAttribute> attributeList = new ArrayList<>();
+//            String resource = HTTPConnection.API_PATH_V1
+//                    + REQUEST.ATTRIBUTES.PATH;
+//
+//
+//            StringBuffer response = con.getRequest(resource);
+//
+//            Type listType = new TypeToken<List<JsonAttribute>>() {
+//            }.getType();
+//            List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
+////            logger.trace("JsonAttribute.count: {}", jsons.size());
+//            for (JsonAttribute jsonAttribute : jsons) {
+//                JEVisAttribute newAttribute = new JEVisAttributeWS(this, jsonAttribute);
+//                if (!attributeCache.containsKey(newAttribute.getObjectID())) {
+//                    attributeCache.put(newAttribute.getObjectID(), new ArrayList<>());
+//                }
+//                attributeCache.get(newAttribute.getObjectID()).add(newAttribute);
+//                attributeList.add(newAttribute);
+//            }
+//
+//
+//            return attributeList;
 
         } catch (ProtocolException ex) {
             logger.error(ex);
@@ -424,41 +466,27 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void reloadAttributes() throws JEVisException {
         logger.warn("Complete attribute reload");
-        attributeCache.clear();
+//        attributeCache.clear();
+        allAttributesPreloaded = false;
     }
 
     @Override
     public void reloadAttribute(JEVisAttribute attribute) {
         try {
             logger.warn("Reload Attribute: " + attribute);
-            attributeCache.remove(attribute.getObjectID());
-            List<JEVisAttribute> newAttributes = getAttributes(attribute.getObjectID());
-//            for (JEVisAttribute jeVisAttribute : newAttributes) {
-//                if (jeVisAttribute.getName().equals(attribute.getName())) {
-//                    attribute = jeVisAttribute;
-//                }
-//            }
+            getAttributesFromWS(attribute.getObjectID());
         } catch (Exception ex) {
             logger.error("Error, can not reload attribute", ex);
         }
     }
 
 
-    @Override
-    public List<JEVisAttribute> getAttributes(long objectID) {
-//        logger.debug("Get  getAttributes: {}", objectID);
-
-        if (attributeCache.containsKey(objectID)) {
-//            logger.warn("Attribute is not in cache: {}", objectID);
-//            logger.error("Cache size: " + attributeCache);
-            return attributeCache.get(objectID);
-        }
-//        logger.error("Attribute nit in Cache[{}]: {}", attributeCache.size(), objectID);
+    private List<JEVisAttribute> getAttributesFromWS(long objectID) {
+        List<JEVisAttribute> attributes = new ArrayList<>();
 
         StringBuffer response = new StringBuffer();
         try {
 //            JEVisObject obj = getObject(objectID);
-            List<JEVisAttribute> attributes = new ArrayList<>();
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH
                     + objectID + "/"
@@ -476,28 +504,55 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
             for (JsonAttribute att : jsons) {
                 try {
-                    attributes.add(new JEVisAttributeWS(this, att, objectID));
+//                    attributes.add(new JEVisAttributeWS(this, att, objectID));
+                    attributes.add(updateAttributeCache(att));
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
             }
-            attributeCache.put(objectID, attributes);
 
-            return attributes;
-
-
-        } catch (NullPointerException | JsonSyntaxException jex) {
-            logger.error(jex);
-            logger.error(response.toString());
-            return new ArrayList<>();
-        } catch (ProtocolException ex) {
-            logger.fatal(ex);
-            //TODO: throw excption?! so the other function can handel it?
-            return new ArrayList<>();
         } catch (Exception ex) {
-            logger.fatal(ex);
-            return new ArrayList<>();
+            logger.error(ex);
         }
+
+        return attributes;
+
+    }
+
+    private JEVisAttribute updateAttributeCache(JsonAttribute jSonAttribute) {
+        if (attributeCache.containsKey(jSonAttribute.getObjectID())) {
+            for (JEVisAttribute att : attributeCache.get(jSonAttribute.getObjectID())) {
+                if (att.getName().equals(jSonAttribute.getType())) {
+                    ((JEVisAttributeWS) att).update(jSonAttribute);
+                    return att;
+                }
+            }
+        } else {
+            attributeCache.put(jSonAttribute.getObjectID(), new ArrayList<>());
+        }
+        JEVisAttributeWS newAttribute = new JEVisAttributeWS(this, jSonAttribute);
+        attributeCache.get(jSonAttribute.getObjectID()).add(newAttribute);
+
+        return newAttribute;
+
+
+        //TODO: this should not happen in the normal workflow but we never know?
+
+
+    }
+
+    @Override
+    public List<JEVisAttribute> getAttributes(long objectID) {
+//        logger.debug("Get  getAttributes: {}", objectID);
+
+        if (attributeCache.containsKey(objectID)) {
+//            logger.warn("Attribute is not in cache: {}", objectID);
+//            logger.error("Cache size: " + attributeCache);
+            return attributeCache.get(objectID);
+        } else {
+            return getAttributesFromWS(objectID);
+        }
+
     }
 
     @Override
@@ -1081,12 +1136,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             Benchmark benchmark = new Benchmark();
             getJEVisClasses();
             benchmark.printBenchmarkDetail("Preload - Classes");
+            Optimization.getInstance().printStatistics();
             getClassIcon();
             benchmark.printBenchmarkDetail("Preload - Icons");
+            Optimization.getInstance().printStatistics();
             getObjects();
             benchmark.printBenchmarkDetail("Preload - Objects");
+            Optimization.getInstance().printStatistics();
             getAttributes();
             benchmark.printBenchmarkDetail("Preload - Attributes");
+            Optimization.getInstance().printStatistics();
+
         } catch (Exception ex) {
             logger.warn("Error while preloading data source", ex);
         }

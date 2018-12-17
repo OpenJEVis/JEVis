@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -39,6 +40,7 @@ import org.joda.time.DateTime;
  */
 public class BooleanValueEditor implements AttributeEditor {
 
+    private static final Logger logger = LogManager.getLogger(BooleanValueEditor.class);
     private final HBox editorNode = new HBox();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
@@ -46,7 +48,6 @@ public class BooleanValueEditor implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private boolean _canRead = true;
-    private static final Logger logger = LogManager.getLogger(BooleanValueEditor.class);
 
     public BooleanValueEditor(JEVisAttribute att) {
         _attribute = att;
@@ -61,6 +62,18 @@ public class BooleanValueEditor implements AttributeEditor {
     public void setReadOnly(boolean canRead) {
         editorNode.setDisable(canRead);
         _canRead = canRead;
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            try {
+                editorNode.getChildren().clear();
+                buildEditor();
+            } catch (Exception ex) {
+
+            }
+        });
     }
 
     @Override

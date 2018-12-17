@@ -5,6 +5,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -36,9 +37,8 @@ import org.joda.time.DateTime;
  */
 public class ScheduleEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(ScheduleEditor.class);
-    GridPane _editor = new GridPane();
-
     public JEVisAttribute _attribute;
+    GridPane _editor = new GridPane();
     private boolean _hasChanged = false;
     private Button _treeButton;
     private boolean _readOnly = true;
@@ -78,6 +78,16 @@ public class ScheduleEditor implements AttributeEditor {
 
         return 0;
     }
+
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            _editor.getChildren().clear();
+            buildGUI();
+        });
+    }
+
 
     private int getStartTime() {
         for (int i = 0; i < 24; i++) {

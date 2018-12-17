@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -119,6 +120,14 @@ public class GapFillingEditor implements AttributeEditor {
 
         box.getChildren().addAll(openConfig);
 
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            box.getChildren().clear();
+            getEditor();
+        });
     }
 
     @Override
