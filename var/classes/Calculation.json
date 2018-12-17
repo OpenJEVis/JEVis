@@ -26,6 +26,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Calculation"
+    },
+    {
+      "name": "DIV0 Handling",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Calculation"
     }
   ]
 }

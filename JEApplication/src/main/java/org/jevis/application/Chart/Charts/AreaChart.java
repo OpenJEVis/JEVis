@@ -175,7 +175,8 @@ public class AreaChart implements Chart {
 
     @Override
     public void setTitle(String chartName) {
-        areaChart.setTitle(chartName);
+        this.chartName = chartName;
+        areaChart.setTitle(getUpdatedChartName());
     }
 
     private void generateYAxis() {
@@ -303,6 +304,8 @@ public class AreaChart implements Chart {
                 if (chartDataModels.size() < xyChartSerieList.size()) {
                     for (int i = xyChartSerieList.size(); i > chartDataModels.size(); i--) {
                         xyChartSerieList.remove(i - 1);
+                        series.remove(i - 1);
+                        hexColors.remove(i - 1);
                     }
                 }
 
