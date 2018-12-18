@@ -68,14 +68,6 @@ public class ReportExecutor {
             return;
         }
 
-        /**
-         * Need to reload if report template changed (even if not very probable)
-         */
-        try {
-            reportObject.getDataSource().reloadAttributes();
-        } catch (Exception e) {
-        }
-
         List<ReportData> reportLinks = reportLinkFactory.getReportLinks(reportObject);
         intervalCalculator.buildIntervals(reportObject);
 

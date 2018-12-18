@@ -46,7 +46,7 @@ public class CalcLauncher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
         try {
-            ds.reloadAttributes();
+            ds.preload();
             getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
         } catch (JEVisException e) {
             logger.error(e);
@@ -87,7 +87,6 @@ public class CalcLauncher extends AbstractCliApp {
                         CalcJob calcJob;
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
                         do {
-                            ds.reloadAttributes();
                             calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
                             calcJob.execute();
                         } while (!calcJob.hasProcessedAllInputSamples());
