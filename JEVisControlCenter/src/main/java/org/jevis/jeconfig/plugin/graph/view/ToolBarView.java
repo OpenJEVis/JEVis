@@ -86,6 +86,11 @@ public class ToolBarView {
 
                 AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
                 AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
+                ManipulationMode oldManipulationMode = ManipulationMode.NONE;
+                for (ChartDataModel model : model.getSelectedData()) {
+                    oldManipulationMode = model.getManipulationMode();
+                    break;
+                }
 
                 model.setCurrentAnalysis(newValue);
                 if (model.getAnalysisTimeFrame().getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
@@ -105,10 +110,12 @@ public class ToolBarView {
                 model.setAggregationPeriod(oldAggregationPeriod);
                 model.setAnalysisTimeFrame(oldTimeFrame);
 
+                ManipulationMode finalOldManipulationMode = oldManipulationMode;
                 model.getSelectedData().forEach(chartDataModel -> {
                     if (!oldStart.get().equals(now)) chartDataModel.setSelectedStart(oldStart.get());
                     if (!oldEnd.get().equals(new DateTime(2001, 1, 1, 0, 0, 0)))
                         chartDataModel.setSelectedEnd(oldEnd.get());
+                    chartDataModel.setManipulationMode(finalOldManipulationMode);
                 });
 
                 model.updateSamples();
@@ -592,8 +599,9 @@ public class ToolBarView {
 
             if (jsonChartDataModel.toString().length() < 8192 && jsonChartSettings.toString().length() < 8192) {
                 DateTime now = DateTime.now();
-                JEVisSample smp = dataModel.buildSample(now.toDateTimeISO(), jsonChartDataModel.toString());
-                JEVisSample smp2 = charts.buildSample(now.toDateTimeISO(), jsonChartSettings.toString());
+                String dataModelString = jsonChartDataModel.toString();
+                JEVisSample smp = dataModel.buildSample(now, dataModelString);
+                JEVisSample smp2 = charts.buildSample(now, jsonChartSettings.toString());
                 smp.commit();
                 smp2.commit();
             } else {

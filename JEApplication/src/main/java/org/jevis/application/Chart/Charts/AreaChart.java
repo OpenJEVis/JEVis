@@ -10,6 +10,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
@@ -112,7 +113,7 @@ public class AreaChart implements Chart {
 
         applyColors();
 
-        setTitle(getUpdatedChartName());
+        areaChart.setTitle(getUpdatedChartName());
 
         areaChart.setLegendVisible(false);
         areaChart.setCreateSymbols(true);
@@ -349,6 +350,14 @@ public class AreaChart implements Chart {
                 }
             }
 
+            series.forEach(serie -> {
+                serie.getData().forEach(numberNumberData -> {
+                    if (numberNumberData.getNode() != null)
+                        if (numberNumberData.getNode().getClass().equals(HBox.class))
+                            numberNumberData.getNode().setVisible(hideShowIcons);
+                });
+            });
+
             applyColors();
 
             generateXAxis(changedBoth);
@@ -357,7 +366,7 @@ public class AreaChart implements Chart {
             generateYAxis();
             numberAxis.setAutoRanging(true);
 
-            setTitle(getUpdatedChartName());
+            areaChart.setTitle(getUpdatedChartName());
 
             areaChart.getXAxis().layout();
             areaChart.getYAxis().layout();
@@ -399,6 +408,11 @@ public class AreaChart implements Chart {
     @Override
     public void setDataModels(List<ChartDataModel> chartDataModels) {
         this.chartDataModels = chartDataModels;
+    }
+
+    @Override
+    public void setHideShowIcons(Boolean hideShowIcons) {
+        this.hideShowIcons = hideShowIcons;
     }
 
     @Override

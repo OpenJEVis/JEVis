@@ -22,14 +22,17 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.dialog.SelectTargetDialog.MODE;
 import org.jevis.application.jevistree.JEVisTree;
 import org.jevis.application.jevistree.TreeHelper;
+import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -121,7 +124,36 @@ public class TargetEditor implements AttributeEditor {
                                     @Override
                                     public void handle(ActionEvent t) {
                                         try {
-                                            JEVisAttribute newTargetAttribute = TreeHelper.newDataTarget(_attribute.getDataSource());
+
+                                            /**
+                                             * TODO:
+                                             * The not so pretty solution to add target specific filter
+                                             */
+                                            if (_attribute.getObject().getJEVisClassName().equals("Input")
+                                                    || _attribute.getObject().getJEVisClassName().equals("Output")) {
+                                                JEVisAttribute newTargetAttribute = TreeHelper.updateCalcTarget(_attribute.getDataSource(), _attribute);
+                                                TargetHelper th = new TargetHelper(_attribute.getDataSource(), newTargetAttribute.getObject(), newTargetAttribute);
+                                                if (th.isValid() && th.targetAccessable()) {
+                                                    logger.info("Target Is valid");
+                                                    newSample = _attribute.buildSample(new DateTime(), th.getSourceString());
+                                                    newSample.commit();
+                                                    setButtonText();
+                                                }
+                                                return;
+                                            }
+
+                                            List<JEVisTreeFilter> allFilter = new ArrayList<>();
+
+                                            if (_attribute.getObject().getJEVisClassName().equals("")) {
+
+
+                                            }
+
+                                            allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
+                                            allFilter.add(SelectTargetDialog.buildAllDataFilter());
+
+
+                                            JEVisAttribute newTargetAttribute = TreeHelper.updateTarget(_attribute.getDataSource(), _attribute, allFilter);
                                             TargetHelper th = new TargetHelper(_attribute.getDataSource(), newTargetAttribute.getObject(), newTargetAttribute);
                                             if (th.isValid() && th.targetAccessable()) {
                                                 logger.info("Target Is valid");

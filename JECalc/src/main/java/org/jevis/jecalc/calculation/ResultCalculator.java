@@ -26,7 +26,7 @@ public class ResultCalculator {
         this.template = template;
     }
 
-    public List<JEVisSample> calculateResult() {
+    public List<JEVisSample> calculateResult(String div0Handling, Double replacementValue) {
         List<JEVisSample> resultList = new ArrayList<>();
         for (Map.Entry<DateTime, List<Sample>> entry : mergedSamples.entrySet()) {
             for (Sample sample : entry.getValue()) {
@@ -34,8 +34,10 @@ public class ResultCalculator {
             }
             Double evaluate = template.evaluate();
             if (Double.isInfinite(evaluate) || Double.isNaN(evaluate)) {
-                VirtualSample smp = new VirtualSample(entry.getKey(), 0.0);
+                //TODO implement different handling switch...
+                VirtualSample smp = new VirtualSample(entry.getKey(), replacementValue);
                 String note = smp.getNote();
+
                 if (note == null) {
                     note = "";
                     note += "calc(infinite)";

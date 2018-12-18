@@ -304,4 +304,11 @@ public interface JEVisDataSource {
      * @throws JEVisException
      */
     void reloadAttribute(JEVisAttribute attribute);
+
+    /**
+     * Request to reload all attributes for the object
+     *
+     * @param object
+     */
+    public void reloadAttribute(JEVisObject object);
 }

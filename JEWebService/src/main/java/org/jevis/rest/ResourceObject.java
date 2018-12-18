@@ -221,7 +221,7 @@ public class ResourceObject {
 
 
                 //resful way of moving and object to an other parent while keeping the IDs?
-                if (copyObject != -999) {
+                if (copyObject > 0) {
                     JsonObject toCopyObj = ds.getObject(copyObject);
 
                     if (toCopyObj != null && ds.getUserManager().canCreate(toCopyObj)) {

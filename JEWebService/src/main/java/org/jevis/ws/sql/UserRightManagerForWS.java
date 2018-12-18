@@ -176,6 +176,10 @@ public class UserRightManagerForWS {
     }
 
     public boolean canRead(JsonObject object) throws JEVisException {
+        if (object == null) {
+            return false;
+        }
+
         //Sys Admin can read it all
         if (isSysAdmin()) {
             return true;

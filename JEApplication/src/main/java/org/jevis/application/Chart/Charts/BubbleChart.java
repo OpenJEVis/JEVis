@@ -62,6 +62,11 @@ public class BubbleChart implements Chart {
     }
 
     @Override
+    public void setHideShowIcons(Boolean hideShowIcons) {
+
+    }
+
+    @Override
     public void showNote(MouseEvent mouseEvent) {
 
     }

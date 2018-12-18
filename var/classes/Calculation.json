@@ -35,6 +35,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Calculation"
+    },
+    {
+      "name": "Static Value",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Calculation"
     }
   ]
 }

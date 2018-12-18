@@ -24,7 +24,6 @@ import java.util.List;
  */
 class CalcJobFactory {
 
-
     private static final Logger logger = LogManager.getLogger(CalcJobFactory.class);
     private CalcJob calcJob;
     private List<JEVisObject> calcInputObjects;
@@ -54,11 +53,21 @@ class CalcJobFactory {
 
         List<CalcInputObject> calcInputObjects = getInputDataObjects(jevisObject, startTime, ds);
         logger.debug("{} inputs found", calcInputObjects.size());
+        String div0Handling = null;
+        Double staticValue = null;
+        try {
+            div0Handling = sampleHandler.getLastSample(jevisObject, Calculation.DIV0_HANDLING.getName(), "");
+            staticValue = sampleHandler.getLastSample(jevisObject, Calculation.STATIC_VALUE.getName(), 0.0);
+        } catch (Exception e) {
+
+        }
 
         calcJob.setCalcInputObjects(calcInputObjects);
         calcJob.setExpression(expression);
         calcJob.setOutputAttributes(outputAttributes);
         calcJob.setCalcObjID(calcObjID);
+        calcJob.setStaticValue(staticValue);
+        calcJob.setDIV0Handling(div0Handling);
 
         return calcJob;
     }
@@ -215,7 +224,10 @@ class CalcJobFactory {
         INPUT_DATA("Input Data"),
         OUTPUT_DATA("Output"),
         IDENTIFIER("Identifier"),
-        INPUT_TYPE("Input Data Type");
+        INPUT_TYPE("Input Data Type"),
+        DIV0_HANDLING("DIV0 Handling"),
+        STATIC_VALUE("Static Value");
+
 
         String name;
 

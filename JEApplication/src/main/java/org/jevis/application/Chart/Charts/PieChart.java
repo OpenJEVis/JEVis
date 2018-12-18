@@ -121,6 +121,11 @@ public class PieChart implements Chart {
     }
 
     @Override
+    public void setHideShowIcons(Boolean hideShowIcons) {
+        this.hideShowIcons = hideShowIcons;
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
