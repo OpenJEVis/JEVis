@@ -183,7 +183,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    TreeHelper.createCalcInput(_obj);
+                    TreeHelper.createCalcInput(_obj, null);
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }

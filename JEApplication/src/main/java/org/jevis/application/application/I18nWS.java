@@ -21,19 +21,19 @@ import java.util.Locale;
  */
 public class I18nWS {
 
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(I18nWS.class);
     private static I18nWS i18n;
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
     private JEVisDataSourceWS ws;
     private List<JsonI18nClass> i18nfiles;
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(I18nWS.class);
 
 
     public I18nWS() {
 
     }
 
-    public static void setLocale(Locale locale){
-        getInstance().locale=locale;
+    public static void setLocale(Locale locale) {
+        getInstance().locale = locale;
     }
 
     public static synchronized I18nWS getInstance() {
@@ -65,31 +65,47 @@ public class I18nWS {
     }
 
     public String getTypeName(String jevisClass, String typeName) {
-        JsonI18nClass json = getJsonClass(jevisClass);
+        try {
+            JsonI18nClass json = getJsonClass(jevisClass);
 
-        for (JsonI18nType type : json.getTypes()) {
-            if (type.getType().equalsIgnoreCase(typeName)) {
-                if (type.getNames().containsKey(locale.getLanguage())) {
-                    return type.getNames().get(locale.getLanguage());
-                } else {
-                    logger.warn("Type name not found: {}-{}", jevisClass, typeName);
-                    return typeName;
+            for (JsonI18nType type : json.getTypes()) {
+                if (type.getType().equalsIgnoreCase(typeName)) {
+                    if (type.getNames().containsKey(locale.getLanguage())) {
+                        return type.getNames().get(locale.getLanguage());
+                    } else {
+                        logger.warn("Type name not found: {}-{}", jevisClass, typeName);
+                        return typeName;
+                    }
                 }
             }
+        } catch (Exception ex) {
+            logger.error(ex);
         }
 
         return typeName;
     }
 
     public String getAttributeName(JEVisAttribute attribute) throws JEVisException {
+        if (attribute == null) {
+            logger.error("Null Attribute");
+            return "-";
+        }
         return getTypeName(attribute.getType());
     }
 
     public String getTypeName(JEVisType type) throws JEVisException {
+        if (type == null) {
+            logger.error("Null Type");
+            return "-";
+        }
         return getTypeName(type.getJEVisClassName(), type.getName());
     }
 
     public String getClassName(JEVisClass jclass) throws JEVisException {
+        if (jclass == null) {
+            logger.error("Null JEVisClass");
+            return "-";
+        }
         return getClassName(jclass.getName());
     }
 
