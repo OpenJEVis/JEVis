@@ -90,7 +90,7 @@ public class ChartView implements Observer {
         name.setPrefWidth(500);
         name.setMinWidth(100);
 
-        TableColumn colorCol = buildColorColumn("plugin.graph.table.color");
+        TableColumn colorCol = buildColorColumn("");
         colorCol.setSortable(false);
         colorCol.setPrefWidth(25);
         colorCol.setMinWidth(25);
@@ -348,6 +348,7 @@ public class ChartView implements Observer {
             }
             if (!getChanged()) {
                 chart.setTitle(getChartName());
+                chart.setHideShowIcons(dataModel.getHideShowIcons());
                 chart.setDataModels(chartDataModels);
 
                 chart.updateChart();

@@ -171,4 +171,6 @@ public interface Chart {
     void updateChart();
 
     void setDataModels(List<ChartDataModel> chartDataModels);
+
+    void setHideShowIcons(Boolean hideShowIcons);
 }

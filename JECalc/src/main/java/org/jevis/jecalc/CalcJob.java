@@ -30,6 +30,8 @@ class CalcJob {
     private List<JEVisAttribute> outputs;
     private long calcObjID;
     private boolean processedAllInputSamples = false;
+    private Double staticValue = 0.0;
+    private String DIV0Handling = "";
 
     CalcJob() {
     }
@@ -50,7 +52,7 @@ class CalcJob {
         Map<DateTime, List<Sample>> mergedSamples = sampleMerger.merge();
         logger.debug("{} mergable calculations found", mergedSamples.size());
         ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(expression));
-        List<JEVisSample> calculateResult = resultCalc.calculateResult();
+        List<JEVisSample> calculateResult = resultCalc.calculateResult(DIV0Handling, staticValue);
         logger.info("{} results calculated", calculateResult.size());
         saveToOutput(calculateResult);
 
@@ -93,5 +95,21 @@ class CalcJob {
 
     public void setCalcObjID(long calcObjID) {
         this.calcObjID = calcObjID;
+    }
+
+    public Double getStaticValue() {
+        return staticValue;
+    }
+
+    public void setStaticValue(Double staticValue) {
+        this.staticValue = staticValue;
+    }
+
+    public String getDIV0Handling() {
+        return DIV0Handling;
+    }
+
+    public void setDIV0Handling(String div0Handling) {
+        this.DIV0Handling = div0Handling;
     }
 }

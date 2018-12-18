@@ -10,6 +10,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
@@ -349,6 +350,14 @@ public class LineChart implements Chart {
                 }
             }
 
+            series.forEach(serie -> {
+                serie.getData().forEach(numberNumberData -> {
+                    if (numberNumberData.getNode() != null)
+                        if (numberNumberData.getNode().getClass().equals(HBox.class))
+                            numberNumberData.getNode().setVisible(hideShowIcons);
+                });
+            });
+
             applyColors();
 
             generateXAxis(changedBoth);
@@ -399,6 +408,11 @@ public class LineChart implements Chart {
     @Override
     public void setDataModels(List<ChartDataModel> chartDataModels) {
         this.chartDataModels = chartDataModels;
+    }
+
+    @Override
+    public void setHideShowIcons(Boolean hideShowIcons) {
+        this.hideShowIcons = hideShowIcons;
     }
 
     @Override

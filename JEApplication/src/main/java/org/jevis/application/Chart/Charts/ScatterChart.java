@@ -89,6 +89,11 @@ public class ScatterChart implements Chart {
     }
 
     @Override
+    public void setHideShowIcons(Boolean hideShowIcons) {
+
+    }
+
+    @Override
     public javafx.scene.chart.Chart getChart() {
         return null;
     }
