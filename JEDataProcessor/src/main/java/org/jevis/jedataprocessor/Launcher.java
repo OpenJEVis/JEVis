@@ -103,7 +103,7 @@ public class Launcher extends AbstractCliApp {
     protected void runServiceHelp() {
         List<ProcessManager> processManagerList = new ArrayList<>();
         try {
-            ds.reloadAttributes();
+            ds.preload();
             getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
         } catch (JEVisException e) {
             logger.error(e);
