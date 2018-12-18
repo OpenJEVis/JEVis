@@ -477,8 +477,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void reloadAttribute(JEVisAttribute attribute) {
         try {
-            logger.warn("Reload Attribute: " + attribute);
+            logger.warn("Reload Attribute: {}", attribute);
             getAttributesFromWS(attribute.getObjectID());
+        } catch (Exception ex) {
+            logger.error("Error, can not reload attribute", ex);
+        }
+    }
+
+    @Override
+    public void reloadAttribute(JEVisObject object) {
+        try {
+            logger.warn("Reload Attribute: {}", object);
+            getAttributesFromWS(object.getID());
         } catch (Exception ex) {
             logger.error("Error, can not reload attribute", ex);
         }
@@ -796,7 +806,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             try {
                 if (rel.isType(JEVisConstants.ObjectRelationship.MEMBER_READ)
                         && getCurrentUser().getUserID() == rel.getStartID()) {
-                    
+
                     groupIds.add(rel.getEndID());
                 }
             } catch (Exception ex) {

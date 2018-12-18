@@ -522,6 +522,7 @@ public class SQLDataSource {
                     if (!exists) {
                         //new Default Attribute
                         JsonAttribute newAtt = new JsonAttribute();
+                        newAtt.setObjectID(objectID);
                         newAtt.setType(type.getName());
                         newAtt.setBegins("");
                         newAtt.setEnds("");

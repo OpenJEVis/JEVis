@@ -48,7 +48,7 @@ public class ResourceAttribute {
 
 
     /**
-     * Returns an list of all attributes under the given JEVisClass
+     * Returns an list of all attributes under the given object
      *
      * @param context
      * @param httpHeaders

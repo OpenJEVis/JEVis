@@ -400,6 +400,7 @@ public class JEVisObjectWS implements JEVisObject {
             if (update) {
                 notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
             } else {
+                ds.reloadAttribute(this);
                 if (!getParents().isEmpty()) {
                     try {
                         getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD));
