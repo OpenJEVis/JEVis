@@ -6,9 +6,12 @@ package org.jevis.jedatacollector;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
-import org.jevis.commons.DatabaseHelper;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSource;
 import org.jevis.commons.driver.DataSourceFactory;
@@ -171,12 +174,12 @@ public class Launcher extends AbstractCliApp {
     private List<JEVisObject> getEnabledDataSources(JEVisDataSource client) {
         List<JEVisObject> enabledDataSources = new ArrayList<JEVisObject>();
         try {
+            SampleHandler sampleHandler = new SampleHandler();
             JEVisClass dataSourceClass = client.getJEVisClass(DataCollectorTypes.DataSource.NAME);
-            JEVisType enabledType = dataSourceClass.getType(DataCollectorTypes.DataSource.ENABLE);
             List<JEVisObject> allDataSources = client.getObjects(dataSourceClass, true);
             for (JEVisObject dataSource : allDataSources) {
                 try {
-                    Boolean enabled = DatabaseHelper.getObjectAsBoolean(dataSource, enabledType);
+                    Boolean enabled = sampleHandler.getLastSampleAsBoolean(dataSource, DataCollectorTypes.DataSource.ENABLE, false);
                     if (enabled && DataSourceFactory.containDataSource(dataSource)) {
                         enabledDataSources.add(dataSource);
                     }
