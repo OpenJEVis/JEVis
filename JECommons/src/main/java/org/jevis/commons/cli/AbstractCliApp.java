@@ -143,6 +143,12 @@ public abstract class AbstractCliApp {
             } catch (JEVisException ex) {
                 logger.fatal("Could not connect! Check login and password.", ex);
             }
+
+            try {
+                ds.preload();
+            } catch (JEVisException e) {
+                logger.fatal("Could not preload items!", e);
+            }
         }
     }
 
