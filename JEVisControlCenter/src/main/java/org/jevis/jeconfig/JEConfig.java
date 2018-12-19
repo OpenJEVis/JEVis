@@ -326,11 +326,12 @@ public class JEConfig extends Application {
 
                 try {
                     _mainDS.preload();
+                    logger.error("done preloading");
                 } catch (Exception ex) {
                     logger.error("Error while preloading datasource", ex);
                     ex.printStackTrace();
                 }
-
+                logger.error("start GUI");
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
                 PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);

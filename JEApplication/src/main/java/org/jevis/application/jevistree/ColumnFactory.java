@@ -148,6 +148,12 @@ public class ColumnFactory {
 
 
                                                   try {
+                                                      if (getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT) {
+
+                                                      } else {
+
+                                                      }
+
                                                       JEVisObject object = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
                                                       HBox hbox = new HBox();
                                                       Label nameLabel = new Label();
@@ -160,7 +166,6 @@ public class ColumnFactory {
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
 
-//                                                      ((Region) icon).setPadding(new Insets(0, 8, 0, 0));
                                                       nameLabel.setPadding(new Insets(0, 0, 0, 0));
                                                       Region spaceBetween = new Region();
                                                       spaceBetween.setMinWidth(8);
@@ -174,20 +179,6 @@ public class ColumnFactory {
                                                               highlight(tree.getHighliterList(), obj, nameLabel);
                                                           }
                                                       });
-//                                                      tree.getHighliterList().addListener(new WeakListChangeListener<>(c -> {//
-//                                                          Platform.runLater(() -> {
-//                                                              try {
-//                                                                  if (c.getList().contains(obj)) {
-//                                                                      System.out.println("+Object event: " + obj);
-//                                                                      nameLabel.setStyle("-fx-background-color: yellow;");
-//                                                                  } else {
-//                                                                      nameLabel.setStyle("-fx-background-color: transparent;");
-//                                                                      System.out.println("-Object event: " + obj);
-//                                                                  }
-//                                                              } catch (Exception ex) {
-//                                                              }
-//                                                          });
-//                                                      }));
 
                                                       if (getTreeTableRow().getItem().getType() == JEVisTreeRow.TYPE.OBJECT) {
                                                           nameLabel.setText(object.getName());

@@ -311,4 +311,11 @@ public interface JEVisDataSource {
      * @param object
      */
     public void reloadAttribute(JEVisObject object);
+
+    public void reloadObject(JEVisObject object);
+
+    /**
+     * Clears the internal cache
+     */
+    void clearCache();
 }

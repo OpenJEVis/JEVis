@@ -276,18 +276,18 @@ public class SQLDataSource {
     }
 
     public List<JsonObject> getObjects(String jevisClass, boolean addheirs) throws JEVisException {
-        List<JsonObject> list = new LinkedList();
+        List<JsonObject> list = Collections.synchronizedList(new LinkedList());
         List<String> allHeir = new ArrayList<>();
         allHeir.add(jevisClass);
         if (addheirs) {
             JEVisClassHelper.findHeir(jevisClass, allHeir);
         }
 
-        for (JsonObject ob : getObjects()) {
+        getObjects().parallelStream().forEach(ob -> {
             if (allHeir.contains(ob.getJevisClass())) {
                 list.add(ob);
             }
-        }
+        });
         return list;
 
     }
@@ -424,12 +424,12 @@ public class SQLDataSource {
     public List<JsonRelationship> getRelationships(long object) {
         if (!allRelationships.isEmpty()) {
             //TODO
-            List<JsonRelationship> list = new LinkedList<>();
-            for (JsonRelationship rel : allRelationships) {
+            List<JsonRelationship> list = Collections.synchronizedList(new LinkedList<>());
+            allRelationships.parallelStream().forEach(rel -> {
                 if (rel.getTo() == object || rel.getFrom() == object) {
                     list.add(rel);
                 }
-            }
+            });
             return list;
         }
 
@@ -438,13 +438,13 @@ public class SQLDataSource {
     }
 
     public List<JsonRelationship> getRelationships(int type) {
-        List<JsonRelationship> list = new ArrayList<>();
+        List<JsonRelationship> list = Collections.synchronizedList(new ArrayList<>());
 
-        for (JsonRelationship rel : getRelationships()) {
+        getRelationships().parallelStream().forEach(rel -> {
             if (rel.getType() == type) {
                 list.add(rel);
             }
-        }
+        });
 
         return list;
     }
@@ -494,7 +494,38 @@ public class SQLDataSource {
     public List<JsonAttribute> getAttributes() {
         //TODO userright check
         try {
-            return getAttributeTable().getAllAttributes();
+            System.out.println("getAttributes");
+            List<JsonAttribute> result = Collections.synchronizedList(new ArrayList<>());
+
+            List<JsonObject> allObjects = getObjects();
+            System.out.println("-objects: " + allObjects.size());
+            List<JsonAttribute> attributes = getAttributeTable().getAllAttributes();
+            System.out.println("-attributes: " + attributes.size());
+            Set<Long> objectMap = Collections.synchronizedSet(new HashSet());
+
+            allObjects.parallelStream().forEach(jsonObject -> {
+                try {
+                    if (um.canRead(jsonObject)) {
+                        objectMap.add(jsonObject.getId());
+                    }
+                } catch (Exception ex) {
+                }
+            });
+            System.out.println("-objectMap: " + objectMap.size());
+
+            attributes.parallelStream().forEach(attribute -> {
+                try {
+                    if (objectMap.contains(attribute.getObjectID())) {
+                        result.add(attribute);
+                    }
+                } catch (Exception ex) {
+                }
+            });
+
+            System.out.println("-result: " + result.size());
+
+
+            return result;
         } catch (Exception ex) {
             logger.error("Error while loading AllAttributes", ex);
         }

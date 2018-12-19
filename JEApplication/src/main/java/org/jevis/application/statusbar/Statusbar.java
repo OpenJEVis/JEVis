@@ -55,7 +55,7 @@ public class Statusbar extends ToolBar {
     private static final Logger logger = LogManager.getLogger(Statusbar.class);
 
     private final int ICON_SIZE = 20;
-    private final int WAIT_TIME = 30000;//MSEC
+    private final int WAIT_TIME = 60000;//MSEC
     private final int RETRY_COUNT = 720;//count
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
     Label userName = new Label("");

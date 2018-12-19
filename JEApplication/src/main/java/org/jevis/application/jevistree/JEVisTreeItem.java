@@ -37,9 +37,11 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
     private static final Logger logger = LogManager.getLogger(JEVisTreeItem.class);
     private static Comparator<TreeItem<JEVisTreeRow>> comparator;
+    private static AlphanumComparator alphanumComparator = new AlphanumComparator();
     private final JEVisTree jevisTree;
     private boolean isParentForFilter = false;
     private boolean isFilterd = false;
+
 
     /**
      * Constructor for the Root Item. This them will call getRoot from the
@@ -76,6 +78,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
 
     public static Comparator<TreeItem<JEVisTreeRow>> getComparator() {
+
         if (comparator == null) {
             comparator = new Comparator<TreeItem<JEVisTreeRow>>() {
 
@@ -104,7 +107,8 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                                 int className = row1.getJEVisObject().getJEVisClassName().compareTo(row2.getJEVisObject().getJEVisClassName());
                                 if (className == 0) {
                                     /** if same class sort by name **/
-                                    return row1.getJEVisObject().getName().compareTo(row2.getJEVisObject().getName());
+                                    return alphanumComparator.compare(row1.getJEVisObject().getName(), row2.getJEVisObject().getName());
+//                                    return row1.getJEVisObject().getName().compareTo(row2.getJEVisObject().getName());
                                 } else {
                                     return className;
                                 }
@@ -112,7 +116,8 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
                             } else if (o1.getValue().getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
                                 /** attributes are sorted by name **/
-                                return row1.getJEVisAttribute().getName().compareTo(row2.getJEVisAttribute().getName());
+                                return alphanumComparator.compare(row1.getJEVisAttribute().getName(), row2.getJEVisAttribute().getName());
+//                                return row1.getJEVisAttribute().getName().compareTo(row2.getJEVisAttribute().getName());
                             }
 
 

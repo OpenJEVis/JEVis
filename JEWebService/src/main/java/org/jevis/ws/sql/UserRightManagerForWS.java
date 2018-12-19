@@ -27,6 +27,7 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,6 +59,7 @@ public class UserRightManagerForWS {
             switch (rel.getType()) {
                 case JEVisConstants.ObjectRelationship.MEMBER_READ:
                     readGIDS.add(rel.getTo());
+                    System.out.println("Read group: " + rel.getTo());
                     break;
                 case JEVisConstants.ObjectRelationship.MEMBER_WRITE:
                     writeGIDS.add(rel.getTo());
@@ -73,6 +75,25 @@ public class UserRightManagerForWS {
                     break;
             }
         }
+//        for (JsonRelationship rel : userRel) {
+//            switch (rel.getType()) {
+//                case JEVisConstants.ObjectRelationship.MEMBER_READ:
+//                    readGIDS.add(rel.getTo());
+//                    break;
+//                case JEVisConstants.ObjectRelationship.MEMBER_WRITE:
+//                    writeGIDS.add(rel.getTo());
+//                    break;
+//                case JEVisConstants.ObjectRelationship.MEMBER_DELETE:
+//                    deleteGIDS.add(rel.getTo());
+//                    break;
+//                case JEVisConstants.ObjectRelationship.MEMBER_EXECUTE:
+//                    exeGIDS.add(rel.getTo());
+//                    break;
+//                case JEVisConstants.ObjectRelationship.MEMBER_CREATE:
+//                    createGIDS.add(rel.getTo());
+//                    break;
+//            }
+//        }
     }
 
     /**
@@ -85,57 +106,81 @@ public class UserRightManagerForWS {
             return rels;
         }
 
-        List<JsonRelationship> list = new ArrayList<>();
-        List<Long> objectIDOFGroupOwenedObj = new LinkedList<>();
+        List<JsonRelationship> list = Collections.synchronizedList(new ArrayList());
+        List<Long> objectIDOFGroupOwenedObj = Collections.synchronizedList(new LinkedList());
 
+        /**
+         * Add User
+         */
+        objectIDOFGroupOwenedObj.add(user.getUserID());
 
         /**
          * Get all Objects which are owed by one of groups this user is member of
          */
-        for (JsonRelationship rel : rels) {
-            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && readGIDS.contains(rel.getTo())) {
-                objectIDOFGroupOwenedObj.add(rel.getFrom());
+//        for (JsonRelationship rel : rels) {
+        rels.parallelStream().forEach(rel -> {
+            try {
+
+                /**
+                 * if the relationship is an ownership and belongs to one of the usergoup where the user is part of
+                 */
+                if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && readGIDS.contains(rel.getTo())) {
+                    objectIDOFGroupOwenedObj.add(rel.getFrom());
 //                list.add(rel);
-            }
-
-            /**
-             * Add the memberships also
-             */
-            if (rel.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ
-                    && rel.getType() <= JEVisConstants.ObjectRelationship.MEMBER_DELETE) {
-                if (readGIDS.contains(rel.getTo())
-                        || writeGIDS.contains(rel.getTo())
-                        || exeGIDS.contains(rel.getTo())
-                        || deleteGIDS.contains(rel.getTo())
-                        || createGIDS.contains(rel.getTo())) {
-                    list.add(rel);
                 }
+            } catch (Exception ex) {
+
             }
 
-        }
+
+//            /**
+//             * Add the memberships also
+//             */
+//            if (rel.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ
+//                    && rel.getType() <= JEVisConstants.ObjectRelationship.MEMBER_DELETE) {
+//                if (readGIDS.contains(rel.getTo())
+//                        || writeGIDS.contains(rel.getTo())
+//                        || exeGIDS.contains(rel.getTo())
+//                        || deleteGIDS.contains(rel.getTo())
+//                        || createGIDS.contains(rel.getTo())) {
+//                    list.add(rel);
+//                }
+//            }
+        });
+
 
         /**
          * Add all Public Objects
          */
         try {
             for (JsonObject publicObj : ds.getObjectTable().getAllPublicObjects()) {
-                objectIDOFGroupOwenedObj.add(publicObj.getId());
+                try {
+                    System.out.println("Rel.publicObj: " + publicObj);
+                    objectIDOFGroupOwenedObj.add(publicObj.getId());
+                } catch (Exception ex) {
+
+                }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
 
-        /**
-         *
-         */
+        //        for (JsonRelationship rel : rels) {
+        rels.parallelStream().forEach(rel -> {
+            try {
+                if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) || objectIDOFGroupOwenedObj.contains(rel.getTo())) {
+                    list.add(rel);
+                    if (rel.getFrom() == 3 || rel.getTo() == 3) {
+                        System.out.println("CC Plugin rel: " + rel.getTo() + " " + rel.getFrom() + " " + rel.getType());
+                    }
+                }
+            } catch (Exception ex) {
 
-        for (JsonRelationship rel : rels) {
-            if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) || objectIDOFGroupOwenedObj.contains(rel.getTo())) {
-                list.add(rel);
             }
-        }
+        });
 
+        System.out.println("relationships after filter: " + list.size());
         return list;
     }
 
@@ -150,12 +195,12 @@ public class UserRightManagerForWS {
 
         //hmm what is with object which are public??
 
-
-        for (JsonRelationship rel : rels) {
+        rels.parallelStream().forEach(rel -> {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && readGIDS.contains(rel.getTo())) {
                 objectIDOFGroupOwenedObj.add(rel.getFrom());
             }
-        }
+        });
+
 
         try {
             for (JsonObject publicObj : ds.getObjectTable().getAllPublicObjects()) {
@@ -165,13 +210,12 @@ public class UserRightManagerForWS {
             ex.printStackTrace();
         }
 
-
-        for (JsonRelationship rel : rels) {
+        rels.parallelStream().forEach(rel -> {
             if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) || objectIDOFGroupOwenedObj.contains(rel.getTo())) {
 //            if ( readGIDS.contains(rel.getTo()) || readGIDS.contains(rel.getFrom())) {
                 list.add(rel);
             }
-        }
+        });
         return list;
     }
 
@@ -196,6 +240,7 @@ public class UserRightManagerForWS {
         }
 
         //check for group permissions
+
         for (JsonRelationship rel : ds.getRelationships(object.getId())) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && readGIDS.contains(rel.getTo())) {
                 return true;
@@ -208,7 +253,7 @@ public class UserRightManagerForWS {
 
     public List<JsonObject> getRoots() {
         List<JsonObject> roots = new ArrayList<>();
-        for (Long id : readGIDS) {
+        readGIDS.parallelStream().forEach(id -> {
             try {
                 for (JsonRelationship rel : ds.getRelationships(id)) {
                     if (rel.getFrom() == id && rel.getType() == JEVisConstants.ObjectRelationship.ROOT) {
@@ -219,7 +264,7 @@ public class UserRightManagerForWS {
             } catch (Exception ex) {
 
             }
-        }
+        });
 
         return roots;
     }
@@ -268,6 +313,14 @@ public class UserRightManagerForWS {
                 return true;
             }
         }
+
+        /**
+         * User can also see him self
+         */
+        if (obj.getId() == user.getUserID()) {
+            return true;
+        }
+
         return false;
     }
 
