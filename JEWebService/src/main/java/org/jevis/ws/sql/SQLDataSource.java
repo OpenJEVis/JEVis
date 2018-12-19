@@ -494,13 +494,10 @@ public class SQLDataSource {
     public List<JsonAttribute> getAttributes() {
         //TODO userright check
         try {
-            System.out.println("getAttributes");
             List<JsonAttribute> result = Collections.synchronizedList(new ArrayList<>());
 
             List<JsonObject> allObjects = getObjects();
-            System.out.println("-objects: " + allObjects.size());
             List<JsonAttribute> attributes = getAttributeTable().getAllAttributes();
-            System.out.println("-attributes: " + attributes.size());
             Set<Long> objectMap = Collections.synchronizedSet(new HashSet());
 
             allObjects.parallelStream().forEach(jsonObject -> {
@@ -511,7 +508,6 @@ public class SQLDataSource {
                 } catch (Exception ex) {
                 }
             });
-            System.out.println("-objectMap: " + objectMap.size());
 
             attributes.parallelStream().forEach(attribute -> {
                 try {

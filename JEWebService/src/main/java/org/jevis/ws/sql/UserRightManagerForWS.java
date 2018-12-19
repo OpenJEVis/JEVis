@@ -155,7 +155,6 @@ public class UserRightManagerForWS {
         try {
             for (JsonObject publicObj : ds.getObjectTable().getAllPublicObjects()) {
                 try {
-                    System.out.println("Rel.publicObj: " + publicObj);
                     objectIDOFGroupOwenedObj.add(publicObj.getId());
                 } catch (Exception ex) {
 
@@ -171,9 +170,6 @@ public class UserRightManagerForWS {
             try {
                 if (objectIDOFGroupOwenedObj.contains(rel.getFrom()) || objectIDOFGroupOwenedObj.contains(rel.getTo())) {
                     list.add(rel);
-                    if (rel.getFrom() == 3 || rel.getTo() == 3) {
-                        System.out.println("CC Plugin rel: " + rel.getTo() + " " + rel.getFrom() + " " + rel.getType());
-                    }
                 }
             } catch (Exception ex) {
 
