@@ -39,17 +39,17 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.dialog.*;
-import org.jevis.application.jevistree.*;
-import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.application.jevistree.*;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.bulkedit.CreateTable;
 import org.jevis.jeconfig.bulkedit.EditTable;
+import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.LoadingPane;
 import org.joda.time.DateTime;
@@ -222,7 +222,7 @@ public class ObjectPlugin implements Plugin {
                         //new
                         if (_editor.needSave()) {
                             ConfirmDialog dia = new ConfirmDialog();
-                            ConfirmDialog.Response re = dia.show(JEConfig.getStage(), "Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
+                            ConfirmDialog.Response re = dia.show("Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
                             if (re == ConfirmDialog.Response.YES) {
                                 _editor.commitAll();
                             } else {
@@ -683,11 +683,11 @@ public class ObjectPlugin implements Plugin {
 
                         if (ex.getMessage().equals("Can not create User with this name. The User has to be unique on the System")) {
                             InfoDialog info = new InfoDialog();
-                            info.show(JEConfig.getStage(), "Waring", "Could not create user", "Could not create new user because this user exists already.");
+                            info.show("Waring", "Could not create user", "Could not create new user because this user exists already.");
 
                         } else {
                             ExceptionDialog errorDia = new ExceptionDialog();
-                            errorDia.show(JEConfig.getStage(), "Error", "Could not create user", "Could not create new user.", ex, JEConfig.PROGRAM_INFO);
+                            errorDia.show("Error", "Could not create user", "Could not create new user.", ex, JEConfig.PROGRAM_INFO);
 
                         }
                     }

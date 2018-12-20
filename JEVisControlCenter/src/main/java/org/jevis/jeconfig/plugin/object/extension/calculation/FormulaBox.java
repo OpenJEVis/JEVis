@@ -11,12 +11,11 @@ import net.sourceforge.jeval.Evaluator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.dialog.SelectTargetDialog;
-import org.jevis.application.jevistree.UserSelection;
-import org.jevis.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.application.tools.CalculationNameFormater;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.tools.CalculationNameFormater;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -196,7 +195,6 @@ public class FormulaBox extends HBox {
 
 
             if (selectionDialog.show(
-                    JEConfig.getStage(),
                     this.calcObj.getDataSource(),
                     I18n.getInstance().getString("plugin.object.attribute.target.selection"),
                     openList

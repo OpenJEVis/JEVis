@@ -23,8 +23,8 @@ import javafx.application.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisOption;
-import org.jevis.application.ParameterHelper;
 import org.jevis.commons.config.OptionFactory;
+import org.jevis.jeconfig.application.ParameterHelper;
 
 import java.io.File;
 import java.net.URI;

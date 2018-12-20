@@ -43,10 +43,9 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.application.application.AppLocale;
-import org.jevis.application.application.SaveResourceBundle;
-import org.jevis.application.resource.ImageConverter;
-import org.jevis.application.resource.ResourceLoader;
+import org.jevis.jeconfig.application.resource.ImageConverter;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.jevis.jeconfig.tool.I18n;
 
 import java.util.List;
 
@@ -60,7 +59,6 @@ public class NewAnalyseDialog {
 
     private JEVisObject selectedParent;
     private String createName = "No Name";
-    private SaveResourceBundle rb = new SaveResourceBundle("jeapplication", AppLocale.getInstance().getLocale());
     private Response response = Response.CANCEL;
     private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
 
@@ -79,8 +77,8 @@ public class NewAnalyseDialog {
 
 
         Dialog<ButtonType> dialog = new Dialog();
-        dialog.setTitle(rb.getString("dialog.analyses.title"));
-        dialog.setHeaderText(rb.getString("dialog.analyses.header"));
+        dialog.setTitle(I18n.getInstance().getString("dialog.analyses.title"));
+        dialog.setHeaderText(I18n.getInstance().getString("dialog.analyses.header"));
         dialog.getDialogPane().getButtonTypes().setAll();
         dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
         VBox root = new VBox();
@@ -94,12 +92,12 @@ public class NewAnalyseDialog {
         gp.setVgap(5);
         int x = 0;
 
-        Label lName = new Label(rb.getString("jevistree.dialog.new.name"));
+        Label lName = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
         final TextField fName = new TextField();
-        fName.setPromptText(rb.getString("jevistree.dialog.new.name.prompt"));
+        fName.setPromptText(I18n.getInstance().getString("jevistree.dialog.new.name.prompt"));
 
 
-        Label lClass = new Label(rb.getString("dialog.analyses.saveplace"));
+        Label lClass = new Label(I18n.getInstance().getString("dialog.analyses.saveplace"));
 
         ObservableList<JEVisObject> optionsParents = FXCollections.observableArrayList(anaylsesDirs);
 
@@ -183,8 +181,8 @@ public class NewAnalyseDialog {
             createName = fName.getText();
         });
 
-        final ButtonType ok = new ButtonType(rb.getString("jevistree.dialog.new.ok"), ButtonBar.ButtonData.FINISH);
-        final ButtonType cancel = new ButtonType(rb.getString("jevistree.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.ok"), ButtonBar.ButtonData.FINISH);
+        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
 
         Platform.runLater(() -> fName.requestFocus());

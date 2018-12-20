@@ -42,15 +42,15 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.application.AppLocale;
-import org.jevis.application.application.I18nWS;
-import org.jevis.application.application.JavaVersionCheck;
-import org.jevis.application.login.FXLogin;
-import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
+import org.jevis.jeconfig.application.application.AppLocale;
+import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.application.JavaVersionCheck;
+import org.jevis.jeconfig.application.login.FXLogin;
+import org.jevis.jeconfig.application.statusbar.Statusbar;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
@@ -260,7 +260,6 @@ public class JEConfig extends Application {
         I18n.getInstance().loadBundel(Locale.getDefault());
         JEConfig.PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
-        PROGRAM_INFO.addLibrary(org.jevis.application.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
     }

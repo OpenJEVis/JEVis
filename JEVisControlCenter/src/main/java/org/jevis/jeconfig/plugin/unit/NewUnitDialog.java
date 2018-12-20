@@ -28,14 +28,14 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
-import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.jevis.jeconfig.dialog.DialogHeader;
+
 import javax.measure.unit.Unit;
-import org.jevis.application.dialog.DialogHeader;
 
 /**
  *
@@ -45,10 +45,10 @@ public class NewUnitDialog {
 
     private static final String ICON = "1405368933_kruler.png";
 
-    public static enum Response {
+    public enum Response {
 
         NO, YES, CANCEL
-    };
+    }
 
     private Response response = Response.CANCEL;
 

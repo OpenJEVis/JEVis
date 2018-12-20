@@ -37,10 +37,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.commons.drivermanagment.ClassExporter;
 import org.jevis.commons.relationship.RelationshipFactory;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.ConfirmDialog;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NewClassDialog;
@@ -345,7 +345,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                 ConfirmDialog dia = new ConfirmDialog();
                 String question = "Do you want to delete the Class \"" + jclass.getName() + "\" ?";
 
-                if (dia.show(JEConfig.getStage(), I18n.getInstance().getString("plugin.classes.tree.delete.title"),
+                if (dia.show(I18n.getInstance().getString("plugin.classes.tree.delete.title"),
                         I18n.getInstance().getString("plugin.classes.tree.delete.title_long"), question) == ConfirmDialog.Response.YES) {
                     try {
                         logger.info("User want to delete: " + jclass.getName());

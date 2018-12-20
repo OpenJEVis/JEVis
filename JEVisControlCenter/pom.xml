@@ -243,10 +243,6 @@
             <artifactId>JECommons</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jevis.application</groupId>
-            <artifactId>jeapplication</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
         </dependency>
@@ -287,6 +283,11 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis.jeconfig</groupId>
+            <artifactId>JEConfig</artifactId>
+            <version>3.0.27</version>
         </dependency>
         <!-- nice javafx stuff
         <dependency>

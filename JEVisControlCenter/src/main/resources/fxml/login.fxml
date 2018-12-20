@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<AnchorPane id="AnchorPane" fx:id="loginPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.jevis.graph.preloader.LoginController">
+  <children>
+    <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <children>
+        <HBox prefHeight="100.0" prefWidth="200.0">
+          <children>
+            <ImageView fx:id="loginImageHeader" fitHeight="0.0" fitWidth="550.0" pickOnBounds="true" preserveRatio="true">
+              <HBox.margin>
+                <Insets left="10.0" top="10.0" />
+              </HBox.margin>
+            </ImageView>
+            <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+            <ImageView fx:id="loginImageLang" fitHeight="0.0" fitWidth="80.0" mouseTransparent="false" pickOnBounds="true" preserveRatio="true" visible="false">
+              <HBox.margin>
+                <Insets fx:id="x1" />
+              </HBox.margin>
+            </ImageView>
+          </children>
+        </HBox>
+        <GridPane hgap="10.0" padding="$x1">
+          <children>
+            <Label fx:id="loginLabelServer" text="%login.server.label" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <ComboBox fx:id="loginServer" editable="true" maxWidth="1.7976931348623157E308" minWidth="-1.0" onAction="#nextAction" visible="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
+              <items>
+                <FXCollections fx:factory="observableArrayList" />
+              </items>
+              <GridPane.margin>
+                <Insets fx:id="x1" />
+              </GridPane.margin>
+            </ComboBox>
+            <Label fx:id="loginLabelUserName" text="%login.user.label" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <TextField fx:id="loginUser" onAction="#nextAction" onKeyReleased="#credentialCheck" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label fx:id="loginLabelPassword" text="%login.pass.label" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <PasswordField fx:id="loginPass" onAction="#nextAction" onKeyReleased="#credentialCheck" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <HBox alignment="TOP_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="9">
+              <children>
+                <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancel" text="%login.cancel" />
+                <Button fx:id="loginButton" disable="true" mnemonicParsing="false" onAction="#handleLogin" text="%login.login" />
+              </children>
+            </HBox>
+            <Label fx:id="loginLabelProgress" text="%login.load.label" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+            <ProgressBar fx:id="loadBar" maxWidth="1.7976931348623157E308" prefWidth="-1.0" progress="0.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <Label fx:id="loginMessage" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <Label fx:id="loginLabelStatus" text="%login.status.label" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+            <Label fx:id="loginLabelLanguage" text="%login.language" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+            <ComboBox fx:id="loginLanguage" maxWidth="1.7976931348623157E308" onAction="#handleChangeLanguage" GridPane.columnIndex="1" GridPane.rowIndex="4">
+              <items>
+                <FXCollections fx:factory="observableArrayList" />
+              </items>
+            </ComboBox>
+          </children>
+          <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="278.0" minWidth="10.0" prefWidth="151.0" />
+            <ColumnConstraints fillWidth="true" hgrow="ALWAYS" maxWidth="417.0" minWidth="10.0" prefWidth="409.0" />
+          </columnConstraints>
+          <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          </rowConstraints>
+          <VBox.margin>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+          </VBox.margin>
+        </GridPane>
+        <ToolBar orientation="HORIZONTAL">
+          <items>
+            <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefHeight="-1.0" prefWidth="570.0" spacing="10.0">
+              <children>
+                <ImageView id="symbolConnect" fx:id="symbolUser" fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" onMouseClicked="#handleServerDialogue" pickOnBounds="true" preserveRatio="true" style="" />
+                <Label fx:id="userName" text="" />
+                <Pane maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+                <ImageView fx:id="symbolConnect" fitHeight="14.0" fitWidth="14.0" mouseTransparent="true" onMouseClicked="#handleServerDialogue" pickOnBounds="true" preserveRatio="true" style="" />
+                <Label fx:id="loginLabelLangCode" onMouseClicked="#handleLanguageDialogue" text="" />
+              </children>
+            </HBox>
+          </items>
+          <VBox.margin>
+            <Insets fx:id="x1" />
+          </VBox.margin>
+        </ToolBar>
+      </children>
+    </VBox>
+  </children>
+</AnchorPane>

@@ -14,7 +14,6 @@
     <modules>
         <module>JEAPI</module>
         <module>JECommons</module>
-        <module>JEApplication/</module>
         <module>JEAPI-WS</module>
         <module>JEWebService</module>
         <module>JEVisControlCenter/</module>
@@ -32,7 +31,6 @@
                 <module>mysqldb</module>
                 <module>JEAPI</module>
                 <module>JECommons</module>
-                <module>JEApplication/</module>
                 <module>JEAPI-WS</module>
                 <module>JEWebService</module>
                 <module>JEVisControlCenter/</module>
@@ -82,7 +80,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.jevis.application</groupId>
+                <groupId>org.jevis.jeconfig.application</groupId>
                 <artifactId>jeapplication</artifactId>
                 <version>3.1.0</version>
             </dependency>

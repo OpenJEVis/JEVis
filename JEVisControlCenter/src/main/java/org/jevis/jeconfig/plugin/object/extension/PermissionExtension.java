@@ -41,11 +41,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
 import org.jevis.api.*;
-import org.jevis.application.dialog.ConfirmDialog;
-import org.jevis.application.dialog.InfoDialog;
 import org.jevis.commons.relationship.RelationsManagment;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.ConfirmDialog;
+import org.jevis.jeconfig.dialog.InfoDialog;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.permission.AddSharePermissonsDialog;
 import org.jevis.jeconfig.plugin.object.permission.RemoveSharePermissonsDialog;
@@ -211,7 +211,7 @@ public class PermissionExtension implements ObjectEditorExtension {
 
                         try {
                             ConfirmDialog dia = new ConfirmDialog();
-                            ConfirmDialog.Response re = dia.show(JEConfig.getStage(),
+                            ConfirmDialog.Response re = dia.show(
                                     I18n.getInstance().getString("plugin.object.permissions.share.title"),
                                     I18n.getInstance().getString("plugin.object.permissions.share.title_long"),
                                     I18n.getInstance().getString("plugin.object.permissions.share.message"));
@@ -255,7 +255,7 @@ public class PermissionExtension implements ObjectEditorExtension {
             } catch (Exception ex) {
                 logger.fatal(ex);
                 InfoDialog infoDia = new InfoDialog();
-                infoDia.show(JEConfig.getStage(),
+                infoDia.show(
                         I18n.getInstance().getString("dialog.waring.title"),
                         I18n.getInstance().getString("plugin.object.permissions.error.title_long"),
                         ex.getMessage());
