@@ -28,7 +28,6 @@ import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
-import org.jevis.jeconfig.application.application.AppLocale;
 import org.jevis.jeconfig.dialog.NoteDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -228,7 +227,7 @@ public class AreaChart implements Chart {
             Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
             period = period.minusSeconds(period.getSeconds());
             period = period.minusMillis(period.getMillis());
-            overall = period.toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale()));
+            overall = period.toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
         }
 
         dateAxis.setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
@@ -480,7 +479,7 @@ public class AreaChart implements Chart {
                     tableEntry.setNote(formattedNote.getNote());
                     String unit = serie.getUnit();
                     tableEntry.setValue(formattedDouble + " " + unit);
-                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(AppLocale.getInstance().getLocale())));
+                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
                 } catch (Exception ex) {
                 }
 

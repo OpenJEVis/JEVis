@@ -318,12 +318,13 @@ public class JEVisObjectWS implements JEVisObject {
     public boolean isAllowedUnder(JEVisObject otherObject) throws JEVisException {
         boolean classIsAllowedUnderClass = getJEVisClass().isAllowedUnder(otherObject.getJEVisClass());
         boolean isDirectory = ds.getJEVisClass("Directory").getHeirs().contains(this);
-        boolean isUniqUnderParent = true;
+        boolean isUnique = getJEVisClass().isUnique();
+        boolean isAlreadyUnderParent = false;
         if (getParents() != null) {
             for (JEVisObject silvering : getParents().get(0).getChildren()) {
                 try {
                     if (silvering.getJEVisClassName().equals(getJEVisClassName())) {
-                        isUniqUnderParent = false;
+                        isAlreadyUnderParent = true;
                     }
                 } catch (Exception ex) {
 
@@ -331,14 +332,24 @@ public class JEVisObjectWS implements JEVisObject {
             }
         }
 
-
-        if (classIsAllowedUnderClass && isUniqUnderParent) {
-            return true;
-        } else if (isDirectory && otherObject.getJEVisClassName().equals(getJEVisClassName())) {
-            return true;
-
+        /**
+         * first check if its allowed to be created under other object class
+         */
+        if (classIsAllowedUnderClass) {
+            if (!isUnique) {
+                /**
+                 * if its not unique its alweys allowed to be created
+                 */
+                return true;
+            } else /**
+             *  if it is a directory and its of the same class of its parent its allowed to be created
+             */if (!isAlreadyUnderParent) {
+                /**
+                 * if it is unique and not already created its allowed to be created
+                 */
+                return true;
+            } else return isDirectory && otherObject.getJEVisClassName().equals(getJEVisClassName());
         }
-
 
         return false;
     }

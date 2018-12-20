@@ -436,15 +436,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             jsons.parallelStream().forEach(jsonRelationship -> {
                 try {
                     if (jsonRelationship != null) {
-                        if (jsonRelationship.getType() == JEVisConstants.ObjectRelationship.PARENT) {
-                            System.out.print(".");
-                        } else if (jsonRelationship.getType() >= 100) {
-                            System.out.print(",");
-                        }
-
-                        if (jsonRelationship.getFrom() == 3 || jsonRelationship.getTo() == 3) {
-                            System.out.println("debug hook");
-                        }
+//                        if (jsonRelationship.getType() == JEVisConstants.ObjectRelationship.PARENT) {
+//                            System.out.print(".");
+//                        } else if (jsonRelationship.getType() >= 100) {
+//                            System.out.print(",");
+//                        }
+//
+//                        if (jsonRelationship.getFrom() == 3 || jsonRelationship.getTo() == 3) {
+//                            System.out.println("debug hook");
+//                        }
 
                         relationships.add(new JEVisRelationshipWS(JEVisDataSourceWS.this, jsonRelationship));
                     }
@@ -646,7 +646,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         logger.error("reloadRelationships()");
         orLoaded = false;
         if (this.user != null) {
-            ((JEVisUserWS) this.user).reload();
+            this.user.reload();
         }
     }
 

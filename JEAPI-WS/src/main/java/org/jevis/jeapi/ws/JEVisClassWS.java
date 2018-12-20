@@ -68,7 +68,7 @@ public class JEVisClassWS implements JEVisClass {
     /**
      * TMP solution
      * <p>
-     * TODO: remove, does not belog here
+     * TODO: remove, does not belong here
      */
     public static ImageView getImage(String icon, double height, double width) {
         ImageView image = new ImageView(getImage(icon));
@@ -80,7 +80,7 @@ public class JEVisClassWS implements JEVisClass {
     /**
      * TMP solution
      * <p>
-     * TODO: remove, does not belog here
+     * TODO: remove, does not belong here
      */
     public static Image getImage(String icon) {
         try {

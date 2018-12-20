@@ -46,7 +46,6 @@ import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
-import org.jevis.jeconfig.application.application.AppLocale;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
@@ -84,7 +83,7 @@ public class JEConfig extends Application {
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
-    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.5.9");
+    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.6.0");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
@@ -316,11 +315,6 @@ public class JEConfig extends Application {
                 I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
 
-                /**
-                 * Need to set JEApplication Locale for translations
-                 */
-                AppLocale.getInstance().setLocale(login.getSelectedLocale());
-
                 _config.setLocale(login.getSelectedLocale());
 
                 try {
@@ -334,7 +328,6 @@ public class JEConfig extends Application {
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
                 PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
-                PROGRAM_INFO.addLibrary(org.jevis.application.Info.INFO);
 
                 ExecutorService exe = Executors.newSingleThreadExecutor();
                 exe.submit(() -> {
