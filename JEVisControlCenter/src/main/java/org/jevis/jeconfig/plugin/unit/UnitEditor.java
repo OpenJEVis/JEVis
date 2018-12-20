@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.unit;
 
-import java.util.Locale;
-import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -31,11 +29,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.HTMLEditor;
-import javax.measure.unit.Unit;
-import org.jevis.application.unit.UnitChooser;
-import org.jevis.application.unit.UnitObject;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.application.unit.UnitChooser;
+import org.jevis.jeconfig.application.unit.UnitObject;
+
+import javax.measure.unit.Unit;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  *

@@ -32,16 +32,16 @@ import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.Chart.AnalysisTimeFrame;
-import org.jevis.application.Chart.ChartDataModel;
-import org.jevis.application.Chart.ChartSettings;
-import org.jevis.application.Chart.ChartType;
-import org.jevis.application.Chart.data.GraphDataModel;
-import org.jevis.application.dialog.ChartSelectionDialog;
-import org.jevis.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
+import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.tool.I18n;
 
@@ -189,7 +189,7 @@ public class GraphPluginView implements Plugin, Observer {
 
         dataModel.setAnalysisTimeFrame(atf);
 
-        if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
+        if (selectionDialog.show() == ChartSelectionDialog.Response.OK) {
             toolBarView.setDisableToolBarIcons(false);
 
             dataModel.setCharts(selectionDialog.getChartPlugin().getData().getCharts());

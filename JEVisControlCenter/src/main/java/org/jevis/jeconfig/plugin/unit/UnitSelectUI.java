@@ -39,10 +39,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisUnit;
-import org.jevis.application.unit.SimpleTreeUnitChooser;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonUnit;
+import org.jevis.jeconfig.application.unit.SimpleTreeUnitChooser;
 
 import java.util.Locale;
 

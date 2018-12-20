@@ -39,12 +39,12 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.dialog.DialogHeader;
-import org.jevis.application.jevistree.JEVisTree;
-import org.jevis.application.jevistree.JEVisTreeFactory;
-import org.jevis.application.jevistree.UserSelection;
-import org.jevis.application.jevistree.plugin.SimpleTargetPlugin;
-import org.jevis.application.resource.ResourceLoader;
+import org.jevis.jeconfig.application.jevistree.JEVisTree;
+import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.jevis.jeconfig.dialog.DialogHeader;
 
 import java.util.List;
 
@@ -131,7 +131,7 @@ public class SCADASelectionDialog {
                 Platform.runLater(() -> {
                     tree.setVisible(false);
 //                    tree.getFilter().showAttributes(newValue);
-                    tree.reload();
+//                    tree.reload(selectedObj);
                     tree.openUserSelection(stp.getUserSelection());
                     tree.setVisible(true);
 //                    logger.info("Change mode: "+newValue);

@@ -44,9 +44,8 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.application.AppLocale;
-import org.jevis.application.resource.ResourceLoader;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
@@ -280,7 +279,7 @@ public class CSVImportDialog {
                     public void updateItem(Charset item, boolean empty) {
                         super.updateItem(item, empty);
                         if (item != null && !empty) {
-                            setText(item.displayName(AppLocale.getInstance().getLocale()));
+                            setText(item.displayName(I18n.getInstance().getLocale()));
                             setGraphic(null);
 
                         }

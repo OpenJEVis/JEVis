@@ -46,6 +46,7 @@ public class CalcLauncher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
         try {
+            ds.clearCache();
             ds.preload();
             getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
         } catch (JEVisException e) {

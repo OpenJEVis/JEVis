@@ -157,11 +157,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      */
     @Override
     public List<JEVisAttribute> getAttributes() throws JEVisException {
-//        logger.trace("Get all attributes Objects");
+        logger.error("Get all attributes Objects");
 
         try {
 
-            List<JEVisAttribute> attributeList = new ArrayList<>();
+            List<JEVisAttribute> attributeList = Collections.synchronizedList(new ArrayList<>());
 
             /**
              * 1. case, attributes are loaded and need no update. Return list from cache.
@@ -176,11 +176,25 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 Type listType = new TypeToken<List<JsonAttribute>>() {
                 }.getType();
                 List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
-                logger.trace("JsonAttribute.count: {}", jsons.size());
+                logger.error("JsonAttribute.count: {}", jsons.size());
+
 
                 for (JsonAttribute jsonAttribute : jsons) {
-                    attributeList.add(updateAttributeCache(jsonAttribute));
+                    try {
+                        if (jsonAttribute != null) {
+                            attributeList.add(updateAttributeCache(jsonAttribute));
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Error while parsing attribute: {}", ex.getMessage());
+                    }
                 }
+                logger.error("Done parsing attributes");
+
+                /**
+                 * TODO:
+                 * 1. use fixMissingAttributes(attributes); fi fix missing attribes
+                 * 2. is the function belov oK?
+                 */
 
                 /**
                  * Give objects which have no attributes an empty list
@@ -189,7 +203,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     if (!attributeCache.containsKey(aLong)) {
                         attributeCache.put(aLong, new ArrayList<>());
                     }
+                    fixMissingAttributes(getObject(aLong), attributeCache.get(aLong));
+
                 });
+                logger.error("done fixing attributes");
+
                 allAttributesPreloaded = true;
 
                 return attributeList;
@@ -206,55 +224,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //                System.out.println("end get attributes");
             return result;
 
-//
-//            //-------------------- Old
-//
-//            if (attributeCache.isEmpty()) {
-////                System.out.println("Start get attributes");
-//                Collection<List<JEVisAttribute>> attributes = attributeCache.values();
-//                List<JEVisAttribute> result = new ArrayList<>();
-//                attributes.forEach(jeVisAttributes -> {
-//                    result.addAll(jeVisAttributes);
-//                });
-////                System.out.println("end get attributes");
-//                return result;
-//            }
-//            /**
-//             * temporary solution for the problem that some objects does not have attributes
-//             * an the cache will not know this so we add empty list for all objects.
-//             **/
-//            for (JEVisObject obj : getObjects()) {
-//                attributeCache.put(obj.getID(), new ArrayList<>());
-//            }
-//
-//            List<JEVisAttribute> attributeList = new ArrayList<>();
-//            String resource = HTTPConnection.API_PATH_V1
-//                    + REQUEST.ATTRIBUTES.PATH;
-//
-//
-//            StringBuffer response = con.getRequest(resource);
-//
-//            Type listType = new TypeToken<List<JsonAttribute>>() {
-//            }.getType();
-//            List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
-////            logger.trace("JsonAttribute.count: {}", jsons.size());
-//            for (JsonAttribute jsonAttribute : jsons) {
-//                JEVisAttribute newAttribute = new JEVisAttributeWS(this, jsonAttribute);
-//                if (!attributeCache.containsKey(newAttribute.getObjectID())) {
-//                    attributeCache.put(newAttribute.getObjectID(), new ArrayList<>());
-//                }
-//                attributeCache.get(newAttribute.getObjectID()).add(newAttribute);
-//                attributeList.add(newAttribute);
-//            }
-//
-//
-//            return attributeList;
-
         } catch (ProtocolException ex) {
             logger.error(ex);
             //TODO: throw excption?! so the other function can handel it?
             return new ArrayList<>();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
             return new ArrayList<>();
         }
@@ -297,10 +271,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisObject> getObjects() {
+        logger.error("getObejcts");
         if (!objectLoaded) {
-            for (JEVisObject o : getObjectsWS()) {
-                objectCache.put(o.getID(), o);
-            }
+            getObjectsWS();
             objectLoaded = true;
         }
 
@@ -308,8 +281,21 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
+    private void updateObject(JsonObject jsonObj) {
+        if (objectCache.containsKey(jsonObj.getId())) {
+            ((JEVisObjectWS) objectCache.get(jsonObj.getId())).update(jsonObj);
+        } else {
+            JEVisObjectWS newOBject = new JEVisObjectWS(this, jsonObj);
+            objectCache.put(newOBject.getID(), newOBject);
+            if (jsonObj.getId() == 7862) {
+                logger.error("Plugin object: {}", jsonObj);
+            }
+        }
+
+    }
+
     public List<JEVisObject> getObjectsWS() {
-        logger.trace("Get ALL Objects");
+        logger.trace("Get ALL ObjectsWS");
         try {
             List<JEVisObject> objects = new ArrayList<>();
             String resource = HTTPConnection.API_PATH_V1
@@ -321,17 +307,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             Type listType = new TypeToken<List<JsonObject>>() {
             }.getType();
             List<JsonObject> jsons = gson.fromJson(response.toString(), listType);
-            logger.trace("JsonObject.count: {}", jsons.size());
+            logger.error("JsonObject.count: {}", jsons.size());
             for (JsonObject obj : jsons) {
-                if (obj.getId() == 42) {
-                    System.out.println("#######Why 42?");
+                try {
+                    updateObject(obj);
+                } catch (Exception ex) {
+                    logger.error("Error while parsing object: {}", ex.getMessage());
                 }
-
-                logger.trace("New obj: " + obj);
-                objects.add(new JEVisObjectWS(this, obj));
             }
 
-            return objects;
+
+            return new ArrayList<>(objectCache.values());
 
         } catch (ProtocolException ex) {
             logger.error(ex);
@@ -351,30 +337,38 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisRelationship> getRelationships() {
+        logger.error("getRelationships");
         if (!orLoaded) {
 
-            objectRelCache = getRelationshipsWS();
             objectRelMapCache.clear();
+            objectRelCache = getRelationshipsWS();
+
 
             for (JEVisRelationship re : objectRelCache) {
-                long startID = re.getStartID();
-                long endID = re.getEndID();
-                if (!objectRelMapCache.containsKey(startID)) {
-                    objectRelMapCache.put(startID, new ArrayList<JEVisRelationship>());
-                }
-                objectRelMapCache.get(startID).add(re);
+                try {
+                    long startID = re.getStartID();
+                    long endID = re.getEndID();
 
-                if (!objectRelMapCache.containsKey(endID)) {
-                    objectRelMapCache.put(endID, new ArrayList<JEVisRelationship>());
+                    if (!objectRelMapCache.containsKey(startID)) {
+                        objectRelMapCache.put(startID, new ArrayList<JEVisRelationship>());
+                    }
+
+                    if (!objectRelMapCache.containsKey(endID)) {
+                        objectRelMapCache.put(endID, new ArrayList<JEVisRelationship>());
+                    }
+
+                    objectRelMapCache.get(startID).add(re);
+                    objectRelMapCache.get(endID).add(re);
+                } catch (Exception ex) {
+                    logger.error("incorrect relationship: {}", re);
                 }
-                objectRelMapCache.get(endID).add(re);
 
             }
 
 
             orLoaded = true;
         }
-
+        logger.error("Relationship amount: {}", objectRelMapCache.size());
         return objectRelCache;
     }
 
@@ -426,10 +420,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public List<JEVisRelationship> getRelationshipsWS() {
-        logger.debug("Get ALL RelationshipsWS");
+        logger.error("Get ALL RelationshipsWS");
         try {
 //            Benchmark bm = new Benchmark();
-            List<JEVisRelationship> objects = new ArrayList<>();
+            List<JEVisRelationship> relationships = Collections.synchronizedList(new ArrayList<>());
             String resource = HTTPConnection.API_PATH_V1
                     + REQUEST.RELATIONSHIPS.PATH;
 //                                  + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS;
@@ -438,11 +432,29 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             Type listType = new TypeToken<List<JsonRelationship>>() {
             }.getType();
             List<JsonRelationship> jsons = gson.fromJson(response.toString(), listType);
-            for (JsonRelationship rel : jsons) {
-                objects.add(new JEVisRelationshipWS(JEVisDataSourceWS.this, rel));
-            }
+
+            jsons.parallelStream().forEach(jsonRelationship -> {
+                try {
+                    if (jsonRelationship != null) {
+//                        if (jsonRelationship.getType() == JEVisConstants.ObjectRelationship.PARENT) {
+//                            System.out.print(".");
+//                        } else if (jsonRelationship.getType() >= 100) {
+//                            System.out.print(",");
+//                        }
+//
+//                        if (jsonRelationship.getFrom() == 3 || jsonRelationship.getTo() == 3) {
+//                            System.out.println("debug hook");
+//                        }
+
+                        relationships.add(new JEVisRelationshipWS(JEVisDataSourceWS.this, jsonRelationship));
+                    }
+                } catch (Exception ex) {
+                    logger.error("Error in Relationship: {}", ex.getMessage());
+                }
+            });
+
 //            bm.printBenchmarkDetail("Time to get Relationships");
-            return objects;
+            return relationships;
 
         } catch (ProtocolException ex) {
             logger.error(ex);
@@ -457,9 +469,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisClassRelationship> getClassRelationships() {
-        logger.trace("Get ALL ClassRelationships");
-        //TODO: re-impalement after Webservice change
-        return new ArrayList<>();
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -496,11 +506,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
 
     private List<JEVisAttribute> getAttributesFromWS(long objectID) {
+        logger.error("Get attribute from Webservice: {}", objectID);
         List<JEVisAttribute> attributes = new ArrayList<>();
 
         StringBuffer response = new StringBuffer();
         try {
-//            JEVisObject obj = getObject(objectID);
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH
                     + objectID + "/"
@@ -518,12 +528,12 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
             for (JsonAttribute att : jsons) {
                 try {
-//                    attributes.add(new JEVisAttributeWS(this, att, objectID));
                     attributes.add(updateAttributeCache(att));
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
             }
+            fixMissingAttributes(getObject(objectID), attributes);
 
         } catch (Exception ex) {
             logger.error(ex);
@@ -533,19 +543,59 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
+    private void fixMissingAttributes(JEVisObject object, List<JEVisAttribute> attributes) {
+        try {
+
+            JEVisClass oClass = object.getJEVisClass();
+
+            if (oClass != null && oClass.getTypes() != null) {
+                oClass.getTypes().forEach(jeVisType -> {
+                    boolean exists = false;
+                    try {
+                        for (JEVisAttribute att : attributes) {
+                            if (att.getName().equals(jeVisType.getName())) exists = true;
+                        }
+                        if (!exists) {
+                            JsonAttribute json = new JsonAttribute();
+                            json.setObjectID(object.getID());
+                            json.setType(jeVisType.getName());
+                            json.setPrimitiveType(jeVisType.getPrimitiveType());
+                            json.setSampleCount(0);
+
+                            JEVisAttribute newAttribute = new JEVisAttributeWS(this, json);
+                            attributes.add(newAttribute);
+                        }
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+
+                });
+            }
+
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+    }
+
+
     private JEVisAttribute updateAttributeCache(JsonAttribute jSonAttribute) {
         if (attributeCache.containsKey(jSonAttribute.getObjectID())) {
             for (JEVisAttribute att : attributeCache.get(jSonAttribute.getObjectID())) {
                 if (att.getName().equals(jSonAttribute.getType())) {
                     ((JEVisAttributeWS) att).update(jSonAttribute);
+                    logger.debug("Update existing att: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
                     return att;
                 }
             }
         } else {
+            logger.debug("Create attribute list for : {}", jSonAttribute.getObjectID());
             attributeCache.put(jSonAttribute.getObjectID(), new ArrayList<>());
         }
+
+
         JEVisAttributeWS newAttribute = new JEVisAttributeWS(this, jSonAttribute);
         attributeCache.get(jSonAttribute.getObjectID()).add(newAttribute);
+        logger.debug("add new attribute: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
 
         return newAttribute;
 
@@ -596,7 +646,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         logger.error("reloadRelationships()");
         orLoaded = false;
         if (this.user != null) {
-            ((JEVisUserWS) this.user).reload();
+            this.user.reload();
         }
     }
 
@@ -1006,15 +1056,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public JEVisObject getObject(Long id) {
-        if (objectCache.get(id) != null) {
+//        System.out.println("getObject: " + id);
+        if (objectLoaded) {
+            JEVisObject obj = objectCache.getOrDefault(id, null);
+            if (obj == null) {
+                logger.warn("Waring request for object {} was null", id);
+            }
+            return obj;
+        } else if (objectCache.get(id) != null) {
             return objectCache.get(id);
         }
 
         JEVisObject ob = getObjectWS(id);
-        if (ob != null) {
-            objectCache.put(id, ob);
-        }
-
         return ob;
 
     }
@@ -1029,17 +1082,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             StringBuffer response = con.getRequest(resource);
             JsonObject json = gson.fromJson(response.toString(), JsonObject.class);
 
-            JEVisObject obj = new JEVisObjectWS(this, json);
 
-            if (json.getObjects() != null && !json.getObjects().isEmpty()) {
-                json.getObjects().forEach(child -> {
-                    JEVisObject childObj = new JEVisObjectWS(this, child);
-                    objectCache.put(childObj.getID(), childObj);
-                });
-
+            if (objectCache.containsKey(json.getId())) {
+                ((JEVisObjectWS) objectCache.get(json.getId())).update(json);
+                return objectCache.get(json.getId());
+            } else {
+                JEVisObject obj = new JEVisObjectWS(this, json);
+                objectCache.put(obj.getID(), obj);
+                return obj;
             }
-
-            return obj;
 
         } catch (ProtocolException ex) {
             logger.error("Error while fetching Object", ex);
@@ -1220,7 +1271,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             Optimization.getInstance().printStatistics();
 
         } catch (Exception ex) {
-            logger.warn("Error while preloading data source", ex);
+            logger.error("Error while preloading data source", ex);
         }
     }
 
@@ -1248,4 +1299,25 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         objectCache.put(obj.getID(), obj);
     }
 
+    @Override
+    public void reloadObject(JEVisObject object) {
+        JEVisObject newObj = getObjectWS(object.getID());
+
+
+    }
+
+    @Override
+    public void clearCache() {
+//        classCache.clear();
+        objectRelMapCache.clear();
+        objectRelCache.clear();
+        objectCache.clear();
+        attributeCache.clear();
+
+        allAttributesPreloaded = false;
+        classLoaded = false;
+        objectLoaded = false;
+        orLoaded = false;
+
+    }
 }

@@ -42,15 +42,14 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.application.AppLocale;
-import org.jevis.application.application.I18nWS;
-import org.jevis.application.application.JavaVersionCheck;
-import org.jevis.application.login.FXLogin;
-import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
+import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.application.JavaVersionCheck;
+import org.jevis.jeconfig.application.login.FXLogin;
+import org.jevis.jeconfig.application.statusbar.Statusbar;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
@@ -84,7 +83,7 @@ public class JEConfig extends Application {
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
-    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.5.9");
+    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.6.0");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
@@ -260,7 +259,6 @@ public class JEConfig extends Application {
         I18n.getInstance().loadBundel(Locale.getDefault());
         JEConfig.PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
-        PROGRAM_INFO.addLibrary(org.jevis.application.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
     }
@@ -317,24 +315,19 @@ public class JEConfig extends Application {
                 I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
 
-                /**
-                 * Need to set JEApplication Locale for translations
-                 */
-                AppLocale.getInstance().setLocale(login.getSelectedLocale());
-
                 _config.setLocale(login.getSelectedLocale());
 
                 try {
                     _mainDS.preload();
+                    logger.error("done preloading");
                 } catch (Exception ex) {
                     logger.error("Error while preloading datasource", ex);
                     ex.printStackTrace();
                 }
-
+                logger.error("start GUI");
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
                 PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
-                PROGRAM_INFO.addLibrary(org.jevis.application.Info.INFO);
 
                 ExecutorService exe = Executors.newSingleThreadExecutor();
                 exe.submit(() -> {

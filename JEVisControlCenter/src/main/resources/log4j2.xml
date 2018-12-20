@@ -9,7 +9,7 @@
         <Logger name="org.jevis.api.sql" level="error" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="org.jevis.application.sql" level="error" additivity="false">
+        <Logger name="org.jevis.jeconfig.application.sql" level="error" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="org.jevis.jeconfig" level="debug" additivity="false">

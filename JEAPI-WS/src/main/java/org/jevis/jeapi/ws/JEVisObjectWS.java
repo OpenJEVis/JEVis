@@ -24,7 +24,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.utils.Optimization;
-import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;
@@ -51,6 +50,11 @@ public class JEVisObjectWS implements JEVisObject {
 
         Optimization.getInstance().addObject(this);
     }
+
+    public void update(JsonObject json) {
+        this.json = json;
+    }
+
 
     @Override
     public void addEventListener(JEVisEventListener listener) {
@@ -93,12 +97,18 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public List<JEVisObject> getParents() throws JEVisException {
         parents = new ArrayList<>();
-        for (JEVisRelationship rel : getRelationships()) {
-            if (rel.getType() == 1) {
-                if (rel.getStartObject().getID().equals(getID())) {
-                    parents.add(rel.getEndObject());
+        try {
+            for (JEVisRelationship rel : getRelationships()) {
+                if (rel.getType() == 1) {
+                    if (rel.getStartObject().getID().equals(getID())) {
+                        if (rel.getEndObject() != null) {
+                            parents.add(rel.getEndObject());
+                        }
+                    }
                 }
             }
+        } catch (Exception ex) {
+            logger.warn("Missing or unacceptable parent: {}", getID());
         }
 
         return parents;
@@ -113,17 +123,22 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public List<JEVisObject> getChildren() throws JEVisException {
         List<JEVisObject> children = new ArrayList<>();
-        for (JEVisRelationship rel : getRelationships()) {
-            try {
-                if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && rel.getEndID() == getID()) {
-                    children.add(rel.getStartObject());
+        try {
+            for (JEVisRelationship rel : getRelationships()) {
+                try {
+                    if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && rel.getEndID() == getID()) {
+                        if (rel.getStartObject() != null) {
+                            children.add(rel.getStartObject());
+                        }
+                    }
+                } catch (Exception ex) {
+                    logger.error(ex);
                 }
-            } catch (NullPointerException ex) {
-                logger.error(ex);
             }
+        } catch (Exception ex) {
+            logger.warn("Could not get all children", ex);
         }
-
-        logger.trace("Child.size: {}", children.size());
+        logger.trace("Child.size: {}.{}", getID(), children.size());
         return children;
     }
 
@@ -156,36 +171,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisAttribute> getAttributes() {
-        List<JEVisAttribute> attributes = getAttributesWS();
-        /** Check for missing Attribute/Types, maybe the WebService should take care of it? **/
-        try {
-            if (getJEVisClass() != null && getJEVisClass().getTypes() != null) {
-                getJEVisClass().getTypes().forEach(jeVisType -> {
-                    boolean exists = false;
-                    try {
-                        for (JEVisAttribute att : attributes) {
-                            if (att.getName().equals(jeVisType.getName())) exists = true;
-                        }
-                        if (!exists) {
-                            JsonAttribute json = new JsonAttribute();
-                            json.setObjectID(getID());
-                            json.setType(jeVisType.getName());
-                            json.setPrimitiveType(jeVisType.getPrimitiveType());
-                            json.setSampleCount(0);
-
-                            JEVisAttribute newAttribute = new JEVisAttributeWS(ds, json);
-                            attributes.add(newAttribute);
-                        }
-                    } catch (Exception ex) {
-                        logger.error(ex);
-                    }
-
-                });
-            }
-
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
+        List<JEVisAttribute> attributes = ds.getAttributes(getID());
 
         return attributes;
     }
@@ -332,12 +318,13 @@ public class JEVisObjectWS implements JEVisObject {
     public boolean isAllowedUnder(JEVisObject otherObject) throws JEVisException {
         boolean classIsAllowedUnderClass = getJEVisClass().isAllowedUnder(otherObject.getJEVisClass());
         boolean isDirectory = ds.getJEVisClass("Directory").getHeirs().contains(this);
-        boolean isUniqUnderParent = true;
+        boolean isUnique = getJEVisClass().isUnique();
+        boolean isAlreadyUnderParent = false;
         if (getParents() != null) {
             for (JEVisObject silvering : getParents().get(0).getChildren()) {
                 try {
                     if (silvering.getJEVisClassName().equals(getJEVisClassName())) {
-                        isUniqUnderParent = false;
+                        isAlreadyUnderParent = true;
                     }
                 } catch (Exception ex) {
 
@@ -345,14 +332,24 @@ public class JEVisObjectWS implements JEVisObject {
             }
         }
 
-
-        if (classIsAllowedUnderClass && isUniqUnderParent) {
-            return true;
-        } else if (isDirectory && otherObject.getJEVisClassName().equals(getJEVisClassName())) {
-            return true;
-
+        /**
+         * first check if its allowed to be created under other object class
+         */
+        if (classIsAllowedUnderClass) {
+            if (!isUnique) {
+                /**
+                 * if its not unique its alweys allowed to be created
+                 */
+                return true;
+            } else /**
+             *  if it is a directory and its of the same class of its parent its allowed to be created
+             */if (!isAlreadyUnderParent) {
+                /**
+                 * if it is unique and not already created its allowed to be created
+                 */
+                return true;
+            } else return isDirectory && otherObject.getJEVisClassName().equals(getJEVisClassName());
         }
-
 
         return false;
     }

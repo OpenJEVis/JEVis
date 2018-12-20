@@ -29,9 +29,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.dialog.AboutDialog;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.jeconfig.csv.CSVImportDialog;
+import org.jevis.jeconfig.dialog.AboutDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.joda.time.DateTime;
@@ -203,7 +203,7 @@ public class TopMenu extends MenuBar {
             public void handle(ActionEvent t) {
 
                 AboutDialog dia = new AboutDialog();
-                dia.show(JEConfig.getStage(), I18n.getInstance().getString("menu.about.title")
+                dia.show(I18n.getInstance().getString("menu.about.title")
                         , I18n.getInstance().getString("menu.about.message")
                         , JEConfig.PROGRAM_INFO, JEConfig.getImage("JEConfig_mac.png"));
 

@@ -47,11 +47,11 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisEvent;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
-import org.jevis.application.dialog.ExceptionDialog;
-import org.jevis.application.type.DisplayType;
-import org.jevis.application.type.GUIConstants;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.type.DisplayType;
+import org.jevis.jeconfig.application.type.GUIConstants;
+import org.jevis.jeconfig.dialog.ExceptionDialog;
 import org.jevis.jeconfig.plugin.classes.ClassHelper;
 import org.jevis.jeconfig.plugin.classes.ClassTree;
 import org.jevis.jeconfig.plugin.classes.relationship.ValidParentEditor;
@@ -215,7 +215,7 @@ public class ClassEditor {
                             } catch (JEVisException ex) {
                                 logger.catching(ex);
                                 ExceptionDialog dia = new ExceptionDialog();
-                                dia.show(JEConfig.getStage(), I18n.getInstance().getString("dialog.error.title"),
+                                dia.show(I18n.getInstance().getString("dialog.error.title"),
                                         I18n.getInstance().getString("plugin.classes.editor.error.icon.message"), ex.getMessage(), ex, JEConfig.PROGRAM_INFO);
                             }
                         }
@@ -679,7 +679,7 @@ public class ClassEditor {
             ex.printStackTrace();
             logger.catching(ex);
             ExceptionDialog dia = new ExceptionDialog();
-            dia.show(JEConfig.getStage(), I18n.getInstance().getString("plugin.classes.editor.type.alert.save.title"),
+            dia.show(I18n.getInstance().getString("plugin.classes.editor.type.alert.save.title"),
                     I18n.getInstance().getString("plugin.classes.editor.type.alert.save.message"), ex.getLocalizedMessage(), ex, JEConfig.PROGRAM_INFO);
         }
     }

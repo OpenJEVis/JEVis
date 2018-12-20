@@ -6,7 +6,7 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.plugin.scada.data.ScadaElementData;
 
 /**
