@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class CalculationNameFormater {
 
-    public final static String[] expressions = new String[]{"(", ")", "+", "-", "*", "/", "%", "=", "!", "<", ">", "&", "|", " "};
+    public final static String[] expressions = new String[]{"(", ")", "+", "-", "*", "/", "%", "=", "!", "<", ">", "&", "|", " ", ",", ".", ";", ":"};
     public final static String replacement = "_";
 
 
@@ -26,9 +26,23 @@ public class CalculationNameFormater {
         }
         name = replaceUmlaut(name);
         name = removeDuplicatedReplacements(name);
+        name = removeNumbersInFront(name);
         return name.trim();
     }
 
+    private static String removeNumbersInFront(String name) {
+        String output = name;
+
+        output = output.startsWith("0") || output.startsWith("1") || output.startsWith("2") || output.startsWith("3")
+                || output.startsWith("4") || output.startsWith("5") || output.startsWith("6") || output.startsWith("7")
+                || output.startsWith("8") || output.startsWith("9") ? output.substring(1) : output;
+        if (output.startsWith("0") || output.startsWith("1") || output.startsWith("2") || output.startsWith("3") ||
+                output.startsWith("4") || output.startsWith("5") || output.startsWith("6") || output.startsWith("7") ||
+                output.startsWith("8") || output.startsWith("9")) removeNumbersInFront(output);
+
+        return output;
+    }
+
     /**
      * Create an name suggestion based on the attribute
      *
@@ -36,8 +50,8 @@ public class CalculationNameFormater {
      * @return
      * @throws JEVisException
      */
-    public static String crateVarName(JEVisAttribute target) throws JEVisException {
-        return crateVarName(target.getObject());
+    public static String createVariableName(JEVisAttribute target) throws JEVisException {
+        return createVariableName(target.getObject());
 
     }
 
@@ -48,7 +62,7 @@ public class CalculationNameFormater {
      * @return
      * @throws JEVisException
      */
-    public static String crateVarName(JEVisObject target) throws JEVisException {
+    public static String createVariableName(JEVisObject target) throws JEVisException {
         String name = target.getName();
         if (target.getJEVisClassName().equals("Clean Data")) {
             List<JEVisObject> targetObj = target.getParents();

@@ -5,7 +5,7 @@
 <?import org.jevis.jeconfig.plugin.object.extension.calculation.FormulaBox?>
 <?import org.jevis.jeconfig.plugin.object.extension.calculation.VariablesBox?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.171"
+            minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.172-ea"
             fx:controller="org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController">
     <children>
         <VBox layoutX="115.0" layoutY="78.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
@@ -251,7 +251,7 @@
                                 <Label text="%plugin.object.calc.output"/>
 
                                 <Button fx:id="buttonOutput" mnemonicParsing="false" onAction="#onOutput"
-                                        text="TipTop"/>
+                                        text="Output"/>
                                 <Label focusTraversable="false" text="%plugin.object.calc.variables"/>
                                 <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
                                     <content>

@@ -209,15 +209,15 @@ public class FormulaBox extends HBox {
 
                         if (outputObj != null) {
                             targetAtt = outputObj.getAttribute("Output");
-
                         } else {
-                            JEVisObject outputObject = this.calcObj.buildObject(CalculationNameFormater.crateVarName(targetAtt), outputClass);
+                            JEVisObject outputObject = this.calcObj.buildObject(CalculationNameFormater.createVariableName(targetAtt), outputClass);
                             outputObject.commit();
                             targetAtt = outputObject.getAttribute("Output");
                         }
 
                         JEVisSample newSample = targetAtt.buildSample(new DateTime(), th.getSourceString());
                         newSample.commit();
+
                         outputButton.setText(th.getObject().getName() + "." + th.getAttribute().getName());
 
                     }
@@ -250,6 +250,4 @@ public class FormulaBox extends HBox {
         }
 
     }
-
-
 }

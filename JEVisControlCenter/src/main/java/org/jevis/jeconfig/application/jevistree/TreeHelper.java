@@ -455,7 +455,6 @@ public class TreeHelper {
 
                     }
                 }
-
             }
         }
     }
@@ -507,7 +506,7 @@ public class TreeHelper {
 
         JEVisAttribute newTaget = TreeHelper.updateCalcTarget(calcObject.getDataSource(), currentTarget);
         if (newTaget != null) {
-            String inputName = CalculationNameFormater.crateVarName(newTaget);
+            String inputName = CalculationNameFormater.createVariableName(newTaget);
 
             JEVisClass inputClass = calcObject.getDataSource().getJEVisClass("Input");
             JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
@@ -519,12 +518,15 @@ public class TreeHelper {
             newSample.commit();
 
             JEVisAttribute aInputData = newInputObj.getAttribute("Input Data");
+            JEVisAttribute inputDataTypeAtt = newInputObj.getAttribute("Input Data Type");
 
             TargetHelper th = new TargetHelper(aInputData.getDataSource(), newTaget.getObject(), newTaget);
             if (th.isValid() && th.targetAccessable()) {
                 logger.info("Target Is valid");
                 JEVisSample newTarget = aInputData.buildSample(now, th.getSourceString());
                 newTarget.commit();
+                JEVisSample periodicInputData = inputDataTypeAtt.buildSample(new DateTime(), "PERIODIC");
+                periodicInputData.commit();
             } else {
                 logger.info("Target is not valid");
             }

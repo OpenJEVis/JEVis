@@ -90,11 +90,10 @@ public class JEVisTreeFactory {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), true);
                 } else if (pasteObj.match(t)) {
                     if (tree.getCopyObject() != null) {
-                        final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
                         if (tree.isCut()) {
-                            TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
+                            TreeHelper.EventDrop(tree, tree.getCopyObject(), selectedObj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
                         } else {
-                            TreeHelper.EventDrop(tree, tree.getCopyObject(), obj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
+                            TreeHelper.EventDrop(tree, tree.getCopyObject(), selectedObj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
                         }
                     }
                 } else if (rename.match(t)) {

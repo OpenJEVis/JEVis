@@ -131,7 +131,7 @@ public class NewObjectUnderDialog {
                 Platform.runLater(() -> {
                     tree.setVisible(false);
 //                    tree.getFilter().showAttributes(newValue);
-                    tree.reload();
+//                    tree.reload(selectedObj);
                     tree.openUserSelection(stp.getUserSelection());
                     tree.setVisible(true);
 //                    logger.info("Change mode: "+newValue);

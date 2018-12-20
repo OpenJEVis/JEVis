@@ -35,7 +35,7 @@ public class CalculationExtension implements ObjectEditorExtension {
     private CalculationViewController contol;
     private String oldExpression = "";
     private JEVisSample lastSampleEnabeld = null;
-    private JEVisSample _newSampleEnabeld = null;
+    private JEVisSample _newSampleEnabled = null;
 
     public CalculationExtension(JEVisObject _obj) {
         this._obj = _obj;
@@ -124,7 +124,7 @@ public class CalculationExtension implements ObjectEditorExtension {
                     @Override
                     public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                         try {
-                            _newSampleEnabeld = enabled.buildSample(new DateTime(), enableButton.isSelected());
+                            _newSampleEnabled = enabled.buildSample(new DateTime(), enableButton.isSelected());
                             if (t1) {
                                 enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
                                 editConfigPane.setDisable(false);
@@ -188,7 +188,7 @@ public class CalculationExtension implements ObjectEditorExtension {
                 _changed.setValue(false);
 
 
-                _newSampleEnabeld.commit();
+                _newSampleEnabled.commit();
                 _enabledChanged.setValue(false);
             }
             return true;
