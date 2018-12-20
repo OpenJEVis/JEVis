@@ -54,7 +54,7 @@ public class ResourceRelationship {
         SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ResourceRelationship", "getObject");
+            ds.getProfiler().addEvent("ResourceRelationship", "getRelationships");
             List<JsonRelationship> rels = ds.getUserManager().filterRelationships(ds.getRelationships());
             ds.getProfiler().addEvent("ResourceRelationship", "done");
             return Response.ok(rels).build();

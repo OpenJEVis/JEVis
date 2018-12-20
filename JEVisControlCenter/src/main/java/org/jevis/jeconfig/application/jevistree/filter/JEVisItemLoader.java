@@ -26,10 +26,10 @@ public class JEVisItemLoader {
     final JEVisTree jeVisTree;
     final List<JEVisObject> allObjects;
     final List<JEVisObject> roots;
-    final List<JEVisTreeItem> treeObjectItems = new ArrayList<>();
-    final List<JEVisTreeItem> treeAttributeItems = new ArrayList<>();
-    final Map<JEVisObject, JEVisTreeItem> itemObjectLinker = new TreeMap<>();
-    final Map<String, JEVisTreeItem> itemAttributeLinker = new HashMap<>();
+    final List<JEVisTreeItem> treeObjectItems = Collections.synchronizedList(new ArrayList<>());
+    final List<JEVisTreeItem> treeAttributeItems = Collections.synchronizedList(new ArrayList<>());
+    final Map<JEVisObject, JEVisTreeItem> itemObjectLinker = Collections.synchronizedMap(new TreeMap<>());
+    final Map<String, JEVisTreeItem> itemAttributeLinker = Collections.synchronizedMap(new TreeMap<>());
     private Comparator<JEVisTreeItem> comperator;
     private JEVisTreeFilter activFilter = null;
 
@@ -55,15 +55,21 @@ public class JEVisItemLoader {
      */
     private void cleanFilter() {
         for (JEVisTreeItem item : treeObjectItems) {
-            item.getChildren().clear();
-            item.setParentForFilter(false);
-            item.setFilterd(false);
+            try {
+                item.getChildren().clear();
+                item.setParentForFilter(false);
+                item.setFilterd(false);
+            } catch (Exception ex) {
+            }
         }
 
         for (JEVisTreeItem item : treeAttributeItems) {
-            item.getChildren().clear();
-            item.setParentForFilter(false);
-            item.setFilterd(false);
+            try {
+                item.getChildren().clear();
+                item.setParentForFilter(false);
+                item.setFilterd(false);
+            } catch (Exception ex) {
+            }
         }
     }
 
@@ -100,7 +106,8 @@ public class JEVisItemLoader {
      * @param objects
      */
     public void buildItems(List<JEVisObject> objects) {
-        for (JEVisObject object : objects) {
+
+        objects.parallelStream().forEach(object -> {
             try {
 //                logger.error("Create item for object: {}", object.getName());
                 JEVisTreeItem item = new JEVisTreeItem(jeVisTree, object);
@@ -121,7 +128,29 @@ public class JEVisItemLoader {
             } catch (Exception ex) {
                 logger.error("Error while loading object {}", object.getID(), ex);
             }
-        }
+        });
+//        for (JEVisObject object : objects) {
+//            try {
+////                logger.error("Create item for object: {}", object.getName());
+//                JEVisTreeItem item = new JEVisTreeItem(jeVisTree, object);
+//                registerEventHandler(object);
+//                treeObjectItems.add(item);
+//                itemObjectLinker.put(object, item);
+//                for (JEVisAttribute attribute : object.getAttributes()) {
+//                    try {
+////                        logger.error("Create item for attribute: {}", attribute.getName());
+//                        JEVisTreeItem attributeItem = new JEVisTreeItem(jeVisTree, attribute);
+//                        treeAttributeItems.add(attributeItem);
+//                        itemAttributeLinker.put(attributeKey(attribute), attributeItem);
+////                        System.out.println("#### " + attributeKey(attribute) + " " + attribute);
+//                    } catch (Exception aex) {
+//                        logger.error("Error while loading type {}", attribute.getName(), aex);
+//                    }
+//                }
+//            } catch (Exception ex) {
+//                logger.error("Error while loading object {}", object.getID(), ex);
+//            }
+//        }
     }
 
     private String attributeKey(JEVisAttribute attribute) {
@@ -160,6 +189,10 @@ public class JEVisItemLoader {
      */
     private void parentCheck(Set<JEVisObject> parents, JEVisObject object) {
         try {
+            if (object == null || parents == null) {
+                System.out.println("debug anker");
+                return;
+            }
             for (JEVisObject parent : object.getParents()) {
                 /** continue travers if parent is not in list  **/
                 if (!parents.contains(parent)) {
@@ -211,11 +244,15 @@ public class JEVisItemLoader {
 
         /** find matching attributes **/
         for (JEVisTreeItem item : treeAttributeItems) {
-            boolean show = filter.showItem(item.getValue().getJEVisAttribute());
-            if (show) {
-                item.setFilterd(true);
+            try {
+                boolean show = filter.showItem(item.getValue().getJEVisAttribute());
+                if (show) {
+                    item.setFilterd(true);
 //                item.setParentForFilter(true);
-                parentCheck(neededParents, item.getValue().getJEVisObject());
+                    parentCheck(neededParents, item.getValue().getJEVisObject());
+                }
+            } catch (Exception ex) {
+                logger.error(ex);
             }
         }
 //        benchmark.printBenchmarkDetail("find matching attributes");

@@ -29,22 +29,11 @@ public class Optimization {
 
 
     public void printStatistics() {
-        System.out.println("==== Optimization ====");
-        System.out.println("Objects.amount: " + objectAmount);
-        System.out.println("Attribute.amount: " + attributeAmount);
-        System.out.println("Sample.amount: " + sampleAmount);
-//        System.out.println("Object.totalSize: ~" + (sampleAmount * 3.5) + "mb");
-        System.out.println("Memory.used:  " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / megabyte + "mb");
-        System.out.println("Memory.total: " + (Runtime.getRuntime().totalMemory()) / megabyte + "mb");
-        System.out.println("Memory.free:  " + (Runtime.getRuntime().freeMemory()) / megabyte + "mb");
+        System.out.println(String.format("Data Object/Attribute/Samples: %s/%s/%s", objectAmount, attributeAmount, sampleAmount));
+        System.out.println(String.format("Memory used %s mb / total reserved: %s mb",
+                ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / megabyte),
+                (Runtime.getRuntime().totalMemory() / megabyte)));
 
-//        Stream<Map.Entry<String, Long>> sorted =
-//                byClass.entrySet().stream()
-//                        .sorted(Map.Entry.comparingByValue());
-//
-//        sorted.forEach(stringLongEntry -> {
-//            System.out.println("Class: '" + stringLongEntry.getKey() + "' amount: " + stringLongEntry.getValue());
-//        });
     }
 
     public void addSample(JEVisSample sample) {

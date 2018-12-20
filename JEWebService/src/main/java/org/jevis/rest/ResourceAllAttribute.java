@@ -57,17 +57,18 @@ public class ResourceAllAttribute {
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("AllAttributeResource", "Start");
+            ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
+            ds.preload(SQLDataSource.PRELOAD.ALL_REL);
 
             List<JsonAttribute> attributes = ds.getAttributes();
             ds.getProfiler().addEvent("AttributeResource", "done");
+            logger.error("Total amount of attributes: {}", attributes.size());
             return Response.ok(attributes).build();
 
 
         } catch (JEVisException jex) {
-            System.out.println("yascdysdaf");
             return Response.serverError().entity(ExceptionUtils.getStackTrace(jex)).build();
         } catch (AuthenticationException ex) {
-            System.out.println("dsfsdfsdfdfs");
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } finally {
             Config.CloseDS(ds);

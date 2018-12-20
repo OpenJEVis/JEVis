@@ -131,7 +131,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
                 String requestjson = new Gson().toJson(jsonSamples, new TypeToken<List<JsonSample>>() {
                 }.getType());
-                logger.debug("Playload. {}", requestjson);
+                logger.debug("Payload. {}", requestjson);
                 StringBuffer response = ds.getHTTPConnection().postRequest(resource, requestjson);
 
                 logger.trace("Response.payload: {}", response);
