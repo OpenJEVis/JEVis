@@ -39,8 +39,8 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.ExceptionDialog;
 import org.jevis.jeconfig.sample.csvexporttable.CSVExportTableSampleTable;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -133,11 +133,11 @@ public class SampleExportExtension implements SampleEditorExtension {
             } catch (FileNotFoundException ex) {
                 logger.fatal(ex);
                 ExceptionDialog errDia = new ExceptionDialog();
-                errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAM_INFO);
+                errDia.show("Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAM_INFO);
             } catch (UnsupportedEncodingException ex) {
                 logger.fatal(ex);
                 ExceptionDialog errDia = new ExceptionDialog();
-                errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAM_INFO);
+                errDia.show("Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAM_INFO);
             }
         }
 

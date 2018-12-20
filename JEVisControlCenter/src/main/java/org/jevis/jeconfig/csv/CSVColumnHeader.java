@@ -37,17 +37,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
-import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
-import org.jevis.application.dialog.SelectTargetDialog;
-import org.jevis.application.jevistree.UserSelection;
-import org.jevis.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.application.unit.UnitChooserDialog;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.unit.UnitChooserDialog;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -735,7 +734,6 @@ public class CSVColumnHeader {
                 SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
                 selectionDialog.allowMultySelect(false);
                 if (selectionDialog.show(
-                        (Stage) _table.getScene().getWindow(),//JEConfig.getStage()
                         _table.getDataSource(),
                         I18n.getInstance().getString("csv.target.title"),
                         new ArrayList<UserSelection>()

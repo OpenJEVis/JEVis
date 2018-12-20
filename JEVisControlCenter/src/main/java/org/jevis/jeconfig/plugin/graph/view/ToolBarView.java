@@ -17,11 +17,6 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.application.Chart.AnalysisTimeFrame;
-import org.jevis.application.Chart.ChartDataModel;
-import org.jevis.application.Chart.ChartSettings;
-import org.jevis.application.Chart.data.GraphDataModel;
-import org.jevis.application.dialog.ChartSelectionDialog;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.json.JsonAnalysisDataRow;
@@ -30,6 +25,11 @@ import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.json.JsonChartTimeFrame;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -321,7 +321,7 @@ public class ToolBarView {
 
                         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel);
 
-                        if (selectionDialog.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
+                        if (selectionDialog.show() == ChartSelectionDialog.Response.OK) {
 
                             model.setCurrentAnalysis(null);
                             model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
@@ -354,7 +354,7 @@ public class ToolBarView {
     private void changeSettings(ActionEvent event) {
         ChartSelectionDialog dia = new ChartSelectionDialog(ds, model);
 
-        if (dia.show(JEConfig.getStage()) == ChartSelectionDialog.Response.OK) {
+        if (dia.show() == ChartSelectionDialog.Response.OK) {
 
             model.setCharts(dia.getChartPlugin().getData().getCharts());
             model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
@@ -483,11 +483,15 @@ public class ToolBarView {
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
                         List<String> check = new ArrayList<>();
+                        AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
                         try {
                             currentAnalysisDirectory.getChildren().forEach(jeVisObject -> {
-                                if (!check.contains(jeVisObject.getName()))
+                                if (!check.contains(jeVisObject.getName())) {
                                     check.add(jeVisObject.getName());
-
+                                }
+                            });
+                            currentAnalysisDirectory.getChildren().forEach(jeVisObject -> {
+                                if (jeVisObject.getName().equals(name.getText())) currentAnalysis.set(jeVisObject);
                             });
                         } catch (JEVisException e) {
                             logger.error("Error in current analysis directory: " + e);
@@ -508,6 +512,7 @@ public class ToolBarView {
                             model.updateListAnalyses();
                             listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                         } else {
+
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
                             dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
                             dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
@@ -518,10 +523,13 @@ public class ToolBarView {
 
                             dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
                                 if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                                    saveDataModel(model.getCurrentAnalysis(), model.getSelectedData(), model.getCharts());
+                                    if (currentAnalysis.get() != null) {
+                                        saveDataModel(currentAnalysis.get(), model.getSelectedData(), model.getCharts());
 
-                                    model.updateListAnalyses();
-                                    listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+                                        model.updateListAnalyses();
+                                        model.setCurrentAnalysis(currentAnalysis.get());
+                                        listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+                                    }
                                 } else {
 
                                 }

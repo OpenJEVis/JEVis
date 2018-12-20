@@ -22,15 +22,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.dialog.MapSelectionDialog;
-import org.jevis.application.jevistree.plugin.MapPlugin;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
+import org.jevis.jeconfig.dialog.MapSelectionDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.jxmapviewer.JXMapViewer;
 
@@ -147,7 +146,7 @@ public class MapViewPlugin implements Plugin {
                 public void handle(ActionEvent event) {
                     MapSelectionDialog selectionDialog = new MapSelectionDialog(ds);
 
-                    if (selectionDialog.show(new Stage()) == MapSelectionDialog.Response.OK) {
+                    if (selectionDialog.show() == MapSelectionDialog.Response.OK) {
 
                         Set<MapPlugin.DataModel> selectedData = new HashSet<>();
                         for (Map.Entry<String, MapPlugin.DataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {

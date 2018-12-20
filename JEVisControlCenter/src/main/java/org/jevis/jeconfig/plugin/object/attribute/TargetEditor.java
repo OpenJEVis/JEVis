@@ -22,13 +22,13 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.dialog.SelectTargetDialog;
-import org.jevis.application.dialog.SelectTargetDialog.MODE;
-import org.jevis.application.jevistree.JEVisTree;
-import org.jevis.application.jevistree.TreeHelper;
-import org.jevis.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.jevistree.JEVisTree;
+import org.jevis.jeconfig.application.jevistree.TreeHelper;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.dialog.SelectTargetDialog.MODE;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 

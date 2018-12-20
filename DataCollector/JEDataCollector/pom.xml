@@ -114,7 +114,7 @@
             <artifactId>JEAPI-WS</artifactId>
         </dependency>
         <!--<dependency>-->
-        <!--<groupId>org.jevis.application</groupId>-->
+        <!--<groupId>org.jevis.jeconfig.application</groupId>-->
         <!--<artifactId>jeapplication</artifactId>-->
         <!--</dependency>-->
     </dependencies>

@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.jevistree.plugin.MapPlugin;
+import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;

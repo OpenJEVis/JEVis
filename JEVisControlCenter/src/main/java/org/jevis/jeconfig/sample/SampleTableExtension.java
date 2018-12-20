@@ -36,16 +36,15 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.dialog.ConfirmDialog;
-import org.jevis.application.dialog.ProgressForm;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.ConfirmDialog;
+import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 import java.util.List;
 
@@ -86,7 +85,7 @@ public class SampleTableExtension implements SampleEditorExtension {
         deleteAll.setOnAction(event -> {
             try {
                 ConfirmDialog dia = new ConfirmDialog();
-                if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
+                if (dia.show(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
                         I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"),
                         I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.message")) == ConfirmDialog.Response.YES) {
 
@@ -117,7 +116,7 @@ public class SampleTableExtension implements SampleEditorExtension {
 
                         ConfirmDialog dia = new ConfirmDialog();
 
-                        if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.title"),
+                        if (dia.show(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.title"),
                                 I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"),
                                 I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.message")) == ConfirmDialog.Response.YES) {
                             taskWithAnimation(new Task<Void>() {
@@ -192,7 +191,7 @@ public class SampleTableExtension implements SampleEditorExtension {
                         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
                         String message = String.format(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message1"),fmt.print(firstDate), fmt.print(endDate));
 
-                        if (dia.show(owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.title"),
+                        if (dia.show(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.title"),
                                 I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.titlelong"),
                                 message) == ConfirmDialog.Response.YES) {
 

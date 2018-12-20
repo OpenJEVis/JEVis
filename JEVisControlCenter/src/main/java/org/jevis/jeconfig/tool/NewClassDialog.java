@@ -44,7 +44,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
-import org.jevis.application.resource.ResourceLoader;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 /**
  *

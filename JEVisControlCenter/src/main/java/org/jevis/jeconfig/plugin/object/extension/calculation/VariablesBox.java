@@ -8,8 +8,8 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.jevistree.TreeHelper;
-import org.jevis.application.resource.ResourceLoader;
+import org.jevis.jeconfig.application.jevistree.TreeHelper;
+import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 import java.util.ArrayList;
 import java.util.List;
