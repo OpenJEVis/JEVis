@@ -137,6 +137,7 @@ public class Launcher extends AbstractCliApp {
     protected void runServiceHelp() {
 
         try {
+            ds.clearCache();
             ds.preload();
             getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
         } catch (JEVisException e) {

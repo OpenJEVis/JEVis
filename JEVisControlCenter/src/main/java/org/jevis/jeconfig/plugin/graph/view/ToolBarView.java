@@ -483,11 +483,15 @@ public class ToolBarView {
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
                         List<String> check = new ArrayList<>();
+                        AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
                         try {
                             currentAnalysisDirectory.getChildren().forEach(jeVisObject -> {
-                                if (!check.contains(jeVisObject.getName()))
+                                if (!check.contains(jeVisObject.getName())) {
                                     check.add(jeVisObject.getName());
-
+                                }
+                            });
+                            currentAnalysisDirectory.getChildren().forEach(jeVisObject -> {
+                                if (jeVisObject.getName().equals(name.getText())) currentAnalysis.set(jeVisObject);
                             });
                         } catch (JEVisException e) {
                             logger.error("Error in current analysis directory: " + e);
@@ -508,6 +512,7 @@ public class ToolBarView {
                             model.updateListAnalyses();
                             listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                         } else {
+
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
                             dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
                             dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
@@ -518,10 +523,13 @@ public class ToolBarView {
 
                             dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
                                 if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                                    saveDataModel(model.getCurrentAnalysis(), model.getSelectedData(), model.getCharts());
+                                    if (currentAnalysis.get() != null) {
+                                        saveDataModel(currentAnalysis.get(), model.getSelectedData(), model.getCharts());
 
-                                    model.updateListAnalyses();
-                                    listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+                                        model.updateListAnalyses();
+                                        model.setCurrentAnalysis(currentAnalysis.get());
+                                        listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+                                    }
                                 } else {
 
                                 }
