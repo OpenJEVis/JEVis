@@ -294,6 +294,10 @@ public class LineChart implements Chart {
 
     @Override
     public void updateChart() {
+        timeStampOfFirstSample.set(DateTime.now());
+        timeStampOfLastSample.set(new DateTime(2001, 1, 1, 0, 0, 0));
+        changedBoth = new Boolean[]{false, false};
+
         //xyChartSerieList.clear();
         //series.clear();
         tableData.clear();
