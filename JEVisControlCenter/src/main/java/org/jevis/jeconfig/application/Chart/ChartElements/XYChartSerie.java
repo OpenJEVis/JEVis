@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.tool.I18n;
@@ -63,8 +62,7 @@ public class XYChartSerie implements Serie {
     public void generateSeriesFromSamples() throws JEVisException {
         tableEntry = new TableEntry(getTableEntryName());
 
-        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE)) tableEntry.setColor(singleRow.getColor());
-        else tableEntry.setColor(singleRow.getColor().darker());
+        tableEntry.setColor(singleRow.getColor());
 
         samples = singleRow.getSamples();
 
