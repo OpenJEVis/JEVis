@@ -94,9 +94,10 @@ public class ProcessManagerFactory {
         ProcessManagerFactory.ProcessType processType = getProcessType(cleanObject);
         if (processType.equals(ProcessManagerFactory.ProcessType.clean)) {
             processManagers.addAll(getProcessManagersByCleaningObject(cleanObject));
-        } else if (processType.equals(ProcessManagerFactory.ProcessType.functional)) {
-            processManagers.add(getProcessManagerByFunctionalObject(cleanObject));
         }
+//        else if (processType.equals(ProcessManagerFactory.ProcessType.functional)) {
+//            processManagers.add(getProcessManagerByFunctionalObject(cleanObject));
+//        }
         return processManagers;
     }
 
@@ -132,9 +133,9 @@ public class ProcessManagerFactory {
         processManager.setProcessSteps(processSteps);
         processManagers.add(processManager);
 
-        for (JEVisObject child : cleanObject.getChildren()) {
-            processManagers.add(getProcessManagerByFunctionalObject(child));
-        }
+//        for (JEVisObject child : cleanObject.getChildren()) {
+//            processManagers.add(getProcessManagerByFunctionalObject(child));
+//        }
 
         return processManagers;
     }

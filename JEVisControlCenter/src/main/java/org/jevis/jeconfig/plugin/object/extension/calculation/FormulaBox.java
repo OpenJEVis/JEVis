@@ -1,8 +1,6 @@
 package org.jevis.jeconfig.plugin.object.extension.calculation;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -42,11 +40,8 @@ public class FormulaBox extends HBox {
         textArea.setWrapText(true);
         getChildren().addAll(textArea);
         HBox.setHgrow(textArea, Priority.ALWAYS);
-        textArea.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        textArea.textProperty().addListener((observable, oldValue, newValue) -> {
 //                eval();
-            }
         });
 
     }

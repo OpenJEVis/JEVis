@@ -30,7 +30,6 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -56,16 +55,10 @@ public class SampleTableExtension implements SampleEditorExtension {
 
     private final static String TITLE = "Editor";
     private final BorderPane _view = new BorderPane();
-    Stage owner = JEConfig.getStage();
     private JEVisAttribute _att;
     private List<JEVisSample> _samples;
     private boolean _dataChanged = true;
     private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
-
-    public SampleTableExtension(JEVisAttribute att, Stage stage) {
-        _att = att;
-        owner = stage;
-    }
 
     public SampleTableExtension(JEVisAttribute att) {
         _att = att;
@@ -305,13 +298,10 @@ public class SampleTableExtension implements SampleEditorExtension {
 
     @Override
     public void update() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if (_dataChanged) {
-                    buildGui(_att, _samples);
-                    _dataChanged = false;
-                }
+        Platform.runLater(() -> {
+            if (_dataChanged) {
+                buildGui(_att, _samples);
+                _dataChanged = false;
             }
         });
     }

@@ -38,8 +38,8 @@ public class Login {
     public String serverResult = null;
     public JEVisDataSource _ds;
 
-    final TextField txUserName = new TextField();
-    final PasswordField txPassword = new PasswordField();
+    private final TextField txUserName = new TextField();
+    private final PasswordField txPassword = new PasswordField();
 
     public JEVisDataSource getDS() throws JEVisException {
         logger.info("getDS");

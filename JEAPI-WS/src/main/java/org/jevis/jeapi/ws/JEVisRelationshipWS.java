@@ -35,7 +35,7 @@ public class JEVisRelationshipWS implements JEVisRelationship {
     private int type;
     private JEVisDataSourceWS ds;
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(JEVisRelationshipWS.class);
-    JsonRelationship json;
+    private JsonRelationship json;
 
     public JEVisRelationshipWS(JEVisDataSourceWS ds, JsonRelationship json) {
 //        logger.trace("New Relationship: {}->{}", json.getFrom(), json.getTo());
@@ -63,7 +63,7 @@ public class JEVisRelationshipWS implements JEVisRelationship {
 
     @Override
     public JEVisObject getOtherObject(JEVisObject object) {
-        if (object.getID().equals(getStartID())) {
+        if (object.getID() == getStartID()) {
             return getEndObject();
         } else {
             return getStartObject();

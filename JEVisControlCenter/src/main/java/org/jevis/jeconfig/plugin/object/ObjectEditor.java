@@ -20,12 +20,7 @@
 package org.jevis.jeconfig.plugin.object;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
@@ -33,7 +28,6 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -159,28 +153,9 @@ public class ObjectEditor {
             }
         };
 
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                JEConfig.getStage().getScene().setCursor(Cursor.WAIT);
+        Platform.runLater(() -> JEConfig.getStage().getScene().setCursor(Cursor.WAIT));
 
-            }
-        });
-
-        load.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-
-            @Override
-            public void handle(WorkerStateEvent event) {
-
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT);
-
-                    }
-                });
-            }
-        });
+        load.setOnSucceeded(event -> Platform.runLater(() -> JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT)));
 
         new Thread(load).start();
 
@@ -192,231 +167,214 @@ public class ObjectEditor {
         _currentObject = obj;
 
         Platform.runLater(
-                new Runnable() {
+                () -> {
+                    Accordion accordion = new Accordion();
+                    accordion.getStylesheets().add("/styles/objecteditor.css");
+                    accordion.setStyle("-fx-box-border: transparent;");
 
-                    @Override
-                    public void run() {
-                        Accordion accordion = new Accordion();
-                        accordion.getStylesheets().add("/styles/objecteditor.css");
-                        accordion.setStyle("-fx-box-border: transparent;");
+                    List<TitledPane> taps = new ArrayList<>();
+                    installedExtensions = new ArrayList<>();
 
-                        List<TitledPane> taps = new ArrayList<>();
-                        installedExtensions = new ArrayList<>();
-
-                        installedExtensions.add(new CalculationExtension(obj));
-                        installedExtensions.add(new MemberExtension(obj));
+                    installedExtensions.add(new CalculationExtension(obj));
+                    installedExtensions.add(new MemberExtension(obj));
 
 
-                        //Generic Extensions every Class has
-                        //TODO: make an better logic to decide/configure the extension order
-                        installedExtensions.add(new GenericAttributeExtension(obj, tree));
-                        installedExtensions.add(new PermissionExtension(obj));
-                        installedExtensions.add(new RootExtension(obj));
-                        installedExtensions.add(new LinkExtension(obj));
+                    //Generic Extensions every Class has
+                    //TODO: make an better logic to decide/configure the extension order
+                    installedExtensions.add(new GenericAttributeExtension(obj, tree));
+                    installedExtensions.add(new PermissionExtension(obj));
+                    installedExtensions.add(new RootExtension(obj));
+                    installedExtensions.add(new LinkExtension(obj));
 
-                        activeExtensions = new ArrayList<>();
+                    activeExtensions = new ArrayList<>();
 
-                        for (final ObjectEditorExtension ex : installedExtensions) {
-                            try {
-                                if (ex.isForObject(obj)) {
-                                    if(_lastOpenEditor==null){
-                                        _lastOpenEditor=ex.getTitle();
-                                    }
-
-                                    activeExtensions.add(ex);
-                                    TitledPane newTab = new TitledPane(ex.getTitle(), ex.getView());
-                                    newTab.getStylesheets().add("/styles/objecteditor.css");
-
-                                    newTab.setAnimated(false);
-                                    taps.add(newTab);
-                                    ex.getValueChangedProperty().addListener(new ChangeListener<Boolean>() {
-
-                                        @Override
-                                        public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                                            if (t1) {
-                                                _hasChanged = t1;//TODO: enable/disbale the save button
-                                            }
-                                        }
-                                    });
-
-                                    newTab.expandedProperty().addListener(new ChangeListener<Boolean>() {
-
-                                        @Override
-                                        public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                                            if (t1) {
-                                                try {
-                                                    JEConfig.loadNotification(true);
-                                                    ex.setVisible();
-                                                    _lastOpenEditor = ex.getTitle();
-                                                    JEConfig.loadNotification(false);
-                                                } catch (Exception ex) {
-                                                    ex.printStackTrace();
-                                                }
-                                            }
-                                        }
-                                    });
-
+                    for (final ObjectEditorExtension ex : installedExtensions) {
+                        try {
+                            if (ex.isForObject(obj)) {
+                                if (_lastOpenEditor == null) {
+                                    _lastOpenEditor = ex.getTitle();
                                 }
-                            } catch (Exception pex) {
-                                logger.error("Error while loading extension: ", pex);
+
+                                activeExtensions.add(ex);
+                                TitledPane newTab = new TitledPane(ex.getTitle(), ex.getView());
+                                newTab.getStylesheets().add("/styles/objecteditor.css");
+
+                                newTab.setAnimated(false);
+                                taps.add(newTab);
+                                ex.getValueChangedProperty().addListener((ov, t, t1) -> {
+                                    if (t1) {
+                                        _hasChanged = t1;//TODO: enable/disbale the save button
+                                    }
+                                });
+
+                                newTab.expandedProperty().addListener((ov, t, t1) -> {
+                                    if (t1) {
+                                        try {
+                                            JEConfig.loadNotification(true);
+                                            ex.setVisible();
+                                            _lastOpenEditor = ex.getTitle();
+                                            JEConfig.loadNotification(false);
+                                        } catch (Exception ex1) {
+                                            ex1.printStackTrace();
+                                        }
+                                    }
+                                });
+
                             }
+                        } catch (Exception pex) {
+                            logger.error("Error while loading extension: ", pex);
                         }
+                    }
 
-                        accordion.getPanes().addAll(taps);
-                        AnchorPane.setTopAnchor(accordion, 0.0);
-                        AnchorPane.setRightAnchor(accordion, 0.0);
-                        AnchorPane.setLeftAnchor(accordion, 0.0);
-                        AnchorPane.setBottomAnchor(accordion, 0.0);
+                    accordion.getPanes().addAll(taps);
+                    AnchorPane.setTopAnchor(accordion, 0.0);
+                    AnchorPane.setRightAnchor(accordion, 0.0);
+                    AnchorPane.setLeftAnchor(accordion, 0.0);
+                    AnchorPane.setBottomAnchor(accordion, 0.0);
 
-                        //load the last Extensions for the new object
-                        boolean foundTab = false;
-                        if (!taps.isEmpty()) {
+                    //load the last Extensions for the new object
+                    boolean foundTab = false;
+                    if (!taps.isEmpty()) {
 
-                            for (ObjectEditorExtension ex : activeExtensions) {
-                                if (ex.getTitle().equals(_lastOpenEditor)) {
-                                    ex.setVisible();
+                        for (ObjectEditorExtension ex : activeExtensions) {
+                            if (ex.getTitle().equals(_lastOpenEditor)) {
+                                ex.setVisible();
 //                            updateView(content, ex);
-                                }
                             }
-                            for (TitledPane tap : taps) {
-                                if (tap.getText().equals(_lastOpenEditor)) {
-                                    accordion.setExpandedPane(tap);
-                                    foundTab = true;
-                                }
+                        }
+                        for (TitledPane tap : taps) {
+                            if (tap.getText().equals(_lastOpenEditor)) {
+                                accordion.setExpandedPane(tap);
+                                foundTab = true;
                             }
-
                         }
-                        if (!foundTab) {
-
-                            //Set the first enabled extension visible, waring the order of installedExtensions an tabs is not the same
-                            for (final ObjectEditorExtension ex : activeExtensions) {
-                                try {
-                                    if (ex.isForObject(obj)) {
-                                        ex.setVisible();
-                                        break;
-                                    }
-                                } catch (Exception nex) {
-
-                                }
-                            }
-//                            installedExtensions.get(0).setVisible();
-                            accordion.setExpandedPane(taps.get(0));
-                            taps.get(0).requestFocus();
-                            _lastOpenEditor = installedExtensions.get(0).getTitle();
-                        }
-
-                        Button helpButton = new Button("", JEConfig.getImage("1400874302_question_blue.png", 34, 34));
-                        helpButton.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
-
-                        //Header
-                        ImageView classIcon;
-                        try {
-                            classIcon = ImageConverter.convertToImageView(obj.getJEVisClass().getIcon(), 60, 60);
-                        } catch (Exception ex) {
-                            classIcon = JEConfig.getImage("1390343812_folder-open.png", 20, 20);
-                        }
-
-                        GridPane header = new GridPane();
-                        try {
-                            Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.editor.name"));
-                            Label objectName = new Label(obj.getName());
-                            objectName.setStyle("-fx-font-weight: bold;");
-                            Label classlabel = new Label(I18n.getInstance().getString("plugin.object.editor.type"));
-                            //Label className = new Label(obj.getJEVisClass().getName());
-                            Label className = new Label(I18nWS.getInstance().getClassName(obj.getJEVisClassName()));
-
-                            Label idlabel = new Label(I18n.getInstance().getString("plugin.object.editor.id"));
-                            Label idField = new Label(obj.getID() + "");
-
-                            //TODO: would be nice if the user can copy the ID and name but the layout is broken if i use this textfield code
-
-                            Region spacer = new Region();
-                            GridPane.setVgrow(spacer, Priority.ALWAYS);
-                            GridPane.setFillWidth(spacer, true);
-                            GridPane.setHgrow(spacer, Priority.ALWAYS);
-
-                            GridPane.setVgrow(nameLabel, Priority.NEVER);
-                            GridPane.setVgrow(classlabel, Priority.NEVER);
-                            GridPane.setVgrow(idlabel, Priority.NEVER);
-                            GridPane.setVgrow(objectName, Priority.NEVER);
-                            GridPane.setVgrow(className, Priority.NEVER);
-                            GridPane.setVgrow(idField, Priority.NEVER);
-                            GridPane.setVgrow(helpButton, Priority.NEVER);
-                            GridPane.setHgrow(helpButton, Priority.NEVER);
-
-                            //                    x  y  xw yh
-                            header.add(classIcon, 0, 0, 1, 4);
-
-                            header.add(nameLabel, 1, 0, 1, 1);
-                            header.add(classlabel, 1, 1, 1, 1);
-                            header.add(idlabel, 1, 2, 1, 1);
-
-                            header.add(objectName, 2, 0, 1, 1);
-                            header.add(className, 2, 1, 1, 1);
-                            header.add(idField, 2, 2, 1, 1);
-
-                            header.add(spacer, 3, 0, 1, 4);
-                            header.add(helpButton, 4, 1, 1, 2);
-
-                            Separator sep = new Separator(Orientation.HORIZONTAL);
-                            GridPane.setVgrow(sep, Priority.ALWAYS);
-
-                            header.setPadding(new Insets(10));
-                            header.setVgap(5);
-                            header.setHgap(12);
-                            header.setPadding(new Insets(10, 0, 20, 10));
-                        } catch (Exception ex) {
-
-                        }
-
-
-                        BorderPane pane = new BorderPane();
-                        pane.setTop(header);
-                        pane.setCenter(accordion);
-                        AnchorPane.setRightAnchor(pane, 1.0);
-                        AnchorPane.setLeftAnchor(pane, 1.0);
-                        AnchorPane.setTopAnchor(pane, 1.0);
-                        AnchorPane.setBottomAnchor(pane, 1.0);
-
-                        try {
-                            //SideNode help = new SideNode(obj.getJEVisClassName(), obj.getJEVisClass().getDescription(), Side.RIGHT, _view);
-
-                            StringBuilder sb = new StringBuilder();
-                            sb.append("<htlm><body>");
-                            sb.append("<p>");
-                            sb.append(I18nWS.getInstance().getClassDescription(obj.getJEVisClassName()));
-                            sb.append("</p><br>");
-                            for (JEVisType type : obj.getJEVisClass().getTypes()) {
-                                sb.append("<h4>");
-                                sb.append(I18nWS.getInstance().getTypeName(obj.getJEVisClassName(), type.getName()));
-                                sb.append("</h4>");
-                                sb.append("<p>");
-                                sb.append(I18nWS.getInstance().getTypeDescription(obj.getJEVisClassName(), type.getName()));
-                                sb.append("</p>");
-                            }
-
-                            sb.append("</body></htlm>");
-                            SideNode help = new SideNode(
-                                    I18nWS.getInstance().getClassName(obj.getJEVisClassName()),
-                                    sb.toString(),
-                                    Side.RIGHT, _view);
-
-
-                            _view.setRight(help);
-                            helpButton.setOnAction(new EventHandler<ActionEvent>() {
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    _view.setPinnedSide(Side.RIGHT);
-                                }
-                            });
-
-                        } catch (Exception ex) {
-                            logger.catching(ex);
-                        }
-
-                        _view.setContent(pane);
 
                     }
+                    if (!foundTab) {
+
+                        //Set the first enabled extension visible, waring the order of installedExtensions an tabs is not the same
+                        for (final ObjectEditorExtension ex : activeExtensions) {
+                            try {
+                                if (ex.isForObject(obj)) {
+                                    ex.setVisible();
+                                    break;
+                                }
+                            } catch (Exception nex) {
+
+                            }
+                        }
+//                            installedExtensions.get(0).setVisible();
+                        accordion.setExpandedPane(taps.get(0));
+                        taps.get(0).requestFocus();
+                        _lastOpenEditor = installedExtensions.get(0).getTitle();
+                    }
+
+                    Button helpButton = new Button("", JEConfig.getImage("1400874302_question_blue.png", 34, 34));
+                    helpButton.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
+
+                    //Header
+                    ImageView classIcon;
+                    try {
+                        classIcon = ImageConverter.convertToImageView(obj.getJEVisClass().getIcon(), 60, 60);
+                    } catch (Exception ex) {
+                        classIcon = JEConfig.getImage("1390343812_folder-open.png", 20, 20);
+                    }
+
+                    GridPane header = new GridPane();
+                    try {
+                        Label nameLabel = new Label(I18n.getInstance().getString("plugin.object.editor.name"));
+                        Label objectName = new Label(obj.getName());
+                        objectName.setStyle("-fx-font-weight: bold;");
+                        Label classlabel = new Label(I18n.getInstance().getString("plugin.object.editor.type"));
+                        //Label className = new Label(obj.getJEVisClass().getName());
+                        Label className = new Label(I18nWS.getInstance().getClassName(obj.getJEVisClassName()));
+
+                        Label idlabel = new Label(I18n.getInstance().getString("plugin.object.editor.id"));
+                        Label idField = new Label(obj.getID() + "");
+
+                        //TODO: would be nice if the user can copy the ID and name but the layout is broken if i use this textfield code
+
+                        Region spacer = new Region();
+                        GridPane.setVgrow(spacer, Priority.ALWAYS);
+                        GridPane.setFillWidth(spacer, true);
+                        GridPane.setHgrow(spacer, Priority.ALWAYS);
+
+                        GridPane.setVgrow(nameLabel, Priority.NEVER);
+                        GridPane.setVgrow(classlabel, Priority.NEVER);
+                        GridPane.setVgrow(idlabel, Priority.NEVER);
+                        GridPane.setVgrow(objectName, Priority.NEVER);
+                        GridPane.setVgrow(className, Priority.NEVER);
+                        GridPane.setVgrow(idField, Priority.NEVER);
+                        GridPane.setVgrow(helpButton, Priority.NEVER);
+                        GridPane.setHgrow(helpButton, Priority.NEVER);
+
+                        //                    x  y  xw yh
+                        header.add(classIcon, 0, 0, 1, 4);
+
+                        header.add(nameLabel, 1, 0, 1, 1);
+                        header.add(classlabel, 1, 1, 1, 1);
+                        header.add(idlabel, 1, 2, 1, 1);
+
+                        header.add(objectName, 2, 0, 1, 1);
+                        header.add(className, 2, 1, 1, 1);
+                        header.add(idField, 2, 2, 1, 1);
+
+                        header.add(spacer, 3, 0, 1, 4);
+                        header.add(helpButton, 4, 1, 1, 2);
+
+                        Separator sep = new Separator(Orientation.HORIZONTAL);
+                        GridPane.setVgrow(sep, Priority.ALWAYS);
+
+                        header.setPadding(new Insets(10));
+                        header.setVgap(5);
+                        header.setHgap(12);
+                        header.setPadding(new Insets(10, 0, 20, 10));
+                    } catch (Exception ex) {
+
+                    }
+
+
+                    BorderPane pane = new BorderPane();
+                    pane.setTop(header);
+                    pane.setCenter(accordion);
+                    AnchorPane.setRightAnchor(pane, 1.0);
+                    AnchorPane.setLeftAnchor(pane, 1.0);
+                    AnchorPane.setTopAnchor(pane, 1.0);
+                    AnchorPane.setBottomAnchor(pane, 1.0);
+
+                    try {
+                        //SideNode help = new SideNode(obj.getJEVisClassName(), obj.getJEVisClass().getDescription(), Side.RIGHT, _view);
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("<htlm><body>");
+                        sb.append("<p>");
+                        sb.append(I18nWS.getInstance().getClassDescription(obj.getJEVisClassName()));
+                        sb.append("</p><br>");
+                        for (JEVisType type : obj.getJEVisClass().getTypes()) {
+                            sb.append("<h4>");
+                            sb.append(I18nWS.getInstance().getTypeName(obj.getJEVisClassName(), type.getName()));
+                            sb.append("</h4>");
+                            sb.append("<p>");
+                            sb.append(I18nWS.getInstance().getTypeDescription(obj.getJEVisClassName(), type.getName()));
+                            sb.append("</p>");
+                        }
+
+                        sb.append("</body></htlm>");
+                        SideNode help = new SideNode(
+                                I18nWS.getInstance().getClassName(obj.getJEVisClassName()),
+                                sb.toString(),
+                                Side.RIGHT, _view);
+
+
+                        _view.setRight(help);
+                        helpButton.setOnAction(event -> _view.setPinnedSide(Side.RIGHT));
+
+                    } catch (Exception ex) {
+                        logger.catching(ex);
+                    }
+
+                    _view.setContent(pane);
+
                 }
         );
 
@@ -458,10 +416,8 @@ public class ObjectEditor {
             VBox.setVgrow(header, Priority.NEVER);
             VBox.setVgrow(helpText, Priority.ALWAYS);
 
-            setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent t) {
-                    pane.setPinnedSide(null);
+            setOnMouseClicked(t -> {
+                pane.setPinnedSide(null);
 //                    if (pane.getPinnedSide() != null) {
 //                        setText(text + " (unpinned)");
 //                        pane.setPinnedSide(null);
@@ -469,7 +425,6 @@ public class ObjectEditor {
 //                        setText(text + " (pinned)");
 //                        pane.setPinnedSide(side);
 //                    }
-                }
             });
 
         }

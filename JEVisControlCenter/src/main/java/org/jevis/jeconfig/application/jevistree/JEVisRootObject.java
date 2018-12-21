@@ -76,7 +76,7 @@ public class JEVisRootObject implements JEVisObject {
 
     @Override
     public Long getID() {
-        return -1l;
+        return -1L;
     }
 
     @Override

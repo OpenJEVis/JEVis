@@ -22,12 +22,10 @@ package org.jevis.jeconfig.plugin.object.attribute;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import org.apache.logging.log4j.LogManager;
@@ -60,7 +58,7 @@ public class StringMultiLine implements AttributeEditor {
 
     @Override
     public boolean hasChanged() {
-//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
+//        logger.info(attribute.getName() + " changed: " + _hasChanged);
         return _changed.getValue();
     }
 
@@ -87,7 +85,7 @@ public class StringMultiLine implements AttributeEditor {
 
     //    @Override
 //    public void setAttribute(JEVisAttribute att) {
-//        _attribute = att;
+//        attribute = att;
 //    }
     @Override
     public void commit() throws JEVisException {
@@ -113,7 +111,7 @@ public class StringMultiLine implements AttributeEditor {
     private void buildEditor() throws JEVisException {
         if (_field == null) {
             _field = new TextArea();
-            _field.setPrefWidth(GenericAttributeExtension.editorWhith.doubleValue());
+            _field.setPrefWidth(GenericAttributeExtension.editorWidth.doubleValue());
 //            _field.setPrefWidth(500);//TODO: remove this workaround
             _field.setPrefRowCount(10);
             _field.setWrapText(true);
@@ -126,25 +124,21 @@ public class StringMultiLine implements AttributeEditor {
                 _field.setText("");
             }
 
-            _field.setOnKeyReleased(new EventHandler<KeyEvent>() {
-
-                @Override
-                public void handle(KeyEvent t) {
-                    try {
-                        if (_lastSample == null) {
-                            _newSample = _attribute.buildSample(new DateTime(), _field.getText());
-                            _changed.setValue(true);
-                        } else if (!_lastSample.getValueAsString().equals(_field.getText())) {
-                            _changed.setValue(true);
-                            _newSample = _attribute.buildSample(new DateTime(), _field.getText());
-                        } else if (_lastSample.getValueAsString().equals(_field.getText())) {
-                            _changed.setValue(false);
-                        }
-                    } catch (JEVisException ex) {
-                        logger.fatal(ex);
+            _field.setOnKeyReleased(t -> {
+                try {
+                    if (_lastSample == null) {
+                        _newSample = _attribute.buildSample(new DateTime(), _field.getText());
+                        _changed.setValue(true);
+                    } else if (!_lastSample.getValueAsString().equals(_field.getText())) {
+                        _changed.setValue(true);
+                        _newSample = _attribute.buildSample(new DateTime(), _field.getText());
+                    } else if (_lastSample.getValueAsString().equals(_field.getText())) {
+                        _changed.setValue(false);
                     }
-
+                } catch (JEVisException ex) {
+                    logger.fatal(ex);
                 }
+
             });
 
             _field.setId("attributelabel");

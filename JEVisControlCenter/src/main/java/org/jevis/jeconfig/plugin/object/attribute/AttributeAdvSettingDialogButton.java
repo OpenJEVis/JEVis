@@ -5,8 +5,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,13 +33,10 @@ public class AttributeAdvSettingDialogButton extends Button {
             setMaxWidth(height);
             setPrefHeight(height);
 
-            setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent t) {
-                    SampleEditor se = new SampleEditor();
-                    se.show(JEConfig.getStage(), attribute);
+            setOnAction(t -> {
+                SampleEditor se = new SampleEditor();
+                se.show(JEConfig.getStage(), attribute);
 
-                }
             });
         } catch (Exception ex) {
             logger.catching(ex);

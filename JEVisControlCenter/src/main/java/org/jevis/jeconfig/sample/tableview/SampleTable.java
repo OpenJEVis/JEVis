@@ -92,10 +92,10 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 
-        TableColumn selectionColumn = createSelectionColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.select"));
-        TableColumn timeStampColumn = createTimeStampColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.time"));
-        TableColumn valueCol = createValueColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.value"));
-        TableColumn noteColumn = createNoteColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.note"));
+        TableColumn<TableSample, Boolean> selectionColumn = createSelectionColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.select"));
+        TableColumn<TableSample, DateTime> timeStampColumn = createTimeStampColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.time"));
+        TableColumn<TableSample, Object> valueCol = createValueColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.value"));
+        TableColumn<TableSample, String> noteColumn = createNoteColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.note"));
 
 
         /**
@@ -347,7 +347,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
 
         TableSample tSample = new TableSample(attribute.buildSample(timestamp, value, note));
-        tSample.setIsNew(true);
+        tSample.setIsNew();
         data.add(tSample);
         this.getSelectionModel().getTableView().scrollTo(tSample);
         this.getSelectionModel().select(tSample);
@@ -378,7 +378,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
 
         TableColumn<TableSample, DateTime> column = new TableColumn<>(columnName);
-        column.setCellValueFactory(param -> new ReadOnlyObjectWrapper(param.getValue().getTimeStamp()));
+        column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getTimeStamp()));
 
         column.setCellFactory(new Callback<TableColumn<TableSample, DateTime>, TableCell<TableSample, DateTime>>() {
             @Override
@@ -440,7 +440,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
 
         TableColumn<TableSample, Boolean> column = new TableColumn<>(columnName);
-        column.setCellValueFactory(param -> new ReadOnlyObjectWrapper(param.getValue().isSelected()));
+        column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().isSelected()));
 
         column.setCellFactory(new Callback<TableColumn<TableSample, Boolean>, TableCell<TableSample, Boolean>>() {
             @Override
@@ -580,34 +580,30 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setDefaultFieldStyle(this, textField);
 
 
-                            UnaryOperator<TextFormatter.Change> filter = new UnaryOperator<TextFormatter.Change>() {
+                            UnaryOperator<TextFormatter.Change> filter = t -> {
 
-                                @Override
-                                public TextFormatter.Change apply(TextFormatter.Change t) {
-
-                                    if (t.getText().length() > 1) {/** Copy&paste case **/
-                                        try {
-                                            /**
-                                             * TODO: maybe try different locales
-                                             */
-                                            Number newNumber = numberFormat.parse(t.getText());
-                                            t.setText(String.valueOf(newNumber.doubleValue()));
-                                        } catch (Exception ex) {
-                                            t.setText("");
-                                        }
-                                    } else if (t.getText().matches(",")) {/** to be use the Double.parse **/
-                                        t.setText(".");
-                                    }
-
-
+                                if (t.getText().length() > 1) {/** Copy&paste case **/
                                     try {
-                                        /** We don't use the NumberFormat to validate, because he is not strict enough **/
-                                        Double parse = Double.parseDouble(t.getControlNewText());
+                                        /**
+                                         * TODO: maybe try different locales
+                                         */
+                                        Number newNumber = numberFormat.parse(t.getText());
+                                        t.setText(String.valueOf(newNumber.doubleValue()));
                                     } catch (Exception ex) {
                                         t.setText("");
                                     }
-                                    return t;
+                                } else if (t.getText().matches(",")) {/** to be use the Double.parse **/
+                                    t.setText(".");
                                 }
+
+
+                                try {
+                                    /** We don't use the NumberFormat to validate, because he is not strict enough **/
+                                    Double parse = Double.parseDouble(t.getControlNewText());
+                                } catch (Exception ex) {
+                                    t.setText("");
+                                }
+                                return t;
                             };
 
                             textField.setTextFormatter(new TextFormatter<>(filter));
@@ -841,23 +837,19 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
 
-                            UnaryOperator<TextFormatter.Change> filter = new UnaryOperator<TextFormatter.Change>() {
+                            UnaryOperator<TextFormatter.Change> filter = t -> {
 
-                                @Override
-                                public TextFormatter.Change apply(TextFormatter.Change t) {
-
-                                    if (t.getControlNewText().isEmpty()) {
-                                        t.setText("0");
-                                    } else {
-                                        try {
-                                            Long bewValue = Long.parseLong(t.getControlNewText());
-                                        } catch (Exception ex) {
-                                            t.setText("");
-                                        }
+                                if (t.getControlNewText().isEmpty()) {
+                                    t.setText("0");
+                                } else {
+                                    try {
+                                        Long bewValue = Long.parseLong(t.getControlNewText());
+                                    } catch (Exception ex) {
+                                        t.setText("");
                                     }
-
-                                    return t;
                                 }
+
+                                return t;
                             };
 
                             textField.setTextFormatter(new TextFormatter<>(filter));
@@ -939,7 +931,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
 
         TableColumn<TableSample, String> column = new TableColumn<>(columnName);
-        column.setCellValueFactory(param -> new ReadOnlyObjectWrapper(param.getValue().getNote()));
+        column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getNote()));
 
         column.setCellFactory(new Callback<TableColumn<TableSample, String>, TableCell<TableSample, String>>() {
             @Override
@@ -1012,7 +1004,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
         private void loadSampleData() {
             try {
-                this.timeStamp = new SimpleObjectProperty(jevisSample.getTimestamp());
+                this.timeStamp = new SimpleObjectProperty<>(jevisSample.getTimestamp());
                 this.value = new SimpleObjectProperty(jevisSample.getValue());
                 this.note = new SimpleStringProperty(jevisSample.getNote());
 
@@ -1164,10 +1156,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         /**
          * Set taht this is an new created sample request an commit
          *
-         * @param isNew
          */
-        private void setIsNew(boolean isNew) {
-            this.isNew = isNew;
+        private void setIsNew() {
+            this.isNew = true;
             checkChanged();
         }
 

@@ -16,7 +16,7 @@ public class Finder {
     private int lastIndex = 0;
 
     public Finder(JEVisTree jevisTree) {
-        this.objects = jevisTree.getHighliterList();
+        this.objects = jevisTree.getHighlighterList();
         this.tree = jevisTree;
     }
 

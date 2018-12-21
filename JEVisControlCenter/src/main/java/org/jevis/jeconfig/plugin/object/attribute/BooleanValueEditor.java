@@ -22,8 +22,6 @@ package org.jevis.jeconfig.plugin.object.attribute;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
@@ -78,7 +76,7 @@ public class BooleanValueEditor implements AttributeEditor {
 
     @Override
     public boolean hasChanged() {
-//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
+//        logger.info(attribute.getName() + " changed: " + _hasChanged);
         return _changed.getValue();
     }
 
@@ -115,15 +113,12 @@ public class BooleanValueEditor implements AttributeEditor {
             _field.setSelected(false);//TODO: get default Value
         }
 
-        _field.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                try {
-                    _newSample = _attribute.buildSample(new DateTime(), _field.isSelected());
-                    _changed.setValue(true);
-                } catch (Exception ex) {
-                    logger.fatal(ex);
-                }
+        _field.selectedProperty().addListener((ov, t, t1) -> {
+            try {
+                _newSample = _attribute.buildSample(new DateTime(), _field.isSelected());
+                _changed.setValue(true);
+            } catch (Exception ex) {
+                logger.fatal(ex);
             }
         });
         logger.trace("end");

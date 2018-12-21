@@ -34,6 +34,7 @@ import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
@@ -155,7 +156,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
 
         presetDateEntries.addAll(custom, today, yesterday, last7Days, lastWeek, last30Days, lastMonth, customStartEnd);
-        comboBoxPresetDates = new ComboBox(presetDateEntries);
+        comboBoxPresetDates = new ComboBox<>(presetDateEntries);
 
         ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
 
@@ -225,7 +226,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                 setSelectedStart(oldStart);
                 setSelectedEnd(oldSEnd);
                 graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
-                if (oldTimeFrame.getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
+                if (Objects.requireNonNull(oldTimeFrame).getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
                     setPicker(oldStart, oldSEnd);
                 }
             }
@@ -280,7 +281,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         }
 
         comboBoxPresetDates.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue == null || newValue != oldValue) {
+            if (!newValue.equals(oldValue)) {
                 applySelectedDatePresetToDataModel(newValue.intValue());
             }
         });
@@ -723,7 +724,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             } catch (JEVisException e) {
                 logger.error("Error: could not get calendar directories", e);
             }
-            if (listCalendarDirectories.isEmpty()) {
+            if (Objects.requireNonNull(listCalendarDirectories).isEmpty()) {
                 List<JEVisObject> listBuildings = new ArrayList<>();
                 try {
                     JEVisClass building = ds.getJEVisClass("Building");
@@ -760,7 +761,7 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             }
         }
 
-        ComboBox tempBox = new ComboBox<>(customPeriods);
+        ComboBox<String> tempBox = new ComboBox<>(customPeriods);
         tempBox.getSelectionModel().select(0);
 
         if (customPeriods.size() > 1) {

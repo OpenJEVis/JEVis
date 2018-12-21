@@ -45,7 +45,7 @@ public class ResourceManager {
 
     public Long getID() {
         if (calcAttribute == null || calcAttribute.getObject() == null) {
-            return -1l;
+            return -1L;
         }
         return calcAttribute.getObject().getID();
     }

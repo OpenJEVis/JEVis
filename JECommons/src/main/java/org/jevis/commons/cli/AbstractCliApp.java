@@ -186,7 +186,7 @@ public abstract class AbstractCliApp {
     protected void runService() {
         logger.info("Start Service Mode");
 
-        Thread service = new Thread(() -> runServiceHelp());
+        Thread service = new Thread(this::runServiceHelp);
         Runtime.getRuntime().addShutdownHook(
                 new ShutdownHookThread(service)
         );
@@ -221,7 +221,7 @@ public abstract class AbstractCliApp {
      */
     protected void initializeThreadPool(String serviceClassName) {
 
-        Integer threadCount = 4;
+        int threadCount = 4;
         try {
             JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
             List<JEVisObject> listServices = ds.getObjects(serviceClass, false);

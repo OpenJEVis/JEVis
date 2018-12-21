@@ -138,7 +138,7 @@ public class ScheduleEditor implements AttributeEditor {
             mask[i] = 1;
         }
 
-//        System.out.print("bin mask for " + _attribute.getName() + ": ");
+//        System.out.print("bin mask for " + attribute.getName() + ": ");
 //        for (int i = 0; i <= mask.length - 1; i++) {
 //            System.out.print(mask[i]);
 //        }

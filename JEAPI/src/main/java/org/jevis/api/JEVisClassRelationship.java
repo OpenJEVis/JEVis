@@ -95,6 +95,6 @@ public interface JEVisClassRelationship extends JEVisComponent {
      * @return CODE>true</CODE> if is inherited
      * @throws JEVisException
      */
-    boolean isInHerited() throws JEVisException;
+    boolean isInherited() throws JEVisException;
 
 }

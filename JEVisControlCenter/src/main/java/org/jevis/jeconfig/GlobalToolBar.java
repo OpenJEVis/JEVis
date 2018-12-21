@@ -79,7 +79,7 @@ public class GlobalToolBar {
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
         changeBackgroundOnHoverUsingBinding(delete);
-        addEventHandler(pm, delete, Constants.Plugin.Command.DELTE);
+        addEventHandler(pm, delete, Constants.Plugin.Command.DELETE);
 
         Separator sep1 = new Separator();
 

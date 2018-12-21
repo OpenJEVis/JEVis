@@ -11,8 +11,8 @@ public class DirectoryHelper {
 
     private static DirectoryHelper instance;
     private final JEVisDataSource dataSource;
-    private List<JEVisClass> directorys;
-    private List<String> directorysNames;
+    private List<JEVisClass> directories;
+    private List<String> directoriesNames;
 
     private DirectoryHelper(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -27,18 +27,18 @@ public class DirectoryHelper {
     }
 
     public List<String> getDirectoryNames() throws JEVisException {
-        if (directorys == null) {
+        if (directories == null) {
             JEVisClass directoryClass = dataSource.getJEVisClass("Directory");
-            directorys = directoryClass.getHeirs();
-            directorysNames = new ArrayList<>();
-            directorys.forEach(jeVisClass -> {
+            directories = directoryClass.getHeirs();
+            directoriesNames = new ArrayList<>();
+            directories.forEach(jeVisClass -> {
                 try {
-                    directorysNames.add(jeVisClass.getName());
+                    directoriesNames.add(jeVisClass.getName());
                 } catch (Exception ex) {
                 }
             });
         }
 
-        return directorysNames;
+        return directoriesNames;
     }
 }

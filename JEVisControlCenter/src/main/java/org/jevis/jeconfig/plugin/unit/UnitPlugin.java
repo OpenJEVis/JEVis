@@ -115,19 +115,15 @@ public class UnitPlugin implements Plugin {
             tree = new UnitTree(ds);
             _editor = new UnitEditor();
 
-            tree.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<TreeItem<UnitObject>>() {
-
-                @Override
-                public void onChanged(ListChangeListener.Change<? extends TreeItem<UnitObject>> change) {
-                    logger.info("user selected: ");
-                    for (TreeItem<UnitObject> object : change.getList()) {
-                        logger.info(" - " + object.getValue().getUnit().toString());
-                    }
-                    try {
-                        _editor.setUnit(change.getList().get(0).getValue());
-                    } catch (NullPointerException ne) {
-                        logger.info("waring, nullpoint in unittree selection");
-                    }
+            tree.getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<UnitObject>>) change -> {
+                logger.info("user selected: ");
+                for (TreeItem<UnitObject> object : change.getList()) {
+                    logger.info(" - " + object.getValue().getUnit().toString());
+                }
+                try {
+                    _editor.setUnit(change.getList().get(0).getValue());
+                } catch (NullPointerException ne) {
+                    logger.info("waring, nullpoint in unittree selection");
                 }
             });
 
@@ -173,7 +169,7 @@ public class UnitPlugin implements Plugin {
 
             ToggleButton delete = new ToggleButton("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
-//            GlobalToolBar.BuildEventhandler(UnitPlugin.this, delete, Constants.Plugin.Command.DELTE);
+//            GlobalToolBar.BuildEventhandler(UnitPlugin.this, delete, Constants.Plugin.Command.DELETE);
 
             Separator sep1 = new Separator();
 
@@ -223,7 +219,7 @@ public class UnitPlugin implements Plugin {
 //                    logger.info("save");
 //                    tree.fireSaveAttributes(false);
 //                    break;
-//                case Constants.Plugin.Command.DELTE:
+//                case Constants.Plugin.Command.DELETE:
 //                    tree.fireDelete(tree.getSelectedObject());
 //                    break;
 //                case Constants.Plugin.Command.EXPAND:

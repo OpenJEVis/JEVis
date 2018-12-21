@@ -27,10 +27,7 @@ import org.jevis.commons.utils.Optimization;
 import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author fs
@@ -40,7 +37,6 @@ public class JEVisObjectWS implements JEVisObject {
 
     private final EventListenerList listeners = new EventListenerList();
     private JEVisDataSourceWS ds;
-    private List<JEVisObject> parents = null;
     //    private List<JEVisObject> children = null;
     private JsonObject json;
 
@@ -96,7 +92,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisObject> getParents() throws JEVisException {
-        parents = new ArrayList<>();
+        List<JEVisObject> parents = new ArrayList<>();
         try {
             for (JEVisRelationship rel : getRelationships()) {
                 if (rel.getType() == 1) {
@@ -156,7 +152,7 @@ public class JEVisObjectWS implements JEVisObject {
             if (oClass != null && oClass.equals(jclass)) {
                 filterLIst.add(obj);
             } else {
-                Set<JEVisClass> inheritanceClasses = getInheritanceClasses(new HashSet<JEVisClass>(), obj.getJEVisClass());
+                Set<JEVisClass> inheritanceClasses = getInheritanceClasses(new HashSet<JEVisClass>(), Objects.requireNonNull(obj.getJEVisClass()));
                 for (JEVisClass curClass : inheritanceClasses) {
                     if (curClass.equals(jclass)) {
                         filterLIst.add(obj);
@@ -171,9 +167,8 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisAttribute> getAttributes() {
-        List<JEVisAttribute> attributes = ds.getAttributes(getID());
 
-        return attributes;
+        return ds.getAttributes(getID());
     }
 
     public List<JEVisAttribute> getAttributesWS() {
@@ -182,7 +177,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public JEVisAttribute getAttribute(JEVisType type) throws JEVisException {
-        //TODO not uptimal, getAttribute() will not cached if we call all this in a loop we do N Webserive calls
+        //TODO not optimal, getAttribute() will not cached if we call all this in a loop we do N Webserive calls
         for (JEVisAttribute att : getAttributes()) {
             if (att.getName().equals(type.getName())) {
                 return att;
@@ -208,9 +203,8 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public boolean delete() {
-        boolean delete = ds.deleteObject(getID());
 
-        return delete;
+        return ds.deleteObject(getID());
     }
 
     @Override
@@ -221,10 +215,8 @@ public class JEVisObjectWS implements JEVisObject {
         newJson.setJevisClass(type.getName());
         newJson.setParent(getID());
 
-        JEVisObject newObj = new JEVisObjectWS(ds, newJson);
 
-
-        return newObj;
+        return new JEVisObjectWS(ds, newJson);
     }
 
     @Override
@@ -300,18 +292,18 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisClass> getAllowedChildrenClasses() throws JEVisException {
-        ArrayList allowedChildern = new ArrayList<>();
+        List<JEVisClass> allowedChildren = new ArrayList<>();
         for (JEVisClass vp : getJEVisClass().getValidChildren()) {
             if (vp.isUnique()) {
                 if (getChildren(vp, false).isEmpty()) {
-                    allowedChildern.add(vp);
+                    allowedChildren.add(vp);
                 }
             } else {
-                allowedChildern.add(vp);
+                allowedChildren.add(vp);
             }
         }
 
-        return allowedChildern;
+        return allowedChildren;
     }
 
     @Override

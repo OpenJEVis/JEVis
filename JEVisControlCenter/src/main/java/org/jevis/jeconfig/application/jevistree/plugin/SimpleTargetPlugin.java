@@ -62,7 +62,7 @@ public class SimpleTargetPlugin implements TreePlugin {
 
         TreeTableColumn<JEVisTreeRow, Long> pluginHeader = new TreeTableColumn<>("Target");
 
-        TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree, "");
+        TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree);
         selectColumn.setEditable(true);
         pluginHeader.getColumns().add(selectColumn);
 
@@ -119,13 +119,13 @@ public class SimpleTargetPlugin implements TreePlugin {
         }
     }
 
-    private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree, String columnName) {
-        TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(columnName);
+    private TreeTableColumn<JEVisTreeRow, Boolean> buildSelectionColumn(JEVisTree tree) {
+        TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn("");
         column.setId(TARGET_COLUMN_ID);
         column.setPrefWidth(90);
         column.setEditable(true);
 
-        column.setText(columnName);
+        column.setText("");
         column.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<JEVisTreeRow, Boolean>, ObservableValue<Boolean>>() {
 
             @Override
@@ -139,7 +139,7 @@ public class SimpleTargetPlugin implements TreePlugin {
             @Override
             public TreeTableCell<JEVisTreeRow, Boolean> call(TreeTableColumn<JEVisTreeRow, Boolean> param) {
 
-                TreeTableCell<JEVisTreeRow, Boolean> cell = new TreeTableCell<JEVisTreeRow, Boolean>() {
+                return new TreeTableCell<JEVisTreeRow, Boolean>() {
 
                     @Override
                     public void commitEdit(Boolean newValue) {
@@ -197,8 +197,6 @@ public class SimpleTargetPlugin implements TreePlugin {
                     }
 
                 };
-
-                return cell;
             }
         });
 

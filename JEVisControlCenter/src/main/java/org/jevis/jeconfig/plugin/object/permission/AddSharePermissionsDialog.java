@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEApplication.
- *
+ * <p>
  * JEApplication is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation in version 3.
- *
+ * <p>
  * JEApplication is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEApplication. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
@@ -22,8 +22,6 @@ package org.jevis.jeconfig.plugin.object.permission;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -46,10 +44,7 @@ import org.jevis.jeconfig.tool.I18n;
  *
  * @author fs
  */
-public class AddSharePermissonsDialog {
-
-    //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
-    public static String ICON_QUESTION = "1400874302_question_blue.png";
+public class AddSharePermissionsDialog {
 
     public Response show(Stage owner, String title, String titleLong, String message) {
         final Stage stage = new Stage();
@@ -78,6 +73,8 @@ public class AddSharePermissonsDialog {
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));
 
+        //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
+        String ICON_QUESTION = "1400874302_question_blue.png";
         ImageView imageView = ResourceLoader.getImage(ICON_QUESTION, 65, 65);
 
         stage.getIcons().add(imageView.getImage());
@@ -131,19 +128,16 @@ public class AddSharePermissonsDialog {
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
+        ok.setOnAction(t -> {
 //                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
-                stage.close();
+            stage.close();
 //                isOK.setValue(true);
-                if (includeChildren.isSelected()) {
-                    response = Response.YES_ALL;
-                } else {
-                    response = Response.YES;
-                }
-
+            if (includeChildren.isSelected()) {
+                response = Response.YES_ALL;
+            } else {
+                response = Response.YES;
             }
+
         });
 
 //        okAll.setOnAction(new EventHandler<ActionEvent>() {
@@ -156,13 +150,9 @@ public class AddSharePermissonsDialog {
 //
 //            }
 //        });
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                stage.close();
-                response = Response.CANCEL;
-
-            }
+        cancel.setOnAction(t -> {
+            stage.close();
+            response = Response.CANCEL;
         });
 
         stage.showAndWait();

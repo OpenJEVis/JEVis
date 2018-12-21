@@ -44,10 +44,8 @@ public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
     private static final Logger logger = LogManager.getLogger(ChartView.class);
-    private final double VALUE_COLUMNS_PREF_SIZE = 200;
-    private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;
     private Chart chart;
-    private TableView tableView;
+    private TableView<TableEntry> tableView;
     private AlphanumComparator alphanumComparator = new AlphanumComparator();
     private ChartType chartType = ChartType.AREA;
     private String chartName = "";
@@ -57,7 +55,7 @@ public class ChartView implements Observer {
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
 
-        tableView = new TableView();
+        tableView = new TableView<TableEntry>();
 
         tableView.setBorder(null);
         tableView.setStyle(
@@ -68,7 +66,7 @@ public class ChartView implements Observer {
                         "}");
         tableView.getStylesheets().add
                 (ChartView.class.getResource("/styles/ScrolllesTable.css").toExternalForm());
-        tableView.sortPolicyProperty().set((Callback<TableView<TableEntry>, Boolean>) param -> {
+        tableView.sortPolicyProperty().set(param -> {
 
             Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
             FXCollections.sort(getTableView().getItems(), comparator);
@@ -84,67 +82,69 @@ public class ChartView implements Observer {
         tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
         /** Disabled because of out ScrolllesTable.css **/
-        TableColumn name = new TableColumn(I18n.getInstance().getString("plugin.graph.table.name"));
+        TableColumn<TableEntry, String> name = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.name"));
         name.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
         name.setSortable(false);
         name.setPrefWidth(500);
         name.setMinWidth(100);
 
-        TableColumn colorCol = buildColorColumn("");
+        TableColumn<TableEntry, Color> colorCol = buildColorColumn();
         colorCol.setSortable(false);
         colorCol.setPrefWidth(25);
         colorCol.setMinWidth(25);
 
-        TableColumn periodCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.period"));
+        TableColumn<TableEntry, String> periodCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.period"));
         periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
         periodCol.setStyle("-fx-alignment: CENTER-RIGHT");
         periodCol.setSortable(false);
         periodCol.setPrefWidth(100);
         periodCol.setMinWidth(100);
 
-        TableColumn value = new TableColumn(I18n.getInstance().getString("plugin.graph.table.value"));
+        TableColumn<TableEntry, String> value = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.value"));
         value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
         value.setStyle("-fx-alignment: CENTER-RIGHT");
         value.setSortable(false);
+        double VALUE_COLUMNS_PREF_SIZE = 200;
         value.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+        double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;
         value.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
-        TableColumn dateCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.date"));
+        TableColumn<TableEntry, String> dateCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.date"));
         dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
         dateCol.setStyle("-fx-alignment: CENTER");
         dateCol.setSortable(false);
         dateCol.setPrefWidth(160);
         dateCol.setMinWidth(160);
 
-        TableColumn note = new TableColumn(I18n.getInstance().getString("plugin.graph.table.note"));
+        TableColumn<TableEntry, String> note = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.note"));
         note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
         note.setStyle("-fx-alignment: CENTER");
         note.setPrefWidth(50);
         note.setMinWidth(50);
         note.setSortable(false);
 
-        TableColumn minCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.min"));
+        TableColumn<TableEntry, String> minCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
         minCol.setStyle("-fx-alignment: CENTER-RIGHT");
         minCol.setSortable(false);
         minCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
         minCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
-        TableColumn maxCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.max"));
+        TableColumn<TableEntry, String> maxCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.max"));
         maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
         maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
         maxCol.setSortable(false);
         maxCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
         maxCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
-        TableColumn avgCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.avg"));
+        TableColumn<TableEntry, String> avgCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.avg"));
         avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
         avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
         avgCol.setSortable(false);
         avgCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
         avgCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
-        TableColumn sumCol = new TableColumn(I18n.getInstance().getString("plugin.graph.table.sum"));
+        TableColumn<TableEntry, String> sumCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.sum"));
         sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
         sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
         sumCol.setSortable(false);
@@ -168,8 +168,8 @@ public class ChartView implements Observer {
         });
     }
 
-    private TableColumn<TableEntry, Color> buildColorColumn(String columnName) {
-        TableColumn<TableEntry, Color> column = new TableColumn(columnName);
+    private TableColumn<TableEntry, Color> buildColorColumn() {
+        TableColumn<TableEntry, Color> column = new TableColumn<>("");
 
 
         column.setCellValueFactory(param -> {
@@ -181,7 +181,7 @@ public class ChartView implements Observer {
         column.setCellFactory(new Callback<TableColumn<TableEntry, Color>, TableCell<TableEntry, Color>>() {
             @Override
             public TableCell<TableEntry, Color> call(TableColumn<TableEntry, Color> param) {
-                TableCell<TableEntry, Color> cell = new TableCell<TableEntry, Color>() {
+                return new TableCell<TableEntry, Color>() {
                     @Override
                     public void commitEdit(Color newValue) {
                         super.commitEdit(newValue);
@@ -205,7 +205,6 @@ public class ChartView implements Observer {
                         }
                     }
                 };
-                return cell;
             }
         });
 
@@ -244,7 +243,7 @@ public class ChartView implements Observer {
         else return null;
     }
 
-    public TableView getLegend() {
+    public TableView<TableEntry> getLegend() {
         return tableView;
     }
 
@@ -306,7 +305,7 @@ public class ChartView implements Observer {
     }
 
 
-    public TableView getTableView() {
+    public TableView<TableEntry> getTableView() {
         return tableView;
     }
 

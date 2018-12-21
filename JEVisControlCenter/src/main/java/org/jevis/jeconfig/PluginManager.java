@@ -55,11 +55,9 @@ public class PluginManager {
     private static final Logger logger = LogManager.getLogger(PluginManager.class);
     private List<Plugin> _plugins = new ArrayList<>();
     private JEVisDataSource _ds;
-    private boolean _watermark = true;
     private Plugin _selectedPlugin = null;
     private Number _tabPos = 0;
     private Number _tabPosOld = 0;
-    private TabPane tabPane;
     private AnchorPane toolbar = new AnchorPane();
     private ObjectProperty<Plugin> selectedPluginProperty = new SimpleObjectProperty();
     private TopMenu menu;
@@ -183,13 +181,13 @@ public class PluginManager {
     }
 
     public void setWatermark(boolean water) {
-        _watermark = water;
+        boolean _watermark = water;
     }
 
     public Node getView() {
         StackPane box = new StackPane();
 
-        tabPane = new TabPane();
+        TabPane tabPane = new TabPane();
         tabPane.setSide(Side.LEFT);
 
         toolbar.setStyle("-fx-background-color: #CCFF99;");

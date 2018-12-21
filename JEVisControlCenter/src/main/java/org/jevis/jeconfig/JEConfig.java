@@ -76,7 +76,7 @@ public class JEConfig extends Application {
     /*
     TODO: Make the config into an singelton
      */
-    final static Configuration _config = new Configuration();
+    private final static Configuration _config = new Configuration();
     private static final Logger logger = LogManager.getLogger(JEConfig.class);
 
     /**
@@ -312,7 +312,7 @@ public class JEConfig extends Application {
 
                 JEConfig.userpassword = login.getUserPassword();
                 I18n.getInstance().loadBundel(login.getSelectedLocale());
-                I18nWS.getInstance().setDataSource((JEVisDataSourceWS) _mainDS);
+                I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
 
                 _config.setLocale(login.getSelectedLocale());

@@ -142,7 +142,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                     @Override
                     public void commitEdit(Boolean newValue) {
                         super.commitEdit(newValue);
-                        getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
+                        getTreeTableRow().getItem().setSelected(newValue);
                         ChartDataModel data = getData(getTreeTableRow().getItem());
 
                         if (newValue) {

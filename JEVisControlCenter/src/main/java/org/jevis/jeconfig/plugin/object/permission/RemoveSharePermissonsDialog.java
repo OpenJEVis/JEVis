@@ -22,8 +22,6 @@ package org.jevis.jeconfig.plugin.object.permission;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -47,9 +45,6 @@ import org.jevis.jeconfig.tool.I18n;
  * @author fs
  */
 public class RemoveSharePermissonsDialog {
-
-    //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
-    public static String ICON_QUESTION = "1400874302_question_blue.png";
 
     public Response show(Stage owner, String title, String titleLong, String message) {
         final Stage stage = new Stage();
@@ -78,6 +73,8 @@ public class RemoveSharePermissonsDialog {
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));
 
+        //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
+        String ICON_QUESTION = "1400874302_question_blue.png";
         ImageView imageView = ResourceLoader.getImage(ICON_QUESTION, 65, 65);
 
         stage.getIcons().add(imageView.getImage());
@@ -132,19 +129,16 @@ public class RemoveSharePermissonsDialog {
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
+        ok.setOnAction(t -> {
 //                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
-                stage.close();
+            stage.close();
 //                isOK.setValue(true);
-                if (includeChildren.isSelected()) {
-                    response = Response.YES_ALL;
-                } else {
-                    response = Response.YES;
-                }
-
+            if (includeChildren.isSelected()) {
+                response = Response.YES_ALL;
+            } else {
+                response = Response.YES;
             }
+
         });
 
 //        okAll.setOnAction(new EventHandler<ActionEvent>() {
@@ -157,13 +151,10 @@ public class RemoveSharePermissonsDialog {
 //
 //            }
 //        });
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                stage.close();
-                response = Response.CANCEL;
+        cancel.setOnAction(t -> {
+            stage.close();
+            response = Response.CANCEL;
 
-            }
         });
 
         stage.showAndWait();

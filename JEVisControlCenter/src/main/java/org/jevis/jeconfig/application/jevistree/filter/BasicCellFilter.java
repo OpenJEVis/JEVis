@@ -29,7 +29,7 @@ public class BasicCellFilter implements JEVisTreeFilter {
      * handled like one.
      */
     public static String TREE_ITEM_COLUMN = "TREE_ITEM_COLUMN";
-    private Map<String, List<ObjectAttributeFilter>> filters = new HashMap();
+    private Map<String, List<ObjectAttributeFilter>> filters = new HashMap<>();
     private List<ObjectAttributeFilter> itemFilters = new ArrayList<>();
     private String name = "";
 

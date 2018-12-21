@@ -85,7 +85,7 @@ public class ReadablePasswordEditor implements AttributeEditor {
     private void builedGUI() {
         JEVisSample sample = att.getLatestSample();
 
-        passField.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
+        passField.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
         passField.setAlignment(Pos.CENTER_RIGHT);
         if (sample != null) {
             try {

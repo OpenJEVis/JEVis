@@ -92,7 +92,7 @@ public class PrepareStep implements ProcessStep {
             if (periodAlignment.equals(Period.months(1))) {
                 currentDate = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1, 0, 0, 0);
 
-                while (currentDate.isBefore(maxEndDate)) {
+                while (currentDate.isBefore(maxEndDate) && periodAlignment.getMillis() > 0) {
                     DateTime startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1, 0, 0, 0);
                     DateTime endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1, 0, 0, 0).plusMonths(1);
                     Interval interval = new Interval(startInterval, endInterval);
@@ -105,7 +105,7 @@ public class PrepareStep implements ProcessStep {
             } else if (periodAlignment.equals(Period.years(1))) {
                 currentDate = new DateTime(currentDate.getYear(), 1, 1, 0, 0, 0);
 
-                while (currentDate.isBefore(maxEndDate)) {
+                while (currentDate.isBefore(maxEndDate) && periodAlignment.getMillis() > 0) {
                     DateTime startInterval = new DateTime(currentDate.getYear(), 1, 1, 0, 0, 0);
                     DateTime endInterval = new DateTime(currentDate.getYear(), 1, 1, 0, 0, 0).plusYears(1);
                     Interval interval = new Interval(startInterval, endInterval);
@@ -119,7 +119,7 @@ public class PrepareStep implements ProcessStep {
                 Duration duration = periodAlignment.toStandardDuration();
                 Long halfDuration = duration.getMillis() / 2;
 
-                while (currentDate.isBefore(maxEndDate)) {
+                while (currentDate.isBefore(maxEndDate) && periodAlignment.getMillis() > 0) {
                     DateTime startInterval = currentDate.minus(halfDuration);
                     DateTime endInterval = currentDate.plus(halfDuration);
                     Interval interval = new Interval(startInterval, endInterval);

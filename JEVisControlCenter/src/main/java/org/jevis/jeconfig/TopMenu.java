@@ -126,7 +126,7 @@ public class TopMenu extends MenuBar {
         delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                activePlugin.handleRequest(Constants.Plugin.Command.DELTE);
+                activePlugin.handleRequest(Constants.Plugin.Command.DELETE);
             }
         });
 

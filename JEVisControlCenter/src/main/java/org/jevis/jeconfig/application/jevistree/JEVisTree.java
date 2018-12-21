@@ -51,8 +51,7 @@ public class JEVisTree extends TreeTableView {
     private UUID uuid = UUID.randomUUID();
     private JEVisTreeFilter cellFilter;
     private JEVisItemLoader itemLoader;
-    private ObservableList<JEVisObject> highliterList = FXCollections.observableArrayList();
-    private List<JEVisObject> objects = new ArrayList<>();
+    private ObservableList<JEVisObject> highlighterList = FXCollections.observableArrayList();
     private boolean isCut = false;
     private SearchFilterBar searchBar;
 
@@ -78,10 +77,6 @@ public class JEVisTree extends TreeTableView {
 
     public void reload() {
         init();
-    }
-
-    public List<JEVisObject> getObjects() {
-        return objects;
     }
 
     public List<JEVisObject> getVisibleObjects() {
@@ -121,10 +116,7 @@ public class JEVisTree extends TreeTableView {
             node.setExpanded(collapse);
         }
 
-        node.getChildren().forEach(o -> {
-            TreeItem item = (TreeItem) o;
-            collapseAll(item, collapse);
-        });
+        node.getChildren().forEach(o -> collapseAll((TreeItem) o, collapse));
     }
 
     public void toggleItemCollapse(TreeItem node) {
@@ -139,33 +131,14 @@ public class JEVisTree extends TreeTableView {
      */
     private void init() {
         try {
-            objects = ds.getObjects();
-            itemLoader = new JEVisItemLoader(this, objects, ds.getRootObjects());
+            itemLoader = new JEVisItemLoader(this, ds.getObjects(), ds.getRootObjects());
             itemLoader.filterTree(cellFilter);
             setShowRoot(false);
 
             setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
             setTableMenuButtonVisible(true);
 
-            plugins.addListener(new ListChangeListener<TreePlugin>() {
-
-                @Override
-                public void onChanged(ListChangeListener.Change<? extends TreePlugin> c) {
-                    while (c.next()) {
-                        if (c.wasAdded()) {
-                            for (TreePlugin plugin : c.getAddedSubList()) {
-                                plugin.setTree(JEVisTree.this);
-                                for (TreeTableColumn<JEVisTreeRow, Long> column : plugin.getColumns()) {
-                                    JEVisTree.this.getColumns().add(column);
-                                    System.out.println("Add plugin column to tree: " + column.getText());
-                                }
-                            }
-
-                        }
-                    }
-
-                }
-            });
+            plugins.addListener(this::onChanged);
 
         } catch (Exception ex) {
             logger.fatal(ex);
@@ -185,8 +158,8 @@ public class JEVisTree extends TreeTableView {
         return ds;
     }
 
-    public ObservableList<JEVisObject> getHighliterList() {
-        return highliterList;
+    public ObservableList<JEVisObject> getHighlighterList() {
+        return highlighterList;
     }
 
     public void openUserSelection(List<UserSelection> selection) {
@@ -325,4 +298,18 @@ public class JEVisTree extends TreeTableView {
         this.searchBar = searchBar;
     }
 
+    private void onChanged(ListChangeListener.Change<? extends TreePlugin> c) {
+        while (c.next()) {
+            if (c.wasAdded()) {
+                for (TreePlugin plugin : c.getAddedSubList()) {
+                    plugin.setTree(this);
+                    for (TreeTableColumn<JEVisTreeRow, Long> column : plugin.getColumns()) {
+                        getColumns().add(column);
+                        System.out.println("Add plugin column to tree: " + column.getText());
+                    }
+                }
+
+            }
+        }
+    }
 }

@@ -9,8 +9,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
@@ -30,7 +28,6 @@ import java.util.List;
  * @author
  */
 public class ChartPlugin implements TreePlugin {
-    private static final Logger logger = LogManager.getLogger(ChartPlugin.class);
     private final Image img = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "list-add.png"));
     private final ImageView image = new ImageView(img);
     private JEVisTree jeVisTree;
@@ -76,7 +73,7 @@ public class ChartPlugin implements TreePlugin {
             allColumns = new ArrayList<>();
         else allColumns.clear();
 
-        TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn();
+        TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn<>();
         column.setEditable(true);
 
         image.fitHeightProperty().set(20);
@@ -129,7 +126,7 @@ public class ChartPlugin implements TreePlugin {
 
         column.setGraphic(addChart);
 
-        List<TreeTableColumn> selectionColumns = new ArrayList<>();
+        List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns = new ArrayList<TreeTableColumn<JEVisTreeRow, Boolean>>();
 
         for (int i = 0; i < getData().getCharts().size(); i++) {
             SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, getData().getCharts().get(i).getId());
@@ -151,7 +148,7 @@ public class ChartPlugin implements TreePlugin {
         UnitColumn unitColumn = new UnitColumn(jeVisTree, I18n.getInstance().getString("graph.table.unit"));
         unitColumn.setGraphDataModel(data);
 
-        for (TreeTableColumn ttc : selectionColumns) column.getColumns().add(ttc);
+        for (TreeTableColumn<JEVisTreeRow, Boolean> ttc : selectionColumns) column.getColumns().add(ttc);
         column.getColumns().addAll(colorColumn.getColorColumn(), aggregationColumn.getAggregationColumn(),
                 dataProcessorColumn.getDataProcessorColumn(), startDateColumn.getDateColumn(), endDateColumn.getDateColumn(),
                 unitColumn.getUnitColumn());

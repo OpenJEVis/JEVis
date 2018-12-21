@@ -140,7 +140,7 @@ public class LanguageEditor implements AttributeEditor {
 
         picker.getSelectionModel().select(orgLoca);
 
-        picker.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
+        picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 
         picker.valueProperty().addListener((observableValue, oldValue, newValue) -> {
             try {
@@ -152,7 +152,7 @@ public class LanguageEditor implements AttributeEditor {
             }
         });
 
-        _editor.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
+        _editor.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
         Region spacer = new Region();
 //        HBox box = new HBox();
 //        HBox.setHgrow(picker, Priority.NEVER);

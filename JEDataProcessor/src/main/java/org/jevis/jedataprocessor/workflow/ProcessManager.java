@@ -40,7 +40,7 @@ public class ProcessManager {
 
     public void start() {
         logger.info("[{}] Starting Process", resourceManager.getID());
-        Long id = -1l;
+        Long id = -1L;
         try {
             id = resourceManager.getID();
             LogTaskManager.getInstance().buildNewTask(resourceManager.getID(), LogTaskManager.parentName(resourceManager.getCalcAttribute().getObject()));

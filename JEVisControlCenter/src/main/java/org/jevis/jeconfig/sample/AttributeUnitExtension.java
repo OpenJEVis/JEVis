@@ -35,7 +35,7 @@ import java.util.Locale;
 /**
  * @author fs
  */
-public class AttributeUnitExtention implements SampleEditorExtension {
+public class AttributeUnitExtension implements SampleEditorExtension {
 
     private final static String TITEL = I18n.getInstance().getString("attribute.editor.unit.title");
     private final BorderPane _view = new BorderPane();
@@ -48,7 +48,7 @@ public class AttributeUnitExtention implements SampleEditorExtension {
     private SampleRateNode _inputSampleRate;
     private SampleRateNode _displaySampleRate;
 
-    public AttributeUnitExtention(JEVisAttribute att) {
+    public AttributeUnitExtension(JEVisAttribute att) {
         this.att = att;
     }
 

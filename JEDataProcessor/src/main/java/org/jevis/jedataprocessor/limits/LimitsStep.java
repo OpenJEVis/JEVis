@@ -7,7 +7,6 @@ package org.jevis.jedataprocessor.limits;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
@@ -31,16 +30,11 @@ import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingTyp
 public class LimitsStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(LimitsStep.class);
-    CleanDataAttribute calcAttribute;
-    private JEVisObject parentObject;
     private List<JEVisSample> sampleCache;
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        calcAttribute = resourceManager.getCalcAttribute();
-        for (JEVisObject obj : calcAttribute.getObject().getParents()) {
-            parentObject = obj;
-        }
+        CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
 
         if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getLimitsEnabled() || calcAttribute.getLimitsConfig().isEmpty()) {
             //no limits check when there is no alignment or disabled or no config
@@ -59,105 +53,103 @@ public class LimitsStep implements ProcessStep {
 
         List<JsonGapFillingConfig> confGaps = calcAttribute.getGapFillingConfig();
 
-        if (Objects.nonNull(confLimitsStep1)) {
-            //identify limit breaking intervals
-            List<LimitBreak> limitBreaksStep1 = identifyLimitBreaks(intervals, confLimitsStep1);
-            List<LimitBreak> limitBreaksStep2 = identifyLimitBreaks(intervals, confLimitsStep2);
+        //identify limit breaking intervals
+        List<LimitBreak> limitBreaksStep1 = identifyLimitBreaks(intervals, confLimitsStep1);
+        List<LimitBreak> limitBreaksStep2 = identifyLimitBreaks(intervals, confLimitsStep2);
 
-            if (limitBreaksStep1.isEmpty() && limitBreaksStep2.isEmpty()) { //no limit checks when there is no alignment
-                logger.info("No limit breaks identified.");
-                return;
-            }
-            logger.info("{} limit breaks for step 1 identified", limitBreaksStep1.size());
-            logger.info("{} limit breaks for step 2 identified", limitBreaksStep2.size());
+        if (limitBreaksStep1.isEmpty() && limitBreaksStep2.isEmpty()) { //no limit checks when there is no alignment
+            logger.info("No limit breaks identified.");
+            return;
+        }
+        logger.info("{} limit breaks for step 1 identified", limitBreaksStep1.size());
+        logger.info("{} limit breaks for step 2 identified", limitBreaksStep2.size());
 
-            try {
-                DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
-                DateTime lastDateForCache = calcAttribute.getFirstDate();
+        try {
+            DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
+            DateTime lastDateForCache = calcAttribute.getFirstDate();
 
-                sampleCache = calcAttribute.getObject().getAttribute(CleanDataAttributeJEVis.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
-            } catch (Exception e) {
-                logger.error("No caching possible: " + e);
-            }
-            for (JsonLimitsConfig limitsConfig : calcAttribute.getLimitsConfig()) {
-                if (calcAttribute.getLimitsConfig().indexOf(limitsConfig) == 0) {
-                    for (LimitBreak limitBreak : limitBreaksStep1) {
-                        for (CleanInterval currentInterval : limitBreak.getIntervals()) {
-                            logger.info("start marking peculiar samples");
-                            for (JEVisSample smp : currentInterval.getTmpSamples()) {
-                                String note = "";
-                                note += smp.getNote();
-                                note += ",limit(Step1)";
-                                smp.setNote(note);
-                            }
-                        }
-                    }
-                } else {
-                    if (Objects.nonNull(confGaps)) {
-                        if (!confGaps.isEmpty()) {
-                            List<LimitBreak> filledLimitBreaks = new ArrayList<>();
-                            for (JsonGapFillingConfig c : confGaps) {
-                                List<LimitBreak> newLimitBreaks = new ArrayList<>();
-                                for (LimitBreak lb : limitBreaksStep2) {
-                                    if (!filledLimitBreaks.contains(lb)) {
-                                        logger.info("[{}] start filling with Mode for {}", calcAttribute.getObject().getID(), c.getType());
-                                        DateTime firstDate = lb.getIntervals().get(0).getDate();
-                                        DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
-                                        if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
-                                            newLimitBreaks.add(lb);
-                                            filledLimitBreaks.add(lb);
-                                        }
-                                    }
-                                }
-
-                                GapsAndLimits gal = new GapsAndLimits(intervals, calcAttribute, GapsAndLimits.GapsAndLimitsType.LIMITS_TYPE,
-                                        c, new ArrayList<>(), newLimitBreaks, sampleCache);
-
-                                switch (c.getType()) {
-                                    case GapFillingType.NONE:
-                                        break;
-                                    case GapFillingType.STATIC:
-                                        gal.fillStatic();
-                                        break;
-                                    case GapFillingType.INTERPOLATION:
-                                        gal.fillInterpolation();
-                                        break;
-                                    case GapFillingType.DEFAULT_VALUE:
-                                        gal.fillDefault();
-                                        break;
-                                    case GapFillingType.MINIMUM:
-                                        gal.fillMinimum();
-                                        break;
-                                    case GapFillingType.MAXIMUM:
-                                        gal.fillMaximum();
-                                        break;
-                                    case GapFillingType.MEDIAN:
-                                        gal.fillMedian();
-                                        break;
-                                    case GapFillingType.AVERAGE:
-                                        gal.fillAverage();
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                logger.info("[{}] Done", resourceManager.getID());
-                            }
-                            if (limitBreaksStep2.size() != filledLimitBreaks.size())
-                                logger.error("Could not complete all limit breaks. Limit break may have been too long for reasonable gap filling.");
-                        } else {
-                            logger.error("[{}] Found limit break but missing GapFillingConfig", resourceManager.getID());
+            sampleCache = calcAttribute.getObject().getAttribute(CleanDataAttributeJEVis.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
+        } catch (Exception e) {
+            logger.error("No caching possible: " + e);
+        }
+        for (JsonLimitsConfig limitsConfig : calcAttribute.getLimitsConfig()) {
+            if (calcAttribute.getLimitsConfig().indexOf(limitsConfig) == 0) {
+                for (LimitBreak limitBreak : limitBreaksStep1) {
+                    for (CleanInterval currentInterval : limitBreak.getIntervals()) {
+                        logger.info("start marking peculiar samples");
+                        for (JEVisSample smp : currentInterval.getTmpSamples()) {
+                            String note = "";
+                            note += smp.getNote();
+                            note += ",limit(Step1)";
+                            smp.setNote(note);
                         }
                     }
                 }
+            } else {
+                if (Objects.nonNull(confGaps)) {
+                    if (!confGaps.isEmpty()) {
+                        List<LimitBreak> filledLimitBreaks = new ArrayList<>();
+                        for (JsonGapFillingConfig c : confGaps) {
+                            List<LimitBreak> newLimitBreaks = new ArrayList<>();
+                            for (LimitBreak lb : limitBreaksStep2) {
+                                if (!filledLimitBreaks.contains(lb)) {
+                                    logger.info("[{}] start filling with Mode for {}", calcAttribute.getObject().getID(), c.getType());
+                                    DateTime firstDate = lb.getIntervals().get(0).getDate();
+                                    DateTime lastDate = lb.getIntervals().get(lb.getIntervals().size() - 1).getDate();
+                                    if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
+                                        newLimitBreaks.add(lb);
+                                        filledLimitBreaks.add(lb);
+                                    }
+                                }
+                            }
+
+                            GapsAndLimits gal = new GapsAndLimits(intervals, GapsAndLimits.GapsAndLimitsType.LIMITS_TYPE,
+                                    c, new ArrayList<>(), newLimitBreaks, sampleCache);
+
+                            switch (c.getType()) {
+                                case GapFillingType.NONE:
+                                    break;
+                                case GapFillingType.STATIC:
+                                    gal.fillStatic();
+                                    break;
+                                case GapFillingType.INTERPOLATION:
+                                    gal.fillInterpolation();
+                                    break;
+                                case GapFillingType.DEFAULT_VALUE:
+                                    gal.fillDefault();
+                                    break;
+                                case GapFillingType.MINIMUM:
+                                    gal.fillMinimum();
+                                    break;
+                                case GapFillingType.MAXIMUM:
+                                    gal.fillMaximum();
+                                    break;
+                                case GapFillingType.MEDIAN:
+                                    gal.fillMedian();
+                                    break;
+                                case GapFillingType.AVERAGE:
+                                    gal.fillAverage();
+                                    break;
+                                default:
+                                    break;
+                            }
+                            logger.info("[{}] Done", resourceManager.getID());
+                        }
+                        if (limitBreaksStep2.size() != filledLimitBreaks.size())
+                            logger.error("Could not complete all limit breaks. Limit break may have been too long for reasonable gap filling.");
+                    } else {
+                        logger.error("[{}] Found limit break but missing GapFillingConfig", resourceManager.getID());
+                    }
+                }
             }
-            sampleCache = null;
         }
+        sampleCache = null;
         logger.info("[{}] finished filling gaps", calcAttribute.getObject().getID());
 
     }
 
     private Long defaultValue(String s) {
-        Long l = 0L;
+        long l = 0L;
         if (Objects.nonNull(s)) {
             l = Long.parseLong(s);
         }

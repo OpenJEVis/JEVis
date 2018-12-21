@@ -292,8 +292,8 @@ public class JEVisClassWS implements JEVisClass {
 
     @Override
     public boolean isAllowedUnder(JEVisClass jevisClass) throws JEVisException {
-        List<JEVisClass> vaild = getValidParents();
-        for (JEVisClass pClass : vaild) {
+        List<JEVisClass> valid = getValidParents();
+        for (JEVisClass pClass : valid) {
             if (pClass.getName().equals(jevisClass.getName())) {
                 return true;
             }
@@ -383,7 +383,7 @@ public class JEVisClassWS implements JEVisClass {
     }
 
 
-    private void commitIcontoWS() {
+    private void commitIconToWS() {
         try {
             logger.info("post icon");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -426,11 +426,10 @@ public class JEVisClassWS implements JEVisClass {
             Gson gson = new Gson();
             StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
 
-            JsonJEVisClass newJson = gson.fromJson(response.toString(), JsonJEVisClass.class);
-            this.json = newJson;
+            this.json = gson.fromJson(response.toString(), JsonJEVisClass.class);
 
             if (iconChanged) {
-                commitIcontoWS();
+                commitIconToWS();
             }
 
         } catch (Exception ex) {

@@ -92,7 +92,7 @@ public class JEVisClassRelationshipWS implements org.jevis.api.JEVisClassRelatio
     }
 
     @Override
-    public boolean isInHerited() {
+    public boolean isInherited() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

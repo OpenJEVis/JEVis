@@ -24,12 +24,12 @@ import java.util.concurrent.ExecutionException;
 public class Launcher extends AbstractCliApp {
 
     private static final Logger logger = LogManager.getLogger(Launcher.class);
-    public static final String APP_INFO = "JEDataProcessor";
+    private static final String APP_INFO = "JEDataProcessor";
     public static String KEY = "process-id";
     private final String APP_SERVICE_CLASS_NAME = "JEDataProcessor";
     private final Command commands = new Command();
 
-    public Launcher(String[] args, String appname) {
+    private Launcher(String[] args, String appname) {
         super(args, appname);
     }
 
@@ -40,7 +40,7 @@ public class Launcher extends AbstractCliApp {
         app.execute();
     }
 
-    private void excecuteProcesses(List<ProcessManager> processes) {
+    private void executeProcesses(List<ProcessManager> processes) {
 
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
@@ -93,7 +93,7 @@ public class Launcher extends AbstractCliApp {
         try {
             List<ProcessManager> processList = pmf.initProcessManagersFromJEVisSingle(id);
 
-            excecuteProcesses(processList);
+            executeProcesses(processList);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -118,7 +118,7 @@ public class Launcher extends AbstractCliApp {
                 e.printStackTrace();
             }
 
-            this.excecuteProcesses(processManagerList);
+            this.executeProcesses(processManagerList);
         } else {
             logger.info("Service is disabled.");
         }
@@ -143,7 +143,7 @@ public class Launcher extends AbstractCliApp {
             e.printStackTrace();
         }
 
-        this.excecuteProcesses(processManagerList);
+        this.executeProcesses(processManagerList);
     }
 
 

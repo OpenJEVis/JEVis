@@ -40,13 +40,12 @@ public class PeriodAlignmentStep implements ProcessStep {
         for (CleanInterval interval1 : intervals) {
             boolean samplesInInterval = true;
             while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
-                CleanInterval currentInterval = interval1;
                 JEVisSample rawSample = rawSamples.get(currentSamplePointer);
                 try {
                     DateTime timestamp = rawSample.getTimestamp().plusSeconds(periodOffset);
-                    Interval interval = currentInterval.getInterval();
+                    Interval interval = interval1.getInterval();
                     if (interval.contains(timestamp)) { //sample is in interval
-                        currentInterval.addRawSample(rawSample);
+                        interval1.addRawSample(rawSample);
                         currentSamplePointer++;
                     } else if (timestamp.isBefore(interval.getStart())) { //sample is before interval start --just find the start
                         currentSamplePointer++;
@@ -79,9 +78,9 @@ public class PeriodAlignmentStep implements ProcessStep {
                 Boolean conversionDifferential = ctd.getValueAsBoolean();
 
 
-                Boolean last = valueIsQuantity && conversionDifferential;
-                Boolean sum = valueIsQuantity && !conversionDifferential;
-                Boolean avg = !valueIsQuantity;
+                boolean last = valueIsQuantity && conversionDifferential;
+                boolean sum = valueIsQuantity && !conversionDifferential;
+                boolean avg = !valueIsQuantity;
 
                 if (currentInterval.getDate().isAfter(timeStampOfConversion) &&
                         ((nextTimeStampOfConversion == null) || currentInterval.getDate().isBefore(nextTimeStampOfConversion))) {
@@ -110,7 +109,7 @@ public class PeriodAlignmentStep implements ProcessStep {
                         JEVisSample sample = new VirtualSample(date, currentValue);
                         sample.setNote("alignment(yes," + currentRawSamples.size() + ",avg)");
                         currentInterval.addTmpSample(sample);
-                    } else if (sum) {
+                    } else {
                         Double currentValue = calcSumSample(currentRawSamples);
                         DateTime date = currentInterval.getDate();
                         JEVisSample sample = new VirtualSample(date, currentValue);
@@ -145,8 +144,7 @@ public class PeriodAlignmentStep implements ProcessStep {
             Double valueAsDouble = sample.getValueAsDouble();
             value += valueAsDouble;
         }
-        Double avgValue = value / currentRawSamples.size();
-        return avgValue;
+        return (value / currentRawSamples.size());
     }
 
     private Double calcSumSample(List<JEVisSample> currentRawSamples) throws Exception {
