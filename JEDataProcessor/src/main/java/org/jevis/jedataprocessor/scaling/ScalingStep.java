@@ -42,7 +42,7 @@ public class ScalingStep implements ProcessStep {
                 multiplierDouble = multiplier.getValueAsDouble();
                 try {
                     nextTimeStampOfMultiplier = (listMultipliers.get(listMultipliers.indexOf(multiplier) + 1)).getTimestamp();
-                } catch (Exception e) {
+                } catch (Exception ignored) {
 
                 }
             } catch (JEVisException e) {

@@ -24,7 +24,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -54,35 +53,35 @@ import java.io.File;
 public class FileEditor implements AttributeEditor {
 
     private static final Logger logger = LogManager.getLogger(FileEditor.class);
-    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    public JEVisAttribute _attribute;
-    HBox box = new HBox();
-    private boolean _hasChanged = false;
+    private final BooleanProperty changed = new SimpleBooleanProperty(false);
+    public JEVisAttribute attribute;
+    private HBox box = new HBox();
+    private boolean hasChanged = false;
     private Button _downloadButton;
-    private Button _uploadButton;
-    private boolean _readOnly = true;
+    private Button uploadButton;
+    private boolean readOnly = true;
     //Enable the automatic download of the smaple fo rthe filename
     //This function is suboptial and gives a abd user experience.
     private boolean _autoDownload = true;
 
     public FileEditor(JEVisAttribute att) {
-        _attribute = att;
+        attribute = att;
     }
 
     @Override
     public boolean hasChanged() {
-//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
-        return _hasChanged;
+//        logger.info(attribute.getName() + " changed: " + hasChanged);
+        return hasChanged;
     }
 
     @Override
     public void setReadOnly(boolean canRead) {
-        _readOnly = canRead;
+        readOnly = canRead;
     }
 
     @Override
     public BooleanProperty getValueChangedProperty() {
-        return _changed;
+        return changed;
     }
 
     @Override
@@ -112,14 +111,14 @@ public class FileEditor implements AttributeEditor {
 
         _downloadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.download")
                 , JEConfig.getImage("698925-icon-92-inbox-download-48.png", 18, 18));
-        _uploadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.upload"),
+        uploadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.upload"),
                 JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", 18, 18));
 
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
 
         try {
-            JEVisSample lsample = _attribute.getLatestSample();
+            JEVisSample lsample = attribute.getLatestSample();
             if (lsample != null) {
                 if (_autoDownload) {
                     _downloadButton.setText(lsample.getValueAsString());
@@ -137,122 +136,104 @@ public class FileEditor implements AttributeEditor {
 
         box.setSpacing(10);
 
-        box.getChildren().setAll(_uploadButton, _downloadButton, rightSpacer);
+        box.getChildren().setAll(uploadButton, _downloadButton, rightSpacer);
 
 
-        _uploadButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setInitialDirectory(JEConfig.getLastPath());
-                fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.upload"));
-                fileChooser.getExtensionFilters().addAll(
-                        //                            new ExtensionFilter("Text Files", "*.txt"),
-                        //                            new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
-                        //                            new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
-                        new ExtensionFilter("All Files", "*.*"));
-                File selectedFile = fileChooser.showOpenDialog(JEConfig.getStage());
-                if (selectedFile != null) {
-                    try {
-                        JEConfig.setLastPath(selectedFile);
-                        logger.debug("add new file: {}", selectedFile);
-                        JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
-                        JEVisSample sample = _attribute.buildSample(new DateTime(), jfile);
-                        sample.commit();//Workaround, normally the user need to press save
-
-                        //-----
-                        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
-
-                        Task<Void> upload = new Task<Void>() {
-                            @Override
-                            protected Void call() throws Exception {
-
-                                sample.commit();//Workaround, normally the user need to press save
-                                Thread.sleep(60);
-                                return null;
-                            }
-                        };
-                        upload.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-                            @Override
-                            public void handle(WorkerStateEvent event) {
-                                pForm.getDialogStage().close();
-                                try {
-//                                    _attribute.getDataSource().getAttributes(_attribute.getObjectID());//Reload workaround
-                                    _attribute.getLatestSample();//Reload workaround
-                                    _downloadButton.setText(selectedFile.getName());
-                                    _downloadButton.setDisable(false);
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
-                            }
-                        });
-
-                        upload.setOnCancelled(new EventHandler<WorkerStateEvent>() {
-                            @Override
-                            public void handle(WorkerStateEvent event) {
-                                pForm.getDialogStage().hide();
-                            }
-                        });
-
-                        upload.setOnFailed(new EventHandler<WorkerStateEvent>() {
-                            @Override
-                            public void handle(WorkerStateEvent event) {
-                                pForm.getDialogStage().hide();
-                                logger.info("Error while upload");
-                            }
-                        });
-
-                        pForm.activateProgressBar(upload);
-                        pForm.getDialogStage().show();
-
-                        new Thread(upload).start();
-
-                    } catch (Exception ex) {
-                        logger.catching(ex);
-                    }
-                }
-            }
-        });
-
-        _downloadButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
+        uploadButton.setOnAction(t -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setInitialDirectory(JEConfig.getLastPath());
+            fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.upload"));
+            fileChooser.getExtensionFilters().addAll(
+                    //                            new ExtensionFilter("Text Files", "*.txt"),
+                    //                            new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+                    //                            new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
+                    new ExtensionFilter("All Files", "*.*"));
+            File selectedFile = fileChooser.showOpenDialog(JEConfig.getStage());
+            if (selectedFile != null) {
                 try {
-                    loadWithAnimation();
-                    JEVisFile file = _attribute.getLatestSample().getValueAsFile();
+                    JEConfig.setLastPath(selectedFile);
+                    logger.debug("add new file: {}", selectedFile);
+                    JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
+                    JEVisSample sample = attribute.buildSample(new DateTime(), jfile);
+                    sample.commit();//Workaround, normally the user need to press save
 
-                    DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
+                    //-----
+                    final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
 
-                    FileChooser fileChooser = new FileChooser();
-//                    fileChooser.setInitialFileName(_attribute.getObject().getName() + "_" + fmt.print(_attribute.getLatestSample().getTimestamp()));
-                    fileChooser.setInitialFileName(file.getFilename());
-                    fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
-                    fileChooser.getExtensionFilters().addAll(
-                            //                            new ExtensionFilter("Text Files", "*.txt"),
-                            //                            new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
-                            //                            new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
-                            new ExtensionFilter("All Files", "*.*"));
-                    File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
-                    if (selectedFile != null) {
-                        JEConfig.setLastPath(selectedFile);
-                        file.saveToFile(selectedFile);
-                    }
+                    Task<Void> upload = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+
+                            sample.commit();//Workaround, normally the user need to press save
+                            Thread.sleep(60);
+                            return null;
+                        }
+                    };
+                    upload.setOnSucceeded(event -> {
+                        pForm.getDialogStage().close();
+                        try {
+//                                    attribute.getDataSource().getAttributes(attribute.getObjectID());//Reload workaround
+                            attribute.getLatestSample();//Reload workaround
+                            _downloadButton.setText(selectedFile.getName());
+                            _downloadButton.setDisable(false);
+                            setChanged(true);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+
+                    upload.setOnCancelled(event -> pForm.getDialogStage().hide());
+
+                    upload.setOnFailed(event -> {
+                        pForm.getDialogStage().hide();
+                        logger.info("Error while upload");
+                    });
+
+                    pForm.activateProgressBar(upload);
+                    pForm.getDialogStage().show();
+
+                    new Thread(upload).start();
+
                 } catch (Exception ex) {
                     logger.catching(ex);
                 }
             }
         });
 
-        _uploadButton.setDisable(_readOnly);
+        _downloadButton.setOnAction(t -> {
+            try {
+                loadWithAnimation();
+                JEVisFile file = attribute.getLatestSample().getValueAsFile();
+
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
+
+                FileChooser fileChooser = new FileChooser();
+//                    fileChooser.setInitialFileName(attribute.getObject().getName() + "_" + fmt.print(attribute.getLatestSample().getTimestamp()));
+                fileChooser.setInitialFileName(file.getFilename());
+                fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
+                fileChooser.getExtensionFilters().addAll(
+                        //                            new ExtensionFilter("Text Files", "*.txt"),
+                        //                            new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+                        //                            new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
+                        new ExtensionFilter("All Files", "*.*"));
+                File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
+                if (selectedFile != null) {
+                    JEConfig.setLastPath(selectedFile);
+                    file.saveToFile(selectedFile);
+                }
+            } catch (Exception ex) {
+                logger.catching(ex);
+            }
+        });
+
+        uploadButton.setDisable(readOnly);
 
     }
 
 
     @Override
     public JEVisAttribute getAttribute() {
-        return _attribute;
+        return attribute;
     }
 
     private void loadWithAnimation() {
@@ -266,26 +247,12 @@ public class FileEditor implements AttributeEditor {
                 return null;
             }
         };
-        upload.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                pForm.getDialogStage().close();
-            }
-        });
+        upload.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-        upload.setOnCancelled(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                pForm.getDialogStage().hide();
-            }
-        });
+        EventHandler<WorkerStateEvent> workerStateEventEventHandler = event -> pForm.getDialogStage().hide();
+        upload.setOnCancelled(workerStateEventEventHandler);
 
-        upload.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                pForm.getDialogStage().hide();
-            }
-        });
+        upload.setOnFailed(workerStateEventEventHandler);
 
         pForm.activateProgressBar(upload);
         pForm.getDialogStage().show();
@@ -299,4 +266,7 @@ public class FileEditor implements AttributeEditor {
         return true;
     }
 
+    public void setChanged(boolean changed) {
+        this.changed.set(changed);
+    }
 }

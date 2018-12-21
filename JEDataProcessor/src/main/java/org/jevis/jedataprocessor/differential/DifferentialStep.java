@@ -36,7 +36,7 @@ public class DifferentialStep implements ProcessStep {
             Double lastDiffVal = calcAttribute.getLastCounterValue();
             logger.info("[{}] use differential mode with starting value {}", calcAttribute.getObject().getID(), lastDiffVal);
             //get last Value which is smaller than the first interval val
-            Boolean wasEmpty = false;
+            boolean wasEmpty = false;
             List<CleanInterval> emptyIntervals = new ArrayList<>();
 
             for (CleanInterval currentInt : intervals) {
@@ -58,7 +58,7 @@ public class DifferentialStep implements ProcessStep {
                                 for (JEVisSample curSample : currentInt.getTmpSamples()) {
 
                                     Double rawValue = curSample.getValueAsDouble();
-                                    Double cleanedVal = rawValue - lastDiffVal;
+                                    double cleanedVal = rawValue - lastDiffVal;
                                     String note = curSample.getNote();
 
                                     if (cleanedVal < 0) {

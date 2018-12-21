@@ -24,8 +24,6 @@ import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -40,9 +38,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.FormatStyle;
 
@@ -132,22 +128,16 @@ public class DateTimeEditor2 implements AttributeEditor {
 
         }
 
-        pickerDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
-            @Override
-            public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
-                logger.info("///// Value changed: " + newValue);
-                if (!newValue.equals(oldValue)) {
-                    _changed.setValue(Boolean.TRUE);
-                }
+        pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            logger.info("///// Value changed: " + newValue);
+            if (!newValue.equals(oldValue)) {
+                _changed.setValue(Boolean.TRUE);
             }
         });
 
-        pickerTime.valueProperty().addListener(new ChangeListener<LocalTime>() {
-            @Override
-            public void changed(ObservableValue<? extends LocalTime> observable, LocalTime oldValue, LocalTime newValue) {
-                if (!newValue.equals(oldValue)) {
-                    _changed.setValue(Boolean.TRUE);
-                }
+        pickerTime.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                _changed.setValue(Boolean.TRUE);
             }
         });
 

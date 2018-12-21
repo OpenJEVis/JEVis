@@ -149,6 +149,8 @@ public class Statusbar extends ToolBar {
 //                        System.gc();
                         System.out.println("Time: " + (new DateTime()));
                         Optimization.getInstance().printStatistics();
+                        System.gc();
+                        Optimization.getInstance().printStatistics();
 
                         if (_ds.isConnectionAlive()) {
                             Platform.runLater(new Runnable() {

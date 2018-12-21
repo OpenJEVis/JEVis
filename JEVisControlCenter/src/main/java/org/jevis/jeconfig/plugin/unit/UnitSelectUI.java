@@ -24,11 +24,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -56,11 +52,11 @@ public class UnitSelectUI {
     private ObjectProperty<JEVisUnit> unitProperty = new SimpleObjectProperty<>();
     private static final Logger logger = LogManager.getLogger(UnitSelectUI.class);
 
-    final TextField labelField = new TextField();
-    final Button changeBaseUnit = new Button();//new Button("Basic Unit");
-    final ComboBox<String> prefixBox = new ComboBox(FXCollections.observableArrayList(UnitManager.getInstance().getPrefixes()));
+    private final TextField labelField = new TextField();
+    private final Button changeBaseUnit = new Button();//new Button("Basic Unit");
+    private final ComboBox<String> prefixBox = new ComboBox<>(FXCollections.observableArrayList(UnitManager.getInstance().getPrefixes()));
     //workaround
-    final BooleanProperty valueChangedProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty valueChangedProperty = new SimpleBooleanProperty(false);
 
     public UnitSelectUI(JEVisDataSource ds, JEVisUnit unit) {
         final JEVisUnit.Prefix prefix = unit.getPrefix();
@@ -87,59 +83,45 @@ public class UnitSelectUI {
         changeBaseUnit.setText(UnitManager.getInstance().format(unit));
         labelField.setText(unit.getLabel());
 
-        unitProperty.addListener(new ChangeListener<JEVisUnit>() {
-            @Override
-            public void changed(ObservableValue<? extends JEVisUnit> observable, JEVisUnit oldValue, JEVisUnit newValue) {
-            }
+        unitProperty.addListener((observable, oldValue, newValue) -> {
         });
 
-        prefixBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-
-            @Override
-            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+        prefixBox.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
 //                unitProperty.getValue().setPrefix(prefix);
-                JEVisUnit cloneUnit = UnitManager.cloneUnit(unitProperty.getValue());
-                cloneUnit.setPrefix(UnitManager.getInstance().getPrefix(t1, Locale.getDefault()));
+            JEVisUnit cloneUnit = UnitManager.cloneUnit(unitProperty.getValue());
+            cloneUnit.setPrefix(UnitManager.getInstance().getPrefix(t1, Locale.getDefault()));
+            unitProperty.setValue(cloneUnit);
+
+            labelField.setText(UnitManager.getInstance().format(unitProperty.getValue()));
+        });
+
+        labelField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                logger.info("Label event: " + newValue);
+                JEVisUnit cloneUnit = cloneUnit(unitProperty.getValue());
+                cloneUnit.setLabel(newValue);
                 unitProperty.setValue(cloneUnit);
-
-                labelField.setText(UnitManager.getInstance().format(unitProperty.getValue()));
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
 
-        labelField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                try {
-                    logger.info("Label event: " + newValue);
-                    JEVisUnit cloneUnit = cloneUnit(unitProperty.getValue());
-                    cloneUnit.setLabel(newValue);
-                    unitProperty.setValue(cloneUnit);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
+        changeBaseUnit.setOnAction(event -> {
 
-        changeBaseUnit.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-
-                SimpleTreeUnitChooser stc = new SimpleTreeUnitChooser();
-                if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
-                    logger.info("Unit selected: " + stc.getUnit().getFormula());
+            SimpleTreeUnitChooser stc = new SimpleTreeUnitChooser();
+            if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
+                logger.info("Unit selected: " + stc.getUnit().getFormula());
 //                        JEVisUnit cloneUnit = cloneUnit(unitProperty.getValue());
 //                        cloneUnit.setFormula(stc.getUnit().getFormula());
 //                        unitProperty.setValue(cloneUnit);
-                    JEVisUnit newUnit = stc.getUnit();
-                    unitProperty.setValue(newUnit);
+                JEVisUnit newUnit = stc.getUnit();
+                unitProperty.setValue(newUnit);
 
 //                        unitProperty.getValue().setFormula(stc.getUnit().getFormula());
-                    changeBaseUnit.setText(unitProperty.getValue().getFormula());
-                    labelField.setText(UnitManager.getInstance().format(unitProperty.getValue()));//proble: the unitChang event cone tow times
-                }
-
+                changeBaseUnit.setText(unitProperty.getValue().getFormula());
+                labelField.setText(UnitManager.getInstance().format(unitProperty.getValue()));//proble: the unitChang event cone tow times
             }
+
         });
 
     }
@@ -158,8 +140,7 @@ public class UnitSelectUI {
         ju.setFormula(unit.getFormula());
         ju.setLabel(unit.getLabel());
         ju.setPrefix(UnitManager.getInstance().getPrefixName(unit.getPrefix(), Locale.getDefault()));
-        JEVisUnit cloneUnit = new JEVisUnitImp(ju);
-        return cloneUnit;
+        return new JEVisUnitImp(ju);
     }
 
     public ObjectProperty<JEVisUnit> unitProperty() {
@@ -174,7 +155,7 @@ public class UnitSelectUI {
         return changeBaseUnit;
     }
 
-    public ComboBox getPrefixBox() {
+    public ComboBox<String> getPrefixBox() {
         return prefixBox;
     }
 //

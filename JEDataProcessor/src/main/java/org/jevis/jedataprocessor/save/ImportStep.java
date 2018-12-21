@@ -32,13 +32,13 @@ public class ImportStep implements ProcessStep {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
         if (resourceManager.getCalcAttribute() instanceof CleanDataAttributeJEVis) {
-            importintoJEVis(resourceManager);
+            importIntoJEVis(resourceManager);
         } else if (resourceManager.getCalcAttribute() instanceof CleanDataAttributeOffline) {
             writeIntoFile(resourceManager);
         }
     }
 
-    private void importintoJEVis(ResourceManager resourceManager) throws Exception {
+    private void importIntoJEVis(ResourceManager resourceManager) throws Exception {
         CleanDataAttributeJEVis cleanAttr = (CleanDataAttributeJEVis) resourceManager.getCalcAttribute();
         JEVisObject cleanObject = cleanAttr.getObject();
         JEVisAttribute attribute = null;

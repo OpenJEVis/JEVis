@@ -34,7 +34,7 @@ public class LongEditor extends BasicEditor {
             long newValue = validator.validate(value, I18n.getInstance().getLocale());
 
             if (attribute.getInputUnit() != null && attribute.getDisplayUnit() != null) {
-                Double doubleWithUnit = Double.valueOf(attribute.getDisplayUnit().convertTo(attribute.getInputUnit(), newValue));
+                Double doubleWithUnit = attribute.getDisplayUnit().convertTo(attribute.getInputUnit(), newValue);
                 return doubleWithUnit.longValue();
             } else {
                 return newValue;
@@ -89,7 +89,7 @@ public class LongEditor extends BasicEditor {
         private void evalTextInputField() {
             TextInputControl textField = (TextInputControl) srcControl.get();
             try {
-                Long.valueOf(validator.validate(textField.getText(), I18n.getInstance().getLocale())).longValue();
+                validator.validate(textField.getText(), I18n.getInstance().getLocale());
 
                 hasErrors.set(false);
             } catch (Exception e) {

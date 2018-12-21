@@ -5,12 +5,11 @@
  */
 package org.jevis.jeconfig;
 
-import java.util.List;
-import java.util.concurrent.RecursiveAction;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
+
+import java.util.concurrent.RecursiveAction;
 
 /**
  *
@@ -29,7 +28,6 @@ public class DataPreload extends RecursiveAction {
     protected void compute() {
         try {
             this.ds.preload();//will load all classes
-            ds.getObjects();
         } catch (JEVisException ex) {
             logger.catching(ex);
         }

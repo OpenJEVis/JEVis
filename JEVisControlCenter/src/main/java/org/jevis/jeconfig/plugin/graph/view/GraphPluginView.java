@@ -232,7 +232,7 @@ public class GraphPluginView implements Plugin, Observer {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
                     break;
-                case Constants.Plugin.Command.DELTE:
+                case Constants.Plugin.Command.DELETE:
                     break;
                 case Constants.Plugin.Command.EXPAND:
                     break;

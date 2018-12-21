@@ -118,7 +118,7 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public Double getValueAsDouble(JEVisUnit unit) throws JEVisException {
-        Double dValue = Double.parseDouble(getValueAsString());
+        double dValue = Double.parseDouble(getValueAsString());
         return getUnit().convertTo(unit, dValue);
     }
 

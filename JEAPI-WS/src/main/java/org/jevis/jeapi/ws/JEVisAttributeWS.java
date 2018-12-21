@@ -268,7 +268,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public boolean deleteAllSample() {
-        Boolean delete = deleteSamplesBetween(null, null);
+        boolean delete = deleteSamplesBetween(null, null);
         ds.reloadAttribute(this);
         return delete;
     }
@@ -437,8 +437,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
             logger.error("Payload: {}", gson.toJson(json));
             StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
 
-            JsonAttribute newJson = gson.fromJson(response.toString(), JsonAttribute.class);
-            this.json = newJson;
+            this.json = gson.fromJson(response.toString(), JsonAttribute.class);
 
         } catch (Exception ex) {
             logger.catching(ex);

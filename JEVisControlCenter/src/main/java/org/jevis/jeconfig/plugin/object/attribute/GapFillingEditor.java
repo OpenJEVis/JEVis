@@ -69,7 +69,6 @@ public class GapFillingEditor implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private List<JsonGapFillingConfig> _listConfig;
-    private boolean delete = false;
 
     public GapFillingEditor(JEVisAttribute att) {
         logger.debug("==init== for: {}", att.getName());
@@ -141,9 +140,8 @@ public class GapFillingEditor implements AttributeEditor {
     public void commit() throws JEVisException {
         logger.debug("StringValueEditor.commit(): '{}' {} {}", _attribute.getName(), hasChanged(), _newSample);
 
-        if (hasChanged() && delete) {
-            _attribute.deleteAllSample();
-        } else if (hasChanged() && _newSample != null) {
+        hasChanged();
+        if (hasChanged() && _newSample != null) {
             //TODO: check if type is ok, maybe better at input time
             _newSample.commit();
             _lastSample = _newSample;

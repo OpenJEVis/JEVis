@@ -82,7 +82,7 @@ public class FillGapStep implements ProcessStep {
                     } else
                         logger.info("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), newGaps.size());
 
-                    GapsAndLimits gal = new GapsAndLimits(intervals, calcAttribute, GapsAndLimits.GapsAndLimitsType.GAPS_TYPE,
+                    GapsAndLimits gal = new GapsAndLimits(intervals, GapsAndLimits.GapsAndLimitsType.GAPS_TYPE,
                             c, newGaps, new ArrayList<>(), sampleCache);
 
                     switch (c.getType()) {
@@ -127,7 +127,7 @@ public class FillGapStep implements ProcessStep {
     }
 
     private Long defaultValue(String s) {
-        Long l = 0L;
+        long l = 0L;
         if (Objects.nonNull(s)) {
             l = Long.parseLong(s);
         }

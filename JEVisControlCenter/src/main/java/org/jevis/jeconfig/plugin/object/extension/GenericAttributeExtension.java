@@ -64,7 +64,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     private static final String TITEL = I18n.getInstance().getString("plugin.object.attribute.title");
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
-    public static DoubleProperty editorWhith = new SimpleDoubleProperty(350);
+    public static DoubleProperty editorWidth = new SimpleDoubleProperty(350);
     private final BorderPane _view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisObject _obj;
@@ -99,12 +99,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     @Override
     public void setVisible() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                buildGui(_obj);
-            }
-        });
+        Platform.runLater(() -> buildGui(_obj));
     }
 
     @Override
@@ -235,12 +230,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                         switch (type.getPrimitiveType()) {
                             case JEVisConstants.PrimitiveType.STRING:
-
                                 try {
 
-                                    if (guiDisplayType == null) {
-                                        editor = new StringEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
+                                    if (guiDisplayType == null || guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
                                         editor = new StringEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
                                         editor = new StringMultiLine(att);
@@ -344,8 +336,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
 
                     Node editNode = editor.getEditor();
-                    editNode.maxWidth(editorWhith.getValue());
-
+                    editNode.maxWidth(editorWidth.getValue());
 
                     gridPane.add(name, 0, coloum);
                     gridPane.add(editNode, 2, coloum);

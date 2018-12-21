@@ -83,7 +83,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     private MenuItem buildPaste() {
-        //TODO: diable if not allowed
+        //TODO: disable if not allowed
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.paste"), ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
 
         menu.setOnAction(new EventHandler<ActionEvent>() {

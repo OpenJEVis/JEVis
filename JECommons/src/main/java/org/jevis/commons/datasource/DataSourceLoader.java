@@ -54,16 +54,14 @@ public class DataSourceLoader {
             if (config.hasOption(CommonOptions.DataSource.CONNECTION.getKey())) {
                 logger.trace("#2a SQL. why do i have this: ");
 //                logger.info("detect connectionstrg, using org.jevis.api.sql.JEVisDataSourceSQL");
-                JEVisDataSource ds = (JEVisDataSource) Class.forName("org.jevis.api.sql.JEVisDataSourceSQL").newInstance();
-                return ds;
+                return (JEVisDataSource) Class.forName("org.jevis.api.sql.JEVisDataSourceSQL").newInstance();
             } else if (config.hasOption(CommonOptions.DataSource.CLASS.getKey())) {
                 logger.trace("#2b DS for class: {}", config.getOption(CommonOptions.DataSource.CLASS.getKey()));
                 JEVisOption classOption = config.getOption(CommonOptions.DataSource.CLASS.getKey());
                 String className = classOption.getValue();
-                JEVisDataSource ds = (JEVisDataSource) Class.forName(className).newInstance();
-//                config.completeWith(ds.getConfiguration());
+                //                config.completeWith(ds.getConfiguration());
 
-                return ds;
+                return (JEVisDataSource) Class.forName(className).newInstance();
             } else {
                 throw new ClassNotFoundException("Class name option not found");
             }
@@ -84,8 +82,7 @@ public class DataSourceLoader {
      * @throws IllegalAccessException
      */
     public JEVisDataSource getDataSource(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        JEVisDataSource ds = (JEVisDataSource) Class.forName(className).newInstance();
-        return ds;
+        return (JEVisDataSource) Class.forName(className).newInstance();
     }
 
     /**

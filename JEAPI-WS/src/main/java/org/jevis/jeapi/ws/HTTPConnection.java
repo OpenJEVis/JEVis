@@ -94,8 +94,7 @@ public class HTTPConnection {
                     new X509TrustManager() {
                         @Override
                         public X509Certificate[] getAcceptedIssuers() {
-                            X509Certificate[] myTrustedAnchors = new X509Certificate[0];
-                            return myTrustedAnchors;
+                            return new X509Certificate[0];
                         }
 
                         @Override

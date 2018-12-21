@@ -111,6 +111,7 @@ public class LineChart implements Chart {
 
         applyColors();
 
+        lineChart.setStyle("-fx-font-size: " + 12 + "px;");
         setTitle(getUpdatedChartName());
 
         lineChart.setLegendVisible(false);

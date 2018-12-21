@@ -109,6 +109,7 @@ public class AreaChart implements Chart {
 
         areaChart = new javafx.scene.chart.AreaChart<Number, Number>(dateAxis, numberAxis, series);
 
+        areaChart.setStyle("-fx-font-size: " + 12 + "px;");
         applyColors();
 
         areaChart.setTitle(getUpdatedChartName());

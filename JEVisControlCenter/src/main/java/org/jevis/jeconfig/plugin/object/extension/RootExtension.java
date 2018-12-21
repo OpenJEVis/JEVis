@@ -22,8 +22,6 @@ package org.jevis.jeconfig.plugin.object.extension;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
@@ -57,7 +55,7 @@ import java.util.List;
 public class RootExtension implements ObjectEditorExtension {
     private static final Logger logger = LogManager.getLogger(RootExtension.class);
 
-    private static final String TITEL = I18n.getInstance().getString("plugin.object.root.title");
+    private static final String TITLE = I18n.getInstance().getString("plugin.object.root.title");
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisObject _obj;
     private BorderPane _view = new BorderPane();
@@ -88,23 +86,20 @@ public class RootExtension implements ObjectEditorExtension {
 
     @Override
     public void setVisible() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    build(_obj);
-                } catch (Exception ex) {
-                    logger.fatal(ex);
-                }
-
+        Platform.runLater(() -> {
+            try {
+                build(_obj);
+            } catch (Exception ex) {
+                logger.fatal(ex);
             }
+
         });
 
     }
 
     @Override
     public String getTitle() {
-        return TITEL;
+        return TITLE;
     }
 
     @Override
@@ -127,9 +122,7 @@ public class RootExtension implements ObjectEditorExtension {
         List<JEVisObject> ownerObj = new ArrayList<>();
 
         try {
-            for (JEVisRelationship rel : obj.getRelationships(JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD)) {
-                rootRel.add(rel);
-            }
+            rootRel.addAll(obj.getRelationships(JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD));
         } catch (JEVisException ex) {
             logger.fatal(ex);
         }
@@ -174,28 +167,22 @@ public class RootExtension implements ObjectEditorExtension {
 
                 Button remove = new Button();
                 remove.setGraphic(JEConfig.getImage("list-remove.png", 17, 17));
-                remove.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent t) {
+                remove.setOnAction(t -> {
 
+                    try {
+                        rel.getStartObject().deleteRelationship(rel);
+                    } catch (JEVisException ex) {
+                        logger.fatal(ex);
+                    }
+
+                    Platform.runLater(() -> {
                         try {
-                            rel.getStartObject().deleteRelationship(rel);
-                        } catch (JEVisException ex) {
+                            build(_obj);
+                        } catch (Exception ex) {
                             logger.fatal(ex);
                         }
 
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    build(_obj);
-                                } catch (Exception ex) {
-                                    logger.fatal(ex);
-                                }
-
-                            }
-                        });
-                    }
+                    });
                 });
 
                 HBox contols = new HBox(5);
@@ -250,42 +237,36 @@ public class RootExtension implements ObjectEditorExtension {
 //        newB.setGraphic(JEConfig.getImage("1404843819_node-tree.png", 17, 17));
         newB.setGraphic(JEConfig.getImage("list-add.png", 17, 17));
 
-        newB.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                try {
-                    List<JEVisTreeFilter> allFilter = new ArrayList<>();
+        newB.setOnAction(t -> {
+            try {
+                List<JEVisTreeFilter> allFilter = new ArrayList<>();
 
-                    allFilter.add(SelectTargetDialog.buildAllObjects());
+                allFilter.add(SelectTargetDialog.buildAllObjects());
 
-                    SelectTargetDialog dia = new SelectTargetDialog(allFilter, null);
+                SelectTargetDialog dia = new SelectTargetDialog(allFilter, null);
 
-                    SelectTargetDialog.Response re = dia.show(
-                            obj.getDataSource(),
-                            "Select entry point",
-                            new ArrayList<>());
+                SelectTargetDialog.Response re = dia.show(
+                        obj.getDataSource(),
+                        "Select entry point",
+                        new ArrayList<>());
 
-                    if (re == SelectTargetDialog.Response.OK) {
-                        for (UserSelection selection : dia.getUserSelection()) {
-                            obj.buildRelationship(selection.getSelectedObject(), JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
-                        }
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    build(_obj);
-                                } catch (Exception ex) {
-                                    logger.fatal(ex);
-                                }
-
-                            }
-                        });
+                if (re == SelectTargetDialog.Response.OK) {
+                    for (UserSelection selection : dia.getUserSelection()) {
+                        obj.buildRelationship(selection.getSelectedObject(), JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
                     }
+                    Platform.runLater(() -> {
+                        try {
+                            build(_obj);
+                        } catch (Exception ex) {
+                            logger.fatal(ex);
+                        }
 
-
-                } catch (Exception ex) {
-                    logger.fatal(ex);
+                    });
                 }
+
+
+            } catch (Exception ex) {
+                logger.fatal(ex);
             }
         });
 

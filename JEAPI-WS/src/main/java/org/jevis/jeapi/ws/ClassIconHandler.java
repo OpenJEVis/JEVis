@@ -11,10 +11,7 @@ import org.apache.logging.log4j.Logger;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -33,7 +30,7 @@ public class ClassIconHandler {
     private boolean fileExists = false;
     private File tmpDir;
     private static final Logger logger = LogManager.getLogger(ClassIconHandler.class);
-    File zipFile;
+    private File zipFile;
 
     public ClassIconHandler(File tmpDir) {
         this.tmpDir = tmpDir;
@@ -67,7 +64,7 @@ public class ClassIconHandler {
 
     public Map<String, BufferedImage> getClassIcon() throws Exception {
         Map<String, BufferedImage> map = new HashMap<>();
-        for (File file : tmpDir.listFiles()) {
+        for (File file : Objects.requireNonNull(tmpDir.listFiles())) {
             if (file.getName().contains(".png")) {
                 map.put(file.getName().replaceAll(".png", ""), ImageIO.read(file));
             }
@@ -76,7 +73,7 @@ public class ClassIconHandler {
     }
     
     public BufferedImage getClassIcon(String name) throws Exception {
-        for (File file : tmpDir.listFiles()) {
+        for (File file : Objects.requireNonNull(tmpDir.listFiles())) {
             if (file.getName().equals(name + ".png")) {
                 return ImageIO.read(file);
             }

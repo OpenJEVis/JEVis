@@ -7,7 +7,6 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.JEDataProcessorConstants;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
-import org.jevis.jedataprocessor.data.CleanDataAttribute;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.gap.Gap;
 import org.jevis.jedataprocessor.limits.LimitBreak;
@@ -21,17 +20,15 @@ import java.util.Objects;
 public class GapsAndLimits {
     private static final Logger logger = LogManager.getLogger(GapsAndLimits.class);
     private List<CleanInterval> intervals;
-    private CleanDataAttribute calcAttribute;
     private GapsAndLimitsType gapsAndLimitsType;
     private List<Gap> gapList;
     private List<LimitBreak> limitBreaksList;
     private JsonGapFillingConfig c;
     private List<JEVisSample> sampleCache;
 
-    public GapsAndLimits(List<CleanInterval> intervals, CleanDataAttribute calcAttribute, GapsAndLimitsType type,
+    public GapsAndLimits(List<CleanInterval> intervals, GapsAndLimitsType type,
                          JsonGapFillingConfig c, List<Gap> gapList, List<LimitBreak> limitBreaksList, List<JEVisSample> sampleCache) {
         this.intervals = intervals;
-        this.calcAttribute = calcAttribute;
         this.gapsAndLimitsType = type;
         this.gapList = gapList;
         this.limitBreaksList = limitBreaksList;
@@ -431,7 +428,7 @@ public class GapsAndLimits {
 
     private DateTime getFirstDate(DateTime lastDate) {
         final String referencePeriod = c.getReferenceperiod();
-        Integer referencePeriodCount = Integer.parseInt(c.getReferenceperiodcount());
+        int referencePeriodCount = Integer.parseInt(c.getReferenceperiodcount());
         switch (referencePeriod) {
             case (JEDataProcessorConstants.GapFillingReferencePeriod.DAY):
                 return lastDate.minusDays(referencePeriodCount);

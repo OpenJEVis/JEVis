@@ -53,7 +53,7 @@ public class MemberTable extends TableView {
     public MemberTable(JEVisObject obj) {
         super();
 
-        TableColumn ownerColumn = new TableColumn(I18n.getInstance().getString("plugin.object.permission.member"));
+        TableColumn<MemberRow, String> ownerColumn = new TableColumn<>(I18n.getInstance().getString("plugin.object.permission.member"));
         ownerColumn.setCellValueFactory(new PropertyValueFactory<MemberRow, String>("member"));
 
         TableColumn readColumn = new TableColumn(I18n.getInstance().getString("plugin.object.permission.read"));
@@ -92,9 +92,7 @@ public class MemberTable extends TableView {
 //                    logger.info("is userright: " + rel);
                     JEVisObject otherObj = rel.getOtherObject(obj);
 
-                    if (members.get(otherObj) == null) {
-                        members.put(otherObj, new ArrayList<JEVisRelationship>());
-                    }
+                    members.computeIfAbsent(otherObj, k -> new ArrayList<JEVisRelationship>());
                     List<JEVisRelationship> memberRel = members.get(otherObj);
                     memberRel.add(rel);
 
@@ -117,14 +115,7 @@ public class MemberTable extends TableView {
     }
 
     private void setBooleanCellrenderer(TableColumn column) {
-        column.setCellFactory(new Callback() {
-
-            @Override
-            public TableCell<MemberRow, Boolean> call(Object p) {
-
-                return new CheckBoxTableCell<MemberRow, Boolean>();
-            }
-        });
+        column.setCellFactory((Callback) p -> new CheckBoxTableCell<MemberRow, Boolean>());
 
     }
 

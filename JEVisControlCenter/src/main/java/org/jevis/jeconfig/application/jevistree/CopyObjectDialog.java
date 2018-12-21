@@ -68,15 +68,15 @@ public class CopyObjectDialog {
     private int createCount = 1;
     private boolean recursionAllowed = false;
     private boolean includeDataAllowed = true;
-    final Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.copy.ok"));
+    private final Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.copy.ok"));
 
-    final RadioButton move = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.move"));
-    final RadioButton link = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.link"));
+    private final RadioButton move = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.move"));
+    private final RadioButton link = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.link"));
     final RadioButton copy = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.copy"));
     //    final RadioButton clone = new RadioButton("Clone");
-    final CheckBox recursion = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.substructure"));
-    final CheckBox includeSamples = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.adddata"));
-    final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+    private final CheckBox recursion = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.substructure"));
+    private final CheckBox includeSamples = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.adddata"));
+    private final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
     /**
      * @param owner
@@ -90,7 +90,7 @@ public class CopyObjectDialog {
         try {
 
             if (!object.getDataSource().getCurrentUser().canCreate(object.getID())) {
-                showError("Error", "Permission denied", "You have no permission to create this object here");
+                showError("Permission denied", "You have no permission to create this object here");
                 return Response.CANCEL;
             }
 
@@ -100,7 +100,7 @@ public class CopyObjectDialog {
             }
 
             if (!linkOK && !object.isAllowedUnder(newParent)) {
-                showError("Error", "Rules Error", "Its not allowed to create an '" + object.getJEVisClass().getName() + "' under an '" + newParent.getJEVisClass().getName()
+                showError("Rules Error", "Its not allowed to create an '" + object.getJEVisClass().getName() + "' under an '" + newParent.getJEVisClass().getName()
                         + "' object");
                 return Response.CANCEL;
             }
@@ -114,7 +114,7 @@ public class CopyObjectDialog {
 //            }
         } catch (JEVisException ex) {
             logger.fatal(ex);
-            showError("Error", ex.getMessage(), ex.getCause().getMessage());
+            showError(ex.getMessage(), ex.getCause().getMessage());
             return Response.CANCEL;
         }
 
@@ -462,9 +462,9 @@ public class CopyObjectDialog {
         }
     }
 
-    private void showError(String title, String titleLong, String message) {
+    private void showError(String titleLong, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
+        alert.setTitle("Error");
         alert.setHeaderText(titleLong);
         alert.setContentText(message);
         alert.setResizable(true);
@@ -483,7 +483,7 @@ public class CopyObjectDialog {
             //check if the obj its os own parent
             for (JEVisObject parent : target.getParents()) {
                 if (parent.equals(target)) {
-                    showError("Error", "Recursion Error", "Recursion error detected. ");
+                    showError("Recursion Error", "Recursion error detected. ");
                     return false;
                 }
                 if (!parentCheck(obj, parent)) {

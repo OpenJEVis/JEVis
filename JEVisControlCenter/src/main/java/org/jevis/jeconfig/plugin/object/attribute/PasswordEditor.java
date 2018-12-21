@@ -45,7 +45,7 @@ public class PasswordEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(PasswordEditor.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
-    HBox box = new HBox();
+    private HBox box = new HBox();
     private boolean _hasChanged = false;
     private Button _setPW;
     private boolean _readOnly = true;
@@ -56,7 +56,7 @@ public class PasswordEditor implements AttributeEditor {
 
     @Override
     public boolean hasChanged() {
-//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
+//        logger.info(attribute.getName() + " changed: " + _hasChanged);
         return _hasChanged;
     }
 
@@ -64,7 +64,7 @@ public class PasswordEditor implements AttributeEditor {
     public void update() {
         Platform.runLater(() -> {
             box.getChildren().clear();
-            buildTextFild();
+            buildTextField();
         });
     }
 
@@ -80,7 +80,7 @@ public class PasswordEditor implements AttributeEditor {
 
     //    @Override
 //    public void setAttribute(JEVisAttribute att) {
-//        _attribute = att;
+//        attribute = att;
 //    }
     @Override
     public void commit() {
@@ -94,7 +94,7 @@ public class PasswordEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            buildTextFild();
+            buildTextField();
         } catch (Exception ex) {
 
         }
@@ -103,7 +103,7 @@ public class PasswordEditor implements AttributeEditor {
 //        return _field;
     }
 
-    private void buildTextFild() {
+    private void buildTextField() {
         if (_setPW == null) {
             _setPW = new Button(I18n.getInstance().getString("plugin.object.attribute.password.button"),
                     JEConfig.getImage("1415303685_lock-s1.png", 18, 18));
@@ -127,6 +127,7 @@ public class PasswordEditor implements AttributeEditor {
 
                             }
                             sample.commit();
+                            _hasChanged = true;
 
                         } catch (JEVisException ex) {
                             logger.fatal(ex);

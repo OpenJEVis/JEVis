@@ -53,39 +53,32 @@ public class FilterTreeLoader {
     }
 
     private JEVisTreeItem buildItem(Set<JEVisObject> filterdObjs, JEVisObject object) throws JEVisException {
-        JEVisTreeItem newItem = new JEVisTreeItem(tree, object);
+        JEVisTreeItem newItem = new JEVisTreeItem(object);
 
-        if (newItem != null) {// && filter.showItem(object)) {
+        // && filter.showItem(object)) {
 
 
-            List<JEVisTreeItem> childeren = new ArrayList<>();
-            for (JEVisObject child : object.getChildren()) {
-                try {
-                    JEVisTreeItem newChild = buildItem(filterdObjs, child);
-                    if (newChild != null) {
-                        childeren.add(newChild);
-                    }
-                } catch (Exception ex) {
+        List<JEVisTreeItem> children = new ArrayList<>();
+        for (JEVisObject child : object.getChildren()) {
+            try {
+                JEVisTreeItem newChild = buildItem(filterdObjs, child);
+                if (newChild != null) {
+                    children.add(newChild);
                 }
+            } catch (Exception ex) {
             }
+        }
 
-            for (JEVisType type : object.getJEVisClass().getTypes()) {
-                if (filter.showItem(type)) {
-                    JEVisTreeItem newChild = new JEVisTreeItem(tree, object.getAttribute(type.getName()));
-                    childeren.add(newChild);
-                }
+        for (JEVisType type : object.getJEVisClass().getTypes()) {
+            if (filter.showItem(type)) {
+                JEVisTreeItem newChild = new JEVisTreeItem(object.getAttribute(type.getName()));
+                children.add(newChild);
             }
+        }
 
 //            newItem.setChildrenWorkaround(childeren);
-            return newItem;
+        return newItem;
 
-        } else {
-            for (JEVisObject child : object.getChildren()) {
-                buildItem(filterdObjs, child);
-            }
-
-        }
-        return null;
     }
 
     public ObservableList<JEVisTreeItem> loadTreeItems(List<JEVisObject> rootItems) {

@@ -23,8 +23,6 @@ import com.jfoenix.controls.JFXDatePicker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +36,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -111,13 +108,10 @@ public class DateEditor implements AttributeEditor {
 
         }
 
-        pickerDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
-            @Override
-            public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
-                logger.info("///// Value changed: " + newValue);
-                if (!newValue.equals(oldValue)) {
-                    _changed.setValue(Boolean.TRUE);
-                }
+        pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            logger.info("///// Value changed: " + newValue);
+            if (!newValue.equals(oldValue)) {
+                _changed.setValue(Boolean.TRUE);
             }
         });
 

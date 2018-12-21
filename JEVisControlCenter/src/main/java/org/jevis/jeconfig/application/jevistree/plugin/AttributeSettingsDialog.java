@@ -52,7 +52,7 @@ import org.jevis.jeconfig.dialog.DialogHeader;
 public class AttributeSettingsDialog {
     private static final Logger logger = LogManager.getLogger(AttributeSettingsDialog.class);
 
-    public void saveInDataSource() {
+    private void saveInDataSource() {
 //        logger.info("Save");
         try {
 //            logger.info("Display unit: " + UnitManager.getInstance().format(upDisplay.getSelectedUnit()));
@@ -113,9 +113,9 @@ public class AttributeSettingsDialog {
         Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
 
-        if (att.getDisplayUnit() != null && !att.getDisplayUnit().toString().isEmpty()) {
-//            changeBaseUnigetDisplayUnitxt(att.getUnit().toString());
-        }
+        if (att.getDisplayUnit() != null) {
+            att.getDisplayUnit().toString();
+        }//            changeBaseUnigetDisplayUnitxt(att.getUnit().toString());
 
 //        CheckBox keepDefault = new CheckBox("Set as DB unit");
         Region spacer = new Region();

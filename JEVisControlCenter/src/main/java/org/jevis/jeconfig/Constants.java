@@ -33,7 +33,7 @@ public interface Constants {
 
 
             int SAVE = 0;
-            int DELTE = 1;
+            int DELETE = 1;
             int NEW = 2;
             int COPY = 3;
             int PASTE = 4;
@@ -69,7 +69,7 @@ public interface Constants {
         String USER = "Users";
         String ORGANIZATION = "Organization";
         String SYSTEM = "System";
-        String ADMINISTRATION_DIRECTROY = "Administration Directory";
+        String ADMINISTRATION_DIRECTORY = "Administration Directory";
 
     }
 }

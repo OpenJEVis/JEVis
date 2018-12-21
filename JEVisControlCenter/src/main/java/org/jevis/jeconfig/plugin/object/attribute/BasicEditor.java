@@ -10,8 +10,6 @@ import com.jfoenix.validation.base.ValidatorBase;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
@@ -37,12 +35,12 @@ public abstract class BasicEditor implements AttributeEditor {
     private final JEVisAttribute attribute;
     private final BooleanProperty changedProperty = new SimpleBooleanProperty(false);
     private final double height = 28;
-    private final double maxwidth = GenericAttributeExtension.editorWhith.getValue();
+    private final double maxWidth = GenericAttributeExtension.editorWidth.getValue();
     private final HBox editorNode = new HBox();
     private JEVisSample orgSample;
     private boolean readonly = false;
     private Object finalNewValue;
-    private BooleanProperty isValied = new SimpleBooleanProperty(false);
+    private BooleanProperty isValid = new SimpleBooleanProperty(false);
 
     /**
      * @param att
@@ -70,41 +68,38 @@ public abstract class BasicEditor implements AttributeEditor {
         JFXTextField valueField = new JFXTextField();
 
         valueField.getValidators().add(getValidator());
-        valueField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (!newValue) {
-                    try {
-                        if ((valueField.getText().isEmpty() && validateEmptyValue())
-                                || (!valueField.getText().isEmpty())
-                        ) {
+        valueField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                try {
+                    if ((valueField.getText().isEmpty() && validateEmptyValue())
+                            || (!valueField.getText().isEmpty())
+                    ) {
 
-                            if (valueField.validate()) {
-                                isValied.setValue(true);
-                                finalNewValue = parseValue(valueField.getText());
-                                BasicEditor.this.changedProperty.setValue(true);
-                            } else {
-                                isValied.setValue(false);
-                            }
+                        if (valueField.validate()) {
+                            isValid.setValue(true);
+                            finalNewValue = parseValue(valueField.getText());
+                            BasicEditor.this.changedProperty.setValue(true);
                         } else {
-                            isValied.setValue(true);
+                            isValid.setValue(false);
                         }
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                    } else {
+                        isValid.setValue(true);
                     }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
         });
 
 
-        valueField.setPrefWidth(maxwidth);
+        valueField.setPrefWidth(maxWidth);
         valueField.setAlignment(Pos.CENTER_RIGHT);
 
         try {
             if (orgSample != null) {
                 valueField.setText(formatSample(orgSample));
-                isValied.setValue(true);
+                isValid.setValue(true);
 
                 Tooltip tt = new Tooltip("TimeStamp: " + orgSample.getTimestamp());
                 tt.setOpacity(0.5);
@@ -192,6 +187,6 @@ public abstract class BasicEditor implements AttributeEditor {
 
     @Override
     public boolean isValid() {
-        return isValied.getValue();
+        return isValid.getValue();
     }
 }

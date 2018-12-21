@@ -172,7 +172,7 @@ public class ClassPlugin implements Plugin {
 
             ToggleButton delete = new ToggleButton("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
-            GlobalToolBar.BuildEventhandler(ClassPlugin.this, delete, Constants.Plugin.Command.DELTE);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, delete, Constants.Plugin.Command.DELETE);
 
             Separator sep1 = new Separator();
 
@@ -218,7 +218,7 @@ public class ClassPlugin implements Plugin {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
                 return true;
-            case Constants.Plugin.Command.DELTE:
+            case Constants.Plugin.Command.DELETE:
                 return true;
             case Constants.Plugin.Command.EXPAND:
                 return true;
@@ -239,7 +239,7 @@ public class ClassPlugin implements Plugin {
                 case Constants.Plugin.Command.SAVE:
                     tree.fireSaveAttributes(false);
                     break;
-                case Constants.Plugin.Command.DELTE:
+                case Constants.Plugin.Command.DELETE:
                     tree.fireDelete(tree.getSelectionModel().getSelectedItem().getValue());
                     break;
                 case Constants.Plugin.Command.EXPAND:

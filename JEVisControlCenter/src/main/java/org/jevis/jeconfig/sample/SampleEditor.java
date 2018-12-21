@@ -23,11 +23,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -53,6 +49,7 @@ import org.joda.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * GUI Dialog to configure attributes and there sample.
@@ -63,9 +60,9 @@ import java.util.List;
 public class SampleEditor {
     private static final Logger logger = LogManager.getLogger(SampleEditor.class);
     public static String ICON = "1415314386_Graph.png";
-    final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
+    private final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
     private final List<SampleEditorExtension> extensions = new ArrayList<>();
-    List<JEVisSample> samples = new ArrayList<>();
+    private List<JEVisSample> samples = new ArrayList<>();
     private boolean _dataChanged = false;
     private SampleEditorExtension _visibleExtension = null;
     private DateTime _from = null;
@@ -168,11 +165,11 @@ public class SampleEditor {
         HBox.setHgrow(cancel, Priority.NEVER);
 
 
-        extensions.add(new SampleTableExtension(attribute, stage));
+        extensions.add(new SampleTableExtension(attribute));
         extensions.add(new SampleGraphExtension(attribute)); // we now habe an graph plugin
         extensions.add(new AttributeStatesExtension(attribute));
         extensions.add(new SampleExportExtension(attribute));
-        extensions.add(new AttributeUnitExtention(attribute));
+        extensions.add(new AttributeUnitExtension(attribute));
 
         final List<Tab> tabs = new ArrayList<>();
 
@@ -220,32 +217,25 @@ public class SampleEditor {
         VBox.setVgrow(header, Priority.NEVER);
 
 //        ok.setDisable(true);
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
+        ok.setOnAction(t -> {
 //                _visibleExtension.sendOKAction();//TODO: send all?
-                stage.close();
-                for (SampleEditorExtension ex : extensions) {
+            stage.close();
+            for (SampleEditorExtension ex : extensions) {
 
-                    ex.sendOKAction();
-                }
+                ex.sendOKAction();
             }
         });
 
-        tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
+        tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
 //                logger.info("tabPane.getSelectionModel(): " + t1.getText());
 
-                for (SampleEditorExtension ex : extensions) {
-                    if (ex.getTitel().equals(t1.getText())) {
-                        ex.update();
-                        _visibleExtension = ex;
-                    }
+            for (SampleEditorExtension ex : extensions) {
+                if (ex.getTitel().equals(t1.getText())) {
+                    ex.update();
+                    _visibleExtension = ex;
                 }
-//                }
             }
+//                }
         });
 
         startdate.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -257,14 +247,11 @@ public class SampleEditor {
             updateSamples(_from, _until);
         });
 
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                stage.close();
-                response = Response.CANCEL;
-                stage.close();
+        cancel.setOnAction(t -> {
+            stage.close();
+            response = Response.CANCEL;
+            stage.close();
 
-            }
         });
 
         //TODO: replace Workaround.., without it the first tab will be empty
@@ -308,38 +295,34 @@ public class SampleEditor {
             logger.error(ex);
         }
 
-        ChoiceBox processorBox = new ChoiceBox();
+        ChoiceBox<String> processorBox = new ChoiceBox<>();
         processorBox.setItems(FXCollections.observableArrayList(proNames));
         processorBox.getSelectionModel().selectFirst();
-        processorBox.valueProperty().addListener(new ChangeListener<String>() {
+        processorBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            //TODO:replace this quick and dirty workaround
 
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                //TODO:replace this quick and dirty workaround
-
-                try {
+            try {
 //                    JEVisClass dpClass = parentObj.getDataSource().getJEVisClass("Data Processor");
 
-                    if (newValue.equals("None")) {
-                        _dataProcessor = null;
-                        disableEditing.setValue(true);
-                        update();
-                    } else {
+                if (newValue.equals("None")) {
+                    _dataProcessor = null;
+                    disableEditing.setValue(true);
+                    update();
+                } else {
 
-                        //TODO going by name is not the fine art, replace!
-                        for (JEVisObject configObject : _dataProcessors) {
-                            if (configObject.getName().equals(newValue)) {
-                                _dataProcessor = ProcessChains.getProcessChain(configObject);
+                    //TODO going by name is not the fine art, replace!
+                    for (JEVisObject configObject : _dataProcessors) {
+                        if (configObject.getName().equals(newValue)) {
+                            _dataProcessor = ProcessChains.getProcessChain(configObject);
 
-                                update();
-                            }
-
+                            update();
                         }
-                    }
 
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
+                    }
                 }
+
+            } catch (JEVisException ex) {
+                logger.fatal(ex);
             }
         });
 
@@ -352,14 +335,12 @@ public class SampleEditor {
         aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.quarterly"));
         aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.yearly"));
 
-        ChoiceBox aggregate = new ChoiceBox();
+        ChoiceBox<String> aggregate = new ChoiceBox<String>();
         aggregate.setItems(FXCollections.observableArrayList(aggList));
         aggregate.getSelectionModel().selectFirst();
         aggregate.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue != oldValue) {
-                if (oldValue != newValue) {
-                    disableEditing.setValue(true);
-                }
+            if (newValue != null && !Objects.equals(newValue, oldValue)) {
+                disableEditing.setValue(true);
 
                 switch (newValue.intValue()) {
                     case 0:

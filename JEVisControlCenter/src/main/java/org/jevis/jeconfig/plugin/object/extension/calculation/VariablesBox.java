@@ -1,7 +1,5 @@
 package org.jevis.jeconfig.plugin.object.extension.calculation;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
 import org.jevis.api.JEVisAttribute;
@@ -19,7 +17,6 @@ public class VariablesBox extends FlowPane {
 
     private List<JEVisObject> variables = new ArrayList<>();
     private FormulaBox expression;
-    private JEVisObject calcObject;
 
     public VariablesBox() {
         super();
@@ -30,9 +27,8 @@ public class VariablesBox extends FlowPane {
     }
 
     public void bindVaribaleBox(FormulaBox expression, JEVisObject obj) {
-        this.calcObject = obj;
         this.expression = expression;
-        listVariables(calcObject);
+        listVariables(obj);
     }
 
 
@@ -48,12 +44,7 @@ public class VariablesBox extends FlowPane {
                     String name = value.getValueAsString();
                     button.setText(name);
 
-                    button.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent event) {
-                            expression.addExpression("#{" + name + "}");
-                        }
-                    });
+                    button.setOnAction(event -> expression.addExpression("#{" + name + "}"));
                 } else {
                     button.setText("*no name* ID: " + inpuObject.getID());
                     button.disableProperty().setValue(true);
@@ -71,16 +62,13 @@ public class VariablesBox extends FlowPane {
         getChildren().clear();
 
         Button addInputButton = new Button("", ResourceLoader.getImage("list-add.png", 15, 15));
-        addInputButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    TreeHelper.createCalcInput(obj, null);
-                    listVariables(obj);
-                    expression.updateVariables();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+        addInputButton.setOnAction(event -> {
+            try {
+                TreeHelper.createCalcInput(obj, null);
+                listVariables(obj);
+                expression.updateVariables();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
         getChildren().add(addInputButton);

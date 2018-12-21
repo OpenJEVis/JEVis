@@ -138,8 +138,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             newJsonRel.setStart(fromClass);
             newJsonRel.setEnd(toClass);
             newJsonRel.setType(type);
-            JEVisClassRelationship rel = new JEVisClassRelationshipWS(this, newJsonRel);
-            return rel;
+            return new JEVisClassRelationshipWS(this, newJsonRel);
 
 
         } catch (Exception ex) {
@@ -218,9 +217,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
              */
             Collection<List<JEVisAttribute>> attributes = attributeCache.values();
             List<JEVisAttribute> result = new ArrayList<>();
-            attributes.forEach(jeVisAttributes -> {
-                result.addAll(jeVisAttributes);
-            });
+            attributes.forEach(result::addAll);
 //                System.out.println("end get attributes");
             return result;
 
@@ -271,7 +268,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisObject> getObjects() {
-        logger.error("getObejcts");
+        logger.error("getObjects");
         if (!objectLoaded) {
             getObjectsWS();
             objectLoaded = true;
@@ -294,7 +291,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
-    public List<JEVisObject> getObjectsWS() {
+    public void getObjectsWS() {
         logger.trace("Get ALL ObjectsWS");
         try {
             List<JEVisObject> objects = new ArrayList<>();
@@ -317,15 +314,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
 
 
-            return new ArrayList<>(objectCache.values());
-
         } catch (ProtocolException ex) {
             logger.error(ex);
             //TODO: throw excption?! so the other function can handel it?
-            return new ArrayList<>();
         } catch (IOException ex) {
             logger.error(ex);
-            return new ArrayList<>();
         }
     }
 
@@ -828,9 +821,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public JEVisClass buildClass(String name) {
         JsonJEVisClass json = new JsonJEVisClass();
         json.setName(name);
-        JEVisClass newClass = new JEVisClassWS(this, json);
 
-        return newClass;
+        return new JEVisClassWS(this, json);
     }
 
     public void reloadClasses() {
@@ -1023,7 +1015,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 zipDir.mkdirs();
             }
             ClassIconHandler cih = new ClassIconHandler(zipDir);
-            if (zipDir.listFiles().length == 0) {
+            if (Objects.requireNonNull(zipDir.listFiles()).length == 0) {
                 cih.readStream(con.getInputStreamRequest(resource));
             }
 
@@ -1060,15 +1052,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         if (objectLoaded) {
             JEVisObject obj = objectCache.getOrDefault(id, null);
             if (obj == null) {
-                logger.warn("Waring request for object {} was null", id);
+                logger.warn("Warning: Request for object {} was null", id);
             }
             return obj;
         } else if (objectCache.get(id) != null) {
             return objectCache.get(id);
         }
 
-        JEVisObject ob = getObjectWS(id);
-        return ob;
+        return getObjectWS(id);
 
     }
 
@@ -1119,8 +1110,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             StringBuffer response = con.getRequest(resource);
 
             JsonJEVisClass json = gson.fromJson(response.toString(), JsonJEVisClass.class);
-            JEVisClass newClass = new JEVisClassWS(this, json);
-            return newClass;
+            return new JEVisClassWS(this, json);
 
         } catch (ProtocolException ex) {
             logger.fatal(ex);
@@ -1177,7 +1167,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisRelationship> getRelationships(int type) throws JEVisException {
-        List list = new ArrayList();
+        List<JEVisRelationship> list = new ArrayList<>();
         for (JEVisRelationship rel : getRelationships()) {
             if (rel.getType() == type) {
                 list.add(rel);
@@ -1260,7 +1250,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             getJEVisClasses();
             benchmark.printBenchmarkDetail("Preload - Classes");
             Optimization.getInstance().printStatistics();
-            getClassIcon();
+            //getClassIcon();
             benchmark.printBenchmarkDetail("Preload - Icons");
             Optimization.getInstance().printStatistics();
             getObjects();

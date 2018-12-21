@@ -111,13 +111,10 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
     @Override
     public void update() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if (_dataChanged) {
-                    buildGui(_att, _samples);
-                    _dataChanged = false;
-                }
+        Platform.runLater(() -> {
+            if (_dataChanged) {
+                buildGui(_att, _samples);
+                _dataChanged = false;
             }
         });
     }

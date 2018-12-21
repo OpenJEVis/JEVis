@@ -9,8 +9,6 @@ import com.jfoenix.controls.JFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -57,7 +55,7 @@ public class TimeZoneEditor implements AttributeEditor {
 //        ComboBox<String> picker = new ComboBox<String>(timeZones);
 //        final ComboBox picker = new ComboBox(timeZones);
         JFXComboBox picker = new JFXComboBox(timeZones);
-        picker.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
+        picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 //        new AutoCompleteComboBoxListener<>(picker);
 
         Callback<ListView<String>, ListCell<String>> cellFactory = new Callback<ListView<String>, ListCell<String>>() {
@@ -114,12 +112,7 @@ public class TimeZoneEditor implements AttributeEditor {
             }
         }
 
-        _readOnly.addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                picker.setDisable(newValue);
-            }
-        });
+        _readOnly.addListener((observable, oldValue, newValue) -> picker.setDisable(newValue));
 
         picker.valueProperty().addListener((observableValue, oldValue, newValue) -> {
             try {

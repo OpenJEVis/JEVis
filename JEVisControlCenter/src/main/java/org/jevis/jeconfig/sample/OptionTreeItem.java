@@ -44,13 +44,9 @@ public class OptionTreeItem extends TreeItem<JEVisOption> {
             super.getChildren().add(item);
         }
 
-        super.getChildren().addListener(new ListChangeListener<TreeItem<JEVisOption>>() {
-
-            @Override
-            public void onChanged(ListChangeListener.Change<? extends TreeItem<JEVisOption>> c) {
-                if (!getChildren().isEmpty()) {
-                    isLeaf = false;
-                }
+        super.getChildren().addListener((ListChangeListener<TreeItem<JEVisOption>>) c -> {
+            if (!getChildren().isEmpty()) {
+                isLeaf = false;
             }
         });
 

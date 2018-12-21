@@ -327,7 +327,7 @@ public class MapPlugin implements TreePlugin {
         column.setEditable(true);
 
         //replace to use the datamodel
-//        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<SelectionTreeRow, Boolean> param) -> param.getValue().getValue().getObjectSelectedProperty());
+//        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<SelectionTreeRow, Boolean> param) -> param.getValue().getValue().getSelected());
         column.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<JEVisTreeRow, Boolean>, ObservableValue<Boolean>>() {
 
             @Override
@@ -347,7 +347,7 @@ public class MapPlugin implements TreePlugin {
                     @Override
                     public void commitEdit(Boolean newValue) {
                         super.commitEdit(newValue);
-                        getTreeTableRow().getItem().getObjectSelectedProperty().setValue(newValue);
+                        getTreeTableRow().getItem().setSelected(newValue);
                         DataModel data = getData(getTreeTableRow().getItem());
                         data.setSelected(newValue);
                     }
@@ -524,8 +524,8 @@ public class MapPlugin implements TreePlugin {
             return _latitude;
         }
 
-        //        public void setAttribute(JEVisAttribute _attribute) {
-//            this._attribute = _attribute;
+        //        public void setAttribute(JEVisAttribute attribute) {
+//            this.attribute = attribute;
 //        }
 //        public Color getColor() {
 //            return _color;

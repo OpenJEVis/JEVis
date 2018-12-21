@@ -24,8 +24,7 @@ public class I18nWS {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(I18nWS.class);
     private static I18nWS i18n;
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
-    private JEVisDataSourceWS ws;
-    private List<JsonI18nClass> i18nfiles;
+    private static List<JsonI18nClass> i18nfiles;
 
 
     public I18nWS() {
@@ -48,9 +47,8 @@ public class I18nWS {
      * @param ws
      * @todo replace this prototype with an the JEDataSource interface
      */
-    public void setDataSource(JEVisDataSourceWS ws) {
-        this.ws = ws;
-        i18nfiles = this.ws.getTranslation();
+    public static void setDataSource(JEVisDataSourceWS ws) {
+        i18nfiles = ws.getTranslation();
     }
 
     public String getClassName(String className) {

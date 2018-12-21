@@ -20,11 +20,6 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.paint.Color;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 
@@ -34,13 +29,12 @@ import org.jevis.api.JEVisObject;
 public class JEVisTreeRow {
 
     private final JEVisObject jevisObject;
-    private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLUE);
-    private final BooleanProperty objectSelectedProperty = new SimpleBooleanProperty(false);
+    private Boolean selected = false;
     private final TYPE type;
     private final JEVisAttribute attribute;
 
-    public JEVisTreeRow(JEVisObject objects) {
-        this.jevisObject = objects;
+    public JEVisTreeRow(JEVisObject object) {
+        this.jevisObject = object;
         this.type = TYPE.OBJECT;
         this.attribute = null;
     }
@@ -64,12 +58,12 @@ public class JEVisTreeRow {
         return jevisObject;
     }
 
-    public BooleanProperty getObjectSelectedProperty() {
-        return objectSelectedProperty;
+    public Boolean getSelected() {
+        return selected;
     }
 
-    public ObjectProperty<Color> getColorProperty() {
-        return colorProperty;
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 
     public String getID() {

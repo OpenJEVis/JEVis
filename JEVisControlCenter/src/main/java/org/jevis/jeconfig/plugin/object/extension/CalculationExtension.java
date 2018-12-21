@@ -2,8 +2,6 @@ package org.jevis.jeconfig.plugin.object.extension;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -25,7 +23,7 @@ import org.joda.time.DateTime;
 
 public class CalculationExtension implements ObjectEditorExtension {
 
-    public static final String CALC_CLASS_NAME = "Calculation";
+    private static final String CALC_CLASS_NAME = "Calculation";
     private static final String TITLE = I18n.getInstance().getString("plugin.object.calc.title");
     private static final Logger logger = LogManager.getLogger(CalculationExtension.class);
     private final BorderPane view = new BorderPane();
@@ -43,7 +41,7 @@ public class CalculationExtension implements ObjectEditorExtension {
 
     @Override
     public boolean isForObject(JEVisObject obj) {
-        Boolean isCalcObject = false;
+        boolean isCalcObject = false;
         try {
             isCalcObject = obj.getJEVisClassName().equals(CALC_CLASS_NAME);
         } catch (JEVisException e) {
@@ -120,22 +118,19 @@ public class CalculationExtension implements ObjectEditorExtension {
                 }
 
 
-                enableButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                        try {
-                            _newSampleEnabled = enabled.buildSample(new DateTime(), enableButton.isSelected());
-                            if (t1) {
-                                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
-                                editConfigPane.setDisable(false);
-                            } else {
-                                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-                                editConfigPane.setDisable(true);
-                            }
-                            _enabledChanged.setValue(true);
-                        } catch (Exception ex) {
-                            logger.fatal(ex);
+                enableButton.selectedProperty().addListener((ov, t, t1) -> {
+                    try {
+                        _newSampleEnabled = enabled.buildSample(new DateTime(), enableButton.isSelected());
+                        if (t1) {
+                            enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
+                            editConfigPane.setDisable(false);
+                        } else {
+                            enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+                            editConfigPane.setDisable(true);
                         }
+                        _enabledChanged.setValue(true);
+                    } catch (Exception ex) {
+                        logger.fatal(ex);
                     }
                 });
 

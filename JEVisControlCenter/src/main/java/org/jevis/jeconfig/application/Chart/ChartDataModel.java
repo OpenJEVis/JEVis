@@ -66,7 +66,7 @@ public class ChartDataModel {
                         _attribute = _object.getAttribute("Value");
                     }
 
-//                    _attribute.getDataSource().reloadAttribute(_attribute);
+//                    attribute.getDataSource().reloadAttribute(attribute);
 
                     SampleGenerator sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
                             getSelectedEnd(), manipulationMode, aggregationPeriod);
@@ -300,7 +300,7 @@ public class ChartDataModel {
                 ", _selectedStart=" + _selectedStart +
                 ", _selectedEnd=" + _selectedEnd +
                 ", _object=" + _object +
-                ", _attribute=" + _attribute +
+                ", attribute=" + _attribute +
                 ", _color=" + _color +
                 ", _somethingChanged=" + _somethingChanged +
                 ", _unit=" + _unit +

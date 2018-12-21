@@ -79,7 +79,7 @@ public class SearchFilterBar extends HBox {
                 }
             } else {
                 searchField.getEditor().setBackground(originalBackground);
-                tree.getHighliterList().clear();
+                tree.getHighlighterList().clear();
             }
         });
         SpinnerValueFactory<String> spinnerFactory = new SpinnerValueFactory<String>() {

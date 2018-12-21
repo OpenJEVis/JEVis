@@ -46,43 +46,39 @@ public class UnitEditor {
     VBox _view = new VBox();
 
     public void setUnit(final UnitObject unit) {
-        Platform.runLater(new Runnable() {
+        Platform.runLater(() -> {
 
-            @Override
-            public void run() {
+            GridPane gridPane = new GridPane();
+            gridPane.setPadding(new Insets(10));
+            gridPane.setHgap(7);
+            gridPane.setVgap(7);
 
-                GridPane gridPane = new GridPane();
-                gridPane.setPadding(new Insets(10));
-                gridPane.setHgap(7);
-                gridPane.setVgap(7);
-
-                Label nameL = new Label("Name: ");
-                Label symbolL = new Label("Symbol: ");
+            Label nameL = new Label("Name: ");
+            Label symbolL = new Label("Symbol: ");
 //                Label orderLabel = new Label("Dimension: ");
-                Label formel = new Label("Formel Editor:");
+            Label formel = new Label("Formel Editor:");
 
-                TextField nameT = new TextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
-                TextField symboleT = new TextField(unit.getUnit().toString());
+            TextField nameT = new TextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
+            TextField symboleT = new TextField(unit.getUnit().toString());
 //                TextField orderT = new TextField(unit.getUnit().getDimension().toString());
-                TextArea formelField = new TextArea();
-                formelField.setPrefSize(260, 100);
-                formelField.setWrapText(true);
-                formelField.setText(unit.getUnit().toJSON());
+            TextArea formelField = new TextArea();
+            formelField.setPrefSize(260, 100);
+            formelField.setWrapText(true);
+            formelField.setText(unit.getUnit().toJSON());
 
-                UnitChooser uc2 = new UnitChooser(Unit.ONE, 0);
+            UnitChooser uc2 = new UnitChooser(Unit.ONE, 0);
 
-                gridPane.add(nameL, 0, 0);
-                gridPane.add(symbolL, 0, 1);
+            gridPane.add(nameL, 0, 0);
+            gridPane.add(symbolL, 0, 1);
 //                gridPane.add(formel, 0, 2);
-                gridPane.add(nameT, 1, 0);
-                gridPane.add(symboleT, 1, 1);
-                gridPane.add(formelField, 1, 2);
+            gridPane.add(nameT, 1, 0);
+            gridPane.add(symboleT, 1, 1);
+            gridPane.add(formelField, 1, 2);
 
-                //gridPane.add(uc.getGraphic(), 0, 3);
-                //gridPane.add(uc2.getGraphic(), 0, 4);
-                _view.getChildren().setAll(gridPane);
+            //gridPane.add(uc.getGraphic(), 0, 3);
+            //gridPane.add(uc2.getGraphic(), 0, 4);
+            _view.getChildren().setAll(gridPane);
 
-            }
         });
 
     }

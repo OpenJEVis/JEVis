@@ -50,7 +50,7 @@ public class EnumEditor implements AttributeEditor {
         ObservableList<String> enumList = FXCollections.observableArrayList();
         try {
             JEVisClass enumClass = att.getDataSource().getJEVisClass("Enum");
-            JEVisClass constansClass = att.getDataSource().getJEVisClass("Constants");
+            JEVisClass constantsClass = att.getDataSource().getJEVisClass("Constants");
             List<JEVisObject> enumObjs = att.getDataSource().getObjects(enumClass, true);
 
             for (JEVisObject enumObj : enumObjs) {
@@ -60,8 +60,8 @@ public class EnumEditor implements AttributeEditor {
                 try {
                     if (jclass.equals(att.getObject().getJEVisClassName())) {
                         logger.debug("true");
-                        List<JEVisObject> constats = enumObj.getChildren(constansClass, true);
-                        for (JEVisObject con : constats) {
+                        List<JEVisObject> constants = enumObj.getChildren(constantsClass, true);
+                        for (JEVisObject con : constants) {
                             logger.debug("Constants obj: {}", con.getID());
 
 
@@ -97,7 +97,7 @@ public class EnumEditor implements AttributeEditor {
 
 //        ComboBox picker = new ComboBox(enumList);
         JFXComboBox picker = new JFXComboBox(enumList);
-        picker.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
+        picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 
         if (sample != null) {
             try {
@@ -120,7 +120,7 @@ public class EnumEditor implements AttributeEditor {
             }
         });
 
-        _editor.setPrefWidth(GenericAttributeExtension.editorWhith.getValue());
+        _editor.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
         Region spacer = new Region();
 //        HBox box = new HBox();
 //        HBox.setHgrow(picker, Priority.NEVER);

@@ -8,8 +8,6 @@ package org.jevis.jeconfig.plugin.object.attribute;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
@@ -45,7 +43,7 @@ public class TargetEditor implements AttributeEditor {
     private final MODE mode;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
-    HBox box = new HBox();
+    private HBox box = new HBox();
     private boolean _hasChanged = false;
     private Button _treeButton;
     private boolean _readOnly = true;
@@ -69,7 +67,7 @@ public class TargetEditor implements AttributeEditor {
 
     @Override
     public boolean hasChanged() {
-//        logger.info(_attribute.getName() + " changed: " + _hasChanged);
+//        logger.info(attribute.getName() + " changed: " + _hasChanged);
         return _changed.getValue();
     }
 
@@ -119,80 +117,73 @@ public class TargetEditor implements AttributeEditor {
 
         box.getChildren().setAll(_treeButton, gotoButton, rightSpacer);
 
-        _treeButton.setOnAction(new EventHandler<ActionEvent>() {
+        _treeButton.setOnAction(t -> {
+                    try {
 
-                                    @Override
-                                    public void handle(ActionEvent t) {
-                                        try {
+                        /**
+                         * TODO:
+                         * The not so pretty solution to add target specific filter
+                         */
+                        if (_attribute.getObject().getJEVisClassName().equals("Input")
+                                || _attribute.getObject().getJEVisClassName().equals("Output")) {
+                            JEVisAttribute newTargetAttribute = TreeHelper.updateCalcTarget(_attribute.getDataSource(), _attribute);
+                            TargetHelper th = new TargetHelper(_attribute.getDataSource(), newTargetAttribute.getObject(), newTargetAttribute);
+                            if (th.isValid() && th.targetAccessable()) {
+                                logger.info("Target Is valid");
+                                newSample = _attribute.buildSample(new DateTime(), th.getSourceString());
+                                newSample.commit();
+                                setButtonText();
+                            }
+                            return;
+                        }
 
-                                            /**
-                                             * TODO:
-                                             * The not so pretty solution to add target specific filter
-                                             */
-                                            if (_attribute.getObject().getJEVisClassName().equals("Input")
-                                                    || _attribute.getObject().getJEVisClassName().equals("Output")) {
-                                                JEVisAttribute newTargetAttribute = TreeHelper.updateCalcTarget(_attribute.getDataSource(), _attribute);
-                                                TargetHelper th = new TargetHelper(_attribute.getDataSource(), newTargetAttribute.getObject(), newTargetAttribute);
-                                                if (th.isValid() && th.targetAccessable()) {
-                                                    logger.info("Target Is valid");
-                                                    newSample = _attribute.buildSample(new DateTime(), th.getSourceString());
-                                                    newSample.commit();
-                                                    setButtonText();
-                                                }
-                                                return;
-                                            }
+                        List<JEVisTreeFilter> allFilter = new ArrayList<>();
 
-                                            List<JEVisTreeFilter> allFilter = new ArrayList<>();
-
-                                            if (_attribute.getObject().getJEVisClassName().equals("")) {
+                        if (_attribute.getObject().getJEVisClassName().equals("")) {
 
 
-                                            }
+                        }
 
-                                            allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
-                                            allFilter.add(SelectTargetDialog.buildAllDataFilter());
+                        allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
+                        allFilter.add(SelectTargetDialog.buildAllDataFilter());
 
 
-                                            JEVisAttribute newTargetAttribute = TreeHelper.updateTarget(_attribute.getDataSource(), _attribute, allFilter);
-                                            TargetHelper th = new TargetHelper(_attribute.getDataSource(), newTargetAttribute.getObject(), newTargetAttribute);
-                                            if (th.isValid() && th.targetAccessable()) {
-                                                logger.info("Target Is valid");
-                                                newSample = _attribute.buildSample(new DateTime(), th.getSourceString());
-                                                newSample.commit();
-                                                setButtonText();
-                                            }
+                        JEVisAttribute newTargetAttribute = TreeHelper.updateTarget(_attribute.getDataSource(), _attribute, allFilter);
+                        TargetHelper th = new TargetHelper(_attribute.getDataSource(), newTargetAttribute.getObject(), newTargetAttribute);
+                        if (th.isValid() && th.targetAccessable()) {
+                            logger.info("Target Is valid");
+                            newSample = _attribute.buildSample(new DateTime(), th.getSourceString());
+                            newSample.commit();
+                            setButtonText();
+                        }
 
-                                        } catch (Exception ex) {
-                                            logger.catching(ex);
-                                        }
-                                    }
-                                }
+                    } catch (Exception ex) {
+                        logger.catching(ex);
+                    }
+                }
         );
 
-        gotoButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
+        gotoButton.setOnAction(event -> {
+            try {
 
-                    TargetHelper th;
-                    if (newSample != null) {
-                        th = new TargetHelper(_attribute.getDataSource(), newSample.getValueAsString());
-                    } else {
-                        th = new TargetHelper(_attribute.getDataSource(), _attribute);
-                    }
-
-                    if (th.isValid() && th.targetAccessable()) {
-                        JEVisObject findObj = _attribute.getDataSource().getObject(th.getObject().getID());
-
-                        List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
-                        toOpen.add(findObj);
-                        logger.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
-
-                        TreeHelper.openPath(tree, toOpen, tree.getRoot(), findObj);
-                    }
-                } catch (Exception ex) {
-                    logger.catching(ex);
+                TargetHelper th;
+                if (newSample != null) {
+                    th = new TargetHelper(_attribute.getDataSource(), newSample.getValueAsString());
+                } else {
+                    th = new TargetHelper(_attribute.getDataSource(), _attribute);
                 }
+
+                if (th.isValid() && th.targetAccessable()) {
+                    JEVisObject findObj = _attribute.getDataSource().getObject(th.getObject().getID());
+
+                    List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
+                    toOpen.add(findObj);
+                    logger.trace("Open Path: {}", Arrays.toString(toOpen.toArray()));
+
+                    TreeHelper.openPath(tree, toOpen, tree.getRoot(), findObj);
+                }
+            } catch (Exception ex) {
+                logger.catching(ex);
             }
         });
 
@@ -210,7 +201,7 @@ public class TargetEditor implements AttributeEditor {
             }
 
             if (th.isValid() && th.targetAccessable()) {
-//                newSample = _attribute.buildSample(new DateTime(), th.getSourceString());
+//                newSample = attribute.buildSample(new DateTime(), th.getSourceString());
                 String bText = "[" + th.getObject().getID() + "] " + th.getObject().getName();
                 if (th.hasAttribute()) {
                     bText += " - " + th.getAttribute().getName();

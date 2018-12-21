@@ -42,8 +42,8 @@ import java.util.Locale;
 public class Configuration {
 
     private static final Logger logger = LogManager.getLogger(Configuration.class);
-    public static final JEVisOption JECONFIG = OptionFactory.BuildOption(null, "jeconfig", "", "JEConfig option group");
-    public static final JEVisOption URL_WELCOME = OptionFactory.BuildOption(JECONFIG, "welcomeurl", "", "URL of the welcome screen");
+    private static final JEVisOption JECONFIG = OptionFactory.BuildOption(null, "jeconfig", "", "JEConfig option group");
+    private static final JEVisOption URL_WELCOME = OptionFactory.BuildOption(JECONFIG, "welcomeurl", "", "URL of the welcome screen");
 
     private JEVisOption options;
     private List<JEVisOption> configuration;
@@ -51,9 +51,6 @@ public class Configuration {
     private String _loginIcon = "/icons/logo_coffee_klein.png";//"/icons/kaust.jpg";//"/icons/openjevislogo_simple2.png";
     private String _welcomeURL = "http://coffee-project.eu/";//"http://www.kaust.edu.sa/research-technology-park.html";//http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3";
     private String _watermark = "/icons/logo_JEVis_OPEN_Ohne_Schatten_long_v0_10.png";
-    private boolean _ssl = false;
-    private boolean _showServer = false;
-    private String _defaultServerURL = "jevis:jevistest@coffee-project.eu:13306/jevis";//"jevis:Taexu3Eesesieth3eid1@lthneo.kaust.edu.sa:3306/jevis";//user:password@server:3306/jevis";
     //    private final String _defaultServerURL = "user:password@server:3306/jevis";
     private File lastPath = null;
     private File lastFile = null;
@@ -93,7 +90,7 @@ public class Configuration {
      * @return
      */
     public boolean getShowServer() {
-        return _showServer;
+        return false;
     }
 
     /**
@@ -102,7 +99,8 @@ public class Configuration {
      * @return
      */
     public String getDefaultServer() {
-        return _defaultServerURL;
+        //"jevis:Taexu3Eesesieth3eid1@lthneo.kaust.edu.sa:3306/jevis";//user:password@server:3306/jevis";
+        return "jevis:jevistest@coffee-project.eu:13306/jevis";
     }
 
     /**
@@ -111,7 +109,7 @@ public class Configuration {
      * @return
      */
     public boolean getEnabledSSL() {
-        return _ssl;
+        return false;
     }
 
     public String getLoginIcon() {

@@ -23,15 +23,12 @@ import java.util.*;
 public class JEVisItemLoader {
 
     private static final Logger logger = LogManager.getLogger(JEVisItemLoader.class);
-    final JEVisTree jeVisTree;
-    final List<JEVisObject> allObjects;
-    final List<JEVisObject> roots;
-    final List<JEVisTreeItem> treeObjectItems = Collections.synchronizedList(new ArrayList<>());
-    final List<JEVisTreeItem> treeAttributeItems = Collections.synchronizedList(new ArrayList<>());
-    final Map<JEVisObject, JEVisTreeItem> itemObjectLinker = Collections.synchronizedMap(new TreeMap<>());
-    final Map<String, JEVisTreeItem> itemAttributeLinker = Collections.synchronizedMap(new TreeMap<>());
-    private Comparator<JEVisTreeItem> comperator;
-    private JEVisTreeFilter activFilter = null;
+    private final JEVisTree jeVisTree;
+    private final List<JEVisObject> roots;
+    private final List<JEVisTreeItem> treeObjectItems = Collections.synchronizedList(new ArrayList<>());
+    private final List<JEVisTreeItem> treeAttributeItems = Collections.synchronizedList(new ArrayList<>());
+    private final Map<JEVisObject, JEVisTreeItem> itemObjectLinker = Collections.synchronizedMap(new TreeMap<>());
+    private final Map<String, JEVisTreeItem> itemAttributeLinker = Collections.synchronizedMap(new TreeMap<>());
 
 
     /**
@@ -43,10 +40,9 @@ public class JEVisItemLoader {
      */
     public JEVisItemLoader(JEVisTree jeVisTree, List<JEVisObject> objects, List<JEVisObject> roots) {
         this.jeVisTree = jeVisTree;
-        this.allObjects = objects;
         this.roots = roots;
 
-        buildItems(this.allObjects);
+        buildItems(objects);
         buildItems(this.roots);
     }
 
@@ -58,7 +54,7 @@ public class JEVisItemLoader {
             try {
                 item.getChildren().clear();
                 item.setParentForFilter(false);
-                item.setFilterd(false);
+                item.setFiltered(false);
             } catch (Exception ex) {
             }
         }
@@ -67,7 +63,7 @@ public class JEVisItemLoader {
             try {
                 item.getChildren().clear();
                 item.setParentForFilter(false);
-                item.setFilterd(false);
+                item.setFiltered(false);
             } catch (Exception ex) {
             }
         }
@@ -76,7 +72,7 @@ public class JEVisItemLoader {
     public List<JEVisObject> getVisibleObjects() {
         List<JEVisObject> result = new ArrayList<>();
         for (JEVisTreeItem item : treeObjectItems) {
-            if (item.isFilterd() || item.isParentForFilter()) {
+            if (item.isFiltered() || item.isParentForFilter()) {
                 result.add(item.getValue().getJEVisObject());
             }
         }
@@ -105,19 +101,19 @@ public class JEVisItemLoader {
      *
      * @param objects
      */
-    public void buildItems(List<JEVisObject> objects) {
+    private void buildItems(List<JEVisObject> objects) {
 
         objects.parallelStream().forEach(object -> {
             try {
 //                logger.error("Create item for object: {}", object.getName());
-                JEVisTreeItem item = new JEVisTreeItem(jeVisTree, object);
+                JEVisTreeItem item = new JEVisTreeItem(object);
                 registerEventHandler(object);
                 treeObjectItems.add(item);
                 itemObjectLinker.put(object, item);
                 for (JEVisAttribute attribute : object.getAttributes()) {
                     try {
 //                        logger.error("Create item for attribute: {}", attribute.getName());
-                        JEVisTreeItem attributeItem = new JEVisTreeItem(jeVisTree, attribute);
+                        JEVisTreeItem attributeItem = new JEVisTreeItem(attribute);
                         treeAttributeItems.add(attributeItem);
                         itemAttributeLinker.put(attributeKey(attribute), attributeItem);
 //                        System.out.println("#### " + attributeKey(attribute) + " " + attribute);
@@ -170,14 +166,14 @@ public class JEVisItemLoader {
      *
      * @param object
      */
-    public void buildItems(JEVisObject object) {
+    private void buildItems(JEVisObject object) {
         List<JEVisObject> list = new ArrayList<>();
         list.add(object);
         buildItems(list);
 
         /** the new item is always visible **/
         JEVisTreeItem newItem = itemObjectLinker.get(object);
-        newItem.setFilterd(true);
+        newItem.setFiltered(true);
     }
 
     /**
@@ -201,7 +197,7 @@ public class JEVisItemLoader {
                 }
             }
         } catch (Exception ex) {
-            logger.error("Error while finding parents {}", object.getID(), ex);
+            logger.error("Error while finding parents {}", Objects.requireNonNull(object).getID(), ex);
         }
 
     }
@@ -225,7 +221,7 @@ public class JEVisItemLoader {
      * @return
      */
     public void filterTree(JEVisTreeFilter filter) {
-        this.activFilter = filter;
+        JEVisTreeFilter activFilter = filter;
         cleanFilter();
 //        Benchmark benchmark = new Benchmark();
 
@@ -235,7 +231,7 @@ public class JEVisItemLoader {
         for (JEVisTreeItem item : treeObjectItems) {
             boolean show = filter.showItem(item.getValue().getJEVisObject());
             if (show) {
-                item.setFilterd(true);
+                item.setFiltered(true);
                 parentCheck(neededParents, item.getValue().getJEVisObject());
             }
         }
@@ -247,7 +243,7 @@ public class JEVisItemLoader {
             try {
                 boolean show = filter.showItem(item.getValue().getJEVisAttribute());
                 if (show) {
-                    item.setFilterd(true);
+                    item.setFiltered(true);
 //                item.setParentForFilter(true);
                     parentCheck(neededParents, item.getValue().getJEVisObject());
                 }
@@ -270,7 +266,7 @@ public class JEVisItemLoader {
 //        benchmark.printBenchmarkDetail("find parents");
         /** build children lists **/
         for (JEVisTreeItem item : treeObjectItems) {
-            if ((item.isFilterd() || item.isParentForFilter()) && item.isObject()) {
+            if ((item.isFiltered() || item.isParentForFilter()) && item.isObject()) {
                 try {
                     update(item.getValue().getJEVisObject());
                 } catch (Exception ex) {
@@ -283,12 +279,12 @@ public class JEVisItemLoader {
 
         /** create an fake rootItem and add the root objects ad children if visible **/
         /** TODO: does not always work with all users. bug #455 **/
-        JEVisTreeItem rootItem = new JEVisTreeItem(jeVisTree);
+        JEVisTreeItem rootItem = new JEVisTreeItem();
         rootItem.setExpanded(true);
         for (JEVisObject rooObject : roots) {
             if (itemObjectLinker.containsKey(rooObject)) {
                 JEVisTreeItem rootChild = itemObjectLinker.get(rooObject);
-                if (rootChild.isFilterd() || rootChild.isParentForFilter()) {
+                if (rootChild.isFiltered() || rootChild.isParentForFilter()) {
                     rootItem.getChildren().add(rootChild);
                 } else {
                     logger.warn("Root is filtered out: {}", rooObject);
@@ -319,7 +315,7 @@ public class JEVisItemLoader {
                 /** add object children **/
                 if (itemObjectLinker.containsKey(objChild)) {
                     JEVisTreeItem itemChild = itemObjectLinker.get(objChild);
-                    if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
+                    if (itemChild.isParentForFilter() || itemChild.isFiltered()) {
                         newChildrenList.add(itemChild);
                     }
                 }
@@ -329,7 +325,7 @@ public class JEVisItemLoader {
 //                    System.out.println(" ~~~> " + attribute.getName());
                 if (itemAttributeLinker.containsKey(attributeKey(attribute))) {
                     JEVisTreeItem itemChild = itemAttributeLinker.get(attributeKey(attribute));
-                    if (itemChild.isParentForFilter() || itemChild.isFilterd()) {
+                    if (itemChild.isParentForFilter() || itemChild.isFiltered()) {
                         newChildrenList.add(itemChild);
                     }
                 }
@@ -348,11 +344,11 @@ public class JEVisItemLoader {
 
 
     /**
-     * Add the EventListeners to the JEVisObject to handel delete,update, new and so on
+     * Add the EventListeners to the JEVisObject to handle delete,update, new and so on
      *
      * @param object
      */
-    public void registerEventHandler(JEVisObject object) {
+    private void registerEventHandler(JEVisObject object) {
         /** TODO: an weak listener would be better **/
         object.addEventListener(event -> {
             logger.error("Object Event [{}]: object {}", event.getType(), object.getID());
@@ -378,7 +374,7 @@ public class JEVisItemLoader {
                     break;
                 case OBJECT_UPDATED:
                     JEVisTreeItem parentItem = itemObjectLinker.get(object);
-                    TreeItem.TreeModificationEvent<JEVisTreeItem> treeEvent = new TreeItem.TreeModificationEvent(JEVisTreeItem.valueChangedEvent(), parentItem);
+                    TreeItem.TreeModificationEvent<JEVisTreeRow> treeEvent = new TreeItem.TreeModificationEvent<>(JEVisTreeItem.valueChangedEvent(), parentItem);
                     Event.fireEvent(parentItem, treeEvent);
 
                     break;

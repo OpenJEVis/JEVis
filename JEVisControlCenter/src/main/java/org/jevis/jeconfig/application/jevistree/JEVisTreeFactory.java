@@ -71,7 +71,7 @@ public class JEVisTreeFactory {
             public void handle(KeyEvent t) {
                 logger.debug("TreeEvent: {} source: {}", t.getCode(), t.getSource());
 
-                final TreeItem<JEVisTreeRow> selectedObj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
+                final TreeItem<JEVisTreeRow> selectedObj = (TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem();
 
                 if (findNode.match(t)) {
 //                    TreeHelper.EventOpenObject(tree, findNode);
@@ -114,10 +114,10 @@ public class JEVisTreeFactory {
 
     public static JEVisTree buildBasicDefault(JEVisDataSource ds, JEVisTreeFilter filter) {
 
-        TreeTableColumn nameCol = ColumnFactory.buildName();
-        TreeTableColumn idCol = ColumnFactory.buildID();
-        TreeTableColumn minTS = ColumnFactory.buildDataTS(false);
-        TreeTableColumn maxTS = ColumnFactory.buildDataTS(true);
+        TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
+        TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
+        TreeTableColumn<JEVisTreeRow, String> minTS = ColumnFactory.buildDataTS(false);
+        TreeTableColumn<JEVisTreeRow, String> maxTS = ColumnFactory.buildDataTS(true);
 
         idCol.setVisible(false);
         minTS.setVisible(false);
@@ -140,12 +140,12 @@ public class JEVisTreeFactory {
 
     public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, GraphDataModel graphDataModel) {
 
-        TreeTableColumn nameCol = ColumnFactory.buildName();
+        TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(250);
-        TreeTableColumn idCol = ColumnFactory.buildID();
-        TreeTableColumn minTS = ColumnFactory.buildDataTS(false);
-        TreeTableColumn maxTS = ColumnFactory.buildDataTS(true);
+        TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
+        TreeTableColumn<JEVisTreeRow, String> minTS = ColumnFactory.buildDataTS(false);
+        TreeTableColumn<JEVisTreeRow, String> maxTS = ColumnFactory.buildDataTS(true);
 
         idCol.setVisible(false);
         minTS.setVisible(false);
