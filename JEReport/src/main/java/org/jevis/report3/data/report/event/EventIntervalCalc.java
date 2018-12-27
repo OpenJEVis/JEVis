@@ -51,11 +51,11 @@ public class EventIntervalCalc implements IntervalCalculator {
     @Override
     public void buildIntervals(JEVisObject reportObject) {
         try {
-            String startRecordString = samplesHandler.getLastSampleAsString(reportObject, "Start Record");
+            String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
             DateTime start = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
 
-            Long jevisId = samplesHandler.getLastSampleAsLong(reportObject, "JEVis ID");
-            String attributeName = samplesHandler.getLastSampleAsString(reportObject, "Attribute Name");
+            Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
+            String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
             DateTime lastDate = samplesHandler.getTimeStampFromLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
 

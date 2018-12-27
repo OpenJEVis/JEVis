@@ -145,19 +145,19 @@ public class ReportExecutor {
     public boolean isPeriodicConditionReached(JEVisObject reportObject, SampleHandler samplesHandler) {
 
         try {
-            String startRecordString = samplesHandler.getLastSampleAsString(reportObject, "Start Record");
+            String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
             DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
 
-            Boolean conditonEnabeld = samplesHandler.getLastSampleAsBoolean(reportObject, "Condition Enabled", false);
+            Boolean conditonEnabeld = samplesHandler.getLastSample(reportObject, "Condition Enabled", false);
             if (!conditonEnabeld) {
                 return true;
             }
 
-            String operator = samplesHandler.getLastSampleAsString(reportObject, "Operator");
+            String operator = samplesHandler.getLastSample(reportObject, "Operator", "");
             EventPrecondition.EventOperator eventOperator = EventPrecondition.EventOperator.getEventOperator(operator);
-            String limit = samplesHandler.getLastSampleAsString(reportObject, "Limit");
-            Long jevisId = samplesHandler.getLastSampleAsLong(reportObject, "JEVis ID");
-            String attributeName = samplesHandler.getLastSampleAsString(reportObject, "Attribute Name");
+            String limit = samplesHandler.getLastSample(reportObject, "Limit", "");
+            Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
+            String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
             String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", ReportProperty.ReportSchedule.DAILY.toString());
             ReportProperty.ReportSchedule schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());

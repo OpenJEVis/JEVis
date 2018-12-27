@@ -463,6 +463,10 @@ public class JEVisClassWS implements JEVisClass {
     @Override
     public boolean equals(Object o) {
         try {
+            /**
+             * cast needs to be removed
+             */
+
             if (o instanceof JEVisClass) {
                 JEVisClass obj = (JEVisClass) o;
                 if (obj.getName().equals(getName())) {

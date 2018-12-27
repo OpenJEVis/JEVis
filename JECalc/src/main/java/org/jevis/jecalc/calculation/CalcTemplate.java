@@ -10,6 +10,8 @@ import net.sourceforge.jeval.Evaluator;
 import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
 
+import java.util.Objects;
+
 /**
  *
  * @author broder
@@ -35,7 +37,7 @@ public class CalcTemplate {
 
         Double returnVal = null;
         try {
-            returnVal = Double.parseDouble(value);
+            returnVal = Double.parseDouble(Objects.requireNonNull(value));
 
             returnVal = Precision.round(returnVal, 12);
 

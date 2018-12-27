@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class Launcher extends AbstractCliApp {
 
-    public static final String APP_INFO = "JEDataCollector";
+    private static final String APP_INFO = "JEDataCollector";
     private final String APP_SERVICE_CLASS_NAME = "JEDataCollector";
     public static String KEY = "process-id";
     private static final Logger logger = LogManager.getLogger(Launcher.class);
@@ -58,7 +58,7 @@ public class Launcher extends AbstractCliApp {
      *
      * @param dataSources
      */
-    private void excecuteDataSources(List<JEVisObject> dataSources) {
+    private void executeDataSources(List<JEVisObject> dataSources) {
 
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
@@ -126,7 +126,7 @@ public class Launcher extends AbstractCliApp {
             JEVisObject dataSourceObject = ds.getObject(id);
             List<JEVisObject> jeVisObjectList = new ArrayList<>();
             jeVisObjectList.add(dataSourceObject);
-            excecuteDataSources(jeVisObjectList);
+            executeDataSources(jeVisObjectList);
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -147,7 +147,7 @@ public class Launcher extends AbstractCliApp {
         if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
             logger.info("Service is enabled.");
             List<JEVisObject> dataSources = getEnabledDataSources(ds);
-            excecuteDataSources(dataSources);
+            executeDataSources(dataSources);
         } else {
             logger.info("Service is disabled.");
         }
@@ -168,7 +168,7 @@ public class Launcher extends AbstractCliApp {
         logger.info("Start Compete Mode");
         List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
         dataSources = getEnabledDataSources(ds);
-        excecuteDataSources(dataSources);
+        executeDataSources(dataSources);
     }
 
 
@@ -180,7 +180,7 @@ public class Launcher extends AbstractCliApp {
             List<JEVisObject> allDataSources = client.getObjects(dataSourceClass, true);
             for (JEVisObject dataSource : allDataSources) {
                 try {
-                    Boolean enabled = sampleHandler.getLastSampleAsBoolean(dataSource, DataCollectorTypes.DataSource.ENABLE, false);
+                    Boolean enabled = sampleHandler.getLastSample(dataSource, DataCollectorTypes.DataSource.ENABLE, false);
                     if (enabled && DataSourceFactory.containDataSource(dataSource)) {
                         enabledDataSources.add(dataSource);
                     }

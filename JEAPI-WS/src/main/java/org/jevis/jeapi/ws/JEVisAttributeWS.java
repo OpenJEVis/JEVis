@@ -172,6 +172,9 @@ public class JEVisAttributeWS implements JEVisAttribute {
         }
         ds.reloadAttribute(this);
 
+        /**
+         * cast needs to be removed
+         */
         JEVisObjectWS obj = (JEVisObjectWS) getObject();
         obj.notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.ATTRIBUTE_UPDATE));
 
@@ -462,6 +465,9 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public boolean equals(Object otherObject) {
+        /**
+         * cast needs to be removed
+         */
         if (otherObject instanceof JEVisAttribute) {
             JEVisAttribute otherAttribute = (JEVisAttribute) otherObject;
             if (otherAttribute.getObjectID().equals(getObjectID())) {

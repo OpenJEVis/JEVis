@@ -97,9 +97,7 @@ public class JEVisSOAPDataSource implements DataSource {
         initializeChannelObjects(soapObject);
 
         _importer = ImporterFactory.getImporter(_dataSource);
-        if (_importer != null) {
-            _importer.initialize(_dataSource);
-        }
+        _importer.initialize(_dataSource);
 
     }
 

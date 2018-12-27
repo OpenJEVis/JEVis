@@ -28,24 +28,17 @@ import java.util.List;
 public class sFTPDataSource implements DataSource {
     private static final Logger logger = LogManager.getLogger(sFTPDataSource.class);
 
-    private Long _id;
-    private String _name;
     private String _serverURL;
     private Integer _port;
-    private Integer _connectionTimeout;
-    private Integer _readTimeout;
     private String _userName;
     private String _password;
     private Boolean _ssl = false;
     private DateTimeZone _timezone;
-    private Boolean _enabled;
     protected FTPClient _fc;
     private Parser _parser;
     private Importer _importer;
     private List<JEVisObject> _channels;
     private List<Result> _result;
-
-    private JEVisObject _dataSource;
 
     private ChannelSftp _channel;
     private Session _session;
@@ -97,14 +90,11 @@ public class sFTPDataSource implements DataSource {
 
     @Override
     public void initialize(JEVisObject ftpObject) {
-        _dataSource = ftpObject;
         initializeAttributes(ftpObject);
         initializeChannelObjects(ftpObject);
 
-        _importer = ImporterFactory.getImporter(_dataSource);
-        if (_importer != null) {
-            _importer.initialize(_dataSource);
-        }
+        _importer = ImporterFactory.getImporter(ftpObject);
+        _importer.initialize(ftpObject);
 
     }
 
@@ -139,7 +129,7 @@ public class sFTPDataSource implements DataSource {
             JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.PATH);
             String filePath = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
-            DateTime lastReadout = new DateTime(2001, 01, 01, 0, 0, 0, 0);
+            DateTime lastReadout = new DateTime(2001, 1, 1, 0, 0, 0, 0);
             try {
                 lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, JEVisDates.DEFAULT_DATE_FORMAT);
             } catch (Exception e) {
@@ -207,8 +197,8 @@ public class sFTPDataSource implements DataSource {
             JEVisType timezoneType = sftpType.getType(DataCollectorTypes.DataSource.DataServer.sFTP.TIMEZONE);
             JEVisType enableType = sftpType.getType(DataCollectorTypes.DataSource.DataServer.ENABLE);
 
-            _id = sftpObject.getID();
-            _name = sftpObject.getName();
+            Long _id = sftpObject.getID();
+            String _name = sftpObject.getName();
             _serverURL = DatabaseHelper.getObjectAsString(sftpObject, server);
             JEVisAttribute portAttr = sftpObject.getAttribute(port);
             if (!portAttr.hasSample()) {
@@ -217,8 +207,8 @@ public class sFTPDataSource implements DataSource {
                 _port = DatabaseHelper.getObjectAsInteger(sftpObject, port);
             }
 
-            _connectionTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, connectionTimeout);
-            _readTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, readTimeout);
+            Integer _connectionTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, connectionTimeout);
+            Integer _readTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, readTimeout);
             //            if (node.getAttribute(maxRequest).hasSample()) {
             //                _maximumDayRequest = Integer.parseInt((String) node.getAttribute(maxRequest).getLatestSample().getValue());
             //            }
@@ -237,7 +227,7 @@ public class sFTPDataSource implements DataSource {
 
             String timezoneString = DatabaseHelper.getObjectAsString(sftpObject, timezoneType);
             _timezone = DateTimeZone.forID(timezoneString);
-            _enabled = DatabaseHelper.getObjectAsBoolean(sftpObject, enableType);
+            Boolean _enabled = DatabaseHelper.getObjectAsBoolean(sftpObject, enableType);
         } catch (JEVisException ex) {
             logger.error(ex);
         }

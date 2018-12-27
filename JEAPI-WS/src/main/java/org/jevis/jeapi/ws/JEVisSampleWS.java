@@ -19,7 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import org.apache.commons.validator.routines.LongValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -30,6 +29,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -99,8 +100,18 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public Long getValueAsLong() {
-        LongValidator validator = LongValidator.getInstance();
-        return validator.validate(getValueAsString(), Locale.US);
+        /**
+         * LongValidator validator = LongValidator.getInstance();
+         * changed for number format for memory persistence
+         */
+        NumberFormat nf = NumberFormat.getInstance(Locale.US);
+        Long result = null;
+        try {
+            result = nf.parse(getValueAsString()).longValue();
+        } catch (ParseException e) {
+            logger.error("Couldn't parse value to long");
+        }
+        return result;
     }
 
     @Override

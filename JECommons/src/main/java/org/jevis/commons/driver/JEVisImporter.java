@@ -137,17 +137,17 @@ public class JEVisImporter implements Importer {
                 }
             }
 
-            String errorIDs = "";
+            StringBuilder errorIDs = new StringBuilder();
             for (Long targetError : targetErrors) {
-                errorIDs += targetError + ",";
+                errorIDs.append(targetError).append(",");
                 logger.info("Erroneously target configurations for: [" + errorIDs + "]");
             }
 
-            String okIDs = "";
+            StringBuilder okIDs = new StringBuilder();
             for (Map.Entry<Long, JEVisAttribute> entrySet : targets.entrySet()) {
                 Long key = entrySet.getKey();
                 JEVisAttribute value = entrySet.getValue();
-                okIDs += key + ",";
+                okIDs.append(key).append(",");
                 logger.info("Failed target configurations for: [" + okIDs + "]");
             }
 
@@ -218,7 +218,9 @@ public class JEVisImporter implements Importer {
                     logger.fatal("Unexpected error while import: " + ex);
                 }
             }
-            return lastTSTotal.withZone(_timezone);
+            if (lastTSTotal != null) {
+                return lastTSTotal.withZone(_timezone);
+            }
 
         } catch (Exception ex) {
             logger.fatal(ex);

@@ -26,8 +26,6 @@ import java.util.List;
 public class FTPDataSource implements DataSource {
 
     private static final Logger logger = LogManager.getLogger(FTPDataSource.class);
-    private Long _id;
-    private String _name;
     private String _serverURL;
     private Integer _port;
     private Integer _connectionTimeout;
@@ -36,14 +34,10 @@ public class FTPDataSource implements DataSource {
     private String _password;
     private Boolean _ssl = false;
     private DateTimeZone _timezone;
-    private Boolean _enabled;
-    protected FTPClient _fc;
     private Parser _parser;
     private Importer _importer;
     private List<JEVisObject> _channels;
     private List<Result> _result;
-
-    private JEVisObject _dataSource;
 
     @Override
     public void parse(List<InputStream> input) {
@@ -91,14 +85,11 @@ public class FTPDataSource implements DataSource {
 
     @Override
     public void initialize(JEVisObject ftpObject) {
-        _dataSource = ftpObject;
         initializeAttributes(ftpObject);
         initializeChannelObjects(ftpObject);
 
-        _importer = ImporterFactory.getImporter(_dataSource);
-        if (_importer != null) {
-            _importer.initialize(_dataSource);
-        }
+        _importer = ImporterFactory.getImporter(ftpObject);
+        _importer.initialize(ftpObject);
 
     }
 
@@ -106,6 +97,7 @@ public class FTPDataSource implements DataSource {
     public List<InputStream> sendSampleRequest(JEVisObject channel) {
         List<InputStream> answerList = new ArrayList<InputStream>();
         try {
+            FTPClient _fc;
             if (_ssl) {
                 logger.info("ftps connection");
                 _fc = new FTPSClient();
@@ -115,16 +107,16 @@ public class FTPDataSource implements DataSource {
 //            _fc.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out), true));
 
             if (_connectionTimeout != 0) {
-                _fc.setConnectTimeout(_connectionTimeout.intValue() * 1000);
+                _fc.setConnectTimeout(_connectionTimeout * 1000);
             }
             if (_readTimeout != 0) {
-                _fc.setDataTimeout(_readTimeout.intValue() * 1000);
+                _fc.setDataTimeout(_readTimeout * 1000);
             }
 
             _fc.connect(_serverURL, _port);
 //            _fc.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
 
-            if (_fc.login(_userName, _password) == false) {
+            if (!_fc.login(_userName, _password)) {
                 logger.error("No Login possible");
 //                throw new FetchingException(_id, FetchingExceptionType.CONNECTION_ERROR);
             }
@@ -190,8 +182,8 @@ public class FTPDataSource implements DataSource {
             JEVisType timezoneType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.FTP.TIMEZONE);
             JEVisType enableType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.ENABLE);
 
-            _name = ftpObject.getName();
-            _id = ftpObject.getID();
+            String _name = ftpObject.getName();
+            Long _id = ftpObject.getID();
             _ssl = DatabaseHelper.getObjectAsBoolean(ftpObject, sslType);
             _serverURL = DatabaseHelper.getObjectAsString(ftpObject, serverType);
             _port = DatabaseHelper.getObjectAsInteger(ftpObject, portType);
@@ -216,7 +208,7 @@ public class FTPDataSource implements DataSource {
             }
             String timezoneString = DatabaseHelper.getObjectAsString(ftpObject, timezoneType);
             _timezone = DateTimeZone.forID(timezoneString);
-            _enabled = DatabaseHelper.getObjectAsBoolean(ftpObject, enableType);
+            Boolean _enabled = DatabaseHelper.getObjectAsBoolean(ftpObject, enableType);
 
         } catch (JEVisException ex) {
             logger.error(ex);

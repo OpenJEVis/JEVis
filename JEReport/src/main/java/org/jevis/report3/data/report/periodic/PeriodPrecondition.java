@@ -19,6 +19,7 @@ import org.joda.time.format.DateTimeFormat;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author broder
@@ -37,14 +38,14 @@ public class PeriodPrecondition implements Precondition {
 
         String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", ReportProperty.ReportSchedule.DAILY.toString());
         ReportProperty.ReportSchedule schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
-        String startRecordString = samplesHandler.getLastSampleAsString(reportObject, "Start Record");
+        String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
         DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule);
 
-        String operator = samplesHandler.getLastSampleAsString(reportObject, "Operator");
-        String limit = samplesHandler.getLastSampleAsString(reportObject, "Limit");
-        Long jevisId = samplesHandler.getLastSampleAsLong(reportObject, "JEVis ID");
-        String attributeName = samplesHandler.getLastSampleAsString(reportObject, "Attribute Name");
+        String operator = samplesHandler.getLastSample(reportObject, "Operator", "");
+        String limit = samplesHandler.getLastSample(reportObject, "Limit", "");
+        Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
+        String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
         boolean isFulfilled = true;
 
@@ -60,7 +61,7 @@ public class PeriodPrecondition implements Precondition {
                 e.printStackTrace();
             }
 
-            for (JEVisSample sample : samplesInPeriod) {
+            for (JEVisSample sample : Objects.requireNonNull(samplesInPeriod)) {
 
                 String value = null;
                 try {
@@ -69,7 +70,7 @@ public class PeriodPrecondition implements Precondition {
                     e.printStackTrace();
                 }
 
-                isFulfilled = eventOperator.isFulfilled(value, limit);
+                isFulfilled = Objects.requireNonNull(eventOperator).isFulfilled(value, limit);
 
                 if (isFulfilled) break;
             }

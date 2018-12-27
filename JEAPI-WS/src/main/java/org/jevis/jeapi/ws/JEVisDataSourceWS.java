@@ -156,7 +156,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      */
     @Override
     public List<JEVisAttribute> getAttributes() throws JEVisException {
-        logger.error("Get all attributes Objects");
+        logger.debug("Get all attributes Objects");
 
         try {
 
@@ -175,7 +175,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 Type listType = new TypeToken<List<JsonAttribute>>() {
                 }.getType();
                 List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
-                logger.error("JsonAttribute.count: {}", jsons.size());
+                logger.debug("JsonAttribute.count: {}", jsons.size());
 
 
                 for (JsonAttribute jsonAttribute : jsons) {
@@ -187,7 +187,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                         logger.error("Error while parsing attribute: {}", ex.getMessage());
                     }
                 }
-                logger.error("Done parsing attributes");
+                logger.debug("Done parsing attributes");
 
                 /**
                  * TODO:
@@ -268,7 +268,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisObject> getObjects() {
-        logger.error("getObjects");
+        logger.debug("getObjects");
         if (!objectLoaded) {
             getObjectsWS();
             objectLoaded = true;
@@ -280,6 +280,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     private void updateObject(JsonObject jsonObj) {
         if (objectCache.containsKey(jsonObj.getId())) {
+            /**
+             * cast needs to be removed
+             */
             ((JEVisObjectWS) objectCache.get(jsonObj.getId())).update(jsonObj);
         } else {
             JEVisObjectWS newOBject = new JEVisObjectWS(this, jsonObj);
@@ -304,7 +307,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             Type listType = new TypeToken<List<JsonObject>>() {
             }.getType();
             List<JsonObject> jsons = gson.fromJson(response.toString(), listType);
-            logger.error("JsonObject.count: {}", jsons.size());
+            logger.debug("JsonObject.count: {}", jsons.size());
             for (JsonObject obj : jsons) {
                 try {
                     updateObject(obj);
@@ -330,7 +333,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisRelationship> getRelationships() {
-        logger.error("getRelationships");
+        logger.debug("getRelationships");
         if (!orLoaded) {
 
             objectRelMapCache.clear();
@@ -413,7 +416,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public List<JEVisRelationship> getRelationshipsWS() {
-        logger.error("Get ALL RelationshipsWS");
+        logger.debug("Get ALL RelationshipsWS");
         try {
 //            Benchmark bm = new Benchmark();
             List<JEVisRelationship> relationships = Collections.synchronizedList(new ArrayList<>());
@@ -472,7 +475,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public void reloadAttributes() throws JEVisException {
-        logger.warn("Complete attribute reload");
+        logger.debug("Complete attribute reload");
 //        attributeCache.clear();
         allAttributesPreloaded = false;
     }
@@ -480,7 +483,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void reloadAttribute(JEVisAttribute attribute) {
         try {
-            logger.warn("Reload Attribute: {}", attribute);
+            logger.debug("Reload Attribute: {}", attribute);
             getAttributesFromWS(attribute.getObjectID());
         } catch (Exception ex) {
             logger.error("Error, can not reload attribute", ex);
@@ -499,7 +502,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
 
     private List<JEVisAttribute> getAttributesFromWS(long objectID) {
-        logger.error("Get attribute from Webservice: {}", objectID);
+        logger.debug("Get attribute from Webservice: {}", objectID);
         List<JEVisAttribute> attributes = new ArrayList<>();
 
         StringBuffer response = new StringBuffer();
@@ -575,6 +578,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         if (attributeCache.containsKey(jSonAttribute.getObjectID())) {
             for (JEVisAttribute att : attributeCache.get(jSonAttribute.getObjectID())) {
                 if (att.getName().equals(jSonAttribute.getType())) {
+                    /**
+                     * cast needs to be removed
+                     */
                     ((JEVisAttributeWS) att).update(jSonAttribute);
                     logger.debug("Update existing att: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
                     return att;
@@ -636,7 +642,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public synchronized void reloadRelationships() {
-        logger.error("reloadRelationships()");
+        logger.debug("reloadRelationships()");
         orLoaded = false;
         if (this.user != null) {
             this.user.reload();
@@ -1075,6 +1081,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
 
             if (objectCache.containsKey(json.getId())) {
+                /**
+                 * cast needs to be removed
+                 */
                 ((JEVisObjectWS) objectCache.get(json.getId())).update(json);
                 return objectCache.get(json.getId());
             } else {
@@ -1250,9 +1259,12 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             getJEVisClasses();
             benchmark.printBenchmarkDetail("Preload - Classes");
             Optimization.getInstance().printStatistics();
+            /**
+             * removed until integration of class icon cache
+             */
             //getClassIcon();
-            benchmark.printBenchmarkDetail("Preload - Icons");
-            Optimization.getInstance().printStatistics();
+            //benchmark.printBenchmarkDetail("Preload - Icons");
+            //Optimization.getInstance().printStatistics();
             getObjects();
             benchmark.printBenchmarkDetail("Preload - Objects");
             Optimization.getInstance().printStatistics();
@@ -1275,8 +1287,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
             Type listType = new TypeToken<List<JsonI18nClass>>() {
             }.getType();
-            List<JsonI18nClass> jsons = gson.fromJson(response.toString(), listType);
-            return jsons;
+            return gson.fromJson(response.toString(), listType);
 
         } catch (Exception ex) {
             logger.fatal(ex);

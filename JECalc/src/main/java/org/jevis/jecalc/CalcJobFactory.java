@@ -18,6 +18,7 @@ import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author broder
@@ -42,7 +43,7 @@ class CalcJobFactory {
         long calcObjID = jevisObject.getID();
         logger.info("Create calc job for object with jevis id {}", calcObjID);
 
-        String expression = sampleHandler.getLastSampleAsString(jevisObject, Calculation.EXPRESSION.getName());
+        String expression = sampleHandler.getLastSample(jevisObject, Calculation.EXPRESSION.getName(), "");
         List<JEVisAttribute> outputAttributes = getAllOutputAttributes(jevisObject);
 
         DateTime startTime;
@@ -107,7 +108,7 @@ class CalcJobFactory {
 
                     if (startTime == null) ts = smp.getTimestamp().plus(valueAttribute.getInputSampleRate());
 
-                    if (!ts.equals(ultimateStart)) startTime = ts;
+                    if (!Objects.requireNonNull(ts).equals(ultimateStart)) startTime = ts;
                 } else {
                     if (startTime == null) {
                         startTime = ultimateStart;
@@ -136,7 +137,7 @@ class CalcJobFactory {
              * check needed for empty data rows
              */
 
-            if (startTime.equals(ultimateStart)) {
+            if (Objects.requireNonNull(startTime).equals(ultimateStart)) {
                 if (!startTimeFromInputs.equals(ultimateStart))
                     startTime = startTimeFromInputs;
             }

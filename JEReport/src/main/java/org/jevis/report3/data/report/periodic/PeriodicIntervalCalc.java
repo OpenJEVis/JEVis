@@ -53,7 +53,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         this.reportObject = reportObject;
         String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", ReportProperty.ReportSchedule.DAILY.toString());
         ReportProperty.ReportSchedule schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
-        String startRecordString = samplesHandler.getLastSampleAsString(reportObject, "Start Record");
+        String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         DateTime start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
         for (PeriodMode mode : PeriodMode.values()) {
             DateTime startRecord = calcStartRecord(start, schedule, mode);

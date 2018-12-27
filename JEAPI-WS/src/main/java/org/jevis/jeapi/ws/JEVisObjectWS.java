@@ -372,7 +372,7 @@ public class JEVisObjectWS implements JEVisObject {
             //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
 
             JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
-            logger.error("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
+            logger.debug("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
 
             ds.reloadRelationships();
@@ -427,6 +427,9 @@ public class JEVisObjectWS implements JEVisObject {
     public boolean equals(Object o) {
         try {
             if (o instanceof JEVisObject) {
+                /**
+                 * cast needs to be removed
+                 */
                 JEVisObject obj = (JEVisObject) o;
                 if (obj.getID().equals(getID())) {
                     return true;
