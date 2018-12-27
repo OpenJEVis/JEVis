@@ -132,7 +132,7 @@ public class CalcLauncher extends AbstractCliApp {
         List<JEVisObject> enabledObjects = new ArrayList<>();
         SampleHandler sampleHandler = new SampleHandler();
         for (JEVisObject curObj : jevisCalcObjects) {
-            Boolean valueAsBoolean = sampleHandler.getLastSampleAsBoolean(curObj, CalcJobFactory.Calculation.ENABLED.getName(), false);
+            Boolean valueAsBoolean = sampleHandler.getLastSample(curObj, CalcJobFactory.Calculation.ENABLED.getName(), false);
             if (valueAsBoolean) {
                 enabledObjects.add(curObj);
             }

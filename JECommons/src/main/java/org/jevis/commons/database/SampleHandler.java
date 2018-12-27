@@ -50,14 +50,14 @@ public class SampleHandler {
         return period;
     }
 
-    public Boolean getLastSampleAsBoolean(JEVisObject object, String attributeName, boolean defaultValue) {
+    public Boolean getLastSample(JEVisObject object, String attributeName, boolean defaultValue) {
         boolean lastBoolean = defaultValue;
         try {
             JEVisAttribute attribute = object.getAttribute(attributeName);
             if (attribute != null) {
                 JEVisSample lastSample = attribute.getLatestSample();
                 if (lastSample != null) {
-                    lastBoolean = lastSample.getValueAsBoolean();
+                    lastBoolean = getValue(lastSample, defaultValue);
                 }
             }
         } catch (JEVisException ex) {
@@ -66,8 +66,8 @@ public class SampleHandler {
         return lastBoolean;
     }
 
-    public <T> T getLastSample(JEVisObject object, String attributeName, T defaultValue) {
-        T lastValue = defaultValue;
+    public Double getLastSample(JEVisObject object, String attributeName, Double defaultValue) {
+        Double lastValue = defaultValue;
         try {
             JEVisAttribute attribute = object.getAttribute(attributeName);
             if (attribute != null) {
@@ -82,14 +82,14 @@ public class SampleHandler {
         return lastValue;
     }
 
-    public String getLastSampleAsString(JEVisObject object, String attributeName) {
-        String lastString = null;
+    public String getLastSample(JEVisObject object, String attributeName, String defaultValue) {
+        String lastString = defaultValue;
         try {
             JEVisAttribute attribute = object.getAttribute(attributeName);
             if (attribute != null) {
                 JEVisSample lastSample = attribute.getLatestSample();
                 if (lastSample != null) {
-                    lastString = lastSample.getValueAsString();
+                    lastString = getValue(lastSample, defaultValue);
                 }
             }
         } catch (JEVisException ex) {
@@ -98,40 +98,112 @@ public class SampleHandler {
         return lastString;
     }
 
-    public JEVisFile getLastSampleAsFile(JEVisObject object, String attributeName) {
-        JEVisFile lastString = null;
+    public Long getLastSample(JEVisObject object, String attributeName, Long defaultValue) {
+        Long lastValue = defaultValue;
         try {
             JEVisAttribute attribute = object.getAttribute(attributeName);
             if (attribute != null) {
                 JEVisSample lastSample = attribute.getLatestSample();
                 if (lastSample != null) {
-                    lastString = lastSample.getValueAsFile();
+                    lastValue = getValue(lastSample, defaultValue);
                 }
             }
         } catch (JEVisException ex) {
             logger.error(ex);
         }
-        return lastString;
+        return lastValue;
     }
 
-    private <T> T getValue(JEVisSample lastSample, T defaultValue) {
-        T value = defaultValue;
+    public Object getLastSample(JEVisObject object, String attributeName, Object defaultValue) {
+        Object lastValue = defaultValue;
         try {
-            if (defaultValue.getClass().equals(String.class)) {
-                value = (T) lastSample.getValueAsString();
-            } else if (defaultValue.getClass().equals(Boolean.class)) {
-                value = (T) lastSample.getValueAsBoolean();
-            } else if (defaultValue.getClass().equals(Double.class)) {
-                value = (T) lastSample.getValueAsDouble();
-            } else if (defaultValue.getClass().equals(Long.class)) {
-                value = (T) lastSample.getValueAsLong();
-            } else {
-                value = (T) lastSample.getValue();
+            JEVisAttribute attribute = object.getAttribute(attributeName);
+            if (attribute != null) {
+                JEVisSample lastSample = attribute.getLatestSample();
+                if (lastSample != null) {
+                    lastValue = getValue(lastSample, defaultValue);
+                }
             }
         } catch (JEVisException ex) {
             logger.error(ex);
         }
-        return value;
+        return lastValue;
+    }
+
+    public JEVisFile getLastSample(JEVisObject object, String attributeName, JEVisFile defaultValue) {
+        JEVisFile lastValue = defaultValue;
+        try {
+            JEVisAttribute attribute = object.getAttribute(attributeName);
+            if (attribute != null) {
+                JEVisSample lastSample = attribute.getLatestSample();
+                if (lastSample != null) {
+                    lastValue = getValue(lastSample, defaultValue);
+                }
+            }
+        } catch (JEVisException ex) {
+            logger.error(ex);
+        }
+        return lastValue;
+    }
+
+    private String getValue(JEVisSample lastSample, String defaultValue) {
+        try {
+            return lastSample.getValueAsString();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+            logger.error(e);
+        }
+        return null;
+    }
+
+    private Boolean getValue(JEVisSample lastSample, Boolean defaultValue) {
+        try {
+            return lastSample.getValueAsBoolean();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+            logger.error(e);
+        }
+        return false;
+    }
+
+    private Double getValue(JEVisSample lastSample, Double defaultValue) {
+        try {
+            return lastSample.getValueAsDouble();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+            logger.error(e);
+        }
+        return null;
+    }
+
+    private Long getValue(JEVisSample lastSample, Long defaultValue) {
+        try {
+            return lastSample.getValueAsLong();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+            logger.error(e);
+        }
+        return null;
+    }
+
+    private Object getValue(JEVisSample lastSample, Object defaultValue) {
+        try {
+            return lastSample.getValue();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+            logger.error(e);
+        }
+        return null;
+    }
+
+    private JEVisFile getValue(JEVisSample lastSample, JEVisFile defaultValue) {
+        try {
+            return lastSample.getValueAsFile();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+            logger.error(e);
+        }
+        return null;
     }
 
     public DateTime getTimeStampFromLastSample(JEVisObject object, String attributeName) {
@@ -217,38 +289,6 @@ public class SampleHandler {
             logger.error(ex);
         }
         return samples;
-    }
-
-    public Object getLastSample(JEVisObject jevisObject, String attributeName) {
-        Object lastObject = null;
-        try {
-            JEVisAttribute attribute = jevisObject.getAttribute(attributeName);
-            if (attribute != null) {
-                JEVisSample lastSample = attribute.getLatestSample();
-                if (lastSample != null) {
-                    lastObject = lastSample.getValue();
-                }
-            }
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
-        return lastObject;
-    }
-
-    public Long getLastSampleAsLong(JEVisObject jevisObject, String attributeName) {
-        Long lastObject = null;
-        try {
-            JEVisAttribute attribute = jevisObject.getAttribute(attributeName);
-            if (attribute != null) {
-                JEVisSample lastSample = attribute.getLatestSample();
-                if (lastSample != null) {
-                    lastObject = lastSample.getValueAsLong();
-                }
-            }
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
-        return lastObject;
     }
 
     public void importData(List<JEVisSample> aggregatedData, JEVisAttribute attribute) {

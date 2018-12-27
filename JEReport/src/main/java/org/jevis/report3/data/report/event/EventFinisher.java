@@ -36,9 +36,9 @@ public class EventFinisher implements Finisher {
     public void finishReport(Report report, ReportProperty property) {
         try {
             JEVisObject reportObject = property.getReportObject();
-            
-            Long jevisId = samplesHandler.getLastSampleAsLong(reportObject, "JEVis ID");
-            String attributeName = samplesHandler.getLastSampleAsString(reportObject, "Attribute Name");
+
+            Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
+            String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
             DateTime lastDate = samplesHandler.getTimeStampFromLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
             String newStartTimeString = lastDate.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));

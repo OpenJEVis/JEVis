@@ -4,8 +4,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.*;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Arrays.asList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import static org.joda.time.DurationFieldType.*;
 
 /**
@@ -63,17 +64,14 @@ public class PeriodArithmetic {
     }
 
     private static long toAverageMillis(Period period) {
-        final Iterable<Long> milliValues = from(asList(period.getFieldTypes())).transform(toAverageMillisForFieldType(period));
+        final Iterable<Long> milliValues = Arrays.stream(period.getFieldTypes()).map(toAverageMillisForFieldType(period)).collect(Collectors.toList());
         return total(milliValues);
     }
 
-    private static Function<DurationFieldType, Long> toAverageMillisForFieldType(final Period period) {
-        return new Function<DurationFieldType, Long>() {
-            @Override
-            public Long apply(DurationFieldType durationFieldType) {
-                final Long averageDuration = averageLengthMillis.get(durationFieldType);
-                return period.get(durationFieldType) * averageDuration;
-            }
+    private static java.util.function.Function<DurationFieldType, Long> toAverageMillisForFieldType(final Period period) {
+        return (Function<DurationFieldType, Long>) durationFieldType -> {
+            final Long averageDuration = averageLengthMillis.get(durationFieldType);
+            return period.get(durationFieldType) * averageDuration;
         };
     }
 

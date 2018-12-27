@@ -136,7 +136,6 @@ public class JEVisHTTPDataSource implements DataSource {
     private List<JEVisObject> _channels;
     private List<Result> _result;
 
-    private JEVisObject _dataSource;
     private HTTPDataSource _httpdatasource;
 
     @Override
@@ -165,14 +164,11 @@ public class JEVisHTTPDataSource implements DataSource {
 
     @Override
     public void initialize(JEVisObject httpObject) {
-        _dataSource = httpObject;
         initializeAttributes(httpObject);
         initializeChannelObjects(httpObject);
 
-        _importer = ImporterFactory.getImporter(_dataSource);
-        if (_importer != null) {
-            _importer.initialize(_dataSource);
-        }
+        _importer = ImporterFactory.getImporter(httpObject);
+        _importer.initialize(httpObject);
 
     }
 

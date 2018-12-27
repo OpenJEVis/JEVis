@@ -41,14 +41,14 @@ public class EventPrecondition implements Precondition {
     public boolean isPreconditionReached(JEVisObject reportObject) {
 
         try {
-            String startRecordString = samplesHandler.getLastSampleAsString(reportObject, "Start Record");
+            String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
             DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
 
-            String operator = samplesHandler.getLastSampleAsString(reportObject, "Operator");
+            String operator = samplesHandler.getLastSample(reportObject, "Operator", "");
             EventOperator eventOperator = EventOperator.getEventOperator(operator);
-            String limit = samplesHandler.getLastSampleAsString(reportObject, "Limit");
-            Long jevisId = samplesHandler.getLastSampleAsLong(reportObject, "JEVis ID");
-            String attributeName = samplesHandler.getLastSampleAsString(reportObject, "Attribute Name");
+            String limit = samplesHandler.getLastSample(reportObject, "Limit", "");
+            Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
+            String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, new DateTime());
 

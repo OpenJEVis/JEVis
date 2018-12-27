@@ -52,7 +52,7 @@ public class PeriodFinisher implements Finisher {
     private void parseDates(JEVisObject reportObject) {
         String scheduleString = sampleHandler.getLastSample(reportObject, "Schedule", ReportProperty.ReportSchedule.DAILY.toString());
         schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
-        String startRecordString = sampleHandler.getLastSampleAsString(reportObject, "Start Record");
+        String startRecordString = sampleHandler.getLastSample(reportObject, "Start Record", "");
         startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
         endRecord = DateHelper.calcEndRecord(startRecord, schedule);
     }

@@ -214,11 +214,9 @@ public class HTTPConnection {
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
-            byte[] bytes = IOUtils.toByteArray(conn.getInputStream());
+            //            JEVisFile jf = new JEVisFileImp("tmp.file", bytes);//filename comes from the samples
 
-//            JEVisFile jf = new JEVisFileImp("tmp.file", bytes);//filename comes from the samples
-
-            return bytes;
+            return IOUtils.toByteArray(conn.getInputStream());
 
         } else {
             return null;

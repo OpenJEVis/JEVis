@@ -50,7 +50,7 @@ public class CalcInputObject {
     }
 
 
-    public List<JEVisSample> buildSamplesFromInputType(JEVisAttribute valueAttribute, InputType inputType, DateTime startTime, DateTime endTime) {
+    public void buildSamplesFromInputType(JEVisAttribute valueAttribute, InputType inputType, DateTime startTime, DateTime endTime) {
 
         List<JEVisSample> returnSamples = new ArrayList<>();
         switch (inputType) {
@@ -72,6 +72,5 @@ public class CalcInputObject {
         }
         this.samples = returnSamples;
 
-        return samples;
     }
 }

@@ -200,6 +200,9 @@ public class JEVisTypeWS implements JEVisType {
             if (getClass() != obj.getClass()) {
                 return false;
             }
+            /**
+             * cast needs to be removed
+             */
             final JEVisType other = (JEVisType) obj;
             if ((this.getName() == null) ? (other.getName() != null) : !this.getName().equals(other.getName())) {
                 return false;
