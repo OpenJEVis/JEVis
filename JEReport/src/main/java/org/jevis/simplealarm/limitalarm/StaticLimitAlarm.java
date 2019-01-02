@@ -109,28 +109,28 @@ public class StaticLimitAlarm extends LimitAlarm {
                         alarms.add(new AlarmData(
                                 key,
                                 (value.getValueAsDouble() < rightSample.getValueAsDouble()),
-                                "[" + JEAlarm.formatter.print(key) + "] " + AlarmHelper.formateValue(value) + " < " + AlarmHelper.formateValue(rightSample)));
+                                "[" + JEAlarm.formatter.print(key) + "] " + AlarmHelper.formatValue(value) + " < " + AlarmHelper.formatValue(rightSample)));
 
                         break;
                     case BIGGER:
                         alarms.add(new AlarmData(
                                 key,
                                 (value.getValueAsDouble() > rightSample.getValueAsDouble()),
-                                "[" + JEAlarm.formatter.print(key) + "] " + AlarmHelper.formateValue(value) + " > " + AlarmHelper.formateValue(rightSample)));
+                                "[" + JEAlarm.formatter.print(key) + "] " + AlarmHelper.formatValue(value) + " > " + AlarmHelper.formatValue(rightSample)));
 
                         break;
                     case EQUALS:
                         alarms.add(new AlarmData(
                                 key,
                                 (value.getValueAsDouble().equals(rightSample.getValueAsDouble())),
-                                "[" + JEAlarm.formatter.print(key) + "] " + AlarmHelper.formateValue(value) + " = " + AlarmHelper.formateValue(rightSample)));
+                                "[" + JEAlarm.formatter.print(key) + "] " + AlarmHelper.formatValue(value) + " = " + AlarmHelper.formatValue(rightSample)));
 
                         break;
                     case UNEQUALS:
                         alarms.add(new AlarmData(
                                 key,
                                 (!value.getValueAsDouble().equals(rightSample.getValueAsDouble())),
-                                "[" + JEAlarm.formatter.print(key) + "] " + AlarmHelper.formateValue(value) + " != " + AlarmHelper.formateValue(rightSample)));
+                                "[" + JEAlarm.formatter.print(key) + "] " + AlarmHelper.formatValue(value) + " != " + AlarmHelper.formatValue(rightSample)));
 
                         break;
                     default:

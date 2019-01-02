@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <jevis>
+        <user>Sys Admin</user>
+        <password>jevis</password>
+        <server>192.168.2.55</server>
+        <port>3306</port>
+        <schema>jevis</schema>
+        <dbuser>jevis</dbuser>
+        <dbpassword>jevistest</dbpassword>
+    </jevis>
+    <sender>
+        <user>notification@jevis.de</user>
+        <password>enterpwhere</password>
+        <smtp>smtp.1und1.de</smtp>
+        <from>notification@jevis.de</from>
+        <ssl>true</ssl>
+        <port>587</port>
+        <signatur>With best wishes your JEVis Alpha Server</signatur>
+    </sender>
+    <alarm>
+        <recipient>florian.simon@envidatec.com</recipient>
+        <bcc>info@envidatec.com</bcc>
+        <subject>Device Waring</subject>
+        <datapoint>1176,1180</datapoint>
+        <timelimit>24</timelimit>
+        <ignoreold>336</ignoreold>
+        <greeting>Hello Mister Heinike</greeting>
+        <message>Your VIDA88 make some trouble!</message>
+        <ignorefalse>true</ignorefalse>
+    </alarm>
+    <!--Overall statusreport for the Server-->
+    <alarm>
+        <recipient>florian.simon@envidatec.com</recipient>
+        <subject>JEVis 3.0 System Status</subject>
+        <timelimit>24</timelimit>
+        <ignoreold>336</ignoreold>
+        <greeting>Greetings JESOL</greeting>
+        <message>This list contains all datapoints which had no new data in the last 24 hours.</message>
+        <ignorefalse>false</ignorefalse>
+    </alarm>
+</config>
+

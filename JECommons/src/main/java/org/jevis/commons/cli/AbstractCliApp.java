@@ -245,7 +245,7 @@ public abstract class AbstractCliApp {
             JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
             List<JEVisObject> listServiceObjects = ds.getObjects(serviceClass, false);
             enabled = listServiceObjects.get(0).getAttribute("Enable").getLatestSample().getValueAsBoolean();
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Couldn't get Service status from the JEVis System");
         }
         return enabled;
@@ -263,7 +263,7 @@ public abstract class AbstractCliApp {
             List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
             cycleTime = listServices.get(0).getAttribute("Cycle Time").getLatestSample().getValueAsLong().intValue();
             logger.info("Service cycle time from service: " + cycleTime);
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Couldn't get Service cycle time from the JEVis System");
         }
     }

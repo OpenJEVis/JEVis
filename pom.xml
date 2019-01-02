@@ -22,6 +22,7 @@
         <module>JEReport</module>
         <module>Notifier</module>
         <module>JEDataProcessor</module>
+        <module>JEAlarm</module>
     </modules>
 
     <profiles>
@@ -39,6 +40,7 @@
                 <module>JEReport</module>
                 <module>Notifier</module>
                 <module>JEDataProcessor</module>
+                <module>JEAlarm</module>
             </modules>
         </profile>
     </profiles>
@@ -160,6 +162,12 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.9.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jevis.jealarm</groupId>
+                <artifactId>JEAlarm</artifactId>
+                <version>1.0</version>
             </dependency>
 
         </dependencies>

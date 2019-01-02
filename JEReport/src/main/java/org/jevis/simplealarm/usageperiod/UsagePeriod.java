@@ -90,7 +90,7 @@ public class UsagePeriod {
         return isValueSelected(val, _times);
     }
 
-    public boolean isValueSelected(int val, int n) {
+    private boolean isValueSelected(int val, int n) {
         int tmp = n;
         int bitmask = 1;
         bitmask = bitmask << (val);

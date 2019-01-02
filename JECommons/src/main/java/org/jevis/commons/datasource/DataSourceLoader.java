@@ -61,6 +61,9 @@ public class DataSourceLoader {
                 String className = classOption.getValue();
                 //                config.completeWith(ds.getConfiguration());
 
+                /**
+                 * cast needs to be removed?
+                 */
                 return (JEVisDataSource) Class.forName(className).newInstance();
             } else {
                 throw new ClassNotFoundException("Class name option not found");

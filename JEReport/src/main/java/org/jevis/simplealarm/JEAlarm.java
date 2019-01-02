@@ -19,6 +19,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -34,10 +35,10 @@ public class JEAlarm {
     private static final Logger logger = LogManager.getLogger(JEAlarm.class);
     public static final DecimalFormat deci = new DecimalFormat("#.00");
     public static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss ZZZ");
-    JEVisDataSource ds = null;
+    private JEVisDataSource ds = null;
 
     public JEAlarm() {
-        logger.info("JEAlarm version 2017-02-07");
+        logger.info("JEAlarm version 2019-01-02");
     }
 
     public static void main(String[] args) {
@@ -78,8 +79,8 @@ public class JEAlarm {
             logger.error("Cant get Static Alarm JEVis Object", ex);
         }
 
-        showAlarmOverview(staticAlarmObjects);
-        showAlarmOverview(dynamicAlarmObjects);
+        showAlarmOverview(Objects.requireNonNull(staticAlarmObjects));
+        showAlarmOverview(Objects.requireNonNull(dynamicAlarmObjects));
 
         //Dynamic Alarms------TODO -> write logger -----------------------------------------
         for (JEVisObject alarm : dynamicAlarmObjects) {
