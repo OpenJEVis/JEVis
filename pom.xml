@@ -165,7 +165,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.jevis</groupId>
+                <groupId>org.jevis.jealarm</groupId>
                 <artifactId>JEAlarm</artifactId>
                 <version>1.0</version>
             </dependency>
