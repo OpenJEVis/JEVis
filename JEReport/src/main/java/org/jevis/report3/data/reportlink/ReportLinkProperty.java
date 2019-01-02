@@ -14,7 +14,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.JEVisAttributeDAO;
 import org.jevis.commons.database.JEVisObjectDataManager;
 import org.jevis.commons.database.JEVisSampleDAO;
-import org.jevis.report3.ReportLauncher;
 import org.jevis.report3.context.SampleFactory;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.AttributeConfiguration;
@@ -78,7 +77,7 @@ public class ReportLinkProperty implements ReportData {
             linkObject = reportLinkObject;
             templateVariableName = reportLinkObject.getAttribute(ReportLink.TEMPLATE_VARIABLE_NAME).getLatestSample().getValueAsString();
             Long jevisID = reportLinkObject.getAttribute(ReportLink.JEVIS_ID).getLatestSample().getValueAsLong();
-            dataObject = ReportLauncher.getDataSource().getObject(jevisID);
+            dataObject = reportLinkObject.getDataSource().getObject(jevisID);
             if (!DataHelper.checkAllObjectsNotNull(linkObject, templateVariableName, jevisID, dataObject)) {
                 throw new RuntimeException("One Sample missing for report link Object: id: " + reportLinkObject.getID() + " and name: " + reportLinkObject.getName());
             }
@@ -89,7 +88,7 @@ public class ReportLinkProperty implements ReportData {
 
     private void initializeAttributeProperties(JEVisObject reportLinkObject) {
         try {
-            JEVisClass reportAttributeClass = ReportLauncher.getDataSource().getJEVisClass(ReportAttribute.NAME);
+            JEVisClass reportAttributeClass = reportLinkObject.getDataSource().getJEVisClass(ReportAttribute.NAME);
             attributePropertyObjects.addAll(reportLinkObject.getChildren(reportAttributeClass, true));
 
             //iterate over attribute property objects

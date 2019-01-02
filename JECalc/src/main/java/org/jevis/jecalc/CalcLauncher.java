@@ -18,7 +18,6 @@ import org.jevis.commons.task.TaskPrinter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @author broder
@@ -76,45 +75,35 @@ public class CalcLauncher extends AbstractCliApp {
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
         logger.info("Number of Calc Jobs: " + enabledCalcObject.size());
-        try {
-            forkJoinPool.submit(() -> enabledCalcObject.parallelStream().forEach(object -> {
+
+        enabledCalcObject.parallelStream().forEach(object -> {
+            forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(object.getID().toString())) {
 
                     runningJobs.put(object.getID().toString(), "true");
 
-                    try {
-                        LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
-                        CalcJob calcJob;
-                        CalcJobFactory calcJobCreator = new CalcJobFactory();
-                        do {
-                            calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
-                            calcJob.execute();
-                        } while (!calcJob.hasProcessedAllInputSamples());
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-                    } catch (Exception e) {
-                        if (logger.isDebugEnabled() || logger.isTraceEnabled()) {
-                            logger.error("[{}] Error in process: \n {} \n ", object.getID(), org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
-                        } else {
-                            logger.error("[{}] Error in process: \n {} message: {}", object.getID(), LogTaskManager.getInstance().getShortErrorMessage(e), e.getMessage());
-                        }
-                        LogTaskManager.getInstance().getTask(object.getID()).setExeption(e);
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
-                    }
+
+                    LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
+                    TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+
+                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
+                    CalcJob calcJob;
+                    CalcJobFactory calcJobCreator = new CalcJobFactory();
+                    do {
+                        calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
+                        calcJob.execute();
+                    } while (!calcJob.hasProcessedAllInputSamples());
+
+                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
                     runningJobs.remove(object.getID().toString());
 
                 } else {
                     logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
                 }
-            })).get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Thread Pool was interrupted or execution was stopped: " + e);
-        } finally {
-            if (forkJoinPool != null) {
-                forkJoinPool.shutdown();
-                System.gc();
-            }
-        }
+            });
+        });
+
         logger.info("---------------------finish------------------------");
     }
 

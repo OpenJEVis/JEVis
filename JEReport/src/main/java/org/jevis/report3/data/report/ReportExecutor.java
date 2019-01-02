@@ -19,7 +19,6 @@ import org.jevis.jenotifier.notifier.NotificationDriver;
 import org.jevis.report3.DateHelper;
 import org.jevis.report3.PdfConverter;
 import org.jevis.report3.PdfFileSplitter;
-import org.jevis.report3.ReportLauncher;
 import org.jevis.report3.context.ContextBuilder;
 import org.jevis.report3.data.notification.ReportNotification;
 import org.jevis.report3.data.report.event.EventPrecondition;
@@ -200,7 +199,12 @@ public class ReportExecutor {
     }
 
     private ReportServiceProperty getReportService() {
-        JEVisDataSource dataSource = ReportLauncher.getDataSource();
+        JEVisDataSource dataSource = null;
+        try {
+            dataSource = reportObject.getDataSource();
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
         ReportServiceProperty service = new ReportServiceProperty();
         try {
             JEVisClass jeVisClass = dataSource.getJEVisClass(JEReportService.NAME);

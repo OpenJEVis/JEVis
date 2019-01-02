@@ -61,7 +61,7 @@ public class ProcessManager {
             } else {
                 logger.error("[{}] Error in process: \n {} message: {}", id, LogTaskManager.getInstance().getShortErrorMessage(e), e.getMessage());
             }
-            LogTaskManager.getInstance().getTask(id).setExeption(e);
+            LogTaskManager.getInstance().getTask(id).setException(e);
             LogTaskManager.getInstance().getTask(id).setStatus(Task.Status.FAILED);
         }
 

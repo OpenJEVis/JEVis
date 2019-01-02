@@ -17,7 +17,6 @@ import org.jevis.commons.dataprocessing.function.AggregatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.commons.dataprocessing.function.MathFunction;
 import org.jevis.commons.dataprocessing.function.NullFunction;
-import org.jevis.report3.ReportLauncher;
 import org.jevis.report3.data.attribute.AttributeConfiguration;
 import org.jevis.report3.data.attribute.AttributeConfigurationFactory.ReportConfigurationName;
 import org.jevis.report3.data.attribute.ReportAttributeConfiguration;
@@ -94,7 +93,11 @@ public class PeriodSampleGenerator implements SampleGenerator {
         }
 
         BasicProcess aggregate = new BasicProcess();
-        aggregate.setJEVisDataSource(ReportLauncher.getDataSource());
+        try {
+            aggregate.setJEVisDataSource(linkData.getDataObject().getDataSource());
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
 
         ManipulationMode mode = ManipulationMode.get(modeName.toUpperCase());
         switch (mode) {
@@ -163,7 +166,11 @@ public class PeriodSampleGenerator implements SampleGenerator {
         }
 
         BasicProcess input = new BasicProcess();
-        input.setJEVisDataSource(ReportLauncher.getDataSource());
+        try {
+            input.setJEVisDataSource(linkData.getDataObject().getDataSource());
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
         input.setID("Dynamic Input");
         input.setFunction(new InputFunction(samples));
         input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attributeData.getAttributeName()));

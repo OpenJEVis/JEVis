@@ -84,14 +84,14 @@ public class CommonTask implements Task {
     }
 
     @Override
-    public Exception getExpetion() {
-        setStatus(Status.FAILED);
+    public Exception getException() {
+        //setStatus(Status.FAILED);
         return exception;
     }
 
     @Override
-    public void setExeption(Exception exeption) {
-        this.exception = exeption;
+    public void setException(Exception exception) {
+        this.exception = exception;
     }
 
     @Override
