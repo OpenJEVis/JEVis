@@ -24,8 +24,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.cli.AbstractCliApp;
-import org.jevis.commons.task.LogTaskManager;
-import org.jevis.commons.task.TaskPrinter;
 
 import java.util.Objects;
 
@@ -42,6 +40,7 @@ public class Launcher extends AbstractCliApp {
 
     private final static Option help = new Option("h", "help", true, "Print this message.");
     private final static Option configFile = new Option("c", "config", true, "Set the configuration file");
+    private final static Option mode = new Option("sm", "servicemode", true, "Set the service mode");
     private final static Options options = new Options();
     private static final String APP_INFO = "JEAlarm";
     public static String KEY = "process-id";
@@ -70,6 +69,7 @@ public class Launcher extends AbstractCliApp {
     protected void handleAdditionalCommands() {
         options.addOption(configFile);
         options.addOption(help);
+        options.addOption(mode);
 
         CommandLineParser parser = new BasicParser();
         CommandLine cmd = null;
@@ -90,7 +90,7 @@ public class Launcher extends AbstractCliApp {
             try {
                 config = new Config(cmd.getOptionValue(configFile.getLongOpt()));
             } catch (ConfigurationException e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         } else {
             logger.info("Missing configuration file..");
@@ -134,7 +134,6 @@ public class Launcher extends AbstractCliApp {
             logger.info("Service is disabled.");
         }
         try {
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
 

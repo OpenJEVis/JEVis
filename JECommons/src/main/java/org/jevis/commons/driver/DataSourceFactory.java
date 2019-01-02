@@ -50,6 +50,9 @@ public class DataSourceFactory extends DriverFactory {
         try {
             String identifier = dataSourceJEVis.getJEVisClass().getName();
             Class datasourceClass = _dataSourceClasses.get(identifier);
+            /**
+             * cast needs to be removed
+             */
             dataSource = (DataSource) datasourceClass.newInstance();
         } catch (JEVisException | InstantiationException | IllegalAccessException ex) {
             logger.fatal(ex);
