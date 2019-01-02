@@ -14,7 +14,7 @@ import org.jevis.api.JEVisUnit;
  */
 public class AlarmHelper {
 
-    public static String formateValue(JEVisSample sample) {
+    public static String formatValue(JEVisSample sample) {
         String strg = "";
 
         try {
@@ -35,7 +35,7 @@ public class AlarmHelper {
         return strg;
     }
 
-    public static String formateValue(Double sample, JEVisUnit unit) {
+    public static String formatValue(Double sample, JEVisUnit unit) {
         String strg = "";
 
         try {

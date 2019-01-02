@@ -67,7 +67,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
 
     //public abstract void checkAlarm() throws JEVisException;
     void logAlarms(JEVisAttribute logAtt, List<AlarmData> alarms) {
-        Integer lastLog = 0;
+        int lastLog = 0;
         try {
             JEVisSample lstLog = logAtt.getLatestSample();
             if (lstLog != null) {
