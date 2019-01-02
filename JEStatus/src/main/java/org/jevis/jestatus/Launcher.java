@@ -17,7 +17,7 @@
  * Launcher is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jealarm;
+package org.jevis.jestatus;
 
 import org.apache.commons.cli.*;
 import org.apache.commons.configuration.ConfigurationException;
