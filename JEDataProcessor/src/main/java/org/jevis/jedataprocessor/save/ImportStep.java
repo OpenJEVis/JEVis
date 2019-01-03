@@ -31,26 +31,26 @@ public class ImportStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        if (resourceManager.getCalcAttribute() instanceof CleanDataAttributeJEVis) {
+        if (resourceManager.getCalcAttribute() instanceof CleanDataObjectJEVis) {
             importIntoJEVis(resourceManager);
-        } else if (resourceManager.getCalcAttribute() instanceof CleanDataAttributeOffline) {
+        } else if (resourceManager.getCalcAttribute() instanceof CleanDataObjectOffline) {
             writeIntoFile(resourceManager);
         }
     }
 
     private void importIntoJEVis(ResourceManager resourceManager) throws Exception {
-        CleanDataAttributeJEVis cleanAttr = (CleanDataAttributeJEVis) resourceManager.getCalcAttribute();
+        CleanDataObjectJEVis cleanAttr = (CleanDataObjectJEVis) resourceManager.getCalcAttribute();
         JEVisObject cleanObject = cleanAttr.getObject();
         JEVisAttribute attribute = null;
 
-        attribute = cleanObject.getAttribute(CleanDataAttributeJEVis.VALUE_ATTRIBUTE_NAME);
+        attribute = cleanObject.getAttribute(CleanDataObjectJEVis.VALUE_ATTRIBUTE_NAME);
 
         if (attribute == null) {
             return;
         }
 
         List<JEVisSample> cleanSamples = new ArrayList<>();
-        CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
         for (CleanInterval curInterval : resourceManager.getIntervals()) {
             for (JEVisSample sample : curInterval.getTmpSamples()) {
                 Double rawValue = sample.getValueAsDouble();
@@ -73,7 +73,7 @@ public class ImportStep implements ProcessStep {
     }
 
     private void writeIntoFile(ResourceManager resourceManager) {
-        CleanDataAttributeOffline cleanAttr = (CleanDataAttributeOffline) resourceManager.getCalcAttribute();
+        CleanDataObjectOffline cleanAttr = (CleanDataObjectOffline) resourceManager.getCalcAttribute();
         String pathToOutput = cleanAttr.getPathToOutput();
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(pathToOutput), StandardCharsets.UTF_8))) {

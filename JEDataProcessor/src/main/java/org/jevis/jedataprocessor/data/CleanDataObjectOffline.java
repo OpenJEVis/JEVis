@@ -27,9 +27,9 @@ import java.util.Properties;
 /**
  * @author broder
  */
-public class CleanDataAttributeOffline implements CleanDataAttribute {
+public class CleanDataObjectOffline implements CleanDataObject {
 
-    private static final Logger logger = LogManager.getLogger(CleanDataAttributeOffline.class);
+    private static final Logger logger = LogManager.getLogger(CleanDataObjectOffline.class);
     private final String pathToOutput;
     private DateTime date;
     private int periodOffset;
@@ -48,7 +48,7 @@ public class CleanDataAttributeOffline implements CleanDataAttribute {
     private JEVisObject object;
     private List<JEVisSample> counterOverflow;
 
-    public CleanDataAttributeOffline(String pathToInputFile, String pathToCleanConfigFile, String pathToOutput) {
+    public CleanDataObjectOffline(String pathToInputFile, String pathToCleanConfigFile, String pathToOutput) {
         initProperties(pathToCleanConfigFile);
 
         rawSample = initInputDataRow(pathToInputFile);

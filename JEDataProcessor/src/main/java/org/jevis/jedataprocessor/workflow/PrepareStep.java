@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.jedataprocessor.data.CleanDataAttribute;
+import org.jevis.jedataprocessor.data.CleanDataObject;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.joda.time.DateTime;
@@ -36,7 +36,7 @@ public class PrepareStep implements ProcessStep {
     @Override
 
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
 
         //get the raw samples for the cleaning
         logger.info("[{}] Request raw samples", resourceManager.getID());
@@ -66,7 +66,7 @@ public class PrepareStep implements ProcessStep {
 
     }
 
-    private List<CleanInterval> getIntervals(CleanDataAttribute calcAttribute, Period periodAlignment) {
+    private List<CleanInterval> getIntervals(CleanDataObject calcAttribute, Period periodAlignment) {
         List<CleanInterval> cleanIntervals = new ArrayList<>();
 
         if (calcAttribute.getMaxEndDate() == null) {
@@ -92,7 +92,7 @@ public class PrepareStep implements ProcessStep {
             if (periodAlignment.equals(Period.months(1))) {
                 currentDate = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1, 0, 0, 0);
 
-                while (currentDate.isBefore(maxEndDate) && periodAlignment.getMillis() > 0) {
+                while (currentDate.isBefore(maxEndDate) && periodAlignment.toStandardDuration().getMillis() > 0) {
                     DateTime startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1, 0, 0, 0);
                     DateTime endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1, 0, 0, 0).plusMonths(1);
                     Interval interval = new Interval(startInterval, endInterval);
@@ -105,7 +105,7 @@ public class PrepareStep implements ProcessStep {
             } else if (periodAlignment.equals(Period.years(1))) {
                 currentDate = new DateTime(currentDate.getYear(), 1, 1, 0, 0, 0);
 
-                while (currentDate.isBefore(maxEndDate) && periodAlignment.getMillis() > 0) {
+                while (currentDate.isBefore(maxEndDate) && periodAlignment.toStandardDuration().getMillis() > 0) {
                     DateTime startInterval = new DateTime(currentDate.getYear(), 1, 1, 0, 0, 0);
                     DateTime endInterval = new DateTime(currentDate.getYear(), 1, 1, 0, 0, 0).plusYears(1);
                     Interval interval = new Interval(startInterval, endInterval);
@@ -119,7 +119,7 @@ public class PrepareStep implements ProcessStep {
                 Duration duration = periodAlignment.toStandardDuration();
                 Long halfDuration = duration.getMillis() / 2;
 
-                while (currentDate.isBefore(maxEndDate) && periodAlignment.getMillis() > 0) {
+                while (currentDate.isBefore(maxEndDate) && periodAlignment.toStandardDuration().getMillis() > 0) {
                     DateTime startInterval = currentDate.minus(halfDuration);
                     DateTime endInterval = currentDate.plus(halfDuration);
                     Interval interval = new Interval(startInterval, endInterval);
@@ -128,6 +128,7 @@ public class PrepareStep implements ProcessStep {
                     cleanIntervals.add(currentInterval);
 
                     currentDate = currentDate.plus(periodAlignment);
+
                 }
             }
 
@@ -142,7 +143,7 @@ public class PrepareStep implements ProcessStep {
         return cleanIntervals;
     }
 
-    private List<CleanInterval> getIntervalsFromRawSamples(CleanDataAttribute calcAttribute, List<JEVisSample> rawSamples) throws Exception {
+    private List<CleanInterval> getIntervalsFromRawSamples(CleanDataObject calcAttribute, List<JEVisSample> rawSamples) throws Exception {
         List<CleanInterval> cleanIntervals = new ArrayList<>();
         for (JEVisSample curSample : rawSamples) {
             DateTime startInterval = curSample.getTimestamp().plusSeconds(calcAttribute.getPeriodOffset());

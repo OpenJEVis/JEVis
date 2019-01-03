@@ -8,7 +8,7 @@ package org.jevis.jedataprocessor.differential;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
-import org.jevis.jedataprocessor.data.CleanDataAttribute;
+import org.jevis.jedataprocessor.data.CleanDataObject;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.workflow.ProcessStep;
@@ -26,7 +26,7 @@ public class DifferentialStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataAttribute calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> listConversionToDifferential = calcAttribute.getConversionDifferential();
         List<JEVisSample> listCounterOverflow = calcAttribute.getCounterOverflow();
