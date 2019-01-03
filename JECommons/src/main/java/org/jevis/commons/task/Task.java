@@ -23,9 +23,9 @@ public interface Task {
 
     Duration getRunTime();
 
-    Exception getExpetion();
+    Exception getException();
 
-    void setExeption(Exception exeption);
+    void setException(Exception exception);
 
     List<TaskStep> getSteps();
 

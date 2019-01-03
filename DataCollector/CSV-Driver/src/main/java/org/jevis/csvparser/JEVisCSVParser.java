@@ -38,8 +38,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author broder
@@ -56,7 +57,7 @@ public class JEVisCSVParser implements Parser {
         DataPoint dp2 = new DataPoint();
         dp2.setMappingIdentifier("B03(2)-Wirkleistung");
         dp2.setTarget(10l);
-        parser.setDataPoints(Arrays.asList(dp2));
+        parser.setDataPoints(Collections.singletonList(dp2));
         parser.setDateFormat("dd.MM.yyyy");
         parser.setDateIndex(0);
         parser.setTimeFormat("HH:mm");
@@ -66,7 +67,7 @@ public class JEVisCSVParser implements Parser {
         parser.setDpType("ROW");
         parser.setHeaderLines(10);
         parser.setDecimalSeperator(",");
-        parser.parse(Arrays.asList(is), DateTimeZone.forID("Europe/Berlin"));
+        parser.parse(Collections.singletonList(is), DateTimeZone.forID("Europe/Berlin"));
         List<Result> result = parser.getResult();
         for (Result r : result) {
             Long onlineID = r.getOnlineID();
@@ -83,7 +84,7 @@ public class JEVisCSVParser implements Parser {
         DataPoint dpy = new DataPoint();
         dpy.setValueIndex(7);
         dpy.setTarget(10l);
-        np.setDataPoints(Arrays.asList(dpy));
+        np.setDataPoints(Collections.singletonList(dpy));
         np.setDateFormat("dd.MM.yyyy");
         np.setDateIndex(0);
         np.setTimeFormat("HH:mm");
@@ -92,7 +93,7 @@ public class JEVisCSVParser implements Parser {
         np.setHeaderLines(10);
         np.setDecimalSeperator(",");
 
-        np.parse(Arrays.asList(is2), DateTimeZone.forID("Europe/Berlin"));
+        np.parse(Collections.singletonList(is2), DateTimeZone.forID("Europe/Berlin"));
         List<Result> otherResult = np.getResult();
         for (Result r : otherResult) {
             Long onlineID = r.getOnlineID();
@@ -117,8 +118,8 @@ public class JEVisCSVParser implements Parser {
             JEVisType timeIndexType = jeClass.getType(CSVParserTypes.TIME_INDEX);
             JEVisType dateFormatType = jeClass.getType(CSVParserTypes.DATE_FORMAT);
             JEVisType timeFormatType = jeClass.getType(CSVParserTypes.TIME_FORMAT);
-            JEVisType decimalSeperatorType = jeClass.getType(CSVParserTypes.DECIMAL_SEPERATOR);
-            JEVisType thousandSeperatorType = jeClass.getType(CSVParserTypes.THOUSAND_SEPERATOR);
+            JEVisType decimalSeparatorType = jeClass.getType(CSVParserTypes.DECIMAL_SEPERATOR);
+            JEVisType thousandSeparatorType = jeClass.getType(CSVParserTypes.THOUSAND_SEPERATOR);
             JEVisType charsetType = jeClass.getType(CSVParserTypes.CHARSET);
 
             String delim = DatabaseHelper.getObjectAsString(parserObject, seperatorColumn);
@@ -158,9 +159,9 @@ public class JEVisCSVParser implements Parser {
 
             String timeFormat = DatabaseHelper.getObjectAsString(parserObject, timeFormatType);
 
-            String decimalSeperator = DatabaseHelper.getObjectAsString(parserObject, decimalSeperatorType);
+            String decimalSeperator = DatabaseHelper.getObjectAsString(parserObject, decimalSeparatorType);
 
-            String thousandSeperator = DatabaseHelper.getObjectAsString(parserObject, thousandSeperatorType);
+            String thousandSeperator = DatabaseHelper.getObjectAsString(parserObject, thousandSeparatorType);
 
             _csvParser = new CSVParser();
             _csvParser.setDateFormat(dateFormat);
@@ -198,7 +199,7 @@ public class JEVisCSVParser implements Parser {
                 String targetString = DatabaseHelper.getObjectAsString(dp, targetType);
                 Long target = null;
                 try {
-                    target = Long.parseLong(targetString);
+                    target = Long.parseLong(Objects.requireNonNull(targetString));
                 } catch (Exception ex) {
                     logger.info("DataPoint target error: " + ex.getMessage());
 //                    ex.printStackTrace();
@@ -206,10 +207,10 @@ public class JEVisCSVParser implements Parser {
                 String valueString = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
                 Integer valueIndex = null;
                 try {
-                    valueIndex = Integer.parseInt(valueString);
+                    valueIndex = Integer.parseInt(Objects.requireNonNull(valueString));
                     valueIndex--;
                 } catch (Exception ex) {
-                    logger.info("DataPoint ValueIdentidier error: " + ex.getMessage());
+                    logger.info("DataPoint ValueIdentifier error: " + ex.getMessage());
 //                    ex.printStackTrace();
                 }
                 DataPoint csvdp = new DataPoint();

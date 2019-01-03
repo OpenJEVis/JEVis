@@ -316,6 +316,9 @@ public class HTTPConnection {
             String inputLine;
             StringBuffer response = new StringBuffer();
 
+            /**
+             * this is producing a out of memory exception in some cases
+             */
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }

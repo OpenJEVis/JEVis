@@ -9,7 +9,6 @@ import com.google.inject.Injector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
@@ -22,7 +21,6 @@ import org.jevis.report3.policy.ReportPolicy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -31,9 +29,8 @@ import java.util.concurrent.ExecutionException;
 public class ReportLauncher extends AbstractCliApp {
 
     private static final Logger logger = LogManager.getLogger(ReportLauncher.class);
-    public static JEVisDataSource jevisDataSource;
     private static Injector injector;
-    public static final String APP_INFO = "JEReport";
+    private static final String APP_INFO = "JEReport";
     private final String APP_SERVICE_CLASS_NAME = "JEReport";
     private final Command commands = new Command();
 
@@ -65,59 +62,42 @@ public class ReportLauncher extends AbstractCliApp {
 
         logger.info("Number of Reports: " + reportObjects.size());
 
-        try {
-            forkJoinPool.submit(() -> reportObjects.parallelStream().forEach(reportObject -> {
+
+        reportObjects.parallelStream().forEach(reportObject -> {
+            forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(reportObject.getID().toString())) {
 
                     runningJobs.put(reportObject.getID().toString(), "true");
 
                     LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());
                     LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.STARTED);
-                    try {
+
+                    logger.info("---------------------------------------------------------------------");
+                    logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                    //check if the report is enabled
+                    ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
+                    Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
+                    if (!reportEnabled) {
+                        logger.info("Report is not enabled");
+                    } else {
+
+                        ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+                        executor.executeReport();
+
                         logger.info("---------------------------------------------------------------------");
-                        logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                        //check if the report is enabled
-                        ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
-                        Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
-                        if (!reportEnabled) {
-                            logger.info("Report is not enabled");
-                        } else {
-
-                            ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
-                            executor.executeReport();
-
-                            logger.info("---------------------------------------------------------------------");
-                            logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                        }
-                    } catch (Exception e) {
-                        if (logger.isDebugEnabled() || logger.isTraceEnabled()) {
-                            logger.error("[{}] Error in process: \n {} \n ", reportObject.getID(), org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
-                        } else {
-                            logger.error("[{}] Error in process: \n {} message: {}", reportObject.getID(), LogTaskManager.getInstance().getShortErrorMessage(e), e.getMessage());
-                        }
-                        LogTaskManager.getInstance().getTask(reportObject.getID()).setExeption(e);
-                        LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
+                        logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
                     }
+
                     LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
                     runningJobs.remove(reportObject.getID().toString());
 
                 } else {
                     logger.error("Still processing Report " + reportObject.getName() + ":" + reportObject.getID());
                 }
-            })).get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Thread Pool was interrupted or execution was stopped: " + e);
-        } finally {
-            if (forkJoinPool != null) {
-                forkJoinPool.shutdown();
-                System.gc();
-            }
-        }
-        logger.info("---------------------finish------------------------");
-    }
+            });
+        });
 
-    public static JEVisDataSource getDataSource() {
-        return jevisDataSource;
+        logger.info("---------------------finish------------------------");
     }
 
     @Override

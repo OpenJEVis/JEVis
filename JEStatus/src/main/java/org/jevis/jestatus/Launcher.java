@@ -42,9 +42,9 @@ public class Launcher extends AbstractCliApp {
     private final static Option configFile = new Option("c", "config", true, "Set the configuration file");
     private final static Option mode = new Option("sm", "servicemode", true, "Set the service mode");
     private final static Options options = new Options();
-    private static final String APP_INFO = "JEAlarm";
+    private static final String APP_INFO = "JEStatus";
     public static String KEY = "process-id";
-    private final String APP_SERVICE_CLASS_NAME = "JEAlarm";
+    private final String APP_SERVICE_CLASS_NAME = "JEStatus";
     private final Command commands = new Command();
     private Config config;
 
@@ -55,7 +55,7 @@ public class Launcher extends AbstractCliApp {
 
     public static void main(String[] args) {
 
-        logger.info("-------Start JEAlarm-------");
+        logger.info("-------Start JEStatus-------");
         Launcher app = new Launcher(args, APP_INFO);
         app.execute();
     }

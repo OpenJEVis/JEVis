@@ -16,7 +16,6 @@ import org.jevis.jedataprocessor.workflow.ProcessManagerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @author broder
@@ -46,9 +45,11 @@ public class Launcher extends AbstractCliApp {
 
         logger.info("{} cleaning task found starting", processes.size());
 
-        try {
-            forkJoinPool.submit(() -> processes.parallelStream().forEach(currentProcess -> {
+        processes.parallelStream().forEach(currentProcess -> {
+            forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(currentProcess.getId().toString())) {
+
+                    TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 
                     runningJobs.put(currentProcess.getId().toString(), "true");
 
@@ -62,16 +63,9 @@ public class Launcher extends AbstractCliApp {
                 } else {
                     logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());
                 }
+            });
+        });
 
-            })).get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Thread Pool was interrupted or execution was stopped: " + e);
-        } finally {
-            if (forkJoinPool != null) {
-                forkJoinPool.shutdown();
-                System.gc();
-            }
-        }
         logger.info("---------------------finish------------------------");
     }
 

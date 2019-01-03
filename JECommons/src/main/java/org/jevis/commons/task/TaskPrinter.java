@@ -42,43 +42,45 @@ public class TaskPrinter {
 
         Object[][] data = new Object[allTasks.size()][6 + stepHeader.size()];
 
-        for (int i = 0; i < allTasks.size(); i++) {
-            Task task = allTasks.get(i);
-            data[i][0] = task.getID();
-            data[i][1] = task.getTaskName().length() < 40 ? task.getTaskName() : task.getTaskName().substring(0, 40) + "..";
-            data[i][2] = task.getStatus();
-            data[i][3] = FORMATTER.print(task.getStartTime());
+        if (allTasks.size() > 0) {
+            for (int i = 0; i < allTasks.size(); i++) {
+                Task task = allTasks.get(i);
+                data[i][0] = task.getID();
+                data[i][1] = task.getTaskName().length() < 40 ? task.getTaskName() : task.getTaskName().substring(0, 40) + "..";
+                data[i][2] = task.getStatus();
+                data[i][3] = FORMATTER.print(task.getStartTime());
 
-            data[i][4] = task.getRunTime().toPeriod().getMillis() < 1000
-                    ? task.getRunTime().toPeriod().getMillis() + " msec"
-                    : task.getRunTime().toPeriod().getSeconds() + "  sec";
+                data[i][4] = task.getRunTime().toPeriod().getMillis() < 1000
+                        ? task.getRunTime().toPeriod().getMillis() + " msec"
+                        : task.getRunTime().toPeriod().getSeconds() + "  sec";
 
-            String shortError = "";
-            if (task.getExpetion() != null) {
-                try {
-                    shortError = task.getExpetion().getStackTrace()[0].getClassName().substring(
-                            task.getExpetion().getStackTrace()[0].getClassName().lastIndexOf(".") + 1,
-                            task.getExpetion().getStackTrace()[0].getClassName().length())
-                            + ":" + task.getExpetion().getStackTrace()[0].getLineNumber()
-                            + ":" + task.getExpetion().getStackTrace()[0].getMethodName();
+                String shortError = "";
+                if (task.getException() != null) {
+                    try {
+                        shortError = task.getException().getStackTrace()[0].getClassName().substring(
+                                task.getException().getStackTrace()[0].getClassName().lastIndexOf(".") + 1
+                        )
+                                + ":" + task.getException().getStackTrace()[0].getLineNumber()
+                                + ":" + task.getException().getStackTrace()[0].getMethodName();
 
 
-                    shortError = shortError.length() < 50
-                            ? shortError
-                            : ".." + shortError.substring(shortError.length() - 50, shortError.length());
+                        shortError = shortError.length() < 50
+                                ? shortError
+                                : ".." + shortError.substring(shortError.length() - 50);
 
-                } catch (Exception ex) {
+                    } catch (Exception ex) {
+                    }
                 }
+
+                data[i][5] = shortError;
+
+                //Dynamic Steps info
+                for (TaskStep tStep : task.getSteps()) {
+                    data[i][stepHeader.get(tStep.getType())] = tStep.getMessage();
+                }
+
+
             }
-
-            data[i][5] = shortError;
-
-            //Dynamic Steps info
-            for (TaskStep tStep : task.getSteps()) {
-                data[i][stepHeader.get(tStep.getType())] = tStep.getMessage();
-            }
-
-
         }
 
         List<String> columns = new ArrayList<>();
