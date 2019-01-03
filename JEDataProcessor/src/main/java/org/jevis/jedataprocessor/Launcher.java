@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.jevis.jedataprocessor.workflow.ProcessManagerFactory;
@@ -58,6 +59,8 @@ public class Launcher extends AbstractCliApp {
                     } catch (Exception ex) {
                         logger.debug(ex);
                     }
+
+                    LogTaskManager.getInstance().getTask(currentProcess.getId()).setStatus(Task.Status.FINISHED);
                     runningJobs.remove(currentProcess.getId().toString());
 
                 } else {

@@ -13,8 +13,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
-import org.jevis.jedataprocessor.data.CleanDataAttribute;
-import org.jevis.jedataprocessor.data.CleanDataAttributeJEVis;
+import org.jevis.jedataprocessor.data.CleanDataObject;
+import org.jevis.jedataprocessor.data.CleanDataObjectJEVis;
 import org.jevis.jedataprocessor.differential.DifferentialStep;
 import org.jevis.jedataprocessor.functional.avg.AverageStep;
 import org.jevis.jedataprocessor.functional.sum.SummationStep;
@@ -42,12 +42,13 @@ public class ProcessManagerFactory {
     public List<ProcessManager> initProcessManagersFromJEVisAll() throws Exception {
         List<JEVisObject> reportObjects = getAllCleaningObjects();
         List<ProcessManager> processManagers = new ArrayList<>();
+        ObjectHandler objectHandler = new ObjectHandler(ds);
         for (JEVisObject cleanObject : reportObjects) {
 
             try {
                 if (isEnabled(cleanObject)) {
                     logger.trace("Add Data Object to job list: [{}] {}", cleanObject.getID(), cleanObject.getName());
-                    processManagers.addAll(getAllProcessSteps(cleanObject));
+                    processManagers.add(new ProcessManager(cleanObject, objectHandler));
                 }
             } catch (Exception ex) {
                 throw new Exception(String.format("Failure while init jevisobject with id {}", cleanObject.getID()), ex);
@@ -73,7 +74,7 @@ public class ProcessManagerFactory {
         JEVisClass reportClass;
         List<JEVisObject> reportObjects = new ArrayList<>();
         try {
-            reportClass = ds.getJEVisClass(CleanDataAttributeJEVis.CLASS_NAME);
+            reportClass = ds.getJEVisClass(CleanDataObjectJEVis.CLASS_NAME);
             reportObjects = ds.getObjects(reportClass, false);
             logger.info("Total amount of Clean Data Objects: " + reportObjects.size());
         } catch (JEVisException ex) {
@@ -85,7 +86,7 @@ public class ProcessManagerFactory {
 
     private boolean isEnabled(JEVisObject cleanObject) {
         ObjectHandler objectHandler = new ObjectHandler(ds);
-        CleanDataAttribute calcAttribute = new CleanDataAttributeJEVis(cleanObject, objectHandler);
+        CleanDataObject calcAttribute = new CleanDataObjectJEVis(cleanObject, objectHandler);
         return calcAttribute.getEnabled();
     }
 
@@ -126,10 +127,8 @@ public class ProcessManagerFactory {
     private Collection<? extends ProcessManager> getProcessManagersByCleaningObject(JEVisObject cleanObject) throws Exception {
         List<ProcessManager> processManagers = new ArrayList<>();
         ObjectHandler objectHandler = new ObjectHandler(ds);
-        CleanDataAttribute calcAttribute = new CleanDataAttributeJEVis(cleanObject, objectHandler);
-        ProcessManager processManager = new ProcessManager(calcAttribute);
-        List<ProcessStep> processSteps = new ArrayList<>();
-        processSteps.addAll(getDefaultSteps());
+        ProcessManager processManager = new ProcessManager(cleanObject, objectHandler);
+        List<ProcessStep> processSteps = new ArrayList<>(getDefaultSteps());
         processManager.setProcessSteps(processSteps);
         processManagers.add(processManager);
 
@@ -143,8 +142,7 @@ public class ProcessManagerFactory {
     private ProcessManager getProcessManagerByFunctionalObject(JEVisObject functionalObject) throws Exception {
         JEVisObject cleanObject = getCleanDataObject(functionalObject);
         ObjectHandler objectHandler = new ObjectHandler(ds);
-        CleanDataAttribute calcAttribute = new CleanDataAttributeJEVis(cleanObject, objectHandler);
-        ProcessManager processManager = new ProcessManager(calcAttribute);
+        ProcessManager processManager = new ProcessManager(cleanObject, objectHandler);
         List<ProcessStep> processSteps = new ArrayList<>();
         ProcessStep processStepByFunction = getProcessStepByFunction(functionalObject);
         if (processStepByFunction == null) {

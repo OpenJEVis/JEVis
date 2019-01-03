@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * @author broder
  */
-public interface CleanDataAttribute {
+public interface CleanDataObject {
 
     /**
      * Check if the configuration is valid. Throws exception if configuration is not valid.

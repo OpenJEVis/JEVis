@@ -25,16 +25,16 @@ import org.joda.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jevis.jedataprocessor.data.CleanDataAttributeJEVis.AttributeName.*;
+import static org.jevis.jedataprocessor.data.CleanDataObjectJEVis.AttributeName.*;
 
 /**
  * @author broder
  */
-public class CleanDataAttributeJEVis implements CleanDataAttribute {
+public class CleanDataObjectJEVis implements CleanDataObject {
 
     public static final String CLASS_NAME = "Clean Data";
     public static final String VALUE_ATTRIBUTE_NAME = "Value";
-    private static final Logger logger = LogManager.getLogger(CleanDataAttributeJEVis.class);
+    private static final Logger logger = LogManager.getLogger(CleanDataObjectJEVis.class);
     private final JEVisObject object;
     private JEVisObject rawDataObject;
     //attributes
@@ -63,7 +63,7 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
     private Double lastCleanValue;
     private boolean isFirstRunPeriod = true;
 
-    public CleanDataAttributeJEVis(JEVisObject calcObject, ObjectHandler objectHandler) {
+    public CleanDataObjectJEVis(JEVisObject calcObject, ObjectHandler objectHandler) {
         object = calcObject;
         rawDataObject = objectHandler.getFirstParent(calcObject);
         sampleHandler = new SampleHandler();
@@ -291,10 +291,10 @@ public class CleanDataAttributeJEVis implements CleanDataAttribute {
 //        List<JEVisSample> rawSamples = rawValuesAtt.getSamples(getFirstDate().minus(getPeriodAlignment().multipliedBy(3)), getFirstDate());
 //        return rawSamples.get(rawSamples.size() - 2).getValueAsDouble();
         DateTime firstDate = getFirstDate();
-        Integer period = (int) getPeriodAlignment().toStandardDuration().getMillis();
-        int halfPeriod = period / 2;
-        DateTime start = firstDate.minusMillis(period + halfPeriod);
-        firstDate = firstDate.plusMillis(halfPeriod);
+        Long period = getPeriodAlignment().toStandardDuration().getMillis();
+        long halfPeriod = period / 2;
+        DateTime start = firstDate.minus(period + halfPeriod);
+        firstDate = firstDate.plus(halfPeriod);
         List<JEVisSample> samples = rawValuesAtt.getSamples(start, firstDate);
 
         return samples.get(0).getValueAsDouble();

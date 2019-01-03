@@ -2,10 +2,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jedataprocessor.data.CleanDataAttribute;
-import org.jevis.jedataprocessor.data.CleanDataAttributeOffline;
+import org.jevis.jedataprocessor.data.CleanDataObject;
+import org.jevis.jedataprocessor.data.CleanDataObjectOffline;
 import org.jevis.jedataprocessor.util.DataRowReader;
-import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 
@@ -54,9 +53,13 @@ public class DataRowChecker {
     }
 
     private void run(String pathToInputFile, String pathToCleanConfigFile, String pathToRealOutput) {
-        CleanDataAttribute calcAttribute = new CleanDataAttributeOffline(pathToInputFile, pathToCleanConfigFile, pathToRealOutput);
-        ProcessManager processManager = new ProcessManager(calcAttribute);
-        processManager.start();
+        CleanDataObject calcAttribute = new CleanDataObjectOffline(pathToInputFile, pathToCleanConfigFile, pathToRealOutput);
+        //ProcessManager processManager = new ProcessManager(calcAttribute, new ObjectHandler());
+        try {
+            //  processManager.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private List<JEVisSample> getSamplesFromFile(String pathToOutput) {
