@@ -44,33 +44,28 @@ public class Launcher extends AbstractCliApp {
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
         logger.info("{} cleaning task found starting", processes.size());
-        try {
-            processes.parallelStream().forEach(currentProcess -> {
-                forkJoinPool.submit(() -> {
-                    if (!runningJobs.containsKey(currentProcess.getId().toString())) {
 
-                        TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+        processes.parallelStream().forEach(currentProcess -> {
+            forkJoinPool.submit(() -> {
+                if (!runningJobs.containsKey(currentProcess.getId().toString())) {
 
-                        runningJobs.put(currentProcess.getId().toString(), "true");
+                    TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 
-                        try {
-                            currentProcess.start();
-                        } catch (Exception ex) {
-                            logger.debug(ex);
-                        }
-                        runningJobs.remove(currentProcess.getId().toString());
+                    runningJobs.put(currentProcess.getId().toString(), "true");
 
-                    } else {
-                        logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());
+                    try {
+                        currentProcess.start();
+                    } catch (Exception ex) {
+                        logger.debug(ex);
                     }
-                });
+                    runningJobs.remove(currentProcess.getId().toString());
+
+                } else {
+                    logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());
+                }
             });
-        } finally {
-            if (forkJoinPool != null) {
-                forkJoinPool.shutdown();
-                System.gc();
-            }
-        }
+        });
+
         logger.info("---------------------finish------------------------");
     }
 

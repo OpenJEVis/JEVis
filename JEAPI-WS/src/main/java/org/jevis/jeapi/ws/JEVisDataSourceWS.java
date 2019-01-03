@@ -279,17 +279,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     private void updateObject(JsonObject jsonObj) {
-        if (objectCache.containsKey(jsonObj.getId())) {
+        Long id = jsonObj.getId();
+        if (objectCache.containsKey(id)) {
             /**
              * cast needs to be removed
              */
-            ((JEVisObjectWS) objectCache.get(jsonObj.getId())).update(jsonObj);
+            objectCache.remove(id);
+            JEVisObjectWS newOBject = new JEVisObjectWS(this, jsonObj);
+            objectCache.put(newOBject.getID(), newOBject);
+            //((JEVisObjectWS) objectCache.get(id)).update(jsonObj);
         } else {
             JEVisObjectWS newOBject = new JEVisObjectWS(this, jsonObj);
             objectCache.put(newOBject.getID(), newOBject);
-            if (jsonObj.getId() == 7862) {
-                logger.error("Plugin object: {}", jsonObj);
-            }
         }
 
     }
@@ -1265,9 +1266,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             //getClassIcon();
             //benchmark.printBenchmarkDetail("Preload - Icons");
             //Optimization.getInstance().printStatistics();
+            if (!objectCache.isEmpty()) objectCache.clear();
             getObjects();
             benchmark.printBenchmarkDetail("Preload - Objects");
             Optimization.getInstance().printStatistics();
+            if (!attributeCache.isEmpty()) attributeCache.clear();
             getAttributes();
             benchmark.printBenchmarkDetail("Preload - Attributes");
             Optimization.getInstance().printStatistics();

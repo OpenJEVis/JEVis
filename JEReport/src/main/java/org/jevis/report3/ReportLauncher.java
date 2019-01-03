@@ -62,54 +62,41 @@ public class ReportLauncher extends AbstractCliApp {
 
         logger.info("Number of Reports: " + reportObjects.size());
 
-        try {
-            reportObjects.parallelStream().forEach(reportObject -> {
-                forkJoinPool.submit(() -> {
-                    if (!runningJobs.containsKey(reportObject.getID().toString())) {
 
-                        runningJobs.put(reportObject.getID().toString(), "true");
+        reportObjects.parallelStream().forEach(reportObject -> {
+            forkJoinPool.submit(() -> {
+                if (!runningJobs.containsKey(reportObject.getID().toString())) {
 
-                        LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());
-                        LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.STARTED);
-                        try {
-                            logger.info("---------------------------------------------------------------------");
-                            logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                            //check if the report is enabled
-                            ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
-                            Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
-                            if (!reportEnabled) {
-                                logger.info("Report is not enabled");
-                            } else {
+                    runningJobs.put(reportObject.getID().toString(), "true");
 
-                                ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
-                                executor.executeReport();
+                    LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());
+                    LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.STARTED);
 
-                                logger.info("---------------------------------------------------------------------");
-                                logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                            }
-                        } catch (Exception e) {
-                            if (logger.isDebugEnabled() || logger.isTraceEnabled()) {
-                                logger.error("[{}] Error in process: \n {} \n ", reportObject.getID(), org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
-                            } else {
-                                logger.error("[{}] Error in process: \n {} message: {}", reportObject.getID(), LogTaskManager.getInstance().getShortErrorMessage(e), e.getMessage());
-                            }
-                            LogTaskManager.getInstance().getTask(reportObject.getID()).setException(e);
-                            LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
-                        }
-                        LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
-                        runningJobs.remove(reportObject.getID().toString());
-
+                    logger.info("---------------------------------------------------------------------");
+                    logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                    //check if the report is enabled
+                    ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
+                    Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
+                    if (!reportEnabled) {
+                        logger.info("Report is not enabled");
                     } else {
-                        logger.error("Still processing Report " + reportObject.getName() + ":" + reportObject.getID());
+
+                        ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+                        executor.executeReport();
+
+                        logger.info("---------------------------------------------------------------------");
+                        logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
                     }
-                });
+
+                    LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
+                    runningJobs.remove(reportObject.getID().toString());
+
+                } else {
+                    logger.error("Still processing Report " + reportObject.getName() + ":" + reportObject.getID());
+                }
             });
-        } finally {
-            if (forkJoinPool != null) {
-                forkJoinPool.shutdown();
-                System.gc();
-            }
-        }
+        });
+
         logger.info("---------------------finish------------------------");
     }
 

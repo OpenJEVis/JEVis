@@ -74,13 +74,13 @@ public class Launcher extends AbstractCliApp {
 
                     TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 
-                        logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
+                    logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
                     LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
-                        DataSource dataSource = DataSourceFactory.getDataSource(object);
+                    DataSource dataSource = DataSourceFactory.getDataSource(object);
 
-                        dataSource.initialize(object);
+                    dataSource.initialize(object);
                     LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
-                        dataSource.run();
+                    dataSource.run();
 
                     LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
                     runningJobs.remove(object.getID().toString());
@@ -111,11 +111,18 @@ public class Launcher extends AbstractCliApp {
         logger.info("Start Single Mode");
 
         try {
+            ds.clearCache();
+            ds.preload();
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
+
+        try {
             logger.info("Try adding Single Mode for ID " + id);
             JEVisObject dataSourceObject = ds.getObject(id);
-            List<JEVisObject> jeVisObjectList = new ArrayList<>();
-            jeVisObjectList.add(dataSourceObject);
-            executeDataSources(jeVisObjectList);
+            DataSource dataSource = DataSourceFactory.getDataSource(dataSourceObject);
+            dataSource.initialize(dataSourceObject);
+            dataSource.run();
         } catch (Exception ex) {
             logger.error(ex);
         }

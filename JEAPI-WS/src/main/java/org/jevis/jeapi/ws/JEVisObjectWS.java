@@ -122,7 +122,8 @@ public class JEVisObjectWS implements JEVisObject {
         try {
             for (JEVisRelationship rel : getRelationships()) {
                 try {
-                    if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && rel.getEndID() == getID()) {
+                    Long id = rel.getEndID();
+                    if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && id == getID()) {
                         if (rel.getStartObject() != null) {
                             children.add(rel.getStartObject());
                         }
@@ -138,7 +139,14 @@ public class JEVisObjectWS implements JEVisObject {
         return children;
     }
 
-
+    /**
+     * TODO: this seems to not work properly needs testing
+     *
+     * @param jclass
+     * @param inherit Include inherited classes
+     * @return
+     * @throws JEVisException
+     */
     @Override
     public List<JEVisObject> getChildren(JEVisClass jclass, boolean inherit) throws JEVisException {
         List<JEVisObject> filterLIst = new ArrayList<>();
