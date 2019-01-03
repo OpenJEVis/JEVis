@@ -123,7 +123,7 @@ public class JEVisObjectWS implements JEVisObject {
             for (JEVisRelationship rel : getRelationships()) {
                 try {
                     Long id = rel.getEndID();
-                    if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && id == getID()) {
+                    if ((rel.getType() == JEVisConstants.ObjectRelationship.PARENT) && (id.equals(getID()))) {
                         if (rel.getStartObject() != null) {
                             children.add(rel.getStartObject());
                         }
