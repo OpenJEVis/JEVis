@@ -149,7 +149,19 @@ public class JEVisHTTPDataSource implements DataSource {
             JEVisClass channelDirClass = httpObject.getDataSource().getJEVisClass(HTTPChannelDirectoryTypes.NAME);
             JEVisObject channelDir = httpObject.getChildren(channelDirClass, false).get(0);
             JEVisClass channelClass = httpObject.getDataSource().getJEVisClass(HTTPChannelTypes.NAME);
-            _channels = channelDir.getChildren(channelClass, false);
+
+            List<Long> counterCheckForErrorInAPI = new ArrayList<>();
+            List<JEVisObject> channels = channelDir.getChildren(channelClass, false);
+            logger.info("Found " + channels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
+
+            channels.forEach(channelObject -> {
+                if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
+                    _channels.add(channelObject);
+                    counterCheckForErrorInAPI.add(channelObject.getID());
+                }
+            });
+
+            logger.info(channelDir.getName() + ":" + channelDir.getID() + " has " + _channels.size() + " channels.");
         } catch (Exception ex) {
             logger.error(ex);
         }

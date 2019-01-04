@@ -19,7 +19,7 @@ import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.Period;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -59,9 +59,8 @@ public class Aggregator {
         input.setJEVisDataSource(datasource);
         input.setID("Dynamic Input");
         input.setFunction(new InputFunction(cleanSamples));
-        aggregate.setSubProcesses(Arrays.asList(input));
-        List<JEVisSample> aggregatedSamples = aggregate.getResult();
-        return aggregatedSamples;
+        aggregate.setSubProcesses(Collections.singletonList(input));
+        return aggregate.getResult();
     }
 
     public List<JEVisSample> getAggregatedData(AggregationJob aggregationJob) {

@@ -11,7 +11,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.jedataprocessor.data.CleanDataObjectJEVis;
+import org.jevis.jedataprocessor.data.CleanDataObject;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.functional.aggregation.AggregationJob;
 import org.jevis.jedataprocessor.functional.aggregation.Aggregator;
@@ -34,7 +34,7 @@ public class AverageStep implements ProcessStep {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
         logger.debug("Start Functional Step with id {}", functionalObject.getID());
-        CleanDataObjectJEVis jevisAttribute = (CleanDataObjectJEVis) resourceManager.getCalcAttribute();
+        CleanDataObject jevisAttribute = resourceManager.getCalcAttribute();
         JEVisObject cleanData = jevisAttribute.getObject();
         Aggregator aggr = new Aggregator();
         AggregationJob createAggregationJob = AggregationJob.createAggregationJob(functionalObject, cleanData, Aggregator.AggregationModus.average);

@@ -60,10 +60,10 @@ public class CalcLauncher extends AbstractCliApp {
             logger.info("Service is disabled.");
         }
         try {
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
 
+            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             runServiceHelp();
         } catch (InterruptedException e) {
             logger.error("Interrupted sleep: ", e);
@@ -82,20 +82,27 @@ public class CalcLauncher extends AbstractCliApp {
 
                     runningJobs.put(object.getID().toString(), "true");
 
+                    try {
+                        LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
 
-                    LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
-                    TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-
-                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
-                    CalcJob calcJob;
-                    CalcJobFactory calcJobCreator = new CalcJobFactory();
-                    do {
-                        calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
-                        calcJob.execute();
-                    } while (!calcJob.hasProcessedAllInputSamples());
-
-                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+                        CalcJob calcJob;
+                        CalcJobFactory calcJobCreator = new CalcJobFactory();
+                        do {
+                            ds.reloadAttributes();
+                            calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                            calcJob.execute();
+                        } while (!calcJob.hasProcessedAllInputSamples());
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+                    } catch (Exception e) {
+                        if (logger.isDebugEnabled() || logger.isTraceEnabled()) {
+                            logger.error("[{}] Error in process: \n {} \n ", object.getID(), org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
+                        } else {
+                            logger.error("[{}] Error in process: \n {} message: {}", object.getID(), LogTaskManager.getInstance().getShortErrorMessage(e), e.getMessage());
+                        }
+                        LogTaskManager.getInstance().getTask(object.getID()).setException(e);
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
+                    }
                     runningJobs.remove(object.getID().toString());
 
                 } else {

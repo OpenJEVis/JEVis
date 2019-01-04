@@ -71,9 +71,6 @@ public class Launcher extends AbstractCliApp {
                     runningJobs.put(object.getID().toString(), "true");
                     LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
 
-
-                    TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-
                     logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
                     LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
                     DataSource dataSource = DataSourceFactory.getDataSource(object);
@@ -148,9 +145,9 @@ public class Launcher extends AbstractCliApp {
             logger.info("Service is disabled.");
         }
         try {
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
+            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 
             runServiceHelp();
         } catch (InterruptedException e) {

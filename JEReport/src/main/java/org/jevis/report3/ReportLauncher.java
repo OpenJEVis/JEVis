@@ -147,9 +147,9 @@ public class ReportLauncher extends AbstractCliApp {
         }
 
         try {
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             Thread.sleep(cycleTime);
 
+            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             runServiceHelp();
         } catch (InterruptedException e) {
             logger.fatal("Thread was interrupted: " + e);
