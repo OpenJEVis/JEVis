@@ -52,6 +52,7 @@ public class Config {
     private boolean smtpSSL;
     private int smtpPort;
     private String smtpSignatur;
+    private boolean smtpStartTLS;
     private List<Alarm> alarms = new ArrayList<>();
 
     /**
@@ -80,6 +81,7 @@ public class Config {
             smtpPort = configFile.getInt("sender.port");
             smtpFrom = configFile.getString("sender.from");
             smtpSignatur = configFile.getString("sender.signatur");
+            smtpStartTLS = configFile.getBoolean("sender.starttls");
 
 //            logger.info("jevisUser: " + jevisUser);
 //            logger.info("jevisPW: " + jevisPW);
@@ -249,4 +251,7 @@ public class Config {
         return smtpFrom;
     }
 
+    public boolean isSmtpStartTLS() {
+        return smtpStartTLS;
+    }
 }

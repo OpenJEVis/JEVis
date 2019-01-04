@@ -19,8 +19,6 @@
  */
 package org.jevis.jestatus;
 
-import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.HtmlEmail;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.joda.time.DateTime;
@@ -28,8 +26,13 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * This Class handels the logic and the sending of the alarms.
@@ -330,29 +333,98 @@ public class AlarmHandler {
      */
     private void sendAlarm(Config conf, Alarm alarm, String body) {
         try {
-            HtmlEmail email = new HtmlEmail();
+//            HtmlEmail email = new HtmlEmail();
+//
+//            //SimpleEmail email = new SimpleEmail();
+//            email.setHostName(conf.getSmtpServer());
+//            email.setSmtpPort(conf.getSmtpPort());
+//
+//            email.setAuthentication(conf.getSmtpUser(), conf.getSmtpPW());
+//
+//            email.setSSLOnConnect(conf.isSmtpSSL());
+//            email.setFrom(conf.smtpFrom);
+//            email.setSubject(alarm.getSubject());
+//            email.setStartTLSEnabled(conf.isSmtpStartTLS());
+//            email.setCharset("UTF-8");
+//
+//            for (String recipient : alarm.getRecipient()) {
+//                email.addTo(recipient);
+//            }
+//
+//            for (String bcc : alarm.getBcc()) {
+//                email.addBcc(bcc);
+//            }
+//            //email.setMsg(body);
+//            email.setHtmlMsg(body);
+//
+//            email.setTextMsg("Your email client does not support HTML messages");
+//
+//            email.setDebug(true);
+//            email.send();
+//            logger.info("Alarm send: " + alarm.getSubject());
 
-//            Email email = new SimpleEmail();
-            email.setHostName(conf.getSmtpServer());
-            email.setSmtpPort(conf.getSmtpPort());
-            email.setAuthenticator(new DefaultAuthenticator(conf.getSmtpUser(), conf.getSmtpPW()));
-            email.setSSLOnConnect(conf.isSmtpSSL());
-            email.setFrom(conf.smtpFrom);
-            email.setSubject(alarm.getSubject());
+
+            Properties props = System.getProperties();
+
+            props.put("mail.smtp.host", conf.getSmtpServer());
+
+            Session session;
+            if (conf.isSmtpStartTLS()) {
+                props.put("mail.smtp.port", conf.getSmtpPort()); //TLS Port
+                props.put("mail.smtp.auth", "true"); //enable authentication
+                props.put("mail.smtp.starttls.enable", "true"); //enable STARTTLS
+
+                //create Authenticator object to pass in Session.getInstance argument
+                Authenticator auth = new Authenticator() {
+                    //override the getPasswordAuthentication method
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(conf.getSmtpUser(), conf.getSmtpPW());
+                    }
+                };
+                session = Session.getInstance(props, auth);
+            } else if (conf.isSmtpSSL()) {
+                props.put("mail.smtp.socketFactory.port", conf.getSmtpPort()); //SSL Port
+                props.put("mail.smtp.socketFactory.class",
+                        "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
+                props.put("mail.smtp.auth", "true"); //Enabling SMTP Authentication
+                props.put("mail.smtp.port", conf.getSmtpPort()); //SMTP Port
+
+                Authenticator auth = new Authenticator() {
+                    //override the getPasswordAuthentication method
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(conf.getSmtpUser(), conf.getSmtpPW());
+                    }
+                };
+
+                session = Session.getDefaultInstance(props, auth);
+
+            } else session = Session.getInstance(props, null);
+
+            MimeMessage msg = new MimeMessage(session);
+            //set message headers
+            msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
+            msg.addHeader("format", "flowed");
+            msg.addHeader("Content-Transfer-Encoding", "8bit");
+
+            msg.setFrom(new InternetAddress(conf.smtpFrom, "NoReply"));
+
+            msg.setReplyTo(InternetAddress.parse(conf.getSmtpFrom(), false));
+
+            msg.setSubject(alarm.getSubject(), "UTF-8");
+
+            msg.setContent(body, "text/html; charset=UTF-8");
+
+            msg.setSentDate(new Date());
 
             for (String recipient : alarm.getRecipient()) {
-                email.addTo(recipient);
+                InternetAddress address = new InternetAddress();
+                address.setAddress(recipient);
+                msg.addRecipient(Message.RecipientType.TO, address);
             }
 
-            for (String bcc : alarm.getBcc()) {
-                email.addBcc(bcc);
-            }
-            email.setHtmlMsg(body);
-
-            email.send();
-            logger.info("Alarm send: " + alarm.getSubject());
+            Transport.send(msg);
         } catch (Exception ex) {
-            logger.info("cound not send Email: " + ex);
+            logger.info("could not send Email: " + ex);
         }
 
     }
