@@ -184,7 +184,19 @@ public class JEVisSOAPDataSource implements DataSource {
             JEVisClass channelDirClass = soapObject.getDataSource().getJEVisClass(DataCollectorTypes.ChannelDirectory.SOAPChannelDirectory.NAME);
             JEVisObject channelDir = soapObject.getChildren(channelDirClass, false).get(0);
             JEVisClass channelClass = soapObject.getDataSource().getJEVisClass(DataCollectorTypes.Channel.SOAPChannel.NAME);
-            _channels = channelDir.getChildren(channelClass, false);
+
+            List<Long> counterCheckForErrorInAPI = new ArrayList<>();
+            List<JEVisObject> channels = channelDir.getChildren(channelClass, false);
+            logger.info("Found " + channels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
+
+            channels.forEach(channelObject -> {
+                if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
+                    _channels.add(channelObject);
+                    counterCheckForErrorInAPI.add(channelObject.getID());
+                }
+            });
+
+            logger.info(channelDir.getName() + ":" + channelDir.getID() + " has " + _channels.size() + " channels.");
         } catch (JEVisException ex) {
             logger.error("error while init channels for datasource: " + _dataSource.getID());
             logger.error(ex);

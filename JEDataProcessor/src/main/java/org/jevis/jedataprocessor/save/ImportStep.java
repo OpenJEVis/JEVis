@@ -8,17 +8,16 @@ package org.jevis.jedataprocessor.save;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.task.LogTaskManager;
-import org.jevis.jedataprocessor.data.*;
+import org.jevis.jedataprocessor.data.CleanDataObject;
+import org.jevis.jedataprocessor.data.CleanDataObjectJEVis;
+import org.jevis.jedataprocessor.data.CleanInterval;
+import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.workflow.ProcessStep;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,13 +32,11 @@ public class ImportStep implements ProcessStep {
     public void run(ResourceManager resourceManager) throws Exception {
         if (resourceManager.getCalcAttribute() instanceof CleanDataObjectJEVis) {
             importIntoJEVis(resourceManager);
-        } else if (resourceManager.getCalcAttribute() instanceof CleanDataObjectOffline) {
-            writeIntoFile(resourceManager);
         }
     }
 
     private void importIntoJEVis(ResourceManager resourceManager) throws Exception {
-        CleanDataObjectJEVis cleanAttr = (CleanDataObjectJEVis) resourceManager.getCalcAttribute();
+        CleanDataObject cleanAttr = resourceManager.getCalcAttribute();
         JEVisObject cleanObject = cleanAttr.getObject();
         JEVisAttribute attribute = null;
 
@@ -72,24 +69,24 @@ public class ImportStep implements ProcessStep {
         LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
     }
 
-    private void writeIntoFile(ResourceManager resourceManager) {
-        CleanDataObjectOffline cleanAttr = (CleanDataObjectOffline) resourceManager.getCalcAttribute();
-        String pathToOutput = cleanAttr.getPathToOutput();
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(pathToOutput), StandardCharsets.UTF_8))) {
-            for (CleanInterval curInterval : resourceManager.getIntervals()) {
-                for (JEVisSample sample : curInterval.getTmpSamples()) {
-                    DateTime timestamp = sample.getTimestamp().plusSeconds(resourceManager.getCalcAttribute().getPeriodOffset());
-                    String dateAsString = timestamp.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
-                    Double value = sample.getValueAsDouble();
-                    if (value == null) {
-                        continue;
-                    }
-                    writer.write(dateAsString + ";" + value + "\n");
-                }
-            }
-        } catch (IOException | JEVisException ex) {
-            logger.error(ex);
-        }
-    }
+//    private void writeIntoFile(ResourceManager resourceManager) {
+//        CleanDataObject cleanAttr = resourceManager.getCalcAttribute();
+//        String pathToOutput = cleanAttr.getPathToOutput();
+//        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+//                new FileOutputStream(pathToOutput), StandardCharsets.UTF_8))) {
+//            for (CleanInterval curInterval : resourceManager.getIntervals()) {
+//                for (JEVisSample sample : curInterval.getTmpSamples()) {
+//                    DateTime timestamp = sample.getTimestamp().plusSeconds(resourceManager.getCalcAttribute().getPeriodOffset());
+//                    String dateAsString = timestamp.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
+//                    Double value = sample.getValueAsDouble();
+//                    if (value == null) {
+//                        continue;
+//                    }
+//                    writer.write(dateAsString + ";" + value + "\n");
+//                }
+//            }
+//        } catch (IOException | JEVisException ex) {
+//            logger.error(ex);
+//        }
+//    }
 }

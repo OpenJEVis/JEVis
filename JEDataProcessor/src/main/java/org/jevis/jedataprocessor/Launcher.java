@@ -50,8 +50,6 @@ public class Launcher extends AbstractCliApp {
             forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(currentProcess.getId().toString())) {
 
-                    TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-
                     runningJobs.put(currentProcess.getId().toString(), "true");
 
                     try {
@@ -112,7 +110,7 @@ public class Launcher extends AbstractCliApp {
                 ProcessManagerFactory pmf = new ProcessManagerFactory(ds);
                 processManagerList = pmf.initProcessManagersFromJEVisAll();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e);
             }
 
             this.executeProcesses(processManagerList);
@@ -121,9 +119,10 @@ public class Launcher extends AbstractCliApp {
         }
 
         try {
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             logger.info("Entering Sleep mode for " + cycleTime + "ms.");
             Thread.sleep(cycleTime);
+
+            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             runServiceHelp();
         } catch (InterruptedException e) {
             logger.error("Interrupted sleep: ", e);

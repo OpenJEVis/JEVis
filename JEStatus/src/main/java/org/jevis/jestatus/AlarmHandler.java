@@ -76,7 +76,7 @@ public class AlarmHandler {
                 }
             }
         } else {
-            dps.addAll(_ds.getObjects(_ds.getJEVisClass("Data"), true));
+            dps.addAll(_ds.getObjects(_ds.getJEVisClass("Data"), false));
 
         }
 
@@ -90,7 +90,7 @@ public class AlarmHandler {
      * @throws JEVisException
      */
     public void checkAlarm(Alarm alarm) throws JEVisException {
-        List<JEVisObject> outOfBount = new ArrayList<>();
+        List<JEVisObject> outOfBounds = new ArrayList<>();
         List<JEVisObject> dps = getDataPoints(alarm);
 
         DateTime now = new DateTime();
@@ -98,10 +98,10 @@ public class AlarmHandler {
         DateTime limit = now.minus(Period.hours(alarm.getTimeLimit()));
 
         for (JEVisObject obj : dps) {
-            JEVisSample lsample = obj.getAttribute("Value").getLatestSample();
-            if (lsample != null) {
-                if (lsample.getTimestamp().isBefore(limit) && lsample.getTimestamp().isAfter(ignoreTS)) {
-                    outOfBount.add(obj);
+            JEVisSample lastSample = obj.getAttribute("Value").getLatestSample();
+            if (lastSample != null) {
+                if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                    outOfBounds.add(obj);
                 }
             }
         }
@@ -140,17 +140,35 @@ public class AlarmHandler {
         sb.append("\" >");
         sb.append("    <th>Organisation</th>");
         sb.append("    <th>Building</th>");
-        sb.append("    <th>Directory</th>");
         sb.append("    <th>Datapoint</th>");
+        sb.append("    <th>Datapoint Class</th>");
         sb.append("    <th>Last Value</th>");
         sb.append("  </tr>");//border=\"0\"
 
         JEVisClass orga = _ds.getJEVisClass("Organization");
         JEVisClass building = _ds.getJEVisClass("Monitored Object");
         JEVisClass dir = _ds.getJEVisClass("Data Directory");
+        JEVisClass cleanData = _ds.getJEVisClass("Clean Data");
 
         boolean odd = false;
-        for (JEVisObject probelObj : outOfBount) {
+        for (JEVisObject currentDataPoint : outOfBounds) {
+            String name = currentDataPoint.getName();
+
+            boolean hasCleanDataObject = false;
+            JEVisObject currentCleanDataObject = null;
+            for (JEVisObject child : currentDataPoint.getChildren()) {
+                try {
+                    JEVisClass childClass = child.getJEVisClass();
+                    if (childClass != null && childClass.equals(cleanData)) {
+                        hasCleanDataObject = true;
+                        currentCleanDataObject = child;
+                        break;
+                    }
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            }
+
             String css = rowCss;
             if (odd) {
                 css += highlight;
@@ -158,35 +176,66 @@ public class AlarmHandler {
             odd = !odd;
 
             sb.append("<tr>");
+            /**
+             * Organisation Column
+             */
             sb.append("<td style=\"");
             sb.append(css);
             sb.append("\">");
-            sb.append(getParentName(probelObj, orga));
+            sb.append(getParentName(currentDataPoint, orga));
             sb.append("</td>");
+            /**
+             * Building Column
+             */
             sb.append("<td style=\"");
             sb.append(css);
             sb.append("\">");
-            sb.append(getParentName(probelObj, building));
+            sb.append(getParentName(currentDataPoint, building));
             sb.append("</td>");
+            /**
+             * Datapoint Column
+             */
             sb.append("<td style=\"");
             sb.append(css);
             sb.append("\">");
-            sb.append(getParentName(probelObj, dir));
+            sb.append(name);
+            if (hasCleanDataObject) {
+                sb.append(" (");
+                sb.append(currentCleanDataObject.getName());
+                sb.append(")");
+            }
             sb.append("</td>");
+            /**
+             * Datapoint Class Column
+             */
             sb.append("<td style=\"");
             sb.append(css);
             sb.append("\">");
-            sb.append(probelObj.getName());
+            if (!hasCleanDataObject) {
+                sb.append(currentDataPoint.getJEVisClass().getName());
+            } else {
+                sb.append(currentCleanDataObject.getJEVisClass().getName());
+            }
             sb.append("</td>");
+            /**
+             * Last Value Column
+             */
             sb.append("<td style=\"");
             sb.append(css);
             sb.append("\">");
-            sb.append(dtf.print(probelObj.getAttribute("Value").getLatestSample().getTimestamp()));
+            if (!hasCleanDataObject) {
+                sb.append(dtf.print(currentDataPoint.getAttribute("Value").getLatestSample().getTimestamp()));
+            } else {
+                JEVisSample smp = currentCleanDataObject.getAttribute("Value").getLatestSample();
+                if (smp != null) {
+                    sb.append(dtf.print(smp.getTimestamp()));
+                } else {
+                    sb.append(dtf.print(currentDataPoint.getAttribute("Value").getLatestSample().getTimestamp()));
+                    sb.append(", but no Clean Data values");
+                }
+            }
             sb.append("</td>");
             sb.append("</tr>");// style=\"border: 1px solid #D9E4E6;\">");
-
-            //Last Sample
-            //TODO: the fetch the sample again everytime is bad for the performace, store the sample somewhere
 
         }
 
@@ -197,7 +246,7 @@ public class AlarmHandler {
         sb.append(_conf.getSmtpSignatur());
         sb.append("</html>");
 
-        if (outOfBount.isEmpty() && alarm.isIgnoreFalse()) {
+        if (outOfBounds.isEmpty() && alarm.isIgnoreFalse()) {
             //Do nothing then
         } else {
             sendAlarm(_conf, alarm, sb.toString());
@@ -222,7 +271,7 @@ public class AlarmHandler {
     }
 
     /**
-     * return if the JEVisClass is frok the given JEVisClass or its heir
+     * return if the JEVisClass is from the given JEVisClass or its heir
      *
      * @param jclass  Class to check
      * @param jclass2 Class which the other class should hier from
