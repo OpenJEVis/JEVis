@@ -4,6 +4,6 @@ source /etc/jevis/jevis.env
 
 java -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.xml \
      -DserviceLogFile=${JEVIS_HOME}/var/log/jestatus.log \
-     -jar ${JEVIS_HOME}/JEAlarm/target/JEAlarm-1.0-jar-with-dependencies.jar \
+     -jar ${JEVIS_HOME}/JEStatus/target/JEStatus-1.0-jar-with-dependencies.jar \
      -c ${JEVIS_HOME}/etc/jevis.xml \
      -sm service
