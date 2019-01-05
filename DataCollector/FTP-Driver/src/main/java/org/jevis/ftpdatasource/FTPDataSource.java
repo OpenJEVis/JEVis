@@ -36,7 +36,7 @@ public class FTPDataSource implements DataSource {
     private DateTimeZone _timezone;
     private Parser _parser;
     private Importer _importer;
-    private List<JEVisObject> _channels;
+    private List<JEVisObject> _channels = new ArrayList<>();
     private List<Result> _result;
 
     @Override

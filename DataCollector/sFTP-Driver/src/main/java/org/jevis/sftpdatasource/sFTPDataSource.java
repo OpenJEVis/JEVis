@@ -37,7 +37,7 @@ public class sFTPDataSource implements DataSource {
     protected FTPClient _fc;
     private Parser _parser;
     private Importer _importer;
-    private List<JEVisObject> _channels;
+    private List<JEVisObject> _channels = new ArrayList<>();
     private List<Result> _result;
 
     private ChannelSftp _channel;
