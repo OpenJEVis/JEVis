@@ -133,7 +133,7 @@ public class JEVisHTTPDataSource implements DataSource {
 
     private Parser _parser;
     private Importer _importer;
-    private List<JEVisObject> _channels;
+    private List<JEVisObject> _channels = new ArrayList<>();
     private List<Result> _result;
 
     private HTTPDataSource _httpdatasource;
