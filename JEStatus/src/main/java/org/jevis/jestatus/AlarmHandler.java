@@ -120,7 +120,7 @@ public class AlarmHandler {
         sb.append("<br>");
         sb.append("<br>");
 
-        String tabelCSS = "background-color:#FFF;"
+        String tableCSS = "background-color:#FFF;"
                 + "text-color: #024457;"
                 + "outer-border: 1px solid #167F92;"
                 + "empty-cells:show;"
@@ -136,7 +136,7 @@ public class AlarmHandler {
         String highlight = "background-color: #EAF3F3";
 
         sb.append("<table style=\"");
-        sb.append(tabelCSS);
+        sb.append(tableCSS);
         sb.append("\" border=\"1\" >");
         sb.append("<tr style=\"");
         sb.append(headerCSS);
@@ -155,7 +155,7 @@ public class AlarmHandler {
 
         boolean odd = false;
         for (JEVisObject currentDataPoint : outOfBounds) {
-            String name = currentDataPoint.getName();
+            String name = currentDataPoint.getName() + ":" + currentDataPoint.getID().toString();
 
             boolean hasCleanDataObject = false;
             JEVisObject currentCleanDataObject = null;
@@ -204,7 +204,7 @@ public class AlarmHandler {
             sb.append(name);
             if (hasCleanDataObject) {
                 sb.append(" (");
-                sb.append(currentCleanDataObject.getName());
+                sb.append(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
                 sb.append(")");
             }
             sb.append("</td>");
@@ -333,36 +333,6 @@ public class AlarmHandler {
      */
     private void sendAlarm(Config conf, Alarm alarm, String body) {
         try {
-//            HtmlEmail email = new HtmlEmail();
-//
-//            //SimpleEmail email = new SimpleEmail();
-//            email.setHostName(conf.getSmtpServer());
-//            email.setSmtpPort(conf.getSmtpPort());
-//
-//            email.setAuthentication(conf.getSmtpUser(), conf.getSmtpPW());
-//
-//            email.setSSLOnConnect(conf.isSmtpSSL());
-//            email.setFrom(conf.smtpFrom);
-//            email.setSubject(alarm.getSubject());
-//            email.setStartTLSEnabled(conf.isSmtpStartTLS());
-//            email.setCharset("UTF-8");
-//
-//            for (String recipient : alarm.getRecipient()) {
-//                email.addTo(recipient);
-//            }
-//
-//            for (String bcc : alarm.getBcc()) {
-//                email.addBcc(bcc);
-//            }
-//            //email.setMsg(body);
-//            email.setHtmlMsg(body);
-//
-//            email.setTextMsg("Your email client does not support HTML messages");
-//
-//            email.setDebug(true);
-//            email.send();
-//            logger.info("Alarm send: " + alarm.getSubject());
-
 
             Properties props = System.getProperties();
 

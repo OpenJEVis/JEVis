@@ -438,10 +438,11 @@ public class JEVisObjectWS implements JEVisObject {
                 /**
                  * cast needs to be removed
                  */
-                JEVisObject obj = (JEVisObject) o;
-                if (obj.getID().equals(getID())) {
-                    return true;
-                }
+                return ((JEVisObject) o).getID().equals(getID());
+//                JEVisObject obj = (JEVisObject) o;
+//                if (obj.getID().equals(getID())) {
+//                    return true;
+//                }
             }
         } catch (Exception ex) {
             return false;

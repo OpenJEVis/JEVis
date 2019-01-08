@@ -89,11 +89,13 @@ public class CalcLauncher extends AbstractCliApp {
                         CalcJob calcJob;
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
                         do {
-                            ds.reloadAttributes();
+                            ds.clearCache();
                             calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
                             calcJob.execute();
                         } while (!calcJob.hasProcessedAllInputSamples());
+
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+
                     } catch (Exception e) {
                         if (logger.isDebugEnabled() || logger.isTraceEnabled()) {
                             logger.error("[{}] Error in process: \n {} \n ", object.getID(), org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
@@ -103,6 +105,7 @@ public class CalcLauncher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(object.getID()).setException(e);
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
                     }
+
                     runningJobs.remove(object.getID().toString());
 
                 } else {
