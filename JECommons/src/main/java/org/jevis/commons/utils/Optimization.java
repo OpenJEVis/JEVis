@@ -61,4 +61,9 @@ public class Optimization {
 //        }
     }
 
+    public void clearCache() {
+        objectAmount = 0;
+        attributeAmount = 0;
+        sampleAmount = 0;
+    }
 }

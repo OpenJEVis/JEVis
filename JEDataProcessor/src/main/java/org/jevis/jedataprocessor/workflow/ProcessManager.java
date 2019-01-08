@@ -9,8 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
-import org.jevis.commons.task.LogTaskManager;
-import org.jevis.commons.task.Task;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
 import org.jevis.jedataprocessor.data.CleanDataObjectJEVis;
 import org.jevis.jedataprocessor.data.ResourceManager;
@@ -73,9 +71,6 @@ public class ProcessManager {
 
     public void start() throws Exception {
         logger.info("[{}] Starting Process", resourceManager.getID());
-
-        LogTaskManager.getInstance().buildNewTask(resourceManager.getID(), LogTaskManager.parentName(resourceManager.getCalcAttribute().getObject()));
-        LogTaskManager.getInstance().getTask(resourceManager.getID()).setStatus(Task.Status.STARTED);
 
         resourceManager.getCalcAttribute().checkConfig();
 

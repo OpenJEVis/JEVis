@@ -1323,5 +1323,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         objectLoaded = false;
         orLoaded = false;
 
+        Optimization.getInstance().clearCache();
     }
 }
