@@ -5,7 +5,4 @@ source /etc/jevis/jevis.env
 java -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.xml \
      -DserviceLogFile=${JEVIS_HOME}/var/log/jereport.log \
      -jar ${JEVIS_HOME}/JEReport/target/JEReport-1.1.2-jar-with-dependencies.jar \
-     -jc ${JEVIS_HOME}/etc/jevis.conf \
-     $?
-
-
+     -c ${JEVIS_HOME}/etc/jevis.xml
