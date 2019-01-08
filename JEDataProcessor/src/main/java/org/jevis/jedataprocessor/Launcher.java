@@ -53,6 +53,8 @@ public class Launcher extends AbstractCliApp {
                     runningJobs.put(currentProcess.getId().toString(), "true");
 
                     try {
+                        LogTaskManager.getInstance().buildNewTask(currentProcess.getId(), currentProcess.getName());
+                        LogTaskManager.getInstance().getTask(currentProcess.getId()).setStatus(Task.Status.STARTED);
                         currentProcess.start();
                     } catch (Exception ex) {
                         logger.debug(ex);
