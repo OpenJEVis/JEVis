@@ -12,7 +12,7 @@ public class CommonTask implements Task {
     private Status status = Status.UNKOWN;
     private DateTime startDate;
     private DateTime endDate;
-    private String name;
+    private String name = "";
     private String error;
     private Exception exception;
     private List<TaskStep> steps = new ArrayList<>();

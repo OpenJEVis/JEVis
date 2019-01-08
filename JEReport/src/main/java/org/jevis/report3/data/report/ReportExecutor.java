@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -147,8 +148,8 @@ public class ReportExecutor {
             String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
             DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
 
-            Boolean conditonEnabeld = samplesHandler.getLastSample(reportObject, "Condition Enabled", false);
-            if (!conditonEnabeld) {
+            Boolean conditionEnabled = samplesHandler.getLastSample(reportObject, "Condition Enabled", false);
+            if (!conditionEnabled) {
                 return true;
             }
 
@@ -164,8 +165,8 @@ public class ReportExecutor {
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, endRecord);
             for (JEVisSample sample : samplesInPeriod) {
                 String value = sample.getValueAsString();
-                boolean isFullfilled = eventOperator.isFulfilled(value, limit);
-                if (isFullfilled) {
+                boolean isFulfilled = Objects.requireNonNull(eventOperator).isFulfilled(value, limit);
+                if (isFulfilled) {
                     return true;
                 }
             }
