@@ -19,6 +19,7 @@
  */
 package org.jevis.jeapi.ws;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.IOUtils;
@@ -58,6 +59,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return "JEAPI-WS";
         }
     };
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private String host = "http://localhost";
     private HTTPConnection con;
     private Gson gson = new Gson();
@@ -69,9 +71,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
     private Map<String, JEVisClass> classCache = Collections.synchronizedMap(new HashMap<String, JEVisClass>());
     private Map<Long, JEVisObject> objectCache = Collections.synchronizedMap(new HashMap<Long, JEVisObject>());
+    //    private Map<Long, List<JEVisAttribute>> attributeMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisAttribute>>());
     private Map<Long, List<JEVisRelationship>> objectRelMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisRelationship>>());
-//    private Map<Long, List<JEVisAttribute>> attributeMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisAttribute>>());
-
     private boolean allAttributesPreloaded = false;
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
@@ -169,12 +170,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
                 String resource = HTTPConnection.API_PATH_V1
                         + REQUEST.ATTRIBUTES.PATH;
+//                StringBuffer response = con.getRequest(resource);
+//                ObjectMapper objectMapper = new ObjectMapper();
+                List<JsonAttribute> jsons = Arrays.asList(objectMapper.readValue(con.getInputStreamRequest(resource), JsonAttribute[].class));
+//                JsonAttribute[] myObjects = objectMapper.readValue(con.getInputStreamRequest(resource), JsonAttribute[].class);
 
-                StringBuffer response = con.getRequest(resource);
 
-                Type listType = new TypeToken<List<JsonAttribute>>() {
-                }.getType();
-                List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
+//                Type listType = new TypeToken<List<JsonAttribute>>() {
+//                }.getType();
+//                List<JsonAttribute> jsons = gson.fromJson(response.toString(), listType);
                 logger.debug("JsonAttribute.count: {}", jsons.size());
 
 
@@ -304,11 +308,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     + REQUEST.OBJECTS.PATH
                     + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS + "false"
                     + "&" + REQUEST.OBJECTS.OPTIONS.ONLY_ROOT + "false";
-            StringBuffer response = con.getRequest(resource);
 
-            Type listType = new TypeToken<List<JsonObject>>() {
-            }.getType();
-            List<JsonObject> jsons = gson.fromJson(response.toString(), listType);
+
+            List<JsonObject> jsons = Arrays.asList(objectMapper.readValue(con.getInputStreamRequest(resource), JsonObject[].class));
+
+//            StringBuffer response = con.getRequest(resource);
+//            Type listType = new TypeToken<List<JsonObject>>() {
+//            }.getType();
+//            List<JsonObject> jsons = gson.fromJson(response.toString(), listType);
             logger.debug("JsonObject.count: {}", jsons.size());
             for (JsonObject obj : jsons) {
                 try {
@@ -425,11 +432,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             String resource = HTTPConnection.API_PATH_V1
                     + REQUEST.RELATIONSHIPS.PATH;
 //                                  + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS;
-            StringBuffer response = con.getRequest(resource);
+//            StringBuffer response = con.getRequest(resource);
+//
+//            Type listType = new TypeToken<List<JsonRelationship>>() {
+//            }.getType();
+//            List<JsonRelationship> jsons = gson.fromJson(response.toString(), listType);
 
-            Type listType = new TypeToken<List<JsonRelationship>>() {
-            }.getType();
-            List<JsonRelationship> jsons = gson.fromJson(response.toString(), listType);
+//            ObjectMapper objectMapper = new ObjectMapper();
+            List<JsonRelationship> jsons = Arrays.asList(objectMapper.readValue(con.getInputStreamRequest(resource), JsonRelationship[].class));
 
             jsons.parallelStream().forEach(jsonRelationship -> {
                 try {
@@ -794,11 +804,16 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
             }
 
-            StringBuffer response = con.getRequest(resource);
+//            StringBuffer response = con.getRequest(resource);
+//
+//            Type listType = new TypeToken<List<JsonSample>>() {
+//            }.getType();
+//            List<JsonSample> jsons = gson.fromJson(response.toString(), listType);
 
-            Type listType = new TypeToken<List<JsonSample>>() {
-            }.getType();
-            List<JsonSample> jsons = gson.fromJson(response.toString(), listType);
+            //            ObjectMapper objectMapper = new ObjectMapper();
+            List<JsonSample> jsons = Arrays.asList(objectMapper.readValue(con.getInputStreamRequest(resource), JsonSample[].class));
+
+
             for (JsonSample sample : jsons) {
 //                logger.trace("New rel: " + rel);
                 try {
@@ -1152,14 +1167,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         try {
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_CLASSES;
             List<JEVisClass> classes = new ArrayList<>();
-            StringBuffer response = con.getRequest(resource);
-            if (response == null) {
-                return new ArrayList<>();//hmmm not the best solutuin
-            }
+//            StringBuffer response = con.getRequest(resource);
+//            if (response == null) {
+//                return new ArrayList<>();//hmmm not the best solutuin
+//            }
 
-            Type listType = new TypeToken<List<JsonJEVisClass>>() {
-            }.getType();
-            List<JsonJEVisClass> jsons = gson.fromJson(response.toString(), listType);
+//            Type listType = new TypeToken<List<JsonJEVisClass>>() {
+//            }.getType();
+//            List<JsonJEVisClass> jsons = gson.fromJson(response.toString(), listType);
+
+            List<JsonJEVisClass> jsons = Arrays.asList(objectMapper.readValue(con.getInputStreamRequest(resource), JsonJEVisClass[].class));
+
+
             for (JsonJEVisClass jc : jsons) {
 
                 JEVisClass newClass = new JEVisClassWS(this, jc);
