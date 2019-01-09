@@ -23,6 +23,7 @@
         <module>Notifier</module>
         <module>JEDataProcessor</module>
         <module>JEStatus</module>
+        <module>Sandbox</module>
     </modules>
 
     <profiles>

@@ -189,6 +189,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 }
                 logger.debug("Done parsing attributes");
 
+
                 /**
                  * TODO:
                  * 1. use fixMissingAttributes(attributes); fi fix missing attribes
@@ -1313,6 +1314,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void clearCache() {
 //        classCache.clear();
+
         objectRelMapCache.clear();
         objectRelCache.clear();
         objectCache.clear();
@@ -1323,6 +1325,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         objectLoaded = false;
         orLoaded = false;
 
+        System.gc();
         Optimization.getInstance().clearCache();
     }
 }
