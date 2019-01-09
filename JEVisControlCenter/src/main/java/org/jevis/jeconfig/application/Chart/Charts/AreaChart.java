@@ -27,6 +27,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.customJFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.dialog.NoteDialog;
 import org.jevis.jeconfig.tool.I18n;
@@ -110,6 +111,7 @@ public class AreaChart implements Chart {
         areaChart = new javafx.scene.chart.AreaChart<Number, Number>(dateAxis, numberAxis, series);
 
         areaChart.setStyle("-fx-font-size: " + 12 + "px;");
+        areaChart.setAnimated(false);
         applyColors();
 
         areaChart.setTitle(getUpdatedChartName());
@@ -256,7 +258,7 @@ public class AreaChart implements Chart {
             panner.start();
         }
 
-        areaChartRegion = JFXChartUtil.setupZooming(areaChart, mouseEvent -> {
+        areaChartRegion = customJFXChartUtil.setupZooming(areaChart, mouseEvent -> {
 
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
@@ -298,59 +300,57 @@ public class AreaChart implements Chart {
         changedBoth = new Boolean[]{false, false};
         //xyChartSerieList.clear();
         //series.clear();
-        tableData.clear();
+        //tableData.clear();
         unit.clear();
         //hexColors.clear();
         if (chartDataModels.size() > 0) {
+            System.out.println("Start chart: " + chartName);
             if (chartDataModels.size() <= xyChartSerieList.size()) {
+                /**
+                 * if the new chart data model contains fewer or equal count of chart series as the old one
+                 */
 
+                System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
                 if (chartDataModels.size() < xyChartSerieList.size()) {
-                    for (int i = xyChartSerieList.size(); i > chartDataModels.size(); i--) {
-                        xyChartSerieList.remove(i - 1);
-                        series.remove(i - 1);
-                        hexColors.remove(i - 1);
+                    /**
+                     * remove the series which are in excess
+                     */
+
+                    for (int i = chartDataModels.size(); i < xyChartSerieList.size(); i++) {
+                        System.out.println("remove series: " + xyChartSerieList.get(i).getTableEntryName());
+                        xyChartSerieList.remove(i);
+                        series.remove(i);
+                        hexColors.remove(i);
+                        tableData.remove(i);
                     }
+
                 }
+                System.out.println("After remove;");
+                System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
 
-                xyChartSerieList.forEach(xyChartSerie -> {
-                    int i = xyChartSerieList.indexOf(xyChartSerie);
-                    hexColors.set(i, chartDataModels.get(i).getColor());
-                    xyChartSerie.setSingleRow(chartDataModels.get(i));
-                    try {
-                        xyChartSerie.generateSeriesFromSamples();
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
+                updateXYChartSeries();
 
-                    tableData.add(xyChartSerie.getTableEntry());
+            } else {
+                /**
+                 * if there are more new data rows then old ones
+                 */
 
-                    if (xyChartSerie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
-                        timeStampOfFirstSample.set(xyChartSerie.getTimeStampFromFirstSample());
-                        changedBoth[0] = true;
-                    }
+                updateXYChartSeries();
 
-                    if (xyChartSerie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
-                        timeStampOfLastSample.set(xyChartSerie.getTimeStampFromLastSample());
-                        changedBoth[1] = true;
-                    }
-
-                    try {
-                        checkManipulation(chartDataModels.get(i));
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                });
-
-            } else if (chartDataModels.size() > xyChartSerieList.size()) {
-
-                for (int i = xyChartSerieList.size() - 1; i < chartDataModels.size(); i++) {
+                System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
+                for (int i = xyChartSerieList.size(); i < chartDataModels.size(); i++) {
                     try {
                         xyChartSerieList.add(generateSerie(changedBoth, chartDataModels.get(i)));
+                        System.out.println("Add Series: " + chartDataModels.get(i).getTitle());
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
                 }
+                System.out.println("After add: ");
+                System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
             }
+
+            System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
 
             series.forEach(serie -> {
                 serie.getData().forEach(numberNumberData -> {
@@ -363,16 +363,49 @@ public class AreaChart implements Chart {
             applyColors();
 
             generateXAxis(changedBoth);
-            dateAxis.setAutoRanging(true);
-
             generateYAxis();
-            numberAxis.setAutoRanging(true);
 
             areaChart.setTitle(getUpdatedChartName());
 
+            areaChart.getXAxis().setAutoRanging(true);
+            areaChart.getYAxis().setAutoRanging(true);
             areaChart.getXAxis().layout();
             areaChart.getYAxis().layout();
             areaChart.layout();
+        }
+    }
+
+    private void updateXYChartSeries() {
+        for (int i = 0; i < xyChartSerieList.size(); i++) {
+            XYChartSerie xyChartSerie = xyChartSerieList.get(i);
+
+            hexColors.set(i, chartDataModels.get(i).getColor());
+            xyChartSerie.setSingleRow(chartDataModels.get(i));
+            try {
+                xyChartSerie.generateSeriesFromSamples();
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("old table entry name: " + tableData.get(i).getName());
+            tableData.set(i, xyChartSerie.getTableEntry());
+            System.out.println("new table entry name: " + tableData.get(i).getName());
+
+            if (xyChartSerie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
+                timeStampOfFirstSample.set(xyChartSerie.getTimeStampFromFirstSample());
+                changedBoth[0] = true;
+            }
+
+            if (xyChartSerie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
+                timeStampOfLastSample.set(xyChartSerie.getTimeStampFromLastSample());
+                changedBoth[1] = true;
+            }
+
+            try {
+                checkManipulation(chartDataModels.get(i));
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -380,10 +413,13 @@ public class AreaChart implements Chart {
         String newName = chartName;
         switch (manipulationMode.get()) {
             case CENTRIC_RUNNING_MEAN:
-                newName += " [" + I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean") + "]";
+                String centricrunningmean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
+                if (!newName.contains(centricrunningmean))
+                    newName += " [" + centricrunningmean + "]";
                 break;
             case RUNNING_MEAN:
-                newName += " [" + I18n.getInstance().getString("plugin.graph.manipulation.runningmean") + "]";
+                String runningmean = I18n.getInstance().getString("plugin.graph.manipulation.runningmean");
+                newName += " [" + runningmean + "]";
                 break;
             case MAX:
                 break;
@@ -396,10 +432,14 @@ public class AreaChart implements Chart {
             case TOTAL:
                 break;
             case SORTED_MAX:
-                newName += " [" + I18n.getInstance().getString("plugin.graph.manipulation.sortedmax") + "]";
+                String sortedmax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
+                if (!newName.contains(sortedmax))
+                    newName += " [" + sortedmax + "]";
                 break;
             case SORTED_MIN:
-                newName += " [" + I18n.getInstance().getString("plugin.graph.manipulation.sortedmin") + "]";
+                String sortedmin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
+                if (!newName.contains(sortedmin))
+                    newName += " [" + sortedmin + "]";
                 break;
             case MEDIAN:
                 break;

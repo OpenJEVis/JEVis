@@ -26,7 +26,6 @@ public class XYChartSerie implements Serie {
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     private ChartDataModel singleRow;
     private Boolean hideShowIcons;
-    private List<JEVisSample> samples;
     private TreeMap<Double, JEVisSample> sampleMap;
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
@@ -61,10 +60,11 @@ public class XYChartSerie implements Serie {
 
     public void generateSeriesFromSamples() throws JEVisException {
         tableEntry = new TableEntry(getTableEntryName());
+        this.serie.setName(getTableEntryName());
 
         tableEntry.setColor(singleRow.getColor());
 
-        samples = singleRow.getSamples();
+        List<JEVisSample> samples = singleRow.getSamples();
 
         seriesData.clear();
         if (samples.size() > 0) {
@@ -150,12 +150,11 @@ public class XYChartSerie implements Serie {
     }
 
     public String getTableEntryName() {
-        String tableEntryName = singleRow.getObject().getName();
 
 //        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE))
 //            tableEntryName += " (" + singleRow.getManipulationMode().toString() + ")";
 
-        return tableEntryName;
+        return singleRow.getObject().getName();
     }
 
     public String getUnit() {
