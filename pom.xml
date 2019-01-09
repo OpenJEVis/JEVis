@@ -23,7 +23,6 @@
         <module>Notifier</module>
         <module>JEDataProcessor</module>
         <module>JEStatus</module>
-        <module>Sandbox</module>
     </modules>
 
     <profiles>
@@ -73,13 +72,13 @@
             <dependency>
                 <groupId>org.jevis.commons</groupId>
                 <artifactId>JECommons</artifactId>
-                <version>3.13</version>
+                <version>3.14</version>
             </dependency>
 
             <dependency>
                 <groupId>org.jevis</groupId>
                 <artifactId>JEAPI-WS</artifactId>
-                <version>1.14</version>
+                <version>1.15</version>
             </dependency>
 
             <dependency>
