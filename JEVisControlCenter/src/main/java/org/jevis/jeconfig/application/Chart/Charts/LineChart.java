@@ -304,13 +304,11 @@ public class LineChart implements Chart {
         unit.clear();
         //hexColors.clear();
         if (chartDataModels.size() > 0) {
-            System.out.println("Start chart: " + chartName);
             if (chartDataModels.size() <= xyChartSerieList.size()) {
                 /**
                  * if the new chart data model contains fewer or equal count of chart series as the old one
                  */
 
-                System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
                 if (chartDataModels.size() < xyChartSerieList.size()) {
                     /**
                      * remove the series which are in excess
@@ -325,8 +323,6 @@ public class LineChart implements Chart {
                     }
 
                 }
-                System.out.println("After remove;");
-                System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
 
                 updateXYChartSeries();
 
@@ -337,20 +333,14 @@ public class LineChart implements Chart {
 
                 updateXYChartSeries();
 
-                System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
                 for (int i = xyChartSerieList.size(); i < chartDataModels.size(); i++) {
                     try {
                         xyChartSerieList.add(generateSerie(changedBoth, chartDataModels.get(i)));
-                        System.out.println("Add Series: " + chartDataModels.get(i).getTitle());
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
                 }
-                System.out.println("After add: ");
-                System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
             }
-
-            System.out.println("Chartdatamodels: " + chartDataModels.size() + "xySeries: " + xyChartSerieList.size());
 
             series.forEach(serie -> {
                 serie.getData().forEach(numberNumberData -> {
@@ -387,9 +377,7 @@ public class LineChart implements Chart {
                 e.printStackTrace();
             }
 
-            System.out.println("old table entry name: " + tableData.get(i).getName());
             tableData.set(i, xyChartSerie.getTableEntry());
-            System.out.println("new table entry name: " + tableData.get(i).getName());
 
             if (xyChartSerie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
                 timeStampOfFirstSample.set(xyChartSerie.getTimeStampFromFirstSample());
@@ -595,17 +583,11 @@ public class LineChart implements Chart {
 
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
-            Color brighter = currentColor.deriveColor(1, 1, 50, 0.3);
             String hexColor = toRGBCode(currentColor);
-            String hexBrighter = toRGBCode(brighter) + "55";
             String preIdent = ".default-color" + i;
-            Node node = lineChart.lookup(preIdent + ".chart-series-area-fill");
-            Node nodew = lineChart.lookup(preIdent + ".chart-series-area-line");
 
-            node.setStyle("-fx-fill: linear-gradient(" + hexColor + "," + hexBrighter + ");"
-                    + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
-                    + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
-            nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+            Node node = lineChart.lookup(preIdent + ".chart-series-line");
+            node.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
         }
     }
 
