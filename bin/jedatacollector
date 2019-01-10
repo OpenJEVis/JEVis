@@ -4,6 +4,7 @@ source /etc/jevis/jevis.env
 
 java -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.xml \
      -DserviceLogFile=${JEVIS_HOME}/var/log/jedatacollector.log \
+     -XX:+UseG1GC \
      -jar ${JEVIS_HOME}/DataCollector/JEDataCollector/target/JEDataCollector.jar \
      -c ${JEVIS_HOME}/etc/jevis.xml \
      -sm service
