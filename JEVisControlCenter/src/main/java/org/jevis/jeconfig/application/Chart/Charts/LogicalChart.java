@@ -56,7 +56,6 @@ public class LogicalChart extends XYChart {
 
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
-            Color brighter = currentColor.deriveColor(1, 1, 50, 0.3);
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = getChart().lookup(preIdent + ".chart-series-area-fill");

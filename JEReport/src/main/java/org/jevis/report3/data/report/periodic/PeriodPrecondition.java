@@ -49,7 +49,7 @@ public class PeriodPrecondition implements Precondition {
 
         boolean isFulfilled = true;
 
-        if (operator != null && limit != null && jevisId != null && attributeName != null) {
+        if (operator != null && !operator.equals("") && limit != null && jevisId != null && attributeName != null) {
             isFulfilled = false;
 
             EventPrecondition.EventOperator eventOperator = EventPrecondition.EventOperator.getEventOperator(operator);

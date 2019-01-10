@@ -96,6 +96,8 @@ public class ReportExecutor {
 
         Report report = new Report(property, contextMap);
 
+        logger.info("Built context. " + contextMap.size());
+
         if (isPeriodicReport(reportObject) && !isPeriodicConditionReached(reportObject, new SampleHandler())) {
             logger.info("condition not reached");
             finisher.finishReport(report, property);
@@ -103,6 +105,7 @@ public class ReportExecutor {
         }
 
         try {
+            logger.info("Creating reportFile.");
             byte[] outputBytes = report.getReportFile();
 
             DateTime start = new DateTime(reportObject.getAttribute(ReportAttributes.START_RECORD).getLatestSample().getValueAsString());
@@ -112,11 +115,14 @@ public class ReportExecutor {
             JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
             JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);
             lastReportAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
+            logger.info("Uploaded report file to JEVis System");
 
+            logger.info("Creating pdf file.");
             JEVisFile fileForNotification = jeVisFileImp;
             if (property.getToPdf()) {
 
                 try {
+                    logger.info("Creating pdf file.");
                     File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
                     PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
                     pdfFileSplitter.splitPDF();
@@ -130,6 +136,7 @@ public class ReportExecutor {
             JEVisObject notificationObject = property.getNotificationObject();
             JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
             attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
+            logger.info("Uploaded pdf file to notification in JEVis System");
 
             sendNotification(notificationObject, fileForNotification);
 
@@ -154,7 +161,6 @@ public class ReportExecutor {
             }
 
             String operator = samplesHandler.getLastSample(reportObject, "Operator", "");
-            EventPrecondition.EventOperator eventOperator = EventPrecondition.EventOperator.getEventOperator(operator);
             String limit = samplesHandler.getLastSample(reportObject, "Limit", "");
             Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
             String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
@@ -163,11 +169,15 @@ public class ReportExecutor {
             ReportProperty.ReportSchedule schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
             DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule);
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, endRecord);
-            for (JEVisSample sample : samplesInPeriod) {
-                String value = sample.getValueAsString();
-                boolean isFulfilled = Objects.requireNonNull(eventOperator).isFulfilled(value, limit);
-                if (isFulfilled) {
-                    return true;
+
+            if (!operator.equals("")) {
+                EventPrecondition.EventOperator eventOperator = EventPrecondition.EventOperator.getEventOperator(operator);
+                for (JEVisSample sample : samplesInPeriod) {
+                    String value = sample.getValueAsString();
+                    boolean isFulfilled = Objects.requireNonNull(eventOperator).isFulfilled(value, limit);
+                    if (isFulfilled) {
+                        return true;
+                    }
                 }
             }
 

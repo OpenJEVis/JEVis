@@ -274,44 +274,41 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @param driver
      * @return
      */
-    public Session setServer(EmailNotificationDriver driver) {
+    public Session setServer(EmailNotificationDriver driver) {//EmailNotificationDriver.class
+        Properties properties = System.getProperties();
+        Session session = null;
+        properties.setProperty(PROTERTY_SMTP_HOST, driver.getSMTPServer());
 
-        synchronized (EmailNotificationDriver.class) {//EmailNotificationDriver.class
-            Properties properties = System.getProperties();
-            Session session = null;
-            properties.setProperty(PROTERTY_SMTP_HOST, driver.getSMTPServer());
-
-            properties.setProperty("mail.transport.protocol", "smtp");
+        properties.setProperty("mail.transport.protocol", "smtp");
 //            properties.setProperty("mail.debug", "true"); //to show the Information of sending. It can be false.
 
-            if (driver.getTransportSecurity().equals(TansportSecurity.NO)) {
-                Session.getInstance(properties, null);
-            } else if (driver.getTransportSecurity().equals(TansportSecurity.STARTTLS)) { //set the transport security as STARTTLS
-                properties.setProperty(PROTERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
-                properties.setProperty(PROTERTY_SMTP_AUTH, "true");// must set with true
-                properties.put(PROTERTY_SMTP_STARTTLS, "true");
-                session = Session.getInstance(properties, driver.getAuthenticator()); //get the Instance of Session
-            } else if (driver.getTransportSecurity().equals(TansportSecurity.SSL)) {
-                properties.put("mail.smtp.socketFactory.port", String.valueOf(driver.getPort())); //SSL Port
-                properties.put("mail.smtp.socketFactory.class",
-                        "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
+        if (driver.getTransportSecurity().equals(TansportSecurity.NO)) {
+            Session.getInstance(properties, null);
+        } else if (driver.getTransportSecurity().equals(TansportSecurity.STARTTLS)) { //set the transport security as STARTTLS
+            properties.setProperty(PROTERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
+            properties.setProperty(PROTERTY_SMTP_AUTH, "true");// must set with true
+            properties.put(PROTERTY_SMTP_STARTTLS, "true");
+            session = Session.getInstance(properties, driver.getAuthenticator()); //get the Instance of Session
+        } else if (driver.getTransportSecurity().equals(TansportSecurity.SSL)) {
+            properties.put("mail.smtp.socketFactory.port", String.valueOf(driver.getPort())); //SSL Port
+            properties.put("mail.smtp.socketFactory.class",
+                    "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
 
-                properties.setProperty(PROTERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
-                properties.setProperty(PROTERTY_SMTP_AUTH, "true");// must set with true
-                properties.setProperty(PROTERTY_SMTP_SSL, "true"); //set the transport security as SSL
-                session = Session.getInstance(properties, driver.getAuthenticator()); //get the Instance of Session
-            }
-            // properties.setProperty("mail.smtp.auth.login.disable", "true");
-            // properties.setProperty("mail.smtp.auth.plain.disable", "true");
-            // properties.setProperty("mail.smtp.auth.digest-md5.disable", "true");
-            // properties.setProperty("mail.smtp.auth.ntlm.disable", "true");
-            // properties.put("mail.smtp.auth.mechanisms", "LOGIN PLAIN DIGEST-MD5 NTLM");
-            // properties.put("mail.smtp.auth.ntlm.domain", "mydomain");
-            // properties.setProperty("mail.smtp.auth.ntlm.domain", "mydomain");
-            // Session session = Session.getInstance(properties);
-
-            return session;
+            properties.setProperty(PROTERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
+            properties.setProperty(PROTERTY_SMTP_AUTH, "true");// must set with true
+            properties.setProperty(PROTERTY_SMTP_SSL, "true"); //set the transport security as SSL
+            session = Session.getInstance(properties, driver.getAuthenticator()); //get the Instance of Session
         }
+        // properties.setProperty("mail.smtp.auth.login.disable", "true");
+        // properties.setProperty("mail.smtp.auth.plain.disable", "true");
+        // properties.setProperty("mail.smtp.auth.digest-md5.disable", "true");
+        // properties.setProperty("mail.smtp.auth.ntlm.disable", "true");
+        // properties.put("mail.smtp.auth.mechanisms", "LOGIN PLAIN DIGEST-MD5 NTLM");
+        // properties.put("mail.smtp.auth.ntlm.domain", "mydomain");
+        // properties.setProperty("mail.smtp.auth.ntlm.domain", "mydomain");
+        // Session session = Session.getInstance(properties);
+
+        return session;
     }
 
     /**
@@ -428,11 +425,9 @@ public class EmailNotificationDriver implements NotificationDriver {
             Session session;
             Transport tr;
             MimeMessage message;
-            synchronized (EmailNotificationDriver.class) {
-                session = setServer(this); //set the properties for sending
-                tr = session.getTransport();
-                tr.connect();
-            }
+
+            session = setServer(this); //set the properties for sen
+
             message = configureMessage(session, emnoti);
 
 
@@ -447,8 +442,7 @@ public class EmailNotificationDriver implements NotificationDriver {
 
 //            Transport.send(message);// send the notification
 
-            tr.sendMessage(message, message.getAllRecipients());
-            tr.close();
+            Transport.send(message, message.getAllRecipients());
 
             emnoti.setSuccessfulSend(true, new DateTime(new Date()));//set the send time
             return true;
@@ -466,7 +460,6 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @param session the Session created by setServer()
      * @param emnoti  the EmailNotification to be sent
      * @return the configured Email: the variable of type MimeMessage
-     * @throws MessagingException
      * @throws UnsupportedEncodingException
      */
     private MimeMessage configureMessage(Session session, EmailNotification emnoti) throws MessagingException {
