@@ -19,14 +19,14 @@ import java.util.TreeMap;
 
 public class XYChartSerie implements Serie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
-    private ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-    private XYChart.Series<Number, Number> serie;
-    private TableEntry tableEntry;
+    ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
+    XYChart.Series<Number, Number> serie;
+    TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
-    private ChartDataModel singleRow;
-    private Boolean hideShowIcons;
-    private TreeMap<Double, JEVisSample> sampleMap;
+    ChartDataModel singleRow;
+    Boolean hideShowIcons;
+    TreeMap<Double, JEVisSample> sampleMap;
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
         this.singleRow = singleRow;

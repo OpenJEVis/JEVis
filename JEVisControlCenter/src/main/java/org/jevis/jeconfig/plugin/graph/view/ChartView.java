@@ -10,14 +10,12 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
@@ -73,12 +71,12 @@ public class ChartView implements Observer {
             return true;
         });
 
-        tableView.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
-            @Override
-            public void handle(ScrollEvent event) {
-                logger.info("ScrollEvent: " + event.toString());
-            }
-        });
+//        tableView.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+//            @Override
+//            public void handle(ScrollEvent event) {
+//                logger.info("ScrollEvent: " + event.toString());
+//            }
+//        });
         tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
         /** Disabled because of out ScrolllesTable.css **/
@@ -271,6 +269,10 @@ public class ChartView implements Observer {
         switch (chartType) {
             case AREA:
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                setTableStandard();
+                break;
+            case LOGICAL:
+                chart = new LogicalChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
                 break;
             case LINE:

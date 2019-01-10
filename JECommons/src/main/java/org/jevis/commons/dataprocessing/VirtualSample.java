@@ -105,7 +105,13 @@ public class VirtualSample implements JEVisSample {
 
     @Override
     public Boolean getValueAsBoolean() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (getValue().equals("1")) {
+            return true;
+        } else if (getValue().equals("0")) {
+            return false;
+        }
+
+        return Boolean.parseBoolean(getValueAsString());
     }
 
     @Override

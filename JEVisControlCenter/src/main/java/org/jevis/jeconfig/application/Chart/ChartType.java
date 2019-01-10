@@ -8,21 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum ChartType {
-    AREA, LINE, BAR, BUBBLE, SCATTER, PIE;
+    AREA, LOGICAL, LINE, BAR, BUBBLE, SCATTER, PIE;
 
     public static ChartType parseChartType(Integer chartTypeIndex) {
         switch (chartTypeIndex) {
             case (0):
                 return AREA;
             case (1):
-                return LINE;
+                return LOGICAL;
             case (2):
-                return BAR;
+                return LINE;
             case (3):
-                return BUBBLE;
+                return BAR;
             case (4):
-                return SCATTER;
+                return BUBBLE;
             case (5):
+                return SCATTER;
+            case (6):
                 return PIE;
             default:
                 return AREA;
@@ -33,6 +35,8 @@ public enum ChartType {
         switch (chartType) {
             case ("AREA"):
                 return AREA;
+            case ("LOGICAL"):
+                return LOGICAL;
             case ("LINE"):
                 return LINE;
             case ("BAR"):
@@ -53,16 +57,18 @@ public enum ChartType {
         switch (chartType.toString()) {
             case ("AREA"):
                 return 0;
-            case ("LINE"):
+            case ("LOGICAL"):
                 return 1;
-            case ("BAR"):
+            case ("LINE"):
                 return 2;
-            case ("BUBBLE"):
+            case ("BAR"):
                 return 3;
-            case ("SCATTER"):
+            case ("BUBBLE"):
                 return 4;
-            case ("PIE"):
+            case ("SCATTER"):
                 return 5;
+            case ("PIE"):
+                return 6;
             default:
                 return 0;
         }
@@ -74,6 +80,9 @@ public enum ChartType {
             switch (ct.toString()) {
                 case ("AREA"):
                     tempList.add(I18n.getInstance().getString("plugin.graph.charttype.area.name"));
+                    break;
+                case ("LOGICAL"):
+                    tempList.add(I18n.getInstance().getString("plugin.graph.charttype.logical.name"));
                     break;
                 case ("LINE"):
                     tempList.add(I18n.getInstance().getString("plugin.graph.charttype.line.name"));
