@@ -661,13 +661,13 @@ public class EmailNotification implements Notification {
             try {
                 setCarbonCopys(String.valueOf(getAttribute(notiObj, CARBON_COPYS)));
             } catch (IllegalArgumentException ex) {
-                setCarbonCopys(null);
+                setCarbonCopys("");
                 logger.info(ex);
             }
             try {
                 setBlindCarbonCopys(String.valueOf(getAttribute(notiObj, BLIND_CARBON_COPYS)));
             } catch (IllegalArgumentException ex) {
-                setBlindCarbonCopys(null);
+                setBlindCarbonCopys("");
                 logger.info(ex);
             }
             try {
@@ -704,6 +704,7 @@ public class EmailNotification implements Notification {
             try {
                 setIsHTML(Boolean.valueOf(String.valueOf(getAttribute(notiObj, HTML_EMAIL))));
             } catch (IllegalArgumentException ex) {
+                setIsHTML(false);
                 logger.info(ex);
             }
             try {

@@ -45,18 +45,20 @@ public class EventPrecondition implements Precondition {
             DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
 
             String operator = samplesHandler.getLastSample(reportObject, "Operator", "");
-            EventOperator eventOperator = EventOperator.getEventOperator(operator);
             String limit = samplesHandler.getLastSample(reportObject, "Limit", "");
             Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
             String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, new DateTime());
 
-            for (JEVisSample sample : samplesInPeriod) {
-                String value = sample.getValueAsString();
-                boolean isFullfilled = eventOperator.isFulfilled(value, limit);
-                if (isFullfilled) {
-                    return true;
+            if (!operator.equals("")) {
+                EventOperator eventOperator = EventOperator.getEventOperator(operator);
+                for (JEVisSample sample : samplesInPeriod) {
+                    String value = sample.getValueAsString();
+                    boolean isFullfilled = eventOperator.isFulfilled(value, limit);
+                    if (isFullfilled) {
+                        return true;
+                    }
                 }
             }
 
