@@ -21,6 +21,7 @@ import org.jevis.report3.policy.ReportPolicy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -117,10 +118,9 @@ public class ReportLauncher extends AbstractCliApp {
         try {
             logger.info("Try adding Single Mode for ID " + id);
             JEVisObject reportObject = ds.getObject(id);
-            List<JEVisObject> jeVisObjectList = new ArrayList<>();
-            jeVisObjectList.add(reportObject);
 
-            executeReports(jeVisObjectList);
+            ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+            Objects.requireNonNull(executor).executeReport();
 
         } catch (Exception ex) {
             logger.error(ex);
