@@ -34,7 +34,6 @@ public class ChartPlugin implements TreePlugin {
     private final String chartTitle = I18n.getInstance().getString("graph.title");
     private GraphDataModel data;
     private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
-    private int numberOfChartsPerAnalysis = 5;
 
     public JEVisTree getTree() {
         return jeVisTree;
@@ -88,7 +87,7 @@ public class ChartPlugin implements TreePlugin {
         colorColumn.setGraphDataModel(data);
 
         addChart.setOnAction(event -> {
-            if (data.getCharts().size() < 5) {
+            if (data.getCharts().size() < getMaxChartsFromService()) {
                 List<String> oldNames = new ArrayList<>();
                 for (ChartSettings set : data.getCharts()) {
                     oldNames.add(set.getName());
@@ -156,6 +155,22 @@ public class ChartPlugin implements TreePlugin {
         allColumns.add(column);
     }
 
+    private int getMaxChartsFromService() {
+        int max = 5;
+
+        try {
+            JEVisDataSource ds = getTree().getJEVisDataSource();
+            JEVisClass graphClass = ds.getJEVisClass("Graph Plugin");
+            List<JEVisObject> listGraphPlugins = ds.getObjects(graphClass, false);
+            JEVisAttribute chartsPerAnalysisAttribute = listGraphPlugins.get(0).getAttribute("Number of Charts per Analysis");
+            max = chartsPerAnalysisAttribute.getLatestSample().getValueAsLong().intValue();
+
+        } catch (Exception e) {
+        }
+
+        return max;
+    }
+
     public GraphDataModel getData() {
         return data;
     }
@@ -169,20 +184,4 @@ public class ChartPlugin implements TreePlugin {
         jeVisTree.refresh();
     }
 
-    public int getNumberOfChartsPerAnalysis() {
-        retrieveNumberOfChartsPerAnalysisFromJEVis();
-        return numberOfChartsPerAnalysis;
-    }
-
-    private void retrieveNumberOfChartsPerAnalysisFromJEVis() {
-        try {
-            JEVisDataSource ds = getTree().getJEVisDataSource();
-            JEVisClass graphClass = ds.getJEVisClass("Graph Plugin");
-            List<JEVisObject> listGraphPlugins = ds.getObjects(graphClass, false);
-            JEVisAttribute chartsPerAnalysisAttribute = listGraphPlugins.get(0).getAttribute("Number of Charts per Analysis");
-            numberOfChartsPerAnalysis = chartsPerAnalysisAttribute.getLatestSample().getValueAsLong().intValue();
-        } catch (Exception e) {
-
-        }
-    }
 }
