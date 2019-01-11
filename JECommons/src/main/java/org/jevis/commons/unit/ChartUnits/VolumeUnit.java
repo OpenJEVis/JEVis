@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.ChartUnits;
+package org.jevis.commons.unit.ChartUnits;
 
 public enum VolumeUnit {
     L("L"), m3("m³"), Nm3("Nm³");

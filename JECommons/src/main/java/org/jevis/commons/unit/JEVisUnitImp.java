@@ -51,13 +51,10 @@ public class JEVisUnitImp implements JEVisUnit {
     public JEVisUnitImp(Unit unit) {
         _unit = unit;
         _label = unit.toString();
-        _prefix = Prefix.NONE;//todo but how
     }
 
     public JEVisUnitImp() {
-        _unit = Unit.ONE;
         _label = _unit.toString();
-        _prefix = Prefix.NONE;//todo but how
     }
 
     public JEVisUnitImp(org.jevis.commons.ws.json.JsonUnit json) {
@@ -69,7 +66,7 @@ public class JEVisUnitImp implements JEVisUnit {
         _unit = UnitFormat.getInstance().parseObject(json.getFormula(), pp);
 
         try {
-            UnitManager.getInstance().getUnitWithPrefix(_unit, getPrefix());
+            UnitManager.getInstance().getUnitWithPrefix(_unit, _prefix);
             _unit.toString();
         } catch (Exception ex) {
             logger.info("Warning! Could not parse unit from json: '" + gson.toJson(json) + "' " + ex.getMessage());

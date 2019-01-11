@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.tool.I18n;
@@ -32,8 +33,6 @@ public class XYChartSerie implements Serie {
         this.singleRow = singleRow;
         this.hideShowIcons = hideShowIcons;
         this.serie = new XYChart.Series<>(getTableEntryName(), seriesData);
-
-//        boolean isQuantitiy = false;
 
 //        JEVisObject dp = singleRow.getDataProcessor();
 //        if (Objects.nonNull(dp)) {
@@ -111,9 +110,12 @@ public class XYChartSerie implements Serie {
             }
         }
 
-//        if (isQuantitiy) {
-        calcTableValues(tableEntry, samples, getUnit());
-//        }
+        QuantityUnits qu = new QuantityUnits();
+        boolean isQuantitiy = qu.isQuantityUnit(singleRow.getUnit());
+
+        if (isQuantitiy) {
+            calcTableValues(tableEntry, samples, getUnit());
+        }
     }
 
 
