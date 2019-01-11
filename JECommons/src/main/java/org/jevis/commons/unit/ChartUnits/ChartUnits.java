@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.ChartUnits;
+package org.jevis.commons.unit.ChartUnits;
 
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.JEVisUnitImp;

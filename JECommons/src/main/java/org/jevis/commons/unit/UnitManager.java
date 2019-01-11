@@ -597,7 +597,8 @@ public class UnitManager {
 
     public String format(JEVisUnit junit) {
         if (junit != null && junit.getFormula() != null) {
-            String uString = junit.getFormula().replace("·", "");
+            String uString = junit.getFormula();
+            //.replace("·", "");
             uString = uString.replace("(", "");
             uString = uString.replace(")", "");
             //uString = uString.replace("/", "");
@@ -617,7 +618,8 @@ public class UnitManager {
     public String format(Unit unit, String altSymbol) {
 //        logger.info("Formate unit: " + unit + "  AltUnit: " + altSymbol);
 //        String u1 = unit.getStandardUnit().toString().replace("·", "");
-        String u1 = unit.toString().replace("·", "");
+        String u1 = unit.toString();
+        //.replace("·", "");
         u1 = u1.replace("(", "");
         u1 = u1.replace(")", "");
         //u1 = u1.replace("/", "");

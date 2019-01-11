@@ -8,8 +8,8 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.application.Chart.ChartUnits.ChartUnits;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 

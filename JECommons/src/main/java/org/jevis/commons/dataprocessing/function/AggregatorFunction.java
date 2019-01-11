@@ -21,9 +21,12 @@ package org.jevis.commons.dataprocessing.function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -61,32 +64,31 @@ public class AggregatorFunction implements ProcessFunction {
         /**
          * get the object for getting the attribute to identify if its a quantity or not. just supporting clean data
          */
-        JEVisObject taskObject = null;
-        for (ProcessOption processOption : getAvailableOptions()) {
-            if (processOption.getKey().equals(InputFunction.OBJECT_ID)) {
-                try {
-                    taskObject = mainTask.getJEVisDataSource().getObject(Long.parseLong(processOption.getValue()));
-                    break;
-                } catch (JEVisException e) {
-                    logger.error("Could not get object for task: " + e);
-                }
-            }
-        }
+//        JEVisObject taskObject = null;
+//        for (ProcessOption processOption : getAvailableOptions()) {
+//            if (processOption.getKey().equals(InputFunction.OBJECT_ID)) {
+//                try {
+//                    taskObject = mainTask.getJEVisDataSource().getObject(Long.parseLong(processOption.getValue()));
+//                    break;
+//                } catch (JEVisException e) {
+//                    logger.error("Could not get object for task: " + e);
+//                }
+//            }
+//        }
 
-        boolean isQuantity = false;
-        if (taskObject != null) {
-            try {
-                if (taskObject.getJEVisClassName().equals("Clean Data")) {
-                    JEVisAttribute isQuantityAtt = taskObject.getAttribute("Value is a Quantity");
-                    if (isQuantityAtt.hasSample()) {
-                        isQuantity = isQuantityAtt.getLatestSample().getValueAsBoolean();
-                    }
-                }
-
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (taskObject != null) {
+//            try {
+//                if (taskObject.getJEVisClassName().equals("Clean Data")) {
+//                    JEVisAttribute isQuantityAtt = taskObject.getAttribute("Value is a Quantity");
+//                    if (isQuantityAtt.hasSample()) {
+//                        isQuantity = isQuantityAtt.getLatestSample().getValueAsBoolean();
+//                    }
+//                }
+//
+//            } catch (JEVisException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         int lastPos = 0;
         for (Interval interval : intervals) {
@@ -124,6 +126,10 @@ public class AggregatorFunction implements ProcessFunction {
                 /**
                  * if its not a quantity the aggregated total value results from the mean value of all samples in a period, not their sum
                  */
+
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(unit);
+
                 if (hasSamples && !isQuantity) {
                     sum = sum / samplesInPeriod.size();
                 }
