@@ -26,7 +26,10 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
@@ -42,7 +45,8 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
+import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
+import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
@@ -129,20 +133,19 @@ public class GraphPluginView implements Plugin, Observer {
         LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, dataModel, toolBarView);
         toolBarView.setDisableToolBarIcons(false);
 
-        dialog.showAndWait()
-                .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+        dialog.show();
 
-                        newAnalysis();
+        if (dialog.getResponse() == Response.NEW) {
 
-                    } else if (response.getButtonData().getTypeCode().equals(ButtonType.NO.getButtonData().getTypeCode())) {
+            newAnalysis();
 
-                        dataModel.setAnalysisTimeFrame(dataModel.getAnalysisTimeFrame());
-                        dataModel.updateSamples();
-                        dataModel.setCharts(dataModel.getCharts());
-                        dataModel.setSelectedData(dataModel.getSelectedData());
-                    }
-                });
+        } else if (dialog.getResponse() == Response.LOAD) {
+
+            dataModel.setAnalysisTimeFrame(dataModel.getAnalysisTimeFrame());
+            dataModel.updateSamples();
+            dataModel.setCharts(dataModel.getCharts());
+            dataModel.setSelectedData(dataModel.getSelectedData());
+        }
     }
 
     @Override
@@ -189,7 +192,7 @@ public class GraphPluginView implements Plugin, Observer {
 
         dataModel.setAnalysisTimeFrame(atf);
 
-        if (selectionDialog.show() == ChartSelectionDialog.Response.OK) {
+        if (selectionDialog.show() == Response.OK) {
             toolBarView.setDisableToolBarIcons(false);
 
             dataModel.setCharts(selectionDialog.getChartPlugin().getData().getCharts());

@@ -10,6 +10,7 @@ import javafx.event.EventHandler;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
+import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 
 /**
@@ -34,7 +35,7 @@ public class ToolBarController implements EventHandler {
             selectionDialog = new ChartSelectionDialog(ds, model);
         }
 
-        if (selectionDialog.show() == ChartSelectionDialog.Response.OK) {
+        if (selectionDialog.show() == Response.OK) {
 
 
         }

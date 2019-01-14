@@ -30,7 +30,8 @@ import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.plugin.graph.LoadAnalysisDialog;
+import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
+import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -307,35 +308,34 @@ public class ToolBarView {
 
         LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, model, this);
 
-        dialog.showAndWait()
-                .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+        dialog.show();
 
-                        GraphDataModel newModel = new GraphDataModel(ds);
+        if (dialog.getResponse() == Response.NEW) {
 
-                        AnalysisTimeFrame atf = new AnalysisTimeFrame();
-                        atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
+            GraphDataModel newModel = new GraphDataModel(ds);
 
-                        newModel.setAnalysisTimeFrame(atf);
+            AnalysisTimeFrame atf = new AnalysisTimeFrame();
+            atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
 
-                        ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel);
+            newModel.setAnalysisTimeFrame(atf);
 
-                        if (selectionDialog.show() == ChartSelectionDialog.Response.OK) {
+            ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel);
 
-                            model.setCurrentAnalysis(null);
-                            model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
-                            model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
+            if (selectionDialog.show() == Response.OK) {
 
-                        }
-                    } else if (response.getButtonData().getTypeCode().equals(ButtonType.NO.getButtonData().getTypeCode())) {
+                model.setCurrentAnalysis(null);
+                model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
+                model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
 
-                        model.setAnalysisTimeFrame(model.getAnalysisTimeFrame());
-                        model.updateSamples();
-                        model.setCharts(model.getCharts());
-                        model.setSelectedData(model.getSelectedData());
+            }
+        } else if (dialog.getResponse() == Response.LOAD) {
 
-                    }
-                });
+            model.setAnalysisTimeFrame(model.getAnalysisTimeFrame());
+            model.updateSamples();
+            model.setCharts(model.getCharts());
+            model.setSelectedData(model.getSelectedData());
+
+        }
     }
 
     private void hideShowIconsInGraph() {
@@ -353,7 +353,7 @@ public class ToolBarView {
     private void changeSettings(ActionEvent event) {
         ChartSelectionDialog dia = new ChartSelectionDialog(ds, model);
 
-        if (dia.show() == ChartSelectionDialog.Response.OK) {
+        if (dia.show() == Response.OK) {
 
             model.setCharts(dia.getChartPlugin().getData().getCharts());
             model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());

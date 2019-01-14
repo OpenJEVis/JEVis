@@ -289,7 +289,4 @@ public class ChartSelectionDialog {
         return chartPlugin;
     }
 
-    public enum Response {
-        OK, CANCEL
-    }
 }
