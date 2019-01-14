@@ -29,11 +29,11 @@ public class PeriodAlignmentStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
 
         List<JEVisSample> rawSamples = resourceManager.getRawSamples();
         List<CleanInterval> intervals = resourceManager.getIntervals();
-        Integer periodOffset = resourceManager.getCalcAttribute().getPeriodOffset();
+        Integer periodOffset = resourceManager.getCleanDataObject().getPeriodOffset();
 
         //align the raw samples to the intervals
         int currentSamplePointer = 0;

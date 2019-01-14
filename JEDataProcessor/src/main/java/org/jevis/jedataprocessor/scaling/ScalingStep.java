@@ -27,7 +27,7 @@ public class ScalingStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> listMultipliers = calcAttribute.getMultiplier();
 

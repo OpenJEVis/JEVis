@@ -34,26 +34,6 @@ public class XYChartSerie implements Serie {
         this.hideShowIcons = hideShowIcons;
         this.serie = new XYChart.Series<>(getTableEntryName(), seriesData);
 
-//        JEVisObject dp = singleRow.getDataProcessor();
-//        if (Objects.nonNull(dp)) {
-//            try {
-//                if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
-//                    if (Objects.nonNull(dp.getAttribute("Value is a Quantity").getLatestSample())) {
-//                        if (dp.getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
-//
-//                            isQuantitiy = true;
-//                        }
-//                    }
-//                }
-//            } catch (JEVisException e) {
-//                logger.error("Error: could not data processor attribute", e);
-//            }
-//        }
-
-//        QuantityUnits qu = new QuantityUnits();
-//        if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
-
-
         generateSeriesFromSamples();
     }
 

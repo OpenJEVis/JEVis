@@ -7,61 +7,41 @@ package org.jevis.jedataprocessor.gap;
 
 import org.jevis.jedataprocessor.data.CleanInterval;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static org.jevis.jedataprocessor.gap.Gap.GapAttribute.DEFAULT_VALUE;
 
 /**
  * @author broder
  */
-public interface Gap {
+public class Gap {
 
-    void addInterval(CleanInterval currentInterval);
+    private List<CleanInterval> intervals = new ArrayList<>();
+    private Double lastValue;
+    private Double firstValue;
 
-    List<CleanInterval> getIntervals();
-
-    Double getFirstValue();
-
-    void setFirstValue(Double lastValue);
-
-    Double getLastValue();
-
-    void setLastValue(Double rawValue);
-
-    enum GapMode {
-
-        NONE, STATIC, INTERPOLATION, DEFAULT
-
+    public void addInterval(CleanInterval currentInterval) {
+        intervals.add(currentInterval);
     }
 
-    enum GapAttribute {
-
-        DEFAULT_VALUE
+    public List<CleanInterval> getIntervals() {
+        return intervals;
     }
 
-    class GapStrategy {
-
-        private final GapMode gapMode;
-        private final Map<GapAttribute, String> attributeMap = new HashMap<>();
-
-        public GapStrategy(String gapStrategy) {
-            String gapModeString = gapStrategy.split(";")[0];
-            gapMode = GapMode.valueOf(gapModeString.toUpperCase());
-            String[] split = gapStrategy.split(";");
-            for (int i = 1; i < split.length; i++) {
-                attributeMap.put(DEFAULT_VALUE, split[i]);
-            }
-        }
-
-        public GapMode getGapMode() {
-            return gapMode;
-        }
-
-        public String getValue(GapAttribute gapAttribute) {
-            return attributeMap.get(gapAttribute);
-        }
-
+    public Double getFirstValue() {
+        return firstValue;
     }
+
+    public void setFirstValue(Double firstValue) {
+        this.firstValue = firstValue;
+    }
+
+    public Double getLastValue() {
+        return lastValue;
+    }
+
+    public void setLastValue(Double lastValue) {
+        this.lastValue = lastValue;
+    }
+
 }

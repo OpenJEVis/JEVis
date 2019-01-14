@@ -16,7 +16,7 @@ import java.util.List;
 public class ResourceManager {
 
     public List<CleanInterval> intervals = new ArrayList<>();
-    private CleanDataObject calcAttribute;
+    private CleanDataObject cleanDataObject;
     private List<JEVisSample> rawSamples;
 
     public List<CleanInterval> getIntervals() {
@@ -27,12 +27,12 @@ public class ResourceManager {
         this.intervals = intervals;
     }
 
-    public CleanDataObject getCalcAttribute() {
-        return calcAttribute;
+    public CleanDataObject getCleanDataObject() {
+        return cleanDataObject;
     }
 
-    public void setCalcAttribute(CleanDataObject calcAttribute) {
-        this.calcAttribute = calcAttribute;
+    public void setCleanDataObject(CleanDataObject cleanDataObject) {
+        this.cleanDataObject = cleanDataObject;
     }
 
     public List<JEVisSample> getRawSamples() {
@@ -44,9 +44,9 @@ public class ResourceManager {
     }
 
     public Long getID() {
-        if (calcAttribute == null || calcAttribute.getObject() == null) {
+        if (cleanDataObject == null || cleanDataObject.getObject() == null) {
             return -1L;
         }
-        return calcAttribute.getObject().getID();
+        return cleanDataObject.getObject().getID();
     }
 }

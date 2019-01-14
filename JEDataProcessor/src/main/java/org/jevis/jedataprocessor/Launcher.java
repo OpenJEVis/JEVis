@@ -7,13 +7,16 @@ package org.jevis.jedataprocessor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
+import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
+import org.jevis.jedataprocessor.data.CleanDataObject;
 import org.jevis.jedataprocessor.workflow.ProcessManager;
-import org.jevis.jedataprocessor.workflow.ProcessManagerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,31 +43,35 @@ public class Launcher extends AbstractCliApp {
         app.execute();
     }
 
-    private void executeProcesses(List<ProcessManager> processes) {
+    private void executeProcesses(List<JEVisObject> processes) {
 
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
         logger.info("{} cleaning task found starting", processes.size());
 
-        processes.parallelStream().forEach(currentProcess -> {
+        processes.parallelStream().forEach(currentCleanDataObject -> {
             forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(currentProcess.getId().toString())) {
+                if (!runningJobs.containsKey(currentCleanDataObject.getID().toString())) {
 
-                    runningJobs.put(currentProcess.getId().toString(), "true");
+                    runningJobs.put(currentCleanDataObject.getID().toString(), "true");
 
                     try {
-                        LogTaskManager.getInstance().buildNewTask(currentProcess.getId(), currentProcess.getName());
-                        LogTaskManager.getInstance().getTask(currentProcess.getId()).setStatus(Task.Status.STARTED);
+                        LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
+                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
+
+                        ProcessManager currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds));
                         currentProcess.start();
                     } catch (Exception ex) {
                         logger.debug(ex);
+                        logger.error(LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).getException());
+                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
                     }
 
-                    LogTaskManager.getInstance().getTask(currentProcess.getId()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(currentProcess.getId().toString());
+                    LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
+                    runningJobs.remove(currentCleanDataObject.getID().toString());
 
                 } else {
-                    logger.error("Still processing Job " + currentProcess.getName() + ":" + currentProcess.getId());
+                    logger.error("Still processing Job " + currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID());
                 }
             });
         });
@@ -85,12 +92,10 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runSingle(Long id) {
-        ProcessManagerFactory pmf = new ProcessManagerFactory(ds);
 
         try {
-            List<ProcessManager> processList = pmf.initProcessManagersFromJEVisSingle(id);
-
-            executeProcesses(processList);
+            ProcessManager currentProcess = new ProcessManager(ds.getObject(id), new ObjectHandler(ds));
+            currentProcess.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,7 +103,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        List<ProcessManager> processManagerList = new ArrayList<>();
+        List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
         try {
             ds.clearCache();
             ds.preload();
@@ -109,13 +114,12 @@ public class Launcher extends AbstractCliApp {
 
         if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
             try {
-                ProcessManagerFactory pmf = new ProcessManagerFactory(ds);
-                processManagerList = pmf.initProcessManagersFromJEVisAll();
+                enabledCleanDataObjects = getAllCleaningObjects();
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("Could not get cleaning objects. " + e);
             }
 
-            this.executeProcesses(processManagerList);
+            this.executeProcesses(enabledCleanDataObjects);
         } else {
             logger.info("Service is disabled.");
         }
@@ -133,16 +137,45 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runComplete() {
-        List<ProcessManager> processManagerList = new ArrayList<>();
+        List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
         try {
-            ProcessManagerFactory pmf = new ProcessManagerFactory(ds);
-            processManagerList = pmf.initProcessManagersFromJEVisAll();
+            enabledCleanDataObjects = getAllCleaningObjects();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Could not get enabled clean data objects. " + e);
         }
-
-        this.executeProcesses(processManagerList);
+        enabledCleanDataObjects.forEach(jeVisObject -> {
+            try {
+                ProcessManager currentProcess = new ProcessManager(jeVisObject, new ObjectHandler(ds));
+                currentProcess.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
+    private List<JEVisObject> getAllCleaningObjects() throws Exception {
+        JEVisClass reportClass;
+        List<JEVisObject> reportObjects;
+        List<JEVisObject> filteredObjects = new ArrayList<>();
 
+        try {
+            reportClass = ds.getJEVisClass(CleanDataObject.CLASS_NAME);
+            reportObjects = ds.getObjects(reportClass, false);
+            logger.info("Total amount of Clean Data Objects: " + reportObjects.size());
+            reportObjects.forEach(jeVisObject -> {
+                if (isEnabled(jeVisObject)) filteredObjects.add(jeVisObject);
+            });
+            logger.info("Amount of enabled Clean Data Objects: " + reportObjects.size());
+        } catch (JEVisException ex) {
+            throw new Exception("Process classes missing", ex);
+        }
+        logger.info("{} cleaning objects found", reportObjects.size());
+        return filteredObjects;
+    }
+
+    private boolean isEnabled(JEVisObject cleanObject) {
+        ObjectHandler objectHandler = new ObjectHandler(ds);
+        CleanDataObject cleanDataObject = new CleanDataObject(cleanObject, objectHandler);
+        return cleanDataObject.getEnabled();
+    }
 }

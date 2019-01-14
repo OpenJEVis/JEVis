@@ -7,26 +7,49 @@ package org.jevis.jedataprocessor.limits;
 
 import org.jevis.jedataprocessor.data.CleanInterval;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
  */
-public interface LimitBreak {
+public class LimitBreak {
 
-    void addInterval(CleanInterval currentInterval);
+    private List<CleanInterval> intervals = new ArrayList<>();
+    private Double lastValue;
+    private Double firstValue;
+    private MinOrMax minOrMax;
 
-    List<CleanInterval> getIntervals();
+    public void addInterval(CleanInterval currentInterval) {
+        intervals.add(currentInterval);
+    }
 
-    Double getFirstValue();
+    public List<CleanInterval> getIntervals() {
+        return intervals;
+    }
 
-    void setFirstValue(Double lastValue);
+    public Double getFirstValue() {
+        return firstValue;
+    }
 
-    Double getLastValue();
+    public void setFirstValue(Double firstValue) {
+        this.firstValue = firstValue;
+    }
 
-    void setLastValue(Double rawValue);
+    public Double getLastValue() {
+        return lastValue;
+    }
 
-    MinOrMax getMinOrMax();
+    public void setLastValue(Double lastValue) {
+        this.lastValue = lastValue;
+    }
 
-    void setMinOrMax(MinOrMax choice);
+    public MinOrMax getMinOrMax() {
+        return minOrMax;
+    }
+
+    public void setMinOrMax(MinOrMax choice) {
+        this.minOrMax = choice;
+    }
+
 }

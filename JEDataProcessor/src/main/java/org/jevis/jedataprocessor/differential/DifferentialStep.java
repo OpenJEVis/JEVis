@@ -26,7 +26,7 @@ public class DifferentialStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> listConversionToDifferential = calcAttribute.getConversionDifferential();
         List<JEVisSample> listCounterOverflow = calcAttribute.getCounterOverflow();

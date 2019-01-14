@@ -12,7 +12,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.jedataprocessor.data.CleanDataObject;
-import org.jevis.jedataprocessor.data.CleanDataObjectJEVis;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.workflow.ProcessStep;
@@ -30,24 +29,24 @@ public class ImportStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        if (resourceManager.getCalcAttribute() instanceof CleanDataObjectJEVis) {
-            importIntoJEVis(resourceManager);
-        }
+
+        importIntoJEVis(resourceManager);
+
     }
 
     private void importIntoJEVis(ResourceManager resourceManager) throws Exception {
-        CleanDataObject cleanAttr = resourceManager.getCalcAttribute();
+        CleanDataObject cleanAttr = resourceManager.getCleanDataObject();
         JEVisObject cleanObject = cleanAttr.getObject();
         JEVisAttribute attribute = null;
 
-        attribute = cleanObject.getAttribute(CleanDataObjectJEVis.VALUE_ATTRIBUTE_NAME);
+        attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
 
         if (attribute == null) {
             return;
         }
 
         List<JEVisSample> cleanSamples = new ArrayList<>();
-        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
         for (CleanInterval curInterval : resourceManager.getIntervals()) {
             for (JEVisSample sample : curInterval.getTmpSamples()) {
                 Double rawValue = sample.getValueAsDouble();
@@ -56,37 +55,22 @@ public class ImportStep implements ProcessStep {
                 }
                 DateTime date = sample.getTimestamp();
                 if (date != null) {
-                    DateTime timestamp = sample.getTimestamp().plusSeconds(calcAttribute.getPeriodOffset());
+                    DateTime timestamp = sample.getTimestamp().plusSeconds(cleanDataObject.getPeriodOffset());
                     JEVisSample sampleSql = attribute.buildSample(timestamp, rawValue, sample.getNote());
                     cleanSamples.add(sampleSql);
 
                 }
             }
         }
-        logger.info("[{}] Start import of new Samples: {}", resourceManager.getID(), cleanSamples.size());
-        attribute.addSamples(cleanSamples);
-        logger.info("[{}] Imported finished for samples: {}", resourceManager.getID(), cleanSamples.size());
-        LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
+        if (cleanSamples.size() > 0) {
+            logger.info("[{}] Start import of new Samples: {}", resourceManager.getID(), cleanSamples.size());
+            attribute.addSamples(cleanSamples);
+            logger.info("[{}] Imported finished for samples: {}", resourceManager.getID(), cleanSamples.size());
+            LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
+        } else {
+            logger.info("No new Samples.");
+            LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
+        }
     }
 
-//    private void writeIntoFile(ResourceManager resourceManager) {
-//        CleanDataObject cleanAttr = resourceManager.getCalcAttribute();
-//        String pathToOutput = cleanAttr.getPathToOutput();
-//        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-//                new FileOutputStream(pathToOutput), StandardCharsets.UTF_8))) {
-//            for (CleanInterval curInterval : resourceManager.getIntervals()) {
-//                for (JEVisSample sample : curInterval.getTmpSamples()) {
-//                    DateTime timestamp = sample.getTimestamp().plusSeconds(resourceManager.getCalcAttribute().getPeriodOffset());
-//                    String dateAsString = timestamp.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
-//                    Double value = sample.getValueAsDouble();
-//                    if (value == null) {
-//                        continue;
-//                    }
-//                    writer.write(dateAsString + ";" + value + "\n");
-//                }
-//            }
-//        } catch (IOException | JEVisException ex) {
-//            logger.error(ex);
-//        }
-//    }
 }
