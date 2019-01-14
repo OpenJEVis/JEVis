@@ -132,10 +132,6 @@ public class XYChartSerie implements Serie {
     }
 
     public String getTableEntryName() {
-
-//        if (!singleRow.getManipulationMode().equals(ManipulationMode.NONE))
-//            tableEntryName += " (" + singleRow.getManipulationMode().toString() + ")";
-
         return singleRow.getObject().getName();
     }
 
