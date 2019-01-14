@@ -50,7 +50,7 @@ public class XYChart implements Chart {
     List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
-    AtomicReference<DateTime> timeStampOfLastSample;
+    AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
     NumberAxis numberAxis = new NumberAxis();
     Axis dateAxis = new DateValueAxis();
     private String chartName;
@@ -77,7 +77,6 @@ public class XYChart implements Chart {
 
     private void init() {
 
-        timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
         changedBoth = new Boolean[]{false, false};
 
         addManipulationToTitle = new AtomicBoolean(false);
@@ -218,8 +217,11 @@ public class XYChart implements Chart {
 
             if (chartDataModels.get(0).getSamples().size() > 1) {
                 try {
-                    period = new Period(chartDataModels.get(0).getSamples().get(0).getTimestamp(),
-                            chartDataModels.get(0).getSamples().get(1).getTimestamp());
+                    List<JEVisSample> samples = chartDataModels.get(0).getSamples();
+                    period = new Period(samples.get(0).getTimestamp(),
+                            samples.get(1).getTimestamp());
+                    timeStampOfFirstSample.set(samples.get(0).getTimestamp());
+                    timeStampOfLastSample.set(samples.get(samples.size() - 1).getTimestamp());
                 } catch (JEVisException e) {
                     e.printStackTrace();
                 }
@@ -227,7 +229,7 @@ public class XYChart implements Chart {
         }
 
         String overall = "-";
-        if (changedBoth[0] && changedBoth[1]) {
+        if (changedBoth[0] || changedBoth[1]) {
             Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
             period = period.minusSeconds(period.getSeconds());
             period = period.minusMillis(period.getMillis());

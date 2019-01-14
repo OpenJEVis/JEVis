@@ -527,7 +527,17 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
                     programmaticallySetPresetDate[i] = false;
                 }
 
-                setPicker(null, null);
+                DateTime start = null;
+                DateTime end = null;
+                for (ChartDataModel model : graphDataModel.getSelectedData()) {
+
+                    start = model.getSelectedStart();
+                    end = model.getSelectedEnd();
+
+                    if (start != null && end != null) break;
+                }
+
+                setPicker(start, end);
                 break;
             //today
             case 1:
@@ -806,24 +816,24 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             pickerTimeStart.valueProperty().setValue(LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour(), start.getSecondOfMinute()));
             pickerTimeEnd.valueProperty().setValue(LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour(), end.getSecondOfMinute()));
         } else {
-            DateTime startFromModel = null;
-            DateTime endFromModel = null;
-            for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
-                if (startFromModel == null) startFromModel = mdl.getSelectedStart();
-                else if (mdl.getSelectedStart() != null && mdl.getSelectedStart().isBefore(startFromModel))
-                    startFromModel = mdl.getSelectedStart();
-
-                if (endFromModel == null) endFromModel = mdl.getSelectedEnd();
-                else if (mdl.getSelectedEnd() != null && mdl.getSelectedEnd().isAfter(endFromModel))
-                    endFromModel = mdl.getSelectedEnd();
-            }
-
-            if (startFromModel != null && endFromModel != null) {
-                pickerDateStart.valueProperty().setValue(LocalDate.of(startFromModel.getYear(), startFromModel.getMonthOfYear(), startFromModel.getDayOfMonth()));
-                pickerDateEnd.valueProperty().setValue(LocalDate.of(endFromModel.getYear(), endFromModel.getMonthOfYear(), endFromModel.getDayOfMonth()));
-                pickerTimeStart.valueProperty().setValue(LocalTime.of(startFromModel.getHourOfDay(), startFromModel.getMinuteOfHour(), startFromModel.getSecondOfMinute()));
-                pickerTimeEnd.valueProperty().setValue(LocalTime.of(endFromModel.getHourOfDay(), endFromModel.getMinuteOfHour(), endFromModel.getSecondOfMinute()));
-            }
+//            DateTime startFromModel = null;
+//            DateTime endFromModel = null;
+//            for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
+//                if (startFromModel == null) startFromModel = mdl.getSelectedStart();
+//                else if (mdl.getSelectedStart() != null && mdl.getSelectedStart().isBefore(startFromModel))
+//                    startFromModel = mdl.getSelectedStart();
+//
+//                if (endFromModel == null) endFromModel = mdl.getSelectedEnd();
+//                else if (mdl.getSelectedEnd() != null && mdl.getSelectedEnd().isAfter(endFromModel))
+//                    endFromModel = mdl.getSelectedEnd();
+//            }
+//
+//            if (startFromModel != null && endFromModel != null) {
+//                pickerDateStart.valueProperty().setValue(LocalDate.of(startFromModel.getYear(), startFromModel.getMonthOfYear(), startFromModel.getDayOfMonth()));
+//                pickerDateEnd.valueProperty().setValue(LocalDate.of(endFromModel.getYear(), endFromModel.getMonthOfYear(), endFromModel.getDayOfMonth()));
+//                pickerTimeStart.valueProperty().setValue(LocalTime.of(startFromModel.getHourOfDay(), startFromModel.getMinuteOfHour(), startFromModel.getSecondOfMinute()));
+//                pickerTimeEnd.valueProperty().setValue(LocalTime.of(endFromModel.getHourOfDay(), endFromModel.getMinuteOfHour(), endFromModel.getSecondOfMinute()));
+//            }
         }
     }
 
