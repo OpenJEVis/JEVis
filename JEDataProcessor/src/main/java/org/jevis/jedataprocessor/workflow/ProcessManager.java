@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
-import org.jevis.jedataprocessor.data.CleanDataObjectJEVis;
+import org.jevis.jedataprocessor.data.CleanDataObject;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.differential.DifferentialStep;
 import org.jevis.jedataprocessor.gap.FillGapStep;
@@ -34,7 +34,7 @@ public class ProcessManager {
 
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler) {
         resourceManager = new ResourceManager();
-        resourceManager.setCalcAttribute(new CleanDataObjectJEVis(cleanObject, objectHandler));
+        resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
         name = cleanObject.getName();
         id = cleanObject.getID();
 
@@ -72,18 +72,14 @@ public class ProcessManager {
     public void start() throws Exception {
         logger.info("[{}] Starting Process", resourceManager.getID());
 
-        resourceManager.getCalcAttribute().checkConfig();
+        resourceManager.getCleanDataObject().checkConfig();
 
 
         for (ProcessStep ps : processSteps) {
             ps.run(resourceManager);
         }
 
-        logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCalcAttribute().getObject().getName());
-    }
-
-    private void addFunctionalSteps(List<ProcessStep> processSteps, JEVisObject cleanObject) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCleanDataObject().getObject().getName());
     }
 
     public String getName() {

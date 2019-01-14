@@ -64,14 +64,14 @@ public class GraphDataModel extends Observable {
 
             updateSelectedData();
 
-            JsonChartDataModel jsonChartDataModel = getListAnalysisModel();
+            //JsonChartDataModel jsonChartDataModel = getListAnalysisModel();
 
-            if (selectedData != null && !selectedData.isEmpty() && jsonChartDataModel != null && jsonChartDataModel.getAnalysisTimeFrame() != null
-                    && jsonChartDataModel.getAnalysisTimeFrame().getTimeframe() != null) {
+            if (selectedData != null && !selectedData.isEmpty() && listAnalysisModel != null && listAnalysisModel.getAnalysisTimeFrame() != null
+                    && listAnalysisModel.getAnalysisTimeFrame().getTimeframe() != null) {
                 AnalysisTimeFrame newATF = new AnalysisTimeFrame();
                 try {
-                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(jsonChartDataModel.getAnalysisTimeFrame().getTimeframe()));
-                    newATF.setId(Long.parseLong(jsonChartDataModel.getAnalysisTimeFrame().getId()));
+                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(listAnalysisModel.getAnalysisTimeFrame().getTimeframe()));
+                    newATF.setId(Long.parseLong(listAnalysisModel.getAnalysisTimeFrame().getId()));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

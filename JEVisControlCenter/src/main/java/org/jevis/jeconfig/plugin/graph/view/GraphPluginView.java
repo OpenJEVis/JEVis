@@ -131,11 +131,11 @@ public class GraphPluginView implements Plugin, Observer {
 
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
 
                         newAnalysis();
 
-                    } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
+                    } else if (response.getButtonData().getTypeCode().equals(ButtonType.NO.getButtonData().getTypeCode())) {
 
                         dataModel.setAnalysisTimeFrame(dataModel.getAnalysisTimeFrame());
                         dataModel.updateSamples();

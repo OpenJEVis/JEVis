@@ -11,7 +11,6 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jedataprocessor.data.CleanDataObject;
-import org.jevis.jedataprocessor.data.CleanDataObjectJEVis;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.util.GapsAndLimits;
@@ -34,7 +33,7 @@ public class LimitsStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
 
         if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getLimitsEnabled() || calcAttribute.getLimitsConfig().isEmpty()) {
             //no limits check when there is no alignment or disabled or no config
@@ -68,7 +67,7 @@ public class LimitsStep implements ProcessStep {
             DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
             DateTime lastDateForCache = calcAttribute.getFirstDate();
 
-            sampleCache = calcAttribute.getObject().getAttribute(CleanDataObjectJEVis.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
+            sampleCache = calcAttribute.getObject().getAttribute(CleanDataObject.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
         } catch (Exception e) {
             logger.error("No caching possible: " + e);
         }
@@ -189,7 +188,7 @@ public class LimitsStep implements ProcessStep {
 
                     if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
                         if (currentLimitBreak == null) {
-                            currentLimitBreak = new LimitBreakJEVis();
+                            currentLimitBreak = new LimitBreak();
                             if (lastInterval != null && !lastInterval.getTmpSamples().isEmpty() && Objects.nonNull(lastInterval.getTmpSamples().get(0)))
                                 currentLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(0).getValueAsDouble());
                             currentLimitBreak.addInterval(currentInterval);

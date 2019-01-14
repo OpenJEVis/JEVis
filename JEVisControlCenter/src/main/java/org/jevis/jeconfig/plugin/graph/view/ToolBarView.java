@@ -92,7 +92,6 @@ public class ToolBarView {
                     break;
                 }
 
-                model.setCurrentAnalysis(newValue);
                 if (model.getAnalysisTimeFrame().getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
                     model.getSelectedData().forEach(chartDataModel -> {
                         if (chartDataModel.getSelectedStart() != null && chartDataModel.getSelectedEnd() != null) {
@@ -103,7 +102,7 @@ public class ToolBarView {
                         }
                     });
                 }
-
+                model.setCurrentAnalysis(newValue);
                 model.setCharts(null);
                 model.updateSelectedData();
 
@@ -310,7 +309,7 @@ public class ToolBarView {
 
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
 
                         GraphDataModel newModel = new GraphDataModel(ds);
 
@@ -328,7 +327,7 @@ public class ToolBarView {
                             model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
 
                         }
-                    } else if (response.getButtonData().getTypeCode() == ButtonType.NO.getButtonData().getTypeCode()) {
+                    } else if (response.getButtonData().getTypeCode().equals(ButtonType.NO.getButtonData().getTypeCode())) {
 
                         model.setAnalysisTimeFrame(model.getAnalysisTimeFrame());
                         model.updateSamples();

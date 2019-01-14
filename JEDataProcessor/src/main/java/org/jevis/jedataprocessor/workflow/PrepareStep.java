@@ -36,7 +36,7 @@ public class PrepareStep implements ProcessStep {
     @Override
 
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
 
         //get the raw samples for the cleaning
         logger.info("[{}] Request raw samples", resourceManager.getID());

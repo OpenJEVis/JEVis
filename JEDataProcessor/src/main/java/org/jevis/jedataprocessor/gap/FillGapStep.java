@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jedataprocessor.data.CleanDataObject;
-import org.jevis.jedataprocessor.data.CleanDataObjectJEVis;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.util.GapsAndLimits;
@@ -34,7 +33,7 @@ public class FillGapStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataObject calcAttribute = resourceManager.getCalcAttribute();
+        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
 
         if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getGapFillingEnabled() || calcAttribute.getGapFillingConfig().isEmpty()) {
             //no gap filling when there is no alignment or disabled or no config
@@ -57,7 +56,7 @@ public class FillGapStep implements ProcessStep {
                     DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
                     DateTime lastDateForCache = calcAttribute.getFirstDate();
 
-                    sampleCache = calcAttribute.getObject().getAttribute(CleanDataObjectJEVis.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
+                    sampleCache = calcAttribute.getObject().getAttribute(CleanDataObject.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
                 } catch (Exception e) {
                     logger.error("No caching possible: " + e);
                 }
@@ -143,7 +142,7 @@ public class FillGapStep implements ProcessStep {
                 if (currentGap != null) {//current in a gap
                     currentGap.addInterval(currentInterval);
                 } else { //start of a gap
-                    currentGap = new GapJEVis();
+                    currentGap = new Gap();
                     currentGap.addInterval(currentInterval);
                     currentGap.setFirstValue(lastValue);
                 }
