@@ -136,6 +136,7 @@ public class GraphDataModel extends Observable {
                     newData.setSomethingChanged(true);
                     newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
                     newData.setUnit(unit);
+                    if (mdl.getAxis() != null) newData.setAxis(Integer.parseInt(mdl.getAxis()));
                     data.put(obj.getID().toString(), newData);
                 } catch (JEVisException e) {
                     logger.error("Error: could not get chart data model", e);

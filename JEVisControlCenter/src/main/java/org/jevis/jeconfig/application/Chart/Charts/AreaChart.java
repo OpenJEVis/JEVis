@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisAreaChart;
 
 import java.util.List;
 
@@ -15,4 +16,8 @@ public class AreaChart extends org.jevis.jeconfig.application.Chart.Charts.XYCha
         super(chartDataModels, hideShowIcons, addSeriesOfType, chartId, chartName);
     }
 
+    @Override
+    public void finalizeChart() {
+        setChart(new MultiAxisAreaChart(dateAxis, y1Axis, y2Axis, series));
+    }
 }

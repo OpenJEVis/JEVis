@@ -582,6 +582,7 @@ public class ToolBarView {
                     json.setSelectedEnd(mdl.getSelectedEnd().toString());
                     json.setUnit(mdl.getUnit().toJSON());
                     json.setSelectedCharts(listToString(mdl.getSelectedcharts()));
+                    json.setAxis(mdl.getAxis().toString());
                     jsonDataModels.add(json);
                 }
             }

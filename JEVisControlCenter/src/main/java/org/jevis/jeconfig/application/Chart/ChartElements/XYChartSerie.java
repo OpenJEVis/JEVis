@@ -3,7 +3,6 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.chart.XYChart;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +11,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -20,8 +20,9 @@ import java.util.TreeMap;
 
 public class XYChartSerie implements Serie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
-    ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-    XYChart.Series<Number, Number> serie;
+    Integer yAxis;
+    ObservableList<MultiAxisChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
+    MultiAxisChart.Series<Number, Number> serie;
     TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
@@ -31,8 +32,9 @@ public class XYChartSerie implements Serie {
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
         this.singleRow = singleRow;
+        this.yAxis = singleRow.getAxis();
         this.hideShowIcons = hideShowIcons;
-        this.serie = new XYChart.Series<>(getTableEntryName(), seriesData);
+        this.serie = new MultiAxisChart.Series<>(getTableEntryName(), seriesData);
 
         generateSeriesFromSamples();
     }
@@ -67,7 +69,8 @@ public class XYChartSerie implements Serie {
                 Double value = sample.getValueAsDouble();
                 Long timestamp = dateTime.getMillis();
 
-                XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
+                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>(timestamp, value);
+                data.setExtraValue(yAxis);
 
                 Note note = new Note(sample.getNote());
 
@@ -91,15 +94,14 @@ public class XYChartSerie implements Serie {
         }
 
         QuantityUnits qu = new QuantityUnits();
-        boolean isQuantitiy = qu.isQuantityUnit(singleRow.getUnit());
+        boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
 
-        if (isQuantitiy) {
-            calcTableValues(tableEntry, samples, getUnit());
-        }
+        calcTableValues(tableEntry, samples, getUnit(), isQuantity);
+
     }
 
 
-    public XYChart.Series getSerie() {
+    public MultiAxisChart.Series getSerie() {
         return serie;
     }
 
@@ -129,6 +131,7 @@ public class XYChartSerie implements Serie {
 
     public void setSingleRow(ChartDataModel singleRow) {
         this.singleRow = singleRow;
+        this.yAxis = singleRow.getAxis();
     }
 
     public String getTableEntryName() {

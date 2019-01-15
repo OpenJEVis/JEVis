@@ -147,10 +147,13 @@ public class ChartPlugin implements TreePlugin {
         UnitColumn unitColumn = new UnitColumn(jeVisTree, I18n.getInstance().getString("graph.table.unit"));
         unitColumn.setGraphDataModel(data);
 
+        AxisColumn axisColumn = new AxisColumn(jeVisTree, I18n.getInstance().getString("graph.table.axis"));
+        axisColumn.setGraphDataModel(data);
+
         for (TreeTableColumn<JEVisTreeRow, Boolean> ttc : selectionColumns) column.getColumns().add(ttc);
         column.getColumns().addAll(colorColumn.getColorColumn(), aggregationColumn.getAggregationColumn(),
                 dataProcessorColumn.getDataProcessorColumn(), startDateColumn.getDateColumn(), endDateColumn.getDateColumn(),
-                unitColumn.getUnitColumn());
+                unitColumn.getUnitColumn(), axisColumn.getAxisColumn());
 
         allColumns.add(column);
     }

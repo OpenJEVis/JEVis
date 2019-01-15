@@ -284,11 +284,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.gillius</groupId>
-            <artifactId>jfxutils</artifactId>
-            <version>1.0</version>
-        </dependency>
         <!-- nice javafx stuff
         <dependency>
             <groupId>no.tornado</groupId>

@@ -1,3 +1,4 @@
+
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import javafx.collections.FXCollections;
@@ -14,8 +15,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.gillius.jfxutils.chart.ChartPanManager;
-import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -26,7 +25,10 @@ import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
-import org.jevis.jeconfig.application.Chart.customJFXChartUtil;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisAreaChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
+import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.dialog.NoteDialog;
 import org.jevis.jeconfig.tool.I18n;
@@ -46,18 +48,20 @@ import static org.jevis.commons.dataprocessing.ManipulationMode.RUNNING_MEAN;
 public class XYChart implements Chart {
     private static final Logger logger = LogManager.getLogger(XYChart.class);
     Boolean hideShowIcons;
-    ObservableList<javafx.scene.chart.XYChart.Series<Number, Number>> series = FXCollections.observableArrayList();
+    ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
-    NumberAxis numberAxis = new NumberAxis();
+    NumberAxis y1Axis = new NumberAxis();
+    NumberAxis y2Axis = new NumberAxis();
     Axis dateAxis = new DateValueAxis();
     private String chartName;
-    private List<String> unit = new ArrayList<>();
+    private List<String> unitY1 = new ArrayList<>();
+    private List<String> unitY2 = new ArrayList<>();
     private List<ChartDataModel> chartDataModels;
     private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    private javafx.scene.chart.Chart chart;
+    private MultiAxisChart chart;
     private Number valueForDisplay;
     private Region areaChartRegion;
     private Period period;
@@ -85,6 +89,7 @@ public class XYChart implements Chart {
         chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
+
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
 
                 } catch (JEVisException e) {
@@ -118,7 +123,7 @@ public class XYChart implements Chart {
     }
 
     public void finalizeChart() {
-        setChart(new javafx.scene.chart.AreaChart<Number, Number>(dateAxis, numberAxis, series));
+        setChart(new MultiAxisAreaChart(dateAxis, y1Axis, y2Axis, series));
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
@@ -181,29 +186,46 @@ public class XYChart implements Chart {
     }
 
     public void generateYAxis() {
-        numberAxis.setAutoRanging(true);
+        y1Axis.setAutoRanging(true);
+        y2Axis.setAutoRanging(true);
 
         for (ChartDataModel singleRow : chartDataModels) {
             String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
             if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
                 currentUnit = singleRow.getUnit().getLabel();
-            if (!unit.contains(currentUnit)) {
-                unit.add(currentUnit);
+            if (singleRow.getAxis() == 0) {
+                if (!unitY1.contains(currentUnit)) {
+                    unitY1.add(currentUnit);
+                }
+            } else if (singleRow.getAxis() == 1) {
+                if (!unitY2.contains(currentUnit)) {
+                    unitY2.add(currentUnit);
+                }
             }
         }
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
 
-            if (unit.isEmpty()) unit.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+            if (unitY1.isEmpty() && unitY2.isEmpty())
+                unitY1.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
 
         }
 
-        StringBuilder allUnits = new StringBuilder();
-        for (String s : unit) {
-            if (unit.indexOf(s) == 0) allUnits.append(s);
-            else allUnits.append(", ").append(s);
+        StringBuilder allUnitsY1 = new StringBuilder();
+        for (String s : unitY1) {
+            if (unitY1.indexOf(s) == 0) allUnitsY1.append(s);
+            else allUnitsY1.append(", ").append(s);
         }
-        numberAxis.setLabel(allUnits.toString());
+
+        StringBuilder allUnitsY2 = new StringBuilder();
+        for (String s : unitY2) {
+            if (unitY2.indexOf(s) == 0) allUnitsY2.append(s);
+            else allUnitsY2.append(", ").append(s);
+        }
+
+        if (!unitY1.isEmpty()) y1Axis.setLabel(allUnitsY1.toString());
+        if (!unitY2.isEmpty()) y2Axis.setLabel(allUnitsY2.toString());
+
     }
 
     private void generateXAxis(Boolean[] changedBoth) {
@@ -247,7 +269,7 @@ public class XYChart implements Chart {
             updateTable(mouseEvent, null);
         });
 
-        panner = new ChartPanManager((javafx.scene.chart.XYChart<?, ?>) getChart());
+        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
 
         panner.setMouseFilter(mouseEvent -> {
             if (mouseEvent.getButton() != MouseButton.SECONDARY
@@ -258,7 +280,7 @@ public class XYChart implements Chart {
         });
         panner.start();
 
-        areaChartRegion = customJFXChartUtil.setupZooming((javafx.scene.chart.XYChart<?, ?>) getChart(), mouseEvent -> {
+        areaChartRegion = JFXChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
 
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
@@ -269,7 +291,7 @@ public class XYChart implements Chart {
             }
         });
 
-        JFXChartUtil.addDoublePrimaryClickAutoRangeHandler((javafx.scene.chart.XYChart<?, ?>) getChart());
+        JFXChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
     }
 
@@ -301,7 +323,8 @@ public class XYChart implements Chart {
         //xyChartSerieList.clear();
         //series.clear();
         //tableData.clear();
-        unit.clear();
+        unitY1.clear();
+        unitY2.clear();
         //hexColors.clear();
         if (chartDataModels.size() > 0) {
             if (chartDataModels.size() <= xyChartSerieList.size()) {
@@ -356,12 +379,15 @@ public class XYChart implements Chart {
 
             getChart().setTitle(getUpdatedChartName());
 
-            ((javafx.scene.chart.XYChart) getChart()).getXAxis().setAutoRanging(true);
-            ((javafx.scene.chart.XYChart) getChart()).getYAxis().setAutoRanging(true);
-            ((javafx.scene.chart.XYChart) getChart()).getXAxis().layout();
-            ((javafx.scene.chart.XYChart) getChart()).getYAxis().layout();
+            ((MultiAxisChart) getChart()).getXAxis().setAutoRanging(true);
+            ((MultiAxisChart) getChart()).getY1Axis().setAutoRanging(true);
+            ((MultiAxisChart) getChart()).getY2Axis().setAutoRanging(true);
+            ((MultiAxisChart) getChart()).getXAxis().layout();
+            ((MultiAxisChart) getChart()).getY1Axis().layout();
+            ((MultiAxisChart) getChart()).getY2Axis().layout();
             getChart().layout();
         }
+
     }
 
     private void updateXYChartSeries() {
@@ -461,9 +487,9 @@ public class XYChart implements Chart {
         Double x = null;
         if (valueForDisplay == null) {
 
-            x = ((javafx.scene.chart.XYChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
+            x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
 
-            valueForDisplay = (Number) ((javafx.scene.chart.XYChart) getChart()).getXAxis().getValueForDisplay(x);
+            valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
 
         }
         if (valueForDisplay != null) {
@@ -518,11 +544,11 @@ public class XYChart implements Chart {
         if (manipulationMode.get().equals(ManipulationMode.NONE)) {
 
             Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-            double x = ((javafx.scene.chart.XYChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
+            double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
 
             Map<String, RowNote> map = new HashMap<>();
             Number valueForDisplay = null;
-            valueForDisplay = (Number) ((javafx.scene.chart.XYChart) getChart()).getXAxis().getValueForDisplay(x);
+            valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
 
             for (XYChartSerie serie : xyChartSerieList) {
                 try {
@@ -605,7 +631,7 @@ public class XYChart implements Chart {
         return chart;
     }
 
-    public void setChart(javafx.scene.chart.Chart chart) {
+    public void setChart(MultiAxisChart chart) {
         this.chart = chart;
     }
 

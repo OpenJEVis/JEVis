@@ -42,6 +42,7 @@ public class ChartView implements Observer {
 
     private final GraphDataModel dataModel;
     private static final Logger logger = LogManager.getLogger(ChartView.class);
+    private Boolean showTable = true;
     private Chart chart;
     private TableView<TableEntry> tableView;
     private AlphanumComparator alphanumComparator = new AlphanumComparator();
@@ -49,10 +50,22 @@ public class ChartView implements Observer {
     private String chartName = "";
     private boolean changed = false;
     private Integer chartId;
+    private boolean firstLogical;
 
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
 
+        init();
+    }
+
+    public ChartView(GraphDataModel dataModel, Boolean showTable) {
+        this.dataModel = dataModel;
+        this.showTable = showTable;
+
+        init();
+    }
+
+    private void init() {
         tableView = new TableView<TableEntry>();
 
         tableView.setBorder(null);
@@ -71,12 +84,6 @@ public class ChartView implements Observer {
             return true;
         });
 
-//        tableView.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
-//            @Override
-//            public void handle(ScrollEvent event) {
-//                logger.info("ScrollEvent: " + event.toString());
-//            }
-//        });
         tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
         /** Disabled because of out ScrolllesTable.css **/
@@ -265,7 +272,20 @@ public class ChartView implements Observer {
         tableView.sort();
     }
 
+    public void drawAreaChart(Integer chartId, ChartDataModel model, ChartType chartType) {
+        this.chartId = chartId;
+        chart = null;
+
+        List<ChartDataModel> chartDataModels = new ArrayList<>();
+        chartDataModels.add(model);
+
+        generateChart(chartId, chartType, chartDataModels);
+
+        tableView.sort();
+    }
+
     private void generateChart(Integer chartId, ChartType chartType, List<ChartDataModel> chartDataModels) {
+        this.chartType = chartType;
         switch (chartType) {
             case AREA:
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
@@ -273,7 +293,8 @@ public class ChartView implements Observer {
                 break;
             case LOGICAL:
                 chart = new LogicalChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
-                setTableStandard();
+                if (showTable) setTableStandard();
+                else disableTable();
                 break;
             case LINE:
                 chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
@@ -323,7 +344,7 @@ public class ChartView implements Observer {
     public String getChartName() {
 
         for (ChartSettings set : dataModel.getCharts()) {
-            if (set.getId() == chartId) {
+            if (set.getId().equals(chartId)) {
                 chartName = set.getName();
                 break;
             }
@@ -375,5 +396,17 @@ public class ChartView implements Observer {
 
     public void setChanged(boolean changed) {
         this.changed = changed;
+    }
+
+    public Boolean getShowTable() {
+        return showTable;
+    }
+
+    public boolean getFirstLogical() {
+        return firstLogical;
+    }
+
+    public void setFirstLogical(boolean firstLogical) {
+        this.firstLogical = firstLogical;
     }
 }

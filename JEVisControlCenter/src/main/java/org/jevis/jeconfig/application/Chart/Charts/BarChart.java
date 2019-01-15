@@ -13,8 +13,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.gillius.jfxutils.chart.ChartPanManager;
-import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -23,6 +21,9 @@ import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
+import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
+import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.dialog.NoteDialog;
 import org.jevis.jeconfig.tool.I18n;
@@ -43,7 +44,7 @@ public class BarChart implements Chart {
     private Boolean hideShowIcons;
     private ObservableList<javafx.scene.chart.BarChart.Series<String, Number>> series = FXCollections.observableArrayList();
     private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    private javafx.scene.chart.BarChart<String, Number> barChart;
+    private MultiAxisBarChart<String, Number> barChart;
     private List<Color> hexColors = new ArrayList<>();
     private Number valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -91,7 +92,7 @@ public class BarChart implements Chart {
         NumberAxis numberAxis = new NumberAxis();
         CategoryAxis catAxis = new CategoryAxis();
 
-        barChart = new javafx.scene.chart.BarChart<>(catAxis, numberAxis, series);
+        barChart = new MultiAxisBarChart(catAxis, numberAxis, null, series);
         barChart.applyCss();
 
         applyColors();
@@ -101,7 +102,7 @@ public class BarChart implements Chart {
         barChart.getXAxis().setAutoRanging(true);
         barChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
         barChart.getXAxis().setTickLabelRotation(-90);
-        barChart.getYAxis().setLabel(unit);
+        barChart.getY1Axis().setLabel(unit);
 
         //initializeZoom();
     }
