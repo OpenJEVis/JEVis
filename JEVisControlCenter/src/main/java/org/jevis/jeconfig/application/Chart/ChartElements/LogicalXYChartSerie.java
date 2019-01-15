@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
-import javafx.scene.chart.XYChart;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +7,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -53,7 +53,8 @@ public class LogicalXYChartSerie extends XYChartSerie {
                 Double value = sample.getValueAsDouble();
                 Long timestamp = dateTime.getMillis();
 
-                XYChart.Data<Number, Number> data = new XYChart.Data<Number, Number>(timestamp, value);
+                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>(timestamp, value);
+                data.setExtraValue(yAxis);
 
                 Note note = new Note(sample.getNote());
 

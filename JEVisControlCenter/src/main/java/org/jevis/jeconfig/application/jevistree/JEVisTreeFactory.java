@@ -162,6 +162,7 @@ public class JEVisTreeFactory {
         cellFilter.addFilter(ColorColumn.COLUMN_ID, dataFilter);
         cellFilter.addFilter(DataProcessorColumn.COLUMN_ID, dataFilter);
         cellFilter.addFilter(AggregationColumn.COLUMN_ID, dataFilter);
+        cellFilter.addFilter(AxisColumn.COLUMN_ID, dataFilter);
 
 
         JEVisTree tree = new JEVisTree(ds, cellFilter);

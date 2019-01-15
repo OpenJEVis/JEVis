@@ -69,11 +69,11 @@ public class LogicalChart extends XYChart {
     @Override
     public void generateYAxis() {
 
-        numberAxis.setAutoRanging(false);
-        numberAxis.setLowerBound(0d);
-        numberAxis.setUpperBound(1d);
-        numberAxis.setTickUnit(1d);
-        numberAxis.setMinorTickVisible(false);
-        numberAxis.setTickLabelFormatter(new LogicalYAxisStringConverter());
+        y1Axis.setAutoRanging(false);
+        y1Axis.setLowerBound(0d);
+        y1Axis.setUpperBound(1d);
+        y1Axis.setTickUnit(1d);
+        y1Axis.setMinorTickVisible(false);
+        y1Axis.setTickLabelFormatter(new LogicalYAxisStringConverter());
     }
 }

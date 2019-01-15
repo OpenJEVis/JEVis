@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface Serie {
 
-    default void calcTableValues(TableEntry te, List<JEVisSample> samples, String unit) throws JEVisException {
+    default void calcTableValues(TableEntry te, List<JEVisSample> samples, String unit, boolean isQuantity) throws JEVisException {
         double min = Double.MAX_VALUE;
         double max = -Double.MAX_VALUE;
         double avg = 0.0;
@@ -41,7 +41,8 @@ public interface Serie {
             te.setSum("- " + unit);
         } else {
             te.setAvg(nf_out.format(avg) + " " + unit);
-            te.setSum(nf_out.format(sum) + " " + unit);
+            if (isQuantity) te.setSum(nf_out.format(sum) + " " + unit);
+            else te.setSum("- " + unit);
         }
     }
 

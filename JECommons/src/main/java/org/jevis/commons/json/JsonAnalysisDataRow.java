@@ -42,6 +42,7 @@ public class JsonAnalysisDataRow {
     private String color;
     private String unit;
     private String selectedCharts;
+    private String axis;
 
     public JsonAnalysisDataRow() {
     }
@@ -112,8 +113,7 @@ public class JsonAnalysisDataRow {
     @Override
     public String toString() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String prettyJson = gson.toJson(this);
-        return prettyJson;
+        return gson.toJson(this);
     }
 
     @XmlElement(name = "selected")
@@ -141,5 +141,14 @@ public class JsonAnalysisDataRow {
 
     public void setSelectedCharts(String selectedCharts) {
         this.selectedCharts = selectedCharts;
+    }
+
+    @XmlElement(name = "axis")
+    public String getAxis() {
+        return axis;
+    }
+
+    public void setAxis(String axis) {
+        this.axis = axis;
     }
 }

@@ -32,7 +32,6 @@ public class JsonChartDataModel {
     @Override
     public String toString() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String prettyJson = gson.toJson(this);
-        return prettyJson;
+        return gson.toJson(this);
     }
 }

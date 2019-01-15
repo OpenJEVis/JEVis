@@ -32,6 +32,7 @@ public class ChartDataModel {
     private boolean _somethingChanged = true;
     private JEVisUnit _unit;
     private List<Integer> _selectedCharts = new ArrayList<>();
+    private Integer axis;
 
     public ChartDataModel() {
     }
@@ -311,5 +312,12 @@ public class ChartDataModel {
                 '}';
     }
 
+    public Integer getAxis() {
+        if (axis == null) return 0;
+        return axis;
+    }
 
+    public void setAxis(Integer axis) {
+        this.axis = axis;
+    }
 }

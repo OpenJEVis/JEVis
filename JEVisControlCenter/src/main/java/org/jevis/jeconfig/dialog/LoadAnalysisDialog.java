@@ -1,15 +1,18 @@
-package org.jevis.jeconfig.plugin.graph;
+package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import jfxtras.scene.control.ListView;
@@ -39,9 +42,11 @@ import java.util.Objects;
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
-public class LoadAnalysisDialog extends Dialog<ButtonType> {
+public class LoadAnalysisDialog {
     private static final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private final ToolBarView toolBarView;
+    private Response response = Response.CANCEL;
+    private Stage stage;
     private GraphDataModel graphDataModel;
     private JFXDatePicker pickerDateStart = new JFXDatePicker();
     private JFXTimePicker pickerTimeStart = new JFXTimePicker();
@@ -60,15 +65,28 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         this.graphDataModel = data;
         this.toolBarView = toolBarView;
         this.ds = ds;
-        this.initOwner(JEConfig.getStage());
         for (int i = 0; i < 4; i++) {
             programmaticallySetPresetDate[i] = false;
         }
 
-        initialize();
     }
 
-    private void initialize() {
+    public Response show() {
+
+        response = Response.CANCEL;
+
+        if (stage != null) {
+            stage.close();
+            stage = null;
+        }
+
+        stage = new Stage();
+
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.initOwner(JEConfig.getStage());
+        stage.setTitle(I18n.getInstance().getString("plugin.graph.analysis.dialog.title"));
+        stage.setResizable(true);
 
         //graphDataModel.updateListAnalyses();
 
@@ -164,8 +182,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
         Label labelAggregation = new Label(I18n.getInstance().getString("plugin.graph.interval.label"));
         Label labelMath = new Label(I18n.getInstance().getString("plugin.graph.manipulation.label"));
-        final ButtonType newGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.OK_DONE);
-        final ButtonType loadGraph = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.NO);
         final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
 
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -288,11 +304,6 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
 
         setupPickerListener();
 
-        this.setTitle(I18n.getInstance().getString("plugin.graph.analysis.dialog.title"));
-        this.setResizable(true);
-
-        this.getDialogPane().getButtonTypes().addAll(newGraph, loadGraph);
-
         Region freeSpace = new Region();
         freeSpace.setPrefWidth(40);
 
@@ -349,11 +360,54 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
         analysisListView.setMinWidth(600d);
         GridPane.setHgrow(analysisListView, Priority.ALWAYS);
 
-        this.getDialogPane().setContent(gridLayout);
-
         double maxScreenWidth = Screen.getPrimary().getBounds().getWidth();
-        this.getDialogPane().setPrefWidth(maxScreenWidth - 250);
+        stage.setWidth(maxScreenWidth - 250);
 
+        HBox buttonBox = new HBox(10);
+        Region spacer = new Region();
+        Button loadButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.load"));
+        Button newButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.new"));
+
+        loadButton.setDefaultButton(true);
+
+        HBox.setHgrow(loadButton, Priority.NEVER);
+        HBox.setHgrow(newButton, Priority.NEVER);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setMargin(loadButton, new Insets(10));
+        HBox.setMargin(newButton, new Insets(10));
+
+        buttonBox.getChildren().setAll(spacer, loadButton, newButton);
+        VBox root = new VBox();
+        Separator sep = new Separator(Orientation.HORIZONTAL);
+
+        root.getChildren().setAll(gridLayout, sep, buttonBox);
+
+        VBox.setVgrow(gridLayout, Priority.ALWAYS);
+        VBox.setVgrow(sep, Priority.NEVER);
+        VBox.setVgrow(buttonBox, Priority.NEVER);
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+
+        loadButton.setOnAction(event -> {
+            response = Response.LOAD;
+
+            stage.close();
+            stage = null;
+
+        });
+
+        newButton.setOnAction(event -> {
+            response = Response.NEW;
+
+            stage.close();
+            stage = null;
+
+        });
+
+        stage.showAndWait();
+
+        return response;
     }
 
     private ComboBox<String> getAggregationBox() {
@@ -851,5 +905,9 @@ public class LoadAnalysisDialog extends Dialog<ButtonType> {
             dataModel.setSelectedEnd(selectedEnd);
             dataModel.setSomethingChanged(true);
         });
+    }
+
+    public Response getResponse() {
+        return response;
     }
 }

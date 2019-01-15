@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class LineChart extends XYChart {
 
     @Override
     public void finalizeChart() {
-        setChart(new javafx.scene.chart.LineChart<Number, Number>(dateAxis, numberAxis, series));
+        setChart(new MultiAxisLineChart(dateAxis, y1Axis, y2Axis, series));
     }
 
     @Override

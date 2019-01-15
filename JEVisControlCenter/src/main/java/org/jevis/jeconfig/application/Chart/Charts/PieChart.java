@@ -68,7 +68,7 @@ public class PieChart implements Chart {
 
 
                 listSumsPiePieces.add(sumPiePiece);
-                listTableEntryNames.add(singleRow.getTitle());
+                listTableEntryNames.add(singleRow.getObject().getName());
                 hexColors.add(singleRow.getColor());
             }
         });
@@ -110,7 +110,7 @@ public class PieChart implements Chart {
 
     @Override
     public void updateChart() {
-
+        init();
     }
 
     @Override
