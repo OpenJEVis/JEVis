@@ -33,13 +33,9 @@ public class CalculationNameFormater {
     private static String removeNumbersInFront(String name) {
         String output = name;
 
-        output = output.startsWith("0") || output.startsWith("1") || output.startsWith("2") || output.startsWith("3")
-                || output.startsWith("4") || output.startsWith("5") || output.startsWith("6") || output.startsWith("7")
-                || output.startsWith("8") || output.startsWith("9") ? output.substring(1) : output;
-        if (output.startsWith("0") || output.startsWith("1") || output.startsWith("2") || output.startsWith("3") ||
-                output.startsWith("4") || output.startsWith("5") || output.startsWith("6") || output.startsWith("7") ||
-                output.startsWith("8") || output.startsWith("9")) removeNumbersInFront(output);
-
+        if (!name.isEmpty() && (output.charAt(0) >= '0' && output.charAt(0) <= '9')) {
+            return removeNumbersInFront(output.substring(1));
+        }
         return output;
     }
 
@@ -52,7 +48,6 @@ public class CalculationNameFormater {
      */
     public static String createVariableName(JEVisAttribute target) throws JEVisException {
         return createVariableName(target.getObject());
-
     }
 
     /**
