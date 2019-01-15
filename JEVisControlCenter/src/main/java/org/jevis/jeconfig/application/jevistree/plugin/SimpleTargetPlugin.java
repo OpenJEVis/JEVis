@@ -115,7 +115,7 @@ public class SimpleTargetPlugin implements TreePlugin {
                 }
             });
 
-            logger.info(data.getBox().isSelected());
+            logger.debug(data.getBox().isSelected());
         }
     }
 
