@@ -84,18 +84,24 @@ public class ChartDataModel {
                     if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
                         Period displaySampleRate = getAttribute().getDisplaySampleRate();
                         if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
-                            while (samples.get(0).getTimestamp().isAfter(_selectedStart)) {
-                                DateTime newTS = samples.get(0).getTimestamp().minus(getAttribute().getDisplaySampleRate());
-                                JEVisSample smp = new VirtualSample(newTS, 0.0);
-                                smp.setNote("Empty");
-                                samples.add(0, smp);
+                            DateTime startTS = samples.get(0).getTimestamp();
+                            while (startTS.isAfter(_selectedStart)) {
+                                startTS = startTS.minus(getAttribute().getDisplaySampleRate());
+                                if (startTS.isAfter(_selectedStart)) {
+                                    JEVisSample smp = new VirtualSample(startTS, 0.0);
+                                    smp.setNote("Empty");
+                                    samples.add(0, smp);
+                                }
                             }
 
-                            while (samples.get(samples.size() - 1).getTimestamp().isBefore(_selectedEnd)) {
-                                DateTime newTS = samples.get(samples.size() - 1).getTimestamp().plus(getAttribute().getDisplaySampleRate());
-                                JEVisSample smp = new VirtualSample(newTS, 0.0);
-                                smp.setNote("Empty");
-                                samples.add(smp);
+                            DateTime endTS = samples.get(samples.size() - 1).getTimestamp();
+                            while (endTS.isBefore(_selectedEnd)) {
+                                endTS = endTS.plus(getAttribute().getDisplaySampleRate());
+                                if (endTS.isBefore(_selectedEnd)) {
+                                    JEVisSample smp = new VirtualSample(endTS, 0.0);
+                                    smp.setNote("Empty");
+                                    samples.add(smp);
+                                }
                             }
                         }
                     }

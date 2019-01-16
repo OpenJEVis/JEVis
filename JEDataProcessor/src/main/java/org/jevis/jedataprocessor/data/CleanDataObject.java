@@ -14,6 +14,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.task.LogTaskManager;
@@ -140,22 +141,26 @@ public class CleanDataObject {
     }
 
     public List<JEVisSample> getConversionDifferential() {
-        if (conversionDifferential == null)
-            conversionDifferential = sampleHandler.getAllSamples(getObject(), CONVERSION_DIFFERENTIAL.getAttributeName()); //false;
+        if (conversionDifferential == null) {
+            conversionDifferential = sampleHandler.getAllSamples(getObject(), CONVERSION_DIFFERENTIAL.getAttributeName());
+            if (conversionDifferential.isEmpty())
+                conversionDifferential.add(new VirtualSample(new DateTime(2001, 1, 1, 0, 0, 0, 0), false));
+        }
         return conversionDifferential;
     }
 
     public Integer getPeriodOffset() {
         if (periodOffset == null) {
             Long periodOffsetLong = sampleHandler.getLastSample(getObject(), PERIOD_OFFSET.getAttributeName(), 0L);
-            periodOffset = (int) (long) periodOffsetLong;
+            periodOffset = periodOffsetLong.intValue();
         }
         return periodOffset;
     }
 
     public Boolean getValueIsQuantity() {
-        if (valueIsQuantity == null)
+        if (valueIsQuantity == null) {
             valueIsQuantity = sampleHandler.getLastSample(getObject(), VALUE_QUANTITY.getAttributeName(), false);
+        }
         return valueIsQuantity;
     }
 

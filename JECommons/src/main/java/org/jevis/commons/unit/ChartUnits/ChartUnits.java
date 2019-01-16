@@ -563,10 +563,10 @@ public class ChartUnits {
             case "va":
                 switch (inputUnit) {
                     case "vah":
-                        factor = 4d;
+                        factor = 4d / 1d;
                         break;
                     case "kva":
-                        factor = 1000d;
+                        factor = 1000d / 1d;
                         break;
                     case "kvah":
                         factor = 4d / 1000d;
@@ -576,20 +576,20 @@ public class ChartUnits {
             case "kva":
                 switch (inputUnit) {
                     case "vah":
-                        factor = 4d / 1000d;
+                        factor = 4000d / 1d;
                         break;
                     case "va":
                         factor = 1d / 1000d;
                         break;
                     case "kvah":
-                        factor = 4d;
+                        factor = 4d / 1d;
                         break;
                 }
                 break;
             case "vah":
                 switch (inputUnit) {
                     case "va":
-                        factor = 0.25d;
+                        factor = 1 / 4d;
                         break;
                     case "kva":
                         factor = 1000d / 4d;
@@ -602,10 +602,10 @@ public class ChartUnits {
             case "kvah":
                 switch (inputUnit) {
                     case "va":
-                        factor = 1d / 4000d;
+                        factor = 1000d / 4d;
                         break;
                     case "kva":
-                        factor = 1000d / 4d;
+                        factor = 1d / 4d;
                         break;
                     case "vah":
                         factor = 1d / 1000d;
@@ -615,10 +615,10 @@ public class ChartUnits {
             case "var":
                 switch (inputUnit) {
                     case "varh":
-                        factor = 4d;
+                        factor = 4d / 1d;
                         break;
                     case "kvar":
-                        factor = 1000d;
+                        factor = 1000d / 1d;
                         break;
                     case "kvarh":
                         factor = 4d / 1000d;
@@ -628,20 +628,20 @@ public class ChartUnits {
             case "kvar":
                 switch (inputUnit) {
                     case "varh":
-                        factor = 4d / 1000d;
+                        factor = 4000d / 1d;
                         break;
                     case "var":
                         factor = 1d / 1000d;
                         break;
                     case "kvarh":
-                        factor = 4d;
+                        factor = 4d / 1d;
                         break;
                 }
                 break;
             case "varh":
                 switch (inputUnit) {
                     case "var":
-                        factor = 0.25;
+                        factor = 1 / 4d;
                         break;
                     case "kvar":
                         factor = 1000d / 4d;
@@ -654,7 +654,7 @@ public class ChartUnits {
             case "kvarh":
                 switch (inputUnit) {
                     case "var":
-                        factor = 1d / 4000d;
+                        factor = 1000d / 4d;
                         break;
                     case "kvar":
                         factor = 1d / 4d;

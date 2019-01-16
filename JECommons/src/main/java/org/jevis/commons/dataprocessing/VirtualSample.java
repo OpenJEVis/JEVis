@@ -31,6 +31,7 @@ public class VirtualSample implements JEVisSample {
 
     JEVisDataSource _ds;
     private Double _value;
+    private Long _longValue;
     private DateTime _timeStamp;
     private JEVisAttribute _att;
     private String _note;
@@ -38,6 +39,20 @@ public class VirtualSample implements JEVisSample {
 
     public VirtualSample(DateTime ts, Double value) {
         _value = value;
+        _timeStamp = ts;
+    }
+
+    public VirtualSample(DateTime ts, Long value) {
+        _longValue = value;
+        _timeStamp = ts;
+    }
+
+    public VirtualSample(DateTime ts, Boolean value) {
+        if (value) {
+            _longValue = 1L;
+        } else {
+            _longValue = 0L;
+        }
         _timeStamp = ts;
     }
 
@@ -69,7 +84,9 @@ public class VirtualSample implements JEVisSample {
 
     @Override
     public Object getValue() {
-        return _value;
+        if (_value != null)
+            return _value;
+        else return _longValue;
     }
 
     @Override
@@ -84,7 +101,7 @@ public class VirtualSample implements JEVisSample {
 
     @Override
     public Long getValueAsLong() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return _longValue;
     }
 
     @Override
