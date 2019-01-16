@@ -50,10 +50,10 @@ public class SQLDataSource {
     private SampleTable sTable;
     private RelationshipTable rTable;
 
-    private List<JsonRelationship> allRelationships = new LinkedList<>();
+    private List<JsonRelationship> allRelationships = Collections.synchronizedList(new LinkedList<>());
     //    private List<JsonClassRelationship> allClassRelationships = new LinkedList<>();
 //    private List<JsonJEVisClass> allClasses = new LinkedList<>();
-    private List<JsonObject> allObjects = new LinkedList<>();
+    private List<JsonObject> allObjects = Collections.synchronizedList(new LinkedList<>());
     private Map<String, List<JsonType>> allTypes = new HashMap<>();
     private UserRightManagerForWS um;
     private Profiler pf = new Profiler();
@@ -354,11 +354,15 @@ public class SQLDataSource {
         getProfiler().addEvent("DS", "addRelationhsipsToObjects");
         for (JsonObject ob : objs) {
             for (JsonRelationship rel : rels) {
-                if (rel.getFrom() == ob.getId() || rel.getTo() == ob.getId()) {
-                    if (ob.getRelationships() == null) {
-                        ob.setRelationships(new ArrayList<JsonRelationship>());
+                try {
+                    if (rel.getFrom() == ob.getId() || rel.getTo() == ob.getId()) {
+                        if (ob.getRelationships() == null) {
+                            ob.setRelationships(new ArrayList<JsonRelationship>());
+                        }
+                        ob.getRelationships().add(rel);
                     }
-                    ob.getRelationships().add(rel);
+                } catch (Exception ex) {
+                    logger.error("Error with relationship: {}", rel);
                 }
             }
         }
