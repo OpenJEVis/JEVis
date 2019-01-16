@@ -62,7 +62,7 @@ public class ResourceAllAttribute {
 
             List<JsonAttribute> attributes = ds.getAttributes();
             ds.getProfiler().addEvent("AttributeResource", "done");
-            logger.error("Total amount of attributes: {}", attributes.size());
+            logger.debug("Total amount of attributes: {}", attributes.size());
             return Response.ok(attributes).build();
 
 
