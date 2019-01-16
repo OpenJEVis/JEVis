@@ -184,7 +184,7 @@ public class SQLtoJsonFactory {
         JsonRelationship json = new JsonRelationship();
         json.setFrom(rs.getLong(RelationshipTable.COLUMN_START));
         json.setTo(rs.getLong(RelationshipTable.COLUMN_END));
-        json.setType(rs.getInt(RelationshipTable.COLUMN_TYPE));//or as String lile Link
+        json.setType(rs.getInt(RelationshipTable.COLUMN_TYPE));
         return json;
     }
 

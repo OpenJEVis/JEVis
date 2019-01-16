@@ -42,8 +42,8 @@ public class RelationshipTable {
     public final static String COLUMN_START = "startobject";
     public final static String COLUMN_END = "endobject";
     public final static String COLUMN_TYPE = "relationtype";
-    private SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(RelationshipTable.class);
+    private SQLDataSource _connection;
 
     public RelationshipTable(SQLDataSource ds) {
         _connection = ds;
@@ -308,7 +308,11 @@ public class RelationshipTable {
             _connection.addQuery("Relationship.getAll()", ps.toString());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                try {
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
             }
 
         } catch (Exception ex) {

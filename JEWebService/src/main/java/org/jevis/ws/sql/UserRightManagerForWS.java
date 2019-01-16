@@ -59,7 +59,6 @@ public class UserRightManagerForWS {
             switch (rel.getType()) {
                 case JEVisConstants.ObjectRelationship.MEMBER_READ:
                     readGIDS.add(rel.getTo());
-                    System.out.println("Read group: " + rel.getTo());
                     break;
                 case JEVisConstants.ObjectRelationship.MEMBER_WRITE:
                     writeGIDS.add(rel.getTo());
@@ -186,7 +185,7 @@ public class UserRightManagerForWS {
             return rels;
         }
 
-        List<JsonRelationship> list = new ArrayList<>();
+        List<JsonRelationship> list = Collections.synchronizedList(new ArrayList<>());
         List<Long> objectIDOFGroupOwenedObj = new LinkedList<>();
 
         //hmm what is with object which are public??

@@ -364,7 +364,8 @@ public class JEVisItemLoader {
                             update(object);
                             JEVisTreeItem newItem = itemObjectLinker.get(object);
                             newItem.setExpanded(true);
-                            jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
+                            /** We do not want to select the new object for now, but maybe later in some cases **/
+                            //jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
                         });
                     }
                     break;
