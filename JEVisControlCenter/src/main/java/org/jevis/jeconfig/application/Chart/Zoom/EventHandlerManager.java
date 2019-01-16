@@ -68,12 +68,11 @@ public class EventHandlerManager {
     /**
      * Add all currently unadded handlers (this method will not re-add).
      */
-    @SuppressWarnings("unchecked")
     public void addAllHandlers() {
         for (Registration<?> registration : registrations) {
             if (!registration.isRegistered()) {
                 target.addEventHandler(registration.getType(),
-                        registration.getHandler());
+                        (EventHandler<Event>) registration.getHandler());
                 registration.setRegistered(true);
             }
         }
@@ -82,12 +81,11 @@ public class EventHandlerManager {
     /**
      * Remove all currently added handlers.
      */
-    @SuppressWarnings("unchecked")
     public void removeAllHandlers() {
         for (Registration<?> registration : registrations) {
             if (registration.isRegistered()) {
                 target.removeEventHandler(registration.getType(),
-                        registration.getHandler());
+                        (EventHandler<Event>) registration.getHandler());
                 registration.setRegistered(false);
             }
         }
