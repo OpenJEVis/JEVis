@@ -338,22 +338,22 @@ public class LoadAnalysisDialog {
         comboBoxPresetDates.setMaxWidth(200);
         gridLayout.add(comboBoxPresetDates, 2, 6, 3, 1);
 
-        gridLayout.add(customSelectionsLabel, 2, 8, 3, 1);
+        gridLayout.add(customSelectionsLabel, 2, 7, 3, 1);
         GridPane.setFillWidth(comboBoxCustomPeriods, true);
         comboBoxCustomPeriods.setMaxWidth(200);
-        gridLayout.add(comboBoxCustomPeriods, 2, 9, 3, 1);
+        gridLayout.add(comboBoxCustomPeriods, 2, 8, 3, 1);
 
-        gridLayout.add(labelAggregation, 2, 11, 3, 1);
+        gridLayout.add(labelAggregation, 2, 9, 3, 1);
         aggregationBox = getAggregationBox();
         GridPane.setFillWidth(aggregationBox, true);
         aggregationBox.setMaxWidth(200);
-        gridLayout.add(aggregationBox, 2, 12, 3, 1);
+        gridLayout.add(aggregationBox, 2, 10, 3, 1);
 
-        gridLayout.add(labelMath, 2, 14, 3, 1);
+        gridLayout.add(labelMath, 2, 11, 3, 1);
         mathBox = getMathBox();
         GridPane.setFillWidth(mathBox, true);
         mathBox.setMaxWidth(200);
-        gridLayout.add(mathBox, 2, 15, 3, 1);
+        gridLayout.add(mathBox, 2, 12, 3, 1);
 
         GridPane.setFillWidth(analysisListView, true);
         GridPane.setFillHeight(analysisListView, true);
