@@ -5,11 +5,12 @@
  */
 package org.jevis.report3.data.reportlink;
 
-import java.util.Map;
 import org.jevis.api.JEVisObject;
 import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
 import org.joda.time.DateTime;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -17,14 +18,14 @@ import org.joda.time.DateTime;
  */
 public interface ReportData {
 
-    public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc);
+    ConcurrentHashMap<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc);
 
-    public JEVisObject getDataObject();
+    JEVisObject getDataObject();
 //
 //    public JEVisObject getLinkObject();
-    public LinkStatus getReportLinkStatus(DateTime end);
+LinkStatus getReportLinkStatus(DateTime end);
 
-    public class LinkStatus {
+    class LinkStatus {
 
         private final boolean sanityCheck;
         private final String message;

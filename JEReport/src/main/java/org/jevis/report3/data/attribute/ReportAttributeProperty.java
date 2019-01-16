@@ -47,8 +47,7 @@ public class ReportAttributeProperty {
         List<AttributeConfiguration> attributeConfigurations = new ArrayList<>();
         AttributeConfiguration attrConfig = new AttributeConfiguration(ReportConfigurationName.SpecificValue, AttributeConfigurationFactory.ReportConfigurationType.SampleGenerator, new HashMap<>());
         attributeConfigurations.add(attrConfig);
-        ReportAttributeProperty attributeProperty = new ReportAttributeProperty(attributeConfigurations, attributeName);
-        return attributeProperty;
+        return new ReportAttributeProperty(attributeConfigurations, attributeName);
     }
 
     private ReportAttributeProperty(List<AttributeConfiguration> attributeConfigurations, String attributeName) {

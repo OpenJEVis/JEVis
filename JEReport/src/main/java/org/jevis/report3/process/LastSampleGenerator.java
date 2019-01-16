@@ -15,29 +15,22 @@ import org.jevis.report3.data.attribute.ReportAttributeProperty;
 import org.jevis.report3.data.report.ReportProperty;
 import org.jevis.report3.data.reportlink.ReportLinkProperty;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
  * @author broder
  */
-public class LastSampleGenerator implements SampleGenerator {
+public class LastSampleGenerator {
     private static final Logger logger = LogManager.getLogger(LastSampleGenerator.class);
 
-    @Override
-    public Map<String, Object> work(ReportLinkProperty linkData, ReportAttributeProperty attributeData, ReportProperty property) {
+    public ConcurrentHashMap<String, Object> work(ReportLinkProperty linkData, ReportAttributeProperty attributeData, ReportProperty property) throws JEVisException {
         JEVisObject dataObject = linkData.getDataObject();
-        Map<String, Object> resultMap = new HashMap<>();
+        ConcurrentHashMap<String, Object> resultMap = new ConcurrentHashMap<>();
 
-        try {
-            JEVisAttribute attr = dataObject.getAttribute(attributeData.getAttributeName());
-            JEVisSample latestSample = attr.getLatestSample();
-            if (latestSample != null) {
-                resultMap = ProcessHelper.getAttributeSample(latestSample, attr, property.getTimeZone());
-            }
-        } catch (JEVisException ex) {
-            logger.error("Cant collect samples for attribute: " + attributeData.getAttributeName(), ex);
+        JEVisAttribute attr = dataObject.getAttribute(attributeData.getAttributeName());
+        JEVisSample latestSample = attr.getLatestSample();
+        if (latestSample != null) {
+            resultMap = ProcessHelper.getAttributeSample(latestSample, attr, property.getTimeZone());
         }
         return resultMap;
     }

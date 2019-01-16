@@ -7,31 +7,24 @@ package org.jevis.report3.data.reportlink;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.database.JEVisAttributeDAO;
 import org.jevis.commons.database.JEVisObjectDataManager;
 import org.jevis.commons.database.JEVisSampleDAO;
-import org.jevis.report3.context.SampleFactory;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.report3.data.DataHelper;
-import org.jevis.report3.data.attribute.AttributeConfiguration;
-import org.jevis.report3.data.attribute.AttributeConfigurationFactory;
-import org.jevis.report3.data.attribute.ReportAttribute;
-import org.jevis.report3.data.attribute.ReportAttributeProperty;
+import org.jevis.report3.data.attribute.*;
 import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
-import org.jevis.report3.process.SampleGenerator;
+import org.jevis.report3.process.LastSampleGenerator;
+import org.jevis.report3.process.PeriodSampleGenerator;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -47,7 +40,6 @@ public class ReportLinkProperty implements ReportData {
     private JEVisObject dataObject;
     private final List<ReportAttributeProperty> attributeProperties = new ArrayList<>();
     private final List<ReportAttributeProperty> defaultAttributeProperties = new ArrayList<>();
-    private final SampleFactory sampleFactory = new SampleFactory();
 
     //    private DateTime latestTimestamp;
     public static ReportLinkProperty buildFromJEVisObject(JEVisObject reportLinkObject) {
@@ -154,42 +146,96 @@ public class ReportLinkProperty implements ReportData {
     }
 
     @Override
-    public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
-        Map<String, Object> templateMap = new HashMap<>();
-        Map<String, Object> reportLinkMap = getMapFromReportLink(this, property, intervalCalc);
+    public ConcurrentHashMap<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
+        ConcurrentHashMap<String, Object> templateMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Object> reportLinkMap = getMapFromReportLink(this, property, intervalCalc);
         templateMap.put(this.getTemplateVariableName(), reportLinkMap);
         return templateMap;
     }
 
-    private Map<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
-        Map<String, Object> linkMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
+        ConcurrentHashMap<String, Object> linkMap = new ConcurrentHashMap<>();
         List<ReportAttributeProperty> attributeProperties = linkProperty.getAttributeProperties();
         //attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
         attributeProperties.parallelStream().forEach(attributeProperty -> {
             List<AttributeConfiguration> attributeConfigs = attributeProperty.getAttributeConfigurations();
-            SampleGenerator sampleGenerator = sampleFactory.getSampleGenerator(attributeConfigs, intervalCalc);
-            Map<String, Object> attributeMap = sampleGenerator.work(linkProperty, attributeProperty, property);
-            addAttributeMapToLinkMap(linkMap, attributeMap);
-            logger.debug("added link map " + linkMap.entrySet() + " to attribute map");
+
+            boolean validSampleGenerator = false;
+            //get the sampleGenerator
+            for (AttributeConfiguration config : attributeConfigs) {
+                if (config.getConfigType().equals(AttributeConfigurationFactory.ReportConfigurationType.SampleGenerator)) {
+                    if (validSampleGenerator) {
+                        logger.info("valid sample generators");
+                    } else {
+                        validSampleGenerator = true;
+
+                        switch (config.getConfigName()) {
+                            case Period: {
+                                Interval interval = null;
+                                IntervalCalculator.PeriodMode mode = null;
+                                try {
+                                    String modeName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD).getLatestSample().getValueAsString();
+                                    mode = IntervalCalculator.PeriodMode.valueOf(modeName.toUpperCase());
+                                    interval = intervalCalc.getInterval(mode);
+                                    logger.info("interval: " + interval);
+                                    logger.error("Mode name: " + modeName.toUpperCase());
+                                } catch (JEVisException ex) {
+                                    logger.error(ex);
+                                }
+
+                                AttributeConfiguration periodConfiguration = attributeProperty.getAttributeConfiguration(AttributeConfigurationFactory.ReportConfigurationName.Period);
+                                JEVisObject dataObject = linkProperty.getDataObject();
+                                JEVisAttribute attribute = null;
+                                JEVisDataSource ds = null;
+                                try {
+                                    attribute = dataObject.getAttribute(attributeProperty.getAttributeName());
+                                    ds = dataObject.getDataSource();
+                                } catch (JEVisException ex) {
+                                    logger.error(ex);
+                                }
+
+                                String modeName = null;
+                                try {
+                                    modeName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
+                                    logger.error("Mode name: " + modeName);
+                                } catch (JEVisException ex) {
+                                    logger.error(ex);
+                                }
+
+                                ManipulationMode manipulationMode = ManipulationMode.get(modeName.toUpperCase());
+                                logger.error("manipulationMode: " + manipulationMode.toString());
+                                AggregationPeriod period = AggregationPeriod.get(modeName.toUpperCase());
+                                logger.error("aggregationPeriod: " + period.toString());
+
+                                PeriodSampleGenerator gen = new PeriodSampleGenerator(ds, dataObject, attribute, interval, manipulationMode, period);
+
+                                try {
+                                    linkMap.putAll(gen.work(linkProperty, attributeProperty, property));
+                                    logger.debug("added link map " + linkMap.entrySet() + " to attribute map");
+                                } catch (JEVisException e) {
+                                    logger.error(e);
+                                }
+                            }
+                            break;
+                            case SpecificValue:
+                                LastSampleGenerator sampleGenerator = new LastSampleGenerator();
+
+                                try {
+                                    linkMap.putAll(sampleGenerator.work(linkProperty, attributeProperty, property));
+                                    logger.debug("added link map " + linkMap.entrySet() + " to attribute map");
+                                } catch (JEVisException e) {
+                                    logger.error(e);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
         });
 
         return linkMap;
     }
 
-    //    public void setIntervalCalculator(IntervalCalculator intervalCalc) {
-//        this.intervalCalc = intervalCalc;
-//    }
-    private void addAttributeMapToLinkMap(Map<String, Object> linkMap, Map<String, Object> attributeMap) {
-        Lock lock = new ReentrantLock();
-        lock.lock();
-        linkMap.putAll(attributeMap);
-        lock.unlock();
-    }
-
-    //    @Override
-//    public JEVisObject getLinkObject() {
-//        return linkObject
-//    }
     @Override
     public LinkStatus getReportLinkStatus(DateTime end) {
         boolean optional = false;
