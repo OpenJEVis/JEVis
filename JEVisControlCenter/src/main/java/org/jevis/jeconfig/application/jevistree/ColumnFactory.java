@@ -95,6 +95,7 @@ public class ColumnFactory {
 
         });
 
+        final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu();
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, String>, TreeTableCell<JEVisTreeRow, String>>() {
 
@@ -150,12 +151,16 @@ public class ColumnFactory {
                                                       Label nameLabel = new Label();
                                                       Node icon;
 
-                                                      /**
-                                                       * this is creating the massive memory leak for the tree, casting seems to create a new instance of the variable,
-                                                       * which is not cleared by the garbage collector
-                                                       */
-                                                      //JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
-                                                      //setContextMenu(new JEVisTreeContextMenu(jeVisObject, tree));
+                                                      setContextMenu(contextMenu);
+                                                      setOnContextMenuRequested(event -> {
+                                                          contextMenu.setItem(getTreeTableRow());
+                                                      });
+//
+//                                                      hbox.setOsetOnAction(new EventHandler<ActionEvent>() {
+//                                                          public void handle(ActionEvent e) {
+//                                                              contextMenu.show(textField, Side.BOTTOM, 0, 0);
+//                                                          }
+//                                                      });
 
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
