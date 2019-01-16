@@ -40,21 +40,42 @@ public class QuantityUnits {
     private final Unit _kvarh = Unit.ONE.alternate("kvarh");
     private final JEVisUnit kvarh = new JEVisUnitImp(_kvarh);
 
-    private final ArrayList<JEVisUnit> jeVisUnitArrayList = new ArrayList<>(Arrays.asList(kg, t, l, m3, Wh, kWh, MWh,
-            GWh, vah, varh, kvah, kvarh));
+    private final ArrayList<JEVisUnit> jeVisUnitArrayList = new ArrayList<>(Arrays.asList(
+            kg, t,
+            l, m3,
+            Wh, kWh, MWh, GWh,
+            vah, varh, kvah, kvarh
+    ));
 
-    private final ArrayList<Unit> unitArrayList = new ArrayList<>(Arrays.asList(_kg, _t, _l, _m3, _Wh, _kWh, _MWh,
-            _GWh, _vah, _varh, _kvah, _kvarh));
+    private final ArrayList<Unit> unitArrayList = new ArrayList<>(Arrays.asList(
+            _kg, _t,
+            _l, _m3,
+            _Wh, _kWh, _MWh, _GWh,
+            _vah, _varh, _kvah, _kvarh
+    ));
 
-    private final ArrayList<String> stringArrayList = new ArrayList<>(Arrays.asList(kg.getLabel(), t.getLabel(),
-            l.getLabel(), m3.getLabel(), Wh.getLabel(), kWh.getLabel(), MWh.getLabel(), GWh.getLabel(), vah.getLabel(),
-            varh.getLabel(), kvah.getLabel(), kvarh.getLabel()));
+    private final ArrayList<String> stringArrayList = new ArrayList<>(Arrays.asList(
+            kg.getLabel(), t.getLabel(),
+            l.getLabel(), m3.getLabel(),
+            Wh.getLabel(), kWh.getLabel(), MWh.getLabel(), GWh.getLabel(),
+            vah.getLabel(), varh.getLabel(), kvah.getLabel(), kvarh.getLabel()
+    ));
 
     public boolean isQuantityUnit(JEVisUnit unit) {
         for (JEVisUnit jeVisUnit : jeVisUnitArrayList) {
-            if (jeVisUnit.getLabel().equals(unit.getLabel())) return true;
-            if (jeVisUnit.getFormula().equals(unit.getFormula())) return true;
-            if (UnitManager.getInstance().format(jeVisUnit).equals(UnitManager.getInstance().format(unit))) return true;
+            try {
+                if (jeVisUnit.getLabel().equals(unit.getLabel())) return true;
+            } catch (Exception e) {
+            }
+            try {
+                if (jeVisUnit.getFormula().equals(unit.getFormula())) return true;
+            } catch (Exception e) {
+            }
+            try {
+                if (UnitManager.getInstance().format(jeVisUnit).equals(UnitManager.getInstance().format(unit)))
+                    return true;
+            } catch (Exception e) {
+            }
         }
         return false;
     }
