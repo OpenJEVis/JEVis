@@ -25,7 +25,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 @Path("/api/rest/version")
