@@ -19,9 +19,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -66,8 +65,8 @@ public class AlarmFunction implements ReportData {
      * @return
      */
     @Override
-    public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
-        Map<String, Object> funktionMap = new HashMap<>();
+    public ConcurrentHashMap<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
+        ConcurrentHashMap<String, Object> funktionMap = new ConcurrentHashMap<>();
         Interval interval = intervalCalc.getInterval(IntervalCalculator.PeriodMode.CURRENT);
         DateTime start = interval.getStart();
         DateTime end = interval.getEnd();
@@ -96,9 +95,9 @@ public class AlarmFunction implements ReportData {
         return funktionMap;
     }
 
-    private Map<String, Object> getElement(AlarmPeriod alarm) {
+    private ConcurrentHashMap<String, Object> getElement(AlarmPeriod alarm) {
         //hier is das mit .value/.timestamp usw
-        Map<String, Object> tmpMap = new HashMap<>();
+        ConcurrentHashMap<String, Object> tmpMap = new ConcurrentHashMap<>();
         tmpMap.put(COLUMN_FROM, DateHelper.transformTimestampsToExcelTime(alarm.getPeriodStart()));
         tmpMap.put(COLUMN_UNTIL, DateHelper.transformTimestampsToExcelTime(alarm.getPeriodEnd()));
         tmpMap.put(COLUMN_IST, alarm.getSumIst());

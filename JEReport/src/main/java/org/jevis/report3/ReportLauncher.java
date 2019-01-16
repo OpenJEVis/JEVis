@@ -83,7 +83,14 @@ public class ReportLauncher extends AbstractCliApp {
                     } else {
 
                         ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
-                        executor.executeReport();
+
+                        try {
+                            executor.executeReport();
+                        } catch (Exception e) {
+                            logger.error(e);
+                            LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
+                            LogTaskManager.getInstance().getTask(reportObject.getID()).setException(e);
+                        }
 
                         logger.info("---------------------------------------------------------------------");
                         logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());

@@ -6,7 +6,7 @@ public enum ManipulationMode {
 
     public static ManipulationMode get(String modeName) {
         String[] modeArray = modeName.split("_");
-        String mode = TOTAL.name();
+        String mode = NONE.name();
         if (modeArray.length == 2) {
             mode = modeArray[1];
         }
