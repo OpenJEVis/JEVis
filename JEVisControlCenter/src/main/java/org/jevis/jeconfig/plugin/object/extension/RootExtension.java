@@ -247,7 +247,7 @@ public class RootExtension implements ObjectEditorExtension {
 
                 SelectTargetDialog.Response re = dia.show(
                         obj.getDataSource(),
-                        "Select entry point",
+                        I18n.getInstance().getString("plugin.object.root.select.title"),
                         new ArrayList<>());
 
                 if (re == SelectTargetDialog.Response.OK) {
