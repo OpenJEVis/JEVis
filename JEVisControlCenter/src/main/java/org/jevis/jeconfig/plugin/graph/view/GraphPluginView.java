@@ -302,6 +302,7 @@ public class GraphPluginView implements Plugin, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+
         Double autoMinSize = null;
         double autoMinSizeNormal = 220;
         double autoMinSizeLogical = 50;

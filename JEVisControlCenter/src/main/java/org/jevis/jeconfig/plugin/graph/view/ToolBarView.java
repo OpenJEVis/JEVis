@@ -81,6 +81,7 @@ public class ToolBarView {
 
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
+
                 DateTime now = DateTime.now();
                 AtomicReference<DateTime> oldStart = new AtomicReference<>(now);
                 AtomicReference<DateTime> oldEnd = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
