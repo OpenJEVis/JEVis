@@ -231,16 +231,16 @@ public class ChartUnits {
                         factor = 1d / 1000000d;
                         break;
                     case "Wh":
-                        factor = 4000d / 1d;
+                        factor = 4d / 1000d;
                         break;
                     case "kWh":
                         factor = 4d / 1d;
                         break;
                     case "MWh":
-                        factor = 4d / 1000d;
+                        factor = 4000d / 1d;
                         break;
                     case "GWh":
-                        factor = 4d / 1000000d;
+                        factor = 4000000d / 1d;
                         break;
                 }
                 break;

@@ -210,7 +210,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     fixMissingAttributes(getObject(aLong), attributeCache.get(aLong));
 
                 });
-                logger.error("done fixing attributes");
+                logger.debug("done fixing attributes");
 
                 allAttributesPreloaded = true;
 
@@ -811,7 +811,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //            List<JsonSample> jsons = gson.fromJson(response.toString(), listType);
 
             //            ObjectMapper objectMapper = new ObjectMapper();
-            List<JsonSample> jsons = Arrays.asList(objectMapper.readValue(con.getInputStreamRequest(resource), JsonSample[].class));
+            JsonSample[] jsons = objectMapper.readValue(con.getInputStreamRequest(resource), JsonSample[].class);
 
 
             for (JsonSample sample : jsons) {
@@ -1087,7 +1087,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public JEVisObject getObjectWS(Long id) {
-        logger.error("GetObject: {}", id);
+        logger.debug("GetObject: {}", id);
         String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "/" + id
                 + "?"
                 + REQUEST.OBJECTS.OPTIONS.INCLUDE_CHILDREN + "true";
@@ -1176,7 +1176,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //            }.getType();
 //            List<JsonJEVisClass> jsons = gson.fromJson(response.toString(), listType);
 
-            List<JsonJEVisClass> jsons = Arrays.asList(objectMapper.readValue(con.getInputStreamRequest(resource), JsonJEVisClass[].class));
+            JsonJEVisClass[] jsons = objectMapper.readValue(con.getInputStreamRequest(resource), JsonJEVisClass[].class);
 
 
             for (JsonJEVisClass jc : jsons) {

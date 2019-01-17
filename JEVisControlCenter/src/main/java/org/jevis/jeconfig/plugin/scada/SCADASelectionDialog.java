@@ -118,10 +118,10 @@ public class SCADASelectionDialog {
         tree.openUserSelection(uselection);
         stp.setUserSelection(uselection);
 //        if (mode == MODE.ATTRIBUTE) {
-//            stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
+//            stp.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
 //            advanced.setSelected(true);
 //        } else if (mode == MODE.OBJECT) {
-//            stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
+//            stp.setMode(SimpleTargetPlugin.MODE.OBJECT);
 //            advanced.setSelected(false);
 //        }
 
@@ -142,11 +142,11 @@ public class SCADASelectionDialog {
 //                    tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 //                    tree.getPlugins().add(stp);
 //                    if(newValue){
-//                        stp.setModus(SimpleTargetPlugin.MODE.ATTRIBUTE);
+//                        stp.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
 //                        tree.getFilter().showAttributes(true);
 //
 //                    }else{
-//                        stp.setModus(SimpleTargetPlugin.MODE.OBJECT);
+//                        stp.setMode(SimpleTargetPlugin.MODE.OBJECT);
 //                        tree.getFilter().showAttributes(false);
 //                    }
 //                    tree.openUserSelection(uselection);

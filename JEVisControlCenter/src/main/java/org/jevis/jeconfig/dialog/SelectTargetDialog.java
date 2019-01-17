@@ -242,6 +242,9 @@ public class SelectTargetDialog {
         return simpleTargetPlugin.getUserSelection();
     }
 
+    public void setMode(SimpleTargetPlugin.MODE mode) {
+        simpleTargetPlugin.setMode(mode);
+    }
 
     public enum Response {
 

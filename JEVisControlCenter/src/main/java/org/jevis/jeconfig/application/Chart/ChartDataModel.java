@@ -130,10 +130,10 @@ public class ChartDataModel {
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {
         if (_unit != null) {
-            String outputUnit = UnitManager.getInstance().format(_unit);
+            String outputUnit = UnitManager.getInstance().format(_unit).replace("·", "");
             if (outputUnit.equals("")) outputUnit = _unit.getLabel();
 
-            String inputUnit = UnitManager.getInstance().format(_attribute.getDisplayUnit());
+            String inputUnit = UnitManager.getInstance().format(_attribute.getDisplayUnit()).replace("·", "");
             if (inputUnit.equals("")) inputUnit = _attribute.getDisplayUnit().getLabel();
 
             ChartUnits cu = new ChartUnits();

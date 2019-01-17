@@ -27,7 +27,10 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -42,6 +45,7 @@ import java.util.List;
  */
 public class CSVTable extends TableView<CSVLine> {
 
+    private static Logger logger = LogManager.getLogger(CSVTable.class);
     private CSVParser _parser;
     private JEVisDataSource _ds;
     private List<CSVColumnHeader> _header = new ArrayList<>();
@@ -155,22 +159,23 @@ public class CSVTable extends TableView<CSVLine> {
                                         DateTime ts = tsColumn.getValueAsDate(line.getColumn(tsColumn.getColumn()));
                                         if (header.getMeaning() == CSVColumnHeader.Meaning.Value) {
                                             Double value = header.getValueAsDouble(line.getColumn(header.getColumn()));
-                                            JEVisSample newSample = header.getTarget().buildSample(ts, value, "CSV Import by " + _ds.getCurrentUser().getAccountName());
+                                            JEVisAttribute targetAtt = header.getTarget();
+                                            String note = "CSV Import by " + _ds.getCurrentUser().getAccountName();
+                                            JEVisSample newSample = targetAtt.buildSample(ts, value, note);
                                             _newSamples.add(newSample);
                                         }
 
                                     } catch (Exception pe) {
-                                        //logger.info("error while building sample");
+                                        logger.error("error while building sample");
                                         //pe.printStackTrace();
                                     }
                                 }
                                 try {
-                                    //logger.info("Import " + _newSamples.size() + " sample into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
+                                    logger.debug("Import " + _newSamples.size() + " sample into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
                                     header.getTarget().addSamples(_newSamples);
 
                                 } catch (JEVisException ex) {
-                                    //logger.info("error while import sample");
-                                    //Logger.getLogger(CSVTable.class.getName()).log(Level.SEVERE, null, ex);
+                                    logger.error("error while import sample" + ex);
                                 }
 
                             }
