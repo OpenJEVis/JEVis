@@ -29,8 +29,8 @@ import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.*;
 
-public class GraphExport {
-    private static final Logger logger = LogManager.getLogger(GraphExport.class);
+public class GraphExportCSV {
+    private static final Logger logger = LogManager.getLogger(GraphExportCSV.class);
     final DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private final GraphDataModel model;
     private final JEVisDataSource ds;
@@ -44,7 +44,7 @@ public class GraphExport {
     private Locale selectedLocale;
     private NumberFormat numberFormat;
 
-    public GraphExport(JEVisDataSource ds, GraphDataModel model) {
+    public GraphExportCSV(JEVisDataSource ds, GraphDataModel model) {
         this.model = model;
         this.ds = ds;
         this.setDates();

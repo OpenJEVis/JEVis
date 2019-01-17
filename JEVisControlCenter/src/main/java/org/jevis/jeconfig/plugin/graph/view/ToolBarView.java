@@ -12,6 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -36,6 +37,7 @@ import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +52,7 @@ public class ToolBarView {
 
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
+    private BorderPane borderPane;
     private GraphDataModel model;
     private ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean _initialized = false;
@@ -57,6 +60,7 @@ public class ToolBarView {
     private ToggleButton save;
     private ToggleButton loadNew;
     private ToggleButton exportCSV;
+    private ToggleButton exportImage;
     private ToggleButton reload;
     private ToggleButton delete;
     private ToggleButton autoResize;
@@ -142,6 +146,11 @@ public class ToolBarView {
         exportCSV.setTooltip(exportCSVTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportCSV);
 
+        exportImage = new ToggleButton("", JEConfig.getImage("export-image.png", iconSize, iconSize));
+        Tooltip exportImageTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportImage"));
+        exportImage.setTooltip(exportImageTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportImage);
+
         reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
         reload.setTooltip(reloadTooltip);
@@ -159,10 +168,19 @@ public class ToolBarView {
         });
 
         exportCSV.setOnAction(action -> {
-            GraphExport ge = new GraphExport(ds, model);
+            GraphExportCSV ge = new GraphExportCSV(ds, model);
             try {
                 ge.export();
             } catch (FileNotFoundException | UnsupportedEncodingException | JEVisException e) {
+                logger.error("Error: could not export to file.", e);
+            }
+        });
+
+        exportImage.setOnAction(action -> {
+            GraphExportImage ge = new GraphExportImage(model);
+            try {
+                ge.export(getBorderPane());
+            } catch (IOException e) {
                 logger.error("Error: could not export to file.", e);
             }
         });
@@ -248,7 +266,7 @@ public class ToolBarView {
         /**
          * addSeriesRunningMean disabled for now
          */
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, sep3, disableIcons, autoResize, reload);
+        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, exportImage, sep3, disableIcons, autoResize, reload);
         setDisableToolBarIcons(true);
         _initialized = true;
 
@@ -658,5 +676,13 @@ public class ToolBarView {
         autoResize.setDisable(bool);
         select.setDisable(bool);
         disableIcons.setDisable(bool);
+    }
+
+    public BorderPane getBorderPane() {
+        return borderPane;
+    }
+
+    public void setBorderPane(BorderPane borderPane) {
+        this.borderPane = borderPane;
     }
 }
