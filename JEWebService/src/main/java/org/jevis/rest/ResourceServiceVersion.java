@@ -37,4 +37,6 @@ public class ResourceServiceVersion {
         return Response.ok(re).build();
 
     }
+
+
 }

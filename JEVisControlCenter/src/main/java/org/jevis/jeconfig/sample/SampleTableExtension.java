@@ -30,6 +30,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -55,13 +56,15 @@ public class SampleTableExtension implements SampleEditorExtension {
 
     private final static String TITLE = "Editor";
     private final BorderPane _view = new BorderPane();
+    private final Window owner;
     private JEVisAttribute _att;
     private List<JEVisSample> _samples;
     private boolean _dataChanged = true;
     private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
 
-    public SampleTableExtension(JEVisAttribute att) {
+    public SampleTableExtension(JEVisAttribute att, Window owner) {
         _att = att;
+        this.owner = owner;
     }
 
     private void buildGui(final JEVisAttribute att, final List<JEVisSample> samples) {
@@ -78,7 +81,7 @@ public class SampleTableExtension implements SampleEditorExtension {
         deleteAll.setOnAction(event -> {
             try {
                 ConfirmDialog dia = new ConfirmDialog();
-                if (dia.show(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
+                if (dia.show(this.owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.title"),
                         I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"),
                         I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.message")) == ConfirmDialog.Response.YES) {
 
@@ -109,7 +112,7 @@ public class SampleTableExtension implements SampleEditorExtension {
 
                         ConfirmDialog dia = new ConfirmDialog();
 
-                        if (dia.show(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.title"),
+                        if (dia.show(this.owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.title"),
                                 I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.titlelong"),
                                 I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteselected.message")) == ConfirmDialog.Response.YES) {
                             taskWithAnimation(new Task<Void>() {
@@ -178,13 +181,13 @@ public class SampleTableExtension implements SampleEditorExtension {
 
                         ConfirmDialog dia = new ConfirmDialog();
 
-                        DateTime[] minMax=  table.findSelectedMinMaxDate();
+                        DateTime[] minMax = table.findSelectedMinMaxDate();
                         DateTime firstDate = minMax[0];
                         DateTime endDate = minMax[1];
                         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-                        String message = String.format(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message1"),fmt.print(firstDate), fmt.print(endDate));
+                        String message = String.format(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.message1"), fmt.print(firstDate), fmt.print(endDate));
 
-                        if (dia.show(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.title"),
+                        if (dia.show(this.owner, I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.title"),
                                 I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.titlelong"),
                                 message) == ConfirmDialog.Response.YES) {
 

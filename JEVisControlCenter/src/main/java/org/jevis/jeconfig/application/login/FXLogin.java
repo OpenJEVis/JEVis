@@ -85,8 +85,8 @@ public class FXLogin extends AnchorPane {
     private final CheckBox storeConfig = new CheckBox("Remember me");
     private final PasswordField userPassword = new PasswordField();
     private final GridPane authGrid = new GridPane();
-    private JEVisDataSource _ds;
     private final Preferences jevisPref = Preferences.userRoot().node("JEVis");
+    private JEVisDataSource _ds;
     //    private final Preferences serverPref = Preferences.userRoot().node("JEVis.Server");
     private List<JEVisObject> rootObjects = new ArrayList<>();
     private List<JEVisClass> classes = new ArrayList<>();
@@ -117,6 +117,49 @@ public class FXLogin extends AnchorPane {
     private ApplicationInfo app = new ApplicationInfo("tata", "");
     private Locale selectedLocale = Locale.getDefault();
 
+
+    private FXLogin() {
+        mainStage = null;
+    }
+
+    public FXLogin(Stage stage, Application.Parameters parameters, ApplicationInfo app) {
+        super();
+        mainStage = stage;
+        this.app = app;
+        this.parameters = parameters;
+
+        configuration = parseConfig(parameters);
+        for (JEVisOption opt : configuration) {
+            if (opt.equals(CommonOptions.FXLogin.FXLogin)) {
+                fxoptions = opt;
+            }
+        }
+
+        try {
+            _ds = loadDataSource(configuration);
+
+        } catch (ClassNotFoundException ex) {
+            logger.fatal(ex);
+        } catch (InstantiationException ex) {
+            logger.fatal(ex);
+        } catch (IllegalAccessException ex) {
+            logger.fatal(ex);
+        }
+
+        setStyleSheet();
+
+        init();
+    }
+
+    /**
+     * Create an new Loginpanel
+     *
+     * @param stage      The Stage will be used of eventuell dialogs
+     * @param parameters
+     */
+    public FXLogin(Stage stage, Application.Parameters parameters) {
+        this(stage, parameters, new ApplicationInfo("FXLogin", ""));
+    }
 
     /**
      * This function will try to connect to the JEVisDataSource with the
@@ -164,7 +207,7 @@ public class FXLogin extends AnchorPane {
                     throw new RuntimeException("Error while connection to the JEVis Server");
                 }
             } catch (Exception ex) {
-                logger.trace("Login faild with error: {}", ex);
+                logger.trace("Login failed with error: {}", ex);
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
@@ -188,49 +231,6 @@ public class FXLogin extends AnchorPane {
         Thread thread = new Thread(runnable);
         thread.start();
 
-    }
-
-    private FXLogin() {
-        mainStage = null;
-    }
-
-    public FXLogin(Stage stage, Application.Parameters parameters, ApplicationInfo app) {
-        super();
-        mainStage = stage;
-        this.app = app;
-        this.parameters = parameters;
-
-        configuration = parseConfig(parameters);
-        for (JEVisOption opt : configuration) {
-            if (opt.equals(CommonOptions.FXLogin.FXLogin)) {
-                fxoptions = opt;
-            }
-        }
-
-        try {
-            _ds = loadDataSource(configuration);
-
-        } catch (ClassNotFoundException ex) {
-            logger.fatal(ex);
-        } catch (InstantiationException ex) {
-            logger.fatal(ex);
-        } catch (IllegalAccessException ex) {
-            logger.fatal(ex);
-        }
-
-        setStyleSheet();
-
-        init();
-    }
-
-    /**
-     * Create an new Loginpanel
-     *
-     * @param stage      The Stage will be used of eventuell dialogs
-     * @param parameters
-     */
-    public FXLogin(Stage stage, Application.Parameters parameters) {
-        this(stage, parameters, new ApplicationInfo("FXLogin", ""));
     }
 
     /**
@@ -764,20 +764,9 @@ public class FXLogin extends AnchorPane {
         }
     }
 
-    public interface Color {
-
-        String MID_BLUE = "#005782";
-        String MID_GREY = "#666666";
-        String LIGHT_BLUE = "#1a719c";
-        String LIGHT_BLUE2 = "#0E8CCC";
-        String LIGHT_GREY = "#efefef";
-        String LIGHT_GREY2 = "#f4f4f4";
-    }
-
     public Locale getSelectedLocale() {
         return selectedLocale;
     }
-
 
     /**
      * Build an remote link for the userregistration
@@ -879,6 +868,16 @@ public class FXLogin extends AnchorPane {
      */
     public String getUserPassword() {
         return userPassword.getText();
+    }
+
+    public interface Color {
+
+        String MID_BLUE = "#005782";
+        String MID_GREY = "#666666";
+        String LIGHT_BLUE = "#1a719c";
+        String LIGHT_BLUE2 = "#0E8CCC";
+        String LIGHT_GREY = "#efefef";
+        String LIGHT_GREY2 = "#f4f4f4";
     }
 
 }

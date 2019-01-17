@@ -43,11 +43,11 @@ import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 /**
- *
  * @author fs
  */
 public class ConfirmDialog {
@@ -57,8 +57,14 @@ public class ConfirmDialog {
 
     private Response response = Response.CANCEL;
 
+
     public Response show(String title, String titleLong, String message) {
+        return show(null, title, titleLong, message);
+    }
+
+    public Response show(Window owner, String title, String titleLong, String message) {
         final Stage stage = new Stage();
+        stage.initOwner(owner);
 
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
@@ -137,7 +143,7 @@ public class ConfirmDialog {
         VBox.setVgrow(messageLabel, Priority.ALWAYS);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
-        VBox.setVgrow( root,Priority.ALWAYS);
+        VBox.setVgrow(root, Priority.ALWAYS);
 
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override

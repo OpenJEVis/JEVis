@@ -31,10 +31,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.stage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -80,7 +77,7 @@ public class SampleEditor {
      * @param attribute
      * @return
      */
-    public Response show(Stage owner, final JEVisAttribute attribute) {
+    public Response show(Window owner, final JEVisAttribute attribute) {
         final Stage stage = new Stage();
 
         _attribute = attribute;
@@ -89,7 +86,7 @@ public class SampleEditor {
         } catch (Exception ex) {
             logger.error("Update failed", ex);
         }
-        
+
 
         stage.setTitle(I18n.getInstance().getString("attribute.editor.title"));
         stage.initModality(Modality.NONE);
@@ -165,8 +162,8 @@ public class SampleEditor {
         HBox.setHgrow(cancel, Priority.NEVER);
 
 
-        extensions.add(new SampleTableExtension(attribute));
-        extensions.add(new SampleGraphExtension(attribute)); // we now habe an graph plugin
+        extensions.add(new SampleTableExtension(attribute, stage));
+        extensions.add(new SampleGraphExtension(attribute));
         extensions.add(new AttributeStatesExtension(attribute));
         extensions.add(new SampleExportExtension(attribute));
         extensions.add(new AttributeUnitExtension(attribute));
