@@ -4,6 +4,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ChoiceBox;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +15,11 @@ public class AxisBox {
     public AxisBox(final ChartDataModel data) {
         List<String> axisList = new ArrayList<>();
 
-        final String keyPreset = "0";
-        String one = "1";
+        final String y1 = I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1");
+        final String y2 = I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2");
 
-        axisList.add(keyPreset);
-        axisList.add(one);
+        axisList.add(y1);
+        axisList.add(y2);
 
         ChoiceBox choiceBox = new ChoiceBox(FXCollections.observableArrayList(axisList));
 
@@ -36,9 +37,9 @@ public class AxisBox {
 
         choiceBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
 
-            if (newValue.equals(keyPreset)) {
+            if (newValue.equals(y1)) {
                 data.setAxis(0);
-            } else if (newValue.equals(one)) {
+            } else if (newValue.equals(y2)) {
                 data.setAxis(1);
             }
         });

@@ -226,6 +226,7 @@ public class XYChart implements Chart {
         if (!unitY1.isEmpty()) y1Axis.setLabel(allUnitsY1.toString());
         if (!unitY2.isEmpty()) y2Axis.setLabel(allUnitsY2.toString());
 
+        checkForY2Axis();
     }
 
     private void generateXAxis(Boolean[] changedBoth) {
@@ -640,4 +641,15 @@ public class XYChart implements Chart {
         return areaChartRegion;
     }
 
+    private void checkForY2Axis() {
+        boolean hasY2Axis = false;
+        for (ChartDataModel chartDataModel : chartDataModels) {
+            if (chartDataModel.getAxis() == 1) {
+                hasY2Axis = true;
+                break;
+            }
+        }
+        if (!hasY2Axis) y2Axis.setVisible(false);
+        else y2Axis.setVisible(true);
+    }
 }
