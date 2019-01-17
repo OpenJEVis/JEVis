@@ -123,7 +123,7 @@ public class UnitPlugin implements Plugin {
                 try {
                     _editor.setUnit(change.getList().get(0).getValue());
                 } catch (NullPointerException ne) {
-                    logger.info("waring, nullpoint in unittree selection");
+                    logger.info("warning, nullpoint in unittree selection");
                 }
             });
 

@@ -47,13 +47,22 @@ public class SimpleTargetPlugin implements TreePlugin {
     @Override
     public void setTree(JEVisTree tree) {
         _tree = tree;
-
-
     }
 
-    public void setModus(MODE mode, SimpleFilter filter) {
-        this.filter = filter;
-//        this.mode = mode;
+    public List<UserSelection> getUserSelection() {
+        List<UserSelection> result = new ArrayList<>();
+        for (SimpleTargetPluginData data : _data) {
+            if (data.isSelected()) {
+//                _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
+                if (mode == MODE.OBJECT) {
+                    result.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
+                } else if (mode == MODE.ATTRIBUTE) {
+                    result.add(new UserSelection(UserSelection.SelectionType.Attribute, data.getAtt(), null, null));
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -229,20 +238,8 @@ public class SimpleTargetPlugin implements TreePlugin {
         return false;
     }
 
-    public List<UserSelection> getUserSelection() {
-        List<UserSelection> result = new ArrayList<>();
-        for (SimpleTargetPluginData data : _data) {
-            if (data.isSelected()) {
-//                _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
-                if (mode == MODE.OBJECT) {
-                    result.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
-                } else {
-                    result.add(new UserSelection(UserSelection.SelectionType.Attribute, data.getAtt(), null, null));
-                }
-            }
-        }
-
-        return result;
+    public MODE getMode() {
+        return mode;
     }
 
     public void setUserSelection(List<UserSelection> list) {
@@ -358,5 +355,7 @@ public class SimpleTargetPlugin implements TreePlugin {
 
     }
 
-
+    public void setMode(MODE mode) {
+        this.mode = mode;
+    }
 }

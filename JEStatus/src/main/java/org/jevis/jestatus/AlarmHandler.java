@@ -143,9 +143,10 @@ public class AlarmHandler {
         sb.append("\" >");
         sb.append("    <th>Organisation</th>");
         sb.append("    <th>Building</th>");
-        sb.append("    <th>Datapoint</th>");
-        sb.append("    <th>Datapoint Class</th>");
-        sb.append("    <th>Last Value</th>");
+        sb.append("    <th>Raw Datapoint</th>");
+        sb.append("    <th>Last Raw Value</th>");
+        sb.append("    <th>Clean Datapoint Class</th>");
+        sb.append("    <th>Last Clean Value</th>");
         sb.append("  </tr>");//border=\"0\"
 
         JEVisClass orga = _ds.getJEVisClass("Organization");
@@ -156,6 +157,7 @@ public class AlarmHandler {
         boolean odd = false;
         for (JEVisObject currentDataPoint : outOfBounds) {
             String name = currentDataPoint.getName() + ":" + currentDataPoint.getID().toString();
+            String nameClean = "";
 
             boolean hasCleanDataObject = false;
             JEVisObject currentCleanDataObject = null;
@@ -170,6 +172,10 @@ public class AlarmHandler {
                 } catch (JEVisException e) {
                     e.printStackTrace();
                 }
+            }
+
+            if (hasCleanDataObject) {
+                nameClean = currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString();
             }
 
             String css = rowCss;
@@ -196,48 +202,45 @@ public class AlarmHandler {
             sb.append(getParentName(currentDataPoint, building));
             sb.append("</td>");
             /**
-             * Datapoint Column
+             * Raw Datapoint Column
              */
             sb.append("<td style=\"");
             sb.append(css);
             sb.append("\">");
             sb.append(name);
+            sb.append("</td>");
+            /**
+             * Last Raw Value Column
+             */
+            sb.append("<td style=\"");
+            sb.append(css);
+            sb.append("\">");
+            sb.append(dtf.print(currentDataPoint.getAttribute("Value").getLatestSample().getTimestamp()));
+            sb.append("</td>");
+            /**
+             * Clean Datapoint Column
+             */
+            sb.append("<td style=\"");
+            sb.append(css);
+            sb.append("\">");
             if (hasCleanDataObject) {
-                sb.append(" (");
-                sb.append(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
-                sb.append(")");
+                sb.append(nameClean);
             }
             sb.append("</td>");
             /**
-             * Datapoint Class Column
+             * Last Clean Value Column
              */
             sb.append("<td style=\"");
             sb.append(css);
             sb.append("\">");
-            if (!hasCleanDataObject) {
-                sb.append(currentDataPoint.getJEVisClass().getName());
-            } else {
-                sb.append(currentCleanDataObject.getJEVisClass().getName());
-            }
-            sb.append("</td>");
-            /**
-             * Last Value Column
-             */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            if (!hasCleanDataObject) {
-                sb.append(dtf.print(currentDataPoint.getAttribute("Value").getLatestSample().getTimestamp()));
-            } else {
+            if (hasCleanDataObject) {
                 JEVisSample smp = currentCleanDataObject.getAttribute("Value").getLatestSample();
                 if (smp != null) {
                     sb.append(dtf.print(smp.getTimestamp()));
-                } else {
-                    sb.append(dtf.print(currentDataPoint.getAttribute("Value").getLatestSample().getTimestamp()));
-                    sb.append(", but no Clean Data values");
                 }
             }
             sb.append("</td>");
+
             sb.append("</tr>");// style=\"border: 1px solid #D9E4E6;\">");
 
         }

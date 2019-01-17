@@ -119,7 +119,7 @@ public class ChartPlugin implements TreePlugin {
 
                 SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, id);
                 selectColumn.setGraphDataModel(data);
-                column.getColumns().add(column.getColumns().size() - 6, selectColumn.getSelectionColumn());
+                column.getColumns().add(column.getColumns().size() - 7, selectColumn.getSelectionColumn());
             }
         });
 

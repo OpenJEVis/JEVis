@@ -537,7 +537,7 @@ public class GraphPluginView implements Plugin, Observer {
             border.setCenter(sp);
             border.setBottom(null);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-
+            toolBarView.setBorderPane(border);
         }
 
         System.gc();

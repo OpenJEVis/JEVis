@@ -45,10 +45,12 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.application.unit.UnitChooserDialog;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -76,7 +78,7 @@ public class CSVColumnHeader {
     private HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
     private HashMap<Integer, SimpleObjectProperty<Node>> _valuePropertys = new HashMap<Integer, SimpleObjectProperty<Node>>();
     private HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
-    private TimeZone _selectedTimeZone = TimeZone.getDefault();
+    private DateTimeZone _selectedTimeZone = DateTimeZone.getDefault();
     private CSVTable _table;
     private String _currentFormate;
 
@@ -234,7 +236,7 @@ public class CSVColumnHeader {
 //
                     if (getTarget() != null && getTarget().getInputUnit() != null) {
                         JEVisUnit unit = getTarget().getInputUnit();
-                        logger.info("Value with unit: " + df.format(getValueAsDouble(value)) + unit.getLabel());
+                        logger.debug("Value with unit: " + df.format(getValueAsDouble(value)) + unit.getLabel());
                         return df.format(getValueAsDouble(value)) + unit.getLabel();
                     }
 //                    logger.info("unit.format: " + unit);
@@ -277,10 +279,8 @@ public class CSVColumnHeader {
         if (getMeaning() == Meaning.Date || getMeaning() == Meaning.DateTime || getMeaning() == Meaning.Time) {
             Date datetime = getDateFormater().parse(value);
             datetime.getTime();
-            return new DateTime(datetime);
+            return new DateTime(datetime).withZoneRetainFields(getTimeZone());
 
-//            DateTimeZone.setDefault(DateTimeZone.forTimeZone(getTimeZone()));
-//            return DateTimeFormat.forPattern(getCurrentFormate()).parseDateTime(value);
         } else {
             throw new ParseException(value, coloumNr);
 
@@ -348,7 +348,7 @@ public class CSVColumnHeader {
         return false;
     }
 
-    public TimeZone getTimeZone() {
+    public DateTimeZone getTimeZone() {
         return _selectedTimeZone;
     }
 
@@ -560,17 +560,17 @@ public class CSVColumnHeader {
         formate.setPromptText(I18n.getInstance().getString("csv.format.prompt"));
 
         ObservableList<String> timeZoneOpt = FXCollections.observableArrayList();
-        String[] allTimeZones = TimeZone.getAvailableIDs();
+        Set<String> allTimeZones = DateTimeZone.getAvailableIDs();
 
         timeZoneOpt = FXCollections.observableArrayList(allTimeZones);
-        timeZone = new ComboBox<String>(timeZoneOpt);
+        timeZone = new ComboBox<>(timeZoneOpt);
 //        timeZone.getSelectionModel().select("UTC");
         timeZone.getSelectionModel().select(TimeZone.getDefault().getID());
         timeZone.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent t) {
-                _selectedTimeZone = TimeZone.getTimeZone(timeZone.getSelectionModel().getSelectedItem());
+                _selectedTimeZone = DateTimeZone.forID(timeZone.getSelectionModel().getSelectedItem());
             }
         });
 
@@ -727,12 +727,12 @@ public class CSVColumnHeader {
             public void handle(ActionEvent t) {
 
                 List<JEVisTreeFilter> allFilter = new ArrayList<>();
-                allFilter.add(SelectTargetDialog.buildAllDataFilter());
                 allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
 
 
                 SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
                 selectionDialog.allowMultySelect(false);
+                selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
                 if (selectionDialog.show(
                         _table.getDataSource(),
                         I18n.getInstance().getString("csv.target.title"),
@@ -741,10 +741,18 @@ public class CSVColumnHeader {
                     logger.trace("Selection Done");
                     for (UserSelection us : selectionDialog.getUserSelection()) {
                         try {
-                            logger.trace("us: {}", us.getSelectedObject().getID());
-                            logger.trace("att: {}", us.getSelectedAttribute().getName());
-                            _target = us.getSelectedAttribute();
-                            button.setText(_target.getObject().getName() + "." + _target.getName());
+                            String buttonText = "";
+                            if (us.getSelectedObject() != null) {
+                                logger.trace("us: {}", us.getSelectedObject().getID());
+                                buttonText += us.getSelectedObject().getName();
+                            }
+                            if (us.getSelectedAttribute() != null) {
+                                logger.trace("att: {}", us.getSelectedAttribute().getName());
+                                _target = us.getSelectedAttribute();
+                                buttonText += "." + _target.getName();
+                            }
+
+                            button.setText(buttonText);
 
                             if (us.getSelectedAttribute() != null && us.getSelectedAttribute().getInputUnit() != null) {
                                 unitButton.setText(us.getSelectedAttribute().getInputUnit().getLabel());
@@ -762,24 +770,6 @@ public class CSVColumnHeader {
                         }
                     }
                 }
-
-//                SelectTargetDialog dia = new SelectTargetDialog();
-//                if (dia.show(JEConfig.getStage(), _table.getDataSource()) == SelectTargetDialog.Response.OK) {
-//                    logger.info("OK");
-//                    for (UserSelection selection : dia.getUserSelection()) {
-//                        button.setText(selection.getSelectedAttribute().getObject().getName() + "." + selection.getSelectedAttribute().getName());
-//                        _target = selection.getSelectedAttribute();
-//                        try {
-//                            logger.info("Unit: " + _target.getDisplayUnit());
-//                            unitButton.setText(UnitFormat.getInstance().format(_target.getDisplayUnit()));
-//
-//                        } catch (JEVisException ex) {
-//                            Logger.getLogger(CSVColumnHeader.class
-//                                    .getName()).log(Level.SEVERE, null, ex);
-//                        }
-//                        formteAllRows();
-//                    }
-//                }
             }
         });
 
