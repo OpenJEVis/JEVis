@@ -671,6 +671,7 @@ public class ToolBarView {
         save.setDisable(bool);
         loadNew.setDisable(bool);
         exportCSV.setDisable(bool);
+        exportImage.setDisable(bool);
         reload.setDisable(bool);
         delete.setDisable(bool);
         autoResize.setDisable(bool);

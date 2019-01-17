@@ -40,6 +40,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.Period;
 
 /**
@@ -134,11 +135,11 @@ public class SamplingRateUI extends ComboBox<Period> {
 
     private String getLocalString(Period period) {
         if (period == Period.ZERO) {
-            return "Asynchronous, no Sampeling";
+            return I18n.getInstance().getString("plugin.unit.samplingrate.async");
         }
 
         if (period.equals(FREE_SELECTION)) {
-            return "Select other...";
+            return I18n.getInstance().getString("plugin.unit.samplingrate.selection");
         }
 
         String returnV = "[" + period + "] ";
@@ -146,10 +147,11 @@ public class SamplingRateUI extends ComboBox<Period> {
 
         if (period.getYears() > 0) {
             if (Period.years(1).equals(period)) {
-                return "Yearly";
+                return I18n.getInstance().getString("plugin.unit.samplingrate.yearly");
             }
             if (isFirst) {
-                returnV += "Every " + period.getYears() + " years";
+                returnV += I18n.getInstance().getString("plugin.unit.samplingrate.every") + " " + period.getYears() + " "
+                        + I18n.getInstance().getString("plugin.unit.samplingrate.years");
                 isFirst = false;
             }
         }
@@ -160,61 +162,71 @@ public class SamplingRateUI extends ComboBox<Period> {
             }
 
             if (isFirst) {
-                returnV += "Every " + period.getMonths() + " months";
+                returnV += I18n.getInstance().getString("plugin.unit.samplingrate.every") + " " + period.getMonths()
+                        + I18n.getInstance().getString("plugin.unit.samplingrate.months");
                 isFirst = false;
             } else {
-                returnV += " and " + period.getMonths() + " months";
+                returnV += " " + I18n.getInstance().getString("plugin.unit.samplingrate.and") + " " + period.getMonths()
+                        + " " + I18n.getInstance().getString("plugin.unit.samplingrate.months");
             }
         }
 
         if (period.getDays() > 0) {
             if (Period.days(1).equals(period)) {
-                return "Daily";
+                return I18n.getInstance().getString("plugin.unit.samplingrate.daily");
             }
             if (isFirst) {
-                returnV += "Every " + period.getDays() + " days";
+                returnV += I18n.getInstance().getString("plugin.unit.samplingrate.every") + " " + period.getDays() + " " +
+                        I18n.getInstance().getString("plugin.unit.samplingrate.days");
                 isFirst = false;
             } else {
-                returnV += " and " + period.getDays() + " days";
+                returnV += " " + I18n.getInstance().getString("plugin.unit.samplingrate.and") + " "
+                        + period.getDays() + " " + I18n.getInstance().getString("plugin.unit.samplingrate.days");
             }
         }
 
         if (period.getHours() > 0) {
             if (Period.hours(1).equals(period)) {
-                return "Hourly";
+                return I18n.getInstance().getString("plugin.unit.samplingrate.hourly");
             }
             if (isFirst) {
-                returnV += "Every " + period.getHours() + " hours";
+                returnV += I18n.getInstance().getString("plugin.unit.samplingrate.every") + " " + period.getHours()
+                        + " " + I18n.getInstance().getString("plugin.unit.samplingrate.hours");
                 isFirst = false;
             } else {
-                returnV += " and " + period.getHours() + " hours";
+                returnV += " " + I18n.getInstance().getString("plugin.unit.samplingrate.and") + " " + period.getHours()
+                        + " " + I18n.getInstance().getString("plugin.unit.samplingrate.hours");
             }
         }
 
         if (period.getMinutes() > 0) {
             if (Period.minutes(1).equals(period)) {
-                return "Every Minute";
+                return I18n.getInstance().getString("plugin.unit.samplingrate.everyminute");
             }
             if (Period.minutes(15).equals(period)) {
-                return "Every 15 Minutes";
+                return I18n.getInstance().getString("plugin.unit.samplingrate.every15minutes");
             }
             if (isFirst) {
-                returnV += "Every " + period.getMinutes() + " minutes";
+                returnV += I18n.getInstance().getString("plugin.unit.samplingrate.every") + " " + period.getMinutes()
+                        + " " + I18n.getInstance().getString("plugin.unit.samplingrate.minutes");
                 isFirst = false;
             } else {
-                returnV += " and " + period.getMinutes() + " minutes";
+                returnV += " " + I18n.getInstance().getString("plugin.unit.samplingrate.and") + " " + period.getMinutes()
+                        + " " + I18n.getInstance().getString("plugin.unit.samplingrate.minutes");
             }
         }
 
         if (period.getSeconds() > 0) {
             if (Period.days(1).equals(period)) {
-                return "Every Secound";
+                return I18n.getInstance().getString("plugin.unit.samplingrate.everysecond");
             }
             if (isFirst) {
-                returnV += "Every " + period.getSeconds() + " secounds";
+                returnV += I18n.getInstance().getString("plugin.unit.samplingrate.every") + " " + period.getSeconds() +
+                        " " + I18n.getInstance().getString("plugin.unit.samplingrate.seconds");
                 isFirst = false;
             } else {
-                returnV += " and " + period.getSeconds() + " secounds";
+                returnV += " " + I18n.getInstance().getString("plugin.unit.samplingrate.and") + " " + period.getSeconds()
+                        + " " + I18n.getInstance().getString("plugin.unit.samplingrate.seconds");
             }
         }
 
@@ -225,12 +237,12 @@ public class SamplingRateUI extends ComboBox<Period> {
     private Period ShowNewPeriod() {
         GridPane gp = new GridPane();
         //---------------------------------------------
-        final Label l_monthlabel = new Label("Months:");
-        final Label l_weekslabel = new Label("Weeks:");
-        final Label l_hourslabel = new Label("Hours:");
-        final Label l_minuteslabel = new Label("Minutes:");
-        final Label l_secoundslabel = new Label("Secounds:");
-        final Label l_periodLabel = new Label("ISO 8601 Value:");
+        final Label l_monthlabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.months") + ":");
+        final Label l_weekslabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.weeks") + ":");
+        final Label l_hourslabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.hours") + ":");
+        final Label l_minuteslabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.minutes") + ":");
+        final Label l_secoundslabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.seconds") + ":");
+        final Label l_periodLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.iso") + ":");
         final Slider sliderMonth = new Slider();
         final Slider sliderWeek = new Slider();
         final Slider sliderHours = new Slider();
@@ -277,8 +289,8 @@ public class SamplingRateUI extends ComboBox<Period> {
         HBox buttonBar = new HBox();
         Region spaceBetween = new Region();
         Stage dia = new Stage();
-        Button okButton = new Button("Ok".toUpperCase());
-        Button calcelButton = new Button("Cancel".toUpperCase());
+        Button okButton = new Button(I18n.getInstance().getString("plugin.graph.dialog.new.ok").toUpperCase());
+        Button calcelButton = new Button(I18n.getInstance().getString("plugin.graph.dialog.new.cancel").toUpperCase());
         okButton.setDefaultButton(true);
         okButton.setAlignment(Pos.BASELINE_RIGHT);
 //        okButton.setButtonType(JFXButton.ButtonType.FLAT);
