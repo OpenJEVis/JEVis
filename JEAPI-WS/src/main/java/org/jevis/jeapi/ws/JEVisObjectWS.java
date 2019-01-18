@@ -239,7 +239,7 @@ public class JEVisObjectWS implements JEVisObject {
             rel = ds.buildRelationship(getID(), otherObj.getID(), type);
 
             if (type == JEVisConstants.ObjectRelationship.PARENT) {
-                otherObj.notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+                otherObj.notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_NEW_CHILD, rel.getStartObject()));
             }
 
         } else {
@@ -258,11 +258,11 @@ public class JEVisObjectWS implements JEVisObject {
          * Delete form cache and other objects
          */
         if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT) {
-            rel.getEndObject().notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_CHILD_DELETED));
+            rel.getEndObject().notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_CHILD_DELETED, rel.getStartObject().getID()));
 
         }
 
-        notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
+        notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED, this));
     }
 
     @Override
@@ -395,12 +395,12 @@ public class JEVisObjectWS implements JEVisObject {
 
 
             if (update) {
-                notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED));
+                notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED, this));
             } else {
                 ds.reloadAttribute(this);
                 if (!getParents().isEmpty()) {
                     try {
-                        getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+                        getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD, this));
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -435,9 +435,6 @@ public class JEVisObjectWS implements JEVisObject {
     public boolean equals(Object o) {
         try {
             if (o instanceof JEVisObject) {
-                /**
-                 * cast needs to be removed
-                 */
                 return ((JEVisObject) o).getID().equals(getID());
 //                JEVisObject obj = (JEVisObject) o;
 //                if (obj.getID().equals(getID())) {

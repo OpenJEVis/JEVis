@@ -369,11 +369,12 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 }
 
             }
+            logger.error("Relationship amount: {}", objectRelMapCache.size());
 
 
             orLoaded = true;
         }
-        logger.error("Relationship amount: {}", objectRelMapCache.size());
+
         return objectRelCache;
     }
 
@@ -768,7 +769,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         JEVisObject newObj = parent.buildObject(name, newObjClass);
         newObj.commit();
 
-        parent.notifyListeners(new JEVisEvent(parent, JEVisEvent.TYPE.OBJECT_NEW_CHILD));
+        parent.notifyListeners(new JEVisEvent(parent, JEVisEvent.TYPE.OBJECT_NEW_CHILD, newObj));
 
         return newObj;
     }

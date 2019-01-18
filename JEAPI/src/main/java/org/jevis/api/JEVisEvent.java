@@ -28,14 +28,20 @@ import java.util.EventObject;
 public class JEVisEvent extends EventObject {
 
     private final TYPE type;
+    private final Object object;
 
-    public JEVisEvent(Object source, TYPE type) {
+    public JEVisEvent(Object source, TYPE type, Object object) {
         super(source);
         this.type = type;
+        this.object = object;
     }
 
     public TYPE getType() {
         return type;
+    }
+
+    public Object getObject() {
+        return object;
     }
 
     public enum TYPE {
