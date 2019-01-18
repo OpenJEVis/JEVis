@@ -245,9 +245,11 @@ public class LoadAnalysisDialog {
                         break;
                 }
                 AggregationPeriod oldAggregation = AggregationPeriod.parseAggregation(aggregationBox.valueProperty().toString());
+                ManipulationMode oldManipulation = ManipulationMode.parseManipulation(mathBox.valueProperty().toString());
 
                 graphDataModel.setCurrentAnalysis(newValue);
                 graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
+                graphDataModel.setManipulationMode(ManipulationMode.NONE);
                 AnalysisTimeFrame preview = new AnalysisTimeFrame();
                 preview.setTimeFrame(AnalysisTimeFrame.TimeFrame.preview);
                 graphDataModel.setAnalysisTimeFrame(preview);
@@ -255,6 +257,7 @@ public class LoadAnalysisDialog {
                 toolBarView.select(newValue);
 
                 graphDataModel.setAggregationPeriod(oldAggregation);
+                graphDataModel.setManipulationMode(oldManipulation);
                 setSelectedStart(oldStart);
                 setSelectedEnd(oldSEnd);
                 graphDataModel.setAnalysisTimeFrame(oldTimeFrame);

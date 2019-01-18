@@ -12,4 +12,31 @@ public enum ManipulationMode {
         }
         return valueOf(mode);
     }
+
+    public static ManipulationMode parseManipulation(String manipulation) {
+        switch (manipulation) {
+            case ("None"):
+                return NONE;
+            case ("Total"):
+                return TOTAL;
+            case ("Average"):
+                return AVERAGE;
+            case ("Min"):
+                return MIN;
+            case ("Max"):
+                return MAX;
+            case ("Median"):
+                return MEDIAN;
+            case ("Running Mean"):
+                return RUNNING_MEAN;
+            case ("Centric Running Mean"):
+                return CENTRIC_RUNNING_MEAN;
+            case ("Sorted Min"):
+                return SORTED_MIN;
+            case ("Sorted Max"):
+                return SORTED_MAX;
+            default:
+                return NONE;
+        }
+    }
 }

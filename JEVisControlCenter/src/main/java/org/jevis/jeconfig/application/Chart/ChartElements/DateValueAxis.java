@@ -651,8 +651,7 @@ public class DateValueAxis extends ValueAxis<Long> {
      */
     @Override
     protected Object autoRange(double minValue, double maxValue, double length, double labelSize) {
-        final Side side = getSide();
-        final boolean vertical = Side.LEFT.equals(side) || Side.RIGHT.equals(side);
+
         // check if we need to force zero into range
         if (isForceZeroInRange()) {
             if (maxValue < 0) {
@@ -663,75 +662,35 @@ public class DateValueAxis extends ValueAxis<Long> {
         }
         final double range = maxValue - minValue;
 
-//        // pad min and max by 2%, checking if the range is zero
-        final double paddedRange = (range == 0) ? 2 : Math.abs(range) * 1.02;
-
-        final double padding = (paddedRange - range) / 2;
-        // if min and max are not zero then add padding to them
-        double paddedMin = minValue - padding;
-        double paddedMax = maxValue + padding;
-        // check padding has not pushed min or max over zero line
-        if ((paddedMin < 0 && minValue >= 0) || (paddedMin > 0 && minValue <= 0)) {
-            // padding pushed min above or below zero so clamp to 0
-            paddedMin = 0;
-        }
-        if ((paddedMax < 0 && maxValue >= 0) || (paddedMax > 0 && maxValue <= 0)) {
-            // padding pushed min above or below zero so clamp to 0
-            paddedMax = 0;
-        }
+//
         // calculate the number of tick-marks we can fit in the given length
         int numOfTickMarks = (int) Math.floor(Math.abs(length) / labelSize);
         // can never have less than 2 tick marks one for each end
         numOfTickMarks = Math.max(numOfTickMarks, 2);
         // calculate tick unit for the number of ticks can have in the given data range
-        double tickUnit = paddedRange / (double) numOfTickMarks;
+        double tickUnit = range / (double) numOfTickMarks;
         // search for the best tick unit that fits
-        double tickUnitRounded = 0;
-        double minRounded = 0;
-        double maxRounded = 0;
-        int count = 0;
-        double reqLength = Double.MAX_VALUE;
-        int rangeIndex = 10;
+        double tickUnitRounded = TICK_UNIT_DEFAULTS[TICK_UNIT_DEFAULTS.length - 1];
+
+        int rangeIndex = 0;
         // loop till we find a set of ticks that fit length and result in a total of less than 20 tick marks
-        while (reqLength > length || count > 20) {
-            // find a user friendly match from our default tick units to match calculated tick unit
-            for (int i = 0; i < TICK_UNIT_DEFAULTS.length; i++) {
-                double tickUnitDefault = TICK_UNIT_DEFAULTS[i];
-                if (tickUnitDefault > tickUnit) {
-                    tickUnitRounded = tickUnitDefault;
-                    rangeIndex = i;
-                    break;
-                }
-            }
-            // move min and max to nearest tick mark
-            minRounded = Math.floor(paddedMin / tickUnitRounded) * tickUnitRounded;
-            maxRounded = Math.ceil(paddedMax / tickUnitRounded) * tickUnitRounded;
-            // calculate the required length to display the chosen tick marks for real, this will handle if there are
-            // huge numbers involved etc or special formatting of the tick mark label text
-            double maxReqTickGap = 0;
-            double last = 0;
-            count = 0;
-            for (double major = minRounded; major <= maxRounded; major += tickUnitRounded, count++) {
-                double size = (vertical) ? measureTickMarkSize((long) major, getTickLabelRotation(), rangeIndex).getHeight() :
-                        measureTickMarkSize((long) major, getTickLabelRotation(), rangeIndex).getWidth();
-                if (major == minRounded) { // first
-                    last = size / 2;
-                } else {
-                    maxReqTickGap = Math.max(maxReqTickGap, last + 6 + (size / 2));
-                }
-            }
-            reqLength = (count - 1) * maxReqTickGap;
-            tickUnit = tickUnitRounded;
-            // check if we already found max tick unit
-            if (tickUnitRounded == TICK_UNIT_DEFAULTS[TICK_UNIT_DEFAULTS.length - 1]) {
-                // nothing we can do so just have to use this
+
+        // find a user friendly match from our default tick units to match calculated tick unit
+        for (int i = 0; i < TICK_UNIT_DEFAULTS.length; i++) {
+            double tickUnitDefault = TICK_UNIT_DEFAULTS[i];
+            if (tickUnitDefault > tickUnit) {
+                tickUnitRounded = tickUnitDefault;
+                rangeIndex = i;
                 break;
             }
         }
+
         // calculate new scale
-        final double newScale = calculateNewScale(length, minRounded, maxRounded);
+        //final double newScale = calculateNewScale(length, minRounded, maxRounded);
+        final double newScale = calculateNewScale(length, minValue, maxValue);
         // return new range
-        return new double[]{minRounded, maxRounded, tickUnitRounded, newScale, rangeIndex};
+        //return new double[]{minRounded, maxRounded, tickUnitRounded, newScale, rangeIndex};
+        return new double[]{minValue, maxValue, tickUnitRounded, newScale, rangeIndex};
     }
 
     /**

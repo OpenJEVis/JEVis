@@ -92,7 +92,7 @@ public class ToolBarView {
 
                 AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
                 AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
-                ManipulationMode oldManipulationMode = ManipulationMode.NONE;
+                ManipulationMode oldManipulationMode = model.getManipulationMode();
                 for (ChartDataModel model : model.getSelectedData()) {
                     oldManipulationMode = model.getManipulationMode();
                     break;
@@ -113,6 +113,7 @@ public class ToolBarView {
                 model.updateSelectedData();
 
                 model.setAggregationPeriod(oldAggregationPeriod);
+                model.setManipulationMode(oldManipulationMode);
                 model.setAnalysisTimeFrame(oldTimeFrame);
 
                 ManipulationMode finalOldManipulationMode = oldManipulationMode;
