@@ -108,6 +108,25 @@ public class AlarmHandler {
                 }
             }
         }
+
+        outOfBounds.sort((o1, o2) -> {
+            DateTime o1ts = null;
+            try {
+                o1ts = o1.getAttribute("Value").getTimestampFromLastSample();
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+            DateTime o2ts = null;
+            try {
+                o2ts = o2.getAttribute("Value").getTimestampFromLastSample();
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+
+            if ((o1ts != null && o2ts != null && o1ts.isBefore(o2ts))) return 1;
+            else return 2;
+        });
+
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
         StringBuilder sb = new StringBuilder();
 
