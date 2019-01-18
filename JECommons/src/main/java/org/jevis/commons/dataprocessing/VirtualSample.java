@@ -96,7 +96,9 @@ public class VirtualSample implements JEVisSample {
 
     @Override
     public String getValueAsString() {
-        return _value.toString();
+        if (_value != null)
+            return _value.toString();
+        else return _longValue.toString();
     }
 
     @Override
