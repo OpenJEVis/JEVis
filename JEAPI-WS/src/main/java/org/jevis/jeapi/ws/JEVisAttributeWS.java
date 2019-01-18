@@ -176,7 +176,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
          * cast needs to be removed
          */
         JEVisObjectWS obj = (JEVisObjectWS) getObject();
-        obj.notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.ATTRIBUTE_UPDATE));
+        obj.notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.ATTRIBUTE_UPDATE, this));
 
 
         return 1;

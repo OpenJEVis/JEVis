@@ -27,10 +27,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -95,6 +92,7 @@ public class ColumnFactory {
 
         });
 
+        final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu();
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, String>, TreeTableCell<JEVisTreeRow, String>>() {
 
@@ -150,12 +148,16 @@ public class ColumnFactory {
                                                       Label nameLabel = new Label();
                                                       Node icon;
 
-                                                      /**
-                                                       * this is creating the massive memory leak for the tree, casting seems to create a new instance of the variable,
-                                                       * which is not cleared by the garbage collector
-                                                       */
-                                                      //JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
-                                                      //setContextMenu(new JEVisTreeContextMenu(jeVisObject, tree));
+                                                      setContextMenu(contextMenu);
+                                                      setOnContextMenuRequested(event -> {
+                                                          contextMenu.setItem(getTreeTableRow());
+                                                      });
+//
+//                                                      hbox.setOsetOnAction(new EventHandler<ActionEvent>() {
+//                                                          public void handle(ActionEvent e) {
+//                                                              contextMenu.show(textField, Side.BOTTOM, 0, 0);
+//                                                          }
+//                                                      });
 
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
@@ -204,8 +206,16 @@ public class ColumnFactory {
                                                       }
 
                                                       hbox.getChildren().addAll(icon, spaceBetween, nameLabel);
-                                                      //Tooltip debugTip = new Tooltip(jeVisTreeRow.toString());
-                                                      //setTooltip(debugTip);
+
+                                                      String debugText = "";
+                                                      try {
+                                                          debugText += "Parent: " + getTreeTableRow().getTreeItem().getParent().getValue().getJEVisObject().getID();
+                                                      } catch (Exception ex) {
+
+                                                      }
+                                                      Tooltip debugTip = new Tooltip(debugText);
+
+                                                      setTooltip(debugTip);
                                                       setGraphic(hbox);
 
                                                   } catch (Exception ex) {

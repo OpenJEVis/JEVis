@@ -44,7 +44,6 @@ import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisEvent;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
 import org.jevis.jeconfig.Constants;
@@ -71,19 +70,19 @@ import static org.jevis.jeconfig.JEConfig.PROGRAM_INFO;
  */
 public class ClassEditor {
 
+    private static final Logger logger = LogManager.getLogger(ClassEditor.class);
+    Button fIcon;
+    TextField fName = new TextField();
+    TextArea fDescription = new TextArea();
+    CheckBox fUnique = new CheckBox();
     //    private Desktop desktop = Desktop.getDesktop();
     private JEVisClass _class;
     private TextField fInherit;
-    Button fIcon;
     private TitledPane t2;
     private List<JEVisType> _toDelete;
     //    private final UnitChooser pop = new UnitChooser();
     private VBox _view;
-    TextField fName = new TextField();
-    TextArea fDescription = new TextArea();
-    CheckBox fUnique = new CheckBox();
     private ClassTree _tree = null;
-    private static final Logger logger = LogManager.getLogger(ClassEditor.class);
 
     public ClassEditor() {
         _view = new VBox();
@@ -672,7 +671,7 @@ public class ClassEditor {
 
             org.jevis.commons.classes.ClassHelper.updateTypesForHeirs(_class.getDataSource(), _class.getName());
 //            _tree.reload(_class);
-            _class.notifyListeners(new JEVisEvent(_class, JEVisEvent.TYPE.CLASS_UPDATE));
+//            _class.notifyListeners(new JEVisEvent(_class, JEVisEvent.TYPE.CLASS_UPDATE));
 
 
         } catch (Exception ex) {

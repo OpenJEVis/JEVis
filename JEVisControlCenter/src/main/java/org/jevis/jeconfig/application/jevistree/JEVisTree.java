@@ -25,7 +25,11 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -67,9 +71,100 @@ public class JEVisTree extends TreeTableView {
 //        cellFilter = FilterFactory.buildDefaultItemFilter();
         this.cellFilter = filter;
         this.getStylesheets().add(JEVisTree.class.getResource("/styles/JEVisTree.css").toExternalForm());
+
+//        addCellFactory();
         init();
     }
 
+
+    /**
+     * Not working and in use. Will implement an drag&drop function
+     */
+    private void addCellFactory() {
+
+        setRowFactory(new javafx.util.Callback<TreeTableView, TreeTableRow>() {
+
+
+            @Override
+            public TreeTableRow call(TreeTableView param) {
+                final TreeTableRow row = new TreeTableRow();
+
+
+                row.setOnDragDetected(event -> {
+                    try {
+                        System.out.println("1. Drag go");
+//                        TreeItem selected = (TreeItem) getSelectionModel().getSelectedItem();
+//                        if (selected != null) {
+//                        JEVisTreeRow jevisRow = (JEVisTreeRow) row.getValue();
+
+//                        System.out.println("Drag Object: " + row.getValue().getClass());
+
+                        Dragboard db = row.startDragAndDrop(TransferMode.ANY);
+////                        // create a miniature of the row you're dragging
+//                        db.setDragView(row.snapshot(null, null));
+                        ClipboardContent content = new ClipboardContent();
+                        content.putString("test");
+                        db.setContent(content);
+//                        dragItem = jevisRow;
+                        event.consume();
+                        System.out.println("done");
+//                        }
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+                });
+
+                row.setOnDragOver(event -> {
+                    System.out.println("2. Drag over");
+                    try {
+                        if (event.getGestureSource() != row &&
+                                event.getDragboard().hasString()) {
+                            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                        }
+
+
+//                        Dragboard db = event.getDragboard();
+
+//                    if (event.getDragboard().hasString()) {
+//                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+//                    }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    event.consume();
+                });
+
+                row.setOnDragEntered(event -> {
+                    System.out.println("3. Drag entert");
+                    event.consume();
+                });
+
+                row.setOnDragDropped(event -> {
+                    System.out.println("4. Drag droped");
+                    try {
+//                        TreeItem selected = (TreeItem) getSelectionModel().getSelectedItem();
+//                        System.out.println("d-Target: " + row.getTreeItem());
+//                        System.out.println("d-select: " + selected);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    event.setDropCompleted(true);
+                    event.consume();
+                });
+
+                row.setOnDragExited(value -> {
+                    System.out.println("5. Drag exit");
+                    // Reset the original color here
+                });
+
+
+                return row;
+            }
+
+
+        });
+
+    }
 
     public UUID getUUID() {
         return uuid;

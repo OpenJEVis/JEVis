@@ -47,17 +47,18 @@ import java.util.List;
 public class JEVisTreeContextMenu extends ContextMenu {
     private static final Logger logger = LogManager.getLogger(JEVisTreeContextMenu.class);
 
-    private JEVisObject _obj;
-    private JEVisTree _tree;
+    private JEVisObject obj;
+    private JEVisTree tree;
 
-    public JEVisTreeContextMenu(JEVisObject obj, JEVisTree tree) {
+    public JEVisTreeContextMenu() {
         super();
-
-        _obj = obj;
-        _tree = tree;
+    }
 
 
-//        getItems().add(buildMenuNew());
+    public void setItem(TreeTableRow<JEVisTreeRow> item) {
+        this.obj = item.getTreeItem().getValue().getJEVisObject();
+        tree = (JEVisTree) item.getTreeTableView();
+
         getItems().setAll(
                 buildNew2(),
                 buildReload(),
@@ -79,7 +80,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
         } catch (Exception ex) {
             logger.fatal(ex);
         }
-
     }
 
     private MenuItem buildPaste() {
@@ -90,8 +90,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                              @Override
                              public void handle(ActionEvent t) {
-//                final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) _tree.getSelectionModel().getSelectedItem());
-                                 TreeHelper.EventDrop(_tree, _tree.getCopyObject(), _obj, CopyObjectDialog.DefaultAction.COPY);
+//                final TreeItem<JEVisTreeRow> obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
+                                 TreeHelper.EventDrop(tree, tree.getCopyObject(), obj, CopyObjectDialog.DefaultAction.COPY);
                              }
                          }
         );
@@ -104,7 +104,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                              @Override
                              public void handle(ActionEvent t) {
-                                 _tree.setCopyObject(_obj, false);
+                                 tree.setCopyObject(obj, false);
                              }
                          }
         );
@@ -119,7 +119,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                              public void handle(ActionEvent t) {
 
 
-                                 JsonExportDialog dia = new JsonExportDialog("Import", _obj);
+                                 JsonExportDialog dia = new JsonExportDialog("Import", obj);
                              }
                          }
         );
@@ -141,7 +141,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                                  if (selectedFile != null) {
                                      try {
                                          List<DimpexObject> objects = DimpEX.readFile(selectedFile);
-                                         DimpEX.importALL(_obj.getDataSource(), objects, _obj);
+                                         DimpEX.importALL(obj.getDataSource(), objects, obj);
                                      } catch (Exception ex) {
                                          logger.fatal(ex);
                                      }
@@ -156,7 +156,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     public List<MenuItem> buildMenuNewContent() {
         List<MenuItem> newContent = new ArrayList<>();
         try {
-            for (JEVisClass jlass : _obj.getAllowedChildrenClasses()) {
+            for (JEVisClass jlass : obj.getAllowedChildrenClasses()) {
                 MenuItem classItem;
 
                 classItem = new CheckMenuItem(jlass.getName(), getIcon(jlass));
@@ -164,7 +164,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                                           @Override
                                           public void handle(ActionEvent t) {
-                                              TreeHelper.EventNew(_tree, _obj);
+                                              TreeHelper.EventNew(tree, obj);
                                           }
                                       }
                 );
@@ -183,7 +183,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    TreeHelper.createCalcInput(_obj, null);
+                    TreeHelper.createCalcInput(obj, null);
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }
@@ -202,7 +202,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                 Platform.runLater(() -> {
                     try {
-                        TreeHelper.EventExportTree(_obj);
+                        TreeHelper.EventExportTree(obj);
                     } catch (JEVisException ex) {
                         logger.fatal(ex);
                     }
@@ -255,7 +255,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent t) {
 
-                TreeHelper.EventNew(_tree, _obj);
+                TreeHelper.EventNew(tree, obj);
 
             }
         });
@@ -267,7 +267,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                TreeHelper.EventRename(_tree, _obj);
+                TreeHelper.EventRename(tree, obj);
             }
         });
         return menu;
@@ -278,7 +278,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                TreeHelper.EventReload(_obj);
+                TreeHelper.EventReload(obj);
             }
         });
         return menu;
@@ -290,7 +290,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
             @Override
             public void handle(ActionEvent t) {
-                TreeHelper.EventDelete(_tree);
+                TreeHelper.EventDelete(tree);
             }
         });
         return menu;

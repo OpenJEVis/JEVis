@@ -193,4 +193,6 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
             return "JEVisTreeItem: [ null ]";
         }
     }
+
+
 }
