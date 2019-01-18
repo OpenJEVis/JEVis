@@ -313,7 +313,7 @@ public class JEVisItemLoader {
      */
     public void update(JEVisObject object) {
         try {
-            logger.error("Update: {}", object);
+            logger.trace("Update: {}", object);
             JEVisTreeItem item = itemObjectLinker.get(object);
             ObservableList<JEVisTreeItem> newChildrenList = FXCollections.observableArrayList();
 
