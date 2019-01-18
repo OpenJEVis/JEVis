@@ -267,25 +267,26 @@ public class GraphPluginView implements Plugin, Observer {
         if (border == null) {
             border = new BorderPane();
 
-            /**
-             * If scene size changes and old value is not 0.0 (firsts draw) redraw
-             * TODO: resizing an window manually will cause a lot of resize changes and so redraws, solve this better
-             */
-            border.heightProperty().addListener((observable, oldValue, newValue) -> {
-                if (!oldValue.equals(0.0)) {
-                    Platform.runLater(() -> {
-                        update(null, "Screen size changed");
-                    });
-                }
-            });
-            border.heightProperty().addListener((observable, oldValue, newValue) -> {
-                if (!oldValue.equals(0.0)) {
-                    Platform.runLater(() -> {
-                        update(null, "Screen size changed");
-                    });
-                }
-            });
-
+            if (dataModel.getSelectedData() != null && !dataModel.getSelectedData().isEmpty()) {
+                /**
+                 * If scene size changes and old value is not 0.0 (firsts draw) redraw
+                 * TODO: resizing an window manually will cause a lot of resize changes and so redraws, solve this better
+                 */
+                border.heightProperty().addListener((observable, oldValue, newValue) -> {
+                    if (!oldValue.equals(0.0)) {
+                        Platform.runLater(() -> {
+                            update(null, "Screen size changed");
+                        });
+                    }
+                });
+                border.heightProperty().addListener((observable, oldValue, newValue) -> {
+                    if (!oldValue.equals(0.0)) {
+                        Platform.runLater(() -> {
+                            update(null, "Screen size changed");
+                        });
+                    }
+                });
+            }
             //chartView.drawDefaultAreaChart();
 //            if (chartView != null)
 //                border.setCenter(chartView.getChartRegion());

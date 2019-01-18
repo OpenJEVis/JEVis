@@ -56,8 +56,8 @@ public class JEVisTreeFactory {
     public static void addDefaultKeys(JEVisTree tree) {
 
         final KeyCombination copyID = new KeyCodeCombination(KeyCode.F1);
-        final KeyCombination copyObj = KeyCodeCombination.keyCombination("Ctrl+C");
-        final KeyCombination cutObj = KeyCodeCombination.keyCombination("Ctrl+X");
+        final KeyCombination copyObj = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
+        final KeyCombination cutObj = new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN);
         final KeyCombination pasteObj = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
         final KeyCombination add = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
         final KeyCombination rename = new KeyCodeCombination(KeyCode.F2);
@@ -69,6 +69,9 @@ public class JEVisTreeFactory {
 
             @Override
             public void handle(KeyEvent t) {
+                /**
+                 * When changing, apply to handler in ObjectPlugin, too
+                 */
                 logger.debug("TreeEvent: {} source: {}", t.getCode(), t.getSource());
 
                 final TreeItem<JEVisTreeRow> selectedObj = (TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem();

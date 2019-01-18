@@ -93,6 +93,7 @@ public class LoadAnalysisDialog {
         analysisListView.setItems(graphDataModel.getObservableListAnalyses());
 
         analysisListView.setCellFactory(param -> new ListCell<JEVisObject>() {
+
             @Override
             protected void updateItem(JEVisObject obj, boolean empty) {
                 super.updateItem(obj, empty);
@@ -105,22 +106,27 @@ public class LoadAnalysisDialog {
                         String prefix = "";
                         try {
 
-                            JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
+                            JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
                             JEVisClass buildingClass = ds.getJEVisClass("Building");
-                            if (buildingParent.getJEVisClass().equals(buildingClass)) {
+                            JEVisClass organisationClass = ds.getJEVisClass("Organization");
+
+                            if (secondParent.getJEVisClass().equals(buildingClass)) {
 
                                 try {
-                                    JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
-                                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                    JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
                                     if (organisationParent.getJEVisClass().equals(organisationClass)) {
 
-                                        prefix += organisationParent.getName() + " / " + buildingParent.getName() + " / ";
+                                        prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
                                     }
                                 } catch (JEVisException e) {
-                                    logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+                                    logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
 
-                                    prefix += buildingParent.getName() + " / ";
+                                    prefix += secondParent.getName() + " / ";
                                 }
+                            } else if (secondParent.getJEVisClass().equals(organisationClass)) {
+
+                                prefix += secondParent.getName() + " / ";
+
                             }
 
                         } catch (Exception e) {

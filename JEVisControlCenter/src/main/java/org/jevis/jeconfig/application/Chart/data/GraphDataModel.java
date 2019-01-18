@@ -609,7 +609,70 @@ public class GraphDataModel extends Observable {
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        observableListAnalyses.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+        if (!multipleDirectories) observableListAnalyses.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+        else {
+            observableListAnalyses.sort((o1, o2) -> {
+
+                String prefix1 = "";
+                String prefix2 = "";
+
+                try {
+                    JEVisObject secondParent1 = o1.getParents().get(0).getParents().get(0);
+                    JEVisClass buildingClass = ds.getJEVisClass("Building");
+                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
+
+                    if (secondParent1.getJEVisClass().equals(buildingClass)) {
+                        try {
+                            JEVisObject organisationParent = secondParent1.getParents().get(0).getParents().get(0);
+                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                prefix1 += organisationParent.getName() + " / " + secondParent1.getName() + " / ";
+                            }
+                        } catch (JEVisException e) {
+                            logger.error("Could not get Organization parent of " + secondParent1.getName() + ":" + secondParent1.getID());
+
+                            prefix1 += secondParent1.getName() + " / ";
+                        }
+                    } else if (secondParent1.getJEVisClass().equals(organisationClass)) {
+
+                        prefix1 += secondParent1.getName() + " / ";
+
+                    }
+
+                } catch (Exception e) {
+                }
+                prefix1 = prefix1 + o1.getName();
+
+                try {
+                    JEVisObject secondParent2 = o2.getParents().get(0).getParents().get(0);
+                    JEVisClass buildingClass = ds.getJEVisClass("Building");
+                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
+
+                    if (secondParent2.getJEVisClass().equals(buildingClass)) {
+                        try {
+                            JEVisObject organisationParent = secondParent2.getParents().get(0).getParents().get(0);
+                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                prefix2 += organisationParent.getName() + " / " + secondParent2.getName() + " / ";
+                            }
+                        } catch (JEVisException e) {
+                            logger.error("Could not get Organization parent of " + secondParent2.getName() + ":" + secondParent2.getID());
+
+                            prefix2 += secondParent2.getName() + " / ";
+                        }
+                    } else if (secondParent2.getJEVisClass().equals(organisationClass)) {
+
+                        prefix2 += secondParent2.getName() + " / ";
+
+                    }
+
+                } catch (Exception e) {
+                }
+                prefix2 = prefix2 + o2.getName();
+
+                return ac.compare(prefix1, prefix2);
+            });
+        }
     }
 
     public JsonChartDataModel getListAnalysisModel() {
