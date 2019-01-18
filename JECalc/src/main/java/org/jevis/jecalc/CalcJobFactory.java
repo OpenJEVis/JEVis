@@ -185,6 +185,9 @@ class CalcJobFactory {
 
                     if (PeriodArithmetic.periodsInAnInterval(fromTo, period) < 10000) {
                         calcJob.setHasProcessedAllInputSamples(true);
+                        /**
+                         * is this minus really necessary? do tests...
+                         */
                         endTime = new DateTime().minus(valueAttribute.getInputSampleRate());
                     } else {
                         calcJob.setHasProcessedAllInputSamples(false);

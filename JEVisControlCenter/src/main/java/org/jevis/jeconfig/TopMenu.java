@@ -24,6 +24,9 @@ import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -92,22 +95,25 @@ public class TopMenu extends MenuBar {
         Menu menuEdit = new Menu(I18n.getInstance().getString("menu.edit"));
 
         MenuItem copy = new MenuItem(I18n.getInstance().getString("menu.edit.copy"));
-//        copy.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
+        copy.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
+
+        MenuItem cut = new MenuItem(I18n.getInstance().getString("menu.edit.cut"));
+        cut.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
 
         MenuItem paste = new MenuItem(I18n.getInstance().getString("menu.edit.paste"));
-//        paste.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
+        paste.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
 
         MenuItem delete = new MenuItem(I18n.getInstance().getString("menu.edit.delete"));
-//        delete.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
+        delete.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
 
         MenuItem rename = new MenuItem(I18n.getInstance().getString("menu.edit.rename"));
-//        rename.setAccelerator(new KeyCodeCombination(KeyCode.F2));
+        rename.setAccelerator(new KeyCodeCombination(KeyCode.F2));
 
         MenuItem findObject = new MenuItem(I18n.getInstance().getString("menu.edit.find"));
-//        findObject.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
+        findObject.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
 
         MenuItem findAgain = new MenuItem(I18n.getInstance().getString("menu.edit.findagain"));
-//        findAgain.setAccelerator(new KeyCodeCombination(KeyCode.F3));
+        findAgain.setAccelerator(new KeyCodeCombination(KeyCode.F3));
 
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -120,6 +126,13 @@ public class TopMenu extends MenuBar {
             @Override
             public void handle(ActionEvent event) {
                 activePlugin.handleRequest(Constants.Plugin.Command.COPY);
+            }
+        });
+
+        cut.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.CUT);
             }
         });
 
@@ -151,7 +164,7 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        menuEdit.getItems().addAll(copy, paste, delete, rename, findObject, findAgain);
+        menuEdit.getItems().addAll(copy, cut, paste, delete, rename, findObject, findAgain);
 
 //        menuEdit.getItems().addAll(copie, delete, rename);
         // --- Menu View

@@ -291,22 +291,28 @@ public class ToolBarView {
                             String prefix = "";
                             try {
 
-                                JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
+                                JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
                                 JEVisClass buildingClass = ds.getJEVisClass("Building");
-                                if (buildingParent.getJEVisClass().equals(buildingClass)) {
+                                JEVisClass organisationClass = ds.getJEVisClass("Organization");
+
+                                if (secondParent.getJEVisClass().equals(buildingClass)) {
 
                                     try {
-                                        JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
-                                        JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                        JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
+
                                         if (organisationParent.getJEVisClass().equals(organisationClass)) {
 
-                                            prefix += organisationParent.getName() + " / " + buildingParent.getName() + " / ";
+                                            prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
                                         }
                                     } catch (JEVisException e) {
-                                        logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+                                        logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
 
-                                        prefix += buildingParent.getName() + " / ";
+                                        prefix += secondParent.getName() + " / ";
                                     }
+                                } else if (secondParent.getJEVisClass().equals(organisationClass)) {
+
+                                    prefix += secondParent.getName() + " / ";
+
                                 }
 
                             } catch (Exception e) {
@@ -418,23 +424,29 @@ public class ToolBarView {
                                 try {
                                     String prefix = "";
 
-                                    JEVisObject buildingDirParent = obj.getParents().get(0);
+                                    JEVisObject firstParent = obj.getParents().get(0);
 
                                     JEVisClass buildingClass = ds.getJEVisClass("Building");
-                                    if (buildingDirParent.getJEVisClass().equals(buildingClass)) {
+                                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
+
+                                    if (firstParent.getJEVisClass().equals(buildingClass)) {
 
                                         try {
-                                            JEVisObject organisationParent = buildingDirParent.getParents().get(0).getParents().get(0);
-                                            JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                            JEVisObject organisationParent = firstParent.getParents().get(0).getParents().get(0);
+
                                             if (organisationParent.getJEVisClass().equals(organisationClass)) {
 
-                                                prefix += organisationParent.getName() + " / " + buildingDirParent.getName();
+                                                prefix += organisationParent.getName() + " / " + firstParent.getName();
                                             }
                                         } catch (JEVisException e) {
-                                            logger.error("Could not get Organization parent of " + buildingDirParent.getName() + ":" + buildingDirParent.getID());
+                                            logger.error("Could not get Organization parent of " + firstParent.getName() + ":" + firstParent.getID());
 
-                                            prefix += buildingDirParent.getName();
+                                            prefix += firstParent.getName();
                                         }
+                                    } else if (firstParent.getJEVisClass().equals(organisationClass)) {
+
+                                        prefix += firstParent.getName();
+
                                     }
 
 

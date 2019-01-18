@@ -93,6 +93,7 @@ public class LoadAnalysisDialog {
         analysisListView.setItems(graphDataModel.getObservableListAnalyses());
 
         analysisListView.setCellFactory(param -> new ListCell<JEVisObject>() {
+
             @Override
             protected void updateItem(JEVisObject obj, boolean empty) {
                 super.updateItem(obj, empty);
@@ -105,22 +106,27 @@ public class LoadAnalysisDialog {
                         String prefix = "";
                         try {
 
-                            JEVisObject buildingParent = obj.getParents().get(0).getParents().get(0);
+                            JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
                             JEVisClass buildingClass = ds.getJEVisClass("Building");
-                            if (buildingParent.getJEVisClass().equals(buildingClass)) {
+                            JEVisClass organisationClass = ds.getJEVisClass("Organization");
+
+                            if (secondParent.getJEVisClass().equals(buildingClass)) {
 
                                 try {
-                                    JEVisObject organisationParent = buildingParent.getParents().get(0).getParents().get(0);
-                                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                                    JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
                                     if (organisationParent.getJEVisClass().equals(organisationClass)) {
 
-                                        prefix += organisationParent.getName() + " / " + buildingParent.getName() + " / ";
+                                        prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
                                     }
                                 } catch (JEVisException e) {
-                                    logger.error("Could not get Organization parent of " + buildingParent.getName() + ":" + buildingParent.getID());
+                                    logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
 
-                                    prefix += buildingParent.getName() + " / ";
+                                    prefix += secondParent.getName() + " / ";
                                 }
+                            } else if (secondParent.getJEVisClass().equals(organisationClass)) {
+
+                                prefix += secondParent.getName() + " / ";
+
                             }
 
                         } catch (Exception e) {
@@ -171,9 +177,11 @@ public class LoadAnalysisDialog {
         final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
         final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
         final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
+        final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
+        final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
         final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
 
-        presetDateEntries.addAll(custom, today, yesterday, last7Days, lastWeek, last30Days, lastMonth, customStartEnd);
+        presetDateEntries.addAll(custom, today, yesterday, last7Days, lastWeek, last30Days, lastMonth, thisYear, lastYear, customStartEnd);
         comboBoxPresetDates = new ComboBox<>(presetDateEntries);
 
         ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
@@ -222,8 +230,16 @@ public class LoadAnalysisDialog {
                     case 6:
                         oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth);
                         break;
-                    //custom object
+                    //thisYear
                     case 7:
+                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth);
+                        break;
+                    //lastYear
+                    case 8:
+                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth);
+                        break;
+                    //custom object
+                    case 9:
                         if (cpo != null)
                             oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd, cpo.getObject().getID());
                         break;
@@ -285,9 +301,17 @@ public class LoadAnalysisDialog {
                     comboBoxPresetDates.getSelectionModel().select(6);
                     applySelectedDatePresetToDataModel(6);
                     break;
-                case customStartEnd:
+                case thisYear:
                     comboBoxPresetDates.getSelectionModel().select(7);
                     applySelectedDatePresetToDataModel(7);
+                    break;
+                case lastYear:
+                    comboBoxPresetDates.getSelectionModel().select(8);
+                    applySelectedDatePresetToDataModel(8);
+                    break;
+                case customStartEnd:
+                    comboBoxPresetDates.getSelectionModel().select(9);
+                    applySelectedDatePresetToDataModel(9);
                     break;
             }
         }
@@ -648,6 +672,24 @@ public class LoadAnalysisDialog {
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case 7:
+                //this Year
+                dateHelper.setType(DateHelper.TransformType.THISYEAR);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.thisYear));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            case 8:
+                //last Year
+                dateHelper.setType(DateHelper.TransformType.LASTYEAR);
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastYear));
+                for (int i = 0; i < 4; i++) {
+                    programmaticallySetPresetDate[i] = true;
+                }
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            case 9:
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }

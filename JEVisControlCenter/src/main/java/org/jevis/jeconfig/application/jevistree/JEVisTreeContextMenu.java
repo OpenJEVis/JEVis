@@ -66,6 +66,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 buildDelete(),
                 buildRename(),
                 buildCopy(),
+                buildCut(),
                 buildPaste(),
                 new SeparatorMenuItem(),
                 buildMenuExport(),
@@ -105,6 +106,19 @@ public class JEVisTreeContextMenu extends ContextMenu {
                              @Override
                              public void handle(ActionEvent t) {
                                  tree.setCopyObject(obj, false);
+                             }
+                         }
+        );
+        return menu;
+    }
+
+    private MenuItem buildCut() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.cut"), ResourceLoader.getImage("16_Copy_48x48.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+
+                             @Override
+                             public void handle(ActionEvent t) {
+                                 _tree.setCopyObject(_obj, true);
                              }
                          }
         );

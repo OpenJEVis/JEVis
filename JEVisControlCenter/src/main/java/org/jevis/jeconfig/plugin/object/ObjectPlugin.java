@@ -327,6 +327,8 @@ public class ObjectPlugin implements Plugin {
                 return true;
             case Constants.Plugin.Command.COPY:
                 return true;
+            case Constants.Plugin.Command.CUT:
+                return true;
             case Constants.Plugin.Command.FIND_AGAIN:
                 return true;
             default:
@@ -368,7 +370,7 @@ public class ObjectPlugin implements Plugin {
     public void handleRequest(int cmdType) {
         try {
             logger.error("handleRequest: " + cmdType);
-            final TreeItem<JEVisTreeRow> parent = (TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem();
+            final TreeItem<JEVisTreeRow> selectedObj = (TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem();
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
 //                    eventSaveAttributes();
@@ -378,7 +380,7 @@ public class ObjectPlugin implements Plugin {
                     TreeHelper.EventDelete(tree);
                     break;
                 case Constants.Plugin.Command.RENAME:
-                    TreeHelper.EventRename(tree, parent.getValue().getJEVisObject());
+                    TreeHelper.EventRename(tree, selectedObj.getValue().getJEVisObject());
                     break;
                 case Constants.Plugin.Command.COLLAPSE:
                     tree.getSelectionModel().getSelectedItems().forEach(o -> {
@@ -396,7 +398,7 @@ public class ObjectPlugin implements Plugin {
                     });
                     break;
                 case Constants.Plugin.Command.NEW:
-                    TreeHelper.EventNew(tree);
+                    TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
                     break;
                 case Constants.Plugin.Command.RELOAD:
                     TreeHelper.EventReload(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());
@@ -412,16 +414,27 @@ public class ObjectPlugin implements Plugin {
 //                    tree.fireEventCreateWizard(tree.getSelectedObject());
                     break;
                 case Constants.Plugin.Command.FIND_OBJECT:
-                    TreeHelper.EventOpenObject(tree, JEVisTreeFactory.findNode);
+                    tree.getSearchFilterBar().requestCursor();
                     break;
                 case Constants.Plugin.Command.FIND_AGAIN:
-                    TreeHelper.EventOpenObject(tree, JEVisTreeFactory.findAgain);
+                    if (tree.getSearchFilterBar() != null) {
+                        tree.getSearchFilterBar().goNext();
+                    }
                     break;
                 case Constants.Plugin.Command.PASTE:
-                    TreeHelper.EventDrop(tree, tree.getCopyObject(), parent.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
+                    if (tree.getCopyObject() != null) {
+                        if (tree.isCut()) {
+                            TreeHelper.EventDrop(tree, tree.getCopyObject(), ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.MOVE);
+                        } else {
+                            TreeHelper.EventDrop(tree, tree.getCopyObject(), ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
+                        }
+                    }
                     break;
                 case Constants.Plugin.Command.COPY:
-                    tree.setCopyObject(parent.getValue().getJEVisObject(), false);
+                    tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
+                    break;
+                case Constants.Plugin.Command.CUT:
+                    tree.setCopyObject(selectedObj.getValue().getJEVisObject(), true);
                     break;
                 default:
                     logger.info("Unknown command ignore...");

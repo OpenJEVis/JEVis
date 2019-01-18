@@ -29,10 +29,7 @@ import org.joda.time.format.DateTimeFormatter;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This Class handels the logic and the sending of the alarms.
@@ -109,22 +106,25 @@ public class AlarmHandler {
             }
         }
 
-        outOfBounds.sort((o1, o2) -> {
-            DateTime o1ts = null;
-            try {
-                o1ts = o1.getAttribute("Value").getTimestampFromLastSample();
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-            DateTime o2ts = null;
-            try {
-                o2ts = o2.getAttribute("Value").getTimestampFromLastSample();
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
+        outOfBounds.sort(new Comparator<JEVisObject>() {
+            @Override
+            public int compare(JEVisObject o1, JEVisObject o2) {
+                DateTime o1ts = null;
+                try {
+                    o1ts = o1.getAttribute("Value").getTimestampFromLastSample();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+                DateTime o2ts = null;
+                try {
+                    o2ts = o2.getAttribute("Value").getTimestampFromLastSample();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
 
-            if ((o1ts != null && o2ts != null && o1ts.isBefore(o2ts))) return 1;
-            else return 2;
+                if ((o1ts != null && o2ts != null && o1ts.isBefore(o2ts))) return 1;
+                else return -1;
+            }
         });
 
         DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
