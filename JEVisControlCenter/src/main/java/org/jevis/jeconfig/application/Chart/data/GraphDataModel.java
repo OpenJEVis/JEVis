@@ -804,6 +804,21 @@ public class GraphDataModel extends Observable {
         }
     }
 
+    public ManipulationMode getManipulationMode() {
+        if (getSelectedData() != null && !getSelectedData().isEmpty()) {
+            for (ChartDataModel chartDataModel : getSelectedData()) {
+                return chartDataModel.getManipulationMode();
+            }
+        }
+        return ManipulationMode.NONE;
+    }
+
+    public void setManipulationMode(ManipulationMode manipulationMode) {
+        if (getSelectedData() != null && !getSelectedData().isEmpty()) {
+            getSelectedData().forEach(chartDataModel -> chartDataModel.setManipulationMode(manipulationMode));
+        }
+    }
+
     public Boolean getMultipleDirectories() {
         return multipleDirectories;
     }

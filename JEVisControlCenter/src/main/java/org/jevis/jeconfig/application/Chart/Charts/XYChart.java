@@ -59,7 +59,7 @@ public class XYChart implements Chart {
     private String chartName;
     private List<String> unitY1 = new ArrayList<>();
     private List<String> unitY2 = new ArrayList<>();
-    private List<ChartDataModel> chartDataModels;
+    List<ChartDataModel> chartDataModels;
     private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
     private MultiAxisChart chart;
     private Number valueForDisplay;
@@ -229,7 +229,7 @@ public class XYChart implements Chart {
         checkForY2Axis();
     }
 
-    private void generateXAxis(Boolean[] changedBoth) {
+    public void generateXAxis(Boolean[] changedBoth) {
         if (!asDuration) ((DateValueAxis) dateAxis).setAsDuration(false);
         else {
             ((DateValueAxis) dateAxis).setAsDuration(true);

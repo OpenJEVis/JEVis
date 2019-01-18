@@ -68,6 +68,7 @@ public class LogicalChart extends XYChart {
 
     @Override
     public void generateYAxis() {
+        super.generateYAxis();
 
         y1Axis.setAutoRanging(false);
         y1Axis.setLowerBound(0d);
@@ -75,5 +76,10 @@ public class LogicalChart extends XYChart {
         y1Axis.setTickUnit(1d);
         y1Axis.setMinorTickVisible(false);
         y1Axis.setTickLabelFormatter(new LogicalYAxisStringConverter());
+    }
+
+    @Override
+    public void generateXAxis(Boolean[] changedBoth) {
+
     }
 }
