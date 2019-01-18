@@ -50,6 +50,10 @@ public class AnalysisTimeFrame {
                 return TimeFrame.lastWeek;
             case "lastMonth":
                 return TimeFrame.lastMonth;
+            case "thisYear":
+                return TimeFrame.thisYear;
+            case "lastYear":
+                return TimeFrame.lastYear;
             case "customStartEnd":
                 return TimeFrame.customStartEnd;
             case "preview":
@@ -66,6 +70,8 @@ public class AnalysisTimeFrame {
         yesterday("yesterday"),
         lastWeek("lastWeek"),
         lastMonth("lastMonth"),
+        thisYear("thisYear"),
+        lastYear("lastYear"),
         customStartEnd("customStartEnd"),
         preview("preview");
 

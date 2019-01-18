@@ -111,6 +111,15 @@ public class DateHelper {
                         .minusMonths(1).minusDays(now.getDayOfMonth() - 1);
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
+            case THISYEAR:
+                startDate = new DateTime(now.getYear(), 1, 1, startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
+                break;
+            case LASTYEAR:
+                startDate = new DateTime(now.getYear(), 1, 1, startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusYears(1);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
+                break;
             case CUSTOM_PERIOD:
                 if (Objects.nonNull(customPeriodObject)) {
                     if (customPeriodObject.getStartReferencePoint() != null) {
@@ -345,6 +354,15 @@ public class DateHelper {
                         .minusDays(now.getDayOfMonth() - 1)
                         .minusDays(1);
                 break;
+            case THISYEAR:
+                now = DateTime.now();
+                endDate = now;
+                break;
+            case LASTYEAR:
+                now = DateTime.now();
+                endDate = new DateTime(now.getYear(), 1, 1,
+                        endTime.getHour(), endTime.getMinute(), endTime.getSecond());
+                break;
             case CUSTOM_PERIOD:
                 if (Objects.nonNull(customPeriodObject)) {
                     if (customPeriodObject.getEndReferencePoint() != null) {
@@ -476,7 +494,7 @@ public class DateHelper {
         this.endTime = endTime;
     }
 
-    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, LASTWEEK, LASTMONTH, CUSTOM_PERIOD}
+    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, LASTWEEK, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 
