@@ -3,8 +3,6 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.XYChart;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -12,6 +10,8 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -23,10 +23,12 @@ import java.util.TreeMap;
 public class BarChartSerie implements Serie {
     private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-    private ObservableList<BarChart.Data<String, Number>> seriesData = FXCollections.observableArrayList();
+    private ObservableList<MultiAxisBarChart.Data<String, Number>> seriesData = FXCollections.observableArrayList();
     private TreeMap<Double, JEVisSample> sampleMap = new TreeMap<Double, JEVisSample>();
-    private BarChart.Series<String, Number> serie;
+    private MultiAxisBarChart.Series<String, Number> serie;
     private TableEntry tableEntry;
+    private DateTime timeStampFromFirstSample = DateTime.now();
+    private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
 
     public BarChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
         String unit = UnitManager.getInstance().format(singleRow.getUnit());
@@ -35,32 +37,24 @@ public class BarChartSerie implements Serie {
         String tableEntryName = singleRow.getObject().getName();
         tableEntry = new TableEntry(tableEntryName);
         tableEntry.setColor(singleRow.getColor());
-
-        //singleRow.setTableEntry(tableEntry);
         tableData.add(tableEntry);
 
-//        boolean isQuantitiy = false;
-
-//        JEVisObject dp = singleRow.getDataProcessor();
-//        if (Objects.nonNull(dp)) {
-//            try {
-//                if (Objects.nonNull(dp.getAttribute("Value is a Quantity"))) {
-//                    if (Objects.nonNull(dp.getAttribute("Value is a Quantity").getLatestSample())) {
-//                        if (dp.getAttribute("Value is a Quantity").getLatestSample().getValueAsBoolean()) {
-//
-//                            isQuantitiy = true;
-//                        }
-//                    }
-//                }
-//            } catch (JEVisException e) {
-//                logger.error("Error: could not data processor attribute", e);
-//            }
-//        }
-
-//        QuantityUnits qu = new QuantityUnits();
-//        if (qu.get().contains(singleRow.getUnit())) isQuantitiy = true;
-
         List<JEVisSample> samples = singleRow.getSamples();
+
+        if (samples.size() > 0) {
+            try {
+
+                if (samples.get(0).getTimestamp().isBefore(getTimeStampFromFirstSample()))
+                    setTimeStampFromFirstSample(samples.get(0).getTimestamp());
+
+                if (samples.get(samples.size() - 1).getTimestamp().isAfter(getTimeStampFromLastSample()))
+                    setTimeStampFromLastSample(samples.get(samples.size() - 1).getTimestamp());
+
+            } catch (Exception e) {
+                logger.error("Couldn't get timestamps from samples. " + e);
+            }
+        }
+
         samples.forEach(sample -> {
             try {
                 DateTime dateTime = sample.getTimestamp();
@@ -68,9 +62,9 @@ public class BarChartSerie implements Serie {
 
                 DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
                 String s = dateTime.toString(dtf);
-                BarChart.Data<String, Number> data = new BarChart.Data<>(s, value);
+                MultiAxisBarChart.Data<String, Number> data = new MultiAxisBarChart.Data<>(s, value);
 
-                sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
+                sampleMap.put((double) dateTime.getMillis(), sample);
                 seriesData.add(data);
 
             } catch (JEVisException e) {
@@ -83,15 +77,30 @@ public class BarChartSerie implements Serie {
 
         calcTableValues(tableEntry, samples, unit, isQuantity);
 
-        serie = new BarChart.Series<>(tableEntryName, seriesData);
-        //TODO: singleRow.setSampleMap(sampleMap);
+        serie = new MultiAxisChart.Series<>(tableEntryName, seriesData);
     }
 
-    public XYChart.Series getSerie() {
+    public MultiAxisBarChart.Series getSerie() {
         return serie;
     }
 
     public TableEntry getTableEntry() {
         return tableEntry;
+    }
+
+    public DateTime getTimeStampFromFirstSample() {
+        return timeStampFromFirstSample;
+    }
+
+    public void setTimeStampFromFirstSample(DateTime timeStampFromFirstSample) {
+        this.timeStampFromFirstSample = timeStampFromFirstSample;
+    }
+
+    public DateTime getTimeStampFromLastSample() {
+        return timeStampFromLastSample;
+    }
+
+    public void setTimeStampFromLastSample(DateTime timeStampFromLastSample) {
+        this.timeStampFromLastSample = timeStampFromLastSample;
     }
 }

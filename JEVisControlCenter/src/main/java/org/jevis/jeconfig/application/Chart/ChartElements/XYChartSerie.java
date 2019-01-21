@@ -87,17 +87,7 @@ public class XYChartSerie implements Serie {
 
                 data.setExtraValue(yAxis);
 
-                Note note = new Note(sample.getNote());
-
-                if (note.getNote() != null && hideShowIcons) {
-                    note.getNote().setVisible(true);
-                    data.setNode(note.getNote());
-                } else {
-                    Rectangle rect = new Rectangle(0, 0);
-                    rect.setFill(singleRow.getColor());
-                    rect.setVisible(false);
-                    data.setNode(rect);
-                }
+                generateNode(sample, data);
 
 
                 sampleMap.put(timestamp.doubleValue(), sample);
@@ -112,6 +102,20 @@ public class XYChartSerie implements Serie {
 
         calcTableValues(tableEntry, samples, getUnit(), isQuantity);
 
+    }
+
+    public void generateNode(JEVisSample sample, MultiAxisChart.Data<Number, Number> data) throws JEVisException {
+        Note note = new Note(sample.getNote());
+
+        if (note.getNote() != null && hideShowIcons) {
+            note.getNote().setVisible(true);
+            data.setNode(note.getNote());
+        } else {
+            Rectangle rect = new Rectangle(0, 0);
+            rect.setFill(singleRow.getColor());
+            rect.setVisible(false);
+            data.setNode(rect);
+        }
     }
 
 

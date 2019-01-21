@@ -28,6 +28,7 @@ import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.chart.Axis;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -35,6 +36,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 
 /**
@@ -129,7 +131,14 @@ public class ChartZoomManager {
      */
     public ChartZoomManager(Pane chartPane, Rectangle selectRect, MultiAxisChart<?, ?> chart) {
         this.selectRect = selectRect;
-        this.xAxis = (ValueAxis<?>) chart.getXAxis();
+        if (chart.getXAxis() instanceof ValueAxis) xAxis = (ValueAxis<?>) chart.getXAxis();
+        else {
+            /**
+             * TODO what to do with category
+             */
+            Axis a = new DateValueAxis();
+            xAxis = (ValueAxis<?>) a;
+        }
         this.y1Axis = (ValueAxis<?>) chart.getY1Axis();
         this.y2Axis = (ValueAxis<?>) chart.getY2Axis();
         chartInfo = new XYChartInfo(chart, chartPane);

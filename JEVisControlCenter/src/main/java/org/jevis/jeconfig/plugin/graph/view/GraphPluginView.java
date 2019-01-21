@@ -413,9 +413,9 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals(ChartType.AREA)
-                                            || na.getChartType().equals(ChartType.LOGICAL)
-                                            || na.getChartType().equals(ChartType.LINE)) {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                     }
                                 });
@@ -425,9 +425,9 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals(ChartType.AREA)
-                                            || na.getChartType().equals(ChartType.LOGICAL)
-                                            || na.getChartType().equals(ChartType.LINE)) {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                     }
                                 });
@@ -437,9 +437,9 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals(ChartType.AREA)
-                                            || na.getChartType().equals(ChartType.LOGICAL)
-                                            || na.getChartType().equals(ChartType.LINE)) {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                     }
                                 });
@@ -462,12 +462,16 @@ public class GraphPluginView implements Plugin, Observer {
 //                        });
                             break;
                         case SCATTER:
-//                        cv.getScatterChart().setOnMouseMoved(event -> {
-//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
-//                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
-//                            }
-//                        });
+                            cv.getChart().getChart().setOnMouseMoved(event -> {
+                                cv.updateTablesSimultaneously(event, null);
+                                notActive.parallelStream().forEach(na -> {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
+                                        na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                                    }
+                                });
+                            });
                             break;
                         case PIE:
 //                        cv.getPieChart().setOnMouseMoved(event -> {

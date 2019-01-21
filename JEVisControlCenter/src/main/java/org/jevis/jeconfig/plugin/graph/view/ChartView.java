@@ -318,7 +318,7 @@ public class ChartView implements Observer {
                 setTableStandard();
                 break;
             case SCATTER:
-                chart = new ScatterChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
+                chart = new ScatterChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
                 break;
             case PIE:

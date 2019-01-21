@@ -96,7 +96,9 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
 
         DisabledItemsComboBox<String> comboBoxChartType = new DisabledItemsComboBox(ChartType.getlistNamesChartTypes());
         comboBoxChartType.setDisable(true);
-        List<String> disabledItems = Arrays.asList(I18n.getInstance().getString("plugin.graph.charttype.scatter.name"),
+
+        //I18n.getInstance().getString("plugin.graph.charttype.scatter.name"),
+        List<String> disabledItems = Arrays.asList(
                 I18n.getInstance().getString("plugin.graph.charttype.bubble.name"));
         comboBoxChartType.setDisabledItems(disabledItems);
 

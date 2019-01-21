@@ -7,8 +7,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.ChartElements.LogicalXYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYLogicalChartSerie;
 import org.jevis.jeconfig.application.Chart.LogicalYAxisStringConverter;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class LogicalChart extends XYChart {
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
-        XYChartSerie serie = new LogicalXYChartSerie(singleRow, hideShowIcons);
+        XYChartSerie serie = new XYLogicalChartSerie(singleRow, hideShowIcons);
 
         hexColors.add(singleRow.getColor());
         series.add(serie.getSerie());
