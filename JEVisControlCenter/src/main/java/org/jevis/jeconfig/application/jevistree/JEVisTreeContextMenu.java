@@ -118,7 +118,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                              @Override
                              public void handle(ActionEvent t) {
-                                 tree.setCopyObject(_obj, true);
+                                 tree.setCopyObject(obj, true);
                              }
                          }
         );
