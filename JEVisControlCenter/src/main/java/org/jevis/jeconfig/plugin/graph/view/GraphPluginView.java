@@ -353,7 +353,8 @@ public class GraphPluginView implements Plugin, Observer {
                              */
                             int dataSizeOffset = 30;
                             /** Calculate maxsize based on the amount of Data **/
-                            int dataSize = 2;
+                            int dataSize = 0;
+                            if (cv.getFirstLogical()) dataSize = 3;
 
                             for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
                                 for (int i : chartDataModel.getSelectedcharts()) {
@@ -540,8 +541,6 @@ public class GraphPluginView implements Plugin, Observer {
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
             toolBarView.setBorderPane(border);
         }
-
-        System.gc();
     }
 
     private double calculationTotalPrefSize(Pane pane) {
@@ -559,7 +558,8 @@ public class GraphPluginView implements Plugin, Observer {
 
     private List<ChartView> getChartViews() {
 
-        if (charts.isEmpty()) {
+        if (charts.isEmpty() || hasLogicalCharts()) {
+            charts.clear();
 
             dataModel.getCharts().forEach(chart -> {
                 int chartID = chart.getId();
@@ -579,9 +579,8 @@ public class GraphPluginView implements Plugin, Observer {
                 boolean hasLogicalCharts = hasLogicalCharts();
 
                 if (!hasLogicalCharts && dataModel.getCharts().size() < charts.size()) {
-                    for (int i = charts.size(); i > dataModel.getCharts().size(); i--) {
-                        charts.remove(i - 1);
-                    }
+
+                    charts.subList(dataModel.getCharts().size(), charts.size()).clear();
                 }
 
                 if (hasLogicalCharts) {
@@ -601,8 +600,19 @@ public class GraphPluginView implements Plugin, Observer {
                             chart.updateChart();
                         }
                     });
+
+                    charts.removeAll(charts.stream().filter(chartView -> chartView.getChartType().equals(ChartType.LOGICAL)).collect(Collectors.toList()));
+                    dataModel.getCharts().forEach(chart -> {
+                        int chartID = chart.getId();
+                        ChartType type = chart.getChartType();
+
+                        if (type.equals(ChartType.LOGICAL)) {
+                            createLogicalChart(chart, chartID, type);
+                        }
+                    });
                 }
             } else {
+
                 for (ChartView chartView : charts) {
                     chartView.setType(dataModel.getCharts().get(charts.indexOf(chartView)).getChartType());
                     chartView.updateChart();
@@ -638,27 +648,42 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     private void createLogicalChart(ChartSettings chart, int chartID, ChartType type) {
-        boolean firstChart = true;
-        ObservableList<TableEntry> allEntries = null;
 
+        List<ChartView> subCharts = new ArrayList<>();
         for (ChartDataModel singleRow : dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
                 if (i == chart.getId()) {
-                    ChartView subView = new ChartView(dataModel, firstChart);
-                    subView.drawAreaChart(chartID, singleRow, type);
-                    charts.add(subView);
-
-                    if (firstChart) {
-                        allEntries = subView.getChart().getTableData();
-                        subView.setFirstLogical(true);
-                    } else {
-                        allEntries.addAll(subView.getChart().getTableData());
-                        subView.getChart().getChart().setTitle("");
-                    }
-
-                    firstChart = false;
+                    ChartView subView = new ChartView(dataModel);
+                    subView.setSingleRow(singleRow);
+                    subCharts.add(subView);
                 }
             }
         }
+        AlphanumComparator ac = new AlphanumComparator();
+        subCharts.sort((o1, o2) -> ac.compare(o1.getSingleRow().getObject().getName(), o2.getSingleRow().getObject().getName()));
+
+        boolean firstChart = true;
+        ObservableList<TableEntry> allEntries = null;
+        for (ChartView chartView : subCharts) {
+            if (firstChart) {
+                chartView.setFirstLogical(true);
+                chartView.setShowTable(true);
+            } else {
+                chartView.setShowTable(false);
+            }
+
+            chartView.drawAreaChart(chartID, chartView.getSingleRow(), type);
+
+            if (firstChart) {
+                allEntries = chartView.getChart().getTableData();
+            } else {
+                chartView.getChart().getChart().setTitle("");
+                allEntries.addAll(chartView.getChart().getTableData());
+            }
+
+            firstChart = false;
+        }
+
+        charts.addAll(subCharts);
     }
 }
