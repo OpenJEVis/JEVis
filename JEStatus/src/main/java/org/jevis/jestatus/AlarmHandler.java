@@ -122,8 +122,9 @@ public class AlarmHandler {
                     e.printStackTrace();
                 }
 
-                if ((o1ts != null && o2ts != null && o1ts.isBefore(o2ts))) return 1;
-                else return -1;
+                if ((o1ts != null && o2ts != null && o1ts.isBefore(o2ts))) return -1;
+                else if ((o1ts != null && o2ts != null && o1ts.isAfter(o2ts))) return 1;
+                else return 0;
             }
         });
 
