@@ -371,6 +371,10 @@ public class JEVisItemLoader {
                 case OBJECT_NEW_CHILD:
                     JEVisObject newObject = (JEVisObject) event.getObject();
 
+                    if (newObject != null & !itemObjectLinker.containsKey(newObject)) {
+                        buildItems(newObject);
+                    }
+
 
                     if (newObject != null && itemObjectLinker.containsKey(newObject)) {
                         logger.error("Remove item from cache: {}", newObject);
@@ -380,6 +384,7 @@ public class JEVisItemLoader {
 
                         Platform.runLater(() -> {
                             update(object);
+                            itemObjectLinker.get(object).setExpanded(true);
                             /** We do not want to select the new object for now, but maybe later in some cases **/
                             //jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
                         });
