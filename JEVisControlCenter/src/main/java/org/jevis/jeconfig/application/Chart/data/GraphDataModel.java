@@ -26,6 +26,7 @@ import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -37,9 +38,11 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * @author broder
  */
-public class GraphDataModel extends Observable {
+public class GraphDataModel {
+    //public class GraphDataModel extends Observable {
 
     private static final Logger logger = LogManager.getLogger(GraphDataModel.class);
+    private final GraphPluginView graphPluginView;
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private List<ChartSettings> charts = new ArrayList<>();
     private Boolean hideShowIcons = true;
@@ -55,8 +58,9 @@ public class GraphDataModel extends Observable {
     private JEVisObject currentAnalysis = null;
     private Boolean multipleDirectories = false;
 
-    public GraphDataModel(JEVisDataSource ds) {
+    public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
+        this.graphPluginView = graphPluginView;
     }
 
     public Set<ChartDataModel> getSelectedData() {
@@ -94,10 +98,10 @@ public class GraphDataModel extends Observable {
 
         System.gc();
 
-        setChanged();
-
-        notifyObservers();
-
+//        setChanged();
+//
+//        notifyObservers();
+        graphPluginView.update();
     }
 
     public void updateSelectedData() {
@@ -256,8 +260,10 @@ public class GraphDataModel extends Observable {
     public void setHideShowIcons(Boolean hideShowIcons) {
         this.hideShowIcons = hideShowIcons;
 
-        setChanged();
-        notifyObservers();
+//        setChanged();
+//        notifyObservers();
+
+        graphPluginView.update();
     }
 
     public ManipulationMode getAddSeries() {
@@ -267,8 +273,9 @@ public class GraphDataModel extends Observable {
     public void setAddSeries(ManipulationMode addSeries) {
         this.addSeries = addSeries;
 
-        setChanged();
-        notifyObservers();
+//        setChanged();
+//        notifyObservers();
+        graphPluginView.update();
     }
 
     public Boolean getAutoResize() {
@@ -278,8 +285,9 @@ public class GraphDataModel extends Observable {
     public void setAutoResize(Boolean resize) {
         this.autoResize = resize;
 
-        setChanged();
-        notifyObservers();
+//        setChanged();
+//        notifyObservers();
+        graphPluginView.update();
     }
 
     public boolean containsId(Long id) {

@@ -18,9 +18,11 @@ package org.jevis.jeconfig.application.Chart.Zoom;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.chart.Axis;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseEvent;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 
 /**
@@ -60,7 +62,14 @@ public class ChartPanManager {
 
     public ChartPanManager(MultiAxisChart<?, ?> chart) {
         handlerManager = new EventHandlerManager(chart);
-        xAxis = (ValueAxis<?>) chart.getXAxis();
+        if (chart.getXAxis() instanceof ValueAxis) xAxis = (ValueAxis<?>) chart.getXAxis();
+        else {
+            /**
+             * TODO what to do with category
+             */
+            Axis a = new DateValueAxis();
+            xAxis = (ValueAxis<?>) a;
+        }
         y1Axis = (ValueAxis<?>) chart.getY1Axis();
         y2Axis = (ValueAxis<?>) chart.getY2Axis();
         chartInfo = new XYChartInfo(chart, chart);

@@ -353,7 +353,7 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
             }
 
             if (!constructedPath.isEmpty()) {
-                Collections.sort(constructedPath, (e1, e2) -> Double.compare(e1.getX(), e2.getX()));
+                constructedPath.sort(Comparator.comparingDouble(LineTo::getX));
                 LineTo first = constructedPath.get(0);
 
                 final double displayYPos = first.getY();

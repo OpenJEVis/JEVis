@@ -327,23 +327,24 @@ public class XYChart implements Chart {
         unitY1.clear();
         unitY2.clear();
         //hexColors.clear();
-        if (chartDataModels.size() > 0) {
-            if (chartDataModels.size() <= xyChartSerieList.size()) {
+        int chartDataModelsSize = chartDataModels.size();
+        int xyChartSerieListSize = xyChartSerieList.size();
+
+        if (chartDataModelsSize > 0) {
+            if (chartDataModelsSize <= xyChartSerieListSize) {
                 /**
                  * if the new chart data model contains fewer or equal count of chart series as the old one
                  */
 
-                if (chartDataModels.size() < xyChartSerieList.size()) {
+                if (chartDataModelsSize < xyChartSerieListSize) {
                     /**
                      * remove the series which are in excess
                      */
 
-                    for (int i = chartDataModels.size(); i < xyChartSerieList.size(); i++) {
-                        xyChartSerieList.remove(i);
-                        series.remove(i);
-                        hexColors.remove(i);
-                        tableData.remove(i);
-                    }
+                    xyChartSerieList.subList(chartDataModelsSize, xyChartSerieListSize).clear();
+                    series.subList(chartDataModelsSize, xyChartSerieListSize).clear();
+                    hexColors.subList(chartDataModelsSize, xyChartSerieListSize).clear();
+                    tableData.subList(chartDataModelsSize, xyChartSerieListSize).clear();
 
                 }
 
@@ -356,7 +357,7 @@ public class XYChart implements Chart {
 
                 updateXYChartSeries();
 
-                for (int i = xyChartSerieList.size(); i < chartDataModels.size(); i++) {
+                for (int i = xyChartSerieListSize; i < chartDataModelsSize; i++) {
                     try {
                         xyChartSerieList.add(generateSerie(changedBoth, chartDataModels.get(i)));
                     } catch (JEVisException e) {
@@ -379,14 +380,6 @@ public class XYChart implements Chart {
             generateYAxis();
 
             getChart().setTitle(getUpdatedChartName());
-
-            ((MultiAxisChart) getChart()).getXAxis().setAutoRanging(true);
-            ((MultiAxisChart) getChart()).getY1Axis().setAutoRanging(true);
-            ((MultiAxisChart) getChart()).getY2Axis().setAutoRanging(true);
-            ((MultiAxisChart) getChart()).getXAxis().layout();
-            ((MultiAxisChart) getChart()).getY1Axis().layout();
-            ((MultiAxisChart) getChart()).getY2Axis().layout();
-            getChart().layout();
         }
 
     }
@@ -599,7 +592,6 @@ public class XYChart implements Chart {
 
     @Override
     public void applyColors() {
-        getChart().applyCss();
 
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);

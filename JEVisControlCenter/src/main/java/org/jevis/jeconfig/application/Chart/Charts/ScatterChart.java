@@ -1,120 +1,67 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
-import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import org.jevis.api.JEVisException;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYScatterChartSerie;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisScatterChart;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ScatterChart implements Chart {
-    private javafx.scene.chart.ScatterChart<Number, Number> scatterChart;
-    private List<Color> hexColors = new ArrayList<>();
+public class ScatterChart extends XYChart {
 
-    public ScatterChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
-
+    public ScatterChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+        super(chartDataModels, hideShowIcons, addSeriesOfType, chartId, chartName);
     }
 
     @Override
-    public String getChartName() {
-        return null;
+    public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
+        XYChartSerie serie = new XYScatterChartSerie(singleRow, hideShowIcons);
+
+        hexColors.add(singleRow.getColor());
+        series.add(serie.getSerie());
+        tableData.add(serie.getTableEntry());
+
+        /**
+         * check if timestamps are in serie
+         */
+
+        if (serie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
+            timeStampOfFirstSample.set(serie.getTimeStampFromFirstSample());
+            changedBoth[0] = true;
+        }
+
+        if (serie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
+            timeStampOfLastSample.set(serie.getTimeStampFromLastSample());
+            changedBoth[1] = true;
+        }
+
+        /**
+         * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
+         */
+
+        checkManipulation(singleRow);
+        return serie;
     }
 
     @Override
-    public void setTitle(String s) {
-
-    }
-
-    @Override
-    public Integer getChartId() {
-        return null;
-    }
-
-    @Override
-    public void updateTable(MouseEvent mouseEvent, Number valueForDisplay) {
-
-    }
-
-    @Override
-    public void showNote(MouseEvent mouseEvent) {
-
+    public void finalizeChart() {
+        setChart(new MultiAxisScatterChart(dateAxis, y1Axis, y2Axis, series));
     }
 
     @Override
     public void applyColors() {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
-            Color brighter = currentColor.deriveColor(1, 1, 50, 0.3);
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
-            Node node = scatterChart.lookup(preIdent + ".chart-symbol");
+            Node node = getChart().lookup(preIdent + ".chart-symbol");
+            String style = node.getStyle();
+
             node.setStyle("-fx-background-color: " + hexColor + ";");
         }
-    }
-
-    @Override
-    public Number getValueForDisplay() {
-        return null;
-    }
-
-    @Override
-    public void setValueForDisplay(Number valueForDisplay) {
-
-    }
-
-    @Override
-    public DateTime getStartDateTime() {
-        return null;
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return null;
-    }
-
-    @Override
-    public void updateChart() {
-
-    }
-
-    @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-
-    }
-
-    @Override
-    public void setHideShowIcons(Boolean hideShowIcons) {
-
-    }
-
-    @Override
-    public javafx.scene.chart.Chart getChart() {
-        return null;
-    }
-
-    @Override
-    public Region getRegion() {
-        return null;
-    }
-
-    @Override
-    public void initializeZoom() {
-
-    }
-
-    @Override
-    public ObservableList<TableEntry> getTableData() {
-        return null;
-    }
-
-    @Override
-    public Period getPeriod() {
-        return null;
     }
 }

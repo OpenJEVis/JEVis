@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-public class LogicalXYChartSerie extends XYChartSerie {
-    private static final Logger logger = LogManager.getLogger(LogicalXYChartSerie.class);
+public class XYLogicalChartSerie extends XYChartSerie {
+    private static final Logger logger = LogManager.getLogger(XYLogicalChartSerie.class);
 
-    public LogicalXYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
+    public XYLogicalChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
         super(singleRow, hideShowIcons);
     }
 

@@ -53,14 +53,12 @@ import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.stream.Collectors;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class GraphPluginView implements Plugin, Observer {
+public class GraphPluginView implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(GraphPluginView.class);
     private final List<ChartView> charts = new ArrayList<>();
@@ -77,11 +75,11 @@ public class GraphPluginView implements Plugin, Observer {
     private boolean firstStart = true;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
-        this.dataModel = new GraphDataModel(ds);
-        this.dataModel.addObserver(this);
+        this.dataModel = new GraphDataModel(ds, this);
+//        this.dataModel.addObserver(this);
 
         //this.controller = new GraphController(this, dataModel);
-        this.toolBarView = new ToolBarView(dataModel, ds);
+        this.toolBarView = new ToolBarView(dataModel, ds, this);
         //this.chartView = new ChartView(dataModel);
 
         this.ds = ds;
@@ -274,16 +272,12 @@ public class GraphPluginView implements Plugin, Observer {
                  */
                 border.heightProperty().addListener((observable, oldValue, newValue) -> {
                     if (!oldValue.equals(0.0)) {
-                        Platform.runLater(() -> {
-                            update(null, "Screen size changed");
-                        });
+                        Platform.runLater(this::update);
                     }
                 });
                 border.heightProperty().addListener((observable, oldValue, newValue) -> {
                     if (!oldValue.equals(0.0)) {
-                        Platform.runLater(() -> {
-                            update(null, "Screen size changed");
-                        });
+                        Platform.runLater(this::update);
                     }
                 });
             }
@@ -301,8 +295,7 @@ public class GraphPluginView implements Plugin, Observer {
 
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
+    public void update() {
 
         Double autoMinSize = null;
         double autoMinSizeNormal = 220;
@@ -353,7 +346,8 @@ public class GraphPluginView implements Plugin, Observer {
                              */
                             int dataSizeOffset = 30;
                             /** Calculate maxsize based on the amount of Data **/
-                            int dataSize = 2;
+                            int dataSize = 0;
+                            if (cv.getFirstLogical()) dataSize = 3;
 
                             for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
                                 for (int i : chartDataModel.getSelectedcharts()) {
@@ -412,9 +406,9 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals(ChartType.AREA)
-                                            || na.getChartType().equals(ChartType.LOGICAL)
-                                            || na.getChartType().equals(ChartType.LINE)) {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                     }
                                 });
@@ -424,9 +418,9 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals(ChartType.AREA)
-                                            || na.getChartType().equals(ChartType.LOGICAL)
-                                            || na.getChartType().equals(ChartType.LINE)) {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                     }
                                 });
@@ -436,9 +430,9 @@ public class GraphPluginView implements Plugin, Observer {
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
                                 notActive.parallelStream().forEach(na -> {
-                                    if (na.getChartType().equals(ChartType.AREA)
-                                            || na.getChartType().equals(ChartType.LOGICAL)
-                                            || na.getChartType().equals(ChartType.LINE)) {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
                                         na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                                     }
                                 });
@@ -461,12 +455,16 @@ public class GraphPluginView implements Plugin, Observer {
 //                        });
                             break;
                         case SCATTER:
-//                        cv.getScatterChart().setOnMouseMoved(event -> {
-//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
-//                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
-//                            }
-//                        });
+                            cv.getChart().getChart().setOnMouseMoved(event -> {
+                                cv.updateTablesSimultaneously(event, null);
+                                notActive.parallelStream().forEach(na -> {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
+                                        na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                                    }
+                                });
+                            });
                             break;
                         case PIE:
 //                        cv.getPieChart().setOnMouseMoved(event -> {
@@ -540,8 +538,6 @@ public class GraphPluginView implements Plugin, Observer {
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
             toolBarView.setBorderPane(border);
         }
-
-        System.gc();
     }
 
     private double calculationTotalPrefSize(Pane pane) {
@@ -559,7 +555,8 @@ public class GraphPluginView implements Plugin, Observer {
 
     private List<ChartView> getChartViews() {
 
-        if (charts.isEmpty()) {
+        if (charts.isEmpty() || hasLogicalCharts()) {
+            charts.clear();
 
             dataModel.getCharts().forEach(chart -> {
                 int chartID = chart.getId();
@@ -574,14 +571,13 @@ public class GraphPluginView implements Plugin, Observer {
                 }
             });
         } else {
-            if (dataModel.getCharts().size() <= charts.size()) {
+            if (dataModel.getCharts().size() < charts.size()) {
 
                 boolean hasLogicalCharts = hasLogicalCharts();
 
                 if (!hasLogicalCharts && dataModel.getCharts().size() < charts.size()) {
-                    for (int i = charts.size(); i > dataModel.getCharts().size(); i--) {
-                        charts.remove(i - 1);
-                    }
+
+                    charts.subList(dataModel.getCharts().size(), charts.size()).clear();
                 }
 
                 if (hasLogicalCharts) {
@@ -601,8 +597,19 @@ public class GraphPluginView implements Plugin, Observer {
                             chart.updateChart();
                         }
                     });
+
+                    charts.removeAll(charts.stream().filter(chartView -> chartView.getChartType().equals(ChartType.LOGICAL)).collect(Collectors.toList()));
+                    dataModel.getCharts().forEach(chart -> {
+                        int chartID = chart.getId();
+                        ChartType type = chart.getChartType();
+
+                        if (type.equals(ChartType.LOGICAL)) {
+                            createLogicalChart(chart, chartID, type);
+                        }
+                    });
                 }
             } else {
+
                 for (ChartView chartView : charts) {
                     chartView.setType(dataModel.getCharts().get(charts.indexOf(chartView)).getChartType());
                     chartView.updateChart();
@@ -638,27 +645,42 @@ public class GraphPluginView implements Plugin, Observer {
     }
 
     private void createLogicalChart(ChartSettings chart, int chartID, ChartType type) {
-        boolean firstChart = true;
-        ObservableList<TableEntry> allEntries = null;
 
+        List<ChartView> subCharts = new ArrayList<>();
         for (ChartDataModel singleRow : dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
                 if (i == chart.getId()) {
-                    ChartView subView = new ChartView(dataModel, firstChart);
-                    subView.drawAreaChart(chartID, singleRow, type);
-                    charts.add(subView);
-
-                    if (firstChart) {
-                        allEntries = subView.getChart().getTableData();
-                        subView.setFirstLogical(true);
-                    } else {
-                        allEntries.addAll(subView.getChart().getTableData());
-                        subView.getChart().getChart().setTitle("");
-                    }
-
-                    firstChart = false;
+                    ChartView subView = new ChartView(dataModel);
+                    subView.setSingleRow(singleRow);
+                    subCharts.add(subView);
                 }
             }
         }
+        AlphanumComparator ac = new AlphanumComparator();
+        subCharts.sort((o1, o2) -> ac.compare(o1.getSingleRow().getObject().getName(), o2.getSingleRow().getObject().getName()));
+
+        boolean firstChart = true;
+        ObservableList<TableEntry> allEntries = null;
+        for (ChartView chartView : subCharts) {
+            if (firstChart) {
+                chartView.setFirstLogical(true);
+                chartView.setShowTable(true);
+            } else {
+                chartView.setShowTable(false);
+            }
+
+            chartView.drawAreaChart(chartID, chartView.getSingleRow(), type);
+
+            if (firstChart) {
+                allEntries = chartView.getChart().getTableData();
+            } else {
+                chartView.getChart().getChart().setTitle("");
+                allEntries.addAll(chartView.getChart().getTableData());
+            }
+
+            firstChart = false;
+        }
+
+        charts.addAll(subCharts);
     }
 }

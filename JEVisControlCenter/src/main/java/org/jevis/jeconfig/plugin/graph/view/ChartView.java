@@ -51,6 +51,7 @@ public class ChartView implements Observer {
     private boolean changed = false;
     private Integer chartId;
     private boolean firstLogical;
+    private ChartDataModel singleRow;
 
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
@@ -274,7 +275,8 @@ public class ChartView implements Observer {
 
     public void drawAreaChart(Integer chartId, ChartDataModel model, ChartType chartType) {
         this.chartId = chartId;
-        chart = null;
+        this.chart = null;
+        this.singleRow = model;
 
         List<ChartDataModel> chartDataModels = new ArrayList<>();
         chartDataModels.add(model);
@@ -293,8 +295,15 @@ public class ChartView implements Observer {
                 break;
             case LOGICAL:
                 chart = new LogicalChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
-                if (showTable) setTableStandard();
-                else disableTable();
+                if (showTable) {
+                    setTableStandard();
+                    tableView.getColumns().get(2).setVisible(false);
+                    tableView.getColumns().get(5).setVisible(false);
+                    tableView.getColumns().get(6).setVisible(false);
+                    tableView.getColumns().get(7).setVisible(false);
+                    tableView.getColumns().get(8).setVisible(false);
+                    tableView.getColumns().get(9).setVisible(false);
+                } else disableTable();
                 break;
             case LINE:
                 chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
@@ -309,7 +318,7 @@ public class ChartView implements Observer {
                 setTableStandard();
                 break;
             case SCATTER:
-                chart = new ScatterChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
+                chart = new ScatterChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
                 break;
             case PIE:
@@ -408,5 +417,17 @@ public class ChartView implements Observer {
 
     public void setFirstLogical(boolean firstLogical) {
         this.firstLogical = firstLogical;
+    }
+
+    public ChartDataModel getSingleRow() {
+        return singleRow;
+    }
+
+    public void setSingleRow(ChartDataModel singleRow) {
+        this.singleRow = singleRow;
+    }
+
+    public void setShowTable(Boolean showTable) {
+        this.showTable = showTable;
     }
 }

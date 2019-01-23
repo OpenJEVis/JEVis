@@ -14,6 +14,7 @@ import org.jevis.jeconfig.application.jevistree.JEVisTreeItem;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The JEVisItemLoader creates the items for an JEVisTree. It also handel the filtering for the tree.
@@ -27,8 +28,8 @@ public class JEVisItemLoader {
     private final List<JEVisObject> roots;
     //    private final List<JEVisTreeItem> treeObjectItems = Collections.synchronizedList(new ArrayList<>());
 //    private final List<JEVisTreeItem> treeAttributeItems = Collections.synchronizedList(new ArrayList<>());
-    private final Map<JEVisObject, JEVisTreeItem> itemObjectLinker = Collections.synchronizedMap(new TreeMap<>());
-    private final Map<String, JEVisTreeItem> itemAttributeLinker = Collections.synchronizedMap(new TreeMap<>());
+    private final ConcurrentHashMap<JEVisObject, JEVisTreeItem> itemObjectLinker = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, JEVisTreeItem> itemAttributeLinker = new ConcurrentHashMap<>();
 
 
     /**
@@ -109,7 +110,7 @@ public class JEVisItemLoader {
 
         objects.parallelStream().forEach(object -> {
             try {
-                logger.error("Create item for object: {}", object.getName());
+                logger.debug("Create item for object: {}", object.getName());
                 JEVisTreeItem item = new JEVisTreeItem(object);
                 registerEventHandler(object);
 //                treeObjectItems.add(item);
@@ -190,7 +191,7 @@ public class JEVisItemLoader {
     private void parentCheck(Set<JEVisObject> parents, JEVisObject object) {
         try {
             if (object == null || parents == null) {
-                System.out.println("debug anker");
+                logger.debug("debug anker");
                 return;
             }
             for (JEVisObject parent : object.getParents()) {

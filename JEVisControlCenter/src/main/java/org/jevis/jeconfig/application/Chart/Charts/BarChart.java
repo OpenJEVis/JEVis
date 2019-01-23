@@ -16,12 +16,16 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
@@ -29,11 +33,12 @@ import org.jevis.jeconfig.dialog.NoteDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.PeriodFormat;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class BarChart implements Chart {
     private static final Logger logger = LogManager.getLogger(BarChart.class);
@@ -42,14 +47,21 @@ public class BarChart implements Chart {
     private String unit;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
-    private ObservableList<javafx.scene.chart.BarChart.Series<String, Number>> series = FXCollections.observableArrayList();
+    AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
     private MultiAxisBarChart<String, Number> barChart;
+    AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
+    NumberAxis y1Axis = new NumberAxis();
+    NumberAxis y2Axis = new NumberAxis();
+    private ObservableList<MultiAxisBarChart.Series<String, Number>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
     private Number valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region barChartRegion;
     private Period period;
+    private Region areaChartRegion;
+    private boolean asDuration = false;
+    private AtomicReference<ManipulationMode> manipulationMode;
 
     public BarChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -60,6 +72,8 @@ public class BarChart implements Chart {
     }
 
     private void init() {
+        manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
+
         chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
@@ -104,7 +118,7 @@ public class BarChart implements Chart {
         barChart.getXAxis().setTickLabelRotation(-90);
         barChart.getY1Axis().setLabel(unit);
 
-        //initializeZoom();
+        initializeZoom();
     }
 
     @Override
@@ -121,25 +135,22 @@ public class BarChart implements Chart {
     public void initializeZoom() {
         ChartPanManager panner = null;
 
-        barChart.setOnMouseMoved(mouseEvent -> {
+        getChart().setOnMouseMoved(mouseEvent -> {
             updateTable(mouseEvent, null);
         });
 
-        panner = new ChartPanManager(barChart);
+        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
 
-        if (panner != null) {
-            panner.setMouseFilter(mouseEvent -> {
-                if (mouseEvent.getButton() == MouseButton.SECONDARY
-                        || (mouseEvent.getButton() == MouseButton.PRIMARY
-                        && mouseEvent.isShortcutDown())) {
-                } else {
-                    mouseEvent.consume();
-                }
-            });
-            panner.start();
-        }
+        panner.setMouseFilter(mouseEvent -> {
+            if (mouseEvent.getButton() != MouseButton.SECONDARY
+                    && (mouseEvent.getButton() != MouseButton.PRIMARY
+                    || !mouseEvent.isShortcutDown())) {
+                mouseEvent.consume();
+            }
+        });
+        panner.start();
 
-        barChartRegion = JFXChartUtil.setupZooming(barChart, mouseEvent -> {
+        areaChartRegion = JFXChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
 
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
@@ -150,7 +161,7 @@ public class BarChart implements Chart {
             }
         });
 
-        JFXChartUtil.addDoublePrimaryClickAutoRangeHandler(barChart);
+        JFXChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
     }
 
@@ -196,115 +207,122 @@ public class BarChart implements Chart {
 
     @Override
     public void updateTable(MouseEvent mouseEvent, Number valueForDisplay) {
-//        Point2D mouseCoordinates = null;
-//        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-//        Double x = null;
-//        if (valueForDisplay == null) {
-//
-//            x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
-//
-//            if (x != null) {
-//                valueForDisplay = Double.parseDouble(barChart.getXAxis().getValueForDisplay(x));
-//                //valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
-//
-//            }
-//            if (valueForDisplay != null) {
-//                setValueForDisplay(valueForDisplay);
-//                tableData = FXCollections.emptyObservableList();
-//                Number finalValueForDisplay = valueForDisplay;
-//                chartDataModels.parallelStream().forEach(singleRow -> {
-//                    if (Objects.isNull(chartName) || chartName.equals("") || singleRow.getSelectedcharts().contains(chartName)) {
-//                        try {
-//                            TreeMap<Double, JEVisSample> sampleTreeMap = singleRow.getSampleMap();
-//                            Double higherKey = sampleTreeMap.higherKey(finalValueForDisplay.doubleValue());
-//                            Double lowerKey = sampleTreeMap.lowerKey(finalValueForDisplay.doubleValue());
-//
-//                            Double nearest = higherKey;
-//                            if (nearest == null) nearest = lowerKey;
-//
-//                            if (lowerKey != null && higherKey != null) {
-//                                Double lower = Math.abs(lowerKey - finalValueForDisplay.doubleValue());
-//                                Double higher = Math.abs(higherKey - finalValueForDisplay.doubleValue());
-//                                if (lower < higher) {
-//                                    nearest = lowerKey;
-//                                }
-//                            }
-//
-//                            NumberFormat nf = NumberFormat.getInstance();
-//                            nf.setMinimumFractionDigits(2);
-//                            nf.setMaximumFractionDigits(2);
-//                            Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
-//                            String note = sampleTreeMap.get(nearest).getNote();
-//                            Note formattedNote = new Note(note, singleRow.getColor());
-//                            String formattedDouble = nf.format(valueAsDouble);
-//                            TableEntry tableEntry = singleRow.getTableEntry();
-//                            tableEntry.setDate(new DateTime(Math.round(nearest)).toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-//                            tableEntry.setNote(formattedNote.getNote());
-//                            String unit = UnitManager.getInstance().format(singleRow.getUnit());
-//                            tableEntry.setValue(formattedDouble + " " + unit);
-//                            tableData.add(tableEntry);
-//                        } catch (Exception ex) {
-//                        }
-//                    }
-//                });
-//            }
-//        }
+        Point2D mouseCoordinates = null;
+        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        Double x = null;
+        String stringForDisplay = null;
+        if (valueForDisplay == null) {
+
+            x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
+
+            if (((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x) instanceof Number)
+                valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
+            else {
+                stringForDisplay = ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x).toString();
+                DateTime dt = JEVisDates.parseDefaultDate(stringForDisplay);
+                valueForDisplay = dt.getMillis();
+            }
+
+        }
+        if (valueForDisplay != null) {
+            setValueForDisplay(valueForDisplay);
+            Number finalValueForDisplay = valueForDisplay;
+            xyChartSerieList.parallelStream().forEach(serie -> {
+                try {
+                    TableEntry tableEntry = serie.getTableEntry();
+                    TreeMap<Double, JEVisSample> sampleTreeMap = serie.getSampleMap();
+                    Double higherKey = sampleTreeMap.higherKey(finalValueForDisplay.doubleValue());
+                    Double lowerKey = sampleTreeMap.lowerKey(finalValueForDisplay.doubleValue());
+
+                    Double nearest = higherKey;
+                    if (nearest == null) nearest = lowerKey;
+
+                    if (lowerKey != null && higherKey != null) {
+                        Double lower = Math.abs(lowerKey - finalValueForDisplay.doubleValue());
+                        Double higher = Math.abs(higherKey - finalValueForDisplay.doubleValue());
+                        if (lower < higher) {
+                            nearest = lowerKey;
+                        }
+                    }
+
+                    NumberFormat nf = NumberFormat.getInstance();
+                    nf.setMinimumFractionDigits(2);
+                    nf.setMaximumFractionDigits(2);
+                    Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
+                    String note = sampleTreeMap.get(nearest).getNote();
+                    Note formattedNote = new Note(note);
+                    String formattedDouble = nf.format(valueAsDouble);
+
+                    if (!asDuration) {
+                        tableEntry.setDate(new DateTime(Math.round(nearest))
+                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                    } else {
+                        tableEntry.setDate((new DateTime(Math.round(nearest)).getMillis() -
+                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
+                    }
+                    tableEntry.setNote(formattedNote.getNote());
+                    String unit = serie.getUnit();
+                    tableEntry.setValue(formattedDouble + " " + unit);
+                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+                } catch (Exception ex) {
+                }
+
+            });
+        }
     }
 
     @Override
     public void showNote(MouseEvent mouseEvent) {
+        if (manipulationMode.get().equals(ManipulationMode.NONE)) {
 
-        Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        Double x = barChart.getXAxis().sceneToLocal(mouseCoordinates).getX();
+            Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+            double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
 
-        if (x != null) {
             Map<String, RowNote> map = new HashMap<>();
             Number valueForDisplay = null;
-            valueForDisplay = Double.parseDouble(barChart.getXAxis().getValueForDisplay(x));
-            //valueForDisplay = barChart.getXAxis().getValueForDisplay(x);
+            valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
+
             for (XYChartSerie serie : xyChartSerieList) {
-                    try {
-                        Double higherKey = serie.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                        Double lowerKey = serie.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+                try {
+                    Double higherKey = serie.getSampleMap().higherKey(valueForDisplay.doubleValue());
+                    Double lowerKey = serie.getSampleMap().lowerKey(valueForDisplay.doubleValue());
 
-                        Double nearest = higherKey;
-                        if (nearest == null) nearest = lowerKey;
+                    Double nearest = higherKey;
+                    if (nearest == null) nearest = lowerKey;
 
-                        if (lowerKey != null && higherKey != null) {
-                            Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
-                            Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
-                            if (lower < higher) {
-                                nearest = lowerKey;
-                            }
-
-                            JEVisSample nearestSample = serie.getSampleMap().get(nearest);
-
-                            String title = "";
-                            title += serie.getSingleRow().getObject().getName();
-
-                            JEVisObject dataObject;
-                            if (serie.getSingleRow().getDataProcessor() != null)
-                                dataObject = serie.getSingleRow().getDataProcessor();
-                            else dataObject = serie.getSingleRow().getObject();
-
-                            String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
-
-                            RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote);
-
-                            map.put(title, rowNote);
+                    if (lowerKey != null && higherKey != null) {
+                        Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
+                        Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
+                        if (lower < higher) {
+                            nearest = lowerKey;
                         }
-                    } catch (Exception ex) {
-                        logger.error("Error: could not get note", ex);
+
+                        JEVisSample nearestSample = serie.getSampleMap().get(nearest);
+
+                        String title = "";
+                        title += serie.getSingleRow().getObject().getName();
+
+                        JEVisObject dataObject;
+                        if (serie.getSingleRow().getDataProcessor() != null)
+                            dataObject = serie.getSingleRow().getDataProcessor();
+                        else dataObject = serie.getSingleRow().getObject();
+
+                        String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
+
+                        RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote);
+
+                        map.put(title, rowNote);
                     }
+                } catch (Exception ex) {
+                    logger.error("Error: could not get note", ex);
+                }
             }
 
             NoteDialog nd = new NoteDialog(map);
 
             nd.showAndWait().ifPresent(response -> {
-                if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
                     saveUserNotes(nd.getNoteMap());
-                } else if (response.getButtonData().getTypeCode() == ButtonType.CANCEL.getButtonData().getTypeCode()) {
-
                 }
             });
         }
@@ -340,5 +358,6 @@ public class BarChart implements Chart {
     public Region getRegion() {
         return barChartRegion;
     }
+
 
 }

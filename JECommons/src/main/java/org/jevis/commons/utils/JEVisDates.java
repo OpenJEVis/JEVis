@@ -64,7 +64,7 @@ public class JEVisDates {
     }
 
     public static DateTime parseDefaultDate(JEVisAttribute date) throws IllegalArgumentException, JEVisException {
-        logger.error("Parse Date: {}", date);
+        logger.debug("Parse Date: {}", date);
         if (date == null || !date.hasSample()) {
             throw new IllegalArgumentException();
         }
@@ -80,7 +80,7 @@ public class JEVisDates {
      * @return
      */
     public static DateTime parseDefaultDate(String datestring) throws IllegalArgumentException {
-        logger.error("Parse Date: {}", datestring);
+        logger.debug("Parse Date: {}", datestring);
         if (datestring == null || datestring.isEmpty()) {
             throw new IllegalArgumentException("Date is empty or null");
         }

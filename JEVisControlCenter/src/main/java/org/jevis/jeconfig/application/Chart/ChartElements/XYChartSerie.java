@@ -47,8 +47,18 @@ public class XYChartSerie implements Serie {
 
         List<JEVisSample> samples = singleRow.getSamples();
 
-        seriesData.clear();
-        if (samples.size() > 0) {
+        //seriesData.clear();
+
+        int samplesSize = samples.size();
+        int seriesDataSize = seriesData.size();
+
+        if (samplesSize < seriesDataSize) {
+            seriesData.subList(samplesSize, seriesDataSize).clear();
+        } else if (samplesSize > seriesDataSize) {
+            for (int i = seriesDataSize; i < samplesSize; i++) seriesData.add(new MultiAxisChart.Data<>());
+        }
+
+        if (samplesSize > 0) {
             try {
 
                 if (samples.get(0).getTimestamp().isBefore(getTimeStampFromFirstSample()))
@@ -65,28 +75,22 @@ public class XYChartSerie implements Serie {
         sampleMap = new TreeMap<Double, JEVisSample>();
         for (JEVisSample sample : samples) {
             try {
+                int index = samples.indexOf(sample);
+
                 DateTime dateTime = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
                 Long timestamp = dateTime.getMillis();
 
-                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>(timestamp, value);
+                MultiAxisChart.Data<Number, Number> data = seriesData.get(index);
+                data.setXValue(timestamp);
+                data.setYValue(value);
+
                 data.setExtraValue(yAxis);
 
-                Note note = new Note(sample.getNote());
-
-                if (note.getNote() != null && hideShowIcons) {
-                    note.getNote().setVisible(true);
-                    data.setNode(note.getNote());
-                } else {
-                    Rectangle rect = new Rectangle(0, 0);
-                    rect.setFill(singleRow.getColor());
-                    rect.setVisible(false);
-                    data.setNode(rect);
-                }
+                generateNode(sample, data);
 
 
-                sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
-                seriesData.add(data);
+                sampleMap.put(timestamp.doubleValue(), sample);
 
             } catch (JEVisException e) {
 
@@ -98,6 +102,20 @@ public class XYChartSerie implements Serie {
 
         calcTableValues(tableEntry, samples, getUnit(), isQuantity);
 
+    }
+
+    public void generateNode(JEVisSample sample, MultiAxisChart.Data<Number, Number> data) throws JEVisException {
+        Note note = new Note(sample.getNote());
+
+        if (note.getNote() != null && hideShowIcons) {
+            note.getNote().setVisible(true);
+            data.setNode(note.getNote());
+        } else {
+            Rectangle rect = new Rectangle(0, 0);
+            rect.setFill(singleRow.getColor());
+            rect.setVisible(false);
+            data.setNode(rect);
+        }
     }
 
 

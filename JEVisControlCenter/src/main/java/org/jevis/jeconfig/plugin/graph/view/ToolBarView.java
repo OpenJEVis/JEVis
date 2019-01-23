@@ -52,6 +52,7 @@ public class ToolBarView {
 
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
+    private final GraphPluginView graphPluginView;
     private BorderPane borderPane;
     private GraphDataModel model;
     private ComboBox<JEVisObject> listAnalysesComboBox;
@@ -67,9 +68,10 @@ public class ToolBarView {
     private ToggleButton select;
     private ToggleButton disableIcons;
 
-    public ToolBarView(GraphDataModel model, JEVisDataSource ds) {
+    public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
         this.ds = ds;
+        this.graphPluginView = graphPluginView;
     }
 
     public ToolBar getToolbar(JEVisDataSource ds) {
@@ -338,7 +340,7 @@ public class ToolBarView {
 
         if (dialog.getResponse() == Response.NEW) {
 
-            GraphDataModel newModel = new GraphDataModel(ds);
+            GraphDataModel newModel = new GraphDataModel(ds, graphPluginView);
 
             AnalysisTimeFrame atf = new AnalysisTimeFrame();
             atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);

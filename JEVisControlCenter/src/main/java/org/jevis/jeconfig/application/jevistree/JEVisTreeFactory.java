@@ -135,6 +135,8 @@ public class JEVisTreeFactory {
         JEVisTree tree = new JEVisTree(ds, filter);
 
         tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
+
+
         addDefaultKeys(tree);
 
         return tree;

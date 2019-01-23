@@ -363,7 +363,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public void setDisplaySampleRate(Period period) {
-        logger.info("setDisplaySampleRate: " + period.toString());
+        logger.debug("setDisplaySampleRate: " + period.toString());
         json.setDisplaySampleRate(period.toString());
     }
 
@@ -437,7 +437,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
                     + REQUEST.OBJECTS.ATTRIBUTES.PATH
                     + getName();
 
-            logger.error("Payload: {}", gson.toJson(json));
+            logger.debug("Payload: {}", gson.toJson(json));
             StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
 
             this.json = gson.fromJson(response.toString(), JsonAttribute.class);
