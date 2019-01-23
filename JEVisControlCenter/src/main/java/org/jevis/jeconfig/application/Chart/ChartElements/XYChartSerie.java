@@ -55,7 +55,9 @@ public class XYChartSerie implements Serie {
         if (samplesSize < seriesDataSize) {
             seriesData.subList(samplesSize, seriesDataSize).clear();
         } else if (samplesSize > seriesDataSize) {
-            for (int i = seriesDataSize; i < samplesSize; i++) seriesData.add(new MultiAxisChart.Data<>());
+            for (int i = seriesDataSize; i < samplesSize; i++) {
+                seriesData.add(new MultiAxisChart.Data<>());
+            }
         }
 
         if (samplesSize > 0) {

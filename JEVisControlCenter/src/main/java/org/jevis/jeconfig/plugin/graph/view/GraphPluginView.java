@@ -27,10 +27,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
@@ -297,6 +294,8 @@ public class GraphPluginView implements Plugin {
 
     public void update() {
 
+        border.setCenter(new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS));
+
         Double autoMinSize = null;
         double autoMinSizeNormal = 220;
         double autoMinSizeLogical = 50;
@@ -538,6 +537,7 @@ public class GraphPluginView implements Plugin {
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
             toolBarView.setBorderPane(border);
         }
+
     }
 
     private double calculationTotalPrefSize(Pane pane) {
