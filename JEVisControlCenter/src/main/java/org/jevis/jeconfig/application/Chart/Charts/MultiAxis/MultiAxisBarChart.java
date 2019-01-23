@@ -231,12 +231,8 @@ public class MultiAxisBarChart<X, Y> extends MultiAxisChart<X, Y> {
         } else {
             category = (String) item.getYValue();
         }
-        Map<String, Data<X, Y>> categoryMap = seriesCategoryMap.get(series);
+        Map<String, Data<X, Y>> categoryMap = seriesCategoryMap.computeIfAbsent(series, k -> new HashMap<String, Data<X, Y>>());
 
-        if (categoryMap == null) {
-            categoryMap = new HashMap<String, Data<X, Y>>();
-            seriesCategoryMap.put(series, categoryMap);
-        }
         // check if category is already present
         if (!categoryAxis.getCategories().contains(category)) {
             // note: cat axis categories can be updated only when autoranging is true.

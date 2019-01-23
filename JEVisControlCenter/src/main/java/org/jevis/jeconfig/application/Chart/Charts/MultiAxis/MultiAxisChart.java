@@ -90,13 +90,16 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             if (c.getRemoved().size() > 0)
                 updateLegend();
 
-            Set<MultiAxisChart.Series<X, Y>> dupCheck = new HashSet<>(displayedSeries);
-            dupCheck.removeAll(c.getRemoved());
-            for (MultiAxisChart.Series<X, Y> d : c.getAddedSubList()) {
-                if (!dupCheck.add(d)) {
-                    throw new IllegalArgumentException("Duplicate series added");
-                }
-            }
+            /**
+             * removed for performance
+             */
+//            Set<MultiAxisChart.Series<X, Y>> dupCheck = new HashSet<>(displayedSeries);
+//            dupCheck.removeAll(c.getRemoved());
+//            for (MultiAxisChart.Series<X, Y> d : c.getAddedSubList()) {
+//                if (!dupCheck.add(d)) {
+//                    throw new IllegalArgumentException("Duplicate series added");
+//                }
+//            }
 
             for (MultiAxisChart.Series<X, Y> s : c.getRemoved()) {
                 s.setToRemove = true;
@@ -380,17 +383,6 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         if (y2Axis != null && y2Axis.getSide() == null)
             y2Axis.setSide(Side.RIGHT);
 
-        if (y2Axis != null) {
-            y2Axis.visibleProperty().addListener(e -> {
-                layoutPlotChildren();
-            });
-
-            y2Axis.autoRangingProperty().addListener((ov, t, t1) -> {
-                updateAxisRange();
-            });
-            getChartChildren().add(y2Axis);
-        }
-
         // RT-23123 autoranging leads to charts incorrect appearance.
         xAxis.autoRangingProperty().addListener((ov, t, t1) -> {
             updateAxisRange();
@@ -402,6 +394,18 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
         // add initial content to chart content
         getChartChildren().addAll(plotBackground, plotArea, xAxis, y1Axis);
+
+        if (y2Axis != null) {
+            y2Axis.visibleProperty().addListener(e -> {
+                layoutPlotChildren();
+            });
+
+            y2Axis.autoRangingProperty().addListener((ov, t, t1) -> {
+                updateAxisRange();
+            });
+            getChartChildren().add(y2Axis);
+        }
+
         // We don't want plotArea or plotContent to autoSize or do layout
         plotArea.setAutoSizeChildren(false);
         plotContent.setAutoSizeChildren(false);
@@ -444,14 +448,14 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     }
 
     /**
-     * Get the Y axis, by default it is along the left of the plot
+     * Get the Y1 axis, by default it is along the left of the plot
      */
     public Axis<Y> getY1Axis() {
         return y1Axis;
     }
 
     /**
-     * Get the Y axis, by default it is along the left of the plot
+     * Get the Y2 axis, by default it is along the right of the plot
      */
     public Axis<Y> getY2Axis() {
         return y2Axis;
@@ -961,8 +965,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         // update horizontal grid lines
         horizontalGridLines.getElements().clear();
         if (isHorizontalGridLinesVisible()) {
-            for (int i = 0; i < yaTickMarks.size(); i++) {
-                Axis.TickMark<Y> tick = yaTickMarks.get(i);
+            for (Axis.TickMark<Y> tick : yaTickMarks) {
                 final double y = ya.getDisplayPosition(tick.getValue());
                 if ((y != yAxisZero || !isHorizontalZeroLineVisible()) && y >= 0 && y < yAxisHeight) {
                     horizontalGridLines.getElements().add(new MoveTo(left, top + y + 0.5));
@@ -978,8 +981,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             // tick marks are not sorted so get all the positions and sort them
             final List<Double> tickPositionsPositive = new ArrayList<Double>();
             final List<Double> tickPositionsNegative = new ArrayList<Double>();
-            for (int i = 0; i < xaTickMarks.size(); i++) {
-                double pos = xa.getDisplayPosition(xaTickMarks.get(i).getValue());
+            for (Axis.TickMark<X> xaTickMark : xaTickMarks) {
+                double pos = xa.getDisplayPosition(xaTickMark.getValue());
                 if (pos == xAxisZero) {
                     tickPositionsPositive.add(pos);
                     tickPositionsNegative.add(pos);
@@ -1018,8 +1021,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             // tick marks are not sorted so get all the positions and sort them
             final List<Double> tickPositionsPositive = new ArrayList<Double>();
             final List<Double> tickPositionsNegative = new ArrayList<Double>();
-            for (int i = 0; i < yaTickMarks.size(); i++) {
-                double pos = ya.getDisplayPosition(yaTickMarks.get(i).getValue());
+            for (Axis.TickMark<Y> yaTickMark : yaTickMarks) {
+                double pos = ya.getDisplayPosition(yaTickMark.getValue());
                 if (pos == yAxisZero) {
                     tickPositionsPositive.add(pos);
                     tickPositionsNegative.add(pos);
@@ -1823,13 +1826,16 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                             return;
                         }
 
-                        Set<Data<X, Y>> dupCheck = new HashSet<>(displayedData);
-                        dupCheck.removeAll(c.getRemoved());
-                        for (Data<X, Y> d : c.getAddedSubList()) {
-                            if (!dupCheck.add(d)) {
-                                throw new IllegalArgumentException("Duplicate data added");
-                            }
-                        }
+                        /**
+                         * removed for performance
+                         */
+//                        Set<Data<X, Y>> dupCheck = new HashSet<>(displayedData);
+//                        dupCheck.removeAll(c.getRemoved());
+//                        for (Data<X, Y> d : c.getAddedSubList()) {
+//                            if (!dupCheck.add(d)) {
+//                                throw new IllegalArgumentException("Duplicate data added");
+//                            }
+//                        }
 
                         // update data items reference to series
                         for (Data<X, Y> item : c.getRemoved()) {
@@ -1859,12 +1865,15 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                         chart.dataItemsChanged(MultiAxisChart.Series.this, (List<Data<X, Y>>) c.getRemoved(),
                                 c.getFrom(), c.getTo(), c.wasPermutated());
                     } else {
-                        Set<Data<X, Y>> dupCheck = new HashSet<>();
-                        for (Data<X, Y> d : data) {
-                            if (!dupCheck.add(d)) {
-                                throw new IllegalArgumentException("Duplicate data added");
-                            }
-                        }
+                        /**
+                         * removed for performance
+                         */
+//                        Set<Data<X, Y>> dupCheck = new HashSet<>();
+//                        for (Data<X, Y> d : data) {
+//                            if (!dupCheck.add(d)) {
+//                                throw new IllegalArgumentException("Duplicate data added");
+//                            }
+//                        }
 
                         for (Data<X, Y> d : c.getAddedSubList()) {
                             d.setSeries(MultiAxisChart.Series.this);

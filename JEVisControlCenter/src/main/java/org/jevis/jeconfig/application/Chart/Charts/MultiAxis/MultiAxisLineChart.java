@@ -371,10 +371,10 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
                 }
                 switch (getAxisSortingPolicy()) {
                     case X_AXIS:
-                        Collections.sort(constructedPath, (e1, e2) -> Double.compare(e1.getX(), e2.getX()));
+                        constructedPath.sort(Comparator.comparingDouble(LineTo::getX));
                         break;
                     case Y_AXIS:
-                        Collections.sort(constructedPath, (e1, e2) -> Double.compare(e1.getY(), e2.getY()));
+                        constructedPath.sort(Comparator.comparingDouble(LineTo::getY));
                         break;
                 }
 

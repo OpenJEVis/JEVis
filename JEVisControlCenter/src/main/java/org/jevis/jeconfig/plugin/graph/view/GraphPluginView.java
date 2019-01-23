@@ -53,14 +53,12 @@ import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.stream.Collectors;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class GraphPluginView implements Plugin, Observer {
+public class GraphPluginView implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(GraphPluginView.class);
     private final List<ChartView> charts = new ArrayList<>();
@@ -77,11 +75,11 @@ public class GraphPluginView implements Plugin, Observer {
     private boolean firstStart = true;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
-        this.dataModel = new GraphDataModel(ds);
-        this.dataModel.addObserver(this);
+        this.dataModel = new GraphDataModel(ds, this);
+//        this.dataModel.addObserver(this);
 
         //this.controller = new GraphController(this, dataModel);
-        this.toolBarView = new ToolBarView(dataModel, ds);
+        this.toolBarView = new ToolBarView(dataModel, ds, this);
         //this.chartView = new ChartView(dataModel);
 
         this.ds = ds;
@@ -274,16 +272,12 @@ public class GraphPluginView implements Plugin, Observer {
                  */
                 border.heightProperty().addListener((observable, oldValue, newValue) -> {
                     if (!oldValue.equals(0.0)) {
-                        Platform.runLater(() -> {
-                            update(null, "Screen size changed");
-                        });
+                        Platform.runLater(this::update);
                     }
                 });
                 border.heightProperty().addListener((observable, oldValue, newValue) -> {
                     if (!oldValue.equals(0.0)) {
-                        Platform.runLater(() -> {
-                            update(null, "Screen size changed");
-                        });
+                        Platform.runLater(this::update);
                     }
                 });
             }
@@ -301,8 +295,7 @@ public class GraphPluginView implements Plugin, Observer {
 
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
+    public void update() {
 
         Double autoMinSize = null;
         double autoMinSizeNormal = 220;
@@ -578,7 +571,7 @@ public class GraphPluginView implements Plugin, Observer {
                 }
             });
         } else {
-            if (dataModel.getCharts().size() <= charts.size()) {
+            if (dataModel.getCharts().size() < charts.size()) {
 
                 boolean hasLogicalCharts = hasLogicalCharts();
 

@@ -46,8 +46,8 @@ public class ChartPlugin implements TreePlugin {
     @Override
     public void setTree(JEVisTree tree) {
         jeVisTree = tree;
-        if (data == null)
-            data = new GraphDataModel(jeVisTree.getJEVisDataSource());
+//        if (data == null)
+//            data = new GraphDataModel(jeVisTree.getJEVisDataSource());
     }
 
     @Override

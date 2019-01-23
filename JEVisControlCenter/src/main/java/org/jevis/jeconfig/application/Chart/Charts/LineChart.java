@@ -24,7 +24,6 @@ public class LineChart extends XYChart {
 
     @Override
     public void applyColors() {
-        getChart().applyCss();
 
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
