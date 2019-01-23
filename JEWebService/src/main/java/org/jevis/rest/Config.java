@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Florian Simon<florian.simon@envidatec.com>
@@ -68,7 +69,7 @@ public class Config {
     private static File _fileDir;
     private static File _classDir;
     private static File _freemarkerDir;
-    private static Map<String, JsonJEVisClass> _classCache = Collections.synchronizedMap(new HashMap<String, JsonJEVisClass>());
+    private static ConcurrentHashMap<String, JsonJEVisClass> _classCache = new ConcurrentHashMap<>();
 
 
     public static String getDBHost() {
@@ -139,7 +140,7 @@ public class Config {
         return _classCache;
     }
 
-    public static synchronized void setClassCache(Map<String, JsonJEVisClass> map) {
+    public static void setClassCache(ConcurrentHashMap<String, JsonJEVisClass> map) {
         _classCache = map;
     }
 

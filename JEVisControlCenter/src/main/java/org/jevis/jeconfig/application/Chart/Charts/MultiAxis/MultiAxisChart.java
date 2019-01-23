@@ -14,10 +14,7 @@ import javafx.css.StyleableBooleanProperty;
 import javafx.geometry.Side;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.chart.Axis;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.Chart;
-import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.*;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
@@ -953,8 +950,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         // update vertical grid lines
         verticalGridLines.getElements().clear();
         if (getVerticalGridLinesVisible()) {
-            for (int i = 0; i < xaTickMarks.size(); i++) {
-                Axis.TickMark<X> tick = xaTickMarks.get(i);
+            for (Axis.TickMark<X> tick : xaTickMarks) {
                 final double x = xa.getDisplayPosition(tick.getValue());
                 if ((x != xAxisZero || !isVerticalZeroLineVisible()) && x > 0 && x <= xAxisWidth) {
                     verticalGridLines.getElements().add(new MoveTo(left + x + 0.5, top));
@@ -995,25 +991,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             Collections.sort(tickPositionsPositive);
             Collections.sort(tickPositionsNegative);
             // iterate over every pair of positive tick marks and create fill
-            for (int i = 1; i < tickPositionsPositive.size(); i += 2) {
-                if ((i + 1) < tickPositionsPositive.size()) {
-                    final double x1 = tickPositionsPositive.get(i);
-                    final double x2 = tickPositionsPositive.get(i + 1);
-                    verticalRowFill.getElements().addAll(new MoveTo(left + x1, top),
-                            new LineTo(left + x1, top + yAxisHeight), new LineTo(left + x2, top + yAxisHeight),
-                            new LineTo(left + x2, top), new ClosePath());
-                }
-            }
-            // iterate over every pair of positive tick marks and create fill
-            for (int i = 0; i < tickPositionsNegative.size(); i += 2) {
-                if ((i + 1) < tickPositionsNegative.size()) {
-                    final double x1 = tickPositionsNegative.get(i);
-                    final double x2 = tickPositionsNegative.get(i + 1);
-                    verticalRowFill.getElements().addAll(new MoveTo(left + x1, top),
-                            new LineTo(left + x1, top + yAxisHeight), new LineTo(left + x2, top + yAxisHeight),
-                            new LineTo(left + x2, top), new ClosePath());
-                }
-            }
+            insertTickPositionsIntoVerticalRow(top, left, yAxisHeight, tickPositionsPositive);
+            // iterate over every pair of negative tick marks and create fill
+            insertTickPositionsIntoVerticalRow(top, left, yAxisHeight, tickPositionsNegative);
         }
         // update horizontal row fill
         horizontalRowFill.getElements().clear();
@@ -1035,28 +1015,37 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             Collections.sort(tickPositionsPositive);
             Collections.sort(tickPositionsNegative);
             // iterate over every pair of positive tick marks and create fill
-            for (int i = 1; i < tickPositionsPositive.size(); i += 2) {
-                if ((i + 1) < tickPositionsPositive.size()) {
-                    final double y1 = tickPositionsPositive.get(i);
-                    final double y2 = tickPositionsPositive.get(i + 1);
-                    horizontalRowFill.getElements().addAll(new MoveTo(left, top + y1),
-                            new LineTo(left + xAxisWidth, top + y1), new LineTo(left + xAxisWidth, top + y2),
-                            new LineTo(left, top + y2), new ClosePath());
-                }
-            }
+            insertTickPositionsIntoHorizontalRow(top, left, xAxisHeight, tickPositionsPositive);
+
             // iterate over every pair of positive tick marks and create fill
-            for (int i = 0; i < tickPositionsNegative.size(); i += 2) {
-                if ((i + 1) < tickPositionsNegative.size()) {
-                    final double y1 = tickPositionsNegative.get(i);
-                    final double y2 = tickPositionsNegative.get(i + 1);
-                    horizontalRowFill.getElements().addAll(new MoveTo(left, top + y1),
-                            new LineTo(left + xAxisWidth, top + y1), new LineTo(left + xAxisWidth, top + y2),
-                            new LineTo(left, top + y2), new ClosePath());
-                }
-            }
+            insertTickPositionsIntoHorizontalRow(top, left, xAxisHeight, tickPositionsNegative);
         }
 
         drawRegressions();
+    }
+
+    private void insertTickPositionsIntoVerticalRow(double top, double left, double yAxisHeight, List<Double> tickPositions) {
+        for (int i = 1; i < tickPositions.size(); i += 2) {
+            if ((i + 1) < tickPositions.size()) {
+                final double x1 = tickPositions.get(i);
+                final double x2 = tickPositions.get(i + 1);
+                verticalRowFill.getElements().addAll(new MoveTo(left + x1, top),
+                        new LineTo(left + x1, top + yAxisHeight), new LineTo(left + x2, top + yAxisHeight),
+                        new LineTo(left + x2, top), new ClosePath());
+            }
+        }
+    }
+
+    private void insertTickPositionsIntoHorizontalRow(double top, double left, double xAxisWidth, List<Double> tickPositions) {
+        for (int i = 1; i < tickPositions.size(); i += 2) {
+            if ((i + 1) < tickPositions.size()) {
+                final double y1 = tickPositions.get(i);
+                final double y2 = tickPositions.get(i + 1);
+                horizontalRowFill.getElements().addAll(new MoveTo(left, top + y1),
+                        new LineTo(left + xAxisWidth, top + y1), new LineTo(left + xAxisWidth, top + y2),
+                        new LineTo(left, top + y2), new ClosePath());
+            }
+        }
     }
 
     private void drawRegressions() {
@@ -1108,7 +1097,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     private Path calcRegression(Series<X, Y> s, int yAxisIndex, int polyDegree) {
 
         if (yAxisIndex == Y2_AXIS && y2Axis == null)
-            throw new NullPointerException("Y2 Axis is not defind.");
+            throw new NullPointerException("Y2 Axis is not defined.");
 
         Axis yAxis = yAxisIndex == Y2_AXIS ? y2Axis : y1Axis;
 
@@ -1221,7 +1210,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     private double findXChartCord(double x) {
         double chartX = -1;
-        chartX = ((NumberAxis) getXAxis()).getDisplayPosition(x);
+        chartX = ((ValueAxis) getXAxis()).getDisplayPosition(x);
         return chartX;
     }
 
@@ -1237,7 +1226,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     private double findYChartCord(double y, Axis<?> yAxis) {
         double chartY = -1;
-        chartY = ((NumberAxis) yAxis).getDisplayPosition(y);
+        chartY = ((ValueAxis) yAxis).getDisplayPosition(y);
         return chartY;
     }
 
