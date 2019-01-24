@@ -51,23 +51,23 @@ public class JEVisItemLoader {
      * Reset items
      */
     private void cleanFilter() {
-//        for (JEVisTreeItem item : treeObjectItems) {
-//            try {
-//                item.getChildren().clear();
-//                item.setParentForFilter(false);
-//                item.setFiltered(false);
-//            } catch (Exception ex) {
-//            }
-//        }
-//
-//        for (JEVisTreeItem item : treeAttributeItems) {
-//            try {
-//                item.getChildren().clear();
-//                item.setParentForFilter(false);
-//                item.setFiltered(false);
-//            } catch (Exception ex) {
-//            }
-//        }
+        itemObjectLinker.forEach((object, jeVisTreeItem) -> {
+            try {
+                jeVisTreeItem.getChildren().clear();
+                jeVisTreeItem.setParentForFilter(false);
+                jeVisTreeItem.setFiltered(false);
+            } catch (Exception ex) {
+            }
+        });
+
+        itemAttributeLinker.forEach((s, jeVisTreeItem) -> {
+            try {
+                jeVisTreeItem.getChildren().clear();
+                jeVisTreeItem.setParentForFilter(false);
+                jeVisTreeItem.setFiltered(false);
+            } catch (Exception ex) {
+            }
+        });
     }
 
     public List<JEVisObject> getVisibleObjects() {
