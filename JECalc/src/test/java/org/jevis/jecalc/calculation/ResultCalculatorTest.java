@@ -32,7 +32,7 @@ public class ResultCalculatorTest {
         String templateString = "#{server1}+5";
         CalcTemplate template = new CalcTemplate(templateString);
         ResultCalculator resultCalc = new ResultCalculator(mergedSamples, template);
-        List<JEVisSample> resultSamples = resultCalc.calculateResult("", 0.0);
+        List<JEVisSample> resultSamples = resultCalc.calculateResult("", 0.0, 1.0);
 
         List<JEVisSample> expectedSamples = new ArrayList<>();
         for (JEVisSample currentSample : samples) {
