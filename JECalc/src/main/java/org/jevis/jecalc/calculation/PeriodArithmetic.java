@@ -34,7 +34,11 @@ public class PeriodArithmetic {
             .build();
 
     public static long periodsInAnInterval(Interval interval, Period period) {
-        int bestGuess = (int) (interval.toDurationMillis() / toAverageMillis(period));
+        long averageMillis = toAverageMillis(period);
+        int bestGuess;
+        if (averageMillis > 0)
+            bestGuess = (int) (interval.toDurationMillis() / averageMillis);
+        else return 0;
         if (bestGuess < 0) return 0;
         if (startPlusScaledPeriodIsAfterEnd(interval, period, bestGuess + 1)) {
             return searchDownwards(interval, period, bestGuess);

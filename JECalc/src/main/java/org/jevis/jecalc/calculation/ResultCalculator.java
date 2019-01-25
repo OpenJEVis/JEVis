@@ -46,29 +46,28 @@ public class ResultCalculator {
                 for (Sample sample : entry.getValue()) {
                     template.put(sample.getVariable(), sample.getValue());
                 }
-            } else {
-                for (Sample sample : entry.getValue()) {
-                    template.put(sample.getVariable(), allZeroReplacementValue);
-                }
-            }
 
-            Double evaluate = template.evaluate();
-            if (Double.isInfinite(evaluate) || Double.isNaN(evaluate)) {
-                //TODO implement different handling switch...
+                Double evaluate = template.evaluate();
+                if (Double.isInfinite(evaluate) || Double.isNaN(evaluate)) {
+                    //TODO implement different handling switch...
 
-                VirtualSample smp = new VirtualSample(entry.getKey(), replacementValue);
-                String note = smp.getNote();
+                    VirtualSample smp = new VirtualSample(entry.getKey(), replacementValue);
+                    String note = smp.getNote();
 
-                if (note == null) {
-                    note = "";
-                    note += "calc(infinite)";
+                    if (note == null) {
+                        note = "";
+                        note += "calc(infinite)";
+                    } else {
+                        note += ",calc(infinite)";
+                    }
+                    smp.setNote(note);
+                    resultList.add(smp);
                 } else {
-                    note += ",calc(infinite)";
+                    resultList.add(new VirtualSample(entry.getKey(), evaluate));
                 }
-                smp.setNote(note);
-                resultList.add(smp);
+
             } else {
-                resultList.add(new VirtualSample(entry.getKey(), evaluate));
+                resultList.add(new VirtualSample(entry.getKey(), allZeroReplacementValue));
             }
         }
         return resultList;
