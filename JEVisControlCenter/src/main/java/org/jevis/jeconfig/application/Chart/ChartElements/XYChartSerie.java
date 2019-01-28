@@ -3,6 +3,7 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -74,8 +75,8 @@ public class XYChartSerie implements Serie {
             }
         }
 
-        sampleMap = new TreeMap<Double, JEVisSample>();
-        for (JEVisSample sample : samples) {
+        sampleMap = new TreeMap<>();
+        samples.forEach(sample -> {
             try {
                 int index = samples.indexOf(sample);
 
@@ -86,18 +87,15 @@ public class XYChartSerie implements Serie {
                 MultiAxisChart.Data<Number, Number> data = seriesData.get(index);
                 data.setXValue(timestamp);
                 data.setYValue(value);
-
                 data.setExtraValue(yAxis);
-
-                generateNode(sample, data);
-
+                data.setNode(generateNode(sample));
 
                 sampleMap.put(timestamp.doubleValue(), sample);
 
             } catch (JEVisException e) {
 
             }
-        }
+        });
 
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
@@ -106,17 +104,17 @@ public class XYChartSerie implements Serie {
 
     }
 
-    public void generateNode(JEVisSample sample, MultiAxisChart.Data<Number, Number> data) throws JEVisException {
+    public Node generateNode(JEVisSample sample) throws JEVisException {
         Note note = new Note(sample.getNote());
 
         if (note.getNote() != null && hideShowIcons) {
             note.getNote().setVisible(true);
-            data.setNode(note.getNote());
+            return note.getNote();
         } else {
             Rectangle rect = new Rectangle(0, 0);
             rect.setFill(singleRow.getColor());
             rect.setVisible(false);
-            data.setNode(rect);
+            return rect;
         }
     }
 

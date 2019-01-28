@@ -380,6 +380,7 @@ public class XYChart implements Chart {
             generateYAxis();
 
             getChart().setTitle(getUpdatedChartName());
+            getChart().layout();
         }
 
     }
