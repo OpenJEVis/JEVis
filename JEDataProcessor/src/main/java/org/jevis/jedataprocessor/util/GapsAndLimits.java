@@ -37,19 +37,15 @@ public class GapsAndLimits {
     }
 
     public static String getNote(CleanInterval currentInterval) {
-        String note = "";
         try {
-            note += currentInterval.getTmpSamples().get(0).getNote();
+            return currentInterval.getTmpSamples().get(0).getNote();
         } catch (Exception e1) {
             try {
-                note += currentInterval.getRawSamples().get(0).getNote();
+                return currentInterval.getRawSamples().get(0).getNote();
             } catch (Exception e2) {
+                return "";
             }
         }
-        if (note.equals("null")) {
-            note = "No Note";
-        }
-        return note;
     }
 
     private Double getSpecificValue(DateTime lastDate) throws JEVisException {

@@ -365,13 +365,11 @@ public class XYChart implements Chart {
                 }
             }
 
-            series.forEach(serie -> {
-                serie.getData().forEach(numberNumberData -> {
-                    if (numberNumberData.getNode() != null)
-                        if (numberNumberData.getNode().getClass().equals(HBox.class))
-                            numberNumberData.getNode().setVisible(hideShowIcons);
-                });
-            });
+            series.forEach(serie -> serie.getData().forEach(numberNumberData -> {
+                if (numberNumberData.getNode() != null)
+                    if (numberNumberData.getNode().getClass().equals(HBox.class))
+                        numberNumberData.getNode().setVisible(hideShowIcons);
+            }));
 
             applyColors();
 
