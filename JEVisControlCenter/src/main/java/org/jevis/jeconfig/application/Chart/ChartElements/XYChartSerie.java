@@ -51,18 +51,18 @@ public class XYChartSerie {
         List<JEVisSample> samples = singleRow.getSamples();
         JEVisUnit unit = singleRow.getUnit();
 
-        //seriesData.clear();
+        seriesData.clear();
 
         int samplesSize = samples.size();
-        int seriesDataSize = seriesData.size();
-
-        if (samplesSize < seriesDataSize) {
-            seriesData.subList(samplesSize, seriesDataSize).clear();
-        } else if (samplesSize > seriesDataSize) {
-            for (int i = seriesDataSize; i < samplesSize; i++) {
-                seriesData.add(new MultiAxisChart.Data<>());
-            }
-        }
+//        int seriesDataSize = seriesData.size();
+//
+//        if (samplesSize < seriesDataSize) {
+//            seriesData.subList(samplesSize, seriesDataSize).clear();
+//        } else if (samplesSize > seriesDataSize) {
+//            for (int i = seriesDataSize; i < samplesSize; i++) {
+//                seriesData.add(new MultiAxisChart.Data<>());
+//            }
+//        }
 
         if (samplesSize > 0) {
             try {
@@ -87,22 +87,24 @@ public class XYChartSerie {
 
         for (JEVisSample sample : samples) {
             try {
-                int index = samples.indexOf(sample);
-
-                Double currentValue = sample.getValueAsDouble();
-                min = Math.min(min, currentValue);
-                max = Math.max(max, currentValue);
-                sum += sample.getValueAsDouble();
+//                int index = samples.indexOf(sample);
 
                 DateTime dateTime = sample.getTimestamp();
-                Double value = sample.getValueAsDouble();
+                Double currentValue = sample.getValueAsDouble();
+
+                min = Math.min(min, currentValue);
+                max = Math.max(max, currentValue);
+                sum += currentValue;
+
                 Long timestamp = dateTime.getMillis();
 
-                MultiAxisChart.Data<Number, Number> data = seriesData.get(index);
+//                MultiAxisChart.Data<Number, Number> data = seriesData.get(index);
+                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>();
                 data.setXValue(timestamp);
-                data.setYValue(value);
+                data.setYValue(currentValue);
                 data.setExtraValue(yAxis);
                 data.setNode(generateNode(sample));
+                seriesData.add(data);
 
                 sampleMap.put(timestamp.doubleValue(), sample);
 
