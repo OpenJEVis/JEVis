@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
@@ -16,10 +17,11 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.TreeMap;
 
-public class XYChartSerie implements Serie {
+public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
     Integer yAxis;
     ObservableList<MultiAxisChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -47,6 +49,7 @@ public class XYChartSerie implements Serie {
         tableEntry.setColor(singleRow.getColor());
 
         List<JEVisSample> samples = singleRow.getSamples();
+        JEVisUnit unit = singleRow.getUnit();
 
         //seriesData.clear();
 
@@ -76,9 +79,20 @@ public class XYChartSerie implements Serie {
         }
 
         sampleMap = new TreeMap<>();
-        samples.forEach(sample -> {
+
+        double min = Double.MAX_VALUE;
+        double max = -Double.MAX_VALUE;
+        double avg = 0.0;
+        Double sum = 0.0;
+
+        for (JEVisSample sample : samples) {
             try {
                 int index = samples.indexOf(sample);
+
+                Double currentValue = sample.getValueAsDouble();
+                min = Math.min(min, currentValue);
+                max = Math.max(max, currentValue);
+                sum += sample.getValueAsDouble();
 
                 DateTime dateTime = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
@@ -95,13 +109,39 @@ public class XYChartSerie implements Serie {
             } catch (JEVisException e) {
 
             }
-        });
+        }
 
         QuantityUnits qu = new QuantityUnits();
-        boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
+        boolean isQuantity = qu.isQuantityUnit(unit);
 
-        calcTableValues(tableEntry, samples, getUnit(), isQuantity);
+        if (samples.size() > 0)
+            avg = sum / samples.size();
 
+        NumberFormat nf_out = NumberFormat.getNumberInstance();
+        nf_out.setMaximumFractionDigits(2);
+        nf_out.setMinimumFractionDigits(2);
+
+        if (min == Double.MAX_VALUE || samples.size() == 0) {
+            tableEntry.setMin("- " + unit);
+        } else {
+            tableEntry.setMin(nf_out.format(min) + " " + unit);
+        }
+
+        if (max == Double.MIN_VALUE || samples.size() == 0) {
+            tableEntry.setMax("- " + unit);
+        } else {
+            tableEntry.setMax(nf_out.format(max) + " " + unit);
+        }
+
+        if (samples.size() == 0) {
+            tableEntry.setAvg("- " + unit);
+            tableEntry.setSum("- " + unit);
+        } else {
+            tableEntry.setAvg(nf_out.format(avg) + " " + unit);
+            if (isQuantity) {
+                tableEntry.setSum(nf_out.format(sum) + " " + unit);
+            } else tableEntry.setSum("- " + unit);
+        }
     }
 
     public Node generateNode(JEVisSample sample) throws JEVisException {

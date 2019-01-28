@@ -17,10 +17,11 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.TreeMap;
 
-public class BarChartSerie implements Serie {
+public class BarChartSerie {
     private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private ObservableList<MultiAxisBarChart.Data<String, Number>> seriesData = FXCollections.observableArrayList();
@@ -55,10 +56,20 @@ public class BarChartSerie implements Serie {
             }
         }
 
-        samples.forEach(sample -> {
+        double min = Double.MAX_VALUE;
+        double max = -Double.MAX_VALUE;
+        double avg = 0.0;
+        Double sum = 0.0;
+
+        for (JEVisSample sample : samples) {
             try {
                 DateTime dateTime = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
+
+                Double currentValue = sample.getValueAsDouble();
+                min = Math.min(min, currentValue);
+                max = Math.max(max, currentValue);
+                sum += sample.getValueAsDouble();
 
                 DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
                 String s = dateTime.toString(dtf);
@@ -70,12 +81,39 @@ public class BarChartSerie implements Serie {
             } catch (JEVisException e) {
 
             }
-        });
+        }
 
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
 
-        calcTableValues(tableEntry, samples, unit, isQuantity);
+        if (samples.size() > 0)
+            avg = sum / samples.size();
+
+        NumberFormat nf_out = NumberFormat.getNumberInstance();
+        nf_out.setMaximumFractionDigits(2);
+        nf_out.setMinimumFractionDigits(2);
+
+        if (min == Double.MAX_VALUE || samples.size() == 0)
+            tableEntry.setMin("- " + unit);
+        else {
+            tableEntry.setMin(nf_out.format(min) + " " + unit);
+        }
+
+        if (max == Double.MIN_VALUE || samples.size() == 0)
+            tableEntry.setMax("- " + unit);
+        else {
+            tableEntry.setMax(nf_out.format(max) + " " + unit);
+        }
+
+        if (samples.size() == 0) {
+            tableEntry.setAvg("- " + unit);
+            tableEntry.setSum("- " + unit);
+        } else {
+            tableEntry.setAvg(nf_out.format(avg) + " " + unit);
+            if (isQuantity) {
+                tableEntry.setSum(nf_out.format(sum) + " " + unit);
+            } else tableEntry.setSum("- " + unit);
+        }
 
         serie = new MultiAxisChart.Series<>(tableEntryName, seriesData);
     }

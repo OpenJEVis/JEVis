@@ -89,7 +89,6 @@ public class XYChart implements Chart {
         chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
-
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
 
                 } catch (JEVisException e) {
@@ -645,4 +644,5 @@ public class XYChart implements Chart {
         if (!hasY2Axis) y2Axis.setVisible(false);
         else y2Axis.setVisible(true);
     }
+
 }
