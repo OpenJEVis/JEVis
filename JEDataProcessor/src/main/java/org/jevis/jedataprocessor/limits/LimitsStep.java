@@ -156,56 +156,45 @@ public class LimitsStep implements ProcessStep {
     }
 
     private List<LimitBreak> identifyLimitBreaks(List<CleanInterval> intervals, List<JsonLimitsConfig> conf) throws Exception {
-/**
- * Debug help
- */
-//        System.out.println("identifyLimitBreaks");
-//        for (CleanInterval interval : intervals) {
-//            System.out.println("Interval: " + interval.getDate() + " " + interval.getInterval());
-//            for (JEVisSample s : interval.getTmpSamples()) {
-//                System.out.println("raw: " + s);
-//            }
-//            for (JEVisSample s : interval.getTmpSamples()) {
-//                System.out.println("tmp: " + s);
-//            }
-//        }
 
         List<LimitBreak> limitBreaks = new ArrayList<>();
         LimitBreak currentLimitBreak = null;
         CleanInterval lastInterval = null;
         for (CleanInterval currentInterval : intervals) {
             for (JsonLimitsConfig lc : conf) {
-                for (JEVisSample sample : currentInterval.getTmpSamples()) {
+                if (lc.getMin() != null && !lc.getMin().equals("") && lc.getMax() != null && !lc.getMax().equals("")) {
                     Double min = Double.parseDouble(lc.getMin());
                     Double max = Double.parseDouble(lc.getMax());
+                    for (JEVisSample sample : currentInterval.getTmpSamples()) {
 
-                    if (sample == null || sample.getValueAsDouble() == null) {
-                        logger.error("- Limits Sample: {} min: {} max: {}" + sample, min, max);
-                        throw new Exception("Error in identifyLimitBreaks, empty value in interval: " + currentInterval.getInterval());
-                    }
-
-                    Double sampleValue = sample.getValueAsDouble();
-
-                    if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
-                        if (currentLimitBreak == null) {
-                            currentLimitBreak = new LimitBreak();
-                            if (lastInterval != null && !lastInterval.getTmpSamples().isEmpty() && Objects.nonNull(lastInterval.getTmpSamples().get(0)))
-                                currentLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(0).getValueAsDouble());
-                            currentLimitBreak.addInterval(currentInterval);
-                            MinOrMax limit = null;
-                            if (sampleValue < min) limit = MinOrMax.MIN;
-                            if (sampleValue > max) limit = MinOrMax.MAX;
-                            currentLimitBreak.setMinOrMax(limit);
-                        } else {
-                            currentLimitBreak.addInterval(currentInterval);
+                        if (sample == null || sample.getValueAsDouble() == null) {
+                            logger.error("- Limits Sample: {} min: {} max: {}" + sample, min, max);
+                            throw new Exception("Error in identifyLimitBreaks, empty value in interval: " + currentInterval.getInterval());
                         }
-                    } else {
-                        if (currentLimitBreak != null) {
-                            logger.info("Limit Break on: " + currentLimitBreak.getIntervals().get(0).getDate() + " to: " +
-                                    currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1).getDate());
-                            currentLimitBreak.setLastValue(sampleValue);
-                            limitBreaks.add(currentLimitBreak);
-                            currentLimitBreak = null;
+
+                        Double sampleValue = sample.getValueAsDouble();
+
+                        if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
+                            if (currentLimitBreak == null) {
+                                currentLimitBreak = new LimitBreak();
+                                if (lastInterval != null && !lastInterval.getTmpSamples().isEmpty() && Objects.nonNull(lastInterval.getTmpSamples().get(0)))
+                                    currentLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(0).getValueAsDouble());
+                                currentLimitBreak.addInterval(currentInterval);
+                                MinOrMax limit = null;
+                                if (sampleValue < min) limit = MinOrMax.MIN;
+                                if (sampleValue > max) limit = MinOrMax.MAX;
+                                currentLimitBreak.setMinOrMax(limit);
+                            } else {
+                                currentLimitBreak.addInterval(currentInterval);
+                            }
+                        } else {
+                            if (currentLimitBreak != null) {
+                                logger.info("Limit Break on: " + currentLimitBreak.getIntervals().get(0).getDate() + " to: " +
+                                        currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1).getDate());
+                                currentLimitBreak.setLastValue(sampleValue);
+                                limitBreaks.add(currentLimitBreak);
+                                currentLimitBreak = null;
+                            }
                         }
                     }
                 }

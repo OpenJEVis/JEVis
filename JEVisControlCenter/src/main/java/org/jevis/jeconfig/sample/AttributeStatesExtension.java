@@ -36,6 +36,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -47,7 +48,7 @@ import java.util.List;
 public class AttributeStatesExtension implements SampleEditorExtension {
     private static final Logger logger = LogManager.getLogger(AttributeStatesExtension.class);
 
-    private final static String TITEL = "Overview";
+    private final static String TITLE = I18n.getInstance().getString("plugin.object.attribute.overview.header");
     private final BorderPane _view = new BorderPane();
     private JEVisAttribute _att;
     private List<JEVisSample> _samples;
@@ -58,17 +59,17 @@ public class AttributeStatesExtension implements SampleEditorExtension {
     }
 
     private void buildGui(JEVisAttribute att, List<JEVisSample> samples) throws JEVisException {
-        Label lName = new Label("Name:");
-        Label lType = new Label("Type:");
-        Label lUnit = new Label("Unit:");
-        Label lSampleRate = new Label("Sample Rate:");
-        Label lDataSize = new Label("Data Size:");
-        Label lSCount = new Label("Total Sample Count:");
-        Label lFirst = new Label("First Sample:");
-        Label lLast = new Label("Lastest Sample:");
-        Label lMinValue = new Label("Smallest Value:");
-        Label lMaxValue = new Label("Biggest Value:");
-        Label lAVGValue = new Label("Average Value:");
+        Label lName = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.name"));
+        Label lType = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.type"));
+        Label lUnit = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.unit"));
+        Label lSampleRate = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.samplerate"));
+        Label lDataSize = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.datasize"));
+        Label lSCount = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.totalsamplecount"));
+        Label lFirst = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.firstsample"));
+        Label lLast = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.latestsample"));
+        Label lMinValue = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.smallestvalue"));
+        Label lMaxValue = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.biggestvalue"));
+        Label lAVGValue = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.averagevalue"));
 
         Label name = new Label();
         Label type = new Label();
@@ -138,11 +139,25 @@ public class AttributeStatesExtension implements SampleEditorExtension {
             last.setText(att.getTimestampFromLastSample().toString());
             double total = 0;
             for (JEVisSample sample : samples) {
-                if (minS == null || minS.getTimestamp().isAfter(sample.getTimestamp())) {
+                if (minS == null) {
                     minS = sample;
+                } else {
+                    if (att.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE
+                            || att.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.LONG) {
+                        if (sample.getValueAsDouble() < minS.getValueAsDouble()) {
+                            minS = sample;
+                        }
+                    }
                 }
-                if (maxS == null || maxS.getTimestamp().isBefore(sample.getTimestamp())) {
+                if (maxS == null) {
                     maxS = sample;
+                } else {
+                    if (att.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE
+                            || att.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.LONG) {
+                        if (sample.getValueAsDouble() > maxS.getValueAsDouble()) {
+                            maxS = sample;
+                        }
+                    }
                 }
                 if (att.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE
                         || att.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.LONG) {
@@ -151,8 +166,8 @@ public class AttributeStatesExtension implements SampleEditorExtension {
 
             }
             if (minS != null && maxS != null) {
-                maxValue.setText(maxS.getValue() + "  at (" + maxS.getTimestamp().toString() + ")");
-                minValue.setText(minS.getValue() + "  at (" + minS.getTimestamp().toString() + ")");
+                maxValue.setText(maxS.getValue() + "  @ (" + maxS.getTimestamp().toString() + ")");
+                minValue.setText(minS.getValue() + "  @ (" + minS.getTimestamp().toString() + ")");
                 avgValue.setText((total / samples.size()) + "");
 
                 //
@@ -182,7 +197,7 @@ public class AttributeStatesExtension implements SampleEditorExtension {
 
     @Override
     public String getTitel() {
-        return TITEL;
+        return TITLE;
     }
 
     @Override
