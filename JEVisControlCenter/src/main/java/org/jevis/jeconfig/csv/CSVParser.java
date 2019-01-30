@@ -33,7 +33,7 @@ import java.util.List;
 public class CSVParser {
 
     private static final Logger logger = LogManager.getLogger(CSVParser.class);
-    private final File file;
+    private File file;
     private int _maxColumnCount = 0;
     private boolean _isAlwaysSameColumnCount = true;
     private List<CSVLine> rows;
@@ -193,5 +193,9 @@ public class CSVParser {
 
     public void setHeader(int header) {
         this.header = header;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
     }
 }

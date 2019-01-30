@@ -296,6 +296,8 @@ public class CSVImportDialog {
             @Override
             public void changed(ObservableValue<? extends Charset> observable, Charset oldValue, Charset newValue) {
                 charset = newValue;
+                table.getParser().setCharset(newValue);
+                updateTree();
             }
         });
         charsetBox.getSelectionModel().select(Charset.defaultCharset());
@@ -331,8 +333,10 @@ public class CSVImportDialog {
                 try {
                     CSVAnalyser analys = new CSVAnalyser(_csvFile);
                     setEncloser(analys.getEnclosed());
-                    setSeperator(analys.getSeperator());
+                    setSeperator(analys.getSeparator());
                     formats.getSelectionModel().select(Format.Custom.name());
+                    table.getParser().setEnclosed(analys.getEnclosed());
+                    table.getParser().setSeparator(analys.getSeparator());
                     updateTree();
 
                 } catch (Exception ex) {
@@ -375,8 +379,9 @@ public class CSVImportDialog {
                             CSVAnalyser analyse = new CSVAnalyser(_csvFile);
 
                             setEncloser(analyse.getEnclosed());
-                            setSeperator(analyse.getSeperator());
+                            setSeperator(analyse.getSeparator());
                             formats.getSelectionModel().select(Format.Custom.name());
+                            table.getParser().setFile(file);
                             updateTree();
                         } catch (Exception ex) {
                             logger.fatal(ex);
@@ -392,7 +397,7 @@ public class CSVImportDialog {
 //                        CSVAnalyser analys = new CSVAnalyser(_csvFile);
 //
 //                        setEncloser(analys.getEnclosed());
-//                        setSeperator(analys.getSeperator());
+//                        setSeperator(analys.getSeparator());
 //                        formats.getSelectionModel().select(Format.Custom.name());
 //                        updateTree();
 
