@@ -326,8 +326,11 @@ public class CleanDataObject {
     }
 
     public List<JEVisSample> getMultiplier() {
-        if (multiplier == null)
+        if (multiplier == null) {
             multiplier = sampleHandler.getAllSamples(getObject(), MULTIPLIER.getAttributeName());
+            if (multiplier.isEmpty())
+                multiplier.add(new VirtualSample(new DateTime(2001, 1, 1, 0, 0, 0, 0), 1.0));
+        }
         return multiplier;
     }
 

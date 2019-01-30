@@ -52,6 +52,8 @@ public class PrepareStep implements ProcessStep {
         resourceManager.setRawSamples(rawSamples);
 
         Period periodAlignment = calcAttribute.getPeriodAlignment();
+        if (rawSamples.size() > 1)
+            logger.info("[{}] Input Period is {}", resourceManager.getID(), PeriodFormat.getDefault().print(new Period(rawSamples.get(0).getTimestamp(), rawSamples.get(1).getTimestamp())));
         logger.info("[{}] Period is {}", resourceManager.getID(), PeriodFormat.getDefault().print(periodAlignment));
         logger.info("[{}] Samples should be aligned {}", resourceManager.getID(), calcAttribute.getIsPeriodAligned());
         if (periodAlignment.equals(Period.ZERO) && calcAttribute.getIsPeriodAligned()) {
