@@ -9,9 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -24,7 +22,9 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.jevis.jedataprocessor.data.CleanDataObject.AttributeName.*;
 
@@ -260,6 +260,25 @@ public class CleanDataObject {
         return rawSamples;
     }
 
+    public Map<DateTime, JEVisSample> getNotesMap() {
+        Map<DateTime, JEVisSample> notesMap = new HashMap<>();
+        try {
+            final JEVisClass dataNoteClass = rawDataObject.getDataSource().getJEVisClass("Data Notes");
+            for (JEVisObject obj : object.getParents().get(0).getChildren(dataNoteClass, true)) {
+                if (obj.getName().contains(object.getName())) {
+                    JEVisAttribute userNoteAttribute = obj.getAttribute("User Notes");
+                    if (userNoteAttribute.hasSample()) {
+                        for (JEVisSample smp : userNoteAttribute.getAllSamples()) {
+                            notesMap.put(smp.getTimestamp(), smp);
+                        }
+                    }
+                }
+            }
+        } catch (JEVisException e) {
+        }
+        return notesMap;
+    }
+
     /**
      * Return true if this is the first run of the precalc for this Clean Data
      *
@@ -326,8 +345,11 @@ public class CleanDataObject {
     }
 
     public List<JEVisSample> getMultiplier() {
-        if (multiplier == null)
+        if (multiplier == null) {
             multiplier = sampleHandler.getAllSamples(getObject(), MULTIPLIER.getAttributeName());
+            if (multiplier.isEmpty())
+                multiplier.add(new VirtualSample(new DateTime(2001, 1, 1, 0, 0, 0, 0), 1.0));
+        }
         return multiplier;
     }
 

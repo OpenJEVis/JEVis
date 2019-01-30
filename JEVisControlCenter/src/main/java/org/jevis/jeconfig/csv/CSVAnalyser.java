@@ -25,25 +25,25 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * An very very very simple check to see what are the most likely seperator or
+ * An very very very simple check to see what are the most likely separator or
  * enclosed chars
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class CSVAnalyser {
 
-    private String seperator = "";
+    private String separator = "";
     private String enclosed = "";
     public List<String> lines;
 
     public CSVAnalyser(File file) {
 
-        readfile(file);
+        readFile(file);
         countChars();
     }
 
-    public String getSeperator() {
-        return seperator;
+    public String getSeparator() {
+        return separator;
     }
 
     public String getEnclosed() {
@@ -94,41 +94,41 @@ public class CSVAnalyser {
             lineCounter.add(map);
         }
 
-        int simicolon = cheackChar(lineCounter, ';');
-        int comma = cheackChar(lineCounter, ',');
-        int tab = cheackChar(lineCounter, '\t');
-        int space = cheackChar(lineCounter, ' ');
+        int simicolon = checkChar(lineCounter, ';');
+        int comma = checkChar(lineCounter, ',');
+        int tab = checkChar(lineCounter, '\t');
+        int space = checkChar(lineCounter, ' ');
 
 //        logger.info("simicolons: " + simicolon);
         if (simicolon == -2) {
-            seperator = ";";
+            separator = ";";
         } else if (comma == -2) {
-            seperator = ",";
+            separator = ",";
         } else if (tab == -2) {
-            seperator = "\t";
+            separator = "\t";
         } else if (space == -2) {
-            seperator = " ";
+            separator = " ";
         }
 
         int bestMatch = 0;
-        if (!seperator.equals("")) {
+        if (!separator.equals("")) {
             if (simicolon != -1 && simicolon > 0) {
                 bestMatch = simicolon;
-                seperator = ";";
+                separator = ";";
             } else if (comma != -1 && comma > 0 && comma > bestMatch) {
                 bestMatch = comma;
-                seperator = ",";
+                separator = ",";
             } else if (tab != -1 && tab > 0 && tab > bestMatch) {
                 bestMatch = tab;
-                seperator = "\t";
+                separator = "\t";
             } else if (space != -1 && space > 0 && space > bestMatch) {
                 bestMatch = space;
-                seperator = " ";
+                separator = " ";
             }
         }
 
-        int enclosed1 = cheackChar(lineCounter, '"');
-        int enclosed2 = cheackChar(lineCounter, '\'');
+        int enclosed1 = checkChar(lineCounter, '"');
+        int enclosed2 = checkChar(lineCounter, '\'');
         if (enclosed1 == -2) {
             enclosed = "\"";
         } else if (enclosed2 == -2) {
@@ -137,7 +137,7 @@ public class CSVAnalyser {
 
     }
 
-    private int cheackChar(List<HashMap> lineCounter, Character toCount) {
+    private int checkChar(List<HashMap> lineCounter, Character toCount) {
 //        logger.info("check for: (" + toCount + ")");
 //        logger.info("lines: " + lineCounter.size());
         int max = 0;
@@ -178,7 +178,7 @@ public class CSVAnalyser {
 
     }
 
-    private void readfile(File csvFile) {
+    private void readFile(File csvFile) {
         BufferedReader br = null;
         lines = new ArrayList<>();
         try {

@@ -7,6 +7,7 @@ package org.jevis.jedataprocessor.alignment;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.jedataprocessor.data.CleanDataObject;
@@ -16,7 +17,7 @@ import org.jevis.jedataprocessor.workflow.ProcessStep;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * align the raw samples and calculate the value per interval if possible
@@ -31,30 +32,84 @@ public class PeriodAlignmentStep implements ProcessStep {
     public void run(ResourceManager resourceManager) throws Exception {
         CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
 
+        Map<DateTime, JEVisSample> notesMap = resourceManager.getNotesMap();
         List<JEVisSample> rawSamples = resourceManager.getRawSamples();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         Integer periodOffset = resourceManager.getCleanDataObject().getPeriodOffset();
 
         //align the raw samples to the intervals
-        int currentSamplePointer = 0;
-        for (CleanInterval interval1 : intervals) {
-            boolean samplesInInterval = true;
-            while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
-                JEVisSample rawSample = rawSamples.get(currentSamplePointer);
-                try {
-                    DateTime timestamp = rawSample.getTimestamp().plusSeconds(periodOffset);
-                    Interval interval = interval1.getInterval();
-                    if (interval.contains(timestamp)) { //sample is in interval
-                        interval1.addRawSample(rawSample);
-                        currentSamplePointer++;
-                    } else if (timestamp.isBefore(interval.getStart())) { //sample is before interval start --just find the start
-                        currentSamplePointer++;
-                    } else {
-                        samplesInInterval = false;
+        Map<DateTime, Long> counter = new HashMap<>();
+        Map<DateTime, JEVisSample> rawSamplesMap = new HashMap<>();
+        Map<DateTime, Double> rawSamplesSteps = new HashMap<>();
+        boolean downSampling = true;
+        if (intervals.size() <= rawSamples.size()) {
+            int currentSamplePointer = 0;
+            for (CleanInterval interval1 : intervals) {
+                boolean samplesInInterval = true;
+                while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
+                    JEVisSample rawSample = rawSamples.get(currentSamplePointer);
+                    try {
+                        DateTime timestamp = rawSample.getTimestamp().plusSeconds(periodOffset);
+                        Interval interval = interval1.getInterval();
+                        if (interval.contains(timestamp)) { //sample is in interval
+                            interval1.addRawSample(rawSample);
+                            currentSamplePointer++;
+                        } else if (timestamp.isBefore(interval.getStart())) { //sample is before interval start --just find the start
+                            currentSamplePointer++;
+                        } else {
+                            samplesInInterval = false;
+                        }
+                    } catch (Exception ex) {
+                        throw new Exception("error while align the raw samples to the interval, no timestamp found", ex);
                     }
-                } catch (Exception ex) {
-                    throw new Exception("error while align the raw samples to the interval, no timestamp found", ex);
                 }
+            }
+        } else {
+            downSampling = false;
+
+            for (JEVisSample rawSample : rawSamples) {
+                DateTime currentTS = rawSample.getTimestamp();
+                try {
+
+                    double currentValue = rawSample.getValueAsDouble();
+
+                    JEVisSample nextSample = rawSamples.get(rawSamples.indexOf(rawSample) + 1);
+                    double nextSampleValue = 0.0;
+                    if (nextSample != null) nextSampleValue = nextSample.getValueAsDouble();
+
+                    Interval rawInterval = new Interval(rawSample.getTimestamp(), Objects.requireNonNull(nextSample).getTimestamp());
+
+                    long c = 0;
+                    List<DateTime> lastAddedDT = new ArrayList<>();
+                    for (CleanInterval ci : intervals) {
+                        if (ci.getDate().isBefore(rawInterval.getStart())) {
+                        } else if (ci.getDate().isBefore(rawInterval.getEnd())) {
+                            ci.addRawSample(rawSample);
+                            rawSamplesMap.put(ci.getDate(), rawSample);
+                            lastAddedDT.add(ci.getDate());
+                            c++;
+                        } else {
+                            if (ci.getDate().isAfter(rawInterval.getEnd()))
+                                break;
+                        }
+                    }
+
+                    double step = (nextSampleValue - currentValue) / c;
+                    for (int i = lastAddedDT.size() - 1; i > -1; i--) {
+                        DateTime curDate = lastAddedDT.get(i);
+                        rawSamplesSteps.put(curDate, step * (lastAddedDT.size() - i));
+                    }
+
+                    if (!counter.containsKey(currentTS)) {
+                        counter.put(currentTS, c);
+                    } else {
+                        Long val = counter.get(currentTS);
+                        counter.remove(currentTS);
+                        counter.put(currentTS, c + val);
+                    }
+                } catch (Exception e) {
+                }
+
             }
         }
 
@@ -77,9 +132,9 @@ public class PeriodAlignmentStep implements ProcessStep {
                 Boolean conversionDifferential = ctd.getValueAsBoolean();
 
 
-                boolean last = valueIsQuantity && conversionDifferential;
+                boolean last = conversionDifferential;
                 boolean sum = valueIsQuantity && !conversionDifferential;
-                boolean avg = !valueIsQuantity;
+                boolean avg = !valueIsQuantity && !conversionDifferential;
 
                 if (currentInterval.getDate().isAfter(timeStampOfConversion) &&
                         ((nextTimeStampOfConversion == null) || currentInterval.getDate().isBefore(nextTimeStampOfConversion))) {
@@ -100,12 +155,21 @@ public class PeriodAlignmentStep implements ProcessStep {
                         }
                         if (note.equals("")) note += "alignment(no)";
                         else note += ",alignment(no)";
+                        if (!notesMap.isEmpty()) {
+                            JEVisSample noteSample = notesMap.get(date);
+                            if (noteSample != null) note += ",userNotes";
+                        }
                         JEVisSample sample = new VirtualSample(date, valueAsDouble);
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     } else if (last) { //last sample
                         DateTime date = currentInterval.getDate();
-                        Double valueAsDouble = currentRawSamples.get(currentRawSamples.size() - 1).getValueAsDouble();
+                        Double valueAsDouble;
+                        if (downSampling) {
+                            valueAsDouble = currentRawSamples.get(currentRawSamples.size() - 1).getValueAsDouble();
+                        } else {
+                            valueAsDouble = calcLastSampleUpscale(date, rawSamplesMap, rawSamplesSteps);
+                        }
                         JEVisSample sample = new VirtualSample(date, valueAsDouble);
                         String note = "";
                         try {
@@ -114,11 +178,20 @@ public class PeriodAlignmentStep implements ProcessStep {
                         }
                         if (note.equals("")) note += "alignment(yes," + currentRawSamples.size() + ",last)";
                         else note += ",alignment(yes," + currentRawSamples.size() + ",last)";
+                        if (!notesMap.isEmpty()) {
+                            JEVisSample noteSample = notesMap.get(date);
+                            if (noteSample != null) note += ",userNotes";
+                        }
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
 
                     } else if (avg) {
-                        Double currentValue = calcAvgSample(currentRawSamples);
+                        Double currentValue;
+                        if (downSampling) currentValue = calcAvgSample(currentRawSamples);
+                        else {
+                            DateTime date = currentInterval.getDate();
+                            currentValue = calcAvgSampleUpscale(date, rawSamplesMap);
+                        }
                         DateTime date = currentInterval.getDate();
                         JEVisSample sample = new VirtualSample(date, currentValue);
                         String note = "";
@@ -128,10 +201,19 @@ public class PeriodAlignmentStep implements ProcessStep {
                         }
                         if (note.equals("")) note += "alignment(yes," + currentRawSamples.size() + ",avg)";
                         else note += ",alignment(yes," + currentRawSamples.size() + ",avg)";
+                        if (!notesMap.isEmpty()) {
+                            JEVisSample noteSample = notesMap.get(date);
+                            if (noteSample != null) note += ",userNotes";
+                        }
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     } else if (sum) {
-                        Double currentValue = calcSumSample(currentRawSamples);
+                        Double currentValue;
+                        if (downSampling) currentValue = calcSumSample(currentRawSamples);
+                        else {
+                            DateTime date = currentInterval.getDate();
+                            currentValue = calcSumSampleUpscale(date, rawSamplesMap, counter);
+                        }
                         DateTime date = currentInterval.getDate();
                         JEVisSample sample = new VirtualSample(date, currentValue);
                         String note = "";
@@ -141,6 +223,10 @@ public class PeriodAlignmentStep implements ProcessStep {
                         }
                         if (note.equals("")) note += "alignment(yes," + currentRawSamples.size() + ",sum)";
                         else note += ",alignment(yes," + currentRawSamples.size() + ",sum)";
+                        if (!notesMap.isEmpty()) {
+                            JEVisSample noteSample = notesMap.get(date);
+                            if (noteSample != null) note += ",userNotes";
+                        }
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
@@ -149,6 +235,19 @@ public class PeriodAlignmentStep implements ProcessStep {
 
             }
         }
+
+    }
+
+    private Double calcSumSampleUpscale(DateTime date, Map<DateTime, JEVisSample> rawSamplesMap, Map<DateTime, Long> counter) throws JEVisException {
+        double value = 0.0;
+        JEVisSample sample = rawSamplesMap.get(date);
+        if (sample != null) {
+            DateTime ts = sample.getTimestamp();
+            value = sample.getValueAsDouble();
+            long c = counter.get(ts);
+            if (c > 0) value = value / c;
+        }
+        return value;
     }
 
     private Double calcAvgSample(List<JEVisSample> currentRawSamples) throws Exception {
@@ -160,6 +259,15 @@ public class PeriodAlignmentStep implements ProcessStep {
         return (value / currentRawSamples.size());
     }
 
+    private Double calcAvgSampleUpscale(DateTime date, Map<DateTime, JEVisSample> allRawSamples) throws Exception {
+        double value = 0.0;
+        JEVisSample sample = allRawSamples.get(date);
+        if (sample != null) {
+            value = sample.getValueAsDouble();
+        }
+        return (value);
+    }
+
     private Double calcSumSample(List<JEVisSample> currentRawSamples) throws Exception {
         Double value = 0.0;
         for (JEVisSample sample : currentRawSamples) {
@@ -169,4 +277,15 @@ public class PeriodAlignmentStep implements ProcessStep {
         return value;
     }
 
+    private Double calcLastSampleUpscale(DateTime date, Map<DateTime, JEVisSample> allRawSamples, Map<DateTime, Double> rawSamplesSteps) throws JEVisException {
+        double value = 0.0;
+        JEVisSample sample = allRawSamples.get(date);
+        if (sample != null) {
+            DateTime ts = sample.getTimestamp();
+            value = sample.getValueAsDouble();
+            double correction = rawSamplesSteps.get(date);
+            if (correction > 0) value = (value - correction);
+        }
+        return value;
+    }
 }

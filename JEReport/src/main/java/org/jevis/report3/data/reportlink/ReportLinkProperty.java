@@ -206,7 +206,71 @@ public class ReportLinkProperty implements ReportData {
                                 logger.error("manipulationMode: " + manipulationMode.toString());
                                 AggregationPeriod period = AggregationPeriod.get(modeName.toUpperCase());
                                 logger.error("aggregationPeriod: " + period.toString());
+                                Long duration = interval.toDurationMillis();
+                                switch (period) {
+                                    case HOURLY:
+                                        long hourly = 3600000L;
+                                        if (interval.toDurationMillis() < hourly) {
+                                            DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), interval.getEnd().getHourOfDay(), 0, 0);
+                                            DateTime end = interval.getEnd();
+                                            interval = new Interval(start, end);
+                                        }
+                                        break;
+                                    case DAILY:
+                                        long daily = 86400000L;
+                                        if (interval.toDurationMillis() < daily) {
+                                            DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), 0, 0, 0);
+                                            DateTime end = interval.getEnd();
+                                            interval = new Interval(start, end);
+                                        }
+                                        break;
+                                    case WEEKLY:
+                                        long weekly = 604800000L;
+                                        if (interval.toDurationMillis() < weekly) {
+                                            DateTime end = interval.getEnd();
+                                            int dayOfWeek = end.getDayOfWeek();
 
+                                            DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), 0, 0, 0).minusDays(dayOfWeek);
+
+                                            interval = new Interval(start, end);
+                                        }
+                                        break;
+                                    case MONTHLY:
+                                        long monthly = 16934400000L;
+                                        if (interval.toDurationMillis() < monthly) {
+                                            DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), 1, 0, 0, 0);
+                                            DateTime end = interval.getEnd();
+                                            interval = new Interval(start, end);
+                                        }
+                                        break;
+                                    case QUARTERLY:
+                                        long quarterly = 50803200000L;
+                                        if (interval.toDurationMillis() < quarterly) {
+                                            DateTime start;
+                                            DateTime end = interval.getEnd();
+                                            if (end.getMonthOfYear() < 4) {
+                                                start = new DateTime(interval.getEnd().getYear(), 1, 1, 0, 0, 0);
+                                            } else if (end.getMonthOfYear() < 7) {
+                                                start = new DateTime(interval.getEnd().getYear(), 4, 1, 0, 0, 0);
+
+                                            } else if (end.getMonthOfYear() < 10) {
+                                                start = new DateTime(interval.getEnd().getYear(), 7, 1, 0, 0, 0);
+                                            } else {
+                                                start = new DateTime(interval.getEnd().getYear(), 10, 1, 0, 0, 0);
+                                            }
+
+                                            interval = new Interval(start, end);
+                                        }
+                                        break;
+                                    case YEARLY:
+                                        long yearly = 203212800000L;
+                                        if (interval.toDurationMillis() < yearly) {
+                                            DateTime start = new DateTime(interval.getEnd().getYear(), 1, 1, 0, 0, 0);
+                                            DateTime end = interval.getEnd();
+                                            interval = new Interval(start, end);
+                                        }
+                                        break;
+                                }
                                 PeriodSampleGenerator gen = new PeriodSampleGenerator(ds, dataObject, attribute, interval, manipulationMode, period);
 
                                 try {
