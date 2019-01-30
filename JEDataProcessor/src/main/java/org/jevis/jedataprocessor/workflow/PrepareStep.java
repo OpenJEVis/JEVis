@@ -23,6 +23,7 @@ import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Creates empty interval classes from start date to end date
@@ -36,11 +37,11 @@ public class PrepareStep implements ProcessStep {
     @Override
 
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
+        CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
 
         //get the raw samples for the cleaning
         logger.info("[{}] Request raw samples", resourceManager.getID());
-        List<JEVisSample> rawSamples = calcAttribute.getRawSamples();
+        List<JEVisSample> rawSamples = cleanDataObject.getRawSamples();
         logger.info("[{}] raw samples found for cleaning: {}", resourceManager.getID(), rawSamples.size());
         LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("Raw S.", rawSamples.size() + "");
 
@@ -51,18 +52,22 @@ public class PrepareStep implements ProcessStep {
 
         resourceManager.setRawSamples(rawSamples);
 
-        Period periodAlignment = calcAttribute.getPeriodAlignment();
+        Map<DateTime, JEVisSample> notesMap = cleanDataObject.getNotesMap();
+        resourceManager.setNotesMap(notesMap);
+
+
+        Period periodAlignment = cleanDataObject.getPeriodAlignment();
         if (rawSamples.size() > 1)
             logger.info("[{}] Input Period is {}", resourceManager.getID(), PeriodFormat.getDefault().print(new Period(rawSamples.get(0).getTimestamp(), rawSamples.get(1).getTimestamp())));
         logger.info("[{}] Period is {}", resourceManager.getID(), PeriodFormat.getDefault().print(periodAlignment));
-        logger.info("[{}] Samples should be aligned {}", resourceManager.getID(), calcAttribute.getIsPeriodAligned());
-        if (periodAlignment.equals(Period.ZERO) && calcAttribute.getIsPeriodAligned()) {
+        logger.info("[{}] Samples should be aligned {}", resourceManager.getID(), cleanDataObject.getIsPeriodAligned());
+        if (periodAlignment.equals(Period.ZERO) && cleanDataObject.getIsPeriodAligned()) {
             throw new RuntimeException("No Input Sample Rate given for Object Clean Data and Attribute Value");
-        } else if (calcAttribute.getIsPeriodAligned()) {
-            List<CleanInterval> cleanIntervals = getIntervals(calcAttribute, periodAlignment);
+        } else if (cleanDataObject.getIsPeriodAligned()) {
+            List<CleanInterval> cleanIntervals = getIntervals(cleanDataObject, periodAlignment);
             resourceManager.setIntervals(cleanIntervals);
         } else {
-            List<CleanInterval> cleanIntervals = getIntervalsFromRawSamples(calcAttribute, rawSamples);
+            List<CleanInterval> cleanIntervals = getIntervalsFromRawSamples(cleanDataObject, rawSamples);
             resourceManager.setIntervals(cleanIntervals);
         }
 

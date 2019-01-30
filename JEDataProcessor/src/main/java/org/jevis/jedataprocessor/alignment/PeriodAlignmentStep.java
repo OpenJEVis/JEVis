@@ -32,6 +32,7 @@ public class PeriodAlignmentStep implements ProcessStep {
     public void run(ResourceManager resourceManager) throws Exception {
         CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
 
+        Map<DateTime, JEVisSample> notesMap = resourceManager.getNotesMap();
         List<JEVisSample> rawSamples = resourceManager.getRawSamples();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         Integer periodOffset = resourceManager.getCleanDataObject().getPeriodOffset();
@@ -154,6 +155,10 @@ public class PeriodAlignmentStep implements ProcessStep {
                         }
                         if (note.equals("")) note += "alignment(no)";
                         else note += ",alignment(no)";
+                        if (!notesMap.isEmpty()) {
+                            JEVisSample noteSample = notesMap.get(date);
+                            if (noteSample != null) note += ",userNotes";
+                        }
                         JEVisSample sample = new VirtualSample(date, valueAsDouble);
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
@@ -173,6 +178,10 @@ public class PeriodAlignmentStep implements ProcessStep {
                         }
                         if (note.equals("")) note += "alignment(yes," + currentRawSamples.size() + ",last)";
                         else note += ",alignment(yes," + currentRawSamples.size() + ",last)";
+                        if (!notesMap.isEmpty()) {
+                            JEVisSample noteSample = notesMap.get(date);
+                            if (noteSample != null) note += ",userNotes";
+                        }
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
 
@@ -192,6 +201,10 @@ public class PeriodAlignmentStep implements ProcessStep {
                         }
                         if (note.equals("")) note += "alignment(yes," + currentRawSamples.size() + ",avg)";
                         else note += ",alignment(yes," + currentRawSamples.size() + ",avg)";
+                        if (!notesMap.isEmpty()) {
+                            JEVisSample noteSample = notesMap.get(date);
+                            if (noteSample != null) note += ",userNotes";
+                        }
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     } else if (sum) {
@@ -210,6 +223,10 @@ public class PeriodAlignmentStep implements ProcessStep {
                         }
                         if (note.equals("")) note += "alignment(yes," + currentRawSamples.size() + ",sum)";
                         else note += ",alignment(yes," + currentRawSamples.size() + ",sum)";
+                        if (!notesMap.isEmpty()) {
+                            JEVisSample noteSample = notesMap.get(date);
+                            if (noteSample != null) note += ",userNotes";
+                        }
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
