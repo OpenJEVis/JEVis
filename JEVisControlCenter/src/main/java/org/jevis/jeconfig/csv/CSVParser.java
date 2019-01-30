@@ -33,14 +33,29 @@ import java.util.List;
 public class CSVParser {
 
     private static final Logger logger = LogManager.getLogger(CSVParser.class);
+    private final File file;
     private int _maxColumnCount = 0;
-    private boolean _isAllwaysSameColumnCount = true;
+    private boolean _isAlwaysSameColumnCount = true;
     private List<CSVLine> rows;
+    private Charset charset;
+    private String enclosed;
+    private String separator;
+    private int header;
 
-    public CSVParser(File file, String enclosed, String seperator, int header, Charset charset) {
+    public CSVParser(File file, String enclosed, String separator, int header, Charset charset) {
+        this.file = file;
+        this.charset = charset;
+        this.enclosed = enclosed;
+        this.separator = separator;
+        this.header = header;
+
+        rows = parse();
+    }
+
+    public List<CSVLine> parse() {
         List<String> lines = readFile(file, charset);
-        List<CSVLine> csvLines = parseLines(lines, enclosed, seperator, header);
-        rows = csvLines;
+        rows = parseLines(lines, enclosed, separator, header);
+        return rows;
     }
 
     public List<CSVLine> getRows() {
@@ -50,7 +65,7 @@ public class CSVParser {
     private List<CSVLine> parseLines(List<String> list, String enclosed, String seperator, int header) {
         List<CSVLine> cslines = new ArrayList<>();
         int count = -1;
-//        logger.info("Split column by: " + seperator + " text by: " + enclosed);
+//        logger.info("Split column by: " + separator + " text by: " + enclosed);
         for (String line : list) {
             count++;
             if (count < header) {
@@ -66,7 +81,7 @@ public class CSVParser {
 
             if (_maxColumnCount != 0 && csvline.getColoumCount() != 0) {
                 if (_maxColumnCount != csvline.getColoumCount()) {
-                    _isAllwaysSameColumnCount = false;
+                    _isAlwaysSameColumnCount = false;
                 }
             }
             if (_maxColumnCount < csvline.getColoumCount()) {
@@ -77,7 +92,7 @@ public class CSVParser {
     }
 
     public boolean isColoumCountAllwaysSame() {
-        return _isAllwaysSameColumnCount;
+        return _isAlwaysSameColumnCount;
     }
 
     public int getColumnCount() {
@@ -86,15 +101,15 @@ public class CSVParser {
 
     private List<String> readFile(File csvFile, Charset charset) {
 
-        logger.info("File: " + csvFile);
+        logger.debug("File: " + csvFile);
         BufferedReader br = null;
         List<String> lines = new ArrayList<>();
         try {
 
             String line = "";
 //            br = new BufferedReader(new FileReader(csvFile));
-            logger.info("1: " + new FileInputStream(csvFile));
-            logger.info("2: " + new InputStreamReader(new FileInputStream(csvFile)));
+            logger.debug("1: " + new FileInputStream(csvFile));
+            logger.debug("2: " + new InputStreamReader(new FileInputStream(csvFile)));
             br = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), charset));
             while ((line = br.readLine()) != null) {
                 lines.add(line);
@@ -143,4 +158,40 @@ public class CSVParser {
         return lines;
     }
 
+
+    public File getFile() {
+        return file;
+    }
+
+    public Charset getCharset() {
+        return charset;
+    }
+
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
+
+    public String getEnclosed() {
+        return enclosed;
+    }
+
+    public void setEnclosed(String enclosed) {
+        this.enclosed = enclosed;
+    }
+
+    public String getSeparator() {
+        return separator;
+    }
+
+    public void setSeparator(String separator) {
+        this.separator = separator;
+    }
+
+    public int getHeader() {
+        return header;
+    }
+
+    public void setHeader(int header) {
+        this.header = header;
+    }
 }

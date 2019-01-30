@@ -62,7 +62,7 @@ public class CSVImportDialog {
     public static String ICON = "1403727005_gnome-mime-application-vnd.lotus-1-2-3.png";
 
     private String _encloser = "";
-    private String _seperator = "";
+    private String separator = "";
 
     private double LEFT_PADDING = 30;
 
@@ -211,7 +211,8 @@ public class CSVImportDialog {
         if (_csvFile != null) {
             Platform.runLater(() -> {
                 final CSVParser parser = parseCSV();
-                table = new CSVTable(_ds, parser);
+                if (table == null) table = new CSVTable(_ds, parser);
+                else table.refreshTable();
                 tableRootPane.getChildren().setAll(table);
                 tableRootPane.heightProperty().addListener((ov, t, t1) -> {
                     if (table != null) {
@@ -244,8 +245,7 @@ public class CSVImportDialog {
     }
 
     private CSVParser parseCSV() {
-        CSVParser parser = new CSVParser(_csvFile, getEncloser(), getSeperator(), getStartLine(), charset);
-        return parser;
+        return new CSVParser(_csvFile, getEncloser(), getSeperator(), getStartLine(), charset);
     }
 
     private Node buildFileOptions() {
@@ -318,33 +318,28 @@ public class CSVImportDialog {
         formats.setMaxWidth(1000);
 
         count.setMinHeight(22);
-        count.numberProperty().addListener(new ChangeListener<BigDecimal>() {
-
-            @Override
-            public void changed(ObservableValue<? extends BigDecimal> ov, BigDecimal t, BigDecimal t1) {
+        count.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                table.getParser().setHeader(newValue.intValue());
                 updateTree();
             }
         });
 
         automatic.setDisable(true);
-        automatic.setOnAction(new EventHandler<ActionEvent>() {
+        automatic.setOnAction(t -> {
+            if (_csvFile != null) {
+                try {
+                    CSVAnalyser analys = new CSVAnalyser(_csvFile);
+                    setEncloser(analys.getEnclosed());
+                    setSeperator(analys.getSeperator());
+                    formats.getSelectionModel().select(Format.Custom.name());
+                    updateTree();
 
-            @Override
-            public void handle(ActionEvent t) {
-                if (_csvFile != null) {
-                    try {
-                        CSVAnalyser analys = new CSVAnalyser(_csvFile);
-                        setEncloser(analys.getEnclosed());
-                        setSeperator(analys.getSeperator());
-                        formats.getSelectionModel().select(Format.Custom.name());
-                        updateTree();
-
-                    } catch (Exception ex) {
-                        logger.info("Error while anylysing csv: " + ex);
-                    }
+                } catch (Exception ex) {
+                    logger.info("Error while anylysing csv: " + ex);
                 }
-
             }
+
         });
 
         fileButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -488,7 +483,7 @@ public class CSVImportDialog {
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
 //                sepGroup.selectToggle(otherLineSep);
                 setEncloser(otherColumnF.getText());
-//                _seperator = ;
+//                separator = ;
 //                reloadTree();
             }
         });
@@ -498,7 +493,7 @@ public class CSVImportDialog {
             @Override
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
 //                sepGroup.selectToggle(otherLineSep);
-//                _seperator = otherColumnF.getText();
+//                separator = otherColumnF.getText();
                 if (!otherColumnF.getText().isEmpty()) {
                     setSeperator(otherColumnF.getText());
                 }
@@ -622,42 +617,11 @@ public class CSVImportDialog {
     }
 
     private String getSeperator() {
-        return _seperator;
-    }
-
-    private void updateSeperator() {
-        if (sepGroup.getSelectedToggle() != null) {
-            RadioButton selecedt = (RadioButton) sepGroup.getSelectedToggle();
-            if (selecedt.equals(semicolon)) {
-                _seperator = ";";
-            } else if (selecedt.equals(comma)) {
-                _seperator = ",";
-            } else if (selecedt.equals(space)) {
-                _seperator = " ";
-            } else if (selecedt.equals(tab)) {
-                _seperator = "\t";
-            } else if (selecedt.equals(otherLineSep)) {
-
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        otherColumnF.requestFocus();
-                    }
-                });
-                if (!otherColumnF.getText().isEmpty()) {
-                    _seperator = otherColumnF.getText();
-                } else {
-                    return;
-                }
-
-            }
-            updateTree();
-        }
-
+        return separator;
     }
 
     private void setSeperator(String sep) {
-        _seperator = sep;
+        separator = sep;
         RadioButton toSelect = semicolon;
 
         switch (sep) {
@@ -681,6 +645,37 @@ public class CSVImportDialog {
 
         if (sepGroup.getSelectedToggle() != toSelect) {
             sepGroup.selectToggle(toSelect);
+        }
+
+    }
+
+    private void updateSeperator() {
+        if (sepGroup.getSelectedToggle() != null) {
+            RadioButton selecedt = (RadioButton) sepGroup.getSelectedToggle();
+            if (selecedt.equals(semicolon)) {
+                separator = ";";
+            } else if (selecedt.equals(comma)) {
+                separator = ",";
+            } else if (selecedt.equals(space)) {
+                separator = " ";
+            } else if (selecedt.equals(tab)) {
+                separator = "\t";
+            } else if (selecedt.equals(otherLineSep)) {
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        otherColumnF.requestFocus();
+                    }
+                });
+                if (!otherColumnF.getText().isEmpty()) {
+                    separator = otherColumnF.getText();
+                } else {
+                    return;
+                }
+
+            }
+            updateTree();
         }
 
     }
