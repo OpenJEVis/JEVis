@@ -48,11 +48,11 @@ public class EmailNotificationDriver implements NotificationDriver {
     //
     public static final String APPLICATIVE_NOTI_TYPE = "E-Mail Notification";
     //
-    public static final String PROTERTY_SMTP_HOST = "mail.smtp.host";
-    public static final String PROTERTY_SMTP_AUTH = "mail.smtp.auth";
-    public static final String PROTERTY_SMTP_PORT = "mail.smtp.port";
-    public static final String PROTERTY_SMTP_STARTTLS = "mail.smtp.starttls.enable";
-    public static final String PROTERTY_SMTP_SSL = "mail.smtp.ssl.enable";
+    public static final String PROPERTY_SMTP_HOST = "mail.smtp.host";
+    public static final String PROPERTY_SMTP_AUTH = "mail.smtp.auth";
+    public static final String PROPERTY_SMTP_PORT = "mail.smtp.port";
+    public static final String PROPERTY_SMTP_STARTTLS = "mail.smtp.starttls.enable";
+    public static final String PROPERTY_SMTP_SSL = "mail.smtp.ssl.enable";
     //
     public static final String PASSWORD = "Password";
     public static final String PORT = "Port";
@@ -67,7 +67,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      *
      */
     public void setDefaultTransportSecurity() {
-        _transportSecurity = TansportSecurity.SSL;
+        _transportSecurity = TansportSecurity.STARTTLS;
     }
 // public enum Authentication {
 // Password, CodedPassword, KerberosGSSAPI, NTLM, TLSCertificate
@@ -161,17 +161,11 @@ public class EmailNotificationDriver implements NotificationDriver {
             try {
                 setTransportSecurity(String.valueOf(getAttribute(notiObj, TRANSPORT_SECURITY)));
             } catch (Exception ex) {
-                setTransportSecurity("SSL/TLS");
+                setTransportSecurity("STARTTLS");
                 logger.info(ex);
             }
             setDefaultAuthenticator();
-//            try {
-//                _message = configureMessage(this);
-//            } catch (UnsupportedEncodingException ex) {
-//                logger.error(EmailNotificationDriver.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//            } catch (MessagingException ex) {
-//                logger.error(EmailNotificationDriver.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//            }
+
         } else {
             logger.info(notiObj + "is not suitable for the Driver(Email)");
         }
@@ -229,9 +223,9 @@ public class EmailNotificationDriver implements NotificationDriver {
      */
     public void setDefaultAuthenticator() {
         _authentication = new Authenticator() {
-            @Override
-            public PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(getUser(), getPassword()); //
+            //override the getPasswordAuthentication method
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(getUser(), getPassword());
             }
         };
     }
@@ -277,36 +271,27 @@ public class EmailNotificationDriver implements NotificationDriver {
     public Session setServer(EmailNotificationDriver driver) {//EmailNotificationDriver.class
         Properties properties = System.getProperties();
         Session session = null;
-        properties.setProperty(PROTERTY_SMTP_HOST, driver.getSMTPServer());
+        properties.setProperty(PROPERTY_SMTP_HOST, driver.getSMTPServer());
 
         properties.setProperty("mail.transport.protocol", "smtp");
-//            properties.setProperty("mail.debug", "true"); //to show the Information of sending. It can be false.
 
         if (driver.getTransportSecurity().equals(TansportSecurity.NO)) {
             Session.getInstance(properties, null);
         } else if (driver.getTransportSecurity().equals(TansportSecurity.STARTTLS)) { //set the transport security as STARTTLS
-            properties.setProperty(PROTERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
-            properties.setProperty(PROTERTY_SMTP_AUTH, "true");// must set with true
-            properties.put(PROTERTY_SMTP_STARTTLS, "true");
-            session = Session.getInstance(properties, driver.getAuthenticator()); //get the Instance of Session
+            properties.setProperty(PROPERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
+            properties.setProperty(PROPERTY_SMTP_AUTH, "true");// must set with true
+            properties.put(PROPERTY_SMTP_STARTTLS, "true");
+            session = Session.getInstance(properties, this.getAuthenticator()); //get the Instance of Session
         } else if (driver.getTransportSecurity().equals(TansportSecurity.SSL)) {
             properties.put("mail.smtp.socketFactory.port", String.valueOf(driver.getPort())); //SSL Port
             properties.put("mail.smtp.socketFactory.class",
                     "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
 
-            properties.setProperty(PROTERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
-            properties.setProperty(PROTERTY_SMTP_AUTH, "true");// must set with true
-            properties.setProperty(PROTERTY_SMTP_SSL, "true"); //set the transport security as SSL
-            session = Session.getInstance(properties, driver.getAuthenticator()); //get the Instance of Session
+            properties.setProperty(PROPERTY_SMTP_PORT, String.valueOf(driver.getPort()));//set the smtp port
+            properties.setProperty(PROPERTY_SMTP_AUTH, "true");// must set with true
+            //properties.setProperty(PROPERTY_SMTP_SSL, "true"); //set the transport security as SSL
+            session = Session.getDefaultInstance(properties, this.getAuthenticator()); //get the Instance of Session
         }
-        // properties.setProperty("mail.smtp.auth.login.disable", "true");
-        // properties.setProperty("mail.smtp.auth.plain.disable", "true");
-        // properties.setProperty("mail.smtp.auth.digest-md5.disable", "true");
-        // properties.setProperty("mail.smtp.auth.ntlm.disable", "true");
-        // properties.put("mail.smtp.auth.mechanisms", "LOGIN PLAIN DIGEST-MD5 NTLM");
-        // properties.put("mail.smtp.auth.ntlm.domain", "mydomain");
-        // properties.setProperty("mail.smtp.auth.ntlm.domain", "mydomain");
-        // Session session = Session.getInstance(properties);
 
         return session;
     }
@@ -396,17 +381,11 @@ public class EmailNotificationDriver implements NotificationDriver {
         boolean successful = false;
         if (jenoti.getType().equals(APPLICATIVE_NOTI_TYPE)) {
             EmailNotification emnoti = (EmailNotification) jenoti;//(EmailNotification) jenoti;
-            try {
-                successful = sendEmailNotification(emnoti);
-            } catch (UnsupportedEncodingException ex) {
-                logger.error(ex);
-            }
+            successful = sendEmailNotification(emnoti);
             return successful;
         } else {
             logger.info("This Notification is not the EmailNotification.");
             logger.info("This Notification is" + jenoti.getType() + ".");
-//            logger.info("This Notification is not the EmailNotification.");
-//            logger.info("This Notification is" + jenoti.getType() + ".");
             return successful;
         }
     }
@@ -418,31 +397,20 @@ public class EmailNotificationDriver implements NotificationDriver {
      *
      * @param emnoti type: EmailNotification
      * @return
-     * @throws java.io.UnsupportedEncodingException
      */
-    public boolean sendEmailNotification(EmailNotification emnoti) throws UnsupportedEncodingException {
+    public boolean sendEmailNotification(EmailNotification emnoti) {
         try {
             Session session;
-            Transport tr;
             MimeMessage message;
 
             session = setServer(this); //set the properties for sen
+            logger.debug("Set Server finished.");
 
             message = configureMessage(session, emnoti);
+            logger.debug("Finished configuring message.");
 
-
-//            synchronized (EmailNotificationDriver.class) {
-//                message = configureMessage(this);
-//                logger.info("finish first config " + this.getJEVisObjectDriver().getID());
-//                message.saveChanges();
-//            }
-//            message = configureMessage(message, emnoti); //configure the Email
-//            logger.info("finish second config " + this.getJEVisObjectDriver().getID());
-
-
-//            Transport.send(message);// send the notification
-
-            Transport.send(message, message.getAllRecipients());
+            Transport.send(message);
+            logger.debug("Sent message.");
 
             emnoti.setSuccessfulSend(true, new DateTime(new Date()));//set the send time
             return true;
@@ -474,33 +442,38 @@ public class EmailNotificationDriver implements NotificationDriver {
             message.setFrom(new InternetAddress(getUser()));
         } else {
             logger.info("The address of sender is empty.");
-//            logger.info("The address of sender is empty.");
         }
 
         if (emnoti.getReceivers() != null) {
-            Address[] addresses = emnoti.convertEmailAddress(emnoti.getReceivers()); //convert the String address to the type of Address[]
-
-            message.addRecipients(Message.RecipientType.TO, addresses);
+            for (String recipient : emnoti.getReceivers()) {
+                InternetAddress address = new InternetAddress();
+                address.setAddress(recipient);
+                message.addRecipient(Message.RecipientType.TO, address);
+            }
         } else {
             logger.info("The address of receiver is empty.");
-//            logger.info("The address of receiver is empty.");
         }
 
         if (emnoti.getCarbonCopys() != null) { //set the CCs
-            Address[] addresses = emnoti.convertEmailAddress(emnoti.getCarbonCopys());
-            message.addRecipients(Message.RecipientType.CC, addresses);
+            for (String recipient : emnoti.getCarbonCopys()) {
+                InternetAddress address = new InternetAddress();
+                address.setAddress(recipient);
+                message.addRecipient(Message.RecipientType.CC, address);
+            }
         }
 
         if (emnoti.getBlindCarbonCopys() != null) { //set the >BCCs
-            Address[] addresses = emnoti.convertEmailAddress(emnoti.getBlindCarbonCopys());
-            message.addRecipients(Message.RecipientType.BCC, addresses);
+            for (String recipient : emnoti.getBlindCarbonCopys()) {
+                InternetAddress address = new InternetAddress();
+                address.setAddress(recipient);
+                message.addRecipient(Message.RecipientType.BCC, address);
+            }
         }
 
         if (emnoti.getSubject() != null) { //set the subject
             message.setSubject(emnoti.getSubject());
         } else {
             logger.info("Send without Subject!");
-//            logger.info("Send without Subject!");
         }
         //set the Email Body (contains message and attachments)
         BodyPart messageBodyPart = new MimeBodyPart();
@@ -518,7 +491,6 @@ public class EmailNotificationDriver implements NotificationDriver {
             if (emnoti.getAttachments() != null && !emnoti.getAttachments().isEmpty()) { //If attachment is not null and empty, it will be setted
                 messageBodyPart = new MimeBodyPart(); //must instantiate a new Instance
                 for (File file : emnoti.getAttachmentsAsFile()) {
-//                    logger.info("*********************" + file.exists());
                     DataSource source = new FileDataSource(file);
                     messageBodyPart.setDataHandler(new DataHandler(source));
                     messageBodyPart.setFileName(file.getName());
@@ -529,7 +501,6 @@ public class EmailNotificationDriver implements NotificationDriver {
             messageBodyPart.setText("");
             multipart.addBodyPart(messageBodyPart);
             logger.info("There is no message and no attachment!");
-//            logger.info("There is no message and no attachment!");
         }
 
         message.setContent(multipart, "text/html; charset=UTF-8");
@@ -540,17 +511,6 @@ public class EmailNotificationDriver implements NotificationDriver {
 
         NO, STARTTLS, SSL
     }
-//
-// public void sendHTMLEmail(Session session) {
-// try {
-// MimeMessage message = new MimeMessage(session);
-//
-// message.setContent("<h1>This is actual message</h1>","text/html");
-//
-// } catch (MessagingException mex) {
-// mex.printStackTrace();
-// }
-// }
 
     /**
      * To check, whether the email address is legal. If the email address matchs
@@ -571,7 +531,6 @@ public class EmailNotificationDriver implements NotificationDriver {
         }
         if (!isEmail) {
             logger.info("User name is illegal.");
-//            logger.info(emailAddress + "User name is illegal.");
         }
         return isEmail;
     }
@@ -586,7 +545,6 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @return
      */
     public boolean isSupported(Notification jenoti) {
-//        jenoti.getJevisObject().getClass.equla("Email Notification")
         boolean support;
         support = jenoti.getType().equals(APPLICATIVE_NOTI_TYPE);
         return support;
@@ -641,7 +599,6 @@ public class EmailNotificationDriver implements NotificationDriver {
             try {
                 List<JEVisSample> ts = new ArrayList<JEVisSample>();
                 JEVisAttribute recorder = noti.getJEVisObjectNoti().getAttribute(Notification.SENT_TIME);
-//                logger.info(recorder);
                 if (recorder != null) {
                     for (DateTime time : noti.getSendTime()) {
                         JEVisSample t = recorder.buildSample(time, noti.getJEVisObjectNoti().getID(), "Sent by Driver" + getJEVisObjectDriver().getID()); //

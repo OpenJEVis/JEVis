@@ -117,7 +117,6 @@ public class ReportExecutor {
             lastReportAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
             logger.info("Uploaded report file to JEVis System");
 
-            logger.info("Creating pdf file.");
             JEVisFile fileForNotification = jeVisFileImp;
             if (property.getToPdf()) {
 
@@ -192,19 +191,18 @@ public class ReportExecutor {
 
             ReportServiceProperty service = getReportService();
 
-            JEVisObject notiObj = reportObject.getDataSource().getObject(notificationObject.getID());
             Notification nofi = new EmailNotification();
-            nofi.setNotificationObject(notiObj, jeVisFileImp);
+            nofi.setNotificationObject(notificationObject, jeVisFileImp);
+
+            JEVisObject notiDriObj = notificationObject.getDataSource().getObject(service.getMailID());
 
             NotificationDriver emailNofi = new EmailNotificationDriver();
-
-            JEVisObject notiDriObj = reportObject.getDataSource().getObject(service.getMailID());
             emailNofi.setNotificationDriverObject(notiDriObj);
 
             SendNotification sn = new SendNotification(nofi, emailNofi);
             sn.run();
 
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }
