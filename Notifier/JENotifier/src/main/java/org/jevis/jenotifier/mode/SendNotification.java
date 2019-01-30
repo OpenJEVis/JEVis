@@ -37,14 +37,10 @@ public class SendNotification implements Runnable {
         logger.debug("------- " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + " is configured: " + _driver.isDriverConfigured() + " -------"
                 + "\n" + "------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " is configured: " + _noti.isNotiConfigured() + " -------"
                 + "\n" + "------- " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + " supports " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + ": " + _driver.isSupported(_noti) + " -------");
-//        logger.info(_noti.isNotiConfigured());
-//        logger.info(_driver.isDriverConfigured());
-//        logger.info(_driver.isSupported(_noti));
+
         if (_noti.isNotiConfigured() && _driver.isDriverConfigured()) {
             if (_driver.isSupported(_noti)) {
-//                synchronized (SendNoti.class) {
                 _driver.sendNotification(_noti);
-//                }
                 if (_noti.isSendSuccessfully()) {
                     _driver.sendTimeRecorder(_noti);
                     logger.info("------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " Sent sucessfully by " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + "-------");
