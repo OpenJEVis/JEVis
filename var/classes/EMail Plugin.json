@@ -26,11 +26,10 @@
     },
     {
       "name": "Password",
-      "primitiveType": 7,
-      "guiType": "Password PBKDF2",
+      "primitiveType": 0,
+      "guiType": "Password",
       "GUIPosition": 0,
       "validity": 0,
-      "description": "Password for this user.",
       "inherited": false,
       "jevisClass": "User"
     },

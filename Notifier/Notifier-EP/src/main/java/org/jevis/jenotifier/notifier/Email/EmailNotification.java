@@ -761,21 +761,6 @@ public class EmailNotification implements Notification {
             }
 
             try {
-//                logger.info(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
-//                setAttachments(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
-
-                logger.info("notiObj: " + notiObj.getName() + " Attachment: " + !ATTACHMENTS.isEmpty());
-
-//                do {
-//                    file = getJEVisFile(notiObj, ATTACHMENTS); //TODO this workaround needs to be fixed
-//                } while (Objects.isNull(file.getBytes()));
-
-
-            } catch (IllegalArgumentException ex) {
-                logger.info(ex);
-            }
-
-            try {
                 setAttachmentsAsFile(file);
             } catch (IllegalArgumentException ex) {
                 setAttachments(null);
