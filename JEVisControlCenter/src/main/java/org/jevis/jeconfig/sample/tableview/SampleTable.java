@@ -87,8 +87,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
 
         setMinWidth(555d);//TODo: replace Dirty workaround
+
         setPrefHeight(200d);//TODo: replace Dirty workaround
-        setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        //setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 
@@ -103,11 +104,11 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
          */
         setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 //        setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
+
         selectionColumn.setPrefWidth(70);
         timeStampColumn.setPrefWidth(155);
         noteColumn.setPrefWidth(200);
         valueCol.setPrefWidth(310);
-
 
         getColumns().addAll(selectionColumn, timeStampColumn, valueCol, noteColumn);
 
@@ -217,7 +218,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         }
     }
 
-    public DateTime[] findSelectedMinMaxDate(){
+    public DateTime[] findSelectedMinMaxDate() {
         DateTime[] minMax = new DateTime[2];
         DateTime firstDate = null;
         DateTime secondDate = null;
@@ -231,8 +232,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                 firstDate = tableSample.getTimeStamp();
             }
         }
-        minMax[0]=firstDate;
-        minMax[1]=secondDate;
+        minMax[0] = firstDate;
+        minMax[1] = secondDate;
         return minMax;
     }
 
@@ -242,20 +243,20 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     public void deleteInBetween() {
         if (deleteInBetween.getValue()) {
             /**
-            DateTime firstDate = null;
-            DateTime secondDate = null;
-            for (TableSample tableSample : changedSamples) {
-                if (firstDate == null) {
-                    firstDate = tableSample.getTimeStamp();
-                } else if (firstDate.isBefore(tableSample.getTimeStamp())) {
-                    secondDate = tableSample.getTimeStamp();
-                } else {
-                    secondDate = firstDate;
-                    firstDate = tableSample.getTimeStamp();
-                }
-            }
+             DateTime firstDate = null;
+             DateTime secondDate = null;
+             for (TableSample tableSample : changedSamples) {
+             if (firstDate == null) {
+             firstDate = tableSample.getTimeStamp();
+             } else if (firstDate.isBefore(tableSample.getTimeStamp())) {
+             secondDate = tableSample.getTimeStamp();
+             } else {
+             secondDate = firstDate;
+             firstDate = tableSample.getTimeStamp();
+             }
+             }
              **/
-            DateTime[] minMax=  findSelectedMinMaxDate();
+            DateTime[] minMax = findSelectedMinMaxDate();
             DateTime firstDate = minMax[0];
             DateTime secondDate = minMax[1];
 
@@ -770,6 +771,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
     /**
      * Create an Callback cell for String based passwords. Text will be shown as ****
+     *
      * @return
      */
     private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> valueCellStringPassword() {
@@ -801,7 +803,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             });
 
                             HBox box = new HBox(5, textField);
-                            HBox.setHgrow(textField,Priority.ALWAYS);
+                            HBox.setHgrow(textField, Priority.ALWAYS);
                             setGraphic(box);
 
                         }
@@ -901,9 +903,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                     column.setCellFactory(valueCellFile());
                     break;
                 default:
-                    if(attribute.getName().equalsIgnoreCase("Password") || attribute.getPrimitiveType()==JEVisConstants.PrimitiveType.PASSWORD_PBKDF2){
+                    if (attribute.getName().equalsIgnoreCase("Password") || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {
                         column.setCellFactory(valueCellStringPassword());
-                    }else{
+                    } else {
                         column.setCellFactory(valueCellString());
                     }
 
@@ -985,9 +987,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      */
     public class TableSample {
 
-        private SimpleObjectProperty value;
-        private SimpleStringProperty note;
-        private SimpleObjectProperty<DateTime> timeStamp;
+        private SimpleObjectProperty value = new SimpleObjectProperty();
+        private SimpleStringProperty note = new SimpleStringProperty();
+        private SimpleObjectProperty<DateTime> timeStamp = new SimpleObjectProperty<>();
         private SimpleBooleanProperty isSelected = new SimpleBooleanProperty(false);
 
         private JEVisSample jevisSample = null;
@@ -1155,7 +1157,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
         /**
          * Set taht this is an new created sample request an commit
-         *
          */
         private void setIsNew() {
             this.isNew = true;

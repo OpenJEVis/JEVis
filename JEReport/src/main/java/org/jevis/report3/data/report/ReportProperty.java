@@ -166,6 +166,6 @@ public class ReportProperty {
 
     public enum ReportSchedule {
 
-        DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY
+        DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY, CUSTOM
     }
 }

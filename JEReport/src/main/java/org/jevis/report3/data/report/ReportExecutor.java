@@ -22,6 +22,7 @@ import org.jevis.report3.PdfFileSplitter;
 import org.jevis.report3.context.ContextBuilder;
 import org.jevis.report3.data.notification.ReportNotification;
 import org.jevis.report3.data.report.event.EventPrecondition;
+import org.jevis.report3.data.report.periodic.PeriodicIntervalCalc;
 import org.jevis.report3.data.reportlink.ReportData;
 import org.jevis.report3.data.reportlink.ReportLinkFactory;
 import org.jevis.report3.data.service.JEReportService;
@@ -85,6 +86,7 @@ public class ReportExecutor {
         logger.info("Created report link stati.");
 
         if (!isDataAvailable.get()) {
+            logger.error("One or more Data Objects are missing new Data");
             return;
         }
 
@@ -166,7 +168,9 @@ public class ReportExecutor {
 
             String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", ReportProperty.ReportSchedule.DAILY.toString());
             ReportProperty.ReportSchedule schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
-            DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule);
+            org.jevis.commons.datetime.DateHelper dateHelper = null;
+            dateHelper = PeriodicIntervalCalc.getDateHelper(reportObject, schedule, dateHelper, startRecord);
+            DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule, dateHelper);
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, endRecord);
 
             if (!operator.equals("")) {

@@ -1,7 +1,6 @@
-package org.jevis.jeconfig.application.Chart.data;
+package org.jevis.commons.datetime;
 
 import org.jevis.commons.database.ObjectHandler;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -9,6 +8,10 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+/**
+ * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
+ */
 
 public class DateHelper {
     private LocalTime startTime = LocalTime.of(0, 0, 0, 0);
@@ -134,6 +137,7 @@ public class DateHelper {
                                 startDate = DateTime.now();
                                 break;
                             case "STARTTIMEDAY":
+                                startDate = startDate.minusMillis(startDate.getMillisOfDay());
                                 break;
                             case "CUSTOM_PERIOD":
                                 try {
@@ -377,6 +381,7 @@ public class DateHelper {
                                 endDate = DateTime.now();
                                 break;
                             case "STARTTIMEDAY":
+                                endDate = endDate.minusMillis(endDate.getMillisOfDay());
                                 break;
                             case "CUSTOM_PERIOD":
                                 try {
@@ -497,61 +502,6 @@ public class DateHelper {
     public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, LASTWEEK, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
-
-    public enum CustomReferencePoint {
-
-        NOW(I18n.getInstance().getString("graph.datehelper.referencepoint.now")), CUSTOM_PERIOD(I18n.getInstance().getString("graph.datehelper.referencepoint.customperiod")),
-        WEEKDAY(I18n.getInstance().getString("graph.datehelper.referencepoint.weekday")), MONTH(I18n.getInstance().getString("graph.datehelper.referencepoint.month")),
-        STARTTIMEDAY(I18n.getInstance().getString("graph.datehelper.referencepoint.starttimeday")), EDNTIMEDAY(I18n.getInstance().getString("graph.datehelper.referencepoint.endtimeday"));
-
-        private final String referencePointName;
-
-        CustomReferencePoint(String referencePointName) {
-            this.referencePointName = referencePointName;
-        }
-
-        public String getReferencePointName() {
-            return referencePointName;
-        }
-    }
-
-    public enum Weekday {
-
-        MONDAY(I18n.getInstance().getString("graph.datehelper.weekday.monday")), TUESDAY(I18n.getInstance().getString("graph.datehelper.weekday.tuesday")),
-        WEDNESDAY(I18n.getInstance().getString("graph.datehelper.weekday.wednesday")), THURSDAY(I18n.getInstance().getString("graph.datehelper.weekday.thursday")),
-        FRIDAY(I18n.getInstance().getString("graph.datehelper.weekday.friday")), SATURDAY(I18n.getInstance().getString("graph.datehelper.weekday.saturday")),
-        SUNDAY(I18n.getInstance().getString("graph.datehelper.weekday.sunday"));
-
-        private final String weekdayName;
-
-        Weekday(String weekdayName) {
-            this.weekdayName = weekdayName;
-        }
-
-        public String getWeekdayName() {
-            return weekdayName;
-        }
-    }
-
-    public enum Month {
-
-        JANUARY(I18n.getInstance().getString("graph.datehelper.months.january")), FEBRUARY(I18n.getInstance().getString("graph.datehelper.months.february")),
-        MARCH(I18n.getInstance().getString("graph.datehelper.months.march")), APRIL(I18n.getInstance().getString("graph.datehelper.months.april")),
-        MAY(I18n.getInstance().getString("graph.datehelper.months.may")), JUNE(I18n.getInstance().getString("graph.datehelper.months.june")),
-        JULY(I18n.getInstance().getString("graph.datehelper.months.july")), AUGUST(I18n.getInstance().getString("graph.datehelper.months.august")),
-        SEPTEMBER(I18n.getInstance().getString("graph.datehelper.months.september")), OCTOBER(I18n.getInstance().getString("graph.datehelper.months.october")),
-        NOVEMBER(I18n.getInstance().getString("graph.datehelper.months.november")), DECEMBER(I18n.getInstance().getString("graph.datehelper.months.december"));
-
-        private final String monthName;
-
-        Month(String monthName) {
-            this.monthName = monthName;
-        }
-
-        public String getMonthName() {
-            return monthName;
-        }
-    }
 
     public LocalTime getEndTime() {
         DateTime end = getEndDate();
