@@ -46,6 +46,7 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,7 +59,7 @@ public class SampleTableExtension implements SampleEditorExtension {
     private final BorderPane _view = new BorderPane();
     private final Window owner;
     private JEVisAttribute _att;
-    private List<JEVisSample> _samples;
+    private List<JEVisSample> _samples = new ArrayList<>();
     private boolean _dataChanged = true;
     private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
 

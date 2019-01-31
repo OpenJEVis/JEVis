@@ -13,6 +13,7 @@ import org.jevis.commons.database.JEVisObjectDataManager;
 import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.*;
 import org.jevis.report3.data.report.IntervalCalculator;
@@ -22,6 +23,7 @@ import org.jevis.report3.process.PeriodSampleGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +42,8 @@ public class ReportLinkProperty implements ReportData {
     private JEVisObject dataObject;
     private final List<ReportAttributeProperty> attributeProperties = new ArrayList<>();
     private final List<ReportAttributeProperty> defaultAttributeProperties = new ArrayList<>();
+    private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
+    private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
 
     //    private DateTime latestTimestamp;
     public static ReportLinkProperty buildFromJEVisObject(JEVisObject reportLinkObject) {
@@ -206,71 +210,96 @@ public class ReportLinkProperty implements ReportData {
                                 logger.error("manipulationMode: " + manipulationMode.toString());
                                 AggregationPeriod period = AggregationPeriod.get(modeName.toUpperCase());
                                 logger.error("aggregationPeriod: " + period.toString());
-                                Long duration = interval.toDurationMillis();
-                                switch (period) {
-                                    case HOURLY:
-                                        long hourly = 3600000L;
-                                        if (interval.toDurationMillis() < hourly) {
-                                            DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), interval.getEnd().getHourOfDay(), 0, 0);
-                                            DateTime end = interval.getEnd();
-                                            interval = new Interval(start, end);
-                                        }
-                                        break;
-                                    case DAILY:
-                                        long daily = 86400000L;
-                                        if (interval.toDurationMillis() < daily) {
-                                            DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), 0, 0, 0);
-                                            DateTime end = interval.getEnd();
-                                            interval = new Interval(start, end);
-                                        }
-                                        break;
-                                    case WEEKLY:
-                                        long weekly = 604800000L;
-                                        if (interval.toDurationMillis() < weekly) {
-                                            DateTime end = interval.getEnd();
-                                            int dayOfWeek = end.getDayOfWeek();
 
-                                            DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), 0, 0, 0).minusDays(dayOfWeek);
+                                if (interval != null) {
+                                    long duration = 0;
+                                    duration = interval.toDurationMillis();
 
-                                            interval = new Interval(start, end);
-                                        }
-                                        break;
-                                    case MONTHLY:
-                                        long monthly = 16934400000L;
-                                        if (interval.toDurationMillis() < monthly) {
-                                            DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), 1, 0, 0, 0);
-                                            DateTime end = interval.getEnd();
-                                            interval = new Interval(start, end);
-                                        }
-                                        break;
-                                    case QUARTERLY:
-                                        long quarterly = 50803200000L;
-                                        if (interval.toDurationMillis() < quarterly) {
-                                            DateTime start;
-                                            DateTime end = interval.getEnd();
-                                            if (end.getMonthOfYear() < 4) {
-                                                start = new DateTime(interval.getEnd().getYear(), 1, 1, 0, 0, 0);
-                                            } else if (end.getMonthOfYear() < 7) {
-                                                start = new DateTime(interval.getEnd().getYear(), 4, 1, 0, 0, 0);
-
-                                            } else if (end.getMonthOfYear() < 10) {
-                                                start = new DateTime(interval.getEnd().getYear(), 7, 1, 0, 0, 0);
-                                            } else {
-                                                start = new DateTime(interval.getEnd().getYear(), 10, 1, 0, 0, 0);
+                                    switch (period) {
+                                        case HOURLY:
+                                            long hourly = 3600000L;
+                                            if (duration < hourly) {
+                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), interval.getEnd().getHourOfDay(), 0, 0);
+                                                DateTime end = interval.getEnd();
+                                                interval = new Interval(start, end);
                                             }
+                                            break;
+                                        case DAILY:
+                                            long daily = 86400000L;
+                                            if (duration < daily) {
+                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), 0, 0, 0);
+                                                DateTime end = interval.getEnd();
+                                                interval = new Interval(start, end);
+                                            }
+                                            break;
+                                        case WEEKLY:
+                                            long weekly = 604800000L;
+                                            if (duration < weekly) {
+                                                DateTime end = interval.getEnd();
+                                                int dayOfWeek = end.getDayOfWeek();
 
-                                            interval = new Interval(start, end);
-                                        }
-                                        break;
-                                    case YEARLY:
-                                        long yearly = 203212800000L;
-                                        if (interval.toDurationMillis() < yearly) {
-                                            DateTime start = new DateTime(interval.getEnd().getYear(), 1, 1, 0, 0, 0);
-                                            DateTime end = interval.getEnd();
-                                            interval = new Interval(start, end);
-                                        }
-                                        break;
+                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), 0, 0, 0).minusDays(dayOfWeek);
+
+                                                interval = new Interval(start, end);
+                                            }
+                                            break;
+                                        case MONTHLY:
+                                            long monthly = 16934400000L;
+                                            if (duration < monthly) {
+                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), 1, 0, 0, 0);
+                                                DateTime end = interval.getEnd();
+                                                interval = new Interval(start, end);
+                                            }
+                                            break;
+                                        case QUARTERLY:
+                                            long quarterly = 50803200000L;
+                                            if (duration < quarterly) {
+                                                DateTime start;
+                                                DateTime end = interval.getEnd();
+                                                if (end.getMonthOfYear() < 4) {
+                                                    start = new DateTime(interval.getEnd().getYear(), 1, 1, 0, 0, 0);
+                                                } else if (end.getMonthOfYear() < 7) {
+                                                    start = new DateTime(interval.getEnd().getYear(), 4, 1, 0, 0, 0);
+
+                                                } else if (end.getMonthOfYear() < 10) {
+                                                    start = new DateTime(interval.getEnd().getYear(), 7, 1, 0, 0, 0);
+                                                } else {
+                                                    start = new DateTime(interval.getEnd().getYear(), 10, 1, 0, 0, 0);
+                                                }
+
+                                                interval = new Interval(start, end);
+                                            }
+                                            break;
+                                        case YEARLY:
+                                            long yearly = 203212800000L;
+                                            if (duration < yearly) {
+                                                DateTime start = new DateTime(interval.getEnd().getYear(), 1, 1, 0, 0, 0);
+                                                DateTime end = interval.getEnd();
+                                                interval = new Interval(start, end);
+                                            }
+                                            break;
+                                        case NONE:
+                                            break;
+                                    }
                                 }
+
+                                WorkDays wd = new WorkDays(dataObject);
+                                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
+                                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
+
+                                if (interval != null) {
+                                    DateTime start = new DateTime(interval.getStart().getYear(), interval.getStart().getMonthOfYear(), interval.getStart().getDayOfMonth(),
+                                            workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond());
+                                    DateTime end = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(),
+                                            workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
+
+                                    if (workdayStart.isAfter(workdayEnd)) {
+                                        start = start.minusDays(1);
+                                    }
+
+                                    interval = new Interval(start, end);
+                                }
+
                                 PeriodSampleGenerator gen = new PeriodSampleGenerator(ds, dataObject, attribute, interval, manipulationMode, period);
 
                                 try {
@@ -316,7 +345,7 @@ public class ReportLinkProperty implements ReportData {
         }
         for (ReportAttributeProperty curProperty : attributeProperties) {
             String attributeName = curProperty.getAttributeName();
-            if (attributeName.equals("Value")) {
+            if (attributeName.equals("Value") || attributeName.equals("value")) {
                 try {
                     if (dataObject.getAttribute("Value") != null) {
                         JEVisAttribute att = dataObject.getAttribute("Value");
@@ -338,7 +367,7 @@ public class ReportLinkProperty implements ReportData {
                 }
             }
         }
-        return new LinkStatus(true, "ok"); //should not be reachable
+        return new LinkStatus(false, "should not be reachable"); //should not be reachable
     }
 
 }

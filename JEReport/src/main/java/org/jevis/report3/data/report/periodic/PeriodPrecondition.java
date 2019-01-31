@@ -40,7 +40,10 @@ public class PeriodPrecondition implements Precondition {
         ReportProperty.ReportSchedule schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
-        DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule);
+
+        org.jevis.commons.datetime.DateHelper dateHelper = null;
+        dateHelper = PeriodicIntervalCalc.getDateHelper(reportObject, schedule, dateHelper, startRecord);
+        DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule, dateHelper);
 
         String operator = samplesHandler.getLastSample(reportObject, "Operator", "");
         String limit = samplesHandler.getLastSample(reportObject, "Limit", "");

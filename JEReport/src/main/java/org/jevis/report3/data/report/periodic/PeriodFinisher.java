@@ -54,7 +54,10 @@ public class PeriodFinisher implements Finisher {
         schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
         String startRecordString = sampleHandler.getLastSample(reportObject, "Start Record", "");
         startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
-        endRecord = DateHelper.calcEndRecord(startRecord, schedule);
+        org.jevis.commons.datetime.DateHelper dateHelper = null;
+        dateHelper = PeriodicIntervalCalc.getDateHelper(reportObject, schedule, dateHelper, startRecord);
+
+        endRecord = DateHelper.calcEndRecord(startRecord, schedule, dateHelper);
     }
 
 }

@@ -16,6 +16,9 @@ import org.jevis.api.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.datetime.CustomPeriodObject;
+import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
@@ -208,7 +211,9 @@ public class GraphDataModel {
                             }
                         }
                     }
-                    updateWorkDays();
+                    WorkDays wd = new WorkDays(getCurrentAnalysis());
+                    if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
+                    if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
                 }
             } catch (JEVisException e) {
                 logger.error("Error: could not get analysis model", e);
@@ -519,35 +524,7 @@ public class GraphDataModel {
         });
     }
 
-    private void updateWorkDays() {
-        try {
-            JEVisObject site = getCurrentAnalysis().getParents().get(0).getParents().get(0);
-            LocalTime start = null;
-            LocalTime end = null;
-            try {
-                JEVisAttribute attStart = site.getAttribute("Workday Beginning");
-                JEVisAttribute attEnd = site.getAttribute("Workday End");
-                if (attStart.hasSample()) {
-                    String startStr = attStart.getLatestSample().getValueAsString();
-                    DateTime dtStart = DateTime.parse(startStr);
-                    start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
-                }
-                if (attEnd.hasSample()) {
-                    String endStr = attEnd.getLatestSample().getValueAsString();
-                    DateTime dtEnd = DateTime.parse(endStr);
-                    end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
-                }
-            } catch (Exception e) {
-            }
 
-            if (start != null && end != null) {
-                workdayStart = start;
-                workdayEnd = end;
-            }
-        } catch (Exception e) {
-
-        }
-    }
 
     public void updateWorkDaysFirstRun() {
         try {
@@ -718,7 +695,9 @@ public class GraphDataModel {
                         }
                     }
                 }
-                updateWorkDays();
+                WorkDays wd = new WorkDays(getCurrentAnalysis());
+                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
+                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
             }
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis model", e);

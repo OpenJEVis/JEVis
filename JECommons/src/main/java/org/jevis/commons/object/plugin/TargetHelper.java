@@ -19,11 +19,7 @@
  */
 package org.jevis.commons.object.plugin;
 
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 
 /**
  *
@@ -99,8 +95,8 @@ public class TargetHelper {
 
     private void parse() {
         //is emty
-        if (sourceValue.isEmpty() == false) {
-            //has seperator
+        if (!sourceValue.isEmpty()) {
+            //has separator
             if (sourceValue.contains(SEPERATOR)) {
                 int seperator = sourceValue.indexOf(":");
                 String objectStrg = sourceValue.substring(0, seperator);
@@ -111,7 +107,7 @@ public class TargetHelper {
                 }
 
                 if ((seperator + 1) < sourceValue.length()) {
-                    targetAttibute = sourceValue.substring(seperator + 1, sourceValue.length());
+                    targetAttibute = sourceValue.substring(seperator + 1);
                 } else {
                     isValid = false;
                 }
