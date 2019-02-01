@@ -17,7 +17,7 @@ public class AreaChart extends org.jevis.jeconfig.application.Chart.Charts.XYCha
     }
 
     @Override
-    public void finalizeChart() {
-        setChart(new MultiAxisAreaChart(dateAxis, y1Axis, y2Axis, series));
+    public void initializeChart() {
+        setChart(new MultiAxisAreaChart(dateAxis, y1Axis, y2Axis));
     }
 }

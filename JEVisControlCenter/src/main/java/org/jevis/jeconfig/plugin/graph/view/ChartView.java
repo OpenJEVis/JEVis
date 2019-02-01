@@ -312,6 +312,12 @@ public class ChartView implements Observer {
             case BAR:
                 chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
                 setTableStandard();
+                tableView.getColumns().get(4).setVisible(false);
+                tableView.getColumns().get(5).setVisible(false);
+                tableView.getColumns().get(6).setVisible(false);
+                tableView.getColumns().get(7).setVisible(false);
+                tableView.getColumns().get(8).setVisible(false);
+                tableView.getColumns().get(9).setVisible(false);
                 break;
             case BUBBLE:
                 chart = new BubbleChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);

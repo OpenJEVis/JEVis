@@ -22,7 +22,7 @@ public class ScatterChart extends XYChart {
         XYChartSerie serie = new XYScatterChartSerie(singleRow, hideShowIcons);
 
         hexColors.add(singleRow.getColor());
-        series.add(serie.getSerie());
+        chart.getData().add(serie.getSerie());
         tableData.add(serie.getTableEntry());
 
         /**
@@ -48,8 +48,8 @@ public class ScatterChart extends XYChart {
     }
 
     @Override
-    public void finalizeChart() {
-        setChart(new MultiAxisScatterChart(dateAxis, y1Axis, y2Axis, series));
+    public void initializeChart() {
+        setChart(new MultiAxisScatterChart(dateAxis, y1Axis, y2Axis));
     }
 
     @Override

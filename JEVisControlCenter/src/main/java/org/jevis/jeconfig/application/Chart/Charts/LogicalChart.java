@@ -25,7 +25,7 @@ public class LogicalChart extends XYChart {
         XYChartSerie serie = new XYLogicalChartSerie(singleRow, hideShowIcons);
 
         hexColors.add(singleRow.getColor());
-        series.add(serie.getSerie());
+        chart.getData().add(serie.getSerie());
         tableData.add(serie.getTableEntry());
 
         /**

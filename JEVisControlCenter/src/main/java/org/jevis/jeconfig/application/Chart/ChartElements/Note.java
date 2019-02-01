@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -84,7 +85,11 @@ public class Note {
 
             //hbox.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderWidths.EMPTY)));
 
-            if (changed) this.node = hbox;
+            if (changed) {
+                hbox.setPadding(new Insets(2, 2, 2, 2));
+                this.node = hbox;
+                hbox.getChildren().forEach(node1 -> node1.setStyle("-fx-background-color: #ffffff;"));
+            }
         }
     }
 

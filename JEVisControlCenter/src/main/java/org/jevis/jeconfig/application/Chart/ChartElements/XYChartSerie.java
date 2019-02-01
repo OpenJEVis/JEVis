@@ -1,9 +1,8 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +23,6 @@ import java.util.TreeMap;
 public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
     Integer yAxis;
-    ObservableList<MultiAxisChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
     MultiAxisChart.Series<Number, Number> serie;
     TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
@@ -37,7 +35,7 @@ public class XYChartSerie {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
         this.hideShowIcons = hideShowIcons;
-        this.serie = new MultiAxisChart.Series<>(getTableEntryName(), seriesData);
+        this.serie = new MultiAxisChart.Series<>();
 
         generateSeriesFromSamples();
     }
@@ -51,16 +49,16 @@ public class XYChartSerie {
         List<JEVisSample> samples = singleRow.getSamples();
         JEVisUnit unit = singleRow.getUnit();
 
-        seriesData.clear();
+        serie.getData().clear();
 
         int samplesSize = samples.size();
-//        int seriesDataSize = seriesData.size();
-//
+//        int seriesDataSize = serie.getData().size();
+
 //        if (samplesSize < seriesDataSize) {
-//            seriesData.subList(samplesSize, seriesDataSize).clear();
+//            serie.getData().subList(samplesSize, seriesDataSize).clear();
 //        } else if (samplesSize > seriesDataSize) {
 //            for (int i = seriesDataSize; i < samplesSize; i++) {
-//                seriesData.add(new MultiAxisChart.Data<>());
+//                serie.getData().add(new MultiAxisChart.Data<>());
 //            }
 //        }
 
@@ -98,13 +96,20 @@ public class XYChartSerie {
 
                 Long timestamp = dateTime.getMillis();
 
-//                MultiAxisChart.Data<Number, Number> data = seriesData.get(index);
+//                MultiAxisChart.Data<Number, Number> data = serie.getData().get(index);
                 MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>();
                 data.setXValue(timestamp);
                 data.setYValue(currentValue);
                 data.setExtraValue(yAxis);
+
+                data.setNode(null);
                 data.setNode(generateNode(sample));
-                seriesData.add(data);
+
+                Color currentColor = singleRow.getColor();
+                String hexColor = toRGBCode(currentColor);
+                data.getNode().setStyle("-fx-background-color: " + hexColor + ";");
+
+                serie.getData().add(data);
 
                 sampleMap.put(timestamp.doubleValue(), sample);
 
@@ -210,5 +215,12 @@ public class XYChartSerie {
 
     public TreeMap<Double, JEVisSample> getSampleMap() {
         return sampleMap;
+    }
+
+    private String toRGBCode(Color color) {
+        return String.format("#%02X%02X%02X",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
     }
 }

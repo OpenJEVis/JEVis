@@ -48,7 +48,10 @@ public class ImportStep implements ProcessStep {
         List<JEVisSample> cleanSamples = new ArrayList<>();
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
         for (CleanInterval curInterval : resourceManager.getIntervals()) {
-            for (JEVisSample sample : curInterval.getTmpSamples()) {
+            if (curInterval.getTmpSamples().size() > 0) {
+                int lastTmpSampleIndex = curInterval.getTmpSamples().size() - 1;
+                JEVisSample sample = curInterval.getTmpSamples().get(lastTmpSampleIndex);
+
                 Double rawValue = sample.getValueAsDouble();
                 if (rawValue == null || rawValue.isNaN() || rawValue.isInfinite()) {
                     continue;
@@ -58,7 +61,6 @@ public class ImportStep implements ProcessStep {
                     DateTime timestamp = sample.getTimestamp().plusSeconds(cleanDataObject.getPeriodOffset());
                     JEVisSample sampleSql = attribute.buildSample(timestamp, rawValue, sample.getNote());
                     cleanSamples.add(sampleSql);
-
                 }
             }
         }

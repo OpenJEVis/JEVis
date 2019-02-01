@@ -7,6 +7,7 @@ package org.jevis.jedataprocessor.workflow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
@@ -17,6 +18,7 @@ import org.jevis.jedataprocessor.gap.FillGapStep;
 import org.jevis.jedataprocessor.limits.LimitsStep;
 import org.jevis.jedataprocessor.save.ImportStep;
 import org.jevis.jedataprocessor.scaling.ScalingStep;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,17 +71,55 @@ public class ProcessManager {
         this.processSteps = processSteps;
     }
 
+    private boolean missingSamples = true;
+    private boolean rerun = false;
+    private DateTime lastFirstDate;
+    private boolean isWorking = true;
+
     public void start() throws Exception {
         logger.info("[{}] Starting Process", resourceManager.getID());
 
         resourceManager.getCleanDataObject().checkConfig();
 
-
-        for (ProcessStep ps : processSteps) {
-            ps.run(resourceManager);
+        while (missingSamples) {
+            reRun();
         }
 
         logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCleanDataObject().getObject().getName());
+    }
+
+    private void reRun() throws Exception {
+
+        for (ProcessStep ps : processSteps) {
+            if (rerun && ps.getClass().equals(PrepareStep.class)) {
+                JEVisDataSource ds = resourceManager.getCleanDataObject().getObject().getDataSource();
+                ds.clearCache();
+                ds.preload();
+//                resourceManager.setCleanDataObject(new CleanDataObject(ds.getObject(cleanObjectId), new ObjectHandler(ds)));
+                CleanDataObject cdo = resourceManager.getCleanDataObject();
+                cdo.setFirstDate(null);
+            }
+
+            ps.run(resourceManager);
+
+            if (ps.getClass().equals(PrepareStep.class)) {
+                DateTime currentFirstDate = resourceManager.getCleanDataObject().getFirstDate();
+                if (!currentFirstDate.equals(lastFirstDate)) {
+                    lastFirstDate = resourceManager.getCleanDataObject().getFirstDate();
+
+                    if (resourceManager.getIntervals().size() > 10000) {
+                        resourceManager.setIntervals(resourceManager.getIntervals().subList(0, 10000));
+                        missingSamples = true;
+                        rerun = true;
+                    } else {
+                        missingSamples = false;
+                    }
+                } else {
+                    rerun = false;
+                    missingSamples = false;
+                }
+            }
+        }
     }
 
     public String getName() {
