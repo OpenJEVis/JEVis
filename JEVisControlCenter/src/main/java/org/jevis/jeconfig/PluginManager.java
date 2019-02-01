@@ -35,6 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jeconfig.map.MapViewPlugin;
+import org.jevis.jeconfig.plugin.Dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
@@ -94,6 +95,7 @@ public class PluginManager {
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
         plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
         plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.map.title")));
+        plugins.add(new DashBordPlugIn(_ds, I18n.getInstance().getString("plugin.dashboard.title")));
 //        plugins.add(new LoytecBrowser(_ds));
 
         return plugins;

@@ -25,6 +25,7 @@ import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -33,6 +34,8 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
@@ -50,11 +53,11 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
+import org.jevis.jeconfig.plugin.Dashboard.DashBoardPane;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
-import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
@@ -263,6 +266,42 @@ public class JEConfig extends Application {
 
     }
 
+    private void initGUI2(Stage primaryStage) {
+
+
+//        DashboardGrid dashboardGrid = new DashboardGrid();
+//        DashPane3 dashboardGrid = new DashPane3();
+//        DashStackPane dashboardGrid = new DashStackPane();
+        DashBoardPane dashBoardPane = new DashBoardPane();
+
+        Label label = new Label("test");
+        BorderPane test = new BorderPane();
+        test.setCenter(label);
+        test.setStyle("-fx-background-color : #ffaadd;");
+
+        Rectangle rectangle = new Rectangle();
+        rectangle.setWidth(100);
+        rectangle.setHeight(50);
+        rectangle.setFill(Color.DARKSALMON);
+        rectangle.setStroke(Color.BLACK);
+        rectangle.setStrokeWidth(1);
+
+//        dashBoardPane.addNode(rectangle, 5, 5, 2, 1);
+//        DraggableNode draggableNode = new DraggableNode(rectangle);
+//
+//        dashboardGrid.addNode(draggableNode.getNode(), 5, 5, 2, 1);
+//
+        BorderPane root = new BorderPane(dashBoardPane);
+        Scene scene = new Scene(root, 800, 600);
+
+        primaryStage.setMaximized(true);
+        primaryStage.setTitle("Chart test");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+    }
+
+
     /**
      * Build an new JEConfig Login and main frame/stage
      *
@@ -277,7 +316,7 @@ public class JEConfig extends Application {
 
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
             try {
-                Toolkit xToolkit = Toolkit.getDefaultToolkit();
+                java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
                 Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
                 awtAppClassNameField.setAccessible(true);
                 awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
