@@ -7,11 +7,15 @@ package org.jevis.jeconfig.application.Chart.data;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -99,12 +103,30 @@ public class GraphDataModel {
 
         this.selectedData = data;
 
-        System.gc();
+        update();
+    }
 
-//        setChanged();
-//
-//        notifyObservers();
-        graphPluginView.update();
+    private void update() {
+        final String loading = I18n.getInstance().getString("plugin.object.attribute.file.progress");
+        Service<Void> service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() {
+                        updateMessage(loading);
+                        Platform.runLater(graphPluginView::update);
+                        return null;
+                    }
+                };
+            }
+        };
+        ProgressDialog pd = new ProgressDialog(service);
+        pd.setHeaderText(loading);
+        pd.setTitle(loading);
+        pd.getDialogPane().setContent(null);
+
+        service.start();
     }
 
     public void updateSelectedData() {
@@ -265,10 +287,7 @@ public class GraphDataModel {
     public void setHideShowIcons(Boolean hideShowIcons) {
         this.hideShowIcons = hideShowIcons;
 
-//        setChanged();
-//        notifyObservers();
-
-        graphPluginView.update();
+        update();
     }
 
     public ManipulationMode getAddSeries() {
@@ -278,9 +297,7 @@ public class GraphDataModel {
     public void setAddSeries(ManipulationMode addSeries) {
         this.addSeries = addSeries;
 
-//        setChanged();
-//        notifyObservers();
-        graphPluginView.update();
+        update();
     }
 
     public Boolean getAutoResize() {
@@ -290,9 +307,7 @@ public class GraphDataModel {
     public void setAutoResize(Boolean resize) {
         this.autoResize = resize;
 
-//        setChanged();
-//        notifyObservers();
-        graphPluginView.update();
+        update();
     }
 
     public boolean containsId(Long id) {
@@ -523,7 +538,6 @@ public class GraphDataModel {
             }
         });
     }
-
 
 
     public void updateWorkDaysFirstRun() {

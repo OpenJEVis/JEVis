@@ -31,7 +31,19 @@ public class XYLogicalChartSerie extends XYChartSerie {
         List<JEVisSample> samples = singleRow.getSamples();
         List<JEVisSample> modifiedList = getModifiedList(samples);
 
-        seriesData.clear();
+        serie.getData().clear();
+
+//        int samplesSize = samples.size();
+//        int seriesDataSize = serie.getData().size();
+//
+//        if (samplesSize < seriesDataSize) {
+//            serie.getData().subList(samplesSize, seriesDataSize).clear();
+//        } else if (samplesSize > seriesDataSize) {
+//            for (int i = seriesDataSize; i < samplesSize; i++) {
+//                serie.getData().add(new MultiAxisChart.Data<>());
+//            }
+//        }
+
         if (modifiedList.size() > 0) {
             try {
 
@@ -46,16 +58,23 @@ public class XYLogicalChartSerie extends XYChartSerie {
             }
         }
 
-        sampleMap = new TreeMap<Double, JEVisSample>();
+        sampleMap = new TreeMap<>();
         for (JEVisSample sample : modifiedList) {
             try {
+//                int index = samples.indexOf(sample);
+
                 DateTime dateTime = sample.getTimestamp();
                 Double value = sample.getValueAsDouble();
                 Long timestamp = dateTime.getMillis();
 
+//                MultiAxisChart.Data<Number, Number> data = serie.getData().get(index);
                 MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>(timestamp, value);
+                data.setXValue(timestamp);
+                data.setYValue(value);
+                data.setExtraValue(yAxis);
                 data.setExtraValue(yAxis);
 
+                data.setNode(null);
                 Note note = new Note(sample.getNote());
 
                 if (note.getNote() != null && hideShowIcons) {
@@ -70,7 +89,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
 
 
                 sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
-                seriesData.add(data);
+                serie.getData().add(data);
 
             } catch (JEVisException e) {
 

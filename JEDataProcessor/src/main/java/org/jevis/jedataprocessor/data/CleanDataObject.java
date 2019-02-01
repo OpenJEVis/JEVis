@@ -209,6 +209,10 @@ public class CleanDataObject {
         return firstDate;
     }
 
+    public void setFirstDate(DateTime firstDate) {
+        this.firstDate = firstDate;
+    }
+
     public DateTime getMaxEndDate() {
         if (lastDate == null)
             lastDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(period);

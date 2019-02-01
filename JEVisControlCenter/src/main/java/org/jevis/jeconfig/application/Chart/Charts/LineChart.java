@@ -18,8 +18,8 @@ public class LineChart extends XYChart {
     }
 
     @Override
-    public void finalizeChart() {
-        setChart(new MultiAxisLineChart(dateAxis, y1Axis, y2Axis, series));
+    public void initializeChart() {
+        setChart(new MultiAxisLineChart(dateAxis, y1Axis, y2Axis));
     }
 
     @Override

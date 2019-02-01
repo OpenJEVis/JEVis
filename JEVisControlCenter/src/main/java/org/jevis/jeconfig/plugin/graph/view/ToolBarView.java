@@ -81,7 +81,7 @@ public class ToolBarView {
         double iconSize = 20;
         Label labelComboBox = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));
 
-        listAnalysesComboBox = new ComboBox(model.getObservableListAnalyses());
+        listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
         listAnalysesComboBox.setPrefWidth(300);
         setCellFactoryForComboBox();
 
@@ -374,7 +374,7 @@ public class ToolBarView {
         model.setAutoResize(!model.getAutoResize());
     }
 
-    public ComboBox getListAnalysesComboBox() {
+    public ComboBox<JEVisObject> getListAnalysesComboBox() {
         return listAnalysesComboBox;
     }
 
@@ -677,8 +677,7 @@ public class ToolBarView {
     }
 
     public void select(JEVisObject obj) {
-
-        listAnalysesComboBox.getSelectionModel().select(obj);
+        getListAnalysesComboBox().getSelectionModel().select(obj);
     }
 
     public void setDisableToolBarIcons(boolean bool) {
