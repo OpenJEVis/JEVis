@@ -293,10 +293,10 @@ public class GapsAndLimits {
                 for (Gap currentGap : gapList) {
                     Double firstValue = currentGap.getFirstValue();
                     Double lastValue = currentGap.getLastValue();
-                    int size = currentGap.getIntervals().size() + 1; //if there is a gap of 2, then you have 3 steps
+                    int size = currentGap.getIntervals().size(); //if there is a gap of 2, then you have 3 steps
                     if (firstValue != null && lastValue != null) {
                         Double stepSize = (lastValue - firstValue) / size;
-                        Double currentValue = firstValue + stepSize;
+                        Double currentValue = firstValue;
                         for (CleanInterval currentInterval : currentGap.getIntervals()) {
                             JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentValue);
                             String note = "";
@@ -313,10 +313,10 @@ public class GapsAndLimits {
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     Double firstValue = currentLimitBreak.getFirstValue();
                     Double lastValue = currentLimitBreak.getLastValue();
-                    int size = currentLimitBreak.getIntervals().size() + 1; //if there is a gap of 2, then you have 3 steps
+                    int size = currentLimitBreak.getIntervals().size(); //if there is a gap of 2, then you have 3 steps
                     if (firstValue != null && lastValue != null) {
                         Double stepSize = (lastValue - firstValue) / size;
-                        Double currentValue = firstValue + stepSize;
+                        Double currentValue = firstValue;
                         for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
                             JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentValue);
                             String note = "";
