@@ -215,13 +215,15 @@ public class LimitsStep implements ProcessStep {
         }
 
         if (!limitBreaks.contains(currentLimitBreak)) {
-            if (Objects.requireNonNull(currentLimitBreak).getIntervals().size() > 0) {
-                CleanInterval last = currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1);
-                if (last.getTmpSamples().size() > 0) {
-                    JEVisSample lastSample = last.getTmpSamples().get(last.getTmpSamples().size() - 1);
+            if (currentLimitBreak != null) {
+                if (currentLimitBreak.getIntervals().size() > 0) {
+                    CleanInterval last = currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1);
+                    if (last.getTmpSamples().size() > 0) {
+                        JEVisSample lastSample = last.getTmpSamples().get(last.getTmpSamples().size() - 1);
 
-                    currentLimitBreak.setLastValue(lastSample.getValueAsDouble());
-                    limitBreaks.add(currentLimitBreak);
+                        currentLimitBreak.setLastValue(lastSample.getValueAsDouble());
+                        limitBreaks.add(currentLimitBreak);
+                    }
                 }
             }
         }

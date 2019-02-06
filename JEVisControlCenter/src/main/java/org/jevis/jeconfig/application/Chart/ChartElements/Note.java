@@ -72,7 +72,7 @@ public class Note {
                 }
             }
 
-            if (hbox.getChildren().size() >= 2) {
+            if (hbox.getChildren().size() > 2) {
                 hbox.getChildren().clear();
                 try {
                     Label labelMultiple = new Label(I18n.getInstance().getString("plugin.graph.chart.note.multiple"));
