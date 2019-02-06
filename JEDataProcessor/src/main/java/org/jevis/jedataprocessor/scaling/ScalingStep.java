@@ -48,7 +48,7 @@ public class ScalingStep implements ProcessStep {
             } catch (JEVisException e) {
                 throw new Exception("no timestamp for multiplier", e);
             }
-            logger.info("[{}] scale with multiplier {} and offset {} starting at: {}", calcAttribute.getObject().getID(), multiplierDouble, offset, timeStampOfMultiplier);
+            logger.info("[{}] scale with multiplier {} and offset {} starting at: {}", calcAttribute.getCleanObject().getID(), multiplierDouble, offset, timeStampOfMultiplier);
             for (CleanInterval currentInt : intervals) {
                 if (currentInt.getDate().isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || currentInt.getDate().isBefore(nextTimeStampOfMultiplier))) {
                     BigDecimal multi = new BigDecimal(multiplierDouble.toString());

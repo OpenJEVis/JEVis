@@ -55,9 +55,9 @@ public class ResourceManager {
     }
 
     public Long getID() {
-        if (cleanDataObject == null || cleanDataObject.getObject() == null) {
+        if (cleanDataObject == null || cleanDataObject.getCleanObject() == null) {
             return -1L;
         }
-        return cleanDataObject.getObject().getID();
+        return cleanDataObject.getCleanObject().getID();
     }
 }

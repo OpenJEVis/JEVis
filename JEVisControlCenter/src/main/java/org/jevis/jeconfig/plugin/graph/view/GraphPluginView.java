@@ -407,7 +407,7 @@ public class GraphPluginView implements Plugin {
                         case AREA:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
-                                notActive.parallelStream().forEach(na -> {
+                                notActive.forEach(na -> {
                                     if (!na.getChartType().equals(ChartType.PIE)
                                             && !na.getChartType().equals(ChartType.BAR)
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {
@@ -419,7 +419,7 @@ public class GraphPluginView implements Plugin {
                         case LOGICAL:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
-                                notActive.parallelStream().forEach(na -> {
+                                notActive.forEach(na -> {
                                     if (!na.getChartType().equals(ChartType.PIE)
                                             && !na.getChartType().equals(ChartType.BAR)
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {
@@ -431,7 +431,7 @@ public class GraphPluginView implements Plugin {
                         case LINE:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
-                                notActive.parallelStream().forEach(na -> {
+                                notActive.forEach(na -> {
                                     if (!na.getChartType().equals(ChartType.PIE)
                                             && !na.getChartType().equals(ChartType.BAR)
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {
@@ -459,7 +459,7 @@ public class GraphPluginView implements Plugin {
                         case SCATTER:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
-                                notActive.parallelStream().forEach(na -> {
+                                notActive.forEach(na -> {
                                     if (!na.getChartType().equals(ChartType.PIE)
                                             && !na.getChartType().equals(ChartType.BAR)
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {

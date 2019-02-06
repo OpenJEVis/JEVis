@@ -18,7 +18,9 @@ import org.jevis.jedataprocessor.workflow.ProcessStep;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author broder
@@ -36,13 +38,19 @@ public class ImportStep implements ProcessStep {
 
     private void importIntoJEVis(ResourceManager resourceManager) throws Exception {
         CleanDataObject cleanAttr = resourceManager.getCleanDataObject();
-        JEVisObject cleanObject = cleanAttr.getObject();
+        JEVisObject cleanObject = cleanAttr.getCleanObject();
         JEVisAttribute attribute = null;
 
         attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
 
         if (attribute == null) {
             return;
+        }
+
+        boolean hasSamples = attribute.hasSample();
+        Map<DateTime, JEVisSample> listOldSamples = new HashMap<>();
+        for (JEVisSample jeVisSample : attribute.getAllSamples()) {
+            listOldSamples.put(jeVisSample.getTimestamp(), jeVisSample);
         }
 
         List<JEVisSample> cleanSamples = new ArrayList<>();
@@ -59,6 +67,13 @@ public class ImportStep implements ProcessStep {
                 DateTime date = sample.getTimestamp();
                 if (date != null) {
                     DateTime timestamp = sample.getTimestamp().plusSeconds(cleanDataObject.getPeriodOffset());
+
+                    if (hasSamples) {
+                        JEVisSample smp = listOldSamples.get(timestamp);
+                        if (smp != null) {
+                            attribute.deleteSamplesBetween(timestamp.minusMillis(1), timestamp.plusMillis(1));
+                        }
+                    }
                     JEVisSample sampleSql = attribute.buildSample(timestamp, rawValue, sample.getNote());
                     cleanSamples.add(sampleSql);
                 }
@@ -67,7 +82,7 @@ public class ImportStep implements ProcessStep {
         if (cleanSamples.size() > 0) {
             logger.info("[{}] Start import of new Samples: {}", resourceManager.getID(), cleanSamples.size());
             attribute.addSamples(cleanSamples);
-            logger.info("[{}] Imported finished for samples: {}", resourceManager.getID(), cleanSamples.size());
+            logger.info("[{}] Import finished for samples: {}", resourceManager.getID(), cleanSamples.size());
             LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
         } else {
             logger.info("No new Samples.");

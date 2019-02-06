@@ -369,8 +369,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     logger.error("incorrect relationship: {}", re);
                 }
             });
-            logger.error("Relationship amount: {}", objectRelMapCache.size());
-
+            logger.debug("Relationship amount: {}", objectRelMapCache.size());
 
             orLoaded = true;
         }
