@@ -31,7 +31,7 @@
 </security>
 
 <resources>
-    <j2se version="1.8+" href="http://java.sun.com/products/autodl/j2se"  java-vm-args="-XX:+UseG1GC -Xms512m -Xmx4g"/>
+    <j2se version="1.8+" href="http://java.sun.com/products/autodl/j2se"  java-vm-args="-XX:+UseG1GC"/>
     $dependencies
 </resources>
 
