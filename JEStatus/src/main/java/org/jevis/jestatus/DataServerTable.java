@@ -66,8 +66,10 @@ public class DataServerTable extends AlarmTable {
             if (lastReadoutAtt != null) {
                 if (lastReadoutAtt.hasSample()) {
                     JEVisSample lastSample = lastReadoutAtt.getLatestSample();
-                    if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
-                        if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
+                    if (lastSample != null) {
+                        if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                            if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
+                        }
                     }
                 }
             }
@@ -341,8 +343,10 @@ public class DataServerTable extends AlarmTable {
                         if (resultAtt != null) {
                             if (resultAtt.hasSample()) {
                                 JEVisSample lastSample = resultAtt.getLatestSample();
-                                if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
-                                    if (!outOfBounds.contains(target)) outOfBounds.add(target);
+                                if (lastSample != null) {
+                                    if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                        if (!outOfBounds.contains(target)) outOfBounds.add(target);
+                                    }
                                 }
                             }
                         }

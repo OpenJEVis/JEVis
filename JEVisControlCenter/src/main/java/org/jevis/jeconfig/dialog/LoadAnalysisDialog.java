@@ -27,6 +27,7 @@ import org.jevis.commons.datetime.DateHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.graph.view.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
@@ -55,11 +56,16 @@ public class LoadAnalysisDialog {
     private jfxtras.scene.control.ListView<JEVisObject> analysisListView = new ListView<>();
     private JEVisDataSource ds;
     private DateHelper dateHelper = new DateHelper();
-    private ComboBox<String> comboBoxPresetDates;
+    private ComboBox<TimeFrame> comboBoxPresetDates;
     private Boolean[] programmaticallySetPresetDate = new Boolean[4];
-    private ComboBox<String> aggregationBox;
-    private ComboBox<String> mathBox;
+    private ComboBox<AggregationPeriod> aggregationBox;
+    private ComboBox<ManipulationMode> mathBox;
     private CustomPeriodObject cpo;
+    private DateTime oldStart;
+    private DateTime oldSEnd;
+    private AnalysisTimeFrame oldTimeFrame;
+    private AggregationPeriod oldAggregation;
+    private ManipulationMode oldManipulation;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
@@ -169,20 +175,7 @@ public class LoadAnalysisDialog {
         pickerTimeEnd.setIs24HourView(true);
         pickerTimeEnd.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
-        ObservableList<String> presetDateEntries = FXCollections.observableArrayList();
-        final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
-        final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
-        final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
-        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
-        final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
-        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
-        final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
-        final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
-        final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
-        final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
-
-        presetDateEntries.addAll(custom, today, yesterday, last7Days, lastWeek, last30Days, lastMonth, thisYear, lastYear, customStartEnd);
-        comboBoxPresetDates = new ComboBox<>(presetDateEntries);
+        comboBoxPresetDates = getPresetDatesBox();
 
         ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
 
@@ -195,139 +188,19 @@ public class LoadAnalysisDialog {
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
 
-                DateTime oldStart = new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
-                        pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond());
-                DateTime oldSEnd = new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),
-                        pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond());
-
-                AnalysisTimeFrame oldTimeFrame = null;
-                switch (comboBoxPresetDates.getSelectionModel().getSelectedIndex()) {
-                    //custom
-                    case 0:
-                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
-                        break;
-                    //today
-                    case 1:
-                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.today);
-                        break;
-                    //yesterday
-                    case 2:
-                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.yesterday);
-                        break;
-                    //last7days
-                    case 3:
-                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
-                        break;
-                    //last week
-                    case 4:
-                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastWeek);
-                        break;
-                    //last 30 days
-                    case 5:
-                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last30Days);
-                        break;
-                    //lastMonth
-                    case 6:
-                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth);
-                        break;
-                    //thisYear
-                    case 7:
-                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth);
-                        break;
-                    //lastYear
-                    case 8:
-                        oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth);
-                        break;
-                    //custom object
-                    case 9:
-                        if (cpo != null)
-                            oldTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd, cpo.getObject().getID());
-                        break;
-                }
-                AggregationPeriod oldAggregation = AggregationPeriod.parseAggregation(aggregationBox.valueProperty().toString());
-                ManipulationMode oldManipulation = ManipulationMode.parseManipulation(mathBox.valueProperty().toString());
-
                 graphDataModel.setCurrentAnalysis(newValue);
                 graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 graphDataModel.setManipulationMode(ManipulationMode.NONE);
-                AnalysisTimeFrame preview = new AnalysisTimeFrame();
-                preview.setTimeFrame(AnalysisTimeFrame.TimeFrame.preview);
+                AnalysisTimeFrame preview = new AnalysisTimeFrame(TimeFrame.PREVIEW);
                 graphDataModel.setAnalysisTimeFrame(preview);
 
                 toolBarView.select(newValue);
-
-                graphDataModel.setAggregationPeriod(oldAggregation);
-                graphDataModel.setManipulationMode(oldManipulation);
-                setSelectedStart(oldStart);
-                setSelectedEnd(oldSEnd);
-                graphDataModel.setAnalysisTimeFrame(oldTimeFrame);
-                if (Objects.requireNonNull(oldTimeFrame).getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
-                    setPicker(oldStart, oldSEnd);
-                }
             }
         });
-
-        if (graphDataModel.getAnalysisTimeFrame() == null) {
-            /**
-             * fallback to last 7days as initial value for timeframe
-             */
-            comboBoxPresetDates.getSelectionModel().select(3);
-            applySelectedDatePresetToDataModel(3);
-        } else {
-
-            switch (graphDataModel.getAnalysisTimeFrame().getTimeFrame()) {
-                case custom:
-                    comboBoxPresetDates.getSelectionModel().select(0);
-                    applySelectedDatePresetToDataModel(0);
-                    break;
-                case today:
-                    comboBoxPresetDates.getSelectionModel().select(1);
-                    applySelectedDatePresetToDataModel(1);
-                    break;
-                case yesterday:
-                    comboBoxPresetDates.getSelectionModel().select(2);
-                    applySelectedDatePresetToDataModel(2);
-                    break;
-                case last7Days:
-                    comboBoxPresetDates.getSelectionModel().select(3);
-                    applySelectedDatePresetToDataModel(3);
-                    break;
-                case lastWeek:
-                    comboBoxPresetDates.getSelectionModel().select(4);
-                    applySelectedDatePresetToDataModel(4);
-                    break;
-                case last30Days:
-                    comboBoxPresetDates.getSelectionModel().select(5);
-                    applySelectedDatePresetToDataModel(5);
-                    break;
-                case lastMonth:
-                    comboBoxPresetDates.getSelectionModel().select(6);
-                    applySelectedDatePresetToDataModel(6);
-                    break;
-                case thisYear:
-                    comboBoxPresetDates.getSelectionModel().select(7);
-                    applySelectedDatePresetToDataModel(7);
-                    break;
-                case lastYear:
-                    comboBoxPresetDates.getSelectionModel().select(8);
-                    applySelectedDatePresetToDataModel(8);
-                    break;
-                case customStartEnd:
-                    comboBoxPresetDates.getSelectionModel().select(9);
-                    applySelectedDatePresetToDataModel(9);
-                    break;
-            }
-        }
 
         for (int i = 0; i < 4; i++) {
             programmaticallySetPresetDate[i] = false;
         }
-
-        comboBoxPresetDates.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                applySelectedDatePresetToDataModel(newValue.intValue());
-            }
-        });
 
         setupPickerListener();
 
@@ -419,6 +292,20 @@ public class LoadAnalysisDialog {
         loadButton.setOnAction(event -> {
             response = Response.LOAD;
 
+            graphDataModel.setAggregationPeriod(aggregationBox.getSelectionModel().getSelectedItem());
+            graphDataModel.setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
+
+            setSelectedStart(new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
+                    pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond()));
+            setSelectedEnd(new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),
+                    pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond()));
+
+
+            if (cpo != null && comboBoxPresetDates.getSelectionModel().getSelectedItem().equals(TimeFrame.CUSTOM_START_END))
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(comboBoxPresetDates.getSelectionModel().getSelectedItem(), cpo.getObject().getID()));
+            else
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(comboBoxPresetDates.getSelectionModel().getSelectedItem()));
+
             stage.close();
             stage = null;
 
@@ -437,173 +324,238 @@ public class LoadAnalysisDialog {
         return response;
     }
 
-    private ComboBox<String> getAggregationBox() {
-        List<String> aggList = new ArrayList<>();
+    private ComboBox<TimeFrame> getPresetDatesBox() {
 
-        String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
-        String keyHourly = I18n.getInstance().getString("plugin.graph.interval.hourly");
-        String keyDaily = I18n.getInstance().getString("plugin.graph.interval.daily");
-        String keyWeekly = I18n.getInstance().getString("plugin.graph.interval.weekly");
-        String keyMonthly = I18n.getInstance().getString("plugin.graph.interval.monthly");
-        String keyQuarterly = I18n.getInstance().getString("plugin.graph.interval.quarterly");
-        String keyYearly = I18n.getInstance().getString("plugin.graph.interval.yearly");
+        final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
+        final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
+        final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
+        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
+        final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
+        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
+        final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
+        final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
+        final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
+        final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
 
 
-        aggList.add(keyPreset);
-        aggList.add(keyHourly);
-        aggList.add(keyDaily);
-        aggList.add(keyWeekly);
-        aggList.add(keyMonthly);
-        aggList.add(keyQuarterly);
-        aggList.add(keyYearly);
+        ComboBox<TimeFrame> timeFrameComboBox = new ComboBox<>();
+        timeFrameComboBox.setItems(FXCollections.observableArrayList(TimeFrame.values()));
+        timeFrameComboBox.getItems().remove(TimeFrame.PREVIEW);
 
-        ComboBox<String> aggregate = new ComboBox<>();
-        aggregate.setItems(FXCollections.observableArrayList(aggList));
+        Callback<javafx.scene.control.ListView<TimeFrame>, ListCell<TimeFrame>> cellFactory = new Callback<javafx.scene.control.ListView<TimeFrame>, ListCell<TimeFrame>>() {
+            @Override
+            public ListCell<TimeFrame> call(javafx.scene.control.ListView<TimeFrame> param) {
+                return new ListCell<TimeFrame>() {
+                    @Override
+                    protected void updateItem(TimeFrame timeFrame, boolean empty) {
+                        super.updateItem(timeFrame, empty);
+                        if (empty || timeFrame == null) {
+                            setText("");
+                        } else {
+                            String text = "";
+                            switch (timeFrame) {
+                                case CUSTOM:
+                                    text = custom;
+                                    break;
+                                case TODAY:
+                                    text = today;
+                                    break;
+                                case YESTERDAY:
+                                    text = yesterday;
+                                    break;
+                                case LAST_7_DAYS:
+                                    text = last7Days;
+                                    break;
+                                case LAST_WEEK:
+                                    text = lastWeek;
+                                    break;
+                                case LAST_30_DAYS:
+                                    text = last30Days;
+                                    break;
+                                case LAST_MONTH:
+                                    text = lastMonth;
+                                    break;
+                                case THIS_YEAR:
+                                    text = thisYear;
+                                    break;
+                                case LAST_YEAR:
+                                    text = lastYear;
+                                    break;
+                                case CUSTOM_START_END:
+                                    text = customStartEnd;
+                                    break;
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        };
+        timeFrameComboBox.setCellFactory(cellFactory);
+        timeFrameComboBox.setButtonCell(cellFactory.call(null));
+
+        timeFrameComboBox.getSelectionModel().selectFirst();
+
+        timeFrameComboBox.getSelectionModel().select(graphDataModel.getAnalysisTimeFrame().getTimeFrame());
+        applySelectedDatePresetToDataModel(timeFrameComboBox.getSelectionModel().getSelectedItem());
+
+        timeFrameComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(newValue));
+            applySelectedDatePresetToDataModel(newValue);
+        });
+
+        return timeFrameComboBox;
+    }
+
+    private ComboBox<AggregationPeriod> getAggregationBox() {
+
+        final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
+        final String keyHourly = I18n.getInstance().getString("plugin.graph.interval.hourly");
+        final String keyDaily = I18n.getInstance().getString("plugin.graph.interval.daily");
+        final String keyWeekly = I18n.getInstance().getString("plugin.graph.interval.weekly");
+        final String keyMonthly = I18n.getInstance().getString("plugin.graph.interval.monthly");
+        final String keyQuarterly = I18n.getInstance().getString("plugin.graph.interval.quarterly");
+        final String keyYearly = I18n.getInstance().getString("plugin.graph.interval.yearly");
+
+        ComboBox<AggregationPeriod> aggregate = new ComboBox<>();
+        aggregate.setItems(FXCollections.observableArrayList(AggregationPeriod.values()));
+
+        Callback<javafx.scene.control.ListView<AggregationPeriod>, ListCell<AggregationPeriod>> cellFactory = new Callback<javafx.scene.control.ListView<AggregationPeriod>, ListCell<AggregationPeriod>>() {
+            @Override
+            public ListCell<AggregationPeriod> call(javafx.scene.control.ListView<AggregationPeriod> param) {
+                return new ListCell<AggregationPeriod>() {
+                    @Override
+                    protected void updateItem(AggregationPeriod aggregationPeriod, boolean empty) {
+                        super.updateItem(aggregationPeriod, empty);
+                        if (empty || aggregationPeriod == null) {
+                            setText("");
+                        } else {
+                            String text = "";
+                            switch (aggregationPeriod) {
+                                case NONE:
+                                    text = keyPreset;
+                                    break;
+                                case HOURLY:
+                                    text = keyHourly;
+                                    break;
+                                case DAILY:
+                                    text = keyDaily;
+                                    break;
+                                case WEEKLY:
+                                    text = keyWeekly;
+                                    break;
+                                case MONTHLY:
+                                    text = keyMonthly;
+                                    break;
+                                case QUARTERLY:
+                                    text = keyQuarterly;
+                                    break;
+                                case YEARLY:
+                                    text = keyYearly;
+                                    break;
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        };
+        aggregate.setCellFactory(cellFactory);
+        aggregate.setButtonCell(cellFactory.call(null));
+
         aggregate.getSelectionModel().selectFirst();
 
         if (!graphDataModel.getSelectedData().isEmpty()) {
-            for (ChartDataModel chartDataModel : graphDataModel.getSelectedData()) {
-                switch (chartDataModel.getAggregationPeriod()) {
-                    case NONE:
-                        aggregate.valueProperty().setValue(keyPreset);
-                        break;
-                    case HOURLY:
-                        aggregate.valueProperty().setValue(keyHourly);
-                        break;
-                    case DAILY:
-                        aggregate.valueProperty().setValue(keyDaily);
-                        break;
-                    case WEEKLY:
-                        aggregate.valueProperty().setValue(keyWeekly);
-                        break;
-                    case MONTHLY:
-                        aggregate.valueProperty().setValue(keyMonthly);
-                        break;
-                    case QUARTERLY:
-                        aggregate.valueProperty().setValue(keyQuarterly);
-                        break;
-                    case YEARLY:
-                        aggregate.valueProperty().setValue(keyYearly);
-                        break;
-                }
-                break;
-            }
+            graphDataModel.getSelectedData().stream().findFirst().ifPresent(chartDataModel -> aggregate.getSelectionModel().select(chartDataModel.getAggregationPeriod()));
         }
 
-        aggregate.valueProperty().addListener((observable, oldValue, newValue) -> {
+        aggregate.valueProperty().addListener((observable, oldValue, newValue) -> graphDataModel.getSelectedData().forEach(data -> data.setAggregationPeriod(newValue)));
 
-            graphDataModel.getSelectedData().forEach(data -> {
-                if (newValue.equals(keyPreset)) {
-                    data.setAggregationPeriod(AggregationPeriod.NONE);
-                } else if (newValue.equals(keyHourly)) {
-                    data.setAggregationPeriod(AggregationPeriod.HOURLY);
-                    mathBox.getSelectionModel().select(1);
-                } else if (newValue.equals(keyDaily)) {
-                    data.setAggregationPeriod(AggregationPeriod.DAILY);
-                    mathBox.getSelectionModel().select(1);
-                } else if (newValue.equals(keyWeekly)) {
-                    data.setAggregationPeriod(AggregationPeriod.WEEKLY);
-                    mathBox.getSelectionModel().select(1);
-                } else if (newValue.equals(keyMonthly)) {
-                    data.setAggregationPeriod(AggregationPeriod.MONTHLY);
-                    mathBox.getSelectionModel().select(1);
-                } else if (newValue.equals(keyQuarterly)) {
-                    data.setAggregationPeriod(AggregationPeriod.QUARTERLY);
-                    mathBox.getSelectionModel().select(1);
-                } else if (newValue.equals(keyYearly)) {
-                    data.setAggregationPeriod(AggregationPeriod.YEARLY);
-                    mathBox.getSelectionModel().select(1);
-                }
-            });
-
-        });
         return aggregate;
     }
 
-    private ComboBox<String> getMathBox() {
-        List<String> mathList = new ArrayList<>();
+    private ComboBox<ManipulationMode> getMathBox() {
 
-        String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
+        final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
 
-        String keyTotal = I18n.getInstance().getString("plugin.graph.manipulation.total");
-        String keyRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.runningmean");
-        String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
-        String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
-        String keySortedMax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
+        final String keyTotal = I18n.getInstance().getString("plugin.graph.manipulation.total");
+        final String keyRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.runningmean");
+        final String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
+        final String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
+        final String keySortedMax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
 
-        mathList.add(keyPreset);
-        mathList.add(keyTotal);
-        mathList.add(keyRunningMean);
-        mathList.add(keyCentricRunningMean);
-        mathList.add(keySortedMin);
-        mathList.add(keySortedMax);
+        ComboBox<ManipulationMode> math = new ComboBox<>();
+        List<ManipulationMode> customList = new ArrayList<>();
+        customList.add(ManipulationMode.NONE);
+        customList.add(ManipulationMode.TOTAL);
+        customList.add(ManipulationMode.RUNNING_MEAN);
+        customList.add(ManipulationMode.CENTRIC_RUNNING_MEAN);
+        customList.add(ManipulationMode.SORTED_MIN);
+        customList.add(ManipulationMode.SORTED_MAX);
 
-        ComboBox<String> math = new ComboBox<>();
-        math.setItems(FXCollections.observableArrayList(mathList));
+        math.setItems(FXCollections.observableArrayList(customList));
         math.getSelectionModel().selectFirst();
+
+        Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>> cellFactory = new Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>>() {
+            @Override
+            public ListCell<ManipulationMode> call(javafx.scene.control.ListView<ManipulationMode> param) {
+                return new ListCell<ManipulationMode>() {
+                    @Override
+                    protected void updateItem(ManipulationMode manipulationMode, boolean empty) {
+                        super.updateItem(manipulationMode, empty);
+                        if (empty || manipulationMode == null) {
+                            setText("");
+                        } else {
+                            String text = "";
+                            switch (manipulationMode) {
+                                case NONE:
+                                    text = keyPreset;
+                                    break;
+                                case TOTAL:
+                                    text = keyTotal;
+                                    break;
+                                case RUNNING_MEAN:
+                                    text = keyRunningMean;
+                                    break;
+                                case CENTRIC_RUNNING_MEAN:
+                                    text = keyCentricRunningMean;
+                                    break;
+                                case SORTED_MIN:
+                                    text = keySortedMin;
+                                    break;
+                                case SORTED_MAX:
+                                    text = keySortedMax;
+                                    break;
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        };
+        math.setCellFactory(cellFactory);
+        math.setButtonCell(cellFactory.call(null));
 
         if (!graphDataModel.getSelectedData().isEmpty()) {
             for (ChartDataModel chartDataModel : graphDataModel.getSelectedData()) {
-                switch (chartDataModel.getManipulationMode()) {
-                    case NONE:
-                        math.valueProperty().setValue(keyPreset);
-                        break;
-                    case TOTAL:
-                        math.valueProperty().setValue(keyPreset);
-                        break;
-                    case RUNNING_MEAN:
-                        math.valueProperty().setValue(keyRunningMean);
-                        aggregationBox.getSelectionModel().select(0);
-                        break;
-                    case CENTRIC_RUNNING_MEAN:
-                        math.valueProperty().setValue(keyCentricRunningMean);
-                        aggregationBox.getSelectionModel().select(0);
-                        break;
-                    case SORTED_MAX:
-                        math.valueProperty().setValue(keySortedMax);
-                        aggregationBox.getSelectionModel().select(0);
-                        break;
-                    case SORTED_MIN:
-                        math.valueProperty().setValue(keySortedMin);
-                        aggregationBox.getSelectionModel().select(0);
-                        break;
-                }
+                math.getSelectionModel().select(chartDataModel.getManipulationMode());
+                if (!chartDataModel.getManipulationMode().equals(ManipulationMode.NONE) ||
+                        !chartDataModel.getManipulationMode().equals(ManipulationMode.TOTAL))
+                    getAggregationBox().getSelectionModel().select(0);
                 break;
             }
         }
 
-        math.valueProperty().addListener((observable, oldValue, newValue) -> {
+        math.valueProperty().addListener((observable, oldValue, newValue) -> graphDataModel.getSelectedData().forEach(data -> data.setManipulationMode(newValue)));
 
-            graphDataModel.getSelectedData().forEach(data -> {
-                if (newValue.equals(keyPreset)) {
-                    data.setManipulationMode(ManipulationMode.NONE);
-                } else if (newValue.equals(keyTotal)) {
-                    data.setManipulationMode(ManipulationMode.TOTAL);
-                } else if (newValue.equals(keyRunningMean)) {
-                    data.setManipulationMode(ManipulationMode.RUNNING_MEAN);
-                    aggregationBox.getSelectionModel().select(0);
-                } else if (newValue.equals(keyCentricRunningMean)) {
-                    data.setManipulationMode(ManipulationMode.CENTRIC_RUNNING_MEAN);
-                    aggregationBox.getSelectionModel().select(0);
-                } else if (newValue.equals(keySortedMax)) {
-                    data.setManipulationMode(ManipulationMode.SORTED_MAX);
-                    aggregationBox.getSelectionModel().select(0);
-                } else if (newValue.equals(keySortedMin)) {
-                    data.setManipulationMode(ManipulationMode.SORTED_MIN);
-                    aggregationBox.getSelectionModel().select(0);
-                }
-
-            });
-
-        });
         return math;
     }
 
-    private void applySelectedDatePresetToDataModel(Integer newValue) {
+    private void applySelectedDatePresetToDataModel(TimeFrame newValue) {
         switch (newValue) {
             //Custom
-            case 0:
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.custom));
+            case CUSTOM:
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.CUSTOM));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = false;
                 }
@@ -621,78 +573,78 @@ public class LoadAnalysisDialog {
                 setPicker(start, end);
                 break;
             //today
-            case 1:
+            case TODAY:
                 dateHelper.setType(DateHelper.TransformType.TODAY);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.today));
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.TODAY));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             //yesterday
-            case 2:
+            case YESTERDAY:
                 dateHelper.setType(DateHelper.TransformType.YESTERDAY);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.yesterday));
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.YESTERDAY));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             //last 7 days
-            case 3:
+            case LAST_7_DAYS:
                 dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days));
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_7_DAYS));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             //last Week
-            case 4:
+            case LAST_WEEK:
                 dateHelper.setType(DateHelper.TransformType.LASTWEEK);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastWeek));
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_WEEK));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             //last 30 days
-            case 5:
+            case LAST_30_DAYS:
                 dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last30Days));
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_30_DAYS));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
-            case 6:
+            case LAST_MONTH:
                 //last Month
                 dateHelper.setType(DateHelper.TransformType.LASTMONTH);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastMonth));
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_MONTH));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
-            case 7:
+            case THIS_YEAR:
                 //this Year
                 dateHelper.setType(DateHelper.TransformType.THISYEAR);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.thisYear));
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.THIS_YEAR));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
-            case 8:
+            case LAST_YEAR:
                 //last Year
                 dateHelper.setType(DateHelper.TransformType.LASTYEAR);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.lastYear));
+                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_YEAR));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
-            case 9:
+            case CUSTOM_START_END:
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
@@ -744,24 +696,6 @@ public class LoadAnalysisDialog {
                 };
             }
         };
-    }
-
-    private void checkForCustomizedWorkdayTimeFrame() {
-        if (graphDataModel.getWorkdayStart() != null && graphDataModel.getWorkdayEnd() != null) {
-            dateHelper.setStartTime(graphDataModel.getWorkdayStart());
-            dateHelper.setEndTime(graphDataModel.getWorkdayEnd());
-            if (graphDataModel.getWorkdayEnd().isAfter(graphDataModel.getWorkdayStart())) {
-                setSelectedStart(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        graphDataModel.getWorkdayStart().getHour(), graphDataModel.getWorkdayStart().getMinute(), 0).minusDays(7));
-                setSelectedEnd(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        graphDataModel.getWorkdayEnd().getHour(), graphDataModel.getWorkdayEnd().getMinute(), 59, 999));
-            } else {
-                setSelectedStart(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        graphDataModel.getWorkdayStart().getHour(), graphDataModel.getWorkdayStart().getMinute(), 0).minusDays(8));
-                setSelectedEnd(new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(),
-                        graphDataModel.getWorkdayEnd().getHour(), graphDataModel.getWorkdayEnd().getMinute(), 59, 999));
-            }
-        }
     }
 
     private void setupPickerListener() {
@@ -888,11 +822,11 @@ public class LoadAnalysisDialog {
                                 dateHelper.setEndTime(graphDataModel.getWorkdayEnd());
 
                                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
-                                newTimeFrame.setTimeFrame(AnalysisTimeFrame.TimeFrame.customStartEnd);
+                                newTimeFrame.setTimeFrame(TimeFrame.CUSTOM_START_END);
                                 newTimeFrame.setId(cpo.getObject().getID());
                                 graphDataModel.setAnalysisTimeFrame(newTimeFrame);
 
-                                comboBoxPresetDates.getSelectionModel().select(7);
+                                comboBoxPresetDates.getSelectionModel().select(TimeFrame.CUSTOM_START_END);
                                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                             }
                         }
@@ -907,32 +841,12 @@ public class LoadAnalysisDialog {
     }
 
     private void setPicker(DateTime start, DateTime end) {
-        //setSelectedStart(start);
-        //setSelectedEnd(end);
+
         if (start != null && end != null) {
             pickerDateStart.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
             pickerDateEnd.valueProperty().setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
             pickerTimeStart.valueProperty().setValue(LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour(), start.getSecondOfMinute()));
             pickerTimeEnd.valueProperty().setValue(LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour(), end.getSecondOfMinute()));
-        } else {
-//            DateTime startFromModel = null;
-//            DateTime endFromModel = null;
-//            for (ChartDataModel mdl : graphDataModel.getSelectedData()) {
-//                if (startFromModel == null) startFromModel = mdl.getSelectedStart();
-//                else if (mdl.getSelectedStart() != null && mdl.getSelectedStart().isBefore(startFromModel))
-//                    startFromModel = mdl.getSelectedStart();
-//
-//                if (endFromModel == null) endFromModel = mdl.getSelectedEnd();
-//                else if (mdl.getSelectedEnd() != null && mdl.getSelectedEnd().isAfter(endFromModel))
-//                    endFromModel = mdl.getSelectedEnd();
-//            }
-//
-//            if (startFromModel != null && endFromModel != null) {
-//                pickerDateStart.valueProperty().setValue(LocalDate.of(startFromModel.getYear(), startFromModel.getMonthOfYear(), startFromModel.getDayOfMonth()));
-//                pickerDateEnd.valueProperty().setValue(LocalDate.of(endFromModel.getYear(), endFromModel.getMonthOfYear(), endFromModel.getDayOfMonth()));
-//                pickerTimeStart.valueProperty().setValue(LocalTime.of(startFromModel.getHourOfDay(), startFromModel.getMinuteOfHour(), startFromModel.getSecondOfMinute()));
-//                pickerTimeEnd.valueProperty().setValue(LocalTime.of(endFromModel.getHourOfDay(), endFromModel.getMinuteOfHour(), endFromModel.getSecondOfMinute()));
-//            }
         }
     }
 

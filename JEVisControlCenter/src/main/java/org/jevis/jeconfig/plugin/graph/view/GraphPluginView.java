@@ -39,11 +39,8 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.*;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
@@ -188,7 +185,7 @@ public class GraphPluginView implements Plugin {
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel);
 
         AnalysisTimeFrame atf = new AnalysisTimeFrame();
-        atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
+        atf.setTimeFrame(TimeFrame.CUSTOM);
 
         dataModel.setAnalysisTimeFrame(atf);
 

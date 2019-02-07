@@ -69,24 +69,29 @@ public class CalculationTable extends AlarmTable {
         List<JEVisObject> outOfBounds = new ArrayList<>();
 
         for (JEVisObject calculation : calcObjects) {
-            JEVisAttribute lastAtt = calcAndTarget.get(calculation).getAttribute("Output");
-            if (lastAtt != null) {
-                JEVisSample lastSampleOutput = lastAtt.getLatestSample();
-                TargetHelper th = null;
-                if (lastSampleOutput != null) {
-                    th = new TargetHelper(ds, lastSampleOutput.getValueAsString());
-                    JEVisObject target = th.getObject();
-                    if (target != null) {
-                        getListCheckedData().add(target);
+            JEVisObject result = calcAndTarget.get(calculation);
+            if (result != null) {
+                JEVisAttribute lastAtt = result.getAttribute("Output");
+                if (lastAtt != null) {
+                    JEVisSample lastSampleOutput = lastAtt.getLatestSample();
+                    TargetHelper th = null;
+                    if (lastSampleOutput != null) {
+                        th = new TargetHelper(ds, lastSampleOutput.getValueAsString());
+                        JEVisObject target = th.getObject();
+                        if (target != null) {
+                            getListCheckedData().add(target);
 
-                        calcAndResult.put(calculation, target);
+                            calcAndResult.put(calculation, target);
 
-                        JEVisAttribute resultAtt = target.getAttribute("Value");
-                        if (resultAtt != null) {
-                            if (resultAtt.hasSample()) {
-                                JEVisSample lastSample = resultAtt.getLatestSample();
-                                if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
-                                    outOfBounds.add(calculation);
+                            JEVisAttribute resultAtt = target.getAttribute("Value");
+                            if (resultAtt != null) {
+                                if (resultAtt.hasSample()) {
+                                    JEVisSample lastSample = resultAtt.getLatestSample();
+                                    if (lastSample != null) {
+                                        if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                            outOfBounds.add(calculation);
+                                        }
+                                    }
                                 }
                             }
                         }

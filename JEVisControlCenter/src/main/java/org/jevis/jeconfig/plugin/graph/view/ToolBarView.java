@@ -29,6 +29,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
@@ -100,7 +101,7 @@ public class ToolBarView {
                     break;
                 }
 
-                if (model.getAnalysisTimeFrame().getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
+                if (model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)) {
                     model.getSelectedData().forEach(chartDataModel -> {
                         if (chartDataModel.getSelectedStart() != null && chartDataModel.getSelectedEnd() != null) {
                             if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
@@ -343,7 +344,7 @@ public class ToolBarView {
             GraphDataModel newModel = new GraphDataModel(ds, graphPluginView);
 
             AnalysisTimeFrame atf = new AnalysisTimeFrame();
-            atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
+            atf.setTimeFrame(TimeFrame.CUSTOM);
 
             newModel.setAnalysisTimeFrame(atf);
 

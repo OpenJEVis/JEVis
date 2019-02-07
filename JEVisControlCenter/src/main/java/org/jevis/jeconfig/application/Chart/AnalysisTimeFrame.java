@@ -2,7 +2,7 @@ package org.jevis.jeconfig.application.Chart;
 
 public class AnalysisTimeFrame {
 
-    private TimeFrame timeFrame = TimeFrame.last7Days;
+    private TimeFrame timeFrame = TimeFrame.TODAY;
 
     private long id = 0l;
 
@@ -37,54 +37,30 @@ public class AnalysisTimeFrame {
     public TimeFrame parseTimeFrameFromString(String s) {
         switch (s) {
             case "custom":
-                return TimeFrame.custom;
+                return TimeFrame.CUSTOM;
             case "today":
-                return TimeFrame.today;
+                return TimeFrame.TODAY;
             case "last7Days":
-                return TimeFrame.last7Days;
+                return TimeFrame.LAST_7_DAYS;
             case "last30Days":
-                return TimeFrame.last30Days;
+                return TimeFrame.LAST_30_DAYS;
             case "yesterday":
-                return TimeFrame.yesterday;
+                return TimeFrame.YESTERDAY;
             case "lastWeek":
-                return TimeFrame.lastWeek;
+                return TimeFrame.LAST_WEEK;
             case "lastMonth":
-                return TimeFrame.lastMonth;
+                return TimeFrame.LAST_MONTH;
             case "thisYear":
-                return TimeFrame.thisYear;
+                return TimeFrame.THIS_YEAR;
             case "lastYear":
-                return TimeFrame.lastYear;
+                return TimeFrame.LAST_YEAR;
             case "customStartEnd":
-                return TimeFrame.customStartEnd;
+                return TimeFrame.CUSTOM_START_END;
             case "preview":
-                return TimeFrame.preview;
+                return TimeFrame.PREVIEW;
         }
-        return TimeFrame.last7Days;
+        return TimeFrame.TODAY;
     }
 
-    public enum TimeFrame {
-        custom("custom"),
-        today("today"),
-        last7Days("last7Days"),
-        last30Days("last30Days"),
-        yesterday("yesterday"),
-        lastWeek("lastWeek"),
-        lastMonth("lastMonth"),
-        thisYear("thisYear"),
-        lastYear("lastYear"),
-        customStartEnd("customStartEnd"),
-        preview("preview");
-
-        private final String name;
-
-        TimeFrame(String s) {
-            this.name = s;
-        }
-
-        @Override
-        public String toString() {
-            return this.name;
-        }
-    }
 
 }

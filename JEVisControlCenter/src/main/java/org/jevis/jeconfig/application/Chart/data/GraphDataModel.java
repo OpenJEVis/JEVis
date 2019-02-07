@@ -28,10 +28,7 @@ import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.*;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
@@ -55,7 +52,7 @@ public class GraphDataModel {
     private Boolean hideShowIcons = true;
     private ManipulationMode addSeries = ManipulationMode.NONE;
     private Boolean autoResize = true;
-    private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(AnalysisTimeFrame.TimeFrame.last7Days);
+    private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
     private JEVisDataSource ds;
     private ObservableList<JEVisObject> observableListAnalyses = FXCollections.observableArrayList();
     private JsonChartDataModel listAnalysisModel = new JsonChartDataModel();
@@ -178,18 +175,6 @@ public class GraphDataModel {
                     selectedData.add(value);
                 }
             }
-
-            if (jsonChartDataModel.getAnalysisTimeFrame() != null) {
-                try {
-                    AnalysisTimeFrame newATF = new AnalysisTimeFrame();
-                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(jsonChartDataModel.getAnalysisTimeFrame().getTimeframe()));
-                    newATF.setId(Long.parseLong(jsonChartDataModel.getAnalysisTimeFrame().getId()));
-                    analysisTimeFrame = newATF;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
         }
         this.selectedData = selectedData;
     }
@@ -350,39 +335,49 @@ public class GraphDataModel {
 
             switch (analysisTimeFrame.getTimeFrame()) {
                 //Custom
-                case custom:
+                case CUSTOM:
                     break;
                 //today
-                case today:
+                case TODAY:
                     dateHelper.setType(DateHelper.TransformType.TODAY);
                     updateStartEndToDataModel(dateHelper);
                     break;
-                //last 7 days
-                case last7Days:
-                    dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                    updateStartEndToDataModel(dateHelper);
-                    break;
-                //last 30 days
-                case last30Days:
-                    dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                    updateStartEndToDataModel(dateHelper);
-                    break;
                 //yesterday
-                case yesterday:
+                case YESTERDAY:
                     dateHelper.setType(DateHelper.TransformType.YESTERDAY);
                     updateStartEndToDataModel(dateHelper);
                     break;
+                //last 7 days
+                case LAST_7_DAYS:
+                    dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
                 //last Week days
-                case lastWeek:
+                case LAST_WEEK:
                     dateHelper.setType(DateHelper.TransformType.LASTWEEK);
                     updateStartEndToDataModel(dateHelper);
                     break;
-                case lastMonth:
+                //last 30 days
+                case LAST_30_DAYS:
+                    dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
+                case LAST_MONTH:
                     //last Month
                     dateHelper.setType(DateHelper.TransformType.LASTMONTH);
                     updateStartEndToDataModel(dateHelper);
                     break;
-                case customStartEnd:
+                case THIS_YEAR:
+                    //last Month
+                    dateHelper.setType(DateHelper.TransformType.THISYEAR);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
+                case LAST_YEAR:
+                    //last Month
+                    dateHelper.setType(DateHelper.TransformType.LASTYEAR);
+                    updateStartEndToDataModel(dateHelper);
+                    break;
+                case CUSTOM_START_END:
                     if (analysisTimeFrame.getId() != 0l) {
                         try {
                             dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
@@ -395,7 +390,7 @@ public class GraphDataModel {
                         }
                         break;
                     }
-                case preview:
+                case PREVIEW:
                     try {
                         AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now().minusDays(1));
                         AtomicReference<DateTime> end = new AtomicReference<>(DateTime.now());
