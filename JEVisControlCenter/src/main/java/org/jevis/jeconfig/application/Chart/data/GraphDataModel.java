@@ -107,7 +107,7 @@ public class GraphDataModel {
     }
 
     private void update() {
-        final String loading = I18n.getInstance().getString("plugin.object.attribute.file.progress");
+        final String loading = I18n.getInstance().getString("graph.progress.message");
         Service<Void> service = new Service<Void>() {
             @Override
             protected Task<Void> createTask() {
@@ -122,8 +122,8 @@ public class GraphDataModel {
             }
         };
         ProgressDialog pd = new ProgressDialog(service);
-        pd.setHeaderText(loading);
-        pd.setTitle(loading);
+        pd.setHeaderText(I18n.getInstance().getString("graph.progress.header"));
+        pd.setTitle(I18n.getInstance().getString("graph.progress.title"));
         pd.getDialogPane().setContent(null);
 
         service.start();

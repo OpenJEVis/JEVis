@@ -104,11 +104,11 @@ public class AlarmHandler {
         sb.append("<br>");
         sb.append("<br>");
 
-        CalculationTable calculationTable = new CalculationTable(_ds, alarm);
-        sb.append(calculationTable.getTableString());
-
         DataServerTable dataServerTable = new DataServerTable(_ds, alarm);
         sb.append(dataServerTable.getTableString());
+
+        CalculationTable calculationTable = new CalculationTable(_ds, alarm, dataServerTable.getListCheckedData());
+        sb.append(calculationTable.getTableString());
 
         CleanDataTable cleanDataTable = new CleanDataTable(_ds, alarm, calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
         sb.append(cleanDataTable.getTableString());

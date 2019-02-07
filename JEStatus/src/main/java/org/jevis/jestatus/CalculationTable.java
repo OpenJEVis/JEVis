@@ -12,10 +12,12 @@ public class CalculationTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CalculationTable.class);
     private final JEVisDataSource ds;
     private final Alarm alarm;
+    private final List<JEVisObject> dataServerObjects;
 
-    public CalculationTable(JEVisDataSource ds, Alarm alarm) {
+    public CalculationTable(JEVisDataSource ds, Alarm alarm, List<JEVisObject> dataServerObjects) {
         this.ds = ds;
         this.alarm = alarm;
+        this.dataServerObjects = dataServerObjects;
 
         try {
             createTableString();
@@ -49,11 +51,12 @@ public class CalculationTable extends AlarmTable {
 
 
         List<JEVisObject> calcObjects = getCalcObjects();
+
         Map<JEVisObject, JEVisObject> calcAndTarget = new HashMap<>();
-        JEVisClass output = ds.getJEVisClass("Output");
+        JEVisClass outputClass = ds.getJEVisClass("Output");
 
         for (JEVisObject calcObject : calcObjects) {
-            List<JEVisObject> results = new ArrayList<>(calcObject.getChildren(output, true));
+            List<JEVisObject> results = new ArrayList<>(calcObject.getChildren(outputClass, true));
             if (!results.isEmpty()) {
                 calcAndTarget.put(calcObject, results.get(0));
             }
@@ -66,25 +69,63 @@ public class CalculationTable extends AlarmTable {
         List<JEVisObject> outOfBounds = new ArrayList<>();
 
         for (JEVisObject calculation : calcObjects) {
-            JEVisSample lastSampleOutput = calcAndTarget.get(calculation).getAttribute("Output").getLatestSample();
-            TargetHelper th = null;
-            if (lastSampleOutput != null) {
-                th = new TargetHelper(ds, lastSampleOutput.getValueAsString());
-                JEVisObject target = th.getObject();
+            JEVisAttribute lastAtt = calcAndTarget.get(calculation).getAttribute("Output");
+            if (lastAtt != null) {
+                JEVisSample lastSampleOutput = lastAtt.getLatestSample();
+                TargetHelper th = null;
+                if (lastSampleOutput != null) {
+                    th = new TargetHelper(ds, lastSampleOutput.getValueAsString());
+                    JEVisObject target = th.getObject();
+                    if (target != null) {
+                        getListCheckedData().add(target);
 
-                getListCheckedData().add(target);
+                        calcAndResult.put(calculation, target);
 
-                calcAndResult.put(calculation, target);
-
-                JEVisAttribute resultAtt = target.getAttribute("Value");
-                if (resultAtt != null) {
-                    if (resultAtt.hasSample()) {
-                        JEVisSample lastSample = resultAtt.getLatestSample();
-                        if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
-                            outOfBounds.add(calculation);
+                        JEVisAttribute resultAtt = target.getAttribute("Value");
+                        if (resultAtt != null) {
+                            if (resultAtt.hasSample()) {
+                                JEVisSample lastSample = resultAtt.getLatestSample();
+                                if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                    outOfBounds.add(calculation);
+                                }
+                            }
                         }
                     }
                 }
+            }
+        }
+
+        Map<JEVisObject, JEVisObject> allInputs = new HashMap<>();
+        JEVisClass inputClass = ds.getJEVisClass("Input");
+        JEVisClass rawDataClass = ds.getJEVisClass("Data");
+        JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
+        for (JEVisObject calcObject : outOfBounds) {
+            for (JEVisObject input : calcObject.getChildren(inputClass, true)) {
+                JEVisAttribute lastAtt = input.getAttribute("Input Data");
+                if (lastAtt != null) {
+                    JEVisSample lastSampleOutput = lastAtt.getLatestSample();
+                    TargetHelper th = null;
+                    if (lastSampleOutput != null) {
+                        th = new TargetHelper(ds, lastSampleOutput.getValueAsString());
+                        JEVisObject target = th.getObject();
+                        if (target != null) {
+                            if (target.getJEVisClass().equals(rawDataClass)) {
+                                allInputs.put(target, calcObject);
+                            } else if (target.getJEVisClass().equals(cleanDataClass)) {
+                                for (JEVisObject parent : target.getParents()) {
+                                    allInputs.put(parent, calcObject);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (JEVisObject dataServerObject : dataServerObjects) {
+            if (allInputs.containsKey(dataServerObject)) {
+                outOfBounds.remove(allInputs.get(dataServerObject));
             }
         }
 
