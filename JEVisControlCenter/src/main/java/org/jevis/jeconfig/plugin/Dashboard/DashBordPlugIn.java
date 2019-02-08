@@ -12,9 +12,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
-import org.jevis.jeconfig.plugin.Dashboard.widget.DonutChart;
-import org.jevis.jeconfig.plugin.Dashboard.widget.NumberWidget;
-import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
+import org.jevis.jeconfig.plugin.Dashboard.widget.*;
 
 public class DashBordPlugIn implements Plugin {
 
@@ -25,6 +23,7 @@ public class DashBordPlugIn implements Plugin {
     private JEVisDataSource jeVisDataSource;
     private boolean isInitialized = false;
     private AnchorPane rootPane = new AnchorPane();
+    private DashBoardPane dashBoardPane = new DashBoardPane();
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
         nameProperty.setValue(name);
@@ -36,7 +35,7 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public String getClassName() {
-        return this.getClassName();
+        return this.getClass().getName();
     }
 
     @Override
@@ -125,28 +124,39 @@ public class DashBordPlugIn implements Plugin {
     public void setHasFocus() {
         if (!isInitialized) {
             isInitialized = true;
-            DashBoardPane dashBoardPane = new DashBoardPane();
-            toolBar.updateToolbar(dashBoardPane.getDashBordAnalysis());
+
+            toolBar.updateToolbar(this, dashBoardPane.getDashBordAnalysis());
             AnchorPane.setTopAnchor(dashBoardPane, 0d);
             AnchorPane.setBottomAnchor(dashBoardPane, 0d);
             AnchorPane.setLeftAnchor(dashBoardPane, 0d);
             AnchorPane.setRightAnchor(dashBoardPane, 0d);
 
-            Widget testWidget = new NumberWidget();
-            Widget donutWidget = new DonutChart();
+            Widget testWidget = new NumberWidget(getDataSource());
+            Widget donutWidget = new DonutChart(getDataSource());
+            Widget highLowWidget = new HighLowWidget(getDataSource());
             WidgetConfig config1 = new WidgetConfig();
             WidgetConfig config2 = new WidgetConfig();
-            config1.size.setValue(WidgetConfig.Size.DEFAULT);
-            config2.size.setValue(WidgetConfig.Size.TWO_THREE);
+            WidgetConfig config3 = new WidgetConfig();
+            config1.size.setValue(Size.DEFAULT);
+            config2.size.setValue(Size.BIGGER);
+            config3.size.setValue(Size.DEFAULT);
             config1.position.set(WidgetConfig.Position.DEFAULT_1);
             config2.position.set(WidgetConfig.Position.DEFAULT_2);
+            config3.position.set(WidgetConfig.Position.DEFAULT_3);
             testWidget.setConfig(config1);
             donutWidget.setConfig(config2);
+            highLowWidget.setConfig(config3);
+            dashBoardPane.getDashBordAnalysis().editProperty.setValue(false);
 
-            dashBoardPane.addNode(testWidget, config1);
-            dashBoardPane.addNode(donutWidget, config2);
+//            dashBoardPane.addNode(testWidget, config1);
+//            dashBoardPane.addNode(donutWidget, config2);
+//            dashBoardPane.addNode(highLowWidget, config2);
             rootPane.getChildren().add(dashBoardPane);
-
         }
     }
+
+    public void addWidget(Widget widget) {
+        dashBoardPane.addNode(widget);
+    }
+
 }

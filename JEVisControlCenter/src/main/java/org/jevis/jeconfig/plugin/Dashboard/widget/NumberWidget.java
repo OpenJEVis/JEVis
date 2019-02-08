@@ -3,17 +3,38 @@ package org.jevis.jeconfig.plugin.Dashboard.widget;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
 
 public class NumberWidget extends Widget {
 
+    Label textField = new Label("345345,98 kWh");
+
+    public NumberWidget(JEVisDataSource jeVisDataSource) {
+        super(jeVisDataSource);
+    }
+
     @Override
     public void update(WidgetData data, boolean hasNewData) {
+
+    }
+
+    public SampleHandler getSampleHandler() {
+        LastValueHandler sampleHandler = new LastValueHandler(getDataSource());
+        sampleHandler.setMultiSelect(false);
+
+        //TODO
+
+        return sampleHandler;
 
     }
 
@@ -23,7 +44,7 @@ public class NumberWidget extends Widget {
         AnchorPane anchorPane = new AnchorPane();
         VBox vBox = new VBox(12);
         Label nameLabel = new Label("Main Meter");
-        Label textField = new Label("345345,98 kWh");
+
 
         nameLabel.setFont(new Font(12));
         textField.setFont(new Font(20));
@@ -54,5 +75,10 @@ public class NumberWidget extends Widget {
     @Override
     public String typeID() {
         return "Number Widget";
+    }
+
+    @Override
+    public ImageView getImagePreview() {
+        return JEConfig.getImage("widget/HighLow.png", 100, 100);
     }
 }

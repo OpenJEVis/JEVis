@@ -10,6 +10,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.Period;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -21,6 +22,8 @@ import java.util.*;
 public class DashBordAnalysis {
 
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
+
+    public final BooleanProperty updateIsRunningProperty = new SimpleBooleanProperty(Boolean.class, "run Updater", false);
     /**
      * Update rage in seconds
      */
@@ -82,7 +85,8 @@ public class DashBordAnalysis {
      */
     public final BooleanProperty showGridProperty = new SimpleBooleanProperty(Boolean.class, "Show Grid", true);
 
-    public final BooleanProperty updateIsRunning = new SimpleBooleanProperty(Boolean.class, "Update", false);
+
+    public final ObjectProperty<Period> dataPeriodProperty = new SimpleObjectProperty(Period.class, "Data Period", Period.days(2));
 
     private final List<ChangeListener> changeListeners = new ArrayList<>();
     /**

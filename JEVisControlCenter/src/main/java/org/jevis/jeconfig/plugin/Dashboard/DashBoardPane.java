@@ -15,6 +15,9 @@ import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.Dashboard.widget.WidgetData;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import javax.swing.event.ChangeEvent;
 import java.util.ArrayList;
@@ -89,46 +92,20 @@ public class DashBoardPane extends Pane {
             }
         });
 
-        analysis.updateRate.addListener((observable, oldValue, newValue) -> {
-            restartUpdater();
-        });
 
-        analysis.updateIsRunning.addListener((observable, oldValue, newValue) -> {
-            if (newValue && updateThread != null && updateThread.isAlive()) {
-                //nothing to do
-            } else if (newValue && updateThread != null && updateThread.isInterrupted()) {
-                //restart existing
+        this.updateThread = createThread();
+        analysis.updateIsRunningProperty.addListener((observable, oldValue, newValue) -> {
+
+            if (newValue) {
+                logger.info("Starting update Thread");
                 updateThread.start();
-            } else if (!newValue) {
-                if (updateThread != null && updateThread.isAlive()) {
-                    //stop running
-                    updateThread.interrupt();
-                }
+            } else {
+                logger.info("Stopping update Thread");
+                updateThread.interrupt();
             }
+
         });
 
-//        analysis.
-
-//        analysis.showGridProperty.addListener((observable, oldValue, newValue) -> {
-//            if (!oldValue.equals(newValue)) {
-//                updateChildren();
-//            }
-//        });
-//        analysis.showGridProperty.addListener((observable, oldValue, newValue) -> {
-//            if (!oldValue.equals(newValue)) {
-//                updateChildren();
-//            }
-//        });
-//        analysis.xGridInterval.addListener((observable, oldValue, newValue) -> {
-//            if (!oldValue.equals(newValue)) {
-//                updateChildren();
-//            }
-//        });
-//        analysis.yGridInterval.addListener((observable, oldValue, newValue) -> {
-//            if (!oldValue.equals(newValue)) {
-//                updateChildren();
-//            }
-//        });
 
     }
 
@@ -159,31 +136,29 @@ public class DashBoardPane extends Pane {
     }
 
 
-    public void restartUpdater() {
-        stopUpdater();
-        startUpdater();
+    public Interval buildInterval() {
+        Period period = analysis.dataPeriodProperty.getValue();
+        DateTime now = new DateTime();
+
+        Interval interval = new Interval(now.minus(period), now);
+        return interval;
     }
 
-    public void stopUpdater() {
-        if (updateThread != null && updateThread.isAlive()) {
-            try {
-                updateThread.interrupt();
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        }
-    }
-
-    public void startUpdater() {
+    public Thread createThread() {
 
 
         Runnable runnable = () -> {
             try {
+
+
                 logger.info("Starting Update");
-                String name = Thread.currentThread().getName();
-                /**
-                 * TODO: for widgetList -> update
-                 */
+                Interval interval = buildInterval();
+                widgetList.forEach(widget -> {
+                    logger.info("Update widget: {}", widget.getUUID());
+                    widget.getSampleHandler().durationProperty.setValue(interval);
+                    widget.getSampleHandler().update();
+                });
+
                 logger.info("Update finished waiting {} sec", analysis.updateRate.getValue());
                 TimeUnit.SECONDS.sleep(analysis.updateRate.getValue());
 
@@ -194,10 +169,21 @@ public class DashBoardPane extends Pane {
         };
 
         Thread thread = new Thread(runnable);
-        thread.start();
-        updateThread = thread;
+        thread.setName("JEVisControlCenter - Dashboard Daemon");
+
+        return thread;
+//        thread.start();
+//        updateThread = thread;
     }
 
+    /**
+     * Add an grid to the pane.
+     * <p>
+     * TODO: make the grid bigger than the visible view, so the user can zoom out an still has an grid
+     *
+     * @param xWidth
+     * @param height
+     */
     public void setGrid(double xWidth, double height) {
         int maxColumns = Double.valueOf(DashBoardPane.this.getWidth() / xWidth).intValue() + 1;
         int maxRows = Double.valueOf(DashBoardPane.this.getHeight() / height).intValue() + 1;
@@ -206,6 +192,7 @@ public class DashBoardPane extends Pane {
         xGrids.clear();
         yGrids.clear();
 
+        /** rows **/
         for (int i = 0; i < maxColumns; i++) {
             double xPos = i * xWidth;
             xGrids.add(xPos);
@@ -222,6 +209,7 @@ public class DashBoardPane extends Pane {
 
         }
 
+        /** columns **/
         for (int i = 0; i < maxRows; i++) {
             double yPos = i * height;
             yGrids.add(yPos);
@@ -239,6 +227,16 @@ public class DashBoardPane extends Pane {
 
     }
 
+    public void removeNode(Widget widget) {
+        widgetList.remove(widget);
+    }
+
+    public void addNode(Widget widget) {
+        widgetList.add(widget);
+        widget.init();
+        widget.setDashBoard(this);
+        getChildren().add(widget);
+    }
 
     public void addNode(Widget widget, WidgetConfig config) {
         System.out.println("Add widget: " + config.getType());
@@ -254,7 +252,7 @@ public class DashBoardPane extends Pane {
         double c = xGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - xPos)))
                 .orElseThrow(() -> new NoSuchElementException("No value present"));
-        System.out.println("Next xPos: " + c);
+//        System.out.println("Next xPos: " + c);
         return c;
     }
 
@@ -262,7 +260,7 @@ public class DashBoardPane extends Pane {
         double c = yGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - yPos)))
                 .orElseThrow(() -> new NoSuchElementException("No value present"));
-        System.out.println("Next yPos: " + c);
+//        System.out.println("Next yPos: " + c);
         return c;
     }
 

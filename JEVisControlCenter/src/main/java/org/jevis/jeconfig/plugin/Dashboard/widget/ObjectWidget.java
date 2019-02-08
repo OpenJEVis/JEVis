@@ -1,9 +1,13 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -11,6 +15,18 @@ public class ObjectWidget extends Widget {
 
     GridPane root = new GridPane();
 
+    public ObjectWidget(JEVisDataSource jeVisDataSource) {
+        super(jeVisDataSource);
+    }
+
+    public SampleHandler getSampleHandler() {
+        LastValueHandler sampleHandler = new LastValueHandler(getDataSource());
+        sampleHandler.setMultiSelect(false);
+
+
+        return sampleHandler;
+
+    }
 
     @Override
     public void update(WidgetData data, boolean hasNewData) {
@@ -52,4 +68,10 @@ public class ObjectWidget extends Widget {
     public String typeID() {
         return "Object Widget";
     }
+
+    @Override
+    public ImageView getImagePreview() {
+        return JEConfig.getImage("widget/HighLow.png", 100, 100);
+    }
+
 }

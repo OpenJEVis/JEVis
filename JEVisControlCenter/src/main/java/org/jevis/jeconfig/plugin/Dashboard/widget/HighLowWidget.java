@@ -2,27 +2,22 @@ package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
-import eu.hansolo.tilesfx.chart.ChartData;
 import javafx.scene.image.ImageView;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
 
-public class DonutChart extends Widget {
+public class HighLowWidget extends Widget {
 
-    Tile tile = new Tile(Tile.SkinType.DONUT_CHART);
-
-    ChartData chartData1 = new ChartData("Strom", 24.0, Tile.GREEN);
-    ChartData chartData2 = new ChartData("Wasser", 10.0, Tile.BLUE);
-    ChartData chartData3 = new ChartData("Gas", 12.0, Tile.RED);
-    ChartData chartData4 = new ChartData("Lüftung", 13.0, Tile.YELLOW_ORANGE);
+    Tile tile;
     private LastValueHandler sampleHandler;
 
-    public DonutChart(JEVisDataSource jeVisDataSource) {
+
+    public HighLowWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
         sampleHandler = new LastValueHandler(jeVisDataSource);
-        sampleHandler.setMultiSelect(true);
+        sampleHandler.setMultiSelect(false);
         sampleHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
             System.out.println("sample Handler indicates update");
             sampleHandler.getValuePropertyMap().forEach((s, samplesList) -> {
@@ -30,11 +25,8 @@ public class DonutChart extends Widget {
                     System.out.println("Update with samples: " + samplesList.size());
                     if (!samplesList.isEmpty()) {
                         if (samplesList.size() > 1) {
-                            String name = sampleHandler.getAttributeMap().get(s).getObject().getName();
-                            ChartData chartData = new ChartData(name, samplesList.get(samplesList.size() - 1).getValueAsDouble(), Tile.GREEN);
-                            tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
+                            tile.setValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
                             tile.setReferenceValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
-                            tile.getChartData().add(chartData);
                         }
                         tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
                     } else {
@@ -54,9 +46,15 @@ public class DonutChart extends Widget {
 
     }
 
+
     public SampleHandler getSampleHandler() {
-
-
+//        sampleHandler.getUnitProperty().addListener((observable, oldValue, newValue) -> {
+//            try {
+//                tile.setUnit(newValue);
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        });
         return sampleHandler;
 
     }
@@ -65,13 +63,16 @@ public class DonutChart extends Widget {
     public void init() {
 
         tile = TileBuilder.create()
-                .skinType(Tile.SkinType.DONUT_CHART)
+                .skinType(Tile.SkinType.HIGH_LOW)
                 .prefSize(config.size.get().getWidth(), config.size.get().getHeight())
-                .title("Energieverteilung")
-                .text("Some text")
-                .textVisible(false)
-//                .chartData(chartData1, chartData2, chartData3, chartData4)
+                .title("Strom")
+//                .unit("kWh")
+                .description("")
+                .text("")
+//                .referenceValue(20.7)
+//                .value(26.2)
                 .backgroundColor(config.backgroundColor.getValue())
+                .textColor(config.fontColor.getValue())
                 .build();
 
         config.backgroundColor.addListener((observable, oldValue, newValue) -> {
@@ -81,7 +82,14 @@ public class DonutChart extends Widget {
 
         config.fontColor.addListener((observable, oldValue, newValue) -> {
             tile.setTextColor(newValue);
+            tile.setValueColor(newValue);
         });
+
+        config.font.addListener((observable, oldValue, newValue) -> {
+            tile.setCustomFont(newValue);
+            tile.setCustomFontEnabled(true);
+        });
+//        tile.setValue(28.7);
 
         tile.setAnimated(true);
         setGraphic(tile);
@@ -89,11 +97,12 @@ public class DonutChart extends Widget {
 
     @Override
     public String typeID() {
-        return "Donut";
+        return "High Low";
     }
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/DonutChart.png", previewSize.getHeight(), previewSize.getWidth());
+        return JEConfig.getImage("widget/HighLow.png", previewSize.getHeight(), previewSize.getWidth());
     }
+
 }

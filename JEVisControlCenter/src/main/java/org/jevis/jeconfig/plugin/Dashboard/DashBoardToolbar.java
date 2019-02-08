@@ -8,12 +8,15 @@ import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
+import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
+import org.jevis.jeconfig.plugin.Dashboard.wizzard.Wizard;
 import org.jevis.jeconfig.tool.I18n;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 public class DashBoardToolbar extends ToolBar {
 
@@ -22,7 +25,7 @@ public class DashBoardToolbar extends ToolBar {
     }
 
 
-    public void updateToolbar(final DashBordAnalysis analyses) {
+    public void updateToolbar(final DashBordPlugIn dashBordPlugIn, final DashBordAnalysis analyses) {
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
         ComboBox<JEVisObject> listAnalysesComboBox = new ComboBox();
         listAnalysesComboBox.setPrefWidth(300);
@@ -153,15 +156,22 @@ public class DashBoardToolbar extends ToolBar {
             analyses.editProperty.setValue(!analyses.editProperty.getValue());
         });
 
-        ToggleButton runUpdate = new ToggleButton("", JEConfig.getImage("Pause_32.png", iconSize, iconSize));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdate);
+        ImageView pauseIcon = JEConfig.getImage("pause_32.png", iconSize, iconSize);
+        ImageView playIcon = JEConfig.getImage("play_32.png", iconSize, iconSize);
 
-        analyses.updateIsRunning.addListener((observable, oldValue, newValue) -> {
+        ToggleButton runUpdateButton = new ToggleButton("", playIcon);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
+
+        analyses.updateIsRunningProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                runUpdate.setGraphic(JEConfig.getImage("Play.png", iconSize, iconSize));
+                runUpdateButton.setGraphic(pauseIcon);
             } else {
-                runUpdate.setGraphic(JEConfig.getImage("Pause_32.png", iconSize, iconSize));
+                runUpdateButton.setGraphic(playIcon);
             }
+        });
+
+        runUpdateButton.setOnAction(event -> {
+            analyses.updateIsRunningProperty.setValue(!analyses.updateIsRunningProperty.getValue());
         });
 
         ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", iconSize, iconSize));
@@ -170,8 +180,19 @@ public class DashBoardToolbar extends ToolBar {
         ToggleButton newAnalyses = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newAnalyses);
 
+        newAnalyses.setOnAction(event -> {
+            Wizard wizzard = new Wizard(JEConfig.getDataSource());
+            Optional<Widget> newWidget = wizzard.show(null);
+
+            if (newWidget.isPresent()) {
+                dashBordPlugIn.addWidget(newWidget.get());
+            }
+
+        });
 
         backgroundButton.setOnAction(event -> {
+
+
             FileChooser fileChooser = new FileChooser();
             fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Pictures", "*.png", "*.gif", "*.jpg", "*.bmp"));
             File newBackground = fileChooser.showOpenDialog(JEConfig.getStage());
@@ -211,7 +232,10 @@ public class DashBoardToolbar extends ToolBar {
         Separator sep2 = new Separator();
 
         getItems().clear();
-        getItems().addAll(analysisLabel, listAnalysesComboBox, settingsButton, unlockB, backgroundButton, sep2, zoomOut, zoomIn);
+        getItems().addAll(
+                analysisLabel, listAnalysesComboBox, newAnalyses, settingsButton, unlockB, backgroundButton, sep1,
+                zoomOut, zoomIn, sep2,
+                runUpdateButton);
 
 
     }

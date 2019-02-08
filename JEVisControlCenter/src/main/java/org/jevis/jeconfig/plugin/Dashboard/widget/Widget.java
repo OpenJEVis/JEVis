@@ -1,63 +1,114 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import jfxtras.labs.util.event.MouseControlUtil;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashBoardPane;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
+
+import java.util.UUID;
 
 public abstract class Widget extends Group {
 
-    public WidgetConfig config;
-    public CornerRadii cornerRadii = new CornerRadii(30);
+    private final org.jevis.api.JEVisDataSource jeVisDataSource;
+    public WidgetConfig config = new WidgetConfig();
+    public CornerRadii cornerRadii = new CornerRadii(0);
+    public Size previewSize = new Size(100, 150);
+    public BooleanProperty noDataInPeriodProperty = new SimpleBooleanProperty(false);
     private DashBoardPane dashBoard;
     private AnchorPane contentRoot = new AnchorPane();
     private AnchorPane editPane = new AnchorPane();
+    private UUID uuid = UUID.randomUUID();
 
-
-    public Widget() {
+    public Widget(JEVisDataSource jeVisDataSource) {
         super();
+        this.jeVisDataSource = jeVisDataSource;
+    }
+
+    public BooleanProperty getNoDataInPeriodProperty() {
+        return noDataInPeriodProperty;
+    }
+
+    public abstract SampleHandler getSampleHandler();
+
+    public JEVisDataSource getDataSource() {
+        return jeVisDataSource;
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 
 
+//    public List<>
+
     private void makeDragDropOverlay() {
 
+        HBox windowHeader = new HBox();
         Button configButton = new Button("", JEConfig.getImage("Service Manager.png", 18, 18));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(configButton);
+
+        Button deleteButton = new Button("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", 18, 18));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(deleteButton);
 
         configButton.setOnAction(event -> {
             config.openConfig();
         });
 
-        AnchorPane.setTopAnchor(configButton, 6.0);
-        AnchorPane.setRightAnchor(configButton, 6.0);
+        deleteButton.setOnAction(event -> {
+            dashBoard.removeNode(Widget.this);
+            Widget.this.setVisible(false);
+        });
+
+//        AnchorPane.setTopAnchor(configButton, 6.0);
+//        AnchorPane.setRightAnchor(configButton, 6.0);
+//
+//        AnchorPane.setTopAnchor(configButton, 6.0);
+//        AnchorPane.setLeftAnchor(configButton, 6.0);
+
+        AnchorPane.setTopAnchor(windowHeader, 0.0);
+        AnchorPane.setLeftAnchor(configButton, 0.0);
+        AnchorPane.setRightAnchor(windowHeader, 0.0);
 
         editPane.visibleProperty().bindBidirectional(configButton.visibleProperty());
 
-        editPane.setBackground(new Background(new BackgroundFill(Color.GREY, cornerRadii, new Insets(0, 0, 0, 0))));
+
+        windowHeader.getChildren().addAll(configButton, deleteButton);
+        windowHeader.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
+        windowHeader.setOpacity(0.5);
+        editPane.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
         editPane.setOpacity(0.8);
-        editPane.setMaxWidth(config.size.getValue().getWidth());
-        editPane.setMinWidth(config.size.getValue().getWidth());
-        editPane.setPrefWidth(config.size.getValue().getWidth());
-        editPane.setMaxHeight(config.size.getValue().getHeight());
-        editPane.setMinHeight(config.size.getValue().getHeight());
-        editPane.setPrefHeight(config.size.getValue().getHeight());
-//        editPane.getChildren().add(dragDropOverlay);
-        editPane.getChildren().add(configButton);
+        config.size.addListener((observable, oldValue, newValue) -> {
+            setNodeSize(editPane, newValue.getWidth(), newValue.getHeight());
+        });
+        setNodeSize(editPane, config.size.getValue().getWidth(), config.size.getValue().getHeight());
+
+        editPane.getChildren().addAll(windowHeader);
 
 
         this.getChildren().add(editPane);
+    }
+
+    private void setNodeSize(Region node, double width, double height) {
+        node.setMaxWidth(width);
+        node.setMinWidth(width);
+        node.setPrefWidth(width);
+        node.setMaxHeight(height);
+        node.setMinHeight(height);
+        node.setPrefHeight(height);
     }
 
     private void makeWindowForm() {
@@ -66,9 +117,9 @@ public abstract class Widget extends Group {
         background.setY(0);
         background.setWidth(config.size.getValue().getWidth());
         background.setHeight(config.size.getValue().getHeight());
-        background.setArcWidth(30);
-        background.setArcHeight(30);
-        background.setStroke(Color.BLACK);
+        background.setArcWidth(0);
+        background.setArcHeight(0);
+//        background.setStroke(Color.BLACK);
         background.setFill(dashBoard.getDashBordAnalysis().colorWidgetPlugin.getValue());
 //        background.setOpacity(dashBoard.getDashBordAnalysis().opacityWidgetPlugin.getValue());
         config.size.addListener((observable, oldValue, newValue) -> {
@@ -76,8 +127,16 @@ public abstract class Widget extends Group {
             background.setHeight(newValue.getHeight());
         });
 
+        config.backgroundColor.addListener((observable, oldValue, newValue) -> {
+//            tile.setBackgroundColor(newValue);
+            background.setFill(newValue);
+        });
+
+
         this.getChildren().add(background);
     }
+
+    public abstract ImageView getImagePreview();
 
     public DashBordAnalysis getAnalysis() {
         return dashBoard.getDashBordAnalysis();
@@ -108,17 +167,26 @@ public abstract class Widget extends Group {
         });
         editPane.setVisible(getAnalysis().editProperty.get());
 
-        layoutXProperty().addListener((observable, oldValue, newValue) -> {
-            if (!oldValue.equals(newValue) && getAnalysis().snapToGridProperty.getValue()) {
-                layoutXProperty().setValue(parent.getNextGridX(newValue.longValue()));
-            }
-        });
+//        layoutXProperty().addListener((observable, oldValue, newValue) -> {
+//            if (!oldValue.equals(newValue) && getAnalysis().snapToGridProperty.getValue()) {
+//                System.out.println("x");
+//                layoutXProperty().setValue(parent.getNextGridX(newValue.longValue()));
+//            }
+//        });
 
-        layoutYProperty().addListener((observable, oldValue, newValue) -> {
-            if (!oldValue.equals(newValue) && getAnalysis().snapToGridProperty.getValue()) {
-                layoutYProperty().setValue(parent.getNextGridY(newValue.longValue()));
-            }
+//        layoutYProperty().addListener((observable, oldValue, newValue) -> {
+//            if (!oldValue.equals(newValue) && getAnalysis().snapToGridProperty.getValue()) {
+//                System.out.println("y: " + oldValue + " new: " + newValue);
+//                layoutYProperty().setValue(parent.getNextGridY(newValue.longValue()));
+//            }
+//
+//        });
 
+        setOnMouseReleased(event -> {
+            if (getAnalysis().snapToGridProperty.getValue()) {
+                layoutXProperty().setValue(parent.getNextGridX(layoutXProperty().longValue()));
+                layoutYProperty().setValue(parent.getNextGridY(layoutYProperty().longValue()));
+            }
         });
 
 
