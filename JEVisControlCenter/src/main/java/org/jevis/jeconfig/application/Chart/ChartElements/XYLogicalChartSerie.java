@@ -101,6 +101,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
     private List<JEVisSample> getModifiedList(List<JEVisSample> samples) throws JEVisException {
         List<JEVisSample> modifiedList = new ArrayList<>();
         Double lastValue = null;
+
         for (JEVisSample smp : samples) {
             Double currentValue = smp.getValueAsDouble();
             DateTime currentTimeStamp = smp.getTimestamp();
@@ -124,5 +125,4 @@ public class XYLogicalChartSerie extends XYChartSerie {
         }
         return modifiedList;
     }
-
 }
