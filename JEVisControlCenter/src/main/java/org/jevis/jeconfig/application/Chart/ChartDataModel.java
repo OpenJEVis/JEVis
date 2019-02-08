@@ -19,58 +19,60 @@ import java.util.List;
 public class ChartDataModel {
     private static final Logger logger = LogManager.getLogger(ChartDataModel.class);
 
-    private String _title;
-    private DateTime _selectedStart;
-    private DateTime _selectedEnd;
-    private JEVisObject _object;
-    private JEVisAttribute _attribute;
-    private Color _color = Color.LIGHTBLUE;
+    private String title;
+    private DateTime selectedStart;
+    private DateTime selectedEnd;
+    private JEVisObject object;
+    private JEVisAttribute attribute;
+    private Color color = Color.LIGHTBLUE;
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
-    private JEVisObject _dataProcessorObject = null;
+    private JEVisObject dataProcessorObject = null;
     private List<JEVisSample> samples = new ArrayList<>();
-    private boolean _somethingChanged = true;
-    private JEVisUnit _unit;
-    private List<Integer> _selectedCharts = new ArrayList<>();
+    private boolean somethingChanged = true;
+    private JEVisUnit unit;
+    private List<Integer> selectedCharts = new ArrayList<>();
     private Integer axis;
+    private Double minValue;
+    private Double maxValue;
 
     public ChartDataModel() {
     }
 
     public JEVisUnit getUnit() {
         try {
-            if (_unit == null) {
+            if (unit == null) {
                 if (getAttribute() != null) {
-                    _unit = getAttribute().getDisplayUnit();
+                    unit = getAttribute().getDisplayUnit();
                 }
             }
         } catch (JEVisException ex) {
             logger.fatal(ex);
         }
-        return _unit;
+        return unit;
     }
 
     public void setUnit(JEVisUnit _unit) {
-        _somethingChanged = true;
-        this._unit = _unit;
+        somethingChanged = true;
+        this.unit = _unit;
     }
 
     public List<JEVisSample> getSamples() {
-        if (_somethingChanged) {
-            _somethingChanged = false;
+        if (somethingChanged) {
+            somethingChanged = false;
 
             setSamples(new ArrayList<>());
 
             if (getSelectedStart().isBefore(getSelectedEnd())) {
                 try {
 
-                    _object.getDataSource().reloadAttribute(_attribute);
+                    object.getDataSource().reloadAttribute(attribute);
 
                     SampleGenerator sg;
                     if (aggregationPeriod.equals(AggregationPeriod.NONE))
-                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _selectedStart, _selectedEnd, ManipulationMode.NONE, aggregationPeriod);
+                        sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, ManipulationMode.NONE, aggregationPeriod);
                     else
-                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _selectedStart, _selectedEnd, ManipulationMode.TOTAL, aggregationPeriod);
+                        sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, ManipulationMode.TOTAL, aggregationPeriod);
 
                     samples = sg.generateSamples();
                     samples = sg.getAggregatedSamples(samples);
@@ -84,9 +86,9 @@ public class ChartDataModel {
                         Period displaySampleRate = getAttribute().getDisplaySampleRate();
                         if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
                             DateTime startTS = samples.get(0).getTimestamp();
-                            while (startTS.isAfter(_selectedStart)) {
+                            while (startTS.isAfter(selectedStart)) {
                                 startTS = startTS.minus(getAttribute().getDisplaySampleRate());
-                                if (startTS.isAfter(_selectedStart)) {
+                                if (startTS.isAfter(selectedStart)) {
                                     JEVisSample smp = new VirtualSample(startTS, 0.0);
                                     smp.setNote("Empty");
                                     samples.add(0, smp);
@@ -94,9 +96,9 @@ public class ChartDataModel {
                             }
 
                             DateTime endTS = samples.get(samples.size() - 1).getTimestamp();
-                            while (endTS.isBefore(_selectedEnd)) {
+                            while (endTS.isBefore(selectedEnd)) {
                                 endTS = endTS.plus(getAttribute().getDisplaySampleRate());
-                                if (endTS.isBefore(_selectedEnd)) {
+                                if (endTS.isBefore(selectedEnd)) {
                                     JEVisSample smp = new VirtualSample(endTS, 0.0);
                                     smp.setNote("Empty");
                                     samples.add(smp);
@@ -126,15 +128,16 @@ public class ChartDataModel {
     }
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {
-        if (_unit != null) {
-            String outputUnit = UnitManager.getInstance().format(_unit).replace("·", "");
-            if (outputUnit.equals("")) outputUnit = _unit.getLabel();
+        if (unit != null) {
+            String outputUnit = UnitManager.getInstance().format(unit).replace("·", "");
+            if (outputUnit.equals("")) outputUnit = unit.getLabel();
 
-            String inputUnit = UnitManager.getInstance().format(_attribute.getDisplayUnit()).replace("·", "");
-            if (inputUnit.equals("")) inputUnit = _attribute.getDisplayUnit().getLabel();
+            String inputUnit = UnitManager.getInstance().format(attribute.getDisplayUnit()).replace("·", "");
+            if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
 
             ChartUnits cu = new ChartUnits();
             Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
+
 
             inputList.forEach(sample -> {
                 try {
@@ -155,12 +158,12 @@ public class ChartDataModel {
     }
 
     public JEVisObject getDataProcessor() {
-        return _dataProcessorObject;
+        return dataProcessorObject;
     }
 
     public void setDataProcessor(JEVisObject _dataProcessor) {
-        _somethingChanged = true;
-        this._dataProcessorObject = _dataProcessor;
+        somethingChanged = true;
+        this.dataProcessorObject = _dataProcessor;
     }
 
     public AggregationPeriod getAggregationPeriod() {
@@ -168,7 +171,7 @@ public class ChartDataModel {
     }
 
     public void setAggregationPeriod(AggregationPeriod aggregationPeriod) {
-        _somethingChanged = true;
+        somethingChanged = true;
         this.aggregationPeriod = aggregationPeriod;
     }
 
@@ -177,22 +180,22 @@ public class ChartDataModel {
     }
 
     public void setManipulationMode(ManipulationMode manipulationMode) {
-        _somethingChanged = true;
+        somethingChanged = true;
         this.manipulationMode = manipulationMode;
     }
 
     public String getTitle() {
-        return _title;
+        return title;
     }
 
     public void setTitle(String _title) {
-        this._title = _title;
+        this.title = _title;
     }
 
     public DateTime getSelectedStart() {
 
-        if (_selectedStart != null) {
-            return _selectedStart;
+        if (selectedStart != null) {
+            return selectedStart;
         } else if (getAttribute() != null) {
             DateTime timeStampFromLastSample = getAttribute().getTimestampFromLastSample();
             if (timeStampFromLastSample != null) {
@@ -201,83 +204,83 @@ public class ChartDataModel {
                 DateTime timeStampFromFirstSample = getAttribute().getTimestampFromFirstSample();
                 if (timeStampFromFirstSample != null) {
                     if (timeStampFromFirstSample.isBefore(timeStampFromLastSample))
-                        _selectedStart = timeStampFromLastSample;
-                } else _selectedStart = timeStampFromFirstSample;
+                        selectedStart = timeStampFromLastSample;
+                } else selectedStart = timeStampFromFirstSample;
 
             } else {
                 return null;
             }
 
-            return _selectedStart;
+            return selectedStart;
         } else {
             return null;
         }
     }
 
     public void setSelectedStart(DateTime selectedStart) {
-        if (_selectedEnd == null || !_selectedEnd.equals(selectedStart)) {
-            _somethingChanged = true;
+        if (selectedEnd == null || !selectedEnd.equals(selectedStart)) {
+            somethingChanged = true;
         }
-        this._selectedStart = selectedStart;
+        this.selectedStart = selectedStart;
     }
 
     public DateTime getSelectedEnd() {
-        if (_selectedEnd != null) {
-            return _selectedEnd;
+        if (selectedEnd != null) {
+            return selectedEnd;
         } else if (getAttribute() != null) {
             DateTime timeStampFromLastSample = getAttribute().getTimestampFromLastSample();
-            if (timeStampFromLastSample == null) _selectedEnd = DateTime.now();
-            else _selectedEnd = timeStampFromLastSample;
-            return _selectedEnd;
+            if (timeStampFromLastSample == null) selectedEnd = DateTime.now();
+            else selectedEnd = timeStampFromLastSample;
+            return selectedEnd;
         } else {
             return null;
         }
     }
 
     public void setSelectedEnd(DateTime selectedEnd) {
-        if (_selectedEnd == null || !_selectedEnd.equals(selectedEnd)) {
-            _somethingChanged = true;
+        if (this.selectedEnd == null || !this.selectedEnd.equals(selectedEnd)) {
+            somethingChanged = true;
         }
-        this._selectedEnd = selectedEnd;
+        this.selectedEnd = selectedEnd;
     }
 
     public JEVisObject getObject() {
-        return _object;
+        return object;
     }
 
     public void setObject(JEVisObject _object) {
-        this._object = _object;
+        this.object = _object;
     }
 
     public JEVisAttribute getAttribute() {
-        if (_attribute == null || _somethingChanged) {
+        if (attribute == null || somethingChanged) {
             try {
                 JEVisAttribute attribute = null;
                 String jevisClassName = getObject().getJEVisClassName();
                 if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data")) {
-                    if (_dataProcessorObject == null) attribute = getObject().getAttribute("Value");
+                    if (dataProcessorObject == null) attribute = getObject().getAttribute("Value");
                     else attribute = getDataProcessor().getAttribute("Value");
 
-                    _attribute = attribute;
+                    this.attribute = attribute;
                 }
             } catch (Exception ex) {
                 logger.fatal(ex);
             }
         }
 
-        return _attribute;
+        return attribute;
     }
 
     public void setAttribute(JEVisAttribute _attribute) {
-        this._attribute = _attribute;
+        this.attribute = _attribute;
     }
 
     public Color getColor() {
-        return _color;
+        return color;
     }
 
     public void setColor(Color _color) {
-        this._color = _color;
+        this.color = _color;
     }
 
     public boolean isSelectable() {
@@ -286,32 +289,32 @@ public class ChartDataModel {
 
 
     public List<Integer> getSelectedcharts() {
-        return _selectedCharts;
+        return selectedCharts;
     }
 
     public void setSelectedCharts(List<Integer> selectedCharts) {
 
-        _somethingChanged = true;
-        this._selectedCharts = selectedCharts;
+        somethingChanged = true;
+        this.selectedCharts = selectedCharts;
     }
 
     public void setSomethingChanged(boolean _somethingChanged) {
-        this._somethingChanged = _somethingChanged;
+        this.somethingChanged = _somethingChanged;
     }
 
     @Override
     public String toString() {
         return "ChartDataModel{" +
 
-                " _title='" + _title + '\'' +
-                ", _selectedStart=" + _selectedStart +
-                ", _selectedEnd=" + _selectedEnd +
-                ", _object=" + _object +
-                ", attribute=" + _attribute +
-                ", _color=" + _color +
-                ", _somethingChanged=" + _somethingChanged +
-                ", _unit=" + _unit +
-                ", _selectedCharts=" + _selectedCharts +
+                " title='" + title + '\'' +
+                ", selectedStart=" + selectedStart +
+                ", selectedEnd=" + selectedEnd +
+                ", object=" + object +
+                ", attribute=" + attribute +
+                ", color=" + color +
+                ", somethingChanged=" + somethingChanged +
+                ", unit=" + unit +
+                ", selectedCharts=" + selectedCharts +
                 '}';
     }
 
@@ -322,5 +325,27 @@ public class ChartDataModel {
 
     public void setAxis(Integer axis) {
         this.axis = axis;
+    }
+
+    public Double getMinValue() {
+        return minValue;
+    }
+
+    public Double getMaxValue() {
+        return maxValue;
+    }
+
+    public void calcMinAndMax() {
+        minValue = Double.MAX_VALUE;
+        maxValue = -Double.MAX_VALUE;
+
+        samples.forEach(sample -> {
+            try {
+                minValue = Math.min(minValue, sample.getValueAsDouble());
+                maxValue = Math.max(maxValue, sample.getValueAsDouble());
+            } catch (JEVisException e) {
+                logger.error("Could not calculate min and max.");
+            }
+        });
     }
 }

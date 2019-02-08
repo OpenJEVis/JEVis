@@ -9,6 +9,7 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class QuantityUnits {
 
@@ -30,6 +31,15 @@ public class QuantityUnits {
     private final Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
     private final JEVisUnit GWh = new JEVisUnitImp(_GWh);
 
+    private final Unit _W = SI.WATT;
+    private final JEVisUnit W = new JEVisUnitImp(_W);
+    private final Unit _kW = SI.KILO(SI.WATT);
+    private final JEVisUnit kW = new JEVisUnitImp(_kW);
+    private final Unit _MW = SI.MEGA(SI.WATT);
+    private final JEVisUnit MW = new JEVisUnitImp(_MW);
+    private final Unit _GW = SI.GIGA(SI.WATT);
+    private final JEVisUnit GW = new JEVisUnitImp(_GW);
+
     private final Unit _vah = Unit.ONE.alternate("vah");
     private final JEVisUnit vah = new JEVisUnitImp(_vah);
     private final Unit _kvah = Unit.ONE.alternate("kvah");
@@ -40,26 +50,12 @@ public class QuantityUnits {
     private final Unit _kvarh = Unit.ONE.alternate("kvarh");
     private final JEVisUnit kvarh = new JEVisUnitImp(_kvarh);
 
-    private final ArrayList<JEVisUnit> jeVisUnitArrayList = new ArrayList<>(Arrays.asList(
-            kg, t,
-            l, m3,
-            Wh, kWh, MWh, GWh,
-            vah, varh, kvah, kvarh
-    ));
+    private final ArrayList<JEVisUnit> jeVisUnitArrayList;
 
-    private final ArrayList<Unit> unitArrayList = new ArrayList<>(Arrays.asList(
-            _kg, _t,
-            _l, _m3,
-            _Wh, _kWh, _MWh, _GWh,
-            _vah, _varh, _kvah, _kvarh
-    ));
+    private final ArrayList<Unit> unitArrayList;
 
-    private final ArrayList<String> stringArrayList = new ArrayList<>(Arrays.asList(
-            kg.getLabel(), t.getLabel(),
-            l.getLabel(), m3.getLabel(),
-            Wh.getLabel(), kWh.getLabel(), MWh.getLabel(), GWh.getLabel(),
-            vah.getLabel(), varh.getLabel(), kvah.getLabel(), kvarh.getLabel()
-    ));
+    private final ArrayList<String> stringArrayList;
+    private final List<JEVisUnit> energyUnits;
 
     public boolean isQuantityUnit(JEVisUnit unit) {
         for (JEVisUnit jeVisUnit : jeVisUnitArrayList) {
@@ -86,5 +82,46 @@ public class QuantityUnits {
 
     public boolean isQuantityUnit(String unit) {
         return stringArrayList.contains(unit);
+    }
+
+    public QuantityUnits() {
+        energyUnits = new ArrayList<>(Arrays.asList(W, kW, MW, GW));
+
+        stringArrayList = new ArrayList<>(Arrays.asList(
+                kg.getLabel(), t.getLabel(),
+                l.getLabel(), m3.getLabel(),
+                Wh.getLabel(), kWh.getLabel(), MWh.getLabel(), GWh.getLabel(),
+                vah.getLabel(), varh.getLabel(), kvah.getLabel(), kvarh.getLabel()
+        ));
+
+        unitArrayList = new ArrayList<>(Arrays.asList(
+                _kg, _t,
+                _l, _m3,
+                _Wh, _kWh, _MWh, _GWh,
+                _vah, _varh, _kvah, _kvarh
+        ));
+
+        jeVisUnitArrayList = new ArrayList<>(Arrays.asList(
+                kg, t,
+                l, m3,
+                Wh, kWh, MWh, GWh,
+                vah, varh, kvah, kvarh
+        ));
+    }
+
+    public boolean isSumCalculable(JEVisUnit unit) {
+        return energyUnits.contains(unit);
+    }
+
+    public JEVisUnit getSumUnit(JEVisUnit unit) {
+        if (unit.equals(W)) {
+            return Wh;
+        } else if (unit.equals(kW)) {
+            return kWh;
+        } else if (unit.equals(MW)) {
+            return MWh;
+        } else if (unit.equals(GW)) {
+            return GWh;
+        } else return null;
     }
 }

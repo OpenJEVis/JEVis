@@ -72,13 +72,13 @@
             <dependency>
                 <groupId>org.jevis.commons</groupId>
                 <artifactId>JECommons</artifactId>
-                <version>3.17</version>
+                <version>3.18</version>
             </dependency>
 
             <dependency>
                 <groupId>org.jevis</groupId>
                 <artifactId>JEAPI-WS</artifactId>
-                <version>1.17</version>
+                <version>1.18</version>
             </dependency>
 
             <dependency>

@@ -168,7 +168,7 @@ public class ChartView implements Observer {
 
         tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
-                TableViewUntils.allToMinButColumn(tableView, Arrays.asList(maxSizeColumns));
+                TableViewUntils.allToMinButColumn(tableView, Arrays.asList(name));
             });
 
         });

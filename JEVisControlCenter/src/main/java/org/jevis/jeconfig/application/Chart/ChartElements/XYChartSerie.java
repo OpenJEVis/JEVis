@@ -9,12 +9,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -147,7 +149,20 @@ public class XYChartSerie {
             tableEntry.setAvg(nf_out.format(avg) + " " + unit);
             if (isQuantity) {
                 tableEntry.setSum(nf_out.format(sum) + " " + unit);
-            } else tableEntry.setSum("- " + unit);
+            } else {
+                if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
+                    try {
+                        Period p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                        double factor = Period.hours(1).toStandardDuration().getMillis() / p.toStandardDuration().getMillis();
+                        tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
+                    } catch (Exception e) {
+                        logger.error("Couldn't calculate periods");
+                        tableEntry.setSum("- " + unit);
+                    }
+                } else {
+                    tableEntry.setSum("- " + unit);
+                }
+            }
         }
     }
 
