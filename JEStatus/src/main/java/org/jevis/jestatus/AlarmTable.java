@@ -14,6 +14,8 @@ public class AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(AlarmTable.class);
     final String tableCSS = "background-color:#FFF;"
             + "text-color: #024457;"
+            + "width: 100%;"
+            + "table-layout: fixed;"
             + "outer-border: 1px solid #167F92;"
             + "empty-cells:show;"
             + "border-collapse:collapse;"

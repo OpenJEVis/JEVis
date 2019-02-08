@@ -66,41 +66,49 @@ public class DataServerTable extends AlarmTable {
             if (lastReadoutAtt != null) {
                 if (lastReadoutAtt.hasSample()) {
                     JEVisSample lastSample = lastReadoutAtt.getLatestSample();
-                    if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
-                        if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
-                    }
-                }
-            }
-
-            if (channel.getJEVisClassName().equals("Loytec XML-DL Channel"))
-                targetAtt = channel.getAttribute("Target ID");
-            else if (channel.getJEVisClassName().equals("VIDA350 Channel")) channel.getAttribute("Target");
-            /**
-             * TODO add different channel types?
-             */
-
-            if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
-
-            TargetHelper th = null;
-            if (lastSampleTarget != null) {
-                th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                JEVisObject target = th.getObject();
-
-                channelAndTarget.put(channel, target);
-                getListCheckedData().add(target);
-
-                JEVisAttribute resultAtt = null;
-                if (!th.hasAttribute()) resultAtt = target.getAttribute("Value");
-                else resultAtt = th.getAttribute();
-
-                if (resultAtt != null) {
-                    if (resultAtt.hasSample()) {
-                        JEVisSample lastSample = resultAtt.getLatestSample();
+                    if (lastSample != null) {
                         if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
                             if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
                         }
                     }
                 }
+            }
+
+            if (channel.getJEVisClassName().equals("Loytec XML-DL Channel") || channel.getJEVisClassName().equals("VIDA350 Channel")) {
+                if (channel.getJEVisClassName().equals("Loytec XML-DL Channel"))
+                    targetAtt = channel.getAttribute("Target ID");
+                else if (channel.getJEVisClassName().equals("VIDA350 Channel")) {
+                    targetAtt = channel.getAttribute("Target");
+                }
+
+                if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
+
+                TargetHelper th = null;
+                if (lastSampleTarget != null) {
+                    th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
+                    JEVisObject target = th.getObject();
+                    if (target != null) {
+
+                        channelAndTarget.put(channel, target);
+                        getListCheckedData().add(target);
+
+                        JEVisAttribute resultAtt = th.getAttribute();
+                        if (resultAtt == null) resultAtt = target.getAttribute("Value");
+
+                        if (resultAtt != null) {
+                            if (resultAtt.hasSample()) {
+                                JEVisSample lastSample = resultAtt.getLatestSample();
+                                if (lastSample != null) {
+                                    if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                        if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, limit, ignoreTS);
             }
         }
 
@@ -224,6 +232,141 @@ public class DataServerTable extends AlarmTable {
         sb.append("<br>");
 
         setTableString(sb.toString());
+    }
+
+    private void getOtherChannelsTarget(JEVisObject channel, Map<JEVisObject, JEVisObject> channelAndTarget, List<JEVisObject> outOfBounds, DateTime limit, DateTime ignoreTS) throws JEVisException {
+        List<JEVisObject> dps = new ArrayList<>();
+
+        final JEVisClass channelClass = channel.getJEVisClass();
+        final JEVisClass ftpChannel = ds.getJEVisClass("FTP Channel");
+        final JEVisClass httpChannel = ds.getJEVisClass("HTTP Channel");
+        final JEVisClass sFtpChannel = ds.getJEVisClass("sFTP Channel");
+        final JEVisClass soapChannel = ds.getJEVisClass("SOAP Channel");
+        final JEVisClass csvDataPoint = ds.getJEVisClass("CSV Data Point");
+        final String standardTargetAttribute = "Target";
+        final JEVisClass dwdDataPoint = ds.getJEVisClass("DWD Data Point");
+        final JEVisClass xmlDataPoint = ds.getJEVisClass("XML Data Point");
+        final JEVisClass dataPoint = ds.getJEVisClass("Data Point");
+        final String dwd1 = "Atmospheric Pressure Target";
+        final String dwd2 = "Humidity Target";
+        final String dwd3 = "Precipitation Target";
+        final String dwd4 = "Temperature Target";
+        final String dwd5 = "Wind Speed Target";
+
+        if (channelClass.equals(ftpChannel)) {
+            dps.addAll(getChildrenRecursive(channel, csvDataPoint));
+            dps.addAll(getChildrenRecursive(channel, dwdDataPoint));
+            dps.addAll(getChildrenRecursive(channel, xmlDataPoint));
+            dps.addAll(getChildrenRecursive(channel, dataPoint));
+        } else {
+            dps.addAll(getChildrenRecursive(channel, csvDataPoint));
+            dps.addAll(getChildrenRecursive(channel, xmlDataPoint));
+            dps.addAll(getChildrenRecursive(channel, dataPoint));
+        }
+
+        for (JEVisObject dp : dps) {
+
+            if (dp.getJEVisClass().equals(csvDataPoint) || dp.getJEVisClass().equals(xmlDataPoint)) {
+                JEVisAttribute targetAtt = null;
+                JEVisSample lastSampleTarget = null;
+
+                targetAtt = dp.getAttribute(standardTargetAttribute);
+
+                if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
+
+                TargetHelper th = null;
+                if (lastSampleTarget != null) {
+                    th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
+                    JEVisObject target = th.getObject();
+                    if (target != null) {
+                        channelAndTarget.put(target, target);
+                        getListCheckedData().add(target);
+
+                        JEVisAttribute resultAtt = th.getAttribute();
+                        if (resultAtt == null) resultAtt = target.getAttribute("Value");
+
+                        if (resultAtt != null) {
+                            if (resultAtt.hasSample()) {
+                                JEVisSample lastSample = resultAtt.getLatestSample();
+                                if (lastSample != null) {
+                                    if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                        if (!outOfBounds.contains(target)) outOfBounds.add(target);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (dp.getJEVisClass().equals(dwdDataPoint)) {
+                JEVisAttribute targetAtt1 = null;
+                JEVisSample lastSampleTarget1 = null;
+                JEVisAttribute targetAtt2 = null;
+                JEVisSample lastSampleTarget2 = null;
+                JEVisAttribute targetAtt3 = null;
+                JEVisSample lastSampleTarget3 = null;
+                JEVisAttribute targetAtt4 = null;
+                JEVisSample lastSampleTarget4 = null;
+                JEVisAttribute targetAtt5 = null;
+                JEVisSample lastSampleTarget5 = null;
+
+                targetAtt1 = dp.getAttribute(dwd1);
+                targetAtt2 = dp.getAttribute(dwd2);
+                targetAtt3 = dp.getAttribute(dwd3);
+                targetAtt4 = dp.getAttribute(dwd4);
+                targetAtt5 = dp.getAttribute(dwd5);
+
+                if (targetAtt1 != null) lastSampleTarget1 = targetAtt1.getLatestSample();
+                if (targetAtt2 != null) lastSampleTarget2 = targetAtt2.getLatestSample();
+                if (targetAtt3 != null) lastSampleTarget3 = targetAtt3.getLatestSample();
+                if (targetAtt4 != null) lastSampleTarget4 = targetAtt4.getLatestSample();
+                if (targetAtt5 != null) lastSampleTarget5 = targetAtt5.getLatestSample();
+
+                List<JEVisSample> samples = new ArrayList<>();
+                if (lastSampleTarget1 != null) samples.add(lastSampleTarget1);
+                if (lastSampleTarget2 != null) samples.add(lastSampleTarget2);
+                if (lastSampleTarget3 != null) samples.add(lastSampleTarget3);
+                if (lastSampleTarget4 != null) samples.add(lastSampleTarget4);
+                if (lastSampleTarget5 != null) samples.add(lastSampleTarget5);
+
+                TargetHelper th = null;
+                for (JEVisSample lastSampleTarget : samples) {
+                    th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
+                    JEVisObject target = th.getObject();
+                    if (target != null) {
+
+                        channelAndTarget.put(target, target);
+                        getListCheckedData().add(target);
+
+                        JEVisAttribute resultAtt = th.getAttribute();
+                        if (resultAtt == null) resultAtt = target.getAttribute("Value");
+
+                        if (resultAtt != null) {
+                            if (resultAtt.hasSample()) {
+                                JEVisSample lastSample = resultAtt.getLatestSample();
+                                if (lastSample != null) {
+                                    if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                        if (!outOfBounds.contains(target)) outOfBounds.add(target);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private List<JEVisObject> getChildrenRecursive(JEVisObject channel, JEVisClass jeVisClass) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+        for (JEVisObject child : channel.getChildren()) {
+            if (child.getJEVisClass().equals(jeVisClass)) list.add(child);
+
+            for (JEVisObject child2 : child.getChildren()) {
+                list.addAll(getChildrenRecursive(child2, jeVisClass));
+            }
+        }
+
+        return list;
     }
 
 

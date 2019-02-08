@@ -104,15 +104,19 @@ public class XYLogicalChartSerie extends XYChartSerie {
         for (JEVisSample smp : samples) {
             Double currentValue = smp.getValueAsDouble();
             DateTime currentTimeStamp = smp.getTimestamp();
-            double currentValueConverted = 0d;
-            if (currentValue.equals(1d)) {
-                currentValueConverted = 0d;
-            } else if (currentValue.equals(0d)) {
-                currentValueConverted = 1d;
-            }
 
-            if (lastValue == null || !lastValue.equals(currentValue)) {
-                JEVisSample newSample = new VirtualSample(currentTimeStamp.minus(1), currentValueConverted);
+            if (!currentValue.equals(lastValue)) {
+                JEVisSample newSample = null;
+                if (lastValue != null) newSample = new VirtualSample(currentTimeStamp.minus(1), lastValue);
+                else {
+                    List<JEVisSample> allSamples = singleRow.getAttribute().getAllSamples();
+                    for (int i1 = allSamples.size() - 1; i1 > -1; i1--) {
+                        JEVisSample sample = allSamples.get(i1);
+                        if (sample.getTimestamp().isBefore(currentTimeStamp)) {
+                            newSample = new VirtualSample(currentTimeStamp.minus(1), sample.getValueAsDouble());
+                        }
+                    }
+                }
                 modifiedList.add(newSample);
             }
             modifiedList.add(smp);

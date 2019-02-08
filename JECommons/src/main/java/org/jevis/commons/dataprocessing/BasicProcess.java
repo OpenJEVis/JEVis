@@ -69,7 +69,7 @@ public class BasicProcess implements Process {
         setJEVisDataSource(ds);
         setObject(parentObj);
         for (JsonProcess jt : jTask.getSubTasks()) {
-            logger.info("make new sub task: " + jt);
+            logger.debug("make new sub task: " + jt);
             tasks.add(new BasicProcess(ds, jt, parentTask, parentObj));
         }
         _parent = parentTask;

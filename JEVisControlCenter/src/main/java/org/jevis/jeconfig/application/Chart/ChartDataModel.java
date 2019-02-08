@@ -58,27 +58,26 @@ public class ChartDataModel {
     public List<JEVisSample> getSamples() {
         if (_somethingChanged) {
             _somethingChanged = false;
-            samples = new ArrayList<>();
+
+            setSamples(new ArrayList<>());
+
             if (getSelectedStart().isBefore(getSelectedEnd())) {
                 try {
 
-                    if (_dataProcessorObject != null) {
-                        _attribute = _dataProcessorObject.getAttribute("Value");
-                    } else {
-                        _attribute = _object.getAttribute("Value");
-                    }
+                    _object.getDataSource().reloadAttribute(_attribute);
 
-//                    attribute.getDataSource().reloadAttribute(attribute);
-
-                    SampleGenerator sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, getSelectedStart(),
-                            getSelectedEnd(), manipulationMode, aggregationPeriod);
+                    SampleGenerator sg;
+                    if (aggregationPeriod.equals(AggregationPeriod.NONE))
+                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _selectedStart, _selectedEnd, ManipulationMode.NONE, aggregationPeriod);
+                    else
+                        sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _selectedStart, _selectedEnd, ManipulationMode.TOTAL, aggregationPeriod);
 
                     samples = sg.generateSamples();
                     samples = sg.getAggregatedSamples(samples);
                     samples = factorizeSamples(samples);
 
                     /**
-                     * Checking for data incongruencies                     *
+                     * Checking for data inconsistencies
                      */
 
                     if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
@@ -118,8 +117,6 @@ public class ChartDataModel {
                 }
             }
         }
-
-        System.gc();
 
         return samples;
     }

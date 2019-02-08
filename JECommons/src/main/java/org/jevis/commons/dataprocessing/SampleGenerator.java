@@ -45,11 +45,8 @@ public class SampleGenerator {
     }
 
     public List<JEVisSample> generateSamples() {
-        //calc the sample list
-//        List<JEVisSample> samples = attribute.getSamples(new DateTime(2010, 1, 1, 1, 1, 1),
-//                new DateTime(3000, 1, 1, 1, 1, 1, 1));
-        List<JEVisSample> samples = attribute.getSamples(interval.getStart(), interval.getEnd());
-        return samples;
+
+        return attribute.getSamples(interval.getStart(), interval.getEnd());
     }
 
     public List<JEVisSample> getAggregatedSamples(List<JEVisSample> samples) {
