@@ -85,7 +85,7 @@ public class ImportStep implements ProcessStep {
             logger.info("[{}] Import finished for samples: {}", resourceManager.getID(), cleanSamples.size());
             LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
         } else {
-            logger.info("No new Samples.");
+            logger.info("[{}] No new Samples.", resourceManager.getID());
             LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
         }
     }
