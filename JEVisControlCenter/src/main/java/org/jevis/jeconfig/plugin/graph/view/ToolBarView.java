@@ -9,7 +9,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -257,7 +256,7 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        select.setOnAction(event -> changeSettings(event));
+        select.setOnAction(event -> changeSettings());
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
 
@@ -379,7 +378,7 @@ public class ToolBarView {
         return listAnalysesComboBox;
     }
 
-    private void changeSettings(ActionEvent event) {
+    private void changeSettings() {
         ChartSelectionDialog dia = new ChartSelectionDialog(ds, model);
 
         if (dia.show() == Response.OK) {
@@ -387,10 +386,6 @@ public class ToolBarView {
             model.setCharts(dia.getChartPlugin().getData().getCharts());
             model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
         }
-
-        dia = null;
-
-        System.gc();
     }
 
     private void saveCurrentAnalysis() {
