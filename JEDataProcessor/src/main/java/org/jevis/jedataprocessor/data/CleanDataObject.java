@@ -272,7 +272,7 @@ public class CleanDataObject {
         if (rawSamples == null) {
             rawSamples = sampleHandler.getSamplesInPeriod(rawDataObject,
                     VALUE_ATTRIBUTE_NAME,
-                    getFirstDate().minus(getCleanDataPeriodAlignment()).minus(getCleanDataPeriodAlignment()),
+                    getFirstDate().minus(getCleanDataPeriodAlignment()),
 //                    getFirstDate(),
                     getMaxEndDate());
         }
