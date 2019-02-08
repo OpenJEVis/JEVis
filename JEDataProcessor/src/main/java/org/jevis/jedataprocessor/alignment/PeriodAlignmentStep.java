@@ -45,7 +45,14 @@ public class PeriodAlignmentStep implements ProcessStep {
         Period periodCleanData = cleanDataObject.getCleanDataPeriodAlignment();
         Period periodRawData = cleanDataObject.getRawDataPeriodAlignment();
 
-        boolean downSampling = periodCleanData.toStandardDuration().getMillis() > periodRawData.toStandardDuration().getMillis();
+        boolean downSampling = true;
+        if (!periodCleanData.equals(periodRawData)) {
+            long cleanMillis = periodCleanData.toStandardDuration().getMillis();
+            long rawMillis = periodRawData.toStandardDuration().getMillis();
+            if (rawMillis >= cleanMillis) {
+                if (rawMillis > cleanMillis) downSampling = false;
+            }
+        }
 
         if (downSampling) {
             int currentSamplePointer = 0;
@@ -124,7 +131,8 @@ public class PeriodAlignmentStep implements ProcessStep {
         /**
          * calc the sample per interval if possible depending on alignment and aggregation mode (avg oder only first value)
          */
-        for (CleanInterval currentInterval : intervals) {
+        for (
+                CleanInterval currentInterval : intervals) {
 
             for (int i = 0; i < listConversionToDifferential.size(); i++) {
                 JEVisSample ctd = listConversionToDifferential.get(i);

@@ -775,8 +775,11 @@ public class LoadAnalysisDialog {
 
                     if (!listBuildings.isEmpty()) {
                         JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                        JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
-                        calendarDirectory.commit();
+                        if (ds.getCurrentUser().canCreate(listBuildings.get(0).getID())) {
+
+                            JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
+                            calendarDirectory.commit();
+                        }
                     }
                 } catch (JEVisException e) {
                     logger.error("Error: could not create new calendar directory", e);
