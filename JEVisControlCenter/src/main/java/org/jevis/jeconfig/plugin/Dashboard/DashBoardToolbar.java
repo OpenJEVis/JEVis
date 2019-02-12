@@ -171,6 +171,7 @@ public class DashBoardToolbar extends ToolBar {
         });
 
         runUpdateButton.setOnAction(event -> {
+            System.out.println("Start button: " + (!analyses.updateIsRunningProperty.getValue()));
             analyses.updateIsRunningProperty.setValue(!analyses.updateIsRunningProperty.getValue());
         });
 

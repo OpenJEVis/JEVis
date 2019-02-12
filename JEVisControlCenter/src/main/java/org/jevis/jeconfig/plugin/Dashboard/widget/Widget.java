@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import jfxtras.labs.util.event.MouseControlUtil;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.GlobalToolBar;
@@ -28,6 +29,7 @@ public abstract class Widget extends Group {
     public CornerRadii cornerRadii = new CornerRadii(0);
     public Size previewSize = new Size(100, 150);
     public BooleanProperty noDataInPeriodProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty isInitialized = new SimpleBooleanProperty(false);
     private DashBoardPane dashBoard;
     private AnchorPane contentRoot = new AnchorPane();
     private AnchorPane editPane = new AnchorPane();
@@ -44,6 +46,17 @@ public abstract class Widget extends Group {
 
     public abstract SampleHandler getSampleHandler();
 
+    public abstract void setBackgroundColor(Color color);
+
+    public abstract void setTitle(String text);
+
+    public abstract void setFontColor(Color color);
+
+    public abstract void setCustomFont(Font font);
+
+
+//    public abstract List<WidgetConfigProperty> getAdditionalSetting();
+
     public JEVisDataSource getDataSource() {
         return jeVisDataSource;
     }
@@ -52,8 +65,30 @@ public abstract class Widget extends Group {
         return uuid;
     }
 
+    public void applyCannonConfig() {
+        setBackgroundColor(config.backgroundColor.getValue());
+        setFontColor(config.fontColor.getValue());
+        setTitle(config.title.getValue());
+        setCustomFont(config.font.getValue());
+    }
 
-//    public List<>
+    public void addCommonConfigListeners() {
+        config.backgroundColor.addListener((observable, oldValue, newValue) -> {
+            setBackgroundColor(newValue);
+        });
+        config.fontColor.addListener((observable, oldValue, newValue) -> {
+            setFontColor(newValue);
+        });
+
+        config.title.addListener((observable, oldValue, newValue) -> {
+            setTitle(newValue);
+        });
+
+        config.font.addListener((observable, oldValue, newValue) -> {
+            setCustomFont(newValue);
+        });
+
+    }
 
     private void makeDragDropOverlay() {
 
@@ -65,6 +100,7 @@ public abstract class Widget extends Group {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(deleteButton);
 
         configButton.setOnAction(event -> {
+
             config.openConfig();
         });
 
@@ -88,7 +124,7 @@ public abstract class Widget extends Group {
 
         windowHeader.getChildren().addAll(configButton, deleteButton);
         windowHeader.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
-        windowHeader.setOpacity(0.5);
+//        windowHeader.setOpacity(0.5);
         editPane.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
         editPane.setOpacity(0.8);
         config.size.addListener((observable, oldValue, newValue) -> {
@@ -167,21 +203,6 @@ public abstract class Widget extends Group {
         });
         editPane.setVisible(getAnalysis().editProperty.get());
 
-//        layoutXProperty().addListener((observable, oldValue, newValue) -> {
-//            if (!oldValue.equals(newValue) && getAnalysis().snapToGridProperty.getValue()) {
-//                System.out.println("x");
-//                layoutXProperty().setValue(parent.getNextGridX(newValue.longValue()));
-//            }
-//        });
-
-//        layoutYProperty().addListener((observable, oldValue, newValue) -> {
-//            if (!oldValue.equals(newValue) && getAnalysis().snapToGridProperty.getValue()) {
-//                System.out.println("y: " + oldValue + " new: " + newValue);
-//                layoutYProperty().setValue(parent.getNextGridY(newValue.longValue()));
-//            }
-//
-//        });
-
         setOnMouseReleased(event -> {
             if (getAnalysis().snapToGridProperty.getValue()) {
                 layoutXProperty().setValue(parent.getNextGridX(layoutXProperty().longValue()));
@@ -238,6 +259,7 @@ public abstract class Widget extends Group {
      * Init will be called ones if the the widget will be created
      */
     public abstract void init();
+
 
     /**
      * Unique ID of this Widget

@@ -105,6 +105,9 @@ public class Wizard {
         });
 
 
+        /**
+         * TODO: replace this hardcoded solution with something more flexible
+         */
         pageIndex.addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() == 2) {
                 finishButton.setDisable(false);
@@ -120,17 +123,29 @@ public class Wizard {
 
             if (newValue.intValue() == 0) {
                 //Widget Selection, TODO for previous()
-            } else if (newValue.intValue() == 1) {
+            }
+
+            if (newValue.intValue() == 1) {
+                System.out.println("SampleHandlerPage");
                 SampleHandler sampleHandler = selectedWidget.getValue().getSampleHandler();
 
+//                if (sampleHandler.getPage().isSkipable()) {
+//                    newValue = 2;//skip
+//                } else {
                 Node configNode = sampleHandler.getPage().getNode();
                 contentPane.getChildren().setAll(configNode);
                 Layouts.setAnchor(configNode, 5.0);
-            } else if (newValue.intValue() == 2) {
+//                }
+            }
+
+            if (newValue.intValue() == 2) {
+                selectedWidget.getValue().init();
+                selectedWidget.getValue().getSampleHandler().setUserSelectionDone();
                 Node configNode = selectedWidget.getValue().config.getConfigSheet();
                 contentPane.getChildren().setAll(configNode);
                 Layouts.setAnchor(configNode, 5.0);
             }
+
         });
 
 
@@ -160,6 +175,8 @@ public class Wizard {
         newWindow.showAndWait();
 
         if (isFinised.getValue()) {
+
+            selectedWidget.getValue().config.applyUserConfig();
             Optional<Widget> sc = Optional.of(selectedWidget.getValue());
             return sc;
         } else {

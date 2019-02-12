@@ -1,26 +1,52 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
+import eu.hansolo.tilesfx.Tile;
+import eu.hansolo.tilesfx.TileBuilder;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfigProperty;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NumberWidget extends Widget {
 
-    Label textField = new Label("345345,98 kWh");
+    Tile tile;
+    private LastValueHandler sampleHandler;
+
 
     public NumberWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
+        sampleHandler = new LastValueHandler(jeVisDataSource);
+        sampleHandler.setMultiSelect(false);
+        sampleHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
+            System.out.println("sample Handler indicates update");
+            sampleHandler.getValuePropertyMap().forEach((s, samplesList) -> {
+                try {
+                    System.out.println("Update with samples: " + samplesList.size());
+                    if (!samplesList.isEmpty()) {
+                        if (samplesList.size() > 1) {
+                            tile.setValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
+                            tile.setReferenceValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
+                        }
+                        tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
+                    } else {
+                        tile.setValue(0.0);
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+        });
+
     }
 
     @Override
@@ -28,57 +54,92 @@ public class NumberWidget extends Widget {
 
     }
 
+
     public SampleHandler getSampleHandler() {
-        LastValueHandler sampleHandler = new LastValueHandler(getDataSource());
-        sampleHandler.setMultiSelect(false);
-
-        //TODO
-
+//        sampleHandler.getUnitProperty().addListener((observable, oldValue, newValue) -> {
+//            try {
+//                tile.setUnit(newValue);
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        });
         return sampleHandler;
 
     }
 
     @Override
+    public void setBackgroundColor(Color color) {
+        tile.setBackgroundColor(color);
+    }
+
+    @Override
+    public void setTitle(String text) {
+        tile.setTitle(text);
+    }
+
+    @Override
+    public void setFontColor(Color color) {
+        tile.setTextColor(color);
+        tile.setValueColor(color);
+    }
+
+    @Override
+    public void setCustomFont(Font font) {
+        tile.setCustomFont(font);
+        tile.setCustomFontEnabled(true);
+    }
+
+    @Override
     public void init() {
-        System.out.println("NumberWidget update");
-        AnchorPane anchorPane = new AnchorPane();
-        VBox vBox = new VBox(12);
-        Label nameLabel = new Label("Main Meter");
 
+        tile = TileBuilder.create()
+                .skinType(Tile.SkinType.NUMBER)
+                .prefSize(config.size.get().getWidth(), config.size.get().getHeight())
+//                .unit("mb")
+//                .description("Test")
+                .textVisible(true)
+                .textColor(config.fontColor.getValue())
+                .backgroundColor(config.backgroundColor.getValue())
+                .build();
 
-        nameLabel.setFont(new Font(12));
-        textField.setFont(new Font(20));
-        textField.setTextFill(Color.CORNFLOWERBLUE);
-        nameLabel.setTextFill(Color.GREY);
+        addCommonConfigListeners();
 
-        vBox.getChildren().addAll(textField, nameLabel);
-        vBox.setAlignment(Pos.CENTER);
-
-
-        anchorPane.getChildren().add(vBox);
-        AnchorPane.setRightAnchor(vBox, 20.0);
-        AnchorPane.setLeftAnchor(vBox, 20.0);
-        AnchorPane.setTopAnchor(vBox, 20.0);
-        AnchorPane.setBottomAnchor(vBox, 20.0);
-
-        nameLabel.textFillProperty().bind(config.fontColor);
-        textField.textFillProperty().bind(config.fontColorSecondary);
-        config.backgroundColor.addListener((observable, oldValue, newValue) -> {
-            anchorPane.setBackground(new Background(new BackgroundFill(newValue, cornerRadii, new Insets(0, 0, 0, 0))));
+        StringProperty textProperty = new SimpleStringProperty("");
+        StringProperty descriptionProperly = new SimpleStringProperty("");
+        textProperty.addListener((observable, oldValue, newValue) -> {
+            tile.setText(newValue);
         });
-        anchorPane.setBackground(new Background(new BackgroundFill(config.backgroundColor.get(), cornerRadii, new Insets(0, 0, 0, 0))));
+        descriptionProperly.addListener((observable, oldValue, newValue) -> {
+            tile.setDescription(newValue);
+        });
+
+        config.unit.addListener((observable, oldValue, newValue) -> {
+            tile.setUnit(newValue);
+        });
 
 
-        setGraphic(anchorPane);
+        String category = "Number Widget";
+
+        List<WidgetConfigProperty> propertyList = new ArrayList<>();
+        propertyList.add(new WidgetConfigProperty<String>("NumberWidget.Text", category, "Text", "", textProperty));
+        propertyList.add(new WidgetConfigProperty<String>("NumberWidget.description", category, "Description", "", descriptionProperly));
+
+
+        config.addAdditionalSetting(propertyList);
+
+
+        tile.setAnimated(true);
+        setGraphic(tile);
     }
 
     @Override
     public String typeID() {
-        return "Number Widget";
+        return "Number";
     }
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/HighLow.png", 100, 100);
+        return JEConfig.getImage("widget/HighLow.png", previewSize.getHeight(), previewSize.getWidth());
     }
+
 }

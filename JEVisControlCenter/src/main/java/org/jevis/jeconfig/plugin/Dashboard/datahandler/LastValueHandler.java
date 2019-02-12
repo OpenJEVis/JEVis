@@ -1,9 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.datahandler;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -33,7 +30,7 @@ public class LastValueHandler extends SampleHandler {
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
     Map<String, List<JEVisSample>> valueMap = new HashMap<>();
     Map<String, JEVisAttribute> attributeMap = new HashMap<>();
-    private boolean enableMultiSelect = false;
+    private BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
     private StringProperty unitProperty = new SimpleStringProperty("");
     private SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
 
@@ -51,16 +48,20 @@ public class LastValueHandler extends SampleHandler {
 
     @Override
     public void update() {
-
+        System.out.println("LastValueHandler.update() ");
         attributeMap.forEach((s, jeVisAttribute) -> {
+            System.out.println("Update -> " + s);
             getDataSource().reloadAttribute(jeVisAttribute);
             List<JEVisSample> newSample = jeVisAttribute.getSamples(durationProperty.getValue().getStart(), durationProperty.getValue().getEnd());
             if (newSample != null && !newSample.isEmpty()) {
                 try {
+                    System.out.println("newSamples:" + newSample.size());
                     valueMap.put(s, newSample);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+            } else {
+                System.out.println("no new Samples");
             }
 
         });
@@ -68,7 +69,7 @@ public class LastValueHandler extends SampleHandler {
     }
 
     public void setMultiSelect(boolean enable) {
-        this.enableMultiSelect = enable;
+        this.enableMultiSelect.set(enable);
     }
 
     public Map<String, List<JEVisSample>> getValuePropertyMap() {
@@ -82,7 +83,9 @@ public class LastValueHandler extends SampleHandler {
 
     @Override
     public void setUserSelectionDone() {
+        System.out.println("Selection Done");
         simpleTargetPlugin.getUserSelection().forEach(userSelection -> {
+            System.out.println("Userselect: " + userSelection.getSelectedObject() + "  att: " + userSelection.getSelectedAttribute());
             String key = generateValueKey(userSelection.getSelectedAttribute());
             valueMap.put(key, new ArrayList<>());
             attributeMap.put(key, userSelection.getSelectedAttribute());
@@ -94,11 +97,11 @@ public class LastValueHandler extends SampleHandler {
         AnchorPane anchorPane = new AnchorPane();
 
 
-        simpleTargetPlugin.setAllowMultySelection(enableMultiSelect);
         JEVisTree tree = JEVisTreeFactory.buildBasicDefault(getDataSource());
         tree.getPlugins().add(simpleTargetPlugin);
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-
+        simpleTargetPlugin.setAllowMultySelection(enableMultiSelect.getValue());
+        simpleTargetPlugin.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
 
         ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
         filterTypes.setAll(SelectTargetDialog.buildAllAttributesFilter());
@@ -106,6 +109,10 @@ public class LastValueHandler extends SampleHandler {
         Finder finder = new Finder(tree);
         SearchFilterBar searchBar = new SearchFilterBar(tree, filterTypes, finder);
 
+        enableMultiSelect.addListener((observable, oldValue, newValue) -> {
+            simpleTargetPlugin.setAllowMultySelection(newValue);
+
+        });
 
         anchorPane.getChildren().addAll(tree, searchBar);
         Layouts.setAnchor(tree, 1.0);
@@ -119,6 +126,11 @@ public class LastValueHandler extends SampleHandler {
             @Override
             public Node getNode() {
                 return anchorPane;
+            }
+
+            @Override
+            public boolean isSkipable() {
+                return false;
             }
         };
 

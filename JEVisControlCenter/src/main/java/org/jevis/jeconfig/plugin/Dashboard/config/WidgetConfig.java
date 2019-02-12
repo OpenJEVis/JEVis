@@ -2,6 +2,8 @@ package org.jevis.jeconfig.plugin.Dashboard.config;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -13,9 +15,7 @@ import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
 import org.jevis.jeconfig.tool.I18n;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class WidgetConfig {
 
@@ -24,12 +24,15 @@ public class WidgetConfig {
     public ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
     public ObjectProperty<Color> fontColorSecondary = new SimpleObjectProperty<>(Color.class, "Font Color Secondary", Color.DODGERBLUE);
 
+    public StringProperty title = new SimpleStringProperty("");
+    public StringProperty unit = new SimpleStringProperty("");
     public ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.class, "Background Color", Color.web("#126597"));
     public ObjectProperty<Position> position = new SimpleObjectProperty<>(Position.DEFAULT_1);
     public ObjectProperty<Size> size = new SimpleObjectProperty<>(Size.DEFAULT);
     public ObjectProperty<Font> font = new SimpleObjectProperty<>(Font.getDefault());
     private String type = "";
     private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
+    private List<WidgetConfigProperty> additonlaSetting = new ArrayList<>();
 
     public String getType() {
         return type;
@@ -39,29 +42,59 @@ public class WidgetConfig {
         this.type = type;
     }
 
-
+    /**
+     * TODO: add default setting to list like the additional settings
+     *
+     * @return
+     */
     public PropertySheet getConfigSheet() {
         userConfig.clear();
+        userConfig.put(title.getName(), new ConfigSheet.Property("Title", GENERAL_GROUP, title.getValue(), "Help"));
+        userConfig.put(unit.getName(), new ConfigSheet.Property("Unit", GENERAL_GROUP, unit.getValue(), "Help"));
+
         userConfig.put(backgroundColor.getName(), new ConfigSheet.Property("Background Color", GENERAL_GROUP, backgroundColor.getValue(), "Help"));
         userConfig.put(fontColorSecondary.getName(), new ConfigSheet.Property(fontColorSecondary.getName(), GENERAL_GROUP, fontColorSecondary.getValue(), "Help"));
         userConfig.put(fontColor.getName(), new ConfigSheet.Property("Font Color", GENERAL_GROUP, fontColor.getValue(), "Help"));
         userConfig.put("Height", new ConfigSheet.Property("Height", GENERAL_GROUP, size.getValue().getHeight(), "Help"));
         userConfig.put("Width", new ConfigSheet.Property("Width", GENERAL_GROUP, size.getValue().getWidth(), "Help"));
 
-//        userConfig.put(font.getName(), new ConfigSheet.Property("Font", GENERAL_GROUP, font.getValue(), "Help"));
+        additonlaSetting.forEach(widgetConfigProperty -> {
+            System.out.println("Add additinal config: " + widgetConfigProperty.getId() + "  " + widgetConfigProperty.getName());
+            userConfig.put(widgetConfigProperty.getId(), new ConfigSheet.Property(widgetConfigProperty.getName(), widgetConfigProperty.getCategory(), widgetConfigProperty.getWritableValue().getValue(), widgetConfigProperty.getDescription()));
+        });
+
         ConfigSheet ct = new ConfigSheet();
-        return ct.getSheet(userConfig);
+        PropertySheet propertySheet = ct.getSheet(userConfig);
+        propertySheet.setMode(PropertySheet.Mode.CATEGORY);
+        propertySheet.setSearchBoxVisible(false);
+        propertySheet.setModeSwitcherVisible(false);
+        return propertySheet;
+    }
+
+    public void addAdditionalSetting(List<WidgetConfigProperty> list) {
+        additonlaSetting.addAll(list);
     }
 
 
+    public void applyUserConfig() {
+        applyUserConfig(userConfig);
+    }
+
     public void applyUserConfig(Map<String, ConfigSheet.Property> userConfig) {
+        System.out.println("ApplyUserConfig");
         backgroundColor.setValue((Color) userConfig.get(backgroundColor.getName()).getObject());
         fontColor.setValue((Color) userConfig.get(fontColor.getName()).getObject());
         fontColorSecondary.setValue((Color) userConfig.get(fontColorSecondary.getName()).getObject());
-//            font.setValue((Font) userConfig.get(font.getName()).getObject());
-
+        unit.setValue((String) userConfig.get(unit.getName()).getObject());
         Size newSize = new Size((double) userConfig.get("Height").getObject(), (double) userConfig.get("Width").getObject());
         size.setValue(newSize);
+
+        title.setValue((String) userConfig.get(title.getName()).getObject());
+
+        System.out.println("Widget.Settings: " + additonlaSetting);
+        additonlaSetting.forEach(widgetConfigProperty -> {
+            widgetConfigProperty.getWritableValue().setValue(userConfig.get(widgetConfigProperty.getId()).getObject());
+        });
     }
 
     public boolean openConfig() {

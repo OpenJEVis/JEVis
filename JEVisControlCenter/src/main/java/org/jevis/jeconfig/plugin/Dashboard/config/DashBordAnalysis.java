@@ -27,7 +27,7 @@ public class DashBordAnalysis {
     /**
      * Update rage in seconds
      */
-    public final IntegerProperty updateRate = new SimpleIntegerProperty(new Integer(0), "Update Rate", 900) {
+    public final IntegerProperty updateRate = new SimpleIntegerProperty(new Integer(0), "Update Rate", 60) {
         @Override
         public void set(int newValue) {
             if (newValue < 900) {
@@ -63,7 +63,7 @@ public class DashBordAnalysis {
     /**
      * Default color of an widget
      */
-    public final ObjectProperty<Color> colorWidgetPlugin = new SimpleObjectProperty<>(Color.class, "Default Widget Background Color", Color.LEMONCHIFFON);
+    public final ObjectProperty<Color> colorWidgetPlugin = new SimpleObjectProperty<>(Color.class, "Default Widget Background Color", Color.web("#126597"));
     /**
      * Default opacity of the widget background
      */

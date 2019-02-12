@@ -20,25 +20,23 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import javax.swing.event.ChangeEvent;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class DashBoardPane extends Pane {
 
     //    private GridLayer gridLayer = new GridLayer();
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
-
-
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private DashBordAnalysis analysis = new DashBordAnalysis();
-
     private ObservableList<Widget> widgetList = FXCollections.observableArrayList();
     private List<Double> xGrids = new ArrayList<>();
     private List<Double> yGrids = new ArrayList<>();
     private Scale scale = new Scale();
     private Thread updateThread;
+    private Runnable updateRunnable;
+    private TimerTask updateTask;
 
 
     public DashBoardPane() {
@@ -47,14 +45,6 @@ public class DashBoardPane extends Pane {
 //        setStyle("-fx-background-color : lightblue;");
 //        setBackground();//TODO: in load config
         addConfigListener();
-        ChangeListener sizeListener = new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                updateChildren();
-            }
-        };
-        this.heightProperty().addListener(sizeListener);
-        this.widthProperty().addListener(sizeListener);
 
 
         getTransforms().add(scale);
@@ -72,6 +62,15 @@ public class DashBoardPane extends Pane {
     }
 
     private void addConfigListener() {
+        ChangeListener sizeListener = new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                updateChildren();
+            }
+        };
+        this.heightProperty().addListener(sizeListener);
+        this.widthProperty().addListener(sizeListener);
+
         analysis.zoomFactor.addListener((observable, oldValue, newValue) -> {
             System.out.println("Change zoom to: " + newValue);
             scale.setX(newValue.doubleValue());
@@ -92,18 +91,21 @@ public class DashBoardPane extends Pane {
             }
         });
 
+        Timer timer = new Timer();
 
-        this.updateThread = createThread();
         analysis.updateIsRunningProperty.addListener((observable, oldValue, newValue) -> {
+            if (updateTask != null) {
+                try {
+                    updateTask.cancel();
+                } catch (Exception ex) {
+
+                }
+            }
+            updateTask = updateTask();
 
             if (newValue) {
-                logger.info("Starting update Thread");
-                updateThread.start();
-            } else {
-                logger.info("Stopping update Thread");
-                updateThread.interrupt();
+                timer.scheduleAtFixedRate(updateTask, 0, analysis.updateRate.getValue() * 1000);
             }
-
         });
 
 
@@ -144,13 +146,10 @@ public class DashBoardPane extends Pane {
         return interval;
     }
 
-    public Thread createThread() {
-
-
-        Runnable runnable = () -> {
-            try {
-
-
+    public TimerTask updateTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
                 logger.info("Starting Update");
                 Interval interval = buildInterval();
                 widgetList.forEach(widget -> {
@@ -158,23 +157,25 @@ public class DashBoardPane extends Pane {
                     widget.getSampleHandler().durationProperty.setValue(interval);
                     widget.getSampleHandler().update();
                 });
-
-                logger.info("Update finished waiting {} sec", analysis.updateRate.getValue());
-                TimeUnit.SECONDS.sleep(analysis.updateRate.getValue());
-
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         };
-
-        Thread thread = new Thread(runnable);
-        thread.setName("JEVisControlCenter - Dashboard Daemon");
-
-        return thread;
-//        thread.start();
-//        updateThread = thread;
     }
+
+    public Runnable updateRunnable() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                logger.info("Starting Update");
+                Interval interval = buildInterval();
+                widgetList.forEach(widget -> {
+                    logger.info("Update widget: {}", widget.getUUID());
+                    widget.getSampleHandler().durationProperty.setValue(interval);
+                    widget.getSampleHandler().update();
+                });
+            }
+        };
+    }
+
 
     /**
      * Add an grid to the pane.
@@ -233,7 +234,7 @@ public class DashBoardPane extends Pane {
 
     public void addNode(Widget widget) {
         widgetList.add(widget);
-        widget.init();
+//        widget.init();
         widget.setDashBoard(this);
         getChildren().add(widget);
     }
@@ -242,7 +243,7 @@ public class DashBoardPane extends Pane {
         System.out.println("Add widget: " + config.getType());
         widgetList.add(widget);
         widget.setDashBoard(this);
-        widget.init();
+//        widget.init();
         widget.update(new WidgetData(), true);
 
         getChildren().add(widget);

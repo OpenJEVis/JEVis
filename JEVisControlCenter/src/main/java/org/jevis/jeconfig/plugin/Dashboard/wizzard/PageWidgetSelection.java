@@ -9,9 +9,7 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
-import org.jevis.jeconfig.plugin.Dashboard.widget.DonutChart;
-import org.jevis.jeconfig.plugin.Dashboard.widget.HighLowWidget;
-import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
+import org.jevis.jeconfig.plugin.Dashboard.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +32,10 @@ public class PageWidgetSelection extends Page {
         List<Widget> widgetList = new ArrayList<>();
         widgetList.add(new DonutChart(wizard.getDataSource()));
         widgetList.add(new HighLowWidget(wizard.getDataSource()));
+        widgetList.add(new NumberWidget(wizard.getDataSource()));
+        widgetList.add(new StockWidget(wizard.getDataSource()));
+        widgetList.add(new LabelWidget(wizard.getDataSource()));
 
-        AnchorPane root = new AnchorPane();
         final FlowPane widgetListPane = new FlowPane(Orientation.HORIZONTAL, 20, 20);
 
 //        widgetListPane.setStyle("-fx-background-color: blue;");
@@ -61,5 +61,10 @@ public class PageWidgetSelection extends Page {
         AnchorPane.setRightAnchor(widgetListPane, 10.0);
         return widgetListPane;
 
+    }
+
+    @Override
+    public boolean isSkipable() {
+        return false;
     }
 }

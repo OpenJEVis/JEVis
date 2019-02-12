@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.Dashboard.datahandler;
 
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.plugin.Dashboard.wizzard.Page;
@@ -25,7 +26,12 @@ public class NullSampleHandel extends SampleHandler {
         return new Page() {
             @Override
             public Node getNode() {
-                return new Pane();
+                return new Pane(new Label("No data needed"));
+            }
+
+            @Override
+            public boolean isSkipable() {
+                return true;
             }
         };
     }

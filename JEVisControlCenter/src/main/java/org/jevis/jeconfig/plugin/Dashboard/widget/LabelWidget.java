@@ -1,22 +1,27 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfigProperty;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.NullSampleHandel;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LabelWidget extends Widget {
 
-    private Label textLabel = new Label();
-    private StringProperty textProperty = new SimpleStringProperty("");
+    private HBox root = new HBox();
+    private Label textLabel = new Label("blub test");
 
 
     public LabelWidget(JEVisDataSource jeVisDataSource) {
@@ -30,7 +35,7 @@ public class LabelWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return null;
+        return JEConfig.getImage("widget/DonutChart.png", previewSize.getHeight(), previewSize.getWidth());
     }
 
     @Override
@@ -39,28 +44,69 @@ public class LabelWidget extends Widget {
     }
 
     @Override
-    public void init() {
+    public void setBackgroundColor(Color color) {
+        Background colorBackground = new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
+        root.setBackground(colorBackground);
+        textLabel.setBackground(colorBackground);
+    }
 
-        HBox root = new HBox();
-        root.getChildren().add(textLabel);
-
-        getChildren().add(root);
-
-        config.backgroundColor.addListener((observable, oldValue, newValue) -> {
-//            tile.setBackgroundColor(newValue);
-            Background colorBackground = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
-            root.setBackground(colorBackground);
-        });
-
-        config.fontColor.addListener((observable, oldValue, newValue) -> {
-            textLabel.setTextFill(newValue);
-        });
-
+    @Override
+    public void setTitle(String text) {
 
     }
 
     @Override
+    public void setFontColor(Color color) {
+        System.out.println("SetFont Color: " + color.toString());
+        textLabel.setTextFill(color);
+
+    }
+
+    @Override
+    public void setCustomFont(Font font) {
+        textLabel.setFont(font);
+    }
+
+
+    @Override
+    public void init() {
+        if (isInitialized.getValue()) {
+            return;
+        }
+//        textLabel.setMinWidth(100);
+
+        System.out.println("init");
+        root.getChildren().add(textLabel);
+        HBox.setHgrow(textLabel, Priority.ALWAYS);
+//        getChildren().add(textLabel);
+
+
+        StringProperty textProperty = new SimpleStringProperty("");
+        textProperty.addListener((observable, oldValue, newValue) -> {
+            System.out.println("label text changes: " + newValue);
+            Platform.runLater(() -> {
+                textLabel.setText(newValue);
+            });
+
+        });
+
+        String category = "Label Widget";
+
+        List<WidgetConfigProperty> propertyList = new ArrayList<>();
+        propertyList.add(new WidgetConfigProperty<String>("Widget.Text", category, "Text", "", textProperty));
+        config.addAdditionalSetting(propertyList);
+
+
+        addCommonConfigListeners();
+        applyCannonConfig();
+        isInitialized.setValue(true);
+
+        setGraphic(root);
+    }
+
+
+    @Override
     public String typeID() {
-        return null;
+        return "Label";
     }
 }

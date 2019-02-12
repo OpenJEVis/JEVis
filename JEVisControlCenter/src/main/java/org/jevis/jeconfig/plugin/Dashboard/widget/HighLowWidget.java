@@ -2,11 +2,19 @@ package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfigProperty;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HighLowWidget extends Widget {
 
@@ -60,36 +68,67 @@ public class HighLowWidget extends Widget {
     }
 
     @Override
+    public void setBackgroundColor(Color color) {
+        tile.setBackgroundColor(color);
+    }
+
+    @Override
+    public void setTitle(String text) {
+        tile.setTitle(text);
+    }
+
+    @Override
+    public void setFontColor(Color color) {
+        tile.setForegroundBaseColor(color);
+        tile.setTextColor(color);
+        tile.setValueColor(color);
+    }
+
+    @Override
+    public void setCustomFont(Font font) {
+        tile.setCustomFont(font);
+        tile.setCustomFontEnabled(true);
+    }
+
+    @Override
     public void init() {
 
         tile = TileBuilder.create()
                 .skinType(Tile.SkinType.HIGH_LOW)
                 .prefSize(config.size.get().getWidth(), config.size.get().getHeight())
-                .title("Strom")
+//                .title("Strom")
 //                .unit("kWh")
-                .description("")
-                .text("")
+//                .description("")
+//                .text("")
 //                .referenceValue(20.7)
 //                .value(26.2)
                 .backgroundColor(config.backgroundColor.getValue())
                 .textColor(config.fontColor.getValue())
                 .build();
 
-        config.backgroundColor.addListener((observable, oldValue, newValue) -> {
-//            tile.setBackgroundColor(newValue);
-            tile.setBackgroundColor(newValue);
+        addCommonConfigListeners();
+
+        StringProperty textProperty = new SimpleStringProperty("");
+        StringProperty descriptionProperly = new SimpleStringProperty("");
+        textProperty.addListener((observable, oldValue, newValue) -> {
+            tile.setText(newValue);
+        });
+        descriptionProperly.addListener((observable, oldValue, newValue) -> {
+            tile.setDescription(newValue);
+        });
+        config.unit.addListener((observable, oldValue, newValue) -> {
+            tile.setUnit(newValue);
         });
 
-        config.fontColor.addListener((observable, oldValue, newValue) -> {
-            tile.setTextColor(newValue);
-            tile.setValueColor(newValue);
-        });
 
-        config.font.addListener((observable, oldValue, newValue) -> {
-            tile.setCustomFont(newValue);
-            tile.setCustomFontEnabled(true);
-        });
-//        tile.setValue(28.7);
+        String category = "Number Widget";
+
+        List<WidgetConfigProperty> propertyList = new ArrayList<>();
+        propertyList.add(new WidgetConfigProperty<String>("Widget.Text", category, "Text", "", textProperty));
+        propertyList.add(new WidgetConfigProperty<String>("Widget.description", category, "Description", "", descriptionProperly));
+
+
+        config.addAdditionalSetting(propertyList);
 
         tile.setAnimated(true);
         setGraphic(tile);
