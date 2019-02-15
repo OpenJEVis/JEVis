@@ -180,6 +180,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttEnabled.getText().isEmpty()) {
             nameEnabled.setTooltip(ttConversionToDifferential);
         }
+        AttributeAdvSettingDialogButton advSettingDialogButtonEnabled = new AttributeAdvSettingDialogButton(enabledAttribute);
         enabled = new ToggleSwitchPlus();
         if (enabledLastSample != null) {
             enabled.setSelected(enabledLastSample.getValueAsBoolean());
@@ -267,6 +268,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttPeriodAlignment.getText().isEmpty()) {
             namePeriodAlignment.setTooltip(ttPeriodAlignment);
         }
+        AttributeAdvSettingDialogButton advSettingDialogButtonPeriodAlignment = new AttributeAdvSettingDialogButton(periodAlignmentAttribute);
         periodAlignment = new ToggleSwitchPlus();
         if (periodAlignmentLastSample != null) {
             periodAlignment.setSelected(periodAlignmentLastSample.getValueAsBoolean());
@@ -280,6 +282,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttPeriodOffset.getText().isEmpty()) {
             namePeriodOffset.setTooltip(ttPeriodOffset);
         }
+        AttributeAdvSettingDialogButton advSettingDialogButtonPeriodOffset = new AttributeAdvSettingDialogButton(periodOffsetAttribute);
         periodOffset = new JFXTextField();
         if (periodOffsetLastSample != null) {
             periodOffset.setText(periodOffsetLastSample.getValueAsLong().toString());
@@ -293,6 +296,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttValueIsAQuantity.getText().isEmpty()) {
             nameValueIsAQuantity.setTooltip(ttValueIsAQuantity);
         }
+        AttributeAdvSettingDialogButton advSettingDialogButtonValueIsAQuantity = new AttributeAdvSettingDialogButton(valueIsAQuantityAttribute);
         valueIsAQuantity = new ToggleSwitchPlus();
         if (valueIsAQuantityLastSample != null) {
             valueIsAQuantity.setSelected(valueIsAQuantityLastSample.getValueAsBoolean());
@@ -344,6 +348,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttValueOffset.getText().isEmpty()) {
             nameValueOffset.setTooltip(ttValueOffset);
         }
+        AttributeAdvSettingDialogButton advSettingDialogButtonValueOffset = new AttributeAdvSettingDialogButton(valueOffsetAttribute);
         valueOffset = new JFXTextField();
         if (valueOffsetLastSample != null) {
             valueOffset.setText(valueOffsetLastSample.getValueAsLong().toString());
@@ -357,6 +362,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         if (!ttCounterOverflow.getText().isEmpty()) {
             nameCounterOverflow.setTooltip(ttCounterOverflow);
         }
+        AttributeAdvSettingDialogButton advSettingDialogButtonCounterOverflow = new AttributeAdvSettingDialogButton(counterOverflowAttribute);
         counterOverflow = new JFXTextField();
         if (counterOverflowLastSample != null) {
             counterOverflow.setText(counterOverflowLastSample.getValueAsDouble().toString());
@@ -409,42 +415,48 @@ public class CleanDataExtension implements ObjectEditorExtension {
         int colSpan = 1;
 
         gridPane.add(nameEnabled, 0, row);
-        gridPane.add(enabled, 1, row, colSpan, 1);
+        gridPane.add(advSettingDialogButtonEnabled, 1, row);
+        gridPane.add(enabled, 2, row, colSpan, 1);
         row++;
         gridPane.add(nameValue, 0, row);
-        gridPane.add(value, 1, row);
-        gridPane.add(unitValue, 2, row);
-        gridPane.add(valueTimeStamp.getEditor(), 3, row);
-        gridPane.add(advSettingDialogButtonValue, 4, row);
+        gridPane.add(advSettingDialogButtonValue, 1, row);
+        gridPane.add(value, 2, row);
+        gridPane.add(unitValue, 3, row);
+        gridPane.add(valueTimeStamp.getEditor(), 4, row);
         row++;
         gridPane.add(nameValueMultiplier, 0, row);
-        gridPane.add(valueMultiplier, 1, row);
-        gridPane.add(valueMultiplierTimeStampEditor.getEditor(), 3, row);
-        gridPane.add(advSettingDialogButtonValueMultiplier, 4, row);
+        gridPane.add(advSettingDialogButtonValueMultiplier, 1, row);
+        gridPane.add(valueMultiplier, 2, row);
+        gridPane.add(valueMultiplierTimeStampEditor.getEditor(), 4, row);
 
         row++;
         gridPane.add(nameValueOffset, 0, row);
-        gridPane.add(valueOffset, 1, row, colSpan, 1);
+        gridPane.add(advSettingDialogButtonValueOffset, 1, row);
+        gridPane.add(valueOffset, 2, row, colSpan, 1);
         row++;
 
         gridPane.add(nameValueIsAQuantity, 0, row);
-        gridPane.add(valueIsAQuantity, 1, row, colSpan, 1);
+        gridPane.add(advSettingDialogButtonValueIsAQuantity, 1, row);
+        gridPane.add(valueIsAQuantity, 2, row, colSpan, 1);
         row++;
         gridPane.add(nameCounterOverflow, 0, row);
-        gridPane.add(counterOverflow, 1, row, colSpan, 1);
+        gridPane.add(advSettingDialogButtonCounterOverflow, 1, row);
+        gridPane.add(counterOverflow, 2, row, colSpan, 1);
         row++;
 
         gridPane.add(nameConversionToDifferential, 0, row);
-        gridPane.add(conversionToDifferential, 1, row);
-        gridPane.add(conversionToDifferentialTimeStampEditor.getEditor(), 3, row);
-        gridPane.add(advSettingDialogButtonConversionToDifferential, 4, row);
+        gridPane.add(advSettingDialogButtonConversionToDifferential, 1, row);
+        gridPane.add(conversionToDifferential, 2, row);
+        gridPane.add(conversionToDifferentialTimeStampEditor.getEditor(), 4, row);
 
         row++;
         gridPane.add(namePeriodAlignment, 0, row);
-        gridPane.add(periodAlignment, 1, row, colSpan, 1);
+        gridPane.add(advSettingDialogButtonPeriodAlignment, 1, row);
+        gridPane.add(periodAlignment, 2, row, colSpan, 1);
         row++;
         gridPane.add(namePeriodOffset, 0, row);
-        gridPane.add(periodOffset, 1, row, colSpan, 1);
+        gridPane.add(advSettingDialogButtonPeriodOffset, 1, row);
+        gridPane.add(periodOffset, 2, row, colSpan, 1);
         row++;
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
@@ -453,21 +465,21 @@ public class CleanDataExtension implements ObjectEditorExtension {
         row++;
 
         gridPane.add(nameGapsConfiguration, 0, row);
-        gridPane.add(gapsEnabled, 1, row, colSpan, 1);
-        gridPane.add(gapsConfiguration.getEditor(), 1, row, 3, 1);
+        gridPane.add(gapsEnabled, 2, row, colSpan, 1);
+        gridPane.add(gapsConfiguration.getEditor(), 3, row, 3, 1);
         row++;
         gridPane.add(nameLimitsConfiguration, 0, row);
-        gridPane.add(limitsEnabled, 1, row, colSpan, 1);
-        gridPane.add(limitsConfiguration.getEditor(), 1, row, 3, 1);
+        gridPane.add(limitsEnabled, 2, row, colSpan, 1);
+        gridPane.add(limitsConfiguration.getEditor(), 3, row, 3, 1);
         row++;
         gridPane.add(nameAlarmConfiguration, 0, row);
-        gridPane.add(alarmEnabled, 1, row, colSpan, 1);
-        gridPane.add(alarmConfiguration.getEditor(), 1, row, 3, 1);
+        gridPane.add(alarmEnabled, 2, row, colSpan, 1);
+        gridPane.add(alarmConfiguration.getEditor(), 3, row, 3, 1);
         row++;
         gridPane.add(nameAlarmLog, 0, row);
-        gridPane.add(alarmLog, 1, row, colSpan, 1);
-        gridPane.add(alarmLogTimeStamp.getEditor(), 3, row);
-        gridPane.add(advSettingDialogButtonAlarmLog, 4, row);
+        gridPane.add(advSettingDialogButtonAlarmLog, 1, row);
+        gridPane.add(alarmLog, 2, row, colSpan, 1);
+        gridPane.add(alarmLogTimeStamp.getEditor(), 4, row);
         row++;
 
 
