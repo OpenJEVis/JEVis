@@ -19,6 +19,7 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
@@ -91,10 +92,35 @@ public class ToolBarView {
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
+                AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
+                ManipulationMode oldManipulationMode = model.getManipulationMode();
+                AnalysisTimeFrame oldAnalysisTimeFrame = model.getAnalysisTimeFrame();
+
+                DateTime oldStart = null;
+                DateTime oldEnd = null;
+                boolean customTimeFrame = oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM);
+                if (customTimeFrame) {
+                    for (ChartDataModel chartDataModel : model.getSelectedData()) {
+                        oldStart = chartDataModel.getSelectedStart();
+                        oldEnd = chartDataModel.getSelectedEnd();
+                        break;
+                    }
+                }
+
                 model.setCurrentAnalysis(newValue);
                 model.setCharts(null);
                 model.updateSelectedData();
 
+                model.setManipulationMode(oldManipulationMode);
+                model.setAggregationPeriod(oldAggregationPeriod);
+                model.setAnalysisTimeFrame(oldAnalysisTimeFrame);
+
+                if (customTimeFrame) {
+                    for (ChartDataModel chartDataModel : model.getSelectedData()) {
+                        chartDataModel.setSelectedStart(oldStart);
+                        chartDataModel.setSelectedEnd(oldEnd);
+                    }
+                }
 
                 model.updateSamples();
 
