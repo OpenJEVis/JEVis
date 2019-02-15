@@ -592,7 +592,9 @@ public class GraphPluginView implements Plugin {
                 } else {
                     charts.forEach(chart -> {
                         if (!chart.getChartType().equals(ChartType.LOGICAL)) {
-                            chart.setType(dataModel.getCharts().get(charts.indexOf(chart)).getChartType());
+                            int newChartIndex = charts.indexOf(chart);
+                            chart.setType(dataModel.getCharts().get(newChartIndex).getChartType());
+                            chart.setChartId(newChartIndex);
                             chart.updateChart();
                         }
                     });

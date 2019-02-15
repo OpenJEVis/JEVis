@@ -64,7 +64,7 @@
         <Logger name="org.jevis.jenotifier" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="org.jevis.simplealarm" level="debug" additivity="false">
+        <Logger name="org.jevis.jealarm.jealarm" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="org.jevis.ws" level="debug" additivity="false">

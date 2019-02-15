@@ -2,6 +2,7 @@ package org.jevis.jestatus;
 
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.alarm.AlarmTable;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 

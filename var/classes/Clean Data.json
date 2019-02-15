@@ -75,6 +75,33 @@
       "jevisClass": "Clean Data"
     },
     {
+      "name": "Alarm Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Alarm Config",
+      "primitiveType": 0,
+      "guiType": "Alarm Config",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Alarm Log",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
       "name": "Period Alignment",
       "primitiveType": 4,
       "guiType": "Check Box",

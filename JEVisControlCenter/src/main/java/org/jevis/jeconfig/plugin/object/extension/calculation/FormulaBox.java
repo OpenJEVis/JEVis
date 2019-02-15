@@ -182,14 +182,13 @@ public class FormulaBox extends HBox {
 
                 if (targetSample != null) {
                     TargetHelper th = new TargetHelper(this.calcObj.getDataSource(), targetSample.getValueAsString());
-                    openList.add(new UserSelection(UserSelection.SelectionType.Attribute, th.getAttribute(), null, null));
+                    openList.add(new UserSelection(UserSelection.SelectionType.Attribute, th.getAttribute().get(0), null, null));
                 }
             }
             List<JEVisTreeFilter> allFilter = new ArrayList<>();
             allFilter.add(SelectTargetDialog.buildAllDataFilter());
 
-            SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
-
+            SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
 
             if (selectionDialog.show(
                     this.calcObj.getDataSource(),
@@ -204,7 +203,7 @@ public class FormulaBox extends HBox {
                     }
                     TargetHelper th = new TargetHelper(this.calcObj.getDataSource(), us.getSelectedObject(), targetAtt);
 
-                    if (th.isValid() && th.targetAccessable()) {
+                    if (th.isValid() && th.targetAccessible()) {
 
 
                         /**
@@ -234,7 +233,7 @@ public class FormulaBox extends HBox {
                             outputObj.setName(CalculationNameFormater.createVariableName(us.getSelectedObject()));
                             outputObj.commit();
                         }
-                        outputButton.setText(th.getObject().getName() + "." + th.getAttribute().getName());
+                        outputButton.setText(th.getObject().get(0).getName() + "." + th.getAttribute().get(0).getName());
 
                     }
                 }

@@ -3,7 +3,7 @@
     <meta charset="utf-8"/>
     <link rel="stylesheet" href="../resources/styles">
     <link rel="stylesheet" href="../resources/navbar.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.1/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.1/css/font-awesome.limitData.css"/>
     <title>Action Plan</title>
     <style>
         canvas {

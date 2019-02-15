@@ -729,8 +729,8 @@ public class CSVColumnHeader {
                 allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
 
 
-                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
-                selectionDialog.allowMultySelect(false);
+                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
+
                 selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
                 if (selectionDialog.show(
                         _table.getDataSource(),

@@ -115,7 +115,7 @@ public abstract class BasicEditor implements AttributeEditor {
         try {
             if (att.getInputUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
                 JFXTextField ubutton = new JFXTextField();
-                ubutton.setPrefWidth(35);
+                ubutton.setPrefWidth(40);
                 ubutton.setEditable(false);
                 if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
                     ubutton.setText(attribute.getDisplayUnit().getLabel());

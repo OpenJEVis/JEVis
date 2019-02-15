@@ -70,7 +70,7 @@ public class ChartDataModel {
 
                     SampleGenerator sg;
                     if (aggregationPeriod.equals(AggregationPeriod.NONE))
-                        sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, ManipulationMode.NONE, aggregationPeriod);
+                        sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
                     else
                         sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, ManipulationMode.TOTAL, aggregationPeriod);
 

@@ -400,7 +400,6 @@ public class LoadAnalysisDialog {
         applySelectedDatePresetToDataModel(timeFrameComboBox.getSelectionModel().getSelectedItem());
 
         timeFrameComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(newValue));
             applySelectedDatePresetToDataModel(newValue);
         });
 
@@ -468,8 +467,6 @@ public class LoadAnalysisDialog {
         if (!graphDataModel.getSelectedData().isEmpty()) {
             graphDataModel.getSelectedData().stream().findFirst().ifPresent(chartDataModel -> aggregate.getSelectionModel().select(chartDataModel.getAggregationPeriod()));
         }
-
-        aggregate.valueProperty().addListener((observable, oldValue, newValue) -> graphDataModel.getSelectedData().forEach(data -> data.setAggregationPeriod(newValue)));
 
         return aggregate;
     }
@@ -546,8 +543,6 @@ public class LoadAnalysisDialog {
             }
         }
 
-        math.valueProperty().addListener((observable, oldValue, newValue) -> graphDataModel.getSelectedData().forEach(data -> data.setManipulationMode(newValue)));
-
         return math;
     }
 
@@ -555,7 +550,7 @@ public class LoadAnalysisDialog {
         switch (newValue) {
             //Custom
             case CUSTOM:
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.CUSTOM));
+
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = false;
                 }
@@ -575,7 +570,6 @@ public class LoadAnalysisDialog {
             //today
             case TODAY:
                 dateHelper.setType(DateHelper.TransformType.TODAY);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.TODAY));
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
@@ -584,7 +578,7 @@ public class LoadAnalysisDialog {
             //yesterday
             case YESTERDAY:
                 dateHelper.setType(DateHelper.TransformType.YESTERDAY);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.YESTERDAY));
+
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
@@ -593,7 +587,7 @@ public class LoadAnalysisDialog {
             //last 7 days
             case LAST_7_DAYS:
                 dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_7_DAYS));
+
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
@@ -602,7 +596,7 @@ public class LoadAnalysisDialog {
             //last Week
             case LAST_WEEK:
                 dateHelper.setType(DateHelper.TransformType.LASTWEEK);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_WEEK));
+
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
@@ -611,7 +605,7 @@ public class LoadAnalysisDialog {
             //last 30 days
             case LAST_30_DAYS:
                 dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_30_DAYS));
+
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
@@ -620,7 +614,7 @@ public class LoadAnalysisDialog {
             case LAST_MONTH:
                 //last Month
                 dateHelper.setType(DateHelper.TransformType.LASTMONTH);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_MONTH));
+
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
@@ -629,7 +623,7 @@ public class LoadAnalysisDialog {
             case THIS_YEAR:
                 //this Year
                 dateHelper.setType(DateHelper.TransformType.THISYEAR);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.THIS_YEAR));
+
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }
@@ -638,7 +632,7 @@ public class LoadAnalysisDialog {
             case LAST_YEAR:
                 //last Year
                 dateHelper.setType(DateHelper.TransformType.LASTYEAR);
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.LAST_YEAR));
+
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = true;
                 }

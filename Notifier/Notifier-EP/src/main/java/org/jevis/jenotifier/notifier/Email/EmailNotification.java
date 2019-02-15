@@ -653,7 +653,7 @@ public class EmailNotification implements Notification {
         if (notiObj.getJEVisClass().getName().equals(_type)) {
             _jenoti = notiObj;
             try {
-                setReceivers(String.valueOf(getAttribute(notiObj, RECIPIENTS)));//the second parameter should one to one correspondance with the name in JEConfig
+                setReceivers(String.valueOf(getAttribute(notiObj, RECIPIENTS)));//the second parameter should one to one correspondence with the name in JEConfig
             } catch (IllegalArgumentException ex) {
                 setReceivers(null);
                 logger.fatal(ex);
@@ -685,17 +685,20 @@ public class EmailNotification implements Notification {
 //                logger.info(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
 //                setAttachments(String.valueOf(getAttribute(notiObj, ATTACHMENTS)));
 
-                do {
-                    file = getJEVisFile(notiObj, ATTACHMENTS); //TODO this workaround needs to be fixed
-                } while (Objects.isNull(file.getBytes()));
-
+                if (getJEVisFile(notiObj, ATTACHMENTS) != null) {
+                    do {
+                        file = getJEVisFile(notiObj, ATTACHMENTS); //TODO this workaround needs to be fixed
+                    } while (Objects.isNull(file.getBytes()));
+                }
 
             } catch (IllegalArgumentException ex) {
                 logger.info(ex);
             }
 
             try {
-                setAttachmentsAsFile(file);
+                if (file != null) {
+                    setAttachmentsAsFile(file);
+                }
             } catch (IllegalArgumentException ex) {
                 setAttachments(null);
                 logger.info(ex);

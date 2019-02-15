@@ -26,10 +26,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -243,7 +240,7 @@ public class RootExtension implements ObjectEditorExtension {
 
                 allFilter.add(SelectTargetDialog.buildAllObjects());
 
-                SelectTargetDialog dia = new SelectTargetDialog(allFilter, null);
+                SelectTargetDialog dia = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
 
                 SelectTargetDialog.Response re = dia.show(
                         obj.getDataSource(),

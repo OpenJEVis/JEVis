@@ -8,8 +8,8 @@ package org.jevis.jeconfig.plugin.object.attribute;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
@@ -33,7 +33,6 @@ import org.joda.time.DateTime;
 
 /**
  * @author Benjamin Reich
- * @deprecated This class is work in prozess
  */
 public class ScheduleEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(ScheduleEditor.class);
@@ -47,9 +46,12 @@ public class ScheduleEditor implements AttributeEditor {
     private long highValue;
     private int _times;
     private int _days;
-    private int _newValue = 0;
+    private final boolean editorMode;
     private int _oldValue = 0;
     private BooleanProperty hasChangedProperty = new SimpleBooleanProperty(false);
+    private SimpleIntegerProperty _newValue = new SimpleIntegerProperty(0);
+    private Long inputValue;
+    private boolean hasInputValue;
 
     public ScheduleEditor(JEVisAttribute att) {
         _editor.setAlignment(Pos.CENTER);
@@ -57,8 +59,16 @@ public class ScheduleEditor implements AttributeEditor {
         _editor.setVgap(10);
         _editor.setPadding(new Insets(25, 25, 25, 25));
         _attribute = att;
+        this.editorMode = true;
         buildGUI();
+    }
 
+    public ScheduleEditor() {
+        _editor.setAlignment(Pos.CENTER);
+        _editor.setHgap(10);
+        _editor.setVgap(10);
+        _editor.setPadding(new Insets(25, 25, 25, 25));
+        this.editorMode = false;
     }
 
     public boolean isDayInPeriod(int val) {
@@ -134,7 +144,6 @@ public class ScheduleEditor implements AttributeEditor {
 
 //        logger.info("StartTime: " + startTime + "    - Endtime: " + endTime + "\n");
         for (int i = startTime; i < endTime; i++) {
-            logger.info("[" + i + "]=1");
             mask[i] = 1;
         }
 
@@ -149,12 +158,12 @@ public class ScheduleEditor implements AttributeEditor {
             result = result + bit_wert * mask[i];
         }
 
-        logger.info("Restult for " + _attribute.getName() + ": " + result);
+        if (editorMode) logger.info("Result for " + _attribute.getName() + ": " + result);
         return result;
 
     }
 
-    private void buildGUI() {
+    public void buildGUI() {
 //        logger.info("build gui Schedule");
 
         BooleanProperty block = new SimpleBooleanProperty(false);
@@ -329,7 +338,9 @@ public class ScheduleEditor implements AttributeEditor {
         //Load settings ind JEVisDB
         try {
 
-            JEVisSample sample = _attribute.getLatestSample();
+            JEVisSample sample = null;
+            if (editorMode) sample = _attribute.getLatestSample();
+
             boolean hasSample = sample != null;
 //                   int thuB = sun.isSelected() ? 1 : 0;
 
@@ -342,11 +353,19 @@ public class ScheduleEditor implements AttributeEditor {
                 _days = _days * 2; // shift of 1 to the left (days = 1,2,..7 - check bit 1 not 0)
 
                 _oldValue = bitMask;
+            } else if (hasInputValue) {
+                bitMask = (int) inputValue.longValue();
+
+                _times = bitMask;
+                _days = ((_times >> 24) & 0xFF);
+                _days = _days * 2; // shift of 1 to the left (days = 1,2,..7 - check bit 1 not 0)
+
+                _oldValue = bitMask;
             }
 
 //            logger.info("times value: " + _times);
 //            logger.info("_days value: " + _days);
-            if (hasSample) {
+            if (hasSample || hasInputValue) {
                 int startHour = getStartTime();
                 int endHour = getEndTime();
 
@@ -382,26 +401,23 @@ public class ScheduleEditor implements AttributeEditor {
      * @return
      */
     private void addChangeListener(RangeSlider rs, ToggleButton mon, ToggleButton tu, ToggleButton wed, ToggleButton thu, ToggleButton fri, ToggleButton sat, ToggleButton sun) {
-        EventHandler handler = new EventHandler() {
-            @Override
-            public void handle(Event event) {
+        EventHandler handler = event -> {
 //                logger.info("EventSource: " + event.getSource().toString());
 //                logger.info("mon: " + mon.isSelected());
 //                logger.info("rs: " + rs.getLowValue() + " - " + rs.getHighValue());
 
-                int sunB = sun.isSelected() ? 1 : 0;
-                int satB = sat.isSelected() ? 1 : 0;
-                int friB = fri.isSelected() ? 1 : 0;
-                int tuB = tu.isSelected() ? 1 : 0;
-                int thuB = thu.isSelected() ? 1 : 0;
-                int webB = wed.isSelected() ? 1 : 0;
-                int monB = mon.isSelected() ? 1 : 0;
+            int sunB = sun.isSelected() ? 1 : 0;
+            int satB = sat.isSelected() ? 1 : 0;
+            int friB = fri.isSelected() ? 1 : 0;
+            int tuB = tu.isSelected() ? 1 : 0;
+            int thuB = thu.isSelected() ? 1 : 0;
+            int webB = wed.isSelected() ? 1 : 0;
+            int monB = mon.isSelected() ? 1 : 0;
 
-                int map = buildBitmap(sunB, satB, friB, tuB, webB, thuB, monB, (int) rs.getLowValue(), (int) rs.getHighValue());
+            int map = buildBitmap(sunB, satB, friB, tuB, webB, thuB, monB, (int) rs.getLowValue(), (int) rs.getHighValue());
 //                logger.info("Result: " + map);
-                _newValue = map;
-                hasChangedProperty.setValue(true);
-            }
+            _newValue.set(map);
+            hasChangedProperty.setValue(true);
         };
 
         rs.addEventHandler(EventType.ROOT, handler);
@@ -426,7 +442,7 @@ public class ScheduleEditor implements AttributeEditor {
         if (hasChanged()) {
             JEVisSample newSample = _attribute.buildSample(new DateTime(), _newValue);
             newSample.commit();
-            _oldValue = _newValue;
+            _oldValue = _newValue.get();
             hasChangedProperty.setValue(false);
         }
     }
@@ -457,4 +473,16 @@ public class ScheduleEditor implements AttributeEditor {
         return true;
     }
 
+    public void setInputValue(Long inputValue) {
+        this.inputValue = inputValue;
+        this.hasInputValue = true;
+    }
+
+    public int get_newValue() {
+        return _newValue.get();
+    }
+
+    public SimpleIntegerProperty _newValueProperty() {
+        return _newValue;
+    }
 }

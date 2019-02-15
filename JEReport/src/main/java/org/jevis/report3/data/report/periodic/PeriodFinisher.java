@@ -11,7 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.report3.DateHelper;
+import org.jevis.commons.datetime.Period;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.report3.data.report.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -26,7 +27,7 @@ public class PeriodFinisher implements Finisher {
     private static final Logger logger = LogManager.getLogger(PeriodFinisher.class);
 
     private final SampleHandler sampleHandler;
-    private ReportProperty.ReportSchedule schedule;
+    private Period schedule;
     private DateTime startRecord;
     private DateTime endRecord;
 
@@ -40,8 +41,8 @@ public class PeriodFinisher implements Finisher {
         try {
             JEVisObject reportObject = property.getReportObject();
             parseDates(reportObject);
-           
-            DateTime newStartRecordTime = DateHelper.getNextPeriod(startRecord, schedule, 1);
+
+            DateTime newStartRecordTime = PeriodHelper.getNextPeriod(startRecord, schedule, 1);
             String newStartTimeString = newStartRecordTime.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
             reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
         } catch (JEVisException ex) {
@@ -50,14 +51,14 @@ public class PeriodFinisher implements Finisher {
     }
 
     private void parseDates(JEVisObject reportObject) {
-        String scheduleString = sampleHandler.getLastSample(reportObject, "Schedule", ReportProperty.ReportSchedule.DAILY.toString());
-        schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
+        String scheduleString = sampleHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
+        schedule = Period.valueOf(scheduleString.toUpperCase());
         String startRecordString = sampleHandler.getLastSample(reportObject, "Start Record", "");
         startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
         org.jevis.commons.datetime.DateHelper dateHelper = null;
-        dateHelper = PeriodicIntervalCalc.getDateHelper(reportObject, schedule, dateHelper, startRecord);
+        dateHelper = PeriodHelper.getDateHelper(reportObject, schedule, dateHelper, startRecord);
 
-        endRecord = DateHelper.calcEndRecord(startRecord, schedule, dateHelper);
+        endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
     }
 
 }

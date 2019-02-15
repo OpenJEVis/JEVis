@@ -42,6 +42,8 @@ public class GUIConstants {
     public static DisplayType TIME_ZONE = new DisplayType("Time Zone", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType GAP_FILLING_CONFIG = new DisplayType("Gap Filling Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LIMITS_CONFIG = new DisplayType("Limits Config", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType ALARM_CONFIG = new DisplayType("Alarm Config", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType WEB_VIEW = new DisplayType("Web View", JEVisConstants.PrimitiveType.STRING);
 
     private static final Logger logger = LogManager.getLogger(GUIConstants.class);
 
@@ -69,6 +71,8 @@ public class GUIConstants {
             add(LOCALE);
             add(GAP_FILLING_CONFIG);
             add(LIMITS_CONFIG);
+            add(ALARM_CONFIG);
+            add(WEB_VIEW);
         }
     };
 

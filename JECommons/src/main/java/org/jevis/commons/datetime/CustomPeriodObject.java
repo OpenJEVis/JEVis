@@ -107,7 +107,7 @@ public class CustomPeriodObject {
             try {
                 JEVisAttribute att = getObject().getAttribute(START_REFERENCE_OBJECT.getAttributeName());
                 TargetHelper th = new TargetHelper(getObject().getDataSource(), att);
-                startReferenceObject = th.getObject();
+                startReferenceObject = th.getObject().get(0);
             } catch (Exception e) {
             }
         }
@@ -167,7 +167,7 @@ public class CustomPeriodObject {
             try {
                 JEVisAttribute att = getObject().getAttribute(END_REFERENCE_OBJECT.getAttributeName());
                 TargetHelper th = new TargetHelper(getObject().getDataSource(), att);
-                endReferenceObject = th.getObject();
+                endReferenceObject = th.getObject().get(0);
             } catch (Exception e) {
             }
         }

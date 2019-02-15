@@ -176,6 +176,7 @@ public class ObjectEditor {
                     installedExtensions = new ArrayList<>();
 
                     installedExtensions.add(new CalculationExtension(obj));
+                    installedExtensions.add(new CleanDataExtension(obj));
                     installedExtensions.add(new MemberExtension(obj));
 
 

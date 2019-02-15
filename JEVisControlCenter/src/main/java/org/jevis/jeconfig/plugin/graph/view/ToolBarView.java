@@ -9,6 +9,8 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -17,7 +19,6 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
@@ -35,6 +36,7 @@ import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -88,43 +91,10 @@ public class ToolBarView {
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
-                DateTime now = DateTime.now();
-                AtomicReference<DateTime> oldStart = new AtomicReference<>(now);
-                AtomicReference<DateTime> oldEnd = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
-
-                AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
-                AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
-                ManipulationMode oldManipulationMode = model.getManipulationMode();
-                for (ChartDataModel model : model.getSelectedData()) {
-                    oldManipulationMode = model.getManipulationMode();
-                    break;
-                }
-
-                if (model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)) {
-                    model.getSelectedData().forEach(chartDataModel -> {
-                        if (chartDataModel.getSelectedStart() != null && chartDataModel.getSelectedEnd() != null) {
-                            if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
-                                oldStart.set(chartDataModel.getSelectedStart());
-                            if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
-                                oldEnd.set(chartDataModel.getSelectedEnd());
-                        }
-                    });
-                }
                 model.setCurrentAnalysis(newValue);
                 model.setCharts(null);
                 model.updateSelectedData();
 
-                model.setAggregationPeriod(oldAggregationPeriod);
-                model.setManipulationMode(oldManipulationMode);
-                model.setAnalysisTimeFrame(oldTimeFrame);
-
-                ManipulationMode finalOldManipulationMode = oldManipulationMode;
-                model.getSelectedData().forEach(chartDataModel -> {
-                    if (!oldStart.get().equals(now)) chartDataModel.setSelectedStart(oldStart.get());
-                    if (!oldEnd.get().equals(new DateTime(2001, 1, 1, 0, 0, 0)))
-                        chartDataModel.setSelectedEnd(oldEnd.get());
-                    chartDataModel.setManipulationMode(finalOldManipulationMode);
-                });
 
                 model.updateSamples();
 
@@ -159,15 +129,10 @@ public class ToolBarView {
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
-        reload.setOnAction(event -> {
-            JEVisObject currentAnalysis = listAnalysesComboBox.getSelectionModel().getSelectedItem();
-            select(null);
-            try {
-                ds.reloadAttributes();
-            } catch (JEVisException e) {
-                logger.error(e);
+        reload.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                setTimer();
             }
-            select(currentAnalysis);
         });
 
         exportCSV.setOnAction(action -> {
@@ -274,6 +239,67 @@ public class ToolBarView {
         _initialized = true;
 
         return toolBar;
+    }
+
+    private void setTimer() {
+        Period p = null;
+        for (ChartDataModel chartDataModel : model.getSelectedData()) {
+            List<JEVisSample> samples = chartDataModel.getSamples();
+            if (samples.size() > 0) {
+                try {
+                    p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                } catch (JEVisException e) {
+                    logger.error(e);
+                }
+                break;
+            }
+        }
+        if (p != null) {
+            Long seconds = null;
+            try {
+                seconds = p.toStandardDuration().getStandardSeconds();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+            if (seconds == null) seconds = 60L;
+
+            Alert warning = new Alert(Alert.AlertType.INFORMATION, I18n.getInstance().getString("plugin.graph.toolbar.timer.settimer")
+                    + seconds + I18n.getInstance().getString("plugin.graph.toolbar.timer.settimer2"), ButtonType.OK);
+            warning.showAndWait();
+
+            Long finalSeconds = seconds;
+            Service<Void> service = new Service<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() {
+                            try {
+                                TimeUnit.SECONDS.sleep(finalSeconds);
+                                Platform.runLater(() -> {
+                                    JEVisObject currentAnalysis = listAnalysesComboBox.getSelectionModel().getSelectedItem();
+                                    select(null);
+                                    try {
+                                        ds.reloadAttributes();
+                                    } catch (JEVisException e) {
+                                        logger.error(e);
+                                    }
+                                    select(currentAnalysis);
+                                });
+
+                            } catch (InterruptedException e) {
+                                logger.error("Sleep interrupted: " + e);
+                            }
+                            succeeded();
+
+                            return null;
+                        }
+                    };
+                }
+            };
+
+            service.start();
+        }
     }
 
     private void addSeriesRunningMean() {
@@ -593,7 +619,8 @@ public class ToolBarView {
 
     }
 
-    private void saveDataModel(JEVisObject analysis, Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
+    private void saveDataModel(JEVisObject
+                                       analysis, Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
         try {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
 

@@ -8,7 +8,7 @@ package org.jevis.report3.process;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.report3.DateHelper;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -88,7 +88,7 @@ public class ProcessHelper {
             Object value = getValue(attribute, sample);
             DateTime utcTimestamp = sample.getTimestamp();
             DateTime convertedTimestamp = utcTimestamp.toDateTime(timeZone);
-            Double timestamp = DateHelper.transformTimestampsToExcelTime(convertedTimestamp);
+            Double timestamp = PeriodHelper.transformTimestampsToExcelTime(convertedTimestamp);
             JEVisUnit displayUnit = attribute.getDisplayUnit();
             if (displayUnit != null) {
                 valueMap.put("unit", displayUnit.toString());

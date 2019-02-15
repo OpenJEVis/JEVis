@@ -9,9 +9,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.constants.NoteConstants;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
-import org.jevis.jedataprocessor.data.CleanDataObject;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.util.GapsAndLimits;
@@ -41,7 +42,7 @@ public class LimitsStep implements ProcessStep {
             return;
         }
         List<CleanInterval> intervals = resourceManager.getIntervals();
-        JEVisAttribute cleanAttribute = cleanDataObject.getCleanAttribute();
+        JEVisAttribute cleanAttribute = cleanDataObject.getValueAttribute();
         Double firstValue = 0.0;
         if (cleanAttribute != null) {
             if (cleanAttribute.hasSample()) {
@@ -90,7 +91,7 @@ public class LimitsStep implements ProcessStep {
                         for (JEVisSample smp : currentInterval.getTmpSamples()) {
                             String note = "";
                             note += smp.getNote();
-                            note += ",limit(Step1)";
+                            note += "," + NoteConstants.Limits.LIMIT_STEP1;
                             smp.setNote(note);
                         }
                     }

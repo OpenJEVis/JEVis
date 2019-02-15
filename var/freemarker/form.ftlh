@@ -43,7 +43,7 @@
 		<div class="col-2"><p>${att.name}</p></div>
         </#if>
         <div class="col-9">
-            <textarea style="min-width: 250px;" id="id-${att.name?replace(' ', '')}"
+            <textarea style="limitData-width: 250px;" id="id-${att.name?replace(' ', '')}"
                       onchange="sendValueToJEWebService('${bauth}', ${FormID?c}, '${att.name}', this.value)"
                       rows="10" class="boxsizingBorder">${att.value}</textarea>
         </div>

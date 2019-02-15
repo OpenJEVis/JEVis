@@ -260,6 +260,10 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                         editor = new GapFillingEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LIMITS_CONFIG.getId())) {
                                         editor = new LimitEditor(att);
+                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.ALARM_CONFIG.getId())) {
+                                        editor = new AlarmEditor(att);
+                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.WEB_VIEW.getId())) {
+                                        editor = new WebViewEditor(att);
                                     }
                                 } catch (Exception e) {
                                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());

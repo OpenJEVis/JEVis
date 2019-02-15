@@ -20,6 +20,7 @@ import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 import org.jevis.jeconfig.tool.I18n;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -247,7 +248,28 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                         }
                                                         getData().getCharts().remove(toBeRemoved);
 
+                                                        List<ChartSettings> charts = getData().getCharts();
+                                                        for (ChartSettings chartSettings : charts) {
+                                                            int oldId = chartSettings.getId();
+                                                            if (oldId > chartId) {
+                                                                chartSettings.setId(oldId - 1);
+                                                            }
+                                                        }
+                                                        for (ChartDataModel chartDataModel : getData().getSelectedData()) {
+                                                            List<Integer> selectedcharts = chartDataModel.getSelectedcharts();
+                                                            List<Integer> newList = new ArrayList<>();
+                                                            for (Integer integer : selectedcharts) {
+                                                                if (integer < chartId) {
+                                                                    newList.add(integer);
+                                                                } else {
+                                                                    newList.add(integer - 1);
+                                                                }
+                                                            }
+                                                            chartDataModel.setSelectedCharts(newList);
+                                                        }
+
                                                         getTableColumn().getParentColumn().getColumns().remove(getTableColumn());
+                                                        tree.refresh();
                                                     }
                                                 }
                                             }
