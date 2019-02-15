@@ -2,6 +2,7 @@ package org.jevis.jestatus;
 
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -77,7 +78,7 @@ public class CalculationTable extends AlarmTable {
                     TargetHelper th = null;
                     if (lastSampleOutput != null) {
                         th = new TargetHelper(ds, lastSampleOutput.getValueAsString());
-                        JEVisObject target = th.getObject();
+                        JEVisObject target = th.getObject().get(0);
                         if (target != null) {
                             getListCheckedData().add(target);
 
@@ -112,7 +113,7 @@ public class CalculationTable extends AlarmTable {
                     TargetHelper th = null;
                     if (lastSampleOutput != null) {
                         th = new TargetHelper(ds, lastSampleOutput.getValueAsString());
-                        JEVisObject target = th.getObject();
+                        JEVisObject target = th.getObject().get(0);
                         if (target != null) {
                             if (target.getJEVisClass().equals(rawDataClass)) {
                                 allInputs.put(target, calcObject);

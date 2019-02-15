@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -21,25 +21,30 @@ package org.jevis.commons.object.plugin;
 
 import org.jevis.api.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
- *
  * @author fs
  */
 public class TargetHelper {
 
     private JEVisAttribute sourceAtt;
-    private JEVisObject targetObject;
-    private JEVisAttribute targetAttribute;
-    private JEVisDataSource ds;
-    private final static String SEPERATOR = ":";
-    private String sourceValue = "";
-    private boolean isAttribute = false;
-    private boolean isObject = false;
-    private boolean targetIsAccessable = false;
-    private boolean isValid = true;
 
-    private Long targetObjectID = -1l;
-    private String targetAttibute = "";
+    private JEVisDataSource ds;
+    private final static String SEPARATOR = ":";
+    private final static String MULTI_SELECT_SEPARATOR = ";";
+    private String sourceValue = "";
+    private Boolean isAttribute = false;
+    private Boolean isObject = false;
+    private List<Boolean> targetIsAccessible = new ArrayList<>();
+    private List<Boolean> isValid = new ArrayList<>();
+
+    private List<JEVisObject> targetObject = new ArrayList<>();
+    private List<JEVisAttribute> targetAttribute = new ArrayList<>();
+    private List<Long> targetObjectID = new ArrayList<>();
+    private List<String> targetAttributeString = new ArrayList<>();
 
     /**
      * Creates an new TargetHelper. It will get the last value of the given
@@ -89,71 +94,129 @@ public class TargetHelper {
         parse();
     }
 
+    public TargetHelper(JEVisDataSource ds, List<JEVisObject> newTargetObjects, List<JEVisAttribute> newTargetAttributes) throws JEVisException {
+
+        if (newTargetObjects != null && newTargetAttributes != null) {
+            StringBuilder sv = new StringBuilder();
+            for (JEVisObject obj : newTargetObjects) {
+                int index = newTargetObjects.indexOf(obj);
+                sv.append(obj.getID().toString());
+                sv.append(":");
+                sv.append(newTargetAttributes.get(index).getName());
+            }
+
+            this.sourceValue = sv.toString();
+
+        } else if (newTargetObjects != null && newTargetAttributes == null) {
+            StringBuilder sv = new StringBuilder();
+            for (JEVisObject obj : newTargetObjects) {
+                sv.append(obj.getID().toString());
+            }
+            this.sourceValue = sv.toString();
+        }
+
+        this.ds = ds;
+        parse();
+    }
+
     public String getSourceString() {
         return this.sourceValue;
     }
 
     private void parse() {
-        //is emty
+        //is empty
         if (!sourceValue.isEmpty()) {
             //has separator
-            if (sourceValue.contains(SEPERATOR)) {
-                int seperator = sourceValue.indexOf(":");
-                String objectStrg = sourceValue.substring(0, seperator);
-                try {
-                    targetObjectID = Long.parseLong(objectStrg);
-                } catch (Exception ex) {
-                    isValid = false;
-                }
-
-                if ((seperator + 1) < sourceValue.length()) {
-                    targetAttibute = sourceValue.substring(seperator + 1);
-                } else {
-                    isValid = false;
-                }
+            List<String> targets = new ArrayList<>();
+            if (sourceValue.contains(MULTI_SELECT_SEPARATOR)) {
+                targets = multiSelectStringToList(sourceValue);
 
             } else {
-                try {
-                    targetObjectID = Long.parseLong(sourceValue);
-                } catch (Exception ex) {
-                    isValid = false;
+                targets.add(sourceValue);
+            }
+
+            for (String t : targets) {
+                if (t.contains(SEPARATOR)) {
+                    int separator = t.indexOf(":");
+                    String objectString = t.substring(0, separator);
+                    try {
+                        targetObjectID.add(Long.parseLong(objectString));
+                    } catch (Exception ex) {
+                        isValid.add(false);
+                    }
+
+                    if ((separator + 1) < t.length()) {
+                        targetAttributeString.add(t.substring(separator + 1));
+                    } else {
+                        isValid.add(false);
+                    }
+
+                } else {
+                    try {
+                        targetObjectID.add(Long.parseLong(t));
+                    } catch (Exception ex) {
+                        isValid.add(false);
+                    }
                 }
             }
 
             //check if the target Exist
-            try {
-                targetObject = ds.getObject(targetObjectID);
-                isObject = true;
-                targetIsAccessable = true;
-            } catch (Exception ex) {
-                targetIsAccessable = false;
-            }
-
-            if (!targetAttibute.isEmpty() && targetObject != null) {
+            for (Long objID : targetObjectID) {
+                int index = targetObjectID.indexOf(objID);
+                JEVisObject tar = null;
                 try {
-                    targetAttribute = targetObject.getAttribute(targetAttibute);
-                    if (targetAttribute == null) {
-                        isValid = false;
-                        targetIsAccessable = false;
-                    } else {
-                        isAttribute = true;
+                    tar = ds.getObject(objID);
+                    if (tar != null) {
+                        targetObject.add(tar);
                     }
                 } catch (Exception ex) {
-                    isValid = false;
+                    targetIsAccessible.add(false);
+                }
 
+                if (!targetAttributeString.isEmpty() && !targetObject.isEmpty()) {
+                    try {
+                        JEVisObject obj = targetObject.get(index);
+                        JEVisAttribute att = obj.getAttribute(targetAttributeString.get(index));
+                        if (att != null)
+                            targetAttribute.add(att);
+                        if (att == null) {
+                            isValid.add(false);
+                            targetIsAccessible.add(false);
+                        } else {
+                            isValid.add(true);
+                            isAttribute = true;
+                            targetIsAccessible.add(true);
+                        }
+                    } catch (Exception ex) {
+                        isValid.add(false);
+                    }
+                } else {
+                    if (tar != null) {
+                        isObject = true;
+                        isValid.add(true);
+                        targetIsAccessible.add(true);
+                    } else {
+                        isObject = false;
+                        isValid.add(false);
+                        targetIsAccessible.add(false);
+                    }
                 }
             }
-
         }
-
     }
 
     public boolean isValid() {
-        return isValid;
+        if (isValid.isEmpty()) return false;
+        boolean isvalid = true;
+        for (boolean b : isValid) if (!b) isvalid = false;
+        return isvalid;
     }
 
-    public boolean targetAccessable() {
-        return targetIsAccessable;
+    public boolean targetAccessible() {
+        if (targetIsAccessible.isEmpty()) return false;
+        boolean isaccessible = true;
+        for (boolean b : targetIsAccessible) if (!b) isaccessible = false;
+        return isaccessible;
     }
 
     public boolean hasAttribute() {
@@ -164,12 +227,16 @@ public class TargetHelper {
         return isObject;
     }
 
-    public JEVisAttribute getAttribute() {
+    public List<JEVisAttribute> getAttribute() {
         return targetAttribute;
     }
 
-    public JEVisObject getObject() {
+    public List<JEVisObject> getObject() {
         return targetObject;
     }
 
+
+    private List<String> multiSelectStringToList(String s) {
+        return new ArrayList<>(Arrays.asList(s.split(";")));
+    }
 }

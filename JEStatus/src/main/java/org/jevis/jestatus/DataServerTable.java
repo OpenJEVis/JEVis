@@ -2,6 +2,7 @@ package org.jevis.jestatus;
 
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -86,13 +87,13 @@ public class DataServerTable extends AlarmTable {
                 TargetHelper th = null;
                 if (lastSampleTarget != null) {
                     th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                    JEVisObject target = th.getObject();
+                    JEVisObject target = th.getObject().get(0);
                     if (target != null) {
 
                         channelAndTarget.put(channel, target);
                         getListCheckedData().add(target);
 
-                        JEVisAttribute resultAtt = th.getAttribute();
+                        JEVisAttribute resultAtt = th.getAttribute().get(0);
                         if (resultAtt == null) resultAtt = target.getAttribute("Value");
 
                         if (resultAtt != null) {
@@ -277,12 +278,12 @@ public class DataServerTable extends AlarmTable {
                 TargetHelper th = null;
                 if (lastSampleTarget != null) {
                     th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                    JEVisObject target = th.getObject();
+                    JEVisObject target = th.getObject().get(0);
                     if (target != null) {
                         channelAndTarget.put(target, target);
                         getListCheckedData().add(target);
 
-                        JEVisAttribute resultAtt = th.getAttribute();
+                        JEVisAttribute resultAtt = th.getAttribute().get(0);
                         if (resultAtt == null) resultAtt = target.getAttribute("Value");
 
                         if (resultAtt != null) {
@@ -331,13 +332,13 @@ public class DataServerTable extends AlarmTable {
                 TargetHelper th = null;
                 for (JEVisSample lastSampleTarget : samples) {
                     th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                    JEVisObject target = th.getObject();
+                    JEVisObject target = th.getObject().get(0);
                     if (target != null) {
 
                         channelAndTarget.put(target, target);
                         getListCheckedData().add(target);
 
-                        JEVisAttribute resultAtt = th.getAttribute();
+                        JEVisAttribute resultAtt = th.getAttribute().get(0);
                         if (resultAtt == null) resultAtt = target.getAttribute("Value");
 
                         if (resultAtt != null) {

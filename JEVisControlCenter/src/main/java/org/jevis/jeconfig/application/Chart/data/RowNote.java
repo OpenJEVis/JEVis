@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.constants.NoteConstants;
 import org.jevis.jeconfig.tool.I18n;
 
 public class RowNote {
@@ -30,92 +31,92 @@ public class RowNote {
 
         }
 
-        if (note.contains("alignment(yes")) {
+        if (note.contains(NoteConstants.Alignment.ALIGNMENT_YES)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.alignedtrue"));
             formattedNote.append(System.getProperty("line.separator"));
-        } else if (note.contains("alignment(no")) {
+        } else if (note.contains(NoteConstants.Alignment.ALIGNMENT_NO)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.alignedfalse"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("diff")) {
+        if (note.contains(NoteConstants.Differential.DIFFERENTIAL_ON)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.diff"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains("scale")) {
+        if (note.contains(NoteConstants.Scaling.SCALING_ON)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.scale"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("limit(Step1)")) {
+        if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit1"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("gap(Default")) {
+        if (note.contains(NoteConstants.Gap.GAP_DEFAULT)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.gap.default"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains("gap(Static")) {
+        if (note.contains(NoteConstants.Gap.GAP_STATIC)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.gap.static"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("gap(Average")) {
+        if (note.contains(NoteConstants.Gap.GAP_AVERAGE)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.gap.average"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("gap(Median")) {
+        if (note.contains(NoteConstants.Gap.GAP_MEDIAN)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.gap.median"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("gap(Interpolation")) {
+        if (note.contains(NoteConstants.Gap.GAP_INTERPOLATION)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.gap.interpolation"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("gap(Min")) {
+        if (note.contains(NoteConstants.Gap.GAP_MIN)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.gap.min"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("gap(Max")) {
+        if (note.contains(NoteConstants.Gap.GAP_MAX)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.gap.max"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("limit(Default)")) {
+        if (note.contains(NoteConstants.Limits.LIMIT_DEFAULT)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.default"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains("limit(Static)")) {
+        if (note.contains(NoteConstants.Limits.LIMIT_STATIC)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.static"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains("limit(Average)")) {
+        if (note.contains(NoteConstants.Limits.LIMIT_AVERAGE)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.average"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains("limit(Median)")) {
+        if (note.contains(NoteConstants.Limits.LIMIT_MEDIAN)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.median"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains("limit(Interpolation)")) {
+        if (note.contains(NoteConstants.Limits.LIMIT_INTERPOLATION)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.interpolation"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains("limit(Min)")) {
+        if (note.contains(NoteConstants.Limits.LIMIT_MIN)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.min"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains("limit(Max)")) {
+        if (note.contains(NoteConstants.Limits.LIMIT_MAX)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.max"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains("calc(infinite)")) {
+        if (note.contains(NoteConstants.Calc.CALC_INFINITE)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.calc.infinity"));
             formattedNote.append(System.getProperty("line.separator"));
         }

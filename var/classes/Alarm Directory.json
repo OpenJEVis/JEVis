@@ -27,6 +27,11 @@
       "start": "Dynamic Limit Alarm",
       "end": "Alarm Directory",
       "type": 3
+    },
+    {
+      "start": "Alarm Configuration",
+      "end": "Alarm Directory",
+      "type": 3
     }
   ]
 }

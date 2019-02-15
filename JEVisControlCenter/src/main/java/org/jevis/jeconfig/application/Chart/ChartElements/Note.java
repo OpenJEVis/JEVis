@@ -6,7 +6,13 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import org.jevis.jeconfig.tool.I18n;
 
+import static org.jevis.commons.constants.NoteConstants.Calc.CALC_INFINITE;
+import static org.jevis.commons.constants.NoteConstants.Gap.GAP;
+import static org.jevis.commons.constants.NoteConstants.Limits.*;
+import static org.jevis.commons.constants.NoteConstants.User.USER_NOTES;
+
 public class Note {
+
     private Node node = null;
 //    private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
 //    private static final Image limit = ResourceLoader.getImage("rodentia-icons_dialog-warning.png");
@@ -20,7 +26,7 @@ public class Note {
             StringBuilder sb = new StringBuilder();
             int noOfNotes = 0;
 
-            if (note.contains("limit(Step1)")) {
+            if (note.contains(LIMIT_STEP1)) {
                 try {
                     sb.append(I18n.getInstance().getString("plugin.graph.chart.note.limit1"));
                     noOfNotes++;
@@ -30,8 +36,8 @@ public class Note {
                 }
             }
 
-            if (note.contains("limit(Default)") || note.contains("limit(Static)") || note.contains("limit(Average)")
-                    || note.contains("limit(Median)") || note.contains("limit(Interpolation)") || note.contains("limit(Min)") || note.contains("limit(Max)")) {
+            if (note.contains(LIMIT_DEFAULT) || note.contains(LIMIT_STATIC) || note.contains(LIMIT_AVERAGE)
+                    || note.contains(LIMIT_MEDIAN) || note.contains(LIMIT_INTERPOLATION) || note.contains(LIMIT_MIN) || note.contains(LIMIT_MAX)) {
                 try {
                     if (noOfNotes > 0) sb = new StringBuilder();
                     sb.append(I18n.getInstance().getString("plugin.graph.chart.note.limit2"));
@@ -42,7 +48,7 @@ public class Note {
                 }
             }
 
-            if (note.contains("gap")) {
+            if (note.contains(GAP)) {
                 try {
                     if (noOfNotes > 0) sb.append(", ");
                     sb.append(I18n.getInstance().getString("plugin.graph.chart.note.gap"));
@@ -55,7 +61,7 @@ public class Note {
             }
 
 
-            if (note.contains("calc(infinite)")) {
+            if (note.contains(CALC_INFINITE)) {
                 try {
                     if (noOfNotes > 0) sb.append(", ");
                     sb.append(I18n.getInstance().getString("plugin.graph.chart.note.div0"));
@@ -66,7 +72,7 @@ public class Note {
                 }
             }
 
-            if (note.contains("userNotes")) {
+            if (note.contains(USER_NOTES)) {
                 try {
                     if (noOfNotes > 0) sb.append(", ");
                     sb.append("N");

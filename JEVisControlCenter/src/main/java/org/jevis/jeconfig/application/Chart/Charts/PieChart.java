@@ -54,7 +54,7 @@ public class PieChart implements Chart {
             period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
         }
 
-
+        hexColors.clear();
         chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 Double sumPiePiece = 0d;
@@ -80,6 +80,8 @@ public class PieChart implements Chart {
         nf.setMaximumFractionDigits(2);
         for (Double d : listSumsPiePieces) whole += d;
         for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
+
+        series.clear();
         for (String name : listTableEntryNames) {
             String seriesName = name + " - " + nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
                     + " " + unit + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
@@ -89,7 +91,8 @@ public class PieChart implements Chart {
 
         }
 
-        pieChart = new javafx.scene.chart.PieChart(series);
+        if (pieChart == null)
+            pieChart = new javafx.scene.chart.PieChart(series);
         pieChart.applyCss();
 
         applyColors();

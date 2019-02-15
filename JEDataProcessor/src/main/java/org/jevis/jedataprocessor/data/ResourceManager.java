@@ -6,6 +6,7 @@
 package org.jevis.jedataprocessor.data;
 
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;

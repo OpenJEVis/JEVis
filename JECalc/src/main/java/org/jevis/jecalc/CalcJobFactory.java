@@ -86,10 +86,10 @@ class CalcJobFactory {
             for (JEVisObject output : outputs) {
                 JEVisAttribute targetAttr = output.getAttribute(Calculation.OUTPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(output.getDataSource(), targetAttr);
-                JEVisAttribute valueAttribute = targetHelper.getAttribute();
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
                 if (valueAttribute == null) {
                     logger.error("Cant find output for id {}, using fallback 'Value' Attribute ", output.getID());
-                    outputAttributes.add(targetHelper.getObject().getAttribute("Value"));
+                    outputAttributes.add(targetHelper.getObject().get(0).getAttribute("Value"));
                 } else {
                     outputAttributes.add(valueAttribute);
                 }
@@ -131,7 +131,7 @@ class CalcJobFactory {
             try {
                 targetAttr = obj.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
-                JEVisAttribute valueAttribute = targetHelper.getAttribute();
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
                 if (startTimeFromInputs.isBefore(valueAttribute.getTimestampFromFirstSample()))
                     startTimeFromInputs = valueAttribute.getTimestampFromFirstSample();
             } catch (JEVisException e) {
@@ -182,7 +182,7 @@ class CalcJobFactory {
             for (JEVisObject child : getCalcInputObjects(jevisObject)) { //Todo differenciate based on input type
                 JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
-                JEVisAttribute valueAttribute = targetHelper.getAttribute();
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
 
                 if (fromTo == null) {
                     fromTo = new Interval(startTime, new DateTime());

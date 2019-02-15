@@ -470,7 +470,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
          */
         if (otherObject instanceof JEVisAttribute) {
             JEVisAttribute otherAttribute = (JEVisAttribute) otherObject;
-            if (otherAttribute.getObjectID().equals(getObjectID())) {
+            if (otherAttribute.getObjectID().equals(getObjectID()) && otherAttribute.getName().equals(getName())) {
                 return otherAttribute.getName().equals(otherAttribute.getName());
             }
         }

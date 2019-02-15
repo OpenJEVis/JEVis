@@ -23,6 +23,7 @@
         <module>Notifier</module>
         <module>JEDataProcessor</module>
         <module>JEStatus</module>
+        <module>JEAlarm</module>
     </modules>
 
     <profiles>
@@ -41,6 +42,7 @@
                 <module>Notifier</module>
                 <module>JEDataProcessor</module>
                 <module>JEStatus</module>
+                <module>JEAlarm</module>
             </modules>
         </profile>
     </profiles>
@@ -159,7 +161,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.jevis.jealarm</groupId>
+                <groupId>org.jevis.jealarm.jealarm</groupId>
                 <artifactId>JEStatus</artifactId>
                 <version>1.0</version>
             </dependency>

@@ -296,10 +296,13 @@ public class JEVisTree extends TreeTableView {
         for (TreeItem<JEVisTreeRow> child : parentNode.getChildren()) {
             for (JEVisObject findObj : toOpen) {
                 if (findObj.getID().equals(child.getValue().getJEVisObject().getID())) {
-                    child.expandedProperty().setValue(Boolean.TRUE);
+                    if (!findObj.getID().equals(selectedObject.getID())) {
+                        child.expandedProperty().setValue(Boolean.TRUE);
+                    } else {
+                        child.setExpanded(Boolean.FALSE);
+                    }
                     openPathNoChildren(toOpen, child, selectedObject);
                 }
-                if (findObj.getID().equals(selectedObject.getID())) child.setExpanded(Boolean.FALSE);
             }
 
         }

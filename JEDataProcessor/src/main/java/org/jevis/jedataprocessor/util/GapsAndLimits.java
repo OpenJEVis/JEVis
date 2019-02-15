@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.JEDataProcessorConstants;
+import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jedataprocessor.data.CleanInterval;
@@ -201,7 +202,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",gap(Maximum)";
+                        note += "," + NoteConstants.Gap.GAP_MAX;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
@@ -214,7 +215,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",limit(Maximum)";
+                        note += "," + NoteConstants.Limits.LIMIT_MAX;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
@@ -232,7 +233,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",gap(Median)";
+                        note += "," + NoteConstants.Gap.GAP_MEDIAN;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
 
@@ -246,7 +247,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",limit(Median)";
+                        note += "," + NoteConstants.Limits.LIMIT_MEDIAN;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
@@ -265,7 +266,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",gap(Average)";
+                        note += "," + NoteConstants.Gap.GAP_AVERAGE;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
@@ -278,7 +279,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",limit(Average)";
+                        note += "," + NoteConstants.Limits.LIMIT_AVERAGE;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
@@ -301,7 +302,7 @@ public class GapsAndLimits {
                             JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentValue);
                             String note = "";
                             note += getNote(currentInterval);
-                            note += ",gap(Interpolation)";
+                            note += "," + NoteConstants.Gap.GAP_INTERPOLATION;
                             sample.setNote(note);
                             currentValue += stepSize;
                             currentInterval.addTmpSample(sample);
@@ -321,7 +322,7 @@ public class GapsAndLimits {
                             JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentValue);
                             String note = "";
                             note += getNote(currentInterval);
-                            note += ",limit(Interpolation)";
+                            note += "," + NoteConstants.Limits.LIMIT_INTERPOLATION;
                             sample.setNote(note);
                             currentValue += stepSize;
                             currentInterval.addTmpSample(sample);
@@ -341,7 +342,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), defaultValue);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",gap(Default)";
+                        note += "," + NoteConstants.Gap.GAP_DEFAULT;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
@@ -353,7 +354,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), defaultValue);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",limit(Default)";
+                        note += "," + NoteConstants.Limits.LIMIT_DEFAULT;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
@@ -371,7 +372,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",gap(Minimum)";
+                        note += "," + NoteConstants.Gap.GAP_MIN;
                         sample.setNote(note);
                     }
                 }
@@ -383,7 +384,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",limit(Minimum)";
+                        note += "," + NoteConstants.Limits.LIMIT_MIN;
                         sample.setNote(note);
                     }
                 }
@@ -400,7 +401,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",gap(Static)";
+                        note += "," + NoteConstants.Gap.GAP_STATIC;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
@@ -413,7 +414,7 @@ public class GapsAndLimits {
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), firstValue);
                         String note = "";
                         note += getNote(currentInterval);
-                        note += ",limit(Static)";
+                        note += "," + NoteConstants.Limits.LIMIT_STATIC;
                         sample.setNote(note);
                         currentInterval.addTmpSample(sample);
                     }
