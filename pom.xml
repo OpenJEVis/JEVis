@@ -13,8 +13,8 @@
 
     <modules>
         <module>JEAPI</module>
-        <module>JECommons</module>
         <module>JEAPI-WS</module>
+        <module>JECommons</module>
         <module>JEWebService</module>
         <module>JEVisControlCenter/</module>
         <module>DataCollector</module>
@@ -32,8 +32,8 @@
             <modules>
                 <module>mysqldb</module>
                 <module>JEAPI</module>
-                <module>JECommons</module>
                 <module>JEAPI-WS</module>
+                <module>JECommons</module>
                 <module>JEWebService</module>
                 <module>JEVisControlCenter/</module>
                 <module>DataCollector</module>
