@@ -93,7 +93,8 @@ public class DataServerTable extends AlarmTable {
                         channelAndTarget.put(channel, target);
                         getListCheckedData().add(target);
 
-                        JEVisAttribute resultAtt = th.getAttribute().get(0);
+                        JEVisAttribute resultAtt = null;
+                        if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
                         if (resultAtt == null) resultAtt = target.getAttribute("Value");
 
                         if (resultAtt != null) {
@@ -278,13 +279,16 @@ public class DataServerTable extends AlarmTable {
                 TargetHelper th = null;
                 if (lastSampleTarget != null) {
                     th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                    JEVisObject target = th.getObject().get(0);
+                    JEVisObject target = null;
+                    if (th.getObject() != null && !th.getObject().isEmpty()) target = th.getObject().get(0);
                     if (target != null) {
                         channelAndTarget.put(target, target);
                         getListCheckedData().add(target);
 
-                        JEVisAttribute resultAtt = th.getAttribute().get(0);
-                        if (resultAtt == null) resultAtt = target.getAttribute("Value");
+                        JEVisAttribute resultAtt = null;
+                        if (th.getAttribute() != null && !th.getAttribute().isEmpty()) {
+                            resultAtt = th.getAttribute().get(0);
+                        } else resultAtt = target.getAttribute("Value");
 
                         if (resultAtt != null) {
                             if (resultAtt.hasSample()) {
@@ -338,7 +342,8 @@ public class DataServerTable extends AlarmTable {
                         channelAndTarget.put(target, target);
                         getListCheckedData().add(target);
 
-                        JEVisAttribute resultAtt = th.getAttribute().get(0);
+                        JEVisAttribute resultAtt = null;
+                        if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
                         if (resultAtt == null) resultAtt = target.getAttribute("Value");
 
                         if (resultAtt != null) {
