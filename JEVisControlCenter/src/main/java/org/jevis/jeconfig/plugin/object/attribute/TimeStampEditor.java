@@ -54,6 +54,7 @@ public class TimeStampEditor implements AttributeEditor {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisDataSource ds;
     private JEVisSample originalSample;
+    private DateTime originalDateTime;
 
     public TimeStampEditor(JEVisAttribute att) {
         this.att = att;
@@ -116,6 +117,7 @@ public class TimeStampEditor implements AttributeEditor {
         if (originalSample != null) {
             try {
                 DateTime date = originalSample.getTimestamp();
+                originalDateTime = date;
                 LocalDateTime lDate = LocalDateTime.of(
                         date.get(DateTimeFieldType.year()), date.get(DateTimeFieldType.monthOfYear()), date.get(DateTimeFieldType.dayOfMonth()),
                         date.get(DateTimeFieldType.hourOfDay()), date.get(DateTimeFieldType.minuteOfHour()), date.get(DateTimeFieldType.secondOfMinute()));
@@ -160,6 +162,9 @@ public class TimeStampEditor implements AttributeEditor {
         return att;
     }
 
+    public DateTime getOriginalDateTime() {
+        return originalDateTime;
+    }
 
     @Override
     public boolean isValid() {

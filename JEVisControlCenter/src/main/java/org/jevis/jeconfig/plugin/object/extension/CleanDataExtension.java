@@ -70,6 +70,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private TimeStampEditor conversionToDifferentialTimeStampEditor;
     private TimeStampEditor valueMultiplierTimeStampEditor;
     private CleanDataObject cleanDataObject;
+    private boolean changedValueMultiplier = false;
+    private boolean changedConversionToDifferential = false;
 
     public CleanDataExtension(JEVisObject _obj) {
         this._obj = _obj;
@@ -506,6 +508,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             _changed.set(true);
             if (!changedAttributes.contains(conversionToDifferentialAttribute)) {
                 changedAttributes.add(conversionToDifferentialAttribute);
+                changedConversionToDifferential = true;
             }
         });
 
@@ -578,6 +581,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
                 _changed.set(true);
                 if (!changedAttributes.contains(valueMultiplierAttribute)) {
                     changedAttributes.add(valueMultiplierAttribute);
+                    changedValueMultiplier = true;
                 }
             } catch (Exception e) {
                 valueMultiplier.setText(oldValue);
@@ -641,9 +645,19 @@ public class CleanDataExtension implements ObjectEditorExtension {
                 List<JEVisAttribute> savedAttributes = new ArrayList<>();
                 for (JEVisAttribute attribute : changedAttributes) {
                     if (attribute.equals(conversionToDifferentialAttribute)) {
-                        JEVisSample newSample = conversionToDifferentialAttribute.buildSample(conversionToDifferentialTimeStampEditor.getDateTime(),
-                                conversionToDifferential.isSelected());
-                        newSample.commit();
+                        DateTime currentDate = conversionToDifferentialTimeStampEditor.getDateTime();
+                        List<JEVisSample> oldSamples = conversionToDifferentialAttribute.getSamples(currentDate, currentDate);
+                        if (oldSamples.isEmpty()) {
+                            JEVisSample newSample = conversionToDifferentialAttribute.buildSample(currentDate, conversionToDifferential.isSelected());
+                            newSample.commit();
+                        } else {
+                            if (!changedConversionToDifferential) {
+                                conversionToDifferentialAttribute.deleteSamplesBetween(currentDate, currentDate);
+                            }
+                            JEVisSample newSample = conversionToDifferentialAttribute.buildSample(currentDate, conversionToDifferential.isSelected());
+                            newSample.commit();
+                        }
+
                         savedAttributes.add(conversionToDifferentialAttribute);
                     } else if (attribute.equals(enabledAttribute)) {
                         JEVisSample newSample = enabledAttribute.buildSample(DateTime.now(), enabled.isSelected());
@@ -674,9 +688,18 @@ public class CleanDataExtension implements ObjectEditorExtension {
                         newSample.commit();
                         savedAttributes.add(valueIsAQuantityAttribute);
                     } else if (attribute.equals(valueMultiplierAttribute)) {
-                        JEVisSample newSample = valueMultiplierAttribute.buildSample(valueMultiplierTimeStampEditor.getDateTime(),
-                                Double.parseDouble(valueMultiplier.getText()));
-                        newSample.commit();
+                        DateTime currentDate = valueMultiplierTimeStampEditor.getDateTime();
+                        List<JEVisSample> oldSamples = valueMultiplierAttribute.getSamples(currentDate, currentDate);
+                        if (oldSamples.isEmpty()) {
+                            JEVisSample newSample = valueMultiplierAttribute.buildSample(currentDate, valueMultiplier.getText());
+                            newSample.commit();
+                        } else {
+                            if (!changedValueMultiplier) {
+                                valueMultiplierAttribute.deleteSamplesBetween(currentDate, currentDate);
+                            }
+                            JEVisSample newSample = valueMultiplierAttribute.buildSample(currentDate, valueMultiplier.getText());
+                            newSample.commit();
+                        }
                         savedAttributes.add(valueMultiplierAttribute);
                     } else if (attribute.equals(valueOffsetAttribute)) {
                         JEVisSample newSample = valueOffsetAttribute.buildSample(DateTime.now(), Double.parseDouble(valueOffset.getText()));

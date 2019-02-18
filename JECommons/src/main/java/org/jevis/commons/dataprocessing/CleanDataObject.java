@@ -323,7 +323,7 @@ public class CleanDataObject {
         if (lastDate == null) {
             try {
                 int indexLastRawSample = getRawSamples().size() - 1;
-                lastDate = getRawSamples().get(indexLastRawSample).getTimestamp().plus(getCleanDataPeriodAlignment());
+                lastDate = rawSamples.get(indexLastRawSample).getTimestamp().plus(getCleanDataPeriodAlignment());
                 //lastDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(getCleanDataPeriodAlignment());
             } catch (JEVisException e) {
                 logger.error("Could not get timestamp of last Raw sample.");
@@ -362,23 +362,17 @@ public class CleanDataObject {
     public List<JEVisSample> getRawSamples() {
         if (rawSamples == null) {
             DateTime lastRawDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(getCleanDataPeriodAlignment());
+            DateTime firstDate = getFirstDate().minus(getCleanDataPeriodAlignment());
             rawSamples = sampleHandler.getSamplesInPeriod(
                     rawDataObject,
                     VALUE_ATTRIBUTE_NAME,
-                    getFirstDate().minus(getCleanDataPeriodAlignment()),
+                    firstDate,
                     lastRawDate);
 
             if (rawSamples.size() > 100000) {
-                rawSamples = rawSamples.subList(0, 100000);
+                rawSamples.subList(0, 100000);
             }
         }
-        /**
-         * - Start is the first sample of the clean data
-         * - End is the last sample of the raw data
-         */
-        LogTaskManager.getInstance().getTask(getCleanObject().getID()).addStep("Last Clean Data", getFirstDate().minus(getCleanDataPeriodAlignment()));
-//        LogTaskManager.getInstance().getTask(getCleanObject().getID()).addStep("Last Clean Data", getFirstDate());
-        LogTaskManager.getInstance().getTask(getCleanObject().getID()).addStep("Last Raw Data", getMaxEndDate());
         return rawSamples;
     }
 
