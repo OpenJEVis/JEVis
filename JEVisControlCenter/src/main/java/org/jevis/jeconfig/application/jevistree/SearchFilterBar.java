@@ -67,7 +67,7 @@ public class SearchFilterBar extends HBox {
         searchField.getStyleClass().add(Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
         Background originalBackground = searchField.getEditor().getBackground();
         searchField.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.equals(oldValue)) {
+            if (newValue.equals(oldValue) || newValue.length() < 4) {
                 return;
             }
 
