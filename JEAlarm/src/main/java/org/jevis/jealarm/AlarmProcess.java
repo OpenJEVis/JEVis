@@ -77,11 +77,8 @@ public class AlarmProcess {
         AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
 
 
-        try {
-            sendAlarm(alarmTable.getTableString());
-        } catch (JEVisException e) {
-            logger.error("Could not send Alarm.");
-        }
+        if (sendAlarm(alarmTable.getTableString())) logger.info("Sent notification.");
+        else logger.info("Did not send notification.");
 
         if (start != null && end != null && end.isAfter(start)) {
             try {
@@ -105,31 +102,37 @@ public class AlarmProcess {
         }
     }
 
-    public void sendAlarm(String alarmTableString) throws JEVisException {
+    public boolean sendAlarm(String alarmTableString) {
 
-        EmailNotification emailNotification = new EmailNotification();
-        emailNotification.setNotificationObject(getNotificationObject());
+        try {
+            EmailNotification emailNotification = new EmailNotification();
+            emailNotification.setNotificationObject(getNotificationObject());
 
-        StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
-        sb.append("<html>");
+            sb.append("<html>");
 
-        sb.append("<br>");
-        sb.append("<br>");
-        sb.append(emailNotification.getMessage());
-        sb.append("<br>");
-        sb.append("<br>");
+            sb.append("<br>");
+            sb.append("<br>");
+            sb.append(emailNotification.getMessage());
+            sb.append("<br>");
+            sb.append("<br>");
 
-        sb.append(alarmTableString);
+            sb.append(alarmTableString);
 
-        sb.append("<br>");
-        sb.append("<br>");
+            sb.append("<br>");
+            sb.append("<br>");
 
-        sb.append("</html>");
+            sb.append("</html>");
 
-        emailNotification.setMessage(sb.toString());
+            emailNotification.setMessage(sb.toString());
 
-        sendNotification(emailNotification);
+            sendNotification(emailNotification);
+            return true;
+        } catch (Exception e) {
+            logger.warn("No notification object.");
+            return false;
+        }
     }
 
     private JEVisObject getNotificationObject() {

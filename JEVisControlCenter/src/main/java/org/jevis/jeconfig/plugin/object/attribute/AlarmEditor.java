@@ -392,7 +392,7 @@ public class AlarmEditor implements AttributeEditor {
 
         JFXTextField limitField = new JFXTextField();
 
-        JFXComboBox operator = new JFXComboBox(this.operator);
+        ComboBox<AlarmConstants.Operator> operator = new JFXComboBox<>(this.operator);
         Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>> cellFactory = new Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>>() {
             @Override
             public ListCell<AlarmConstants.Operator> call(ListView<AlarmConstants.Operator> param) {
@@ -463,7 +463,7 @@ public class AlarmEditor implements AttributeEditor {
         }
 
         if (config.getOperator() != null) {
-            operator.getSelectionModel().select(config.getOperator());
+            operator.getSelectionModel().select(AlarmConstants.Operator.parse(config.getOperator()));
         } else operator.getSelectionModel().selectFirst();
 
 
