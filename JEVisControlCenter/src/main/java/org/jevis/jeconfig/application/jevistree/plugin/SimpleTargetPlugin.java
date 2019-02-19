@@ -261,8 +261,10 @@ public class SimpleTargetPlugin implements TreePlugin {
     }
 
     public void setUserSelection(List<UserSelection> list) {
-        _preselect = list;
-        _tree.openUserSelectionNoChildren(list);
+        if (list != null) {
+            _preselect = list;
+            _tree.openUserSelectionNoChildren(list);
+        }
     }
 
 

@@ -1,5 +1,5 @@
 package org.jevis.jealarm;
 
-public enum UsagePeriodType {
+public enum UsageScheduleType {
     SILENT, STANDBY
 }

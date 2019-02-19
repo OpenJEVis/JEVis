@@ -29,6 +29,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -44,6 +45,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.json.JsonAlarmConfig;
+import org.jevis.commons.json.JsonScheduler;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -413,26 +415,32 @@ public class AlarmEditor implements AttributeEditor {
 
         JFXTextField toleranceField = new JFXTextField();
 
-        ScheduleEditor silentTime = new ScheduleEditor();
-        Long silentTimeValue;
+        ScheduleEditor silentTime;
+
+        JsonScheduler silentTimeValue;
         if (config.getSilentTime() != null) {
-            silentTimeValue = Long.parseLong(config.getSilentTime());
-            silentTime.setInputValue(silentTimeValue);
+            silentTimeValue = config.getSilentTime();
+            silentTime = new ScheduleEditor(silentTimeValue);
+        } else {
+            silentTime = new ScheduleEditor();
         }
-        silentTime.buildGUI();
+
         silentTime._newValueProperty().addListener((observable, oldValue, newValue) -> {
-            config.setSilentTime(newValue.toString());
+            config.setSilentTime(new Gson().fromJson(newValue, JsonScheduler.class));
         });
 
-        ScheduleEditor standbyTime = new ScheduleEditor();
-        Long standbyTimeValue;
+        ScheduleEditor standbyTime;
+
+        JsonScheduler standbyTimeValue;
         if (config.getStandbyTime() != null) {
-            standbyTimeValue = Long.parseLong(config.getStandbyTime());
-            standbyTime.setInputValue(standbyTimeValue);
+            standbyTimeValue = config.getStandbyTime();
+            standbyTime = new ScheduleEditor(standbyTimeValue);
+        } else {
+            standbyTime = new ScheduleEditor();
         }
-        standbyTime.buildGUI();
+
         standbyTime._newValueProperty().addListener((observable, oldValue, newValue) -> {
-            config.setStandbyTime(newValue.toString());
+            config.setStandbyTime(new Gson().fromJson(newValue, JsonScheduler.class));
         });
 
         double prefFieldWidth = 150;
@@ -474,30 +482,51 @@ public class AlarmEditor implements AttributeEditor {
 
 
         /**
-         * Create layout based on JsonGapFillingConfig type
+         * Create layout
          */
         int row = 0;
         if (id == 1) {
             gridPane.add(limitDataLabel, 0, row);
-            gridPane.add(limitDataBox, 1, row, 3, 1);
+            gridPane.add(limitDataBox, 1, row);
         } else if (id == 0) {
             gridPane.add(limitLabel, 0, row);
-            gridPane.add(limitField, 1, row, 3, 1);
+            gridPane.add(limitField, 1, row);
         }
         row++;
         gridPane.add(operatorLabel, 0, row);
-        gridPane.add(operator, 1, row, 2, 1);
+        gridPane.add(operator, 1, row);
         row++;
-        gridPane.add(silentTimeLabel, 0, row);
-        gridPane.add(silentTime.getEditor(), 1, row, 4, 1);
-        row++;
-        gridPane.add(standbyLabel, 0, row);
-        gridPane.add(standbyTime.getEditor(), 1, row, 4, 1);
-        row++;
-        gridPane.add(toleranceLabel, 0, row);
-        gridPane.add(toleranceField, 1, row, 3, 1);
 
-        tab.setContent(gridPane);
+        Separator separator1 = new Separator();
+        separator1.setPadding(new Insets(4, 4, 4, 4));
+        separator1.setOrientation(Orientation.HORIZONTAL);
+        gridPane.add(separator1, 0, row, 2, 1);
+        row++;
+
+        gridPane.add(silentTimeLabel, 0, row);
+        gridPane.add(silentTime.getEditor(), 1, row);
+        row++;
+
+        Separator separator2 = new Separator();
+        separator2.setPadding(new Insets(4, 4, 4, 4));
+        separator2.setOrientation(Orientation.HORIZONTAL);
+        gridPane.add(separator2, 0, row, 2, 1);
+        row++;
+
+        gridPane.add(standbyLabel, 0, row);
+        gridPane.add(standbyTime.getEditor(), 1, row);
+        row++;
+
+        Separator separator3 = new Separator();
+        separator3.setPadding(new Insets(4, 4, 4, 4));
+        separator3.setOrientation(Orientation.HORIZONTAL);
+        gridPane.add(separator3, 0, row, 2, 1);
+        row++;
+
+        gridPane.add(toleranceLabel, 0, row);
+        gridPane.add(toleranceField, 1, row);
+
+        tab.setContent(new ScrollPane(gridPane));
     }
 
     @Override

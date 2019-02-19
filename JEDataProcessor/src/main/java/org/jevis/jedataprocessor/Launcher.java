@@ -52,7 +52,7 @@ public class Launcher extends AbstractCliApp {
         processes.parallelStream().forEach(currentCleanDataObject -> {
             forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(currentCleanDataObject.getID().toString())) {
-
+                    Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
                     runningJobs.put(currentCleanDataObject.getID().toString(), "true");
 
                     try {

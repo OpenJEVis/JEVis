@@ -37,8 +37,8 @@ public class JsonAlarmConfig {
     private String limitData;
     private String limit;
     private String operator;
-    private String silentTime;
-    private String standbyTime;
+    private JsonScheduler silentTime;
+    private JsonScheduler standbyTime;
     private String tolerance;
 
     public JsonAlarmConfig() {
@@ -90,20 +90,20 @@ public class JsonAlarmConfig {
     }
 
     @XmlElement(name = "silentTime")
-    public String getSilentTime() {
+    public JsonScheduler getSilentTime() {
         return silentTime;
     }
 
-    public void setSilentTime(String silentTime) {
+    public void setSilentTime(JsonScheduler silentTime) {
         this.silentTime = silentTime;
     }
 
     @XmlElement(name = "standbyTime")
-    public String getStandbyTime() {
+    public JsonScheduler getStandbyTime() {
         return standbyTime;
     }
 
-    public void setStandbyTime(String standbyTime) {
+    public void setStandbyTime(JsonScheduler standbyTime) {
         this.standbyTime = standbyTime;
     }
 
