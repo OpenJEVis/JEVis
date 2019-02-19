@@ -13,7 +13,10 @@ import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
 import org.jevis.jenotifier.notifier.Email.EmailServiceProperty;
 import org.joda.time.DateTime;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -186,11 +189,8 @@ public class AlarmProcess {
         for (JEVisObject cleanData : allCleanDataObjects) {
 
             JEVisAttribute valueAtt = cleanData.getAttribute(VALUE_ATTRIBUTE);
-            JEVisAttribute alarmEnabledAttribute = cleanData.getAttribute(ALARM_ENABLED_ATTRIBUTE);
+
             JEVisAttribute alarmLogAttribute = cleanData.getAttribute(ALARM_LOG_ATTRIBUTE);
-            JEVisSample lastSampleAlarmEnabled = alarmEnabledAttribute.getLatestSample();
-            boolean alarmEnabled = false;
-            if (lastSampleAlarmEnabled != null) alarmEnabled = lastSampleAlarmEnabled.getValueAsBoolean();
 
             List<JEVisSample> valueSamples = valueAtt.getSamples(start, end);
             for (JEVisSample sample : valueSamples) {
@@ -206,90 +206,92 @@ public class AlarmProcess {
                 }
             }
 
-            if (alarmEnabled) {
 
-                CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(cleanData);
-                Double tolerance = cleanDataAlarm.getTolerance();
-                AlarmType alarmType = cleanDataAlarm.getAlarmType();
-                Double limit = null;
-                List<UsagePeriod> usagePeriods = new ArrayList<>(Arrays.asList(cleanDataAlarm.getSilentTime(), cleanDataAlarm.getStandByTime()));
-                List<JEVisSample> comparisonSamples;
-                Map<DateTime, JEVisSample> compareMap = new HashMap<>();
+            CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(cleanData);
+            Double tolerance = cleanDataAlarm.getTolerance();
+            AlarmType alarmType = cleanDataAlarm.getAlarmType();
+            Double limit = null;
+            List<UsageSchedule> usageSchedules = cleanDataAlarm.getUsageSchedules();
+            List<JEVisSample> comparisonSamples;
+            Map<DateTime, JEVisSample> compareMap = new HashMap<>();
 
-                boolean dynamicAlarm = alarmType.equals(AlarmType.DYNAMIC);
-                if (dynamicAlarm) {
-                    comparisonSamples = cleanDataAlarm.getSamples(start, end);
-                    for (JEVisSample sample : comparisonSamples) {
-                        compareMap.put(sample.getTimestamp(), sample);
+            boolean dynamicAlarm = alarmType.equals(AlarmType.DYNAMIC);
+            if (dynamicAlarm) {
+                comparisonSamples = cleanDataAlarm.getSamples(start, end);
+                for (JEVisSample sample : comparisonSamples) {
+                    compareMap.put(sample.getTimestamp(), sample);
+                }
+            } else limit = cleanDataAlarm.getLimit();
+
+
+            if (!valueSamples.isEmpty()) {
+                List<JEVisSample> alarmLogs = new ArrayList<>();
+                for (JEVisSample valueSample : valueSamples) {
+                    DateTime ts = valueSample.getTimestamp();
+                    JEVisSample compareSample = null;
+                    Double value = valueSample.getValueAsDouble();
+
+                    Double diff = null;
+                    Double lowerValue = null;
+                    Double upperValue = null;
+                    if (dynamicAlarm) {
+                        compareSample = compareMap.get(ts);
+                        diff = compareSample.getValueAsDouble() * (tolerance / 100);
+                        lowerValue = compareSample.getValueAsDouble() - diff;
+                        upperValue = compareSample.getValueAsDouble() + diff;
+                    } else {
+                        diff = limit * (tolerance / 100);
+                        lowerValue = limit - diff;
+                        upperValue = limit + diff;
                     }
-                } else limit = cleanDataAlarm.getLimit();
 
+                    boolean isAlarm = false;
+                    switch (cleanDataAlarm.getOperator()) {
+                        case BIGGER:
+                            if (value > upperValue) isAlarm = true;
+                            break;
+                        case BIGGER_EQUALS:
+                            if (value >= upperValue) isAlarm = true;
+                            break;
+                        case EQUALS:
+                            if (value.equals(upperValue)) isAlarm = true;
+                            break;
+                        case NOT_EQUALS:
+                            if (!value.equals(upperValue)) isAlarm = true;
+                            break;
+                        case SMALLER:
+                            if (value < lowerValue) isAlarm = true;
+                            break;
+                        case SMALLER_EQUALS:
+                            if (value <= lowerValue) isAlarm = true;
+                            break;
+                    }
 
-                if (!valueSamples.isEmpty()) {
-                    List<JEVisSample> alarmLogs = new ArrayList<>();
-                    for (JEVisSample valueSample : valueSamples) {
-                        DateTime ts = valueSample.getTimestamp();
-                        JEVisSample compareSample = null;
-                        Double value = valueSample.getValueAsDouble();
-
-                        Double diff = null;
-                        Double lowerValue = null;
-                        Double upperValue = null;
-                        if (dynamicAlarm) {
-                            compareSample = compareMap.get(ts);
-                            diff = compareSample.getValueAsDouble() * (tolerance / 100);
-                            lowerValue = compareSample.getValueAsDouble() - diff;
-                            upperValue = compareSample.getValueAsDouble() + diff;
-                        } else {
-                            diff = limit * (tolerance / 100);
-                            lowerValue = limit - diff;
-                            upperValue = limit + diff;
-                        }
-
-                        boolean isAlarm = false;
-                        switch (cleanDataAlarm.getOperator()) {
-                            case BIGGER:
-                                if (value > upperValue) isAlarm = true;
-                                break;
-                            case BIGGER_EQUALS:
-                                if (value >= upperValue) isAlarm = true;
-                                break;
-                            case EQUALS:
-                                if (value.equals(upperValue)) isAlarm = true;
-                                break;
-                            case NOT_EQUALS:
-                                if (!value.equals(upperValue)) isAlarm = true;
-                                break;
-                            case SMALLER:
-                                if (value < lowerValue) isAlarm = true;
-                                break;
-                            case SMALLER_EQUALS:
-                                if (value <= lowerValue) isAlarm = true;
-                                break;
-                        }
-
+                    if (isAlarm) {
                         int logVal = 0;
-                        logVal = PeriodService.getValueForLog(ts, usagePeriods);
+                        logVal = ScheduleService.getValueForLog(ts, usageSchedules);
                         alarmLogs.add(new VirtualSample(ts, (long) logVal));
                     }
-                    alarmLogAttribute.addSamples(alarmLogs);
                 }
+                alarmLogAttribute.addSamples(alarmLogs);
+
             }
         }
 
         return activeAlarms;
     }
 
+
     private List<JEVisObject> getAllCorrespondingCleanDataObjects() throws JEVisException {
         switch (getAlarmConfiguration().getAlarmScope()) {
             case COMPLETE:
-                return getCompleteList(null, getAlarmConfiguration().getObject());
+                return filterForEnabled(getCompleteList(null, getAlarmConfiguration().getObject()));
             case SELECTED:
                 List<JEVisObject> completeList = getCompleteList(null, getAlarmConfiguration().getObject());
                 List<JEVisObject> unselectedList = getListFromSelectedObjects();
                 if (unselectedList != null) {
                     completeList.removeAll(unselectedList);
-                    return completeList;
+                    return filterForEnabled(completeList);
                 }
                 return new ArrayList<>();
             case WITHOUT_SELECTED:
@@ -299,6 +301,29 @@ public class AlarmProcess {
             default:
                 return new ArrayList<>();
         }
+    }
+
+    private List<JEVisObject> filterForEnabled(List<JEVisObject> completeList) {
+        List<JEVisObject> enabledOjects = new ArrayList<>();
+        completeList.forEach(jeVisObject -> {
+            JEVisAttribute alarmEnabledAttribute = null;
+            try {
+                alarmEnabledAttribute = jeVisObject.getAttribute(ALARM_ENABLED_ATTRIBUTE);
+            } catch (JEVisException e) {
+                logger.error("Could not get Attribute.");
+            }
+            JEVisSample lastSampleAlarmEnabled = alarmEnabledAttribute.getLatestSample();
+            boolean alarmEnabled = false;
+            if (lastSampleAlarmEnabled != null) {
+                try {
+                    alarmEnabled = lastSampleAlarmEnabled.getValueAsBoolean();
+                } catch (JEVisException e) {
+                    logger.error("could not get last Value as boolean.");
+                }
+            }
+            if (alarmEnabled) enabledOjects.add(jeVisObject);
+        });
+        return enabledOjects;
     }
 
     private List<JEVisObject> getListFromSelectedObjects() {

@@ -67,7 +67,7 @@ public class ReportLauncher extends AbstractCliApp {
         reportObjects.parallelStream().forEach(reportObject -> {
             forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(reportObject.getID().toString())) {
-
+                    Thread.currentThread().setName(reportObject.getName() + ":" + reportObject.getID().toString());
                     runningJobs.put(reportObject.getID().toString(), "true");
 
                     LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());

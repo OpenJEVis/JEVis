@@ -78,7 +78,10 @@ public class CalculationTable extends AlarmTable {
                     TargetHelper th = null;
                     if (lastSampleOutput != null) {
                         th = new TargetHelper(ds, lastSampleOutput.getValueAsString());
-                        JEVisObject target = th.getObject().get(0);
+                        JEVisObject target = null;
+                        if (!th.getObject().isEmpty()) {
+                            target = th.getObject().get(0);
+                        }
                         if (target != null) {
                             getListCheckedData().add(target);
 
@@ -113,7 +116,10 @@ public class CalculationTable extends AlarmTable {
                     TargetHelper th = null;
                     if (lastSampleOutput != null) {
                         th = new TargetHelper(ds, lastSampleOutput.getValueAsString());
-                        JEVisObject target = th.getObject().get(0);
+                        JEVisObject target = null;
+                        if (!th.getObject().isEmpty()) {
+                            target = th.getObject().get(0);
+                        }
                         if (target != null) {
                             if (target.getJEVisClass().equals(rawDataClass)) {
                                 allInputs.put(target, calcObject);

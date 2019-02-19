@@ -9,6 +9,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.AlarmConstants;
+import org.jevis.commons.datatype.scheduler.SchedulerHandler;
+import org.jevis.commons.datatype.scheduler.cron.CronScheduler;
 import org.jevis.commons.json.JsonAlarmConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
@@ -23,23 +25,25 @@ public class CleanDataAlarm {
     private Double limit;
     private JEVisAttribute limitDataAttribute;
     private AlarmConstants.Operator operator;
-    private UsagePeriod silentTime;
-    private UsagePeriod standByTime;
+    private CronScheduler silentTime;
+    private CronScheduler standByTime;
     private Double tolerance;
     private List<JsonAlarmConfig> jsonList = new ArrayList<>();
     private AlarmType alarmType;
+    private List<UsageSchedule> usageSchedules = new ArrayList<>();
 
     public CleanDataAlarm(JEVisObject cleanDataObject) throws JEVisException {
         this.cleanDataObject = cleanDataObject;
 
         createJsonList(cleanDataObject);
 
-        if (!parseJsonList(cleanDataObject)) {
+        boolean parsed = parseJsonList(cleanDataObject);
+        if (!parsed) {
             throw new JEVisException("Could not parse Json.", 4214218);
         }
     }
 
-    private boolean parseJsonList(JEVisObject cleanDataObject) throws JEVisException {
+    private boolean parseJsonList(JEVisObject cleanDataObject) {
         if (!jsonList.isEmpty()) {
             for (JsonAlarmConfig jac : jsonList) {
                 try {
@@ -55,29 +59,32 @@ public class CleanDataAlarm {
                         alarmType = AlarmType.STATIC;
                     }
 
-                    if (jac.getOperator() != null)
-                        operator = AlarmConstants.Operator.parse(jac.getOperator());
+                    if (alarmType != null) {
+                        if (jac.getOperator() != null)
+                            operator = AlarmConstants.Operator.parse(jac.getOperator());
 
-                    if (jac.getSilentTime() != null) {
-                        silentTime = new UsagePeriod(UsagePeriodType.SILENT);
-                        silentTime.setPeriod(Long.parseLong(jac.getSilentTime()));
+                        if (jac.getSilentTime() != null) {
+                            String json = jac.getSilentTime().toString();
+                            silentTime = SchedulerHandler.BuildScheduler(json);
+                            usageSchedules.add(new UsageSchedule(silentTime, UsageScheduleType.SILENT));
+                        }
+
+                        if (jac.getStandbyTime() != null) {
+                            String json = jac.getStandbyTime().toString();
+                            standByTime = SchedulerHandler.BuildScheduler(json);
+                            usageSchedules.add(new UsageSchedule(standByTime, UsageScheduleType.STANDBY));
+                        }
+
+                        if (jac.getTolerance() != null)
+                            tolerance = Double.parseDouble(jac.getTolerance());
                     }
-
-                    if (jac.getStandbyTime() != null) {
-                        standByTime = new UsagePeriod(UsagePeriodType.STANDBY);
-                        standByTime.setPeriod(Long.parseLong(jac.getSilentTime()));
-                    }
-
-                    if (jac.getTolerance() != null)
-                        tolerance = Double.parseDouble(jac.getTolerance());
-                    return ((limitDataObject != null && limitDataAttribute != null) || limit != null) && operator != null
-                            && silentTime != null && standByTime != null && tolerance != null;
                 } catch (Exception e) {
-                    return false;
+                    logger.error("Error parsing alarm configuration: " + e);
                 }
             }
         }
-        return false;
+        return (((limitDataObject != null && limitDataAttribute != null) || limit != null) && operator != null
+                && silentTime != null && standByTime != null && tolerance != null);
     }
 
     private void createJsonList(JEVisObject cleanDataObject) {
@@ -116,11 +123,11 @@ public class CleanDataAlarm {
         return limitDataAttribute;
     }
 
-    public UsagePeriod getSilentTime() {
+    public CronScheduler getSilentTime() {
         return silentTime;
     }
 
-    public UsagePeriod getStandByTime() {
+    public CronScheduler getStandByTime() {
         return standByTime;
     }
 
@@ -138,5 +145,9 @@ public class CleanDataAlarm {
 
     public AlarmType getAlarmType() {
         return alarmType;
+    }
+
+    public List<UsageSchedule> getUsageSchedules() {
+        return usageSchedules;
     }
 }

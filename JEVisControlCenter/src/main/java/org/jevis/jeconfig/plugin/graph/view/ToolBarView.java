@@ -710,8 +710,9 @@ public class ToolBarView {
             StringBuilder sb = new StringBuilder();
             if (listString.size() > 1) {
                 for (Integer i : listString) {
+                    int index = listString.indexOf(i);
                     sb.append(i.toString());
-                    sb.append(", ");
+                    if (index < listString.size() - 1) sb.append(", ");
                 }
             } else if (listString.size() == 1) sb.append(listString.get(0));
             return sb.toString();
