@@ -161,9 +161,9 @@ public class PrepareStep implements ProcessStep {
                             currentDate = currentDate.minusHours(1);
 
                         startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
-                                currentDate.getHourOfDay(), 0, 0);
+                                currentDate.getHourOfDay(), dtStart.getMinute(), 0);
                         endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
-                                currentDate.getHourOfDay(), 59, 59, 999);
+                                currentDate.getHourOfDay(), dtEnd.getMinute(), 59, 999);
                     } else if (periodCleanData.equals(Period.minutes(1))) {
                         /**
                          * smaller to Minute
