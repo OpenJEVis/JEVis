@@ -23,14 +23,16 @@ public class PeriodHelper {
     private static String CUSTOM_SCHEDULE_OBJECT_ATTRIBUTE = "Custom Schedule Object";
 
     public static double transformTimestampsToExcelTime(DateTime cal) {
-        DateTime excelTime = new DateTime(1899, 12, 30, 0, 0, cal.getZone());
-        double days = Days.daysBetween(excelTime, cal).getDays();
-        double hourtmp = cal.getHourOfDay() * 60;
-        double mintmp = cal.getMinuteOfHour();
+        if (cal != null) {
+            DateTime excelTime = new DateTime(1899, 12, 30, 0, 0, cal.getZone());
+            double days = Days.daysBetween(excelTime, cal).getDays();
+            double hourtmp = cal.getHourOfDay() * 60;
+            double mintmp = cal.getMinuteOfHour();
 
-        double d = (hourtmp + mintmp) / 1440;
+            double d = (hourtmp + mintmp) / 1440;
 
-        return days + d;
+            return days + d;
+        } else return 0;
     }
 
     public static DateTime getNextPeriod(DateTime start, Period schedule, int i) {

@@ -487,6 +487,10 @@ public class XYChart implements Chart {
         if (valueForDisplay != null) {
             setValueForDisplay(valueForDisplay);
             Number finalValueForDisplay = valueForDisplay;
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMinimumFractionDigits(2);
+            nf.setMaximumFractionDigits(2);
+
             xyChartSerieList.parallelStream().forEach(serie -> {
                 try {
                     TableEntry tableEntry = serie.getTableEntry();
@@ -505,9 +509,7 @@ public class XYChart implements Chart {
                         }
                     }
 
-                    NumberFormat nf = NumberFormat.getInstance();
-                    nf.setMinimumFractionDigits(2);
-                    nf.setMaximumFractionDigits(2);
+
                     Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
                     String note = sampleTreeMap.get(nearest).getNote();
                     Note formattedNote = new Note(note);

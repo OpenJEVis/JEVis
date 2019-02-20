@@ -19,43 +19,70 @@ import java.util.List;
  */
 public class ReportLinkFactory {
     private static final Logger logger = LogManager.getLogger(ReportLinkFactory.class);
-    private List<JEVisObject> listLinks = new ArrayList<>();
 
     public List<ReportData> getReportLinks(JEVisObject reportObject) {
-        List<JEVisObject> reportLinkObjects = initializeReportLinkObjects(reportObject);
+
+        List<JEVisObject> reportLinkObjects = new ArrayList<>(initializeReportLinkObjects(reportObject));
         logger.info("Found " + reportLinkObjects.size() + " Report Links.");
+
+        List<JEVisObject> alarmLinkObjects = new ArrayList<>(initializeAlarmLinkObjects(reportObject));
+
+        logger.info("Found " + alarmLinkObjects.size() + " Alarm Links.");
+
+        List<JEVisObject> listLinks = new ArrayList<>();
+        listLinks.addAll(reportLinkObjects);
+        listLinks.addAll(alarmLinkObjects);
 
         List<ReportData> reportLinks = new ArrayList<>();
         //if this is a generic report -> collect all children and iterate over this children
-        for (JEVisObject reportLinkObject : reportLinkObjects) {
+        for (JEVisObject reportLinkObject : listLinks) {
 
-            ReportData linkProperty = ReportLinkProperty.buildFromJEVisObject(reportLinkObject);
-            reportLinks.add(linkProperty);
+            String reportName = null;
+            try {
+                reportName = reportLinkObject.getJEVisClassName();
+            } catch (JEVisException ex) {
+                logger.error(ex);
+            }
+            if (reportName == null) {
+                continue;
+            }
+            if (reportName.equals("Report Link")) {
+                ReportData linkProperty = ReportLinkProperty.buildFromJEVisObject(reportLinkObject);
+                reportLinks.add(linkProperty);
+            } else if (reportName.equals("Alarm Link")) {
+                AlarmFunction alarmFunction = new AlarmFunction(reportLinkObject);
+                reportLinks.add(alarmFunction);
+            }
 
         }
         return reportLinks;
     }
 
     List<JEVisObject> initializeReportLinkObjects(JEVisObject reportObject) {
-        listLinks = new ArrayList<>();
-        getChildrenFromDir(reportObject);
-        return listLinks;
+        List<JEVisObject> list = new ArrayList<>();
+        return getChildrenFromDir(list, reportObject, ReportLinkDir.NAME, ReportLink.NAME);
     }
 
-    private void getChildrenFromDir(JEVisObject currentObject) {
+    private List<JEVisObject> initializeAlarmLinkObjects(JEVisObject reportObject) {
+        List<JEVisObject> list = new ArrayList<>();
+        return getChildrenFromDir(list, reportObject, ReportLinkDir.NAME, "Alarm Link");
+    }
+
+    private List<JEVisObject> getChildrenFromDir(List<JEVisObject> list, JEVisObject currentObject, String dirName, String className) {
         try {
-            currentObject.getChildren().forEach(child -> {
+            for (JEVisObject child : currentObject.getChildren()) {
                 try {
-                    if (child.getJEVisClass().getName().equals(ReportLink.NAME)) listLinks.add(child);
-                    else if (child.getJEVisClass().getName().equals(ReportLinkDir.NAME)) {
-                        getChildrenFromDir(child);
+                    if (child.getJEVisClass().getName().equals(className)) list.add(child);
+                    else if (child.getJEVisClass().getName().equals(dirName)) {
+                        getChildrenFromDir(list, child, dirName, className);
                     }
                 } catch (JEVisException e) {
                     logger.error(e);
                 }
-            });
+            }
         } catch (JEVisException e) {
             logger.error(e);
         }
+        return list;
     }
 }

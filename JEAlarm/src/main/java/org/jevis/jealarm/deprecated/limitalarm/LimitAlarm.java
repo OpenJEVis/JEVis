@@ -11,8 +11,8 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.alarm.UsageSchedule;
 import org.jevis.jealarm.ScheduleService;
-import org.jevis.jealarm.UsageSchedule;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
