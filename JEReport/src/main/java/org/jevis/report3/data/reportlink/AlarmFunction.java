@@ -38,6 +38,7 @@ public class AlarmFunction implements ReportData {
     private static String COLUMN_SHOULDBE = "reff";
     private static String COLUMN_TOLERANCE = "tol";
     private static String COLUMN_IS = "value";
+    private static String COLUMN_OBJECTNAME = "objectname";
     private String templateName = "";
     private String alarmLinkName = "";
     private JEVisObject alarmObj = null;
@@ -149,6 +150,7 @@ public class AlarmFunction implements ReportData {
         tmpMap.put(COLUMN_SHOULDBE, alarm.getShouldBeValue());
         tmpMap.put(COLUMN_DIFF, alarm.getIsValue() - alarm.getShouldBeValue());
         tmpMap.put(COLUMN_TOLERANCE, alarm.getTolerance());
+        tmpMap.put(COLUMN_OBJECTNAME, alarm.getObject().getName());
 
         return tmpMap;
     }

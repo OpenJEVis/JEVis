@@ -38,6 +38,15 @@ public class PeriodHelper {
     public static DateTime getNextPeriod(DateTime start, Period schedule, int i) {
         DateTime resultDate = start;
         switch (schedule) {
+            case MINUTELY:
+                resultDate = resultDate.plusMinutes(i);
+                break;
+            case QUARTER_HOURLY:
+                resultDate = resultDate.plusMinutes(15 * i);
+                break;
+            case HOURLY:
+                resultDate = resultDate.plusHours(i);
+                break;
             case DAILY:
                 resultDate = resultDate.plusDays(i);
                 break;
@@ -46,6 +55,9 @@ public class PeriodHelper {
                 break;
             case MONTHLY:
                 resultDate = resultDate.plusMonths(i);
+                break;
+            case QUARTERLY:
+                resultDate = resultDate.plusMonths(3 * i);
                 break;
             case YEARLY:
                 resultDate = resultDate.plusYears(i);

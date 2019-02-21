@@ -1,0 +1,14 @@
+[Unit]
+Description=JEAlarm
+
+
+[Service]
+User=jevis
+Group=jevis
+Type=simple
+ExecStart=/home/jevis/jevis/bin/jealarm
+
+
+[Install]
+WantedBy=multi-user.target
+

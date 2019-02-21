@@ -1,11 +1,10 @@
 #!/bin/bash
 
-source ../etc/jevis.env
+source /etc/jevis/jevis.env
 
-# Allways start jealarm before the alarming
-${JEVIS_HOME}/bin/jecalc.sh
-
-java -DserviceLogFile=/var/log/jealarm.log -XX:+UseG1GC -jar ${JEVIS_HOME}/JEAlarm/target/SimpleAlarm.jar --config ${JEVIS_HOME}/etc/jevis.xml $?
-
-
-
+java -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.xml \
+     -DserviceLogFile=${JEVIS_HOME}/var/log/jealarm.log \
+     -XX:+UseG1GC \
+     -jar ${JEVIS_HOME}/JEAlarm/target/JEAlarm-1.0-jar-with-dependencies.jar \
+     -c ${JEVIS_HOME}/etc/jevis.xml \
+     -sm service

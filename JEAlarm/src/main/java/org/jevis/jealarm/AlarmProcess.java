@@ -86,14 +86,13 @@ public class AlarmProcess {
 
             AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
 
+            boolean sentAlarm = sendAlarm(alarmTable);
 
-            if (sendAlarm(alarmTable)) logger.info("Sent notification.");
+            if (sentAlarm) logger.info("Sent notification.");
             else logger.info("Did not send notification.");
 
             if (start != null && end != null && end.isAfter(start)) {
                 try {
-                    JEVisSample timeStampSample = alarmConfiguration.getTimeStampAttribute().buildSample(DateTime.now(), end.plusMillis(1));
-                    timeStampSample.commit();
 
                     StringBuilder sb = new StringBuilder();
                     sb.append("<html>");
