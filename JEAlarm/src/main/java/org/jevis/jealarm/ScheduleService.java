@@ -5,6 +5,8 @@
  */
 package org.jevis.jealarm;
 
+import org.jevis.commons.alarm.UsageSchedule;
+import org.jevis.commons.alarm.UsageScheduleType;
 import org.joda.time.DateTime;
 
 import java.util.List;
@@ -33,7 +35,7 @@ public class ScheduleService {
         }
 
         if (res == 0) {
-            res = 1;
+            res = LOG_NORMAL;
         }
         return res;
     }

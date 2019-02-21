@@ -160,8 +160,8 @@ public class ReportLinkProperty implements ReportData {
     private ConcurrentHashMap<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
         ConcurrentHashMap<String, Object> linkMap = new ConcurrentHashMap<>();
         List<ReportAttributeProperty> attributeProperties = linkProperty.getAttributeProperties();
-        //attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
-        attributeProperties.parallelStream().forEach(attributeProperty -> {
+        attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
+        for (ReportAttributeProperty attributeProperty : attributeProperties) {
             List<AttributeConfiguration> attributeConfigs = attributeProperty.getAttributeConfigurations();
 
             boolean validSampleGenerator = false;
@@ -324,7 +324,14 @@ public class ReportLinkProperty implements ReportData {
                     }
                 }
             }
-        });
+        }
+
+        String objectName = linkProperty.dataObject.getName();
+        if (objectName != null) {
+            ConcurrentHashMap<String, Object> objectname = new ConcurrentHashMap<>();
+            objectname.put("value", objectName);
+            linkMap.put("objectname", objectname);
+        }
 
         return linkMap;
     }

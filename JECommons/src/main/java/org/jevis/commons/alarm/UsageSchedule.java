@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jealarm;
+package org.jevis.commons.alarm;
 
 
 import org.jevis.commons.datatype.scheduler.cron.CronScheduler;

@@ -1,4 +1,4 @@
-package org.jevis.jealarm;
+package org.jevis.commons.alarm;
 
 public enum UsageScheduleType {
     SILENT, STANDBY

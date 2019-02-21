@@ -1,4 +1,4 @@
-package org.jevis.jealarm;
+package org.jevis.commons.alarm;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

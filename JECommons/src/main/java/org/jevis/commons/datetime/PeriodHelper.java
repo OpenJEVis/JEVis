@@ -23,19 +23,30 @@ public class PeriodHelper {
     private static String CUSTOM_SCHEDULE_OBJECT_ATTRIBUTE = "Custom Schedule Object";
 
     public static double transformTimestampsToExcelTime(DateTime cal) {
-        DateTime excelTime = new DateTime(1899, 12, 30, 0, 0, cal.getZone());
-        double days = Days.daysBetween(excelTime, cal).getDays();
-        double hourtmp = cal.getHourOfDay() * 60;
-        double mintmp = cal.getMinuteOfHour();
+        if (cal != null) {
+            DateTime excelTime = new DateTime(1899, 12, 30, 0, 0, cal.getZone());
+            double days = Days.daysBetween(excelTime, cal).getDays();
+            double hourtmp = cal.getHourOfDay() * 60;
+            double mintmp = cal.getMinuteOfHour();
 
-        double d = (hourtmp + mintmp) / 1440;
+            double d = (hourtmp + mintmp) / 1440;
 
-        return days + d;
+            return days + d;
+        } else return 0;
     }
 
     public static DateTime getNextPeriod(DateTime start, Period schedule, int i) {
         DateTime resultDate = start;
         switch (schedule) {
+            case MINUTELY:
+                resultDate = resultDate.plusMinutes(i);
+                break;
+            case QUARTER_HOURLY:
+                resultDate = resultDate.plusMinutes(15 * i);
+                break;
+            case HOURLY:
+                resultDate = resultDate.plusHours(i);
+                break;
             case DAILY:
                 resultDate = resultDate.plusDays(i);
                 break;
@@ -44,6 +55,9 @@ public class PeriodHelper {
                 break;
             case MONTHLY:
                 resultDate = resultDate.plusMonths(i);
+                break;
+            case QUARTERLY:
+                resultDate = resultDate.plusMonths(3 * i);
                 break;
             case YEARLY:
                 resultDate = resultDate.plusYears(i);

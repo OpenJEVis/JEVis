@@ -3,6 +3,10 @@ package org.jevis.jealarm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.alarm.Alarm;
+import org.jevis.commons.alarm.AlarmType;
+import org.jevis.commons.alarm.CleanDataAlarm;
+import org.jevis.commons.alarm.UsageSchedule;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.DateHelper;
@@ -60,49 +64,70 @@ public class AlarmProcess {
     public void start() {
         List<JEVisObject> allCleanDataObjects = new ArrayList<>();
 
-        try {
-            allCleanDataObjects = getAllCorrespondingCleanDataObjects();
-        } catch (JEVisException e) {
-            logger.error("Could not get list of all Clean Data Objects.");
-        }
+        DateHelper dateHelper = null;
+        start = alarmConfiguration.getTimeStamp();
+        dateHelper = PeriodHelper.getDateHelper(alarmConfiguration.getObject(), alarmConfiguration.getAlarmPeriod(), dateHelper, start);
+        end = PeriodHelper.calcEndRecord(start, alarmConfiguration.getAlarmPeriod(), dateHelper);
 
-        List<Alarm> activeAlarms = new ArrayList<>();
-        try {
-            activeAlarms = getActiveAlarms(allCleanDataObjects);
-
-        } catch (JEVisException e) {
-            logger.error("Could not get list of all active alarms.");
-        }
-
-        AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
-
-
-        if (sendAlarm(alarmTable.getTableString())) logger.info("Sent notification.");
-        else logger.info("Did not send notification.");
-
-        if (start != null && end != null && end.isAfter(start)) {
+        if (end.isBefore(DateTime.now())) {
             try {
-                JEVisSample timeStampSample = alarmConfiguration.getTimeStampAttribute().buildSample(DateTime.now(), end.plusMillis(1));
-                timeStampSample.commit();
-
-                StringBuilder sb = new StringBuilder();
-                sb.append("<html>");
-                sb.append("<br>");
-                sb.append("<br>");
-                sb.append(alarmTable.getTableString());
-                sb.append("<br>");
-                sb.append("<br>");
-                sb.append("</html>");
-
-                JEVisSample logSample = alarmConfiguration.getLogAttribute().buildSample(DateTime.now(), sb.toString());
-                logSample.commit();
+                allCleanDataObjects = getAllCorrespondingCleanDataObjects();
             } catch (JEVisException e) {
-                logger.error("Could not build sample with new time stamp.");
+                logger.error("Could not get list of all Clean Data Objects.");
+            }
+
+            List<Alarm> activeAlarms = new ArrayList<>();
+            try {
+                activeAlarms = getActiveAlarms(allCleanDataObjects);
+
+            } catch (JEVisException e) {
+                logger.error("Could not get list of all active alarms.");
+            }
+
+            AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
+
+            boolean sentAlarm = sendAlarm(alarmTable);
+
+            if (sentAlarm) logger.info("Sent notification.");
+            else logger.info("Did not send notification.");
+
+            if (start != null && end != null && end.isAfter(start)) {
+                try {
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("<html>");
+                    sb.append("<br>");
+                    sb.append("<br>");
+                    sb.append(alarmTable.getTableString());
+                    sb.append("<br>");
+                    sb.append("<br>");
+                    sb.append(alarmTable.getAlarmTable());
+                    sb.append("<br>");
+                    sb.append("<br>");
+                    sb.append("</html>");
+
+                    JEVisSample logSample = alarmConfiguration.getLogAttribute().buildSample(DateTime.now(), sb.toString());
+                    logSample.commit();
+                } catch (JEVisException e) {
+                    logger.error("Could not build sample with new time stamp.");
+                }
+            }
+
+            try {
+                finish();
+            } catch (Exception e) {
+                logger.error("Could not set new start record.");
             }
         }
     }
 
-    public boolean sendAlarm(String alarmTableString) {
+    private void finish() throws JEVisException {
+
+        DateTime newStartRecordTime = PeriodHelper.getNextPeriod(start, alarmConfiguration.getAlarmPeriod(), 1);
+        alarmConfiguration.getTimeStampAttribute().buildSample(new DateTime(), newStartRecordTime.toString()).commit();
+    }
+
+    public boolean sendAlarm(AlarmTable alarmTable) {
 
         try {
             EmailNotification emailNotification = new EmailNotification();
@@ -118,7 +143,11 @@ public class AlarmProcess {
             sb.append("<br>");
             sb.append("<br>");
 
-            sb.append(alarmTableString);
+            try {
+                sb.append(alarmTable.getAlarmTable());
+            } catch (Exception e) {
+                logger.error("Could not get alarm table string.");
+            }
 
             sb.append("<br>");
             sb.append("<br>");
@@ -184,10 +213,6 @@ public class AlarmProcess {
 
     private List<Alarm> getActiveAlarms(List<JEVisObject> allCleanDataObjects) throws JEVisException {
         List<Alarm> activeAlarms = new ArrayList<>();
-        DateHelper dateHelper = null;
-        start = alarmConfiguration.getTimeStamp();
-        dateHelper = PeriodHelper.getDateHelper(alarmConfiguration.getObject(), alarmConfiguration.getAlarmPeriod(), dateHelper, start);
-        end = PeriodHelper.calcEndRecord(start, alarmConfiguration.getAlarmPeriod(), dateHelper);
 
         for (JEVisObject cleanData : allCleanDataObjects) {
 
@@ -203,9 +228,9 @@ public class AlarmProcess {
                         || note.contains(NoteConstants.Limits.LIMIT_STATIC) || note.contains(NoteConstants.Limits.LIMIT_AVERAGE)
                         || note.contains(NoteConstants.Limits.LIMIT_MEDIAN) || note.contains(NoteConstants.Limits.LIMIT_INTERPOLATION)
                         || note.contains(NoteConstants.Limits.LIMIT_MIN) || note.contains(NoteConstants.Limits.LIMIT_MAX))) {
-                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, AlarmType.L2));
+                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, 0d, 0d, AlarmType.L2, 0));
                 } else if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
-                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, AlarmType.L1));
+                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, 0d, 0d, AlarmType.L1, 0));
                 }
             }
 
@@ -219,6 +244,7 @@ public class AlarmProcess {
             Map<DateTime, JEVisSample> compareMap = new HashMap<>();
 
             boolean dynamicAlarm = alarmType.equals(AlarmType.DYNAMIC);
+
             if (dynamicAlarm) {
                 comparisonSamples = cleanDataAlarm.getSamples(start, end);
                 for (JEVisSample sample : comparisonSamples) {
@@ -233,22 +259,39 @@ public class AlarmProcess {
                     DateTime ts = valueSample.getTimestamp();
                     JEVisSample compareSample = null;
                     Double value = valueSample.getValueAsDouble();
+                    AlarmType sampleAlarmType;
 
                     Double diff = null;
                     Double lowerValue = null;
                     Double upperValue = null;
                     if (dynamicAlarm) {
                         compareSample = compareMap.get(ts);
+
+                        if (compareSample == null) {
+
+                            DateTime dt = ts.minusSeconds(1);
+                            while (compareSample == null) {
+                                compareSample = compareMap.get(dt);
+                                dt = dt.minusSeconds(1);
+                            }
+
+//                            logger.error("Could not find sample to compare with value." + ts);
+//                            continue;
+                        }
+
                         diff = compareSample.getValueAsDouble() * (tolerance / 100);
                         lowerValue = compareSample.getValueAsDouble() - diff;
                         upperValue = compareSample.getValueAsDouble() + diff;
+                        sampleAlarmType = AlarmType.DYNAMIC;
                     } else {
                         diff = limit * (tolerance / 100);
                         lowerValue = limit - diff;
                         upperValue = limit + diff;
+                        sampleAlarmType = AlarmType.STATIC;
                     }
 
                     boolean isAlarm = false;
+                    boolean upper = true;
                     switch (cleanDataAlarm.getOperator()) {
                         case BIGGER:
                             if (value > upperValue) isAlarm = true;
@@ -264,16 +307,26 @@ public class AlarmProcess {
                             break;
                         case SMALLER:
                             if (value < lowerValue) isAlarm = true;
+                            upper = false;
                             break;
                         case SMALLER_EQUALS:
                             if (value <= lowerValue) isAlarm = true;
+                            upper = false;
                             break;
                     }
 
                     if (isAlarm) {
                         int logVal = 0;
+
                         logVal = ScheduleService.getValueForLog(ts, usageSchedules);
-                        alarmLogs.add(new VirtualSample(ts, (long) logVal));
+                        JEVisSample alarmSample = new VirtualSample(ts, (long) logVal);
+                        alarmLogs.add(alarmSample);
+
+                        if (upper) {
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, value, upperValue, sampleAlarmType, logVal));
+                        } else {
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, value, lowerValue, sampleAlarmType, logVal));
+                        }
                     }
                 }
                 alarmLogAttribute.addSamples(alarmLogs);
