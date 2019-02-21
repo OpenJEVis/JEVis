@@ -8,6 +8,8 @@ import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.alarm.CleanDataAlarm;
 import org.jevis.commons.alarm.UsageSchedule;
 import org.jevis.commons.constants.NoteConstants;
+import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.PeriodHelper;
@@ -76,47 +78,60 @@ public class AlarmProcess {
                 logger.error("Could not get list of all Clean Data Objects.");
             }
 
-            List<Alarm> activeAlarms = new ArrayList<>();
-            try {
-                activeAlarms = getActiveAlarms(allCleanDataObjects);
-
-            } catch (JEVisException e) {
-                logger.error("Could not get list of all active alarms.");
-            }
-
-            AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
-
-            boolean sentAlarm = sendAlarm(alarmTable);
-
-            if (sentAlarm) logger.info("Sent notification.");
-            else logger.info("Did not send notification.");
-
-            if (start != null && end != null && end.isAfter(start)) {
-                try {
-
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("<html>");
-                    sb.append("<br>");
-                    sb.append("<br>");
-                    sb.append(alarmTable.getTableString());
-                    sb.append("<br>");
-                    sb.append("<br>");
-                    sb.append(alarmTable.getAlarmTable());
-                    sb.append("<br>");
-                    sb.append("<br>");
-                    sb.append("</html>");
-
-                    JEVisSample logSample = alarmConfiguration.getLogAttribute().buildSample(DateTime.now(), sb.toString());
-                    logSample.commit();
-                } catch (JEVisException e) {
-                    logger.error("Could not build sample with new time stamp.");
+            boolean hasData = true;
+            for (JEVisObject obj : allCleanDataObjects) {
+                CleanDataObject cleanDataObject = new CleanDataObject(obj, new ObjectHandler(ds));
+                DateTime lastTS = cleanDataObject.getFirstDate();
+                if (!lastTS.isAfter(end)) {
+                    hasData = false;
                 }
             }
 
-            try {
-                finish();
-            } catch (Exception e) {
-                logger.error("Could not set new start record.");
+            if (hasData) {
+                List<Alarm> activeAlarms = new ArrayList<>();
+                try {
+                    activeAlarms = getActiveAlarms(allCleanDataObjects);
+
+                } catch (JEVisException e) {
+                    logger.error("Could not get list of all active alarms.");
+                }
+
+                AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
+
+                boolean sentAlarm = sendAlarm(alarmTable);
+
+                if (sentAlarm) logger.info("Sent notification.");
+                else logger.info("Did not send notification.");
+
+                if (start != null && end != null && end.isAfter(start)) {
+                    try {
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("<html>");
+                        sb.append("<br>");
+                        sb.append("<br>");
+                        sb.append(alarmTable.getTableString());
+                        sb.append("<br>");
+                        sb.append("<br>");
+                        sb.append(alarmTable.getAlarmTable());
+                        sb.append("<br>");
+                        sb.append("<br>");
+                        sb.append("</html>");
+
+                        JEVisSample logSample = alarmConfiguration.getLogAttribute().buildSample(DateTime.now(), sb.toString());
+                        logSample.commit();
+                    } catch (JEVisException e) {
+                        logger.error("Could not build sample with new time stamp.");
+                    }
+                }
+
+                try {
+                    finish();
+                } catch (Exception e) {
+                    logger.error("Could not set new start record.");
+                }
+            } else {
+                logger.warn("No new Data.");
             }
         }
     }
@@ -218,9 +233,8 @@ public class AlarmProcess {
 
             JEVisAttribute valueAtt = cleanData.getAttribute(VALUE_ATTRIBUTE);
 
-            JEVisAttribute alarmLogAttribute = cleanData.getAttribute(ALARM_LOG_ATTRIBUTE);
-
             List<JEVisSample> valueSamples = valueAtt.getSamples(start, end);
+
             for (JEVisSample sample : valueSamples) {
                 String note = sample.getNote();
 
@@ -329,8 +343,6 @@ public class AlarmProcess {
                         }
                     }
                 }
-                alarmLogAttribute.addSamples(alarmLogs);
-
             }
         }
 
