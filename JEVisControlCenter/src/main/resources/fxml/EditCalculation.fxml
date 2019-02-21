@@ -119,7 +119,7 @@
                                                 GridPane.rowIndex="3"/>
                                         <Button fx:id="buttonMin" alignment="CENTER" contentDisplay="CENTER"
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
-                                                onAction="#onMin" text="min" GridPane.columnIndex="7"
+                                                onAction="#onMin" text="limitData" GridPane.columnIndex="7"
                                                 GridPane.rowIndex="4"/>
                                         <Button fx:id="buttonCeil" alignment="CENTER" contentDisplay="CENTER"
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
@@ -131,7 +131,7 @@
                                                 GridPane.rowIndex="3"/>
                                         <Button fx:id="buttonMax" alignment="CENTER" contentDisplay="CENTER"
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"
-                                                onAction="#onMax" text="max" GridPane.columnIndex="8"
+                                                onAction="#onMax" text="operator" GridPane.columnIndex="8"
                                                 GridPane.rowIndex="4"/>
                                         <Button fx:id="buttonRound" alignment="CENTER" contentDisplay="CENTER"
                                                 focusTraversable="false" minWidth="60.0" mnemonicParsing="false"

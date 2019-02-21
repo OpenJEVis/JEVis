@@ -92,7 +92,7 @@ public class SCADASelectionDialog {
     }
 
     public void allowMultySelect(boolean allowMulty) {
-        stp.setAllowMultySelection(allowMulty);
+        stp.setAllowMultiSelection(allowMulty);
     }
 
     private VBox build(JEVisDataSource ds, String title, List<UserSelection> uselection) {

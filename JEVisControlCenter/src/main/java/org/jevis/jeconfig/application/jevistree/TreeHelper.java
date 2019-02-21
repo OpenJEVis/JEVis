@@ -28,6 +28,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.DirectoryChooser;
@@ -45,6 +46,7 @@ import org.jevis.jeconfig.application.tools.CalculationNameFormater;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.io.File;
 import java.io.IOException;
@@ -437,8 +439,18 @@ public class TreeHelper {
                             name += " " + (i + 1);
                         }
 
-                        JEVisObject newObject = parent.buildObject(name, dia.getCreateClass());
+                        JEVisClass createClass = dia.getCreateClass();
+                        JEVisObject newObject = parent.buildObject(name, createClass);
                         newObject.commit();
+
+                        JEVisClass dataClass = newObject.getDataSource().getJEVisClass("Data");
+                        JEVisClass cleanDataClass = newObject.getDataSource().getJEVisClass("Clean Data");
+                        if (createClass.equals(dataClass) || createClass.equals(cleanDataClass)) {
+                            JEVisAttribute valueAttribute = newObject.getAttribute("Value");
+                            valueAttribute.setInputSampleRate(Period.minutes(15));
+                            valueAttribute.setDisplaySampleRate(Period.minutes(15));
+                            valueAttribute.commit();
+                        }
 
                     } catch (JEVisException ex) {
                         logger.catching(ex);
@@ -462,13 +474,12 @@ public class TreeHelper {
     public static void EventExportTree(JEVisObject obj) throws JEVisException {
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
         allFilter.add(SelectTargetDialog.buildAllDataFilter());
-        SelectTargetDialog dia = new SelectTargetDialog(allFilter, null);
-        dia.allowMultySelect(true);
-        List<UserSelection> userSeclection = new ArrayList<>();
-        userSeclection.add(new UserSelection(UserSelection.SelectionType.Object, obj));
+        SelectTargetDialog dia = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
+        List<UserSelection> userSelection = new ArrayList<>();
+        userSelection.add(new UserSelection(UserSelection.SelectionType.Object, obj));
 
 
-        SelectTargetDialog.Response response = dia.show(obj.getDataSource(), "Export", userSeclection);
+        SelectTargetDialog.Response response = dia.show(obj.getDataSource(), "Export", userSelection);
 
         if (response == SelectTargetDialog.Response.OK) {
             List<JEVisObject> objects = new ArrayList<>();
@@ -504,34 +515,48 @@ public class TreeHelper {
     public static void createCalcInput(JEVisObject calcObject, JEVisAttribute currentTarget) throws JEVisException {
         logger.info("Event Create new Input");
 
-        JEVisAttribute newTaget = TreeHelper.updateCalcTarget(calcObject.getDataSource(), currentTarget);
-        if (newTaget != null) {
-            String inputName = CalculationNameFormater.createVariableName(newTaget);
+        List<JEVisTreeFilter> allFilter = new ArrayList<>();
+        JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataFilter();
+        JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
+        allFilter.add(allDataFilter);
+        allFilter.add(allAttributesFilter);
 
-            JEVisClass inputClass = calcObject.getDataSource().getJEVisClass("Input");
-            JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
-            newInputObj.commit();
+        SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, null, SelectionMode.MULTIPLE);
+        if (selectTargetDialog.show(
+                calcObject.getDataSource(),
+                I18n.getInstance().getString("dialog.target.data.title"),
+                null
+        ) == SelectTargetDialog.Response.OK) {
+            if (selectTargetDialog.getUserSelection() != null && !selectTargetDialog.getUserSelection().isEmpty()) {
+                for (UserSelection us : selectTargetDialog.getUserSelection()) {
 
-            DateTime now = new DateTime();
-            JEVisAttribute aIdentifier = newInputObj.getAttribute("Identifier");
-            JEVisSample newSample = aIdentifier.buildSample(now, inputName);
-            newSample.commit();
+                    String inputName = CalculationNameFormater.createVariableName(us.getSelectedObject());
 
-            JEVisAttribute aInputData = newInputObj.getAttribute("Input Data");
-            JEVisAttribute inputDataTypeAtt = newInputObj.getAttribute("Input Data Type");
+                    JEVisClass inputClass = calcObject.getDataSource().getJEVisClass("Input");
+                    JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
+                    newInputObj.commit();
 
-            TargetHelper th = new TargetHelper(aInputData.getDataSource(), newTaget.getObject(), newTaget);
-            if (th.isValid() && th.targetAccessable()) {
-                logger.info("Target Is valid");
-                JEVisSample newTarget = aInputData.buildSample(now, th.getSourceString());
-                newTarget.commit();
-                JEVisSample periodicInputData = inputDataTypeAtt.buildSample(new DateTime(), "PERIODIC");
-                periodicInputData.commit();
-            } else {
-                logger.info("Target is not valid");
+                    DateTime now = new DateTime();
+                    JEVisAttribute aIdentifier = newInputObj.getAttribute("Identifier");
+                    JEVisSample newSample = aIdentifier.buildSample(now, inputName);
+                    newSample.commit();
+
+                    JEVisAttribute aInputData = newInputObj.getAttribute("Input Data");
+                    JEVisAttribute inputDataTypeAtt = newInputObj.getAttribute("Input Data Type");
+
+                    TargetHelper th = new TargetHelper(aInputData.getDataSource(), us.getSelectedObject(), us.getSelectedAttribute());
+                    if (th.isValid() && th.targetAccessible()) {
+                        logger.info("Target Is valid");
+                        JEVisSample newTarget = aInputData.buildSample(now, th.getSourceString());
+                        newTarget.commit();
+                        JEVisSample periodicInputData = inputDataTypeAtt.buildSample(new DateTime(), "PERIODIC");
+                        periodicInputData.commit();
+                    } else {
+                        logger.info("Target is not valid");
+                    }
+                }
             }
         }
-
     }
 
     /**
@@ -542,113 +567,6 @@ public class TreeHelper {
     public static void EventNew(final JEVisTree tree) {
         final TreeItem<JEVisTreeRow> parent = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem());
         EventNew(tree, parent.getValue().getJEVisObject());
-    }
-
-
-    public static JEVisAttribute updateTarget(JEVisDataSource ds, JEVisAttribute currentTarget, List<JEVisTreeFilter> allFilter) {
-        JEVisAttribute targetAttribute = null;
-        try {
-
-
-            List<UserSelection> openList = new ArrayList<>();
-
-            TargetHelper th = new TargetHelper(ds, currentTarget);
-            if (currentTarget != null && th.isValid()) {
-                if (th.getAttribute() != null) {
-                    openList.add(new UserSelection(UserSelection.SelectionType.Attribute, th.getAttribute(), null, null));
-                } else {
-                    openList.add(new UserSelection(UserSelection.SelectionType.Object, th.getObject()));
-                }
-            }
-            SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
-
-
-            if (selectionDialog.show(
-                    ds,
-                    I18n.getInstance().getString("dialog.target.data.title"),
-                    openList
-            ) == SelectTargetDialog.Response.OK) {
-                logger.trace("Selection Done");
-                for (UserSelection us : selectionDialog.getUserSelection()) {
-                    logger.error("us: {}", us.getSelectedObject());
-
-                    JEVisAttribute newTarget = null;
-                    if (us.getSelectedAttribute() != null) {
-                        return us.getSelectedAttribute();
-                    } else {
-                        return us.getSelectedObject().getAttribute("Value");
-                    }
-
-                    /** TODO: maybe do some checks **/
-
-                }
-
-            }
-        } catch (Exception ex) {
-            logger.catching(ex);
-        }
-        return targetAttribute;
-    }
-
-    /**
-     * @param ds
-     * @param currentTarget attribute which holds the current target. updates if exists or create new if not
-     * @return
-     */
-    public static JEVisAttribute updateCalcTarget(JEVisDataSource ds, JEVisAttribute currentTarget) {
-        JEVisAttribute targetAttribute = null;
-        try {
-
-
-            List<UserSelection> openList = new ArrayList<>();
-            List<JEVisTreeFilter> allFilter = new ArrayList<>();
-
-            TargetHelper th = new TargetHelper(ds, currentTarget);
-            if (currentTarget != null && th.isValid()) {
-                if (th.getAttribute() != null) {
-                    openList.add(new UserSelection(UserSelection.SelectionType.Attribute, th.getAttribute(), null, null));
-                    allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
-                    allFilter.add(SelectTargetDialog.buildAllDataFilter());
-                } else {
-                    openList.add(new UserSelection(UserSelection.SelectionType.Object, th.getObject()));
-                    allFilter.add(SelectTargetDialog.buildAllDataFilter());
-                    allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
-                }
-
-            } else {
-                allFilter.add(SelectTargetDialog.buildAllDataFilter());
-                allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
-            }
-
-
-            SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
-
-
-            if (selectionDialog.show(
-                    ds,
-                    I18n.getInstance().getString("dialog.target.data.title"),
-                    openList
-            ) == SelectTargetDialog.Response.OK) {
-                logger.trace("Selection Done");
-                for (UserSelection us : selectionDialog.getUserSelection()) {
-                    logger.error("us: {}", us.getSelectedObject());
-
-                    JEVisAttribute newTarget = null;
-                    if (us.getSelectedAttribute() != null) {
-                        return us.getSelectedAttribute();
-                    } else {
-                        return us.getSelectedObject().getAttribute("Value");
-                    }
-
-                    /** TODO: maybe do some checks **/
-
-                }
-
-            }
-        } catch (Exception ex) {
-            logger.catching(ex);
-        }
-        return targetAttribute;
     }
 
 }

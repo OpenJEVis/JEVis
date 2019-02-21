@@ -264,9 +264,9 @@ public class LimitEditor implements AttributeEditor {
                     if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
+                            commit();
                             logger.info("Commit: " + _newSample.getValueAsString());
                             _changed.setValue(true);
-//                            commit();
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }
@@ -404,7 +404,7 @@ public class LimitEditor implements AttributeEditor {
 
 
         /**
-         * Create layout based on JsonGapFillingConfig type
+         * Create layout based on JsonLimitsConfig type
          */
         int row = 0;
 //        gridPane.add(name, 0, row);
@@ -432,9 +432,9 @@ public class LimitEditor implements AttributeEditor {
 //            row++;
 //            gridPane.add(defaultMaxLabel, 0, row);
 //            gridPane.add(defaultMaxField, 1, row, 2, 1);
-//        } else if (config.getTypeOfSubstituteValue().equals(GapFillingType.INTERPOLATION)
-//                || config.getTypeOfSubstituteValue().equals(GapFillingType.AVERAGE)
-//                || config.getTypeOfSubstituteValue().equals(GapFillingType.MEDIAN)) {
+//        } else if (config.getStandbyTime().equals(GapFillingType.INTERPOLATION)
+//                || config.getStandbyTime().equals(GapFillingType.AVERAGE)
+//                || config.getStandbyTime().equals(GapFillingType.MEDIAN)) {
 //            row++;
 //            gridPane.add(referencePeriodLabel, 0, row);
 //            gridPane.add(referencePeriodBox, 1, row, 2, 1);

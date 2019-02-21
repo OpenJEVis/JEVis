@@ -48,7 +48,7 @@ import static org.jevis.commons.dataprocessing.ManipulationMode.RUNNING_MEAN;
 public class XYChart implements Chart {
     private static final Logger logger = LogManager.getLogger(XYChart.class);
     Boolean hideShowIcons;
-    ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
+    //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
@@ -56,12 +56,12 @@ public class XYChart implements Chart {
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
     Axis dateAxis = new DateValueAxis();
+    List<ChartDataModel> chartDataModels;
+    MultiAxisChart chart;
     private String chartName;
     private List<String> unitY1 = new ArrayList<>();
     private List<String> unitY2 = new ArrayList<>();
-    List<ChartDataModel> chartDataModels;
     private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    private MultiAxisChart chart;
     private Number valueForDisplay;
     private Region areaChartRegion;
     private Period period;
@@ -80,6 +80,7 @@ public class XYChart implements Chart {
     }
 
     private void init() {
+        initializeChart();
 
         changedBoth = new Boolean[]{false, false};
 
@@ -89,7 +90,6 @@ public class XYChart implements Chart {
         chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
-
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
 
                 } catch (JEVisException e) {
@@ -108,8 +108,6 @@ public class XYChart implements Chart {
 
         generateYAxis();
 
-        finalizeChart();
-
         getChart().setStyle("-fx-font-size: " + 12 + "px;");
         getChart().setAnimated(false);
         applyColors();
@@ -122,15 +120,15 @@ public class XYChart implements Chart {
         initializeZoom();
     }
 
-    public void finalizeChart() {
-        setChart(new MultiAxisAreaChart(dateAxis, y1Axis, y2Axis, series));
+    public void initializeChart() {
+        setChart(new MultiAxisAreaChart(dateAxis, y1Axis, y2Axis));
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
         XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
         hexColors.add(singleRow.getColor());
-        series.add(serie.getSerie());
+        chart.getData().add(serie.getSerie());
         tableData.add(serie.getTableEntry());
 
         /**
@@ -172,7 +170,7 @@ public class XYChart implements Chart {
             XYChartSerie serie2 = new XYChartSerie(singleRow, hideShowIcons);
 
             hexColors.add(singleRow.getColor().darker());
-            series.add(serie2.getSerie());
+            chart.getData().add(serie2.getSerie());
             tableData.add(serie2.getTableEntry());
 
             singleRow.setManipulationMode(oldMode);
@@ -190,17 +188,21 @@ public class XYChart implements Chart {
         y2Axis.setAutoRanging(true);
 
         for (ChartDataModel singleRow : chartDataModels) {
-            String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
-            if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
-                currentUnit = singleRow.getUnit().getLabel();
-            if (singleRow.getAxis() == 0) {
-                if (!unitY1.contains(currentUnit)) {
-                    unitY1.add(currentUnit);
+            if (singleRow.getUnit() != null) {
+                String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
+                if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
+                    currentUnit = singleRow.getUnit().getLabel();
+                if (singleRow.getAxis() == 0) {
+                    if (!unitY1.contains(currentUnit)) {
+                        unitY1.add(currentUnit);
+                    }
+                } else if (singleRow.getAxis() == 1) {
+                    if (!unitY2.contains(currentUnit)) {
+                        unitY2.add(currentUnit);
+                    }
                 }
-            } else if (singleRow.getAxis() == 1) {
-                if (!unitY2.contains(currentUnit)) {
-                    unitY2.add(currentUnit);
-                }
+            } else {
+                logger.warn("Row has no unit");
             }
         }
 
@@ -342,7 +344,7 @@ public class XYChart implements Chart {
                      */
 
                     xyChartSerieList.subList(chartDataModelsSize, xyChartSerieListSize).clear();
-                    series.subList(chartDataModelsSize, xyChartSerieListSize).clear();
+                    chart.getData().subList(chartDataModelsSize, xyChartSerieListSize).clear();
                     hexColors.subList(chartDataModelsSize, xyChartSerieListSize).clear();
                     tableData.subList(chartDataModelsSize, xyChartSerieListSize).clear();
 
@@ -366,13 +368,12 @@ public class XYChart implements Chart {
                 }
             }
 
-            series.forEach(serie -> {
-                serie.getData().forEach(numberNumberData -> {
-                    if (numberNumberData.getNode() != null)
-                        if (numberNumberData.getNode().getClass().equals(HBox.class))
-                            numberNumberData.getNode().setVisible(hideShowIcons);
-                });
-            });
+            chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
+                if (((MultiAxisChart.Data) numberNumberData).getNode() != null)
+                    if (((MultiAxisChart.Data) numberNumberData).getNode().getClass().equals(HBox.class)) {
+                        ((MultiAxisChart.Data) numberNumberData).getNode().setVisible(hideShowIcons);
+                    }
+            }));
 
             applyColors();
 
@@ -380,6 +381,7 @@ public class XYChart implements Chart {
             generateYAxis();
 
             getChart().setTitle(getUpdatedChartName());
+            getChart().layout();
         }
 
     }
@@ -644,4 +646,5 @@ public class XYChart implements Chart {
         if (!hasY2Axis) y2Axis.setVisible(false);
         else y2Axis.setVisible(true);
     }
+
 }

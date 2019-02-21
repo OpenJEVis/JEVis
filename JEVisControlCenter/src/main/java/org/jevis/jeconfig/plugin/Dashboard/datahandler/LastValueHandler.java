@@ -48,7 +48,7 @@ public class LastValueHandler extends SampleHandler {
 
     @Override
     public void update() {
-        System.out.println("LastValueHandler.update() ");
+        System.out.println("LastValueHandler.update() " + durationProperty.getValue());
         attributeMap.forEach((s, jeVisAttribute) -> {
             System.out.println("Update -> " + s);
             getDataSource().reloadAttribute(jeVisAttribute);
@@ -100,7 +100,7 @@ public class LastValueHandler extends SampleHandler {
         JEVisTree tree = JEVisTreeFactory.buildBasicDefault(getDataSource());
         tree.getPlugins().add(simpleTargetPlugin);
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        simpleTargetPlugin.setAllowMultySelection(enableMultiSelect.getValue());
+        simpleTargetPlugin.setAllowMultiSelection(enableMultiSelect.getValue());
         simpleTargetPlugin.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
 
         ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
@@ -110,7 +110,7 @@ public class LastValueHandler extends SampleHandler {
         SearchFilterBar searchBar = new SearchFilterBar(tree, filterTypes, finder);
 
         enableMultiSelect.addListener((observable, oldValue, newValue) -> {
-            simpleTargetPlugin.setAllowMultySelection(newValue);
+            simpleTargetPlugin.setAllowMultiSelection(newValue);
 
         });
 

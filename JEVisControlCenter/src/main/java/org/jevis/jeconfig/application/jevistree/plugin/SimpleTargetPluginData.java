@@ -5,7 +5,6 @@
  */
 package org.jevis.jeconfig.application.jevistree.plugin;
 
-import javafx.scene.control.CheckBox;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
@@ -19,22 +18,17 @@ public class SimpleTargetPluginData {
 
     private JEVisObject obj;
     private JEVisAttribute _att;
-    private CheckBox box;
+
     private JEVisTreeRow row;
     private boolean selected = false;
     private String uuid = "";
 
+    public SimpleTargetPluginData() {
+    }
+
     public SimpleTargetPluginData(JEVisTreeRow row) {
         this.row = row;
         uuid = getObj().getID() + "--" + DateTime.now().toString();
-    }
-
-    public CheckBox getBox() {
-        if (box == null) {
-            box = new CheckBox();
-        }
-//        box.setSelected(selected);
-        return box;
     }
 
     public JEVisTreeRow getRow() {
@@ -68,10 +62,6 @@ public class SimpleTargetPluginData {
 
     public void setAtt(JEVisAttribute _att) {
         this._att = _att;
-    }
-
-    public void setBox(CheckBox box) {
-        this.box = box;
     }
 
     @Override

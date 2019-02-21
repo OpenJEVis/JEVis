@@ -113,7 +113,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
     public void update() {
         Platform.runLater(() -> {
             if (_dataChanged) {
-                buildGui(_att, _samples);
+                if (_samples != null && !_samples.isEmpty()) buildGui(_att, _samples);
                 _dataChanged = false;
             }
         });

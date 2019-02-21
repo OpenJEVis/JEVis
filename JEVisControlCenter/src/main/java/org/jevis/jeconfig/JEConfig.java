@@ -25,7 +25,6 @@ import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -34,8 +33,6 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
@@ -53,7 +50,6 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
-import org.jevis.jeconfig.plugin.Dashboard.DashBoardPane;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
@@ -86,7 +82,7 @@ public class JEConfig extends Application {
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
-    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.6.3");
+    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.6.8");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
@@ -263,41 +259,6 @@ public class JEConfig extends Application {
         JEConfig.PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
-
-    }
-
-    private void initGUI2(Stage primaryStage) {
-
-
-//        DashboardGrid dashboardGrid = new DashboardGrid();
-//        DashPane3 dashboardGrid = new DashPane3();
-//        DashStackPane dashboardGrid = new DashStackPane();
-        DashBoardPane dashBoardPane = new DashBoardPane();
-
-        Label label = new Label("test");
-        BorderPane test = new BorderPane();
-        test.setCenter(label);
-        test.setStyle("-fx-background-color : #ffaadd;");
-
-        Rectangle rectangle = new Rectangle();
-        rectangle.setWidth(100);
-        rectangle.setHeight(50);
-        rectangle.setFill(Color.DARKSALMON);
-        rectangle.setStroke(Color.BLACK);
-        rectangle.setStrokeWidth(1);
-
-//        dashBoardPane.addNode(rectangle, 5, 5, 2, 1);
-//        DraggableNode draggableNode = new DraggableNode(rectangle);
-//
-//        dashboardGrid.addNode(draggableNode.getNode(), 5, 5, 2, 1);
-//
-        BorderPane root = new BorderPane(dashBoardPane);
-        Scene scene = new Scene(root, 800, 600);
-
-        primaryStage.setMaximized(true);
-        primaryStage.setTitle("Chart test");
-        primaryStage.setScene(scene);
-        primaryStage.show();
 
     }
 

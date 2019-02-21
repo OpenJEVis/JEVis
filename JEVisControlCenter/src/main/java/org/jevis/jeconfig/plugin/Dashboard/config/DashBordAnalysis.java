@@ -1,28 +1,47 @@
 package org.jevis.jeconfig.plugin.Dashboard.config;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisFile;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.jevis.jeconfig.plugin.Dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.ISOPeriodFormat;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.*;
 
 /**
  * Configuration for an BashBoard Analysis
  */
 public class DashBordAnalysis {
+    private static final Logger logger = LogManager.getLogger(DashBordAnalysis.class);
+
 
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
-
     public final BooleanProperty updateIsRunningProperty = new SimpleBooleanProperty(Boolean.class, "run Updater", false);
     /**
      * Update rage in seconds
@@ -84,11 +103,10 @@ public class DashBordAnalysis {
      * Show the snap to grid lines
      */
     public final BooleanProperty showGridProperty = new SimpleBooleanProperty(Boolean.class, "Show Grid", true);
-
-
     public final ObjectProperty<Period> dataPeriodProperty = new SimpleObjectProperty(Period.class, "Data Period", Period.days(2));
-
     private final List<ChangeListener> changeListeners = new ArrayList<>();
+    private JEVisObject analysisObject;
+
     /**
      * Lower and upper Zoom limit
      */
@@ -128,7 +146,149 @@ public class DashBordAnalysis {
         }
     };
 
+
     public DashBordAnalysis() {
+    }
+
+    public DashBordAnalysis(JEVisObject analysisObject) {
+        this.analysisObject = analysisObject;
+
+        load();
+    }
+
+    private void load() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            String json = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample().getValueAsString();
+
+            JsonNode jsonNode = mapper.readTree(json);
+
+            try {
+                colorDashBoardBackground.setValue(Color.valueOf(jsonNode.get(colorDashBoardBackground.getName()).asText(colorDashBoardBackground.toString())));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", colorDashBoardBackground.getName(), ex);
+            }
+            try {
+                xGridInterval.setValue(jsonNode.get(xGridInterval.getName()).asDouble(xGridInterval.doubleValue()));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", xGridInterval.getName(), ex);
+            }
+            try {
+                yGridInterval.setValue(jsonNode.get(yGridInterval.getName()).asDouble(yGridInterval.doubleValue()));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", yGridInterval.getName(), ex);
+            }
+            try {
+                zoomFactor.setValue(jsonNode.get(zoomFactor.getName()).asDouble(zoomFactor.doubleValue()));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", zoomFactor.getName(), ex);
+            }
+            try {
+                updateRate.setValue(jsonNode.get(updateRate.getName()).asInt(updateRate.intValue()));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", updateRate.getName(), ex);
+            }
+            try {
+                snapToGridProperty.setValue(jsonNode.get(snapToGridProperty.getName()).asBoolean(snapToGridProperty.getValue()));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", snapToGridProperty.getName(), ex);
+            }
+            try {
+                showGridProperty.setValue(jsonNode.get(showGridProperty.getName()).asBoolean(showGridProperty.getValue()));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", showGridProperty.getName(), ex);
+            }
+            try {
+                dataPeriodProperty.setValue(ISOPeriodFormat.standard().parsePeriod(jsonNode.get(dataPeriodProperty.getName()).asText(dataPeriodProperty.toString())));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", dataPeriodProperty.getName(), ex);
+            }
+
+            try {
+                JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
+                if (bgFile != null && bgFile.hasSample()) {
+                    JEVisSample backgroundImage = bgFile.getLatestSample();
+                    JEVisFile imageFile = backgroundImage.getValueAsFile();
+                    InputStream in = new ByteArrayInputStream(imageFile.getBytes());
+//                    BufferedImage image = ImageIO.read(in);
+                    imageBoardBackground.setValue(new Image(in));
+                    logger.info("Done loading image");
+                } else {
+                    logger.info("No image set");
+                }
+
+
+            } catch (Exception ex) {
+                logger.error("Could load background image: {}", ex);
+            }
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    public JEVisObject getAnalysisObject() {
+        return analysisObject;
+    }
+
+
+    public boolean isNew() {
+        return true;
+    }
+
+    public void save() {
+        save(analysisObject);
+    }
+
+    public void save(JEVisObject analysisObject) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode jsonNode = mapper.createObjectNode();
+        jsonNode.put(colorDashBoardBackground.getName(), colorDashBoardBackground.getValue().toString());
+        jsonNode.put(xGridInterval.getName(), xGridInterval.getValue().toString());
+        jsonNode.put(yGridInterval.getName(), yGridInterval.getValue().toString());
+        jsonNode.put(snapToGridProperty.getName(), snapToGridProperty.getValue().toString());
+        jsonNode.put(showGridProperty.getName(), showGridProperty.getValue().toString());
+        jsonNode.put(dataPeriodProperty.getName(), dataPeriodProperty.getValue().toString());
+        jsonNode.put(zoomFactor.getName(), zoomFactor.getValue().toString());
+        jsonNode.put(updateRate.getName(), updateRate.getValue().toString());
+
+        System.out.println("New analisis");
+        try {
+            System.out.println("Save data Model: " + jsonNode.toString());
+            DateTime now = new DateTime().withMillis(0).withSecondOfMinute(0);
+            String userName = analysisObject.getDataSource().getCurrentUser().getAccountName();
+            JEVisSample dataModelSample = analysisObject.getAttribute("Data Model")
+                    .buildSample(now, jsonNode.toString(), userName);
+            dataModelSample.commit();
+
+
+            /** TODO: check if the image changed **/
+            if (imageBoardBackground.getValue() != null) {
+                System.out.println("Save Image");
+                BufferedImage bImage = SwingFXUtils.fromFXImage(this.imageBoardBackground.getValue(), null);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                javax.imageio.ImageIO.write(bImage, "png", bos);
+
+
+                byte[] data = bos.toByteArray();
+                JEVisFile jfile = new JEVisFileImp();
+                jfile.setBytes(data);
+                jfile.setFilename("bg.png");
+
+
+                JEVisSample backgroundImage = analysisObject.getAttribute("Background")
+                        .buildSample(now, jfile, userName);
+                backgroundImage.commit();
+            }
+            this.analysisObject = analysisObject;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
 
     }
 
@@ -202,11 +362,6 @@ public class DashBordAnalysis {
         }
 
         return false;
-
-    }
-
-    public void load() {
-
 
     }
 

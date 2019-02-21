@@ -35,6 +35,7 @@ public class PieChart implements Chart {
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region pieChartRegion;
     private Period period;
+    private boolean legendMode = false;
 
     public PieChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -54,7 +55,7 @@ public class PieChart implements Chart {
             period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
         }
 
-
+        hexColors.clear();
         chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 Double sumPiePiece = 0d;
@@ -62,7 +63,7 @@ public class PieChart implements Chart {
                     try {
                         sumPiePiece += sample.getValueAsDouble();
                     } catch (JEVisException e) {
-
+                        logger.error(e);
                     }
                 }
 
@@ -80,6 +81,8 @@ public class PieChart implements Chart {
         nf.setMaximumFractionDigits(2);
         for (Double d : listSumsPiePieces) whole += d;
         for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
+
+        series.clear();
         for (String name : listTableEntryNames) {
             String seriesName = name + " - " + nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
                     + " " + unit + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
@@ -89,13 +92,21 @@ public class PieChart implements Chart {
 
         }
 
-        pieChart = new javafx.scene.chart.PieChart(series);
+
+        if (pieChart == null)
+            pieChart = new javafx.scene.chart.PieChart(series);
+
         pieChart.applyCss();
 
         applyColors();
 
         pieChart.setTitle(chartName);
-        pieChart.setLegendVisible(false);
+
+        /**FS, workaround for the dashboard. if the legend mode is true nice the lables and show the legend. Graph is using it the other way around**/
+        pieChart.setLabelsVisible(!legendMode);
+        pieChart.setLegendVisible(legendMode);
+
+
     }
 
     @Override
@@ -130,7 +141,7 @@ public class PieChart implements Chart {
 
     @Override
     public void setTitle(String s) {
-
+        chartName = s;
     }
 
     @Override
@@ -192,6 +203,10 @@ public class PieChart implements Chart {
     @Override
     public void initializeZoom() {
 
+    }
+
+    public void setLegendMode(boolean enable) {
+        legendMode = enable;
     }
 
 }

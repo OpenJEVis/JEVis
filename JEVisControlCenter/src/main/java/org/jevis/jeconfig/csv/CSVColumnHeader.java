@@ -85,7 +85,7 @@ public class CSVColumnHeader {
     private String _groupingSeparator;
     private char _decimalSeparator;
 
-    private SimpleDateFormat _dateFormater = new SimpleDateFormat();
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat();
     private Meaning currentMeaning = Meaning.Ignore;
     private int coloumNr = -1;
 
@@ -130,7 +130,7 @@ public class CSVColumnHeader {
         return number;
     }
 
-    public void formteAllRows() {
+    public void formatAllRows() {
 //        _table.setScrollBottom();
 //        Platform.runLater(new Runnable() {
 //            @Override
@@ -288,7 +288,7 @@ public class CSVColumnHeader {
     }
 
     public SimpleDateFormat getDateFormater() {
-        return _dateFormater;
+        return dateFormatter;
     }
 
     /**
@@ -387,7 +387,7 @@ public class CSVColumnHeader {
 
         }
 
-        formteAllRows();
+        formatAllRows();
     }
 
     private void buildMeaningButton() {
@@ -504,7 +504,7 @@ public class CSVColumnHeader {
                     _decimalSeparator = '.';
                 }
                 symbols.setDecimalSeparator(_decimalSeparator);
-                formteAllRows();
+                formatAllRows();
 
             }
         });
@@ -552,12 +552,12 @@ public class CSVColumnHeader {
 
         final ComboBox<String> timeZone;
         ComboBox<String> timeLocale;
-        final TextField formate = new TextField();
+        final TextField format = new TextField();
         Label timeZoneL = new Label(I18n.getInstance().getString("csv.timezone"));
         Label targetL = new Label(I18n.getInstance().getString("csv.target"));
         Label vaueLocaleL = new Label(I18n.getInstance().getString("csv.locale"));
 
-        formate.setPromptText(I18n.getInstance().getString("csv.format.prompt"));
+        format.setPromptText(I18n.getInstance().getString("csv.format.prompt"));
 
         ObservableList<String> timeZoneOpt = FXCollections.observableArrayList();
         Set<String> allTimeZones = DateTimeZone.getAvailableIDs();
@@ -577,34 +577,33 @@ public class CSVColumnHeader {
         switch (mode) {
             case DateTime:
 
-                formate.setText(findDateTimePattern());
-                _dateFormater = new SimpleDateFormat(formate.getText());
-//                format.setText("yyyy-MM-dd HH:mm:ss");
-//                _dateFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                format.setText(findDateTimePattern());
+                dateFormatter = new SimpleDateFormat(format.getText());
                 break;
             case Date:
-                _dateFormater = new SimpleDateFormat("yyyy-MM-dd");
-                formate.setText("yyyy-MM-dd");
+                dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+                format.setText("yyyy-MM-dd");
                 break;
             case Time:
-                _dateFormater = new SimpleDateFormat("HH:mm:ss");
-                formate.setText("HH:mm:ss");
+                dateFormatter = new SimpleDateFormat("HH:mm:ss");
+                format.setText("HH:mm:ss");
                 break;
         }
 
-        formate.textProperty().addListener(new ChangeListener<String>() {
+
+        format.textProperty().addListener(new ChangeListener<String>() {
 
             @Override
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                _currentFormate = formate.getText();
-                _dateFormater = new SimpleDateFormat(_currentFormate);
-                formteAllRows();
+                _currentFormate = format.getText();
+                dateFormatter = new SimpleDateFormat(_currentFormate);
+                formatAllRows();
             }
         });
 
         HBox boxFormate = new HBox(5);
         ImageView help = JEConfig.getImage("1404161580_help_blue.png", 22, 22);
-        boxFormate.getChildren().setAll(formate, help);
+        boxFormate.getChildren().setAll(format, help);
 
         help.setStyle("-fx-background-color: \n"
                 + "        rgba(0,0,0,0.08);\n"
@@ -626,7 +625,7 @@ public class CSVColumnHeader {
 //        typeL.setPrefWidth(100);
         meaning.setPrefWidth(FIELD_WIDTH);
         timeZone.setPrefWidth(FIELD_WIDTH);
-        formate.setPrefWidth(FIELD_WIDTH);
+        format.setPrefWidth(FIELD_WIDTH);
 
         boxFormate.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
         meaning.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
@@ -692,7 +691,7 @@ public class CSVColumnHeader {
         }
 
 
-        //Best formates are first in list
+        //Best formats are first in list
         String[] pattern = {
                 "yyyy-MM-dd'T'HH:mm:ssZ",
                 "yyyy-MM-dd HH:mm:ss Z",
@@ -730,8 +729,8 @@ public class CSVColumnHeader {
                 allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
 
 
-                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null);
-                selectionDialog.allowMultySelect(false);
+                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
+
                 selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
                 if (selectionDialog.show(
                         _table.getDataSource(),
@@ -757,7 +756,7 @@ public class CSVColumnHeader {
                             if (us.getSelectedAttribute() != null && us.getSelectedAttribute().getInputUnit() != null) {
                                 unitButton.setText(us.getSelectedAttribute().getInputUnit().getLabel());
                             }
-                            formteAllRows();
+                            formatAllRows();
 
                         } catch (Exception ex) {
                             logger.catching(ex);

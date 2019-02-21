@@ -27,6 +27,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
@@ -39,11 +40,9 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.*;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
@@ -188,7 +187,7 @@ public class GraphPluginView implements Plugin {
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel);
 
         AnalysisTimeFrame atf = new AnalysisTimeFrame();
-        atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
+        atf.setTimeFrame(TimeFrame.CUSTOM);
 
         dataModel.setAnalysisTimeFrame(atf);
 
@@ -297,6 +296,8 @@ public class GraphPluginView implements Plugin {
 
     public void update() {
 
+        //border.setCenter(new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS));
+
         Double autoMinSize = null;
         double autoMinSizeNormal = 220;
         double autoMinSizeLogical = 50;
@@ -347,7 +348,7 @@ public class GraphPluginView implements Plugin {
                             int dataSizeOffset = 30;
                             /** Calculate maxsize based on the amount of Data **/
                             int dataSize = 0;
-                            if (cv.getFirstLogical()) dataSize = 3;
+                            if (cv.getFirstLogical()) dataSize = 4;
 
                             for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
                                 for (int i : chartDataModel.getSelectedcharts()) {
@@ -367,7 +368,7 @@ public class GraphPluginView implements Plugin {
                         }
                     }
                 } else {
-                    bp.setPrefHeight(autoMinSize + 60);
+                    bp.setPrefHeight(autoMinSize + 70);
                 }
 
                 cv.getLegend().maxWidthProperty().bind(bp.widthProperty());
@@ -405,7 +406,7 @@ public class GraphPluginView implements Plugin {
                         case AREA:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
-                                notActive.parallelStream().forEach(na -> {
+                                notActive.forEach(na -> {
                                     if (!na.getChartType().equals(ChartType.PIE)
                                             && !na.getChartType().equals(ChartType.BAR)
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {
@@ -417,7 +418,7 @@ public class GraphPluginView implements Plugin {
                         case LOGICAL:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
-                                notActive.parallelStream().forEach(na -> {
+                                notActive.forEach(na -> {
                                     if (!na.getChartType().equals(ChartType.PIE)
                                             && !na.getChartType().equals(ChartType.BAR)
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {
@@ -429,7 +430,7 @@ public class GraphPluginView implements Plugin {
                         case LINE:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
-                                notActive.parallelStream().forEach(na -> {
+                                notActive.forEach(na -> {
                                     if (!na.getChartType().equals(ChartType.PIE)
                                             && !na.getChartType().equals(ChartType.BAR)
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {
@@ -457,7 +458,7 @@ public class GraphPluginView implements Plugin {
                         case SCATTER:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
                                 cv.updateTablesSimultaneously(event, null);
-                                notActive.parallelStream().forEach(na -> {
+                                notActive.forEach(na -> {
                                     if (!na.getChartType().equals(ChartType.PIE)
                                             && !na.getChartType().equals(ChartType.BAR)
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {
@@ -492,9 +493,8 @@ public class GraphPluginView implements Plugin {
             /**
              * If auto size is on or if its only one chart scale the chart to maximize screen size
              */
-            boolean hasLogicChart = hasLogicalCharts();
 
-            if (!hasLogicChart) {
+            if (!hasLogicalCharts()) {
                 if (dataModel.getCharts().size() == 1 || dataModel.getAutoResize()) {
                     /**
                      * If all children take more space then the maximum available size
@@ -538,6 +538,7 @@ public class GraphPluginView implements Plugin {
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
             toolBarView.setBorderPane(border);
         }
+
     }
 
     private double calculationTotalPrefSize(Pane pane) {
@@ -555,7 +556,7 @@ public class GraphPluginView implements Plugin {
 
     private List<ChartView> getChartViews() {
 
-        if (charts.isEmpty() || hasLogicalCharts()) {
+        if (charts.isEmpty() || hasLogicalCharts() || dataModelHasLogicalCharts()) {
             charts.clear();
 
             dataModel.getCharts().forEach(chart -> {
@@ -573,14 +574,12 @@ public class GraphPluginView implements Plugin {
         } else {
             if (dataModel.getCharts().size() < charts.size()) {
 
-                boolean hasLogicalCharts = hasLogicalCharts();
-
-                if (!hasLogicalCharts && dataModel.getCharts().size() < charts.size()) {
+                if (!hasLogicalCharts() && dataModel.getCharts().size() < charts.size()) {
 
                     charts.subList(dataModel.getCharts().size(), charts.size()).clear();
                 }
 
-                if (hasLogicalCharts) {
+                if (hasLogicalCharts()) {
                     charts.removeAll(charts.stream().filter(chartView -> chartView.getChartType().equals(ChartType.LOGICAL)).collect(Collectors.toList()));
                     dataModel.getCharts().forEach(chart -> {
                         int chartID = chart.getId();
@@ -593,7 +592,9 @@ public class GraphPluginView implements Plugin {
                 } else {
                     charts.forEach(chart -> {
                         if (!chart.getChartType().equals(ChartType.LOGICAL)) {
-                            chart.setType(dataModel.getCharts().get(charts.indexOf(chart)).getChartType());
+                            int newChartIndex = charts.indexOf(chart);
+                            chart.setType(dataModel.getCharts().get(newChartIndex).getChartType());
+                            chart.setChartId(newChartIndex);
                             chart.updateChart();
                         }
                     });
@@ -634,6 +635,16 @@ public class GraphPluginView implements Plugin {
         return charts;
     }
 
+    private boolean dataModelHasLogicalCharts() {
+        boolean hasLogicalCharts = false;
+        for (ChartSettings chartSettings : dataModel.getCharts()) {
+            if (chartSettings.getChartType().equals(ChartType.LOGICAL)) {
+                hasLogicalCharts = true;
+            }
+        }
+        return hasLogicalCharts;
+    }
+
     private boolean hasLogicalCharts() {
         boolean hasLogicalCharts = false;
         for (ChartView chartView : charts) {
@@ -661,6 +672,8 @@ public class GraphPluginView implements Plugin {
 
         boolean firstChart = true;
         ObservableList<TableEntry> allEntries = null;
+        Double minValue = Double.MAX_VALUE;
+        Double maxValue = -Double.MAX_VALUE;
         for (ChartView chartView : subCharts) {
             if (firstChart) {
                 chartView.setFirstLogical(true);
@@ -671,6 +684,10 @@ public class GraphPluginView implements Plugin {
 
             chartView.drawAreaChart(chartID, chartView.getSingleRow(), type);
 
+            chartView.getSingleRow().calcMinAndMax();
+            minValue = Math.min(minValue, chartView.getSingleRow().getMinValue());
+            maxValue = Math.max(maxValue, chartView.getSingleRow().getMaxValue());
+
             if (firstChart) {
                 allEntries = chartView.getChart().getTableData();
             } else {
@@ -679,6 +696,15 @@ public class GraphPluginView implements Plugin {
             }
 
             firstChart = false;
+        }
+
+        if (!minValue.equals(Double.MAX_VALUE) && !maxValue.equals(-Double.MAX_VALUE)) {
+            for (ChartView chartView : subCharts) {
+                ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis().setAutoRanging(false);
+                ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis()).setLowerBound(minValue);
+                ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis()).setUpperBound(maxValue);
+                ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis().layout();
+            }
         }
 
         charts.addAll(subCharts);

@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.plugin.Dashboard.config;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -21,9 +24,10 @@ public class WidgetConfig {
 
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
 
+    public StringProperty uuid = new SimpleStringProperty(UUID.randomUUID().toString());
     public ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
     public ObjectProperty<Color> fontColorSecondary = new SimpleObjectProperty<>(Color.class, "Font Color Secondary", Color.DODGERBLUE);
-
+    public ObjectProperty<Size> minumimSize = new SimpleObjectProperty<>(Size.class, "Min Size", new Size(20, 20));
     public StringProperty title = new SimpleStringProperty("");
     public StringProperty unit = new SimpleStringProperty("");
     public ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.class, "Background Color", Color.web("#126597"));
@@ -131,6 +135,20 @@ public class WidgetConfig {
         return false;
     }
 
+    public void toJson() {
+        JsonFactory factory = new JsonFactory();
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode1 = mapper.createObjectNode();
+        objectNode1.put("id", uuid.getValue());
+        objectNode1.put("fontColor", fontColor.toString());
+        objectNode1.put("backgroundColor", backgroundColor.toString());
+        objectNode1.put("height", size.getValue().getHeight());
+        objectNode1.put("width", size.getValue().getWidth());
+
+
+        System.out.println("-- json --\n" + objectNode1.toString() + "\n--");
+
+    }
 
     public enum Position {
         DEFAULT_1(100, 100), DEFAULT_2(100, 200), DEFAULT_3(500, 100), DEFAULT_4(500, 200);

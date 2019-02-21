@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
+import javafx.scene.Node;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
@@ -12,6 +13,12 @@ public class XYScatterChartSerie extends XYChartSerie {
     }
 
     @Override
-    public void generateNode(JEVisSample sample, MultiAxisChart.Data<Number, Number> data) throws JEVisException {
+    public Node generateNode(JEVisSample sample) throws JEVisException {
+        return null;
+    }
+
+    @Override
+    public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
+
     }
 }

@@ -4,6 +4,10 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.Callback;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -16,99 +20,87 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 public class DashBoardToolbar extends ToolBar {
 
+    private final ComboBox<JEVisObject> listAnalysesComboBox = new ComboBox();
+    private final JEVisDataSource dataSource;
+    private final DashBordPlugIn dashBordPlugIn;
+    private double iconSize = 20;
 
-    public DashBoardToolbar() {
+    public DashBoardToolbar(JEVisDataSource dataSource, DashBordPlugIn dashBordPlugIn) {
+        this.dataSource = dataSource;
+        this.dashBordPlugIn = dashBordPlugIn;
+
+        listAnalysesComboBox.setPrefWidth(300);
+        listAnalysesComboBox.setMinWidth(300);
+
+        try {
+            JEVisClass sadaAnalyses = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+            List<JEVisObject> allAnalisis = dataSource.getObjects(sadaAnalyses, false);
+            System.out.println("Total analisis amount: " + allAnalisis.size());
+            listAnalysesComboBox.getItems().addAll(allAnalisis);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                final ListCell<JEVisObject> cell = new ListCell<JEVisObject>() {
+
+//                    {
+//                        super.setPrefWidth(300);
+//                    }
+
+                    @Override
+                    protected void updateItem(JEVisObject item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            setText(item.getName());
+                            setGraphic(null);
+                            Tooltip tt = new Tooltip();
+                            tt.setText("ID: " + item.getID());
+                            setTooltip(tt);
+                        }
+
+
+                    }
+                };
+
+                return cell;
+            }
+        };
+
+        listAnalysesComboBox.setCellFactory(cellFactory);
+        listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+        listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                System.out.println("select Analysis: " + newValue);
+                DashBordAnalysis analysis = new DashBordAnalysis(newValue);
+
+                dashBordPlugIn.loadAnalysis(analysis);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
 
-    public void updateToolbar(final DashBordPlugIn dashBordPlugIn, final DashBordAnalysis analyses) {
+    public void updateToolbar(final DashBordAnalysis analyses) {
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
-        ComboBox<JEVisObject> listAnalysesComboBox = new ComboBox();
-        listAnalysesComboBox.setPrefWidth(300);
 
-//        try {
-//            JEVisClass sadaAnalyses = ds.getJEVisClass(CLASS_SCADA_ANALYSIS);
-//            listAnalysesComboBox.getItems().addAll(ds.getObjects(sadaAnalyses, true));
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//
-//
-//        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-//            @Override
-//            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-//                final ListCell<JEVisObject> cell = new ListCell<JEVisObject>() {
-//
-////                    {
-////                        super.setPrefWidth(300);
-////                    }
-//
-//                    @Override
-//                    protected void updateItem(JEVisObject item, boolean empty) {
-//                        super.updateItem(item, empty);
-//                        if (item != null && !empty) {
-//                            setText(item.getName());
-//                            setGraphic(null);
-//                            Tooltip tt = new Tooltip();
-//                            tt.setText("ID: " + item.getID());
-//                            setTooltip(tt);
-//                        }
-//
-//
-//                    }
-//                };
-//
-//                return cell;
-//            }
-//        };
-//
-//        listAnalysesComboBox.setCellFactory(cellFactory);
-//        listAnalysesComboBox.setButtonCell(cellFactory.call(null));
-//
-//        ComboBox<SCADAAnalysis.BGMode> listBGType = new ComboBox();
-//        listBGType.setItems(FXCollections.observableArrayList(SCADAAnalysis.BGMode.values()));
-//
-//        Callback<ListView<SCADAAnalysis.BGMode>, ListCell<SCADAAnalysis.BGMode>> bgFactory = new Callback<ListView<SCADAAnalysis.BGMode>, ListCell<SCADAAnalysis.BGMode>>() {
-//            @Override
-//            public ListCell<SCADAAnalysis.BGMode> call(ListView<SCADAAnalysis.BGMode> param) {
-//                final ListCell<SCADAAnalysis.BGMode> cell = new ListCell<SCADAAnalysis.BGMode>() {
-//
-//                    protected void updateItem(SCADAAnalysis.BGMode item, boolean empty) {
-//                        super.updateItem(item, empty);
-//                        if (item != null && !empty) {
-//                            String localname = "";
-//                            switch (item) {
-//                                case STRETCH_HEIGHT:
-//                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_height");
-//                                    break;
-//                                case STRETCH_WIDTH:
-//                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_width");
-//                                    break;
-//                                case STRETCH_BOTH:
-//                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_both");
-//                                    break;
-//                                case ABSOLUTE:
-//                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_none");
-//                                    break;
-//                            }
-//                            setText(localname);
-//                            setGraphic(null);
-//                        }
-//                    }
-//                };
-//
-//                return cell;
-//            }
-//        };
-//        listBGType.setCellFactory(bgFactory);
-//        listBGType.setButtonCell(bgFactory.call(null));
+        try {
+            if (analyses != null) {
+//                listAnalysesComboBox.getSelectionModel().select(analyses.getAnalysisObject());
+            }
 
-        double iconSize = 20;
-
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(treeButton);
@@ -152,6 +144,34 @@ public class DashBoardToolbar extends ToolBar {
 
         });
 
+        save.setOnAction(event -> {
+
+            if (analyses.isNew()) {
+                NewAnalyseDialog newAnalyseDialog = new NewAnalyseDialog();
+                try {
+
+                    NewAnalyseDialog.Response response = newAnalyseDialog.show((Stage) this.getScene().getWindow(), dataSource);
+                    if (response == NewAnalyseDialog.Response.YES) {
+                        JEVisClass analisisDirClass = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS_DIR);
+                        List<JEVisObject> analisisDir = dataSource.getObjects(analisisDirClass, true);
+                        JEVisClass analisisClass = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+
+                        System.out.println("Createw under: " + newAnalyseDialog.getParent());
+
+                        JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
+                        newObject.commit();
+                        analyses.save(newObject);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                analyses.save();
+            }
+
+
+        });
+
         unlockB.onActionProperty().addListener((observable, oldValue, newValue) -> {
             analyses.editProperty.setValue(!analyses.editProperty.getValue());
         });
@@ -178,7 +198,7 @@ public class DashBoardToolbar extends ToolBar {
         ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
 
-        ToggleButton newAnalyses = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        ToggleButton newAnalyses = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newAnalyses);
 
         newAnalyses.setOnAction(event -> {
@@ -234,7 +254,7 @@ public class DashBoardToolbar extends ToolBar {
 
         getItems().clear();
         getItems().addAll(
-                analysisLabel, listAnalysesComboBox, newAnalyses, settingsButton, unlockB, backgroundButton, sep1,
+                analysisLabel, listAnalysesComboBox, newAnalyses, save, settingsButton, unlockB, backgroundButton, sep1,
                 zoomOut, zoomIn, sep2,
                 runUpdateButton);
 

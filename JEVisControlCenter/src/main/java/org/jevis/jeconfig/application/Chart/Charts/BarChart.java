@@ -1,11 +1,15 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -13,6 +17,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -24,7 +29,6 @@ import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
@@ -38,6 +42,7 @@ import org.joda.time.format.PeriodFormat;
 
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BarChart implements Chart {
@@ -49,11 +54,11 @@ public class BarChart implements Chart {
     private Boolean hideShowIcons;
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    private MultiAxisBarChart<String, Number> barChart;
+    private javafx.scene.chart.BarChart barChart;
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
-    private ObservableList<MultiAxisBarChart.Series<String, Number>> series = FXCollections.observableArrayList();
+    private ObservableList<XYChart.Series<Number, String>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
     private Number valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -93,20 +98,12 @@ public class BarChart implements Chart {
         if (chartDataModels != null && chartDataModels.size() > 0) {
             unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
             if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
-            if (chartDataModels.get(0).getSamples().size() > 1) {
-                try {
-                    period = new Period(chartDataModels.get(0).getSamples().get(0).getTimestamp(),
-                            chartDataModels.get(0).getSamples().get(1).getTimestamp());
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
         NumberAxis numberAxis = new NumberAxis();
         CategoryAxis catAxis = new CategoryAxis();
 
-        barChart = new MultiAxisBarChart(catAxis, numberAxis, null, series);
+        barChart = new javafx.scene.chart.BarChart(numberAxis, catAxis, series);
         barChart.applyCss();
 
         applyColors();
@@ -114,12 +111,40 @@ public class BarChart implements Chart {
         barChart.setTitle(chartName);
         barChart.setLegendVisible(false);
         barChart.getXAxis().setAutoRanging(true);
-        barChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
+        //barChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
         barChart.getXAxis().setTickLabelRotation(-90);
-        barChart.getY1Axis().setLabel(unit);
+        barChart.getXAxis().setLabel(unit);
 
-        initializeZoom();
+        //initializeZoom();
+        setTimer();
     }
+
+    private void setTimer() {
+        Service<Void> service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+
+                        try {
+                            TimeUnit.SECONDS.sleep(60);
+                            System.out.println("Reloading");
+                            Platform.runLater(BarChart.this::updateChart);
+                        } catch (InterruptedException e) {
+                            logger.error("Sleep interrupted: " + e);
+                        }
+                        succeeded();
+
+                        return null;
+                    }
+                };
+            }
+        };
+
+        service.start();
+    }
+
 
     @Override
     public ObservableList<TableEntry> getTableData() {
@@ -177,7 +202,52 @@ public class BarChart implements Chart {
 
     @Override
     public void updateChart() {
+        chartDataModels.forEach(singleRow -> {
+            JEVisAttribute att = singleRow.getAttribute();
+            if (att != null) {
+                try {
+                    att.getDataSource().reloadAttribute(att);
+                } catch (JEVisException e) {
+                    logger.error("Could not reload Attribute: " + att.getObject().getName() + ":" + att.getObject().getID() + ":" + att.getName());
+                }
+            }
+        });
 
+
+        manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
+
+        series.clear();
+        hexColors.clear();
+        tableData.clear();
+
+        chartDataModels.forEach(singleRow -> {
+            if (!singleRow.getSelectedcharts().isEmpty()) {
+                try {
+                    BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
+
+
+                    hexColors.add(singleRow.getColor());
+                    series.add(serie.getSerie());
+                    tableData.add(serie.getTableEntry());
+
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        if (chartDataModels != null && chartDataModels.size() > 0) {
+            unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
+            if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
+
+        }
+
+        barChart.applyCss();
+        applyColors();
+
+        barChart.setTitle(chartName);
+        barChart.getXAxis().setLabel(unit);
+        setTimer();
     }
 
     @Override

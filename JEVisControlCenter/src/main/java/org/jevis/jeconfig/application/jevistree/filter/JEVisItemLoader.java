@@ -110,7 +110,7 @@ public class JEVisItemLoader {
 
         objects.parallelStream().forEach(object -> {
             try {
-                logger.debug("Create item for object: {}", object.getName());
+//                logger.debug("Create item for object: {}", object.getName());
                 JEVisTreeItem item = new JEVisTreeItem(object);
                 registerEventHandler(object);
 //                treeObjectItems.add(item);

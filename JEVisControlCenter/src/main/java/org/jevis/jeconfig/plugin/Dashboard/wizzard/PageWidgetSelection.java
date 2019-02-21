@@ -6,9 +6,11 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.TilePane;
 import org.jevis.jeconfig.plugin.Dashboard.widget.*;
 
 import java.util.ArrayList;
@@ -35,8 +37,12 @@ public class PageWidgetSelection extends Page {
         widgetList.add(new NumberWidget(wizard.getDataSource()));
         widgetList.add(new StockWidget(wizard.getDataSource()));
         widgetList.add(new LabelWidget(wizard.getDataSource()));
+        widgetList.add(new ChartWidget(wizard.getDataSource()));
+        widgetList.add(new PieWidget(wizard.getDataSource()));
 
-        final FlowPane widgetListPane = new FlowPane(Orientation.HORIZONTAL, 20, 20);
+//        final FlowPane widgetListPane = new FlowPane(Orientation.HORIZONTAL, 20, 20);
+        final TilePane widgetListPane = new TilePane(Orientation.HORIZONTAL, 20, 20);
+        widgetListPane.setMaxWidth(Region.USE_COMPUTED_SIZE);
 
 //        widgetListPane.setStyle("-fx-background-color: blue;");
 //        widgetListPane.setPrefWrapLength(300);
@@ -55,11 +61,22 @@ public class PageWidgetSelection extends Page {
 
         });
 
-        AnchorPane.setTopAnchor(widgetListPane, 10.0);
-        AnchorPane.setBottomAnchor(widgetListPane, 10.0);
-        AnchorPane.setLeftAnchor(widgetListPane, 10.0);
-        AnchorPane.setRightAnchor(widgetListPane, 10.0);
-        return widgetListPane;
+
+        ScrollPane scrollPane = new ScrollPane(widgetListPane);
+        scrollPane.setStyle("-fx-background-color:transparent;");
+        scrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            widgetListPane.setMaxWidth(newValue.doubleValue() - 5);
+        });
+
+        AnchorPane.setTopAnchor(scrollPane, 10.0);
+        AnchorPane.setBottomAnchor(scrollPane, 10.0);
+        AnchorPane.setLeftAnchor(scrollPane, 10.0);
+        AnchorPane.setRightAnchor(scrollPane, 10.0);
+//        AnchorPane.setTopAnchor(widgetListPane, 10.0);
+//        AnchorPane.setBottomAnchor(widgetListPane, 10.0);
+//        AnchorPane.setLeftAnchor(widgetListPane, 10.0);
+//        AnchorPane.setRightAnchor(widgetListPane, 10.0);
+        return scrollPane;
 
     }
 

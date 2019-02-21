@@ -15,6 +15,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.tool.I18n;
@@ -39,13 +40,14 @@ public class GraphExportCSV {
     private DateTime minDate = null;
     private DateTime maxDate = null;
     private Boolean multiAnalyses = false;
-    private List<String> charts = new ArrayList<>();
+    private List<ChartSettings> charts = new ArrayList<>();
     final ObservableList<Locale> choices = FXCollections.observableArrayList(Locale.getAvailableLocales());
     private Locale selectedLocale;
     private NumberFormat numberFormat;
 
     public GraphExportCSV(JEVisDataSource ds, GraphDataModel model) {
         this.model = model;
+        this.charts = model.getCharts();
         this.ds = ds;
         this.setDates();
         AlphanumComparator ac = new AlphanumComparator();
@@ -107,21 +109,17 @@ public class GraphExportCSV {
         selectDecimalSeparators.getDialogPane().getButtonTypes().addAll(buttonOk, cancel);
 
         selectDecimalSeparators.showAndWait().ifPresent(response -> {
-            if (response.getButtonData().getTypeCode() == buttonOk.getButtonData().getTypeCode()) {
-                for (ChartDataModel mdl : model.getSelectedData()) {
-                    if (!mdl.getSelectedcharts().isEmpty()) {
-                        for (Integer i : mdl.getSelectedcharts()) {
-                            if (charts.isEmpty() || !charts.contains(model.getCharts().get(i).getName()))
-                                charts.add(model.getCharts().get(i).getName());
-                        }
-                    }
-                }
+            if (response.getButtonData().getTypeCode().equals(buttonOk.getButtonData().getTypeCode())) {
+
                 if (charts.size() > 1) {
-                    Collections.sort(charts, ac);
+                    charts.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
                     multiAnalyses = true;
                 }
 
-                String formattedName = model.getCurrentAnalysis().getName().replaceAll(" ", "_");
+                String formattedName = "";
+                if (model.getCurrentAnalysis() != null)
+                    formattedName = model.getCurrentAnalysis().getName().replaceAll(" ", "_");
+
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("CSV File Destination");
                 DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
@@ -179,19 +177,19 @@ public class GraphExportCSV {
     private String createCSVString(int lineCount) throws JEVisException {
         final StringBuilder sb = new StringBuilder();
 
-        String header = "Date";
+        StringBuilder header = new StringBuilder("Date");
         for (ChartDataModel mdl : model.getSelectedData()) {
             String objectName = mdl.getObject().getName();
             String dpName = "";
             if (mdl.getDataProcessor() != null) dpName = mdl.getDataProcessor().getName();
-            header += ";" + objectName;
-            if (mdl.getDataProcessor() != null) header += " (" + dpName + ")";
+            header.append(";").append(objectName);
+            if (mdl.getDataProcessor() != null) header.append(" (").append(dpName).append(")");
         }
         sb.append(header);
         sb.append(System.getProperty("line.separator"));
 
         List<String> dateColumn = new ArrayList<>();
-        Boolean firstSet = true;
+        boolean firstSet = true;
         for (ChartDataModel mdl : model.getSelectedData()) {
             if (firstSet) {
                 for (JEVisSample sample : mdl.getSamples()) {
@@ -207,12 +205,12 @@ public class GraphExportCSV {
         }
 
         for (int i = 0; i < dateColumn.size(); i++) {
-            String s = "";
-            s += dateColumn.get(i) + ";";
+            StringBuilder s = new StringBuilder();
+            s.append(dateColumn.get(i)).append(";");
 
             for (ChartDataModel mdl : model.getSelectedData()) {
                 String formattedValue = numberFormat.format(map.get(mdl.getObject().getName()).get(i).getValueAsDouble());
-                s += formattedValue + ";";
+                s.append(formattedValue).append(";");
             }
             sb.append(s);
             sb.append(System.getProperty("line.separator"));
@@ -224,28 +222,28 @@ public class GraphExportCSV {
     private String createCSVStringMulti(int lineCount) throws JEVisException {
         final StringBuilder sb = new StringBuilder();
 
-        for (String s : charts) {
-            String header = "Date";
+        for (ChartSettings cset : charts) {
+            StringBuilder header = new StringBuilder("Date");
             for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.getSelectedcharts().contains(s)) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
                     String objectName = mdl.getObject().getName();
                     String dpName = "";
                     if (mdl.getDataProcessor() != null) dpName = mdl.getDataProcessor().getName();
-                    header += ";" + objectName;
-                    if (mdl.getDataProcessor() != null) header += " (" + dpName + ")";
+                    header.append(";").append(objectName);
+                    if (mdl.getDataProcessor() != null) header.append(" (").append(dpName).append(")");
                 }
             }
-            header += ";";
+            header.append(";");
             sb.append(header);
         }
 
         sb.append(System.getProperty("line.separator"));
 
 
-        Long size = 0L;
+        long size = 0L;
 
         List<List<String>> listDateColumns = new ArrayList<>();
-        for (String s : charts) {
+        for (ChartSettings cset : charts) {
             List<String> dateColumn = new ArrayList<>();
             DateTime currentStart = null;
             DateTime currentEnd = null;
@@ -256,7 +254,7 @@ public class GraphExportCSV {
                 if (currentEnd == null) currentEnd = mdl.getSelectedEnd();
                 else mdl.setSelectedEnd(currentEnd);
 
-                if (firstSet && mdl.getSelectedcharts().contains(s)) {
+                if (firstSet && mdl.getSelectedcharts().contains(cset.getId())) {
                     for (JEVisSample sample : mdl.getSamples()) {
                         dateColumn.add(standard.print(sample.getTimestamp()));
                     }
@@ -268,10 +266,10 @@ public class GraphExportCSV {
         }
 
         List<Map<String, List<JEVisSample>>> listMaps = new ArrayList<>();
-        for (String s : charts) {
+        for (ChartSettings cset : charts) {
             Map<String, List<JEVisSample>> map = new HashMap<>();
             for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.getSelectedcharts().contains(s)) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
                     map.put(mdl.getObject().getName(), mdl.getSamples());
                 }
             }
@@ -279,25 +277,25 @@ public class GraphExportCSV {
         }
 
         for (int i = 0; i < size; i++) {
-            String str = "";
-            for (String s : charts) {
-                int chartsIndex = charts.indexOf(s);
+            StringBuilder str = new StringBuilder();
+            for (ChartSettings cset : charts) {
+                int chartsIndex = cset.getId();
                 boolean hasValues = i < listDateColumns.get(chartsIndex).size();
 
                 if (hasValues) {
-                    str += listDateColumns.get(chartsIndex).get(i) + ";";
+                    str.append(listDateColumns.get(chartsIndex).get(i)).append(";");
                 } else {
-                    str += ";";
+                    str.append(";");
                 }
 
                 for (ChartDataModel mdl : model.getSelectedData()) {
                     String objName = mdl.getObject().getName();
-                    if (mdl.getSelectedcharts().contains(s)) {
+                    if (mdl.getSelectedcharts().contains(cset.getId())) {
                         if (hasValues) {
                             String formattedValue = numberFormat.format(listMaps.get(chartsIndex).get(objName).get(i).getValueAsDouble());
-                            str += formattedValue + ";";
+                            str.append(formattedValue).append(";");
                         } else {
-                            str += ";";
+                            str.append(";");
                         }
                     }
                 }

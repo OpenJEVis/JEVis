@@ -4,7 +4,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Line;
@@ -29,23 +28,23 @@ public class DashBoardPane extends Pane {
     //    private GridLayer gridLayer = new GridLayer();
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private DashBordAnalysis analysis = new DashBordAnalysis();
+    private final DashBordAnalysis analysis;
     private ObservableList<Widget> widgetList = FXCollections.observableArrayList();
     private List<Double> xGrids = new ArrayList<>();
     private List<Double> yGrids = new ArrayList<>();
     private Scale scale = new Scale();
-    private Thread updateThread;
-    private Runnable updateRunnable;
     private TimerTask updateTask;
 
 
-    public DashBoardPane() {
+    public DashBoardPane(DashBordAnalysis analysis) {
         super();
 
-//        setStyle("-fx-background-color : lightblue;");
-//        setBackground();//TODO: in load config
-        addConfigListener();
+        this.analysis = analysis;
 
+
+//        setStyle("-fx-background-color : lightblue;");
+        addConfigListener();
+        setBackground();
 
         getTransforms().add(scale);
         setOnScroll(event -> {
@@ -112,7 +111,7 @@ public class DashBoardPane extends Pane {
     }
 
     private void setBackground() {
-        Background colorBackground = new Background(new BackgroundFill(analysis.colorDashBoardBackground.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
+//        Background colorBackground = new Background(new BackgroundFill(analysis.colorDashBoardBackground.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
 //        analysis.colorDashBoardBackground.addListener((observable, oldValue, newValue) -> {
 //            setBackground(new Background(new BackgroundFill(newValue, CornerRadii.EMPTY, Insets.EMPTY)));
 //        });
@@ -143,6 +142,13 @@ public class DashBoardPane extends Pane {
         DateTime now = new DateTime();
 
         Interval interval = new Interval(now.minus(period), now);
+
+        //TODO: remove this dev test workaround
+        DateTime fakeDate = new DateTime(2018, 02, 01, 0, 0).plusHours(now.getHourOfDay()).plusMinutes(now.getMinuteOfHour());
+        interval = new Interval(
+                fakeDate.minusHours(2),
+                fakeDate);
+
         return interval;
     }
 

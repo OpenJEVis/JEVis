@@ -193,6 +193,7 @@ public abstract class Widget extends Group {
         makeDragDropOverlay();
         MouseControlUtil.makeDraggable(this);
 
+
         config.size.addListener((observable, oldValue, newValue) -> {
             setSize(newValue.getWidth(), newValue.getHeight());
         });

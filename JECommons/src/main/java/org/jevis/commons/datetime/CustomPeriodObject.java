@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.data;
+package org.jevis.commons.datetime;
 
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
@@ -6,7 +6,7 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.object.plugin.TargetHelper;
 
-import static org.jevis.jeconfig.application.Chart.data.CustomPeriodObject.AttributeName.*;
+import static org.jevis.commons.datetime.CustomPeriodObject.AttributeName.*;
 
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
@@ -107,7 +107,7 @@ public class CustomPeriodObject {
             try {
                 JEVisAttribute att = getObject().getAttribute(START_REFERENCE_OBJECT.getAttributeName());
                 TargetHelper th = new TargetHelper(getObject().getDataSource(), att);
-                startReferenceObject = th.getObject();
+                startReferenceObject = th.getObject().get(0);
             } catch (Exception e) {
             }
         }
@@ -167,7 +167,7 @@ public class CustomPeriodObject {
             try {
                 JEVisAttribute att = getObject().getAttribute(END_REFERENCE_OBJECT.getAttributeName());
                 TargetHelper th = new TargetHelper(getObject().getDataSource(), att);
-                endReferenceObject = th.getObject();
+                endReferenceObject = th.getObject().get(0);
             } catch (Exception e) {
             }
         }

@@ -174,7 +174,7 @@ public class ObjectPlugin implements Plugin {
             allObjects.add(SelectTargetDialog.buildAllObjects());
             allObjects.add(SelectTargetDialog.buildAllDataFilter());
             allObjects.add(SelectTargetDialog.buildAllAttributesFilter());
-            allObjects.add(SelectTargetDialog.buildCalanderFilter());
+            allObjects.add(SelectTargetDialog.buildCalendarFilter());
             allObjects.add(SelectTargetDialog.buildAllDataSources(this.ds));
             allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Calculation"));
             allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "User"));

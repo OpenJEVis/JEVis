@@ -30,7 +30,7 @@ public class CalculationExtension implements ObjectEditorExtension {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _enabledChanged = new SimpleBooleanProperty(false);
     private JEVisObject _obj;
-    private CalculationViewController contol;
+    private CalculationViewController control;
     private String oldExpression = "";
     private JEVisSample lastSampleEnabeld = null;
     private JEVisSample _newSampleEnabled = null;
@@ -81,8 +81,8 @@ public class CalculationExtension implements ObjectEditorExtension {
         //fxmlLoader.setController(new CalculationViewController());
         try {
             final Pane editConfigPane = fxmlLoader.load();
-            contol = fxmlLoader.getController();
-            contol.setData(_obj);
+            control = fxmlLoader.getController();
+            control.setData(_obj);
 
             JEVisAttribute aExprsssion = _obj.getAttribute("Expression");
             JEVisSample lastValue = aExprsssion.getLatestSample();
@@ -172,9 +172,9 @@ public class CalculationExtension implements ObjectEditorExtension {
     @Override
     public boolean save() {
         try {
-            _changed.setValue(!contol.getFormel().equals(oldExpression));
+            _changed.setValue(!control.getFormel().equals(oldExpression));
             if (needSave()) {
-                String newExpression = contol.getFormel();
+                String newExpression = control.getFormel();
                 JEVisAttribute aExprsssion = _obj.getAttribute("Expression");
 
                 JEVisSample newSample = aExprsssion.buildSample(new DateTime(), newExpression);

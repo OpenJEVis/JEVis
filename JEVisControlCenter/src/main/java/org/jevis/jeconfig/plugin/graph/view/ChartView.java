@@ -168,7 +168,7 @@ public class ChartView implements Observer {
 
         tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
-                TableViewUntils.allToMinButColumn(tableView, Arrays.asList(maxSizeColumns));
+                TableViewUntils.allToMinButColumn(tableView, Arrays.asList(name));
             });
 
         });
@@ -310,11 +310,17 @@ public class ChartView implements Observer {
                 setTableStandard();
                 break;
             case BAR:
-                chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
+                chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
                 setTableStandard();
+                tableView.getColumns().get(4).setVisible(false);
+                tableView.getColumns().get(5).setVisible(false);
+                tableView.getColumns().get(6).setVisible(false);
+                tableView.getColumns().get(7).setVisible(false);
+                tableView.getColumns().get(8).setVisible(false);
+                tableView.getColumns().get(9).setVisible(false);
                 break;
             case BUBBLE:
-                chart = new BubbleChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
+                chart = new BubbleChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
                 setTableStandard();
                 break;
             case SCATTER:
@@ -322,7 +328,7 @@ public class ChartView implements Observer {
                 setTableStandard();
                 break;
             case PIE:
-                chart = new PieChart(chartDataModels, dataModel.getHideShowIcons(), chartId, chartName);
+                chart = new PieChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
                 disableTable();
                 break;
             default:
@@ -385,7 +391,7 @@ public class ChartView implements Observer {
                 chart.updateChart();
             } else {
 
-                generateChart(chartId, chartType, chartDataModels);
+                generateChart(getChartId(), getChartType(), chartDataModels);
             }
 
             tableView.sort();
@@ -429,5 +435,13 @@ public class ChartView implements Observer {
 
     public void setShowTable(Boolean showTable) {
         this.showTable = showTable;
+    }
+
+    public Integer getChartId() {
+        return chartId;
+    }
+
+    public void setChartId(Integer chartId) {
+        this.chartId = chartId;
     }
 }

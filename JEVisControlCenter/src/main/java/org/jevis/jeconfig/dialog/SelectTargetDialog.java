@@ -56,6 +56,7 @@ import java.util.List;
  */
 public class SelectTargetDialog {
 
+    private final SelectionMode selectionMode;
     private Button ok = new Button("OK");
     private String ICON = "1404313956_evolution-tasks.png";
     private JEVisDataSource _ds;
@@ -71,13 +72,14 @@ public class SelectTargetDialog {
      * @param filter
      * @param selected Filter who should selected by default, if null the first will be taken.
      */
-    public SelectTargetDialog(List<JEVisTreeFilter> filter, JEVisTreeFilter selected) {
+    public SelectTargetDialog(List<JEVisTreeFilter> filter, JEVisTreeFilter selected, SelectionMode selectionMode) {
         this.filterTypes.addAll(filter);
         this.selectedFilter = selected;
+        this.selectionMode = selectionMode;
     }
 
-    public static JEVisTreeFilter buildCalanderFilter() {
-        BasicCellFilter onlyCalender = new BasicCellFilter(I18n.getInstance().getString("tree.filter.calender"));
+    public static JEVisTreeFilter buildCalendarFilter() {
+        BasicCellFilter onlyCalender = new BasicCellFilter(I18n.getInstance().getString("tree.filter.calendar"));
         ObjectAttributeFilter c1 = new ObjectAttributeFilter("Custom Period", ObjectAttributeFilter.NONE);
         onlyCalender.addItemFilter(c1);
         onlyCalender.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, c1);
@@ -151,7 +153,7 @@ public class SelectTargetDialog {
         return allAttributes;
     }
 
-    public Response show(JEVisDataSource ds, String title, List<UserSelection> uselection) {
+    public Response show(JEVisDataSource ds, String title, List<UserSelection> userSelections) {
         stage = new Stage();
         _ds = ds;
 
@@ -159,7 +161,7 @@ public class SelectTargetDialog {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(JEConfig.getStage());
 
-        VBox root = build(ds, title, uselection);
+        VBox root = build(ds, title, userSelections);
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -176,11 +178,7 @@ public class SelectTargetDialog {
         return _response;
     }
 
-    public void allowMultySelect(boolean allowMulty) {
-        simpleTargetPlugin.setAllowMultySelection(allowMulty);
-    }
-
-    private VBox build(JEVisDataSource ds, String title, List<UserSelection> uselection) {
+    private VBox build(JEVisDataSource ds, String title, List<UserSelection> userSelections) {
         VBox root = new VBox(0);
 //        root.setPadding(new Insets(10));
         Node header = DialogHeader.getDialogHeader(ICON, title);
@@ -190,10 +188,14 @@ public class SelectTargetDialog {
 
         tree = JEVisTreeFactory.buildBasicDefault(ds);
         tree.getPlugins().add(simpleTargetPlugin);
-        tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        tree.getSelectionModel().setSelectionMode(selectionMode);
+        if (selectionMode.equals(SelectionMode.SINGLE)) simpleTargetPlugin.setAllowMultiSelection(false);
+        else if (selectionMode.equals(SelectionMode.MULTIPLE)) simpleTargetPlugin.setAllowMultiSelection(true);
+
         content.getChildren().setAll(tree);
 
-        simpleTargetPlugin.setUserSelection(uselection);
+        simpleTargetPlugin.setUserSelection(userSelections);
 
         Finder finder = new Finder(tree);
         SearchFilterBar searchBar = new SearchFilterBar(tree, filterTypes, finder);

@@ -9,7 +9,8 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -29,12 +30,14 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -81,50 +85,42 @@ public class ToolBarView {
         double iconSize = 20;
         Label labelComboBox = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));
 
-        listAnalysesComboBox = new ComboBox(model.getObservableListAnalyses());
+        listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
         listAnalysesComboBox.setPrefWidth(300);
         setCellFactoryForComboBox();
 
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
-                DateTime now = DateTime.now();
-                AtomicReference<DateTime> oldStart = new AtomicReference<>(now);
-                AtomicReference<DateTime> oldEnd = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
-
                 AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
-                AnalysisTimeFrame oldTimeFrame = model.getAnalysisTimeFrame();
                 ManipulationMode oldManipulationMode = model.getManipulationMode();
-                for (ChartDataModel model : model.getSelectedData()) {
-                    oldManipulationMode = model.getManipulationMode();
-                    break;
+                AnalysisTimeFrame oldAnalysisTimeFrame = model.getAnalysisTimeFrame();
+
+                DateTime oldStart = null;
+                DateTime oldEnd = null;
+                boolean customTimeFrame = oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM);
+                if (customTimeFrame) {
+                    for (ChartDataModel chartDataModel : model.getSelectedData()) {
+                        oldStart = chartDataModel.getSelectedStart();
+                        oldEnd = chartDataModel.getSelectedEnd();
+                        break;
+                    }
                 }
 
-                if (model.getAnalysisTimeFrame().getTimeFrame().equals(AnalysisTimeFrame.TimeFrame.custom)) {
-                    model.getSelectedData().forEach(chartDataModel -> {
-                        if (chartDataModel.getSelectedStart() != null && chartDataModel.getSelectedEnd() != null) {
-                            if (chartDataModel.getSelectedStart().isBefore(oldStart.get()))
-                                oldStart.set(chartDataModel.getSelectedStart());
-                            if (chartDataModel.getSelectedEnd().isAfter(oldEnd.get()))
-                                oldEnd.set(chartDataModel.getSelectedEnd());
-                        }
-                    });
-                }
                 model.setCurrentAnalysis(newValue);
                 model.setCharts(null);
                 model.updateSelectedData();
 
-                model.setAggregationPeriod(oldAggregationPeriod);
                 model.setManipulationMode(oldManipulationMode);
-                model.setAnalysisTimeFrame(oldTimeFrame);
+                model.setAggregationPeriod(oldAggregationPeriod);
+                model.setAnalysisTimeFrame(oldAnalysisTimeFrame);
 
-                ManipulationMode finalOldManipulationMode = oldManipulationMode;
-                model.getSelectedData().forEach(chartDataModel -> {
-                    if (!oldStart.get().equals(now)) chartDataModel.setSelectedStart(oldStart.get());
-                    if (!oldEnd.get().equals(new DateTime(2001, 1, 1, 0, 0, 0)))
-                        chartDataModel.setSelectedEnd(oldEnd.get());
-                    chartDataModel.setManipulationMode(finalOldManipulationMode);
-                });
+                if (customTimeFrame) {
+                    for (ChartDataModel chartDataModel : model.getSelectedData()) {
+                        chartDataModel.setSelectedStart(oldStart);
+                        chartDataModel.setSelectedEnd(oldEnd);
+                    }
+                }
 
                 model.updateSamples();
 
@@ -159,15 +155,10 @@ public class ToolBarView {
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
-        reload.setOnAction(event -> {
-            JEVisObject currentAnalysis = listAnalysesComboBox.getSelectionModel().getSelectedItem();
-            select(null);
-            try {
-                ds.reloadAttributes();
-            } catch (JEVisException e) {
-                logger.error(e);
+        reload.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                setTimer();
             }
-            select(currentAnalysis);
         });
 
         exportCSV.setOnAction(action -> {
@@ -256,7 +247,7 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        select.setOnAction(event -> changeSettings(event));
+        select.setOnAction(event -> changeSettings());
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
 
@@ -274,6 +265,67 @@ public class ToolBarView {
         _initialized = true;
 
         return toolBar;
+    }
+
+    private void setTimer() {
+        Period p = null;
+        for (ChartDataModel chartDataModel : model.getSelectedData()) {
+            List<JEVisSample> samples = chartDataModel.getSamples();
+            if (samples.size() > 0) {
+                try {
+                    p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                } catch (JEVisException e) {
+                    logger.error(e);
+                }
+                break;
+            }
+        }
+        if (p != null) {
+            Long seconds = null;
+            try {
+                seconds = p.toStandardDuration().getStandardSeconds();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+            if (seconds == null) seconds = 60L;
+
+            Alert warning = new Alert(Alert.AlertType.INFORMATION, I18n.getInstance().getString("plugin.graph.toolbar.timer.settimer")
+                    + seconds + I18n.getInstance().getString("plugin.graph.toolbar.timer.settimer2"), ButtonType.OK);
+            warning.showAndWait();
+
+            Long finalSeconds = seconds;
+            Service<Void> service = new Service<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() {
+                            try {
+                                TimeUnit.SECONDS.sleep(finalSeconds);
+                                Platform.runLater(() -> {
+                                    JEVisObject currentAnalysis = listAnalysesComboBox.getSelectionModel().getSelectedItem();
+                                    select(null);
+                                    try {
+                                        ds.reloadAttributes();
+                                    } catch (JEVisException e) {
+                                        logger.error(e);
+                                    }
+                                    select(currentAnalysis);
+                                });
+
+                            } catch (InterruptedException e) {
+                                logger.error("Sleep interrupted: " + e);
+                            }
+                            succeeded();
+
+                            return null;
+                        }
+                    };
+                }
+            };
+
+            service.start();
+        }
     }
 
     private void addSeriesRunningMean() {
@@ -343,7 +395,7 @@ public class ToolBarView {
             GraphDataModel newModel = new GraphDataModel(ds, graphPluginView);
 
             AnalysisTimeFrame atf = new AnalysisTimeFrame();
-            atf.setTimeFrame(AnalysisTimeFrame.TimeFrame.custom);
+            atf.setTimeFrame(TimeFrame.CUSTOM);
 
             newModel.setAnalysisTimeFrame(atf);
 
@@ -374,11 +426,11 @@ public class ToolBarView {
         model.setAutoResize(!model.getAutoResize());
     }
 
-    public ComboBox getListAnalysesComboBox() {
+    public ComboBox<JEVisObject> getListAnalysesComboBox() {
         return listAnalysesComboBox;
     }
 
-    private void changeSettings(ActionEvent event) {
+    private void changeSettings() {
         ChartSelectionDialog dia = new ChartSelectionDialog(ds, model);
 
         if (dia.show() == Response.OK) {
@@ -386,10 +438,6 @@ public class ToolBarView {
             model.setCharts(dia.getChartPlugin().getData().getCharts());
             model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
         }
-
-        dia = null;
-
-        System.gc();
     }
 
     private void saveCurrentAnalysis() {
@@ -597,7 +645,8 @@ public class ToolBarView {
 
     }
 
-    private void saveDataModel(JEVisObject analysis, Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
+    private void saveDataModel(JEVisObject
+                                       analysis, Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
         try {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
 
@@ -677,8 +726,7 @@ public class ToolBarView {
     }
 
     public void select(JEVisObject obj) {
-
-        listAnalysesComboBox.getSelectionModel().select(obj);
+        getListAnalysesComboBox().getSelectionModel().select(obj);
     }
 
     public void setDisableToolBarIcons(boolean bool) {

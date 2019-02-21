@@ -39,9 +39,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
-import org.jevis.commons.utils.Optimization;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.joda.time.DateTime;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -147,10 +145,10 @@ public class Statusbar extends ToolBar {
                     while (true) {
                         sleep(WAIT_TIME);
 //                        System.gc();
-                        System.out.println("Time: " + (new DateTime()));
-                        Optimization.getInstance().printStatistics();
+//                        System.out.println("Time: " + (new DateTime()));
+//                        Optimization.getInstance().printStatistics();
                         System.gc();
-                        Optimization.getInstance().printStatistics();
+//                        Optimization.getInstance().printStatistics();
 
                         if (_ds.isConnectionAlive()) {
                             Platform.runLater(new Runnable() {

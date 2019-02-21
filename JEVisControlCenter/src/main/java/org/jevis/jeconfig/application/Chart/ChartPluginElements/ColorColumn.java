@@ -21,8 +21,7 @@ import java.util.List;
  */
 
 public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements ChartPluginColumn {
-    public static String COLUMN_ID = "ColorColumn";
-    private final Color[] color_list = {
+    public static final Color[] color_list = {
             Color.web("0xFFB300"),    // Vivid Yellow
             Color.web("0x803E75"),    // Strong Purple
             Color.web("0xFF6800"),    // Vivid Orange
@@ -45,6 +44,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
             Color.web("0xF13A13"),    // Vivid Reddish Orange
             Color.web("0x232C16"),    // Dark Olive Green
     };
+    public static String COLUMN_ID = "ColorColumn";
     private TreeTableColumn<JEVisTreeRow, Color> colorColumn;
     private GraphDataModel data;
     private List<Color> usedColors = new ArrayList<>();

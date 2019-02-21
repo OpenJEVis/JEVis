@@ -11,26 +11,42 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
-import org.jevis.jeconfig.plugin.Dashboard.widget.*;
+import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
+import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
 
 public class DashBordPlugIn implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(DashBordPlugIn.class);
+    public static String CLASS_ANALYSIS = "Dashboard Analysis", CLASS_ANALYSIS_DIR = "Analyses Directory", ATTRIBUTE_DATA_MODEL = "Data Model", ATTRIBUTE_BACKGROUND = "Background";
     private final DashBoardToolbar toolBar;
     private StringProperty nameProperty = new SimpleStringProperty("Dashboard");
     private StringProperty uuidProperty = new SimpleStringProperty("Dashboard");
     private JEVisDataSource jeVisDataSource;
     private boolean isInitialized = false;
     private AnchorPane rootPane = new AnchorPane();
-    private DashBoardPane dashBoardPane = new DashBoardPane();
+    private DashBordAnalysis currentAnalysis = new DashBordAnalysis();
+    private DashBoardPane dashBoardPane = new DashBoardPane(currentAnalysis);
+
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
         nameProperty.setValue(name);
         this.jeVisDataSource = ds;
-        this.toolBar = new DashBoardToolbar();
+        this.toolBar = new DashBoardToolbar(ds, this);
+    }
 
+    public void loadAnalysis(DashBordAnalysis currentAnalysis) {
+        this.currentAnalysis = currentAnalysis;
+        this.dashBoardPane = new DashBoardPane(currentAnalysis);
 
+        AnchorPane.setTopAnchor(dashBoardPane, 0d);
+        AnchorPane.setBottomAnchor(dashBoardPane, 0d);
+        AnchorPane.setLeftAnchor(dashBoardPane, 0d);
+        AnchorPane.setRightAnchor(dashBoardPane, 0d);
+
+        dashBoardPane.getDashBordAnalysis().editProperty.setValue(false);
+
+        rootPane.getChildren().setAll(dashBoardPane);
+        toolBar.updateToolbar(currentAnalysis);
     }
 
     @Override
@@ -125,33 +141,9 @@ public class DashBordPlugIn implements Plugin {
         if (!isInitialized) {
             isInitialized = true;
 
-            toolBar.updateToolbar(this, dashBoardPane.getDashBordAnalysis());
-            AnchorPane.setTopAnchor(dashBoardPane, 0d);
-            AnchorPane.setBottomAnchor(dashBoardPane, 0d);
-            AnchorPane.setLeftAnchor(dashBoardPane, 0d);
-            AnchorPane.setRightAnchor(dashBoardPane, 0d);
+            toolBar.updateToolbar(dashBoardPane.getDashBordAnalysis());
+            loadAnalysis(currentAnalysis);
 
-            Widget testWidget = new NumberWidget(getDataSource());
-            Widget donutWidget = new DonutChart(getDataSource());
-            Widget highLowWidget = new HighLowWidget(getDataSource());
-            WidgetConfig config1 = new WidgetConfig();
-            WidgetConfig config2 = new WidgetConfig();
-            WidgetConfig config3 = new WidgetConfig();
-            config1.size.setValue(Size.DEFAULT);
-            config2.size.setValue(Size.BIGGER);
-            config3.size.setValue(Size.DEFAULT);
-            config1.position.set(WidgetConfig.Position.DEFAULT_1);
-            config2.position.set(WidgetConfig.Position.DEFAULT_2);
-            config3.position.set(WidgetConfig.Position.DEFAULT_3);
-            testWidget.setConfig(config1);
-            donutWidget.setConfig(config2);
-            highLowWidget.setConfig(config3);
-            dashBoardPane.getDashBordAnalysis().editProperty.setValue(false);
-
-//            dashBoardPane.addNode(testWidget, config1);
-//            dashBoardPane.addNode(donutWidget, config2);
-//            dashBoardPane.addNode(highLowWidget, config2);
-            rootPane.getChildren().add(dashBoardPane);
         }
     }
 
