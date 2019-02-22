@@ -232,6 +232,7 @@ public class AlarmProcess {
         for (JEVisObject cleanData : allCleanDataObjects) {
 
             JEVisAttribute valueAtt = cleanData.getAttribute(VALUE_ATTRIBUTE);
+            JEVisAttribute alarmLogAttribute = cleanData.getAttribute(ALARM_LOG_ATTRIBUTE);
 
             List<JEVisSample> valueSamples = valueAtt.getSamples(start, end);
 
@@ -343,6 +344,8 @@ public class AlarmProcess {
                         }
                     }
                 }
+
+                alarmLogAttribute.addSamples(alarmLogs);
             }
         }
 
