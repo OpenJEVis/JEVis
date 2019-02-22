@@ -93,6 +93,15 @@
       "jevisClass": "Periodic Report"
     },
     {
+      "name": "Custom Schedule Object",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    },
+    {
       "name": "Start Record",
       "primitiveType": 0,
       "guiType": "Date Time",

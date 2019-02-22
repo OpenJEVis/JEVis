@@ -20,16 +20,18 @@
 package org.jevis.jestatus;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.*;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * This Class handels the logic and the sending of the alarms.
@@ -90,45 +92,7 @@ public class AlarmHandler {
      * @throws JEVisException
      */
     public void checkAlarm(Alarm alarm) throws JEVisException {
-        List<JEVisObject> outOfBounds = new ArrayList<>();
-        List<JEVisObject> dps = getDataPoints(alarm);
 
-        DateTime now = new DateTime();
-        DateTime ignoreTS = now.minus(Period.hours(alarm.getIgnoreOld()));
-        DateTime limit = now.minus(Period.hours(alarm.getTimeLimit()));
-
-        for (JEVisObject obj : dps) {
-            JEVisSample lastSample = obj.getAttribute("Value").getLatestSample();
-            if (lastSample != null) {
-                if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
-                    outOfBounds.add(obj);
-                }
-            }
-        }
-
-        outOfBounds.sort(new Comparator<JEVisObject>() {
-            @Override
-            public int compare(JEVisObject o1, JEVisObject o2) {
-                DateTime o1ts = null;
-                try {
-                    o1ts = o1.getAttribute("Value").getTimestampFromLastSample();
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
-                DateTime o2ts = null;
-                try {
-                    o2ts = o2.getAttribute("Value").getTimestampFromLastSample();
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
-
-                if ((o1ts != null && o2ts != null && o1ts.isBefore(o2ts))) return -1;
-                else if ((o1ts != null && o2ts != null && o1ts.isAfter(o2ts))) return 1;
-                else return 0;
-            }
-        });
-
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
         StringBuilder sb = new StringBuilder();
 
         sb.append("<html>");
@@ -140,139 +104,19 @@ public class AlarmHandler {
         sb.append("<br>");
         sb.append("<br>");
 
-        String tableCSS = "background-color:#FFF;"
-                + "text-color: #024457;"
-                + "outer-border: 1px solid #167F92;"
-                + "empty-cells:show;"
-                + "border-collapse:collapse;"
-                //                + "border: 2px solid #D9E4E6;"
-                + "cell-border: 1px solid #D9E4E6";
+        DataServerTable dataServerTable = new DataServerTable(_ds, alarm);
+        sb.append(dataServerTable.getTableString());
 
-        String headerCSS = "background-color: #1a719c;"
-                + "color: #FFF;";
+        CalculationTable calculationTable = new CalculationTable(_ds, alarm, dataServerTable.getListCheckedData());
+        sb.append(calculationTable.getTableString());
 
-        String rowCss = "text-color: #024457;padding: 5px;";//"border: 1px solid #D9E4E6;"
+        CleanDataTable cleanDataTable = new CleanDataTable(_ds, alarm, calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
+        sb.append(cleanDataTable.getTableString());
 
-        String highlight = "background-color: #EAF3F3";
-
-        sb.append("<table style=\"");
-        sb.append(tableCSS);
-        sb.append("\" border=\"1\" >");
-        sb.append("<tr style=\"");
-        sb.append(headerCSS);
-        sb.append("\" >");
-        sb.append("    <th>Organisation</th>");
-        sb.append("    <th>Building</th>");
-        sb.append("    <th>Raw Datapoint</th>");
-        sb.append("    <th>Last Raw Value</th>");
-        sb.append("    <th>Clean Datapoint Class</th>");
-        sb.append("    <th>Last Clean Value</th>");
-        sb.append("  </tr>");//border=\"0\"
-
-        JEVisClass orga = _ds.getJEVisClass("Organization");
-        JEVisClass building = _ds.getJEVisClass("Monitored Object");
-        JEVisClass dir = _ds.getJEVisClass("Data Directory");
-        JEVisClass cleanData = _ds.getJEVisClass("Clean Data");
-
-        boolean odd = false;
-        for (JEVisObject currentDataPoint : outOfBounds) {
-            String name = currentDataPoint.getName() + ":" + currentDataPoint.getID().toString();
-            String nameClean = "";
-
-            boolean hasCleanDataObject = false;
-            JEVisObject currentCleanDataObject = null;
-            for (JEVisObject child : currentDataPoint.getChildren()) {
-                try {
-                    JEVisClass childClass = child.getJEVisClass();
-                    if (childClass != null && childClass.equals(cleanData)) {
-                        hasCleanDataObject = true;
-                        currentCleanDataObject = child;
-                        break;
-                    }
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (hasCleanDataObject) {
-                nameClean = currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString();
-            }
-
-            String css = rowCss;
-            if (odd) {
-                css += highlight;
-            }
-            odd = !odd;
-
-            sb.append("<tr>");
-            /**
-             * Organisation Column
-             */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            sb.append(getParentName(currentDataPoint, orga));
-            sb.append("</td>");
-            /**
-             * Building Column
-             */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            sb.append(getParentName(currentDataPoint, building));
-            sb.append("</td>");
-            /**
-             * Raw Datapoint Column
-             */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            sb.append(name);
-            sb.append("</td>");
-            /**
-             * Last Raw Value Column
-             */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            sb.append(dtf.print(currentDataPoint.getAttribute("Value").getLatestSample().getTimestamp()));
-            sb.append("</td>");
-            /**
-             * Clean Datapoint Column
-             */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            if (hasCleanDataObject) {
-                sb.append(nameClean);
-            }
-            sb.append("</td>");
-            /**
-             * Last Clean Value Column
-             */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            if (hasCleanDataObject) {
-                JEVisSample smp = currentCleanDataObject.getAttribute("Value").getLatestSample();
-                if (smp != null) {
-                    sb.append(dtf.print(smp.getTimestamp()));
-                }
-            }
-            sb.append("</td>");
-
-            sb.append("</tr>");// style=\"border: 1px solid #D9E4E6;\">");
-
-        }
-
-        sb.append("</tr>");
-        sb.append("</tr>");
-        sb.append("</table>");
-        sb.append("<br>");
         sb.append(_conf.getSmtpSignatur());
         sb.append("</html>");
 
-        if (outOfBounds.isEmpty() && alarm.isIgnoreFalse()) {
+        if (alarm.isIgnoreFalse()) {
             //Do nothing then
         } else {
             sendAlarm(_conf, alarm, sb.toString());

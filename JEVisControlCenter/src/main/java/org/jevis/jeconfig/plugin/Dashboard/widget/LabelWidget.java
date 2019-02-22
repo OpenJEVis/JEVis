@@ -98,7 +98,7 @@ public class LabelWidget extends Widget {
 
 
         addCommonConfigListeners();
-        applyCannonConfig();
+        applyCommonConfig();
         isInitialized.setValue(true);
 
         setGraphic(root);

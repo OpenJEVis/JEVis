@@ -1,17 +1,16 @@
 package org.jevis.jeconfig.plugin.Dashboard.config;
 
-import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
@@ -23,7 +22,7 @@ import java.util.*;
 public class WidgetConfig {
 
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
-
+    private static final Logger logger = LogManager.getLogger(WidgetConfig.class);
     public StringProperty uuid = new SimpleStringProperty(UUID.randomUUID().toString());
     public ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
     public ObjectProperty<Color> fontColorSecondary = new SimpleObjectProperty<>(Color.class, "Font Color Secondary", Color.DODGERBLUE);
@@ -31,12 +30,69 @@ public class WidgetConfig {
     public StringProperty title = new SimpleStringProperty("");
     public StringProperty unit = new SimpleStringProperty("");
     public ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.class, "Background Color", Color.web("#126597"));
-    public ObjectProperty<Position> position = new SimpleObjectProperty<>(Position.DEFAULT_1);
+    //    public ObjectProperty<Position> position = new SimpleObjectProperty<>(new Position(100, 100));
+    public DoubleProperty xPosition = new SimpleDoubleProperty(100d);
+    public DoubleProperty yPosition = new SimpleDoubleProperty(100d);
+
     public ObjectProperty<Size> size = new SimpleObjectProperty<>(Size.DEFAULT);
     public ObjectProperty<Font> font = new SimpleObjectProperty<>(Font.getDefault());
     private String type = "";
     private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
-    private List<WidgetConfigProperty> additonlaSetting = new ArrayList<>();
+    private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
+
+    public WidgetConfig(String type) {
+        this.type = type;
+    }
+
+
+    public WidgetConfig(JsonNode jsonNode) {
+        try {
+            try {
+                title.setValue(jsonNode.get(title.getName()).asText(title.get()));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", title.getName(), ex);
+            }
+
+            try {
+                type = jsonNode.get("WidgetType").asText("");
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", "WidgetType", ex);
+            }
+
+            try {
+                backgroundColor.setValue(Color.valueOf(jsonNode.get(backgroundColor.getName()).asText(backgroundColor.get().toString())));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", title.getName(), ex);
+            }
+
+            try {
+                fontColor.setValue(Color.valueOf(jsonNode.get(fontColor.getName()).asText(fontColor.get().toString())));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", title.getName(), ex);
+            }
+            try {
+                Size newSize = new Size(jsonNode.get("height").asDouble(), jsonNode.get("width").asDouble());
+                size.setValue(newSize);
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", title.getName(), ex);
+            }
+            try {
+//                Position newPosition = new Position(jsonNode.get("xPos").asDouble(), jsonNode.get("yPos").asDouble());
+//                System.out.println("Load Postion :" + newPosition.toString());
+//                position.setValue(newPosition);
+                xPosition.setValue(jsonNode.get("xPos").asDouble());
+                yPosition.setValue(jsonNode.get("yPos").asDouble());
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", title.getName(), ex);
+            }
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
 
     public String getType() {
         return type;
@@ -62,10 +118,11 @@ public class WidgetConfig {
         userConfig.put("Height", new ConfigSheet.Property("Height", GENERAL_GROUP, size.getValue().getHeight(), "Help"));
         userConfig.put("Width", new ConfigSheet.Property("Width", GENERAL_GROUP, size.getValue().getWidth(), "Help"));
 
-        additonlaSetting.forEach(widgetConfigProperty -> {
-            System.out.println("Add additinal config: " + widgetConfigProperty.getId() + "  " + widgetConfigProperty.getName());
+        additionalSetting.forEach(widgetConfigProperty -> {
+            System.out.println("Add additional config: " + widgetConfigProperty.getId() + "  " + widgetConfigProperty.getName());
             userConfig.put(widgetConfigProperty.getId(), new ConfigSheet.Property(widgetConfigProperty.getName(), widgetConfigProperty.getCategory(), widgetConfigProperty.getWritableValue().getValue(), widgetConfigProperty.getDescription()));
         });
+
 
         ConfigSheet ct = new ConfigSheet();
         PropertySheet propertySheet = ct.getSheet(userConfig);
@@ -75,8 +132,24 @@ public class WidgetConfig {
         return propertySheet;
     }
 
+    public ObjectNode toJsonNode() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode jsonNode = mapper.createObjectNode();
+        jsonNode.put(title.getName(), title.getValue());
+        jsonNode.put("WidgetType", type);
+
+        jsonNode.put(backgroundColor.getName(), backgroundColor.getValue().toString());
+        jsonNode.put(fontColor.getName(), fontColor.getValue().toString());
+        jsonNode.put("height", size.getValue().getHeight());
+        jsonNode.put("width", size.getValue().getWidth());
+        jsonNode.put("xPos", xPosition.getValue());
+        jsonNode.put("yPos", yPosition.getValue());
+
+        return jsonNode;
+    }
+
     public void addAdditionalSetting(List<WidgetConfigProperty> list) {
-        additonlaSetting.addAll(list);
+        additionalSetting.addAll(list);
     }
 
 
@@ -95,8 +168,8 @@ public class WidgetConfig {
 
         title.setValue((String) userConfig.get(title.getName()).getObject());
 
-        System.out.println("Widget.Settings: " + additonlaSetting);
-        additonlaSetting.forEach(widgetConfigProperty -> {
+        System.out.println("Widget.Settings: " + additionalSetting);
+        additionalSetting.forEach(widgetConfigProperty -> {
             widgetConfigProperty.getWritableValue().setValue(userConfig.get(widgetConfigProperty.getId()).getObject());
         });
     }
@@ -133,41 +206,6 @@ public class WidgetConfig {
         }
 
         return false;
-    }
-
-    public void toJson() {
-        JsonFactory factory = new JsonFactory();
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode objectNode1 = mapper.createObjectNode();
-        objectNode1.put("id", uuid.getValue());
-        objectNode1.put("fontColor", fontColor.toString());
-        objectNode1.put("backgroundColor", backgroundColor.toString());
-        objectNode1.put("height", size.getValue().getHeight());
-        objectNode1.put("width", size.getValue().getWidth());
-
-
-        System.out.println("-- json --\n" + objectNode1.toString() + "\n--");
-
-    }
-
-    public enum Position {
-        DEFAULT_1(100, 100), DEFAULT_2(100, 200), DEFAULT_3(500, 100), DEFAULT_4(500, 200);
-
-        private double xPos = 100;
-        private double yPos = 100;
-
-        Position(double xPos, double yPos) {
-            this.xPos = xPos;
-            this.yPos = yPos;
-        }
-
-        public double getxPos() {
-            return xPos;
-        }
-
-        public double getyPos() {
-            return yPos;
-        }
     }
 
 

@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
-import org.jevis.jeconfig.plugin.Dashboard.widget.WidgetData;
+import org.jevis.jeconfig.plugin.Dashboard.widget.Widgets;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -35,12 +35,20 @@ public class DashBoardPane extends Pane {
     private Scale scale = new Scale();
     private TimerTask updateTask;
 
-
     public DashBoardPane(DashBordAnalysis analysis) {
         super();
 
         this.analysis = analysis;
 
+        this.analysis.getWidgets().forEach(widgetConfig -> {
+            Widget widget = createWidget(widgetConfig);
+            if (widget != null) {
+                logger.info("Add widget: " + widget);
+                addNode(widget);
+            } else {
+                logger.warn("Found no widget for config: {}", widgetConfig);
+            }
+        });
 
 //        setStyle("-fx-background-color : lightblue;");
         addConfigListener();
@@ -58,6 +66,21 @@ public class DashBoardPane extends Pane {
             }
         });
 
+    }
+
+    public Widget createWidget(WidgetConfig widget) {
+        System.out.println("createWidget for: " + widget.getType());
+        for (Widget availableWidget : Widgets.getAvabableWidgets(analysis.getDataSource())) {
+            System.out.println("lll: " + availableWidget.typeID());
+            if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
+                System.out.println("true");
+                availableWidget.setConfig(widget);
+                availableWidget.init();
+                return availableWidget;
+            }
+        }
+
+        return null;
     }
 
     private void addConfigListener() {
@@ -240,20 +263,11 @@ public class DashBoardPane extends Pane {
 
     public void addNode(Widget widget) {
         widgetList.add(widget);
-//        widget.init();
+        widget.init();
         widget.setDashBoard(this);
-        getChildren().add(widget);
+//        getChildren().add(widget);
     }
 
-    public void addNode(Widget widget, WidgetConfig config) {
-        System.out.println("Add widget: " + config.getType());
-        widgetList.add(widget);
-        widget.setDashBoard(this);
-//        widget.init();
-        widget.update(new WidgetData(), true);
-
-        getChildren().add(widget);
-    }
 
     public double getNextGridX(double xPos) {
         double c = xGrids.stream()

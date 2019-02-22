@@ -9,10 +9,10 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.report3.DateHelper;
+import org.jevis.commons.datetime.Period;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.report3.data.report.Precondition;
 import org.jevis.report3.data.report.ReportConfiguration;
-import org.jevis.report3.data.report.ReportProperty;
 import org.jevis.report3.data.report.event.EventPrecondition;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -36,11 +36,14 @@ public class PeriodPrecondition implements Precondition {
     @Override
     public boolean isPreconditionReached(JEVisObject reportObject) {
 
-        String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", ReportProperty.ReportSchedule.DAILY.toString());
-        ReportProperty.ReportSchedule schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
+        String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
+        Period schedule = Period.valueOf(scheduleString.toUpperCase());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
-        DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule);
+
+        org.jevis.commons.datetime.DateHelper dateHelper = null;
+        dateHelper = PeriodHelper.getDateHelper(reportObject, schedule, dateHelper, startRecord);
+        DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
 
         String operator = samplesHandler.getLastSample(reportObject, "Operator", "");
         String limit = samplesHandler.getLastSample(reportObject, "Limit", "");

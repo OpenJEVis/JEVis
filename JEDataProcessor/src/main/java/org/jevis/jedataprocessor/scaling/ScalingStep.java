@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jedataprocessor.data.CleanDataObject;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.workflow.ProcessStep;
@@ -48,7 +48,7 @@ public class ScalingStep implements ProcessStep {
             } catch (JEVisException e) {
                 throw new Exception("no timestamp for multiplier", e);
             }
-            logger.info("[{}] scale with multiplier {} and offset {} starting at: {}", calcAttribute.getObject().getID(), multiplierDouble, offset, timeStampOfMultiplier);
+            logger.info("[{}] scale with multiplier {} and offset {} starting at: {}", calcAttribute.getCleanObject().getID(), multiplierDouble, offset, timeStampOfMultiplier);
             for (CleanInterval currentInt : intervals) {
                 if (currentInt.getDate().isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || currentInt.getDate().isBefore(nextTimeStampOfMultiplier))) {
                     BigDecimal multi = new BigDecimal(multiplierDouble.toString());

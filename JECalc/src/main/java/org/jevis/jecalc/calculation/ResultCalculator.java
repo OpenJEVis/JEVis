@@ -26,28 +26,48 @@ public class ResultCalculator {
         this.template = template;
     }
 
-    public List<JEVisSample> calculateResult(String div0Handling, Double replacementValue) {
+    public List<JEVisSample> calculateResult(String div0Handling, Double replacementValue, Double allZeroReplacementValue) {
         List<JEVisSample> resultList = new ArrayList<>();
-        for (Map.Entry<DateTime, List<Sample>> entry : mergedSamples.entrySet()) {
-            for (Sample sample : entry.getValue()) {
-                template.put(sample.getVariable(), sample.getValue());
-            }
-            Double evaluate = template.evaluate();
-            if (Double.isInfinite(evaluate) || Double.isNaN(evaluate)) {
-                //TODO implement different handling switch...
-                VirtualSample smp = new VirtualSample(entry.getKey(), replacementValue);
-                String note = smp.getNote();
 
-                if (note == null) {
-                    note = "";
-                    note += "calc(infinite)";
-                } else {
-                    note += ",calc(infinite)";
+        for (Map.Entry<DateTime, List<Sample>> entry : mergedSamples.entrySet()) {
+            int numberOfInputs = entry.getValue().size();
+            Boolean[] arrayAllZero = new Boolean[numberOfInputs];
+
+            for (Sample sample : entry.getValue()) {
+                arrayAllZero[entry.getValue().indexOf(sample)] = sample.getValue().equals(0d);
+            }
+
+            Boolean allZero = true;
+            for (Boolean b : arrayAllZero) {
+                if (!b) allZero = b;
+            }
+
+            if (!allZero || allZeroReplacementValue == null) {
+                for (Sample sample : entry.getValue()) {
+                    template.put(sample.getVariable(), sample.getValue());
                 }
-                smp.setNote(note);
-                resultList.add(smp);
+
+                Double evaluate = template.evaluate();
+                if (Double.isInfinite(evaluate) || Double.isNaN(evaluate)) {
+                    //TODO implement different handling switch...
+
+                    VirtualSample smp = new VirtualSample(entry.getKey(), replacementValue);
+                    String note = smp.getNote();
+
+                    if (note == null) {
+                        note = "";
+                        note += "calc(infinite)";
+                    } else {
+                        note += ",calc(infinite)";
+                    }
+                    smp.setNote(note);
+                    resultList.add(smp);
+                } else {
+                    resultList.add(new VirtualSample(entry.getKey(), evaluate));
+                }
+
             } else {
-                resultList.add(new VirtualSample(entry.getKey(), evaluate));
+                resultList.add(new VirtualSample(entry.getKey(), allZeroReplacementValue));
             }
         }
         return resultList;

@@ -161,6 +161,9 @@ public class DashBoardToolbar extends ToolBar {
                         JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
                         newObject.commit();
                         analyses.save(newObject);
+                        listAnalysesComboBox.getItems().add(newObject);
+                        listAnalysesComboBox.getSelectionModel().select(newObject);
+
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -205,8 +208,10 @@ public class DashBoardToolbar extends ToolBar {
             Wizard wizzard = new Wizard(JEConfig.getDataSource());
             Optional<Widget> newWidget = wizzard.show(null);
 
+            System.out.println("----------------------------------------");
             if (newWidget.isPresent()) {
-                dashBordPlugIn.addWidget(newWidget.get());
+                System.out.println("++++++++++++++++++++++++++++++++++++++");
+                dashBordPlugIn.addWidget(newWidget.get().getConfig());
             }
 
         });

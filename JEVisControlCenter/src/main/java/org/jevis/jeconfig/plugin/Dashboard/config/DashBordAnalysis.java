@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.Dashboard.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
 import javafx.embed.swing.SwingFXUtils;
@@ -12,10 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
@@ -105,8 +103,9 @@ public class DashBordAnalysis {
     public final BooleanProperty showGridProperty = new SimpleBooleanProperty(Boolean.class, "Show Grid", true);
     public final ObjectProperty<Period> dataPeriodProperty = new SimpleObjectProperty(Period.class, "Data Period", Period.days(2));
     private final List<ChangeListener> changeListeners = new ArrayList<>();
+    private final JEVisDataSource jeVisDataSource;
     private JEVisObject analysisObject;
-
+    private List<WidgetConfig> widgetList = new ArrayList<>();
     /**
      * Lower and upper Zoom limit
      */
@@ -147,13 +146,22 @@ public class DashBordAnalysis {
     };
 
 
-    public DashBordAnalysis() {
+    public DashBordAnalysis(JEVisDataSource jeVisDataSource) {
+        this.jeVisDataSource = jeVisDataSource;
     }
 
-    public DashBordAnalysis(JEVisObject analysisObject) {
+    public DashBordAnalysis(JEVisObject analysisObject) throws JEVisException {
         this.analysisObject = analysisObject;
-
+        this.jeVisDataSource = analysisObject.getDataSource();
         load();
+    }
+
+    public JEVisDataSource getDataSource() {
+        return jeVisDataSource;
+    }
+
+    public void addWidget(WidgetConfig config) {
+        widgetList.add(config);
     }
 
     private void load() {
@@ -205,6 +213,21 @@ public class DashBordAnalysis {
                 logger.error("Could not parse {}: {}", dataPeriodProperty.getName(), ex);
             }
 
+            JsonNode widgets = jsonNode.get("Widget");
+            System.out.println("widgetList is array: " + widgets.isArray());
+
+            if (widgets.isArray()) {
+                for (final JsonNode objNode : widgets) {
+                    System.out.println(objNode);
+                    WidgetConfig newConfig = new WidgetConfig(objNode);
+                    System.out.println("init widget: " + newConfig.toString());
+                    widgetList.add(newConfig);
+                }
+            }
+
+
+            //WidgetConfig
+
             try {
                 JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
                 if (bgFile != null && bgFile.hasSample()) {
@@ -229,6 +252,10 @@ public class DashBordAnalysis {
         }
     }
 
+
+    public List<WidgetConfig> getWidgets() {
+        return widgetList;
+    }
 
     public JEVisObject getAnalysisObject() {
         return analysisObject;
@@ -255,7 +282,13 @@ public class DashBordAnalysis {
         jsonNode.put(zoomFactor.getName(), zoomFactor.getValue().toString());
         jsonNode.put(updateRate.getName(), updateRate.getValue().toString());
 
-        System.out.println("New analisis");
+
+        ArrayNode widgetJson = jsonNode.putArray("Widget");
+        widgetList.forEach(widgetConfig -> {
+            widgetJson.add(widgetConfig.toJsonNode());
+        });
+
+
         try {
             System.out.println("Save data Model: " + jsonNode.toString());
             DateTime now = new DateTime().withMillis(0).withSecondOfMinute(0);

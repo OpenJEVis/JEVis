@@ -12,7 +12,9 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
+import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
+import org.jevis.jeconfig.plugin.Dashboard.widget.Widgets;
 
 public class DashBordPlugIn implements Plugin {
 
@@ -24,29 +26,32 @@ public class DashBordPlugIn implements Plugin {
     private JEVisDataSource jeVisDataSource;
     private boolean isInitialized = false;
     private AnchorPane rootPane = new AnchorPane();
-    private DashBordAnalysis currentAnalysis = new DashBordAnalysis();
-    private DashBoardPane dashBoardPane = new DashBoardPane(currentAnalysis);
+    private DashBordAnalysis currentAnalysis;
+    private DashBoardPane dashBoardPane;
 
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
         nameProperty.setValue(name);
         this.jeVisDataSource = ds;
+        this.currentAnalysis = new DashBordAnalysis(ds);
+        this.dashBoardPane = new DashBoardPane(currentAnalysis);
         this.toolBar = new DashBoardToolbar(ds, this);
     }
+
 
     public void loadAnalysis(DashBordAnalysis currentAnalysis) {
         this.currentAnalysis = currentAnalysis;
         this.dashBoardPane = new DashBoardPane(currentAnalysis);
-
         AnchorPane.setTopAnchor(dashBoardPane, 0d);
         AnchorPane.setBottomAnchor(dashBoardPane, 0d);
         AnchorPane.setLeftAnchor(dashBoardPane, 0d);
         AnchorPane.setRightAnchor(dashBoardPane, 0d);
 
-        dashBoardPane.getDashBordAnalysis().editProperty.setValue(false);
 
         rootPane.getChildren().setAll(dashBoardPane);
         toolBar.updateToolbar(currentAnalysis);
+        dashBoardPane.getDashBordAnalysis().editProperty.setValue(false);
+
     }
 
     @Override
@@ -105,7 +110,6 @@ public class DashBordPlugIn implements Plugin {
         return toolBar;
     }
 
-
     @Override
     public JEVisDataSource getDataSource() {
         return jeVisDataSource;
@@ -147,8 +151,30 @@ public class DashBordPlugIn implements Plugin {
         }
     }
 
-    public void addWidget(Widget widget) {
-        dashBoardPane.addNode(widget);
+    public Widget createWidget(WidgetConfig widget) {
+        System.out.println("createWidget for: " + widget.getType());
+        for (Widget availableWidget : Widgets.getAvabableWidgets(getDataSource())) {
+            System.out.println("lll: " + availableWidget.typeID());
+            if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
+                System.out.println("ture");
+                availableWidget.setConfig(widget);
+                availableWidget.init();
+                return availableWidget;
+            }
+        }
+
+        return null;
+    }
+
+    public void addWidget(WidgetConfig widget) {
+        logger.info("addWidget: " + widget);
+        Widget newWidget = createWidget(widget);
+        System.out.println("new widget##: " + newWidget);
+        if (newWidget != null) {
+            dashBoardPane.addNode(newWidget);
+            currentAnalysis.addWidget(widget);
+        }
+
     }
 
 }

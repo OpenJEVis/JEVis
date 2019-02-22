@@ -29,6 +29,7 @@ public class DonutChart extends Widget {
 
     public DonutChart(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
+
         sampleHandler = new LastValueHandler(jeVisDataSource);
         sampleHandler.setMultiSelect(true);
         sampleHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {

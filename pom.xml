@@ -13,8 +13,8 @@
 
     <modules>
         <module>JEAPI</module>
-        <module>JECommons</module>
         <module>JEAPI-WS</module>
+        <module>JECommons</module>
         <module>JEWebService</module>
         <module>JEVisControlCenter/</module>
         <module>DataCollector</module>
@@ -23,6 +23,7 @@
         <module>Notifier</module>
         <module>JEDataProcessor</module>
         <module>JEStatus</module>
+        <module>JEAlarm</module>
     </modules>
 
     <profiles>
@@ -31,8 +32,8 @@
             <modules>
                 <module>mysqldb</module>
                 <module>JEAPI</module>
-                <module>JECommons</module>
                 <module>JEAPI-WS</module>
+                <module>JECommons</module>
                 <module>JEWebService</module>
                 <module>JEVisControlCenter/</module>
                 <module>DataCollector</module>
@@ -41,6 +42,7 @@
                 <module>Notifier</module>
                 <module>JEDataProcessor</module>
                 <module>JEStatus</module>
+                <module>JEAlarm</module>
             </modules>
         </profile>
     </profiles>
@@ -66,19 +68,19 @@
             <dependency>
                 <groupId>org.jevis.api</groupId>
                 <artifactId>jeapi</artifactId>
-                <version>3.1.3</version>
+                <version>3.1.4</version>
             </dependency>
 
             <dependency>
                 <groupId>org.jevis.commons</groupId>
                 <artifactId>JECommons</artifactId>
-                <version>3.15</version>
+                <version>3.19</version>
             </dependency>
 
             <dependency>
                 <groupId>org.jevis</groupId>
                 <artifactId>JEAPI-WS</artifactId>
-                <version>1.16</version>
+                <version>1.19</version>
             </dependency>
 
             <dependency>
@@ -159,7 +161,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.jevis.jealarm</groupId>
+                <groupId>org.jevis.jealarm.jealarm</groupId>
                 <artifactId>JEStatus</artifactId>
                 <version>1.0</version>
             </dependency>

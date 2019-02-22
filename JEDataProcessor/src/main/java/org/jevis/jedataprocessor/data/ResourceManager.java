@@ -6,9 +6,12 @@
 package org.jevis.jedataprocessor.data;
 
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author broder
@@ -18,6 +21,7 @@ public class ResourceManager {
     public List<CleanInterval> intervals = new ArrayList<>();
     private CleanDataObject cleanDataObject;
     private List<JEVisSample> rawSamples;
+    private Map<DateTime, JEVisSample> notesMap;
 
     public List<CleanInterval> getIntervals() {
         return intervals;
@@ -39,14 +43,22 @@ public class ResourceManager {
         return rawSamples;
     }
 
+    public Map<DateTime, JEVisSample> getNotesMap() {
+        return notesMap;
+    }
+
+    public void setNotesMap(Map<DateTime, JEVisSample> notesMap) {
+        this.notesMap = notesMap;
+    }
+
     public void setRawSamples(List<JEVisSample> rawSamples) {
         this.rawSamples = rawSamples;
     }
 
     public Long getID() {
-        if (cleanDataObject == null || cleanDataObject.getObject() == null) {
+        if (cleanDataObject == null || cleanDataObject.getCleanObject() == null) {
             return -1L;
         }
-        return cleanDataObject.getObject().getID();
+        return cleanDataObject.getCleanObject().getID();
     }
 }

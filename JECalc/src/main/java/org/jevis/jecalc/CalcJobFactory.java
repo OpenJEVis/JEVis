@@ -56,9 +56,13 @@ class CalcJobFactory {
         logger.debug("{} inputs found", calcInputObjects.size());
         String div0Handling = null;
         Double staticValue = null;
+        Double allZeroValue = null;
         try {
             div0Handling = sampleHandler.getLastSample(jevisObject, Calculation.DIV0_HANDLING.getName(), "");
             staticValue = sampleHandler.getLastSample(jevisObject, Calculation.STATIC_VALUE.getName(), 0.0);
+            JEVisAttribute allZeroValueAtt = jevisObject.getAttribute(Calculation.ALL_ZERO_VALUE.getName());
+            if (allZeroValueAtt.hasSample())
+                allZeroValue = allZeroValueAtt.getLatestSample().getValueAsDouble();
         } catch (Exception e) {
 
         }
@@ -68,6 +72,7 @@ class CalcJobFactory {
         calcJob.setOutputAttributes(outputAttributes);
         calcJob.setCalcObjID(calcObjID);
         calcJob.setStaticValue(staticValue);
+        calcJob.setAllZeroValue(allZeroValue);
         calcJob.setDIV0Handling(div0Handling);
 
         return calcJob;
@@ -81,10 +86,10 @@ class CalcJobFactory {
             for (JEVisObject output : outputs) {
                 JEVisAttribute targetAttr = output.getAttribute(Calculation.OUTPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(output.getDataSource(), targetAttr);
-                JEVisAttribute valueAttribute = targetHelper.getAttribute();
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
                 if (valueAttribute == null) {
                     logger.error("Cant find output for id {}, using fallback 'Value' Attribute ", output.getID());
-                    outputAttributes.add(targetHelper.getObject().getAttribute("Value"));
+                    outputAttributes.add(targetHelper.getObject().get(0).getAttribute("Value"));
                 } else {
                     outputAttributes.add(valueAttribute);
                 }
@@ -126,7 +131,7 @@ class CalcJobFactory {
             try {
                 targetAttr = obj.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
-                JEVisAttribute valueAttribute = targetHelper.getAttribute();
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
                 if (startTimeFromInputs.isBefore(valueAttribute.getTimestampFromFirstSample()))
                     startTimeFromInputs = valueAttribute.getTimestampFromFirstSample();
             } catch (JEVisException e) {
@@ -177,7 +182,7 @@ class CalcJobFactory {
             for (JEVisObject child : getCalcInputObjects(jevisObject)) { //Todo differenciate based on input type
                 JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
-                JEVisAttribute valueAttribute = targetHelper.getAttribute();
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
 
                 if (fromTo == null) {
                     fromTo = new Interval(startTime, new DateTime());
@@ -230,8 +235,8 @@ class CalcJobFactory {
         IDENTIFIER("Identifier"),
         INPUT_TYPE("Input Data Type"),
         DIV0_HANDLING("DIV0 Handling"),
-        STATIC_VALUE("Static Value");
-
+        STATIC_VALUE("Static Value"),
+        ALL_ZERO_VALUE("All Zero Value");
 
         String name;
 

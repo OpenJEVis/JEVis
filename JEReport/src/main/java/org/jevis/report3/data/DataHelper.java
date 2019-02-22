@@ -2,8 +2,8 @@ package org.jevis.report3.data;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.datetime.Period;
 import org.jevis.report3.data.report.ReportConfiguration;
-import org.jevis.report3.data.report.ReportProperty;
 import org.joda.time.format.DateTimeFormat;
 
 /*
@@ -31,7 +31,7 @@ public class DataHelper {
 
     public static boolean checkValidSchedule(String scheduleString) {
         try {
-            ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
+            Period.valueOf(scheduleString.toUpperCase());
         } catch (IllegalArgumentException ex) {
             logger.error("Schedule string is invalid: " + scheduleString, ex);
             return false;

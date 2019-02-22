@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
-@XmlRootElement(name = "GapFillingConfig")
+@XmlRootElement(name = "JsonLimitsConfig")
 public class JsonLimitsConfig {
 
     private String name;
@@ -139,7 +139,6 @@ public class JsonLimitsConfig {
     @Override
     public String toString() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String prettyJson = gson.toJson(this);
-        return prettyJson;
+        return gson.toJson(this);
     }
 }

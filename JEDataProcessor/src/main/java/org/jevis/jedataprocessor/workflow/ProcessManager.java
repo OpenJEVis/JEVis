@@ -9,14 +9,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
-import org.jevis.jedataprocessor.data.CleanDataObject;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.differential.DifferentialStep;
 import org.jevis.jedataprocessor.gap.FillGapStep;
 import org.jevis.jedataprocessor.limits.LimitsStep;
 import org.jevis.jedataprocessor.save.ImportStep;
 import org.jevis.jedataprocessor.scaling.ScalingStep;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,10 @@ public class ProcessManager {
     private List<ProcessStep> processSteps = new ArrayList<>();
     private String name;
     private Long id;
-
+    private boolean missingSamples = true;
+    private boolean rerun = false;
+    private DateTime lastFirstDate;
+    private boolean isWorking = true;
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler) {
         resourceManager = new ResourceManager();
         resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
@@ -74,12 +78,45 @@ public class ProcessManager {
 
         resourceManager.getCleanDataObject().checkConfig();
 
+//        while (missingSamples) {
+        reRun();
+//        }
+
+        logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCleanDataObject().getCleanObject().getName());
+    }
+
+    private void reRun() throws Exception {
 
         for (ProcessStep ps : processSteps) {
-            ps.run(resourceManager);
-        }
+//            if (rerun && ps.getClass().equals(PrepareStep.class)) {
+//                JEVisDataSource ds = resourceManager.getCleanDataObject().getCleanObject().getDataSource();
+//                ds.clearCache();
+//                ds.preload();
+////                resourceManager.setCleanDataObject(new CleanDataObject(ds.getCleanObject(cleanObjectId), new ObjectHandler(ds)));
+//                CleanDataObject cdo = resourceManager.getCleanDataObject();
+//                cdo.setFirstDate(null);
+//            }
 
-        logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCleanDataObject().getObject().getName());
+            ps.run(resourceManager);
+
+//            if (ps.getClass().equals(PrepareStep.class)) {
+//                DateTime currentFirstDate = resourceManager.getCleanDataObject().getFirstDate();
+//                if (!currentFirstDate.equals(lastFirstDate)) {
+//                    lastFirstDate = resourceManager.getCleanDataObject().getFirstDate();
+//
+//                    if (resourceManager.getIntervals().size() > 10000) {
+//                        resourceManager.setIntervals(resourceManager.getIntervals().subList(0, 10000));
+//                        missingSamples = true;
+//                        rerun = true;
+//                    } else {
+//                        missingSamples = false;
+//                    }
+//                } else {
+//                    rerun = false;
+//                    missingSamples = false;
+//                }
+//            }
+        }
     }
 
     public String getName() {

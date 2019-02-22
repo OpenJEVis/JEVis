@@ -25,7 +25,7 @@ import java.util.UUID;
 public abstract class Widget extends Group {
 
     private final org.jevis.api.JEVisDataSource jeVisDataSource;
-    public WidgetConfig config = new WidgetConfig();
+    public WidgetConfig config = new WidgetConfig("");
     public CornerRadii cornerRadii = new CornerRadii(0);
     public Size previewSize = new Size(100, 150);
     public BooleanProperty noDataInPeriodProperty = new SimpleBooleanProperty(false);
@@ -38,6 +38,8 @@ public abstract class Widget extends Group {
     public Widget(JEVisDataSource jeVisDataSource) {
         super();
         this.jeVisDataSource = jeVisDataSource;
+        config.setType(typeID());
+        addCommonConfigListeners();
     }
 
     public BooleanProperty getNoDataInPeriodProperty() {
@@ -45,6 +47,7 @@ public abstract class Widget extends Group {
     }
 
     public abstract SampleHandler getSampleHandler();
+
 
     public abstract void setBackgroundColor(Color color);
 
@@ -54,8 +57,15 @@ public abstract class Widget extends Group {
 
     public abstract void setCustomFont(Font font);
 
+    public WidgetConfig getConfig() {
+        return config;
+    }
 
 //    public abstract List<WidgetConfigProperty> getAdditionalSetting();
+
+    public void setConfig(WidgetConfig config) {
+        this.config = config;
+    }
 
     public JEVisDataSource getDataSource() {
         return jeVisDataSource;
@@ -65,7 +75,7 @@ public abstract class Widget extends Group {
         return uuid;
     }
 
-    public void applyCannonConfig() {
+    public void applyCommonConfig() {
         setBackgroundColor(config.backgroundColor.getValue());
         setFontColor(config.fontColor.getValue());
         setTitle(config.title.getValue());
@@ -87,11 +97,30 @@ public abstract class Widget extends Group {
         config.font.addListener((observable, oldValue, newValue) -> {
             setCustomFont(newValue);
         });
+//        this.layoutYProperty().addListener((observable, oldValue, newValue) -> {
+//            if (oldValue != newValue) {
+////                updateYXConfig();
+//                config.yPosition.setValue(newValue);
+//            }
+//
+//        });
+//        this.layoutXProperty().addListener((observable, oldValue, newValue) -> {
+//            if (oldValue != newValue) {
+////                updateYXConfig();
+//                config.xPosition.setValue(newValue);
+//            }
+//
+//        });
 
     }
 
-    private void makeDragDropOverlay() {
+//    private void updateYXConfig() {
+//        System.out.println("Update XY Config: " + this.getLayoutX() + " " + this.getLayoutY());
+////        config.position.setValue(new Position(this.getLayoutX(), this.getLayoutY()));
+//    }
 
+    private void makeDragDropOverlay() {
+        System.out.println("makeDragDropOverlay()");
         HBox windowHeader = new HBox();
         Button configButton = new Button("", JEConfig.getImage("Service Manager.png", 18, 18));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(configButton);
@@ -100,7 +129,6 @@ public abstract class Widget extends Group {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(deleteButton);
 
         configButton.setOnAction(event -> {
-
             config.openConfig();
         });
 
@@ -179,14 +207,23 @@ public abstract class Widget extends Group {
     }
 
     public void setDashBoard(DashBoardPane parent) {
+        System.out.println("setDashBoard()");
         this.dashBoard = parent;
 
-        config.position.addListener((observable, oldValue, newValue) -> {
-            setLayoutX(newValue.getxPos());
-            setLayoutY(newValue.getyPos());
-        });
-        setLayoutX(config.position.get().getxPos());
-        setLayoutY(config.position.get().getyPos());
+//        config.position.addListener((observable, oldValue, newValue) -> {
+//            setLayoutX(newValue.getxPos());
+//            setLayoutY(newValue.getyPos());
+//        });
+
+
+        layoutXProperty().bindBidirectional(config.xPosition);
+        layoutYProperty().bindBidirectional(config.yPosition);
+
+//        config.xPosition.bindBidirectional(layoutXProperty());
+//        config.yPosition.bindBidirectional(layoutYProperty());
+
+//        setLayoutX(config.xPosition.getValue());
+//        setLayoutY(config.yPosition.getValue());
 
         makeWindowForm();
         getChildren().add(contentRoot);
@@ -227,7 +264,6 @@ public abstract class Widget extends Group {
         contentRoot.setPrefHeight(height);
     }
 
-
     public void setGraphic(Node node) {
         contentRoot.getChildren().clear();
         contentRoot.getChildren().add(node);
@@ -236,10 +272,6 @@ public abstract class Widget extends Group {
         AnchorPane.setLeftAnchor(node, 0.0);
         AnchorPane.setRightAnchor(node, 0.0);
 //        contentRoot.setCenter(node);
-    }
-
-    public void setConfig(WidgetConfig config) {
-        this.config = config;
     }
 
     /**

@@ -11,10 +11,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
-import org.jevis.jeconfig.plugin.Dashboard.widget.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.DashBordPlugIn;
+import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
+import org.jevis.jeconfig.plugin.Dashboard.widget.Widgets;
 
 public class PageWidgetSelection extends Page {
 
@@ -23,22 +23,19 @@ public class PageWidgetSelection extends Page {
     Wizard wizard;
     private Widget selectedWidget = null;
     private Pane selectedWidgetContainer = null;
+    private DashBordPlugIn dashBordPlugIn;
+
+    public PageWidgetSelection() {
+    }
 
     public void setWizard(Wizard wizard) {
         this.wizard = wizard;
     }
 
+
     @Override
     public Node getNode() {
 
-        List<Widget> widgetList = new ArrayList<>();
-        widgetList.add(new DonutChart(wizard.getDataSource()));
-        widgetList.add(new HighLowWidget(wizard.getDataSource()));
-        widgetList.add(new NumberWidget(wizard.getDataSource()));
-        widgetList.add(new StockWidget(wizard.getDataSource()));
-        widgetList.add(new LabelWidget(wizard.getDataSource()));
-        widgetList.add(new ChartWidget(wizard.getDataSource()));
-        widgetList.add(new PieWidget(wizard.getDataSource()));
 
 //        final FlowPane widgetListPane = new FlowPane(Orientation.HORIZONTAL, 20, 20);
         final TilePane widgetListPane = new TilePane(Orientation.HORIZONTAL, 20, 20);
@@ -46,7 +43,7 @@ public class PageWidgetSelection extends Page {
 
 //        widgetListPane.setStyle("-fx-background-color: blue;");
 //        widgetListPane.setPrefWrapLength(300);
-        widgetList.forEach(widget -> {
+        Widgets.getAvabableWidgets(JEConfig.getDataSource()).forEach(widget -> {
 
             Button widgetButton = new Button(widget.typeID(), widget.getImagePreview());
             widgetButton.setContentDisplay(ContentDisplay.TOP);

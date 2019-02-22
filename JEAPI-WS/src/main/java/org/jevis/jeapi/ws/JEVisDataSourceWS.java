@@ -40,6 +40,8 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author fs
@@ -69,15 +71,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private List<JEVisOption> config = new ArrayList<>();
     //    private Cache<Integer, List> relationshipCache;
     private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
-    private Map<String, JEVisClass> classCache = Collections.synchronizedMap(new HashMap<String, JEVisClass>());
-    private Map<Long, JEVisObject> objectCache = Collections.synchronizedMap(new HashMap<Long, JEVisObject>());
+    private ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
     //    private Map<Long, List<JEVisAttribute>> attributeMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisAttribute>>());
-    private Map<Long, List<JEVisRelationship>> objectRelMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisRelationship>>());
+    private ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
     private boolean allAttributesPreloaded = false;
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
-    private Map<Long, List<JEVisAttribute>> attributeCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisAttribute>>());
+    private ConcurrentHashMap<Long, List<JEVisAttribute>> attributeCache = new ConcurrentHashMap<>();
 
     public JEVisDataSourceWS(String host) {
         this.host = host;
@@ -203,7 +205,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 /**
                  * Give objects which have no attributes an empty list
                  */
-                objectCache.keySet().forEach(aLong -> {
+                objectCache.keySet().parallelStream().forEach(aLong -> {
                     if (!attributeCache.containsKey(aLong)) {
                         attributeCache.put(aLong, new ArrayList<>());
                     }
@@ -349,17 +351,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             objectRelCache = getRelationshipsWS();
 
 
-            for (JEVisRelationship re : objectRelCache) {
+            objectRelCache.parallelStream().forEach(re -> {
                 try {
                     long startID = re.getStartID();
                     long endID = re.getEndID();
 
                     if (!objectRelMapCache.containsKey(startID)) {
-                        objectRelMapCache.put(startID, new ArrayList<JEVisRelationship>());
+                        objectRelMapCache.put(startID, new CopyOnWriteArrayList<>());
                     }
 
                     if (!objectRelMapCache.containsKey(endID)) {
-                        objectRelMapCache.put(endID, new ArrayList<JEVisRelationship>());
+                        objectRelMapCache.put(endID, new CopyOnWriteArrayList<>());
                     }
 
                     objectRelMapCache.get(startID).add(re);
@@ -367,10 +369,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 } catch (Exception ex) {
                     logger.error("incorrect relationship: {}", re);
                 }
+            });
 
-            }
-            logger.error("Relationship amount: {}", objectRelMapCache.size());
 
+            logger.debug("Relationship amount: {}", objectRelMapCache.size());
 
             orLoaded = true;
         }
@@ -933,13 +935,22 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisObject> getObjects(JEVisClass jevisClass, boolean addheirs) throws JEVisException {
+
+        if (jevisClass == null) {
+            logger.error("Class does not exist {}", jevisClass);
+            return new ArrayList<>();
+        }
+
         /**
          * We now load the list from the cache to improve performance
          */
         List<JEVisClass> filterClass = new ArrayList<>();
         filterClass.add(jevisClass);
         if (addheirs) {
-            filterClass.addAll(jevisClass.getHeirs());
+            if (jevisClass.getHeirs() != null) {
+                filterClass.addAll(jevisClass.getHeirs());
+            }
+
         }
 
         List<JEVisObject> objs = new ArrayList<>();
@@ -1151,7 +1162,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public List<JEVisClass> getJEVisClasses() {
         if (!classLoaded) {
 
-            getJEVisClassesWS().forEach(jclass -> {
+            getJEVisClassesWS().parallelStream().forEach(jclass -> {
                 try {
                     classCache.put(jclass.getName(), jclass);
                 } catch (Exception ex) {

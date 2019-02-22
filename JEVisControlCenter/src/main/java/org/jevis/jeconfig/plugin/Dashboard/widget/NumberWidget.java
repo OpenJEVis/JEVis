@@ -24,6 +24,7 @@ public class NumberWidget extends Widget {
 
     public NumberWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
+
         sampleHandler = new LastValueHandler(jeVisDataSource);
         sampleHandler.setMultiSelect(false);
         sampleHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {

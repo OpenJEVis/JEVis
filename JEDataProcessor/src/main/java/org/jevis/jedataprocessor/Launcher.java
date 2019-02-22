@@ -12,10 +12,10 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
-import org.jevis.jedataprocessor.data.CleanDataObject;
 import org.jevis.jedataprocessor.workflow.ProcessManager;
 
 import java.util.ArrayList;

@@ -36,9 +36,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class handel all the JEVIsObjects related requests
@@ -270,9 +270,9 @@ public class ResourceClasses {
         }
     }
 
-    public Map<String, JsonJEVisClass> loadJsonClasses() {
+    public ConcurrentHashMap<String, JsonJEVisClass> loadJsonClasses() {
         Gson gson = new GsonBuilder().create();
-        Map<String, JsonJEVisClass> classMap = Collections.synchronizedMap(new HashMap<String, JsonJEVisClass>());
+        ConcurrentHashMap<String, JsonJEVisClass> classMap = new ConcurrentHashMap<>();
 
         File classDir = Config.getClassDir();
 
@@ -283,7 +283,7 @@ public class ResourceClasses {
                     return pathname.getName().endsWith(".json");
                 }
             };
-            for (File jsonFile : classDir.listFiles(jsonFilter)) {
+            Arrays.stream(Objects.requireNonNull(classDir.listFiles(jsonFilter))).parallel().forEach(jsonFile -> {
                 try {
                     JsonReader reader = new JsonReader(new FileReader(jsonFile));
                     JsonJEVisClass data = gson.fromJson(reader, JsonJEVisClass.class);
@@ -292,7 +292,7 @@ public class ResourceClasses {
                 } catch (Exception ex) {
                     logger.error("Error while loading Classfile: " + jsonFile.getName(), ex);
                 }
-            }
+            });
         }
 
         JEVisClassHelper.completeClasses(classMap);

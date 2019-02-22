@@ -17,6 +17,11 @@
       "start": "Organization Directory",
       "end": "System",
       "type": 3
+    },
+    {
+      "start": "Organization Directory",
+      "end": "Organization",
+      "type": 3
     }
   ]
 }

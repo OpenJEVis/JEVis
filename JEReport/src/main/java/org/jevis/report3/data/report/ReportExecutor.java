@@ -11,12 +11,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.datetime.Period;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
+import org.jevis.jenotifier.notifier.Email.EmailServiceProperty;
 import org.jevis.jenotifier.notifier.Notification;
 import org.jevis.jenotifier.notifier.NotificationDriver;
-import org.jevis.report3.DateHelper;
 import org.jevis.report3.PdfConverter;
 import org.jevis.report3.PdfFileSplitter;
 import org.jevis.report3.context.ContextBuilder;
@@ -24,8 +26,6 @@ import org.jevis.report3.data.notification.ReportNotification;
 import org.jevis.report3.data.report.event.EventPrecondition;
 import org.jevis.report3.data.reportlink.ReportData;
 import org.jevis.report3.data.reportlink.ReportLinkFactory;
-import org.jevis.report3.data.service.JEReportService;
-import org.jevis.report3.data.service.ReportServiceProperty;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -85,6 +85,7 @@ public class ReportExecutor {
         logger.info("Created report link stati.");
 
         if (!isDataAvailable.get()) {
+            logger.error("One or more Data Objects are missing new Data");
             return;
         }
 
@@ -117,7 +118,6 @@ public class ReportExecutor {
             lastReportAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
             logger.info("Uploaded report file to JEVis System");
 
-            logger.info("Creating pdf file.");
             JEVisFile fileForNotification = jeVisFileImp;
             if (property.getToPdf()) {
 
@@ -165,9 +165,11 @@ public class ReportExecutor {
             Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
             String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
-            String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", ReportProperty.ReportSchedule.DAILY.toString());
-            ReportProperty.ReportSchedule schedule = ReportProperty.ReportSchedule.valueOf(scheduleString.toUpperCase());
-            DateTime endRecord = DateHelper.calcEndRecord(startRecord, schedule);
+            String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
+            Period schedule = Period.valueOf(scheduleString.toUpperCase());
+            org.jevis.commons.datetime.DateHelper dateHelper = null;
+            dateHelper = PeriodHelper.getDateHelper(reportObject, schedule, dateHelper, startRecord);
+            DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, endRecord);
 
             if (!operator.equals("")) {
@@ -190,35 +192,34 @@ public class ReportExecutor {
     private void sendNotification(JEVisObject notificationObject, JEVisFile jeVisFileImp) {
         try {
 
-            ReportServiceProperty service = getReportService();
+            EmailServiceProperty service = getReportService();
 
-            JEVisObject notiObj = reportObject.getDataSource().getObject(notificationObject.getID());
             Notification nofi = new EmailNotification();
-            nofi.setNotificationObject(notiObj, jeVisFileImp);
+            nofi.setNotificationObject(notificationObject, jeVisFileImp);
+
+            JEVisObject notiDriObj = notificationObject.getDataSource().getObject(service.getMailID());
 
             NotificationDriver emailNofi = new EmailNotificationDriver();
-
-            JEVisObject notiDriObj = reportObject.getDataSource().getObject(service.getMailID());
             emailNofi.setNotificationDriverObject(notiDriObj);
 
             SendNotification sn = new SendNotification(nofi, emailNofi);
             sn.run();
 
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }
 
-    private ReportServiceProperty getReportService() {
+    private EmailServiceProperty getReportService() {
         JEVisDataSource dataSource = null;
         try {
             dataSource = reportObject.getDataSource();
         } catch (JEVisException e) {
             logger.error(e);
         }
-        ReportServiceProperty service = new ReportServiceProperty();
+        EmailServiceProperty service = new EmailServiceProperty();
         try {
-            JEVisClass jeVisClass = dataSource.getJEVisClass(JEReportService.NAME);
+            JEVisClass jeVisClass = dataSource.getJEVisClass("JEReport");
             List<JEVisObject> reportServies = dataSource.getObjects(jeVisClass, true);
             if (reportServies.size() == 1) {
                 service.initialize(reportServies.get(0));

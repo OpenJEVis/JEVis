@@ -8,8 +8,8 @@ package org.jevis.jedataprocessor.gap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.json.JsonGapFillingConfig;
-import org.jevis.jedataprocessor.data.CleanDataObject;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.util.GapsAndLimits;
@@ -56,7 +56,7 @@ public class FillGapStep implements ProcessStep {
                     DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
                     DateTime lastDateForCache = calcAttribute.getFirstDate();
 
-                    sampleCache = calcAttribute.getObject().getAttribute(CleanDataObject.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
+                    sampleCache = calcAttribute.getCleanObject().getAttribute(CleanDataObject.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
                 } catch (Exception e) {
                     logger.error("No caching possible: " + e);
                 }
@@ -65,7 +65,7 @@ public class FillGapStep implements ProcessStep {
                     List<Gap> newGaps = new ArrayList<>();
                     for (Gap g : gaps) {
                         if (!doneGaps.contains(g)) {
-                            logger.info("[{}] start filling with Mode for {}", calcAttribute.getObject().getID(), c.getType());
+                            logger.info("[{}] start filling with Mode for {}", calcAttribute.getCleanObject().getID(), c.getType());
                             DateTime firstDate = g.getIntervals().get(0).getDate();
                             DateTime lastDate = g.getIntervals().get(g.getIntervals().size() - 1).getDate();
                             if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {

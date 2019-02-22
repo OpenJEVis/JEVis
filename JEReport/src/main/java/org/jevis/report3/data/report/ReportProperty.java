@@ -163,9 +163,4 @@ public class ReportProperty {
         }
         return currentObjects;
     }
-
-    public enum ReportSchedule {
-
-        DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY
-    }
 }
