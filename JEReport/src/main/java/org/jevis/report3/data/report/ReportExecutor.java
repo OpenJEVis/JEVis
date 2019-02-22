@@ -63,15 +63,18 @@ public class ReportExecutor {
 
     public void executeReport() {
 
+        intervalCalculator.buildIntervals(reportObject);
+
+        DateTime end = intervalCalculator.getInterval(IntervalCalculator.PeriodMode.CURRENT).getEnd();
+
         if (!precondition.isPreconditionReached(reportObject)) {
-            logger.info("Report date not reached");
+
+            logger.info("Precondition not reached");
+            finisher.continueWithNextReport(reportObject);
             return;
         }
 
         List<ReportData> reportLinks = reportLinkFactory.getReportLinks(reportObject);
-        intervalCalculator.buildIntervals(reportObject);
-
-        DateTime end = intervalCalculator.getInterval(IntervalCalculator.PeriodMode.CURRENT).getEnd();
 
         AtomicBoolean isDataAvailable = new AtomicBoolean(true);
         logger.info("Creating report link stati.");

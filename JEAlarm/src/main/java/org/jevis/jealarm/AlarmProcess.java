@@ -292,8 +292,10 @@ public class AlarmProcess {
                                 dt = dt.minusSeconds(1);
                             }
 
-//                            logger.error("Could not find sample to compare with value." + ts);
-//                            continue;
+                            if (compareSample == null) {
+                                logger.error("Could not find sample to compare with value." + ts);
+                                continue;
+                            }
                         }
 
                         diff = compareSample.getValueAsDouble() * (tolerance / 100);

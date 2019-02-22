@@ -13,5 +13,7 @@ import org.jevis.api.JEVisObject;
  */
 public interface Finisher {
 
-    public void finishReport(Report report, ReportProperty property);
+    void finishReport(Report report, ReportProperty property);
+
+    void continueWithNextReport(JEVisObject reportObject);
 }
