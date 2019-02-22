@@ -314,19 +314,37 @@ public class ScheduleEditor implements AttributeEditor {
             }
         }
 
-        mon.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelection(rule, 1, newValue)));
-        tue.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelection(rule, 2, newValue)));
-        wed.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelection(rule, 3, newValue)));
-        thu.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelection(rule, 4, newValue)));
-        fri.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelection(rule, 5, newValue)));
-        sat.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelection(rule, 6, newValue)));
-        sun.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelection(rule, 7, newValue)));
+        mon.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 1, newValue)));
+        tue.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 2, newValue)));
+        wed.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 3, newValue)));
+        thu.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 4, newValue)));
+        fri.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 5, newValue)));
+        sat.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 6, newValue)));
+        sun.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 7, newValue)));
 
         return Arrays.asList(mon, tue, wed, thu, fri, sat, sun);
     }
 
-    private String updateListSelection(JsonSchedulerRule rule, int i, Boolean newValue) {
+    private String updateListSelectionWeekdays(JsonSchedulerRule rule, Integer i, Boolean newValue) {
         List<Integer> selected = stringToIntList(rule.getDayOfWeek());
+
+        if (selected.contains(i)) {
+            if (!newValue) {
+                selected.remove(i);
+            }
+        } else {
+            if (newValue) {
+                selected.add(i);
+            }
+        }
+
+        selected.sort(Integer::compareTo);
+
+        return listToString(selected);
+    }
+
+    private String updateListSelectionMonthOfYear(JsonSchedulerRule rule, Integer i, Boolean newValue) {
+        List<Integer> selected = stringToIntList(rule.getMonths());
 
         if (selected.contains(i)) {
             if (!newValue) {
@@ -401,18 +419,18 @@ public class ScheduleEditor implements AttributeEditor {
             }
         }
 
-        jan.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 1, newValue)));
-        feb.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 2, newValue)));
-        mar.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 3, newValue)));
-        apr.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 4, newValue)));
-        may.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 5, newValue)));
-        jun.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 6, newValue)));
-        jul.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 7, newValue)));
-        aug.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 8, newValue)));
-        sep.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 9, newValue)));
-        oct.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 10, newValue)));
-        nov.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 11, newValue)));
-        dec.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelection(rule, 12, newValue)));
+        jan.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 1, newValue)));
+        feb.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 2, newValue)));
+        mar.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 3, newValue)));
+        apr.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 4, newValue)));
+        may.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 5, newValue)));
+        jun.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 6, newValue)));
+        jul.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 7, newValue)));
+        aug.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 8, newValue)));
+        sep.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 9, newValue)));
+        oct.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 10, newValue)));
+        nov.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 11, newValue)));
+        dec.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 12, newValue)));
 
         return Arrays.asList(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec);
     }

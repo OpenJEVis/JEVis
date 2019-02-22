@@ -260,9 +260,11 @@ public class AlarmProcess {
 
             boolean dynamicAlarm = alarmType.equals(AlarmType.DYNAMIC);
 
+            DateTime firstTimeStamp = end;
             if (dynamicAlarm) {
                 comparisonSamples = cleanDataAlarm.getSamples(start, end);
                 for (JEVisSample sample : comparisonSamples) {
+                    if (sample.getTimestamp().isBefore(firstTimeStamp)) firstTimeStamp = sample.getTimestamp();
                     compareMap.put(sample.getTimestamp(), sample);
                 }
             } else limit = cleanDataAlarm.getLimit();
@@ -285,13 +287,15 @@ public class AlarmProcess {
                         if (compareSample == null) {
 
                             DateTime dt = ts.minusSeconds(1);
-                            while (compareSample == null) {
+                            while (compareSample == null && (dt.equals(firstTimeStamp) || dt.isAfter(firstTimeStamp))) {
                                 compareSample = compareMap.get(dt);
                                 dt = dt.minusSeconds(1);
                             }
 
-//                            logger.error("Could not find sample to compare with value." + ts);
-//                            continue;
+                            if (compareSample == null) {
+                                logger.error("Could not find sample to compare with value." + ts);
+                                continue;
+                            }
                         }
 
                         diff = compareSample.getValueAsDouble() * (tolerance / 100);
