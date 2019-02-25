@@ -49,9 +49,9 @@ public class LoadAnalysisDialog {
     private Response response = Response.CANCEL;
     private Stage stage;
     private GraphDataModel graphDataModel;
-    private JFXDatePicker pickerDateStart = new JFXDatePicker();
+    private JFXDatePicker pickerDateStart = new JFXDatePicker(LocalDate.now().minusDays(7));
     private JFXTimePicker pickerTimeStart = new JFXTimePicker();
-    private JFXDatePicker pickerDateEnd = new JFXDatePicker();
+    private JFXDatePicker pickerDateEnd = new JFXDatePicker(LocalDate.now());
     private JFXTimePicker pickerTimeEnd = new JFXTimePicker();
     private jfxtras.scene.control.ListView<JEVisObject> analysisListView = new ListView<>();
     private JEVisDataSource ds;

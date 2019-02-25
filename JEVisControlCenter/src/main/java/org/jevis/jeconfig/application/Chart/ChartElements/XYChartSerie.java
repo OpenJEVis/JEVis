@@ -129,24 +129,24 @@ public class XYChartSerie {
         nf_out.setMinimumFractionDigits(2);
 
         if (min == Double.MAX_VALUE || samples.size() == 0) {
-            tableEntry.setMin("- " + unit);
+            tableEntry.setMin("- " + getUnit());
         } else {
             tableEntry.setMin(nf_out.format(min) + " " + unit);
         }
 
         if (max == Double.MIN_VALUE || samples.size() == 0) {
-            tableEntry.setMax("- " + unit);
+            tableEntry.setMax("- " + getUnit());
         } else {
-            tableEntry.setMax(nf_out.format(max) + " " + unit);
+            tableEntry.setMax(nf_out.format(max) + " " + getUnit());
         }
 
         if (samples.size() == 0) {
-            tableEntry.setAvg("- " + unit);
-            tableEntry.setSum("- " + unit);
+            tableEntry.setAvg("- " + getUnit());
+            tableEntry.setSum("- " + getUnit());
         } else {
-            tableEntry.setAvg(nf_out.format(avg) + " " + unit);
+            tableEntry.setAvg(nf_out.format(avg) + " " + getUnit());
             if (isQuantity) {
-                tableEntry.setSum(nf_out.format(sum) + " " + unit);
+                tableEntry.setSum(nf_out.format(sum) + " " + getUnit());
             } else {
                 if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                     try {
@@ -155,10 +155,10 @@ public class XYChartSerie {
                         tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");
-                        tableEntry.setSum("- " + unit);
+                        tableEntry.setSum("- " + getUnit());
                     }
                 } else {
-                    tableEntry.setSum("- " + unit);
+                    tableEntry.setSum("- " + getUnit());
                 }
             }
         }
