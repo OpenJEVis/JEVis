@@ -292,7 +292,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                TreeHelper.EventReload(obj);
+                TreeHelper.EventReload(obj, ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()));
             }
         });
         return menu;

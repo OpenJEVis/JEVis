@@ -21,6 +21,7 @@
 package org.jevis.jeconfig.application.jevistree;
 
 import com.sun.javafx.scene.control.skin.VirtualFlow;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -265,10 +266,20 @@ public class TreeHelper {
         }
     }
 
-    public static void EventReload(JEVisObject object) {
+    public static void EventReload(JEVisObject object, JEVisTreeItem jeVisTreeItem) {
         /**
          * TODO make reload function for object tree
          */
+
+        try {
+            object.getDataSource().reloadObject(object);
+            Platform.runLater(() -> {
+                JEVisTreeRow sobj = new JEVisTreeRow(object);
+                jeVisTreeItem.setValue(sobj);
+            });
+        } catch (JEVisException e) {
+            logger.error("Could not reload object.");
+        }
     }
 
 

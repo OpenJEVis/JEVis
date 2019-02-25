@@ -50,6 +50,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     private List<Color> usedColors = new ArrayList<>();
     private JEVisTree tree;
     private String columnName;
+    private Color standardColor = Color.LIGHTBLUE;
 
     public ColorColumn(JEVisTree tree, String columnName) {
         this.tree = tree;
@@ -72,6 +73,9 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     @Override
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
+        for (ChartDataModel model : data.getSelectedData()) {
+            if (!this.usedColors.contains(model.getColor())) this.usedColors.add(model.getColor());
+        }
         update();
     }
 
@@ -143,8 +147,26 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
         this.colorColumn = column;
     }
 
+    public Color getNextColor() {
+        for (Color color : getColorList()) {
+            if (!getUsedColors().contains(color)) {
+                getUsedColors().add(color);
+                return color;
+            }
+        }
+        return Color.LIGHTBLUE;
+    }
+
+    public void removeUsedColor(Color color) {
+        getUsedColors().remove(color);
+    }
+
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    public Color getStandardColor() {
+        return standardColor;
     }
 }

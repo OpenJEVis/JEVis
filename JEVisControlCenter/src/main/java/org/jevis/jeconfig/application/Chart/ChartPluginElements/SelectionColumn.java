@@ -196,17 +196,11 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                 /**
                                                  * if the choicebox is selected, get a color for it
                                                  */
-                                                for (Color c : colorColumn.getColorList()) {
-                                                    if (!colorColumn.getUsedColors().contains(c)) {
-                                                        data.setColor(c);
-                                                        colorColumn.getUsedColors().add(c);
-                                                        Platform.runLater(() -> {
-                                                            JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
-                                                            getTreeTableRow().getTreeItem().setValue(sobj);
-                                                        });
-                                                        break;
-                                                    }
-                                                }
+                                                data.setColor(colorColumn.getNextColor());
+                                                Platform.runLater(() -> {
+                                                    JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                    getTreeTableRow().getTreeItem().setValue(sobj);
+                                                });
                                             } else {
                                                 /**
                                                  * check for other data rows within this chart
@@ -221,11 +215,18 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                     }
                                                 });
 
-                                                if (!foundOther.get()) {
+                                                if (foundOther.get()) {
+                                                    colorColumn.removeUsedColor(data.getColor());
+                                                    data.setColor(colorColumn.getStandardColor());
+                                                    Platform.runLater(() -> {
+                                                        JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                        getTreeTableRow().getTreeItem().setValue(sobj);
+                                                    });
+                                                } else {
                                                     /**
                                                      * if the box is unselected and no other selected, remove the color
                                                      */
-                                                    colorColumn.getUsedColors().remove(data.getColor());
+                                                    colorColumn.removeUsedColor(data.getColor());
                                                     data.setColor(Color.LIGHTBLUE);
                                                     Platform.runLater(() -> {
                                                         JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
