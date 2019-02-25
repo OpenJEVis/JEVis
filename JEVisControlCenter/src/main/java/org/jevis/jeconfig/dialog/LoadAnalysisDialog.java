@@ -165,7 +165,7 @@ public class LoadAnalysisDialog {
         pickerTimeStart.setPrefWidth(100d);
         pickerTimeStart.setMaxWidth(100d);
         pickerTimeStart.setIs24HourView(true);
-        pickerTimeStart.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
+        pickerTimeStart.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         pickerDateEnd.setPrefWidth(120d);
@@ -173,7 +173,7 @@ public class LoadAnalysisDialog {
         pickerTimeEnd.setPrefWidth(100d);
         pickerTimeEnd.setMaxWidth(100d);
         pickerTimeEnd.setIs24HourView(true);
-        pickerTimeEnd.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
+        pickerTimeEnd.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         comboBoxPresetDates = getPresetDatesBox();
 
