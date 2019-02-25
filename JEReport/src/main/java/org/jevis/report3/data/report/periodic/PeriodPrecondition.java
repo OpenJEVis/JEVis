@@ -21,6 +21,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,13 +62,15 @@ public class PeriodPrecondition implements Precondition {
 
             EventPrecondition.EventOperator eventOperator = EventPrecondition.EventOperator.getEventOperator(operator);
 
-            List<JEVisSample> samplesInPeriod = null;
+            List<JEVisSample> samplesInPeriod = new ArrayList<>();
             try {
                 JEVisDataSource ds = reportObject.getDataSource();
                 samplesInPeriod = samplesHandler.getSamplesInPeriod(ds.getObject(jevisId), attributeName, startRecord, endRecord);
             } catch (JEVisException e) {
                 logger.error("Could not get samples in interval");
             }
+
+            if (samplesInPeriod.isEmpty()) isFulfilled = true;
 
             for (JEVisSample sample : Objects.requireNonNull(samplesInPeriod)) {
 
