@@ -171,7 +171,7 @@ public class XYChartSerie {
     }
 
     public Node generateNode(JEVisSample sample) throws JEVisException {
-        Note note = new Note(sample.getNote());
+        Note note = new Note(sample);
 
         if (note.getNote() != null && hideShowIcons) {
             note.getNote().setVisible(true);

@@ -75,7 +75,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
                 data.setExtraValue(yAxis);
 
                 data.setNode(null);
-                Note note = new Note(sample.getNote());
+                Note note = new Note(sample);
 
                 if (note.getNote() != null && hideShowIcons) {
                     note.getNote().setVisible(true);

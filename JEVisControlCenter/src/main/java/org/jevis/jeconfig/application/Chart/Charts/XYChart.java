@@ -511,8 +511,8 @@ public class XYChart implements Chart {
 
 
                     Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
-                    String note = sampleTreeMap.get(nearest).getNote();
-                    Note formattedNote = new Note(note);
+                    JEVisSample sample = sampleTreeMap.get(nearest);
+                    Note formattedNote = new Note(sample);
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {

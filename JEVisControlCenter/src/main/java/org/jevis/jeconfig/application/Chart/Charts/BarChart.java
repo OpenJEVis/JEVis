@@ -319,8 +319,8 @@ public class BarChart implements Chart {
                     nf.setMinimumFractionDigits(2);
                     nf.setMaximumFractionDigits(2);
                     Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
-                    String note = sampleTreeMap.get(nearest).getNote();
-                    Note formattedNote = new Note(note);
+                    JEVisSample sample = sampleTreeMap.get(nearest);
+                    Note formattedNote = new Note(sample);
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {
