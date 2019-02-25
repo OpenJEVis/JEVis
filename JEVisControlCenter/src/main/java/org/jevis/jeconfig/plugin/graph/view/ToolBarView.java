@@ -310,6 +310,11 @@ public class ToolBarView {
                                     } catch (JEVisException e) {
                                         logger.error(e);
                                     }
+                                    if (!model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
+                                            || !model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
+                                        AnalysisTimeFrame oldTimeframe = model.getAnalysisTimeFrame();
+                                        model.setAnalysisTimeFrame(oldTimeframe);
+                                    }
                                     select(currentAnalysis);
                                 });
 

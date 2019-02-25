@@ -266,7 +266,9 @@ public class TreeHelper {
     }
 
     public static void EventReload(JEVisObject object) {
-
+        /**
+         * TODO make reload function for object tree
+         */
     }
 
 
