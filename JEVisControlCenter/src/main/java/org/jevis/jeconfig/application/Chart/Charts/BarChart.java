@@ -330,7 +330,7 @@ public class BarChart implements Chart {
                         tableEntry.setDate((new DateTime(Math.round(nearest)).getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
                     }
-                    tableEntry.setNote(formattedNote.getNote());
+                    tableEntry.setNote(formattedNote.getNoteAsString());
                     String unit = serie.getUnit();
                     tableEntry.setValue(formattedDouble + " " + unit);
                     tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));

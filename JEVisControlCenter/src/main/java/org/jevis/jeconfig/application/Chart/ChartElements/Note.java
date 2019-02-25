@@ -20,6 +20,7 @@ import static org.jevis.commons.constants.NoteConstants.User.USER_NOTES;
 public class Note {
 
     private Node node = null;
+    private String noteString = null;
 //    private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
 //    private static final Image limit = ResourceLoader.getImage("rodentia-icons_dialog-warning.png");
 //    private static final Image exception = ResourceLoader.getImage("rodentia-icons_process-stop.png");
@@ -125,6 +126,7 @@ public class Note {
             if (changed) {
                 hbox.setPadding(new Insets(2, 2, 2, 2));
                 this.node = hbox;
+                this.noteString = sb.toString();
                 Label label = new Label(sb.toString());
                 label.setStyle("-fx-background-color: #ffffff;");
                 hbox.getChildren().add(label);
@@ -136,5 +138,9 @@ public class Note {
 
     public Node getNote() {
         return node;
+    }
+
+    public String getNoteAsString() {
+        return noteString;
     }
 }
