@@ -401,7 +401,8 @@ public class ObjectPlugin implements Plugin {
                     TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
                     break;
                 case Constants.Plugin.Command.RELOAD:
-                    TreeHelper.EventReload(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());
+                    TreeHelper.EventReload(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject(),
+                            ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()));
                     break;
                 case Constants.Plugin.Command.ADD_TABLE:
                     fireEventCreateTable(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());

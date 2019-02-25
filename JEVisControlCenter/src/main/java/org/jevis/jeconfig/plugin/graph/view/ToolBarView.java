@@ -310,6 +310,11 @@ public class ToolBarView {
                                     } catch (JEVisException e) {
                                         logger.error(e);
                                     }
+                                    if (!model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
+                                            || !model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
+                                        AnalysisTimeFrame oldTimeframe = model.getAnalysisTimeFrame();
+                                        model.setAnalysisTimeFrame(oldTimeframe);
+                                    }
                                     select(currentAnalysis);
                                 });
 
@@ -633,13 +638,17 @@ public class ToolBarView {
         reallyDelete.showAndWait().ifPresent(response -> {
             if (response.getButtonData().getTypeCode() == ButtonType.YES.getButtonData().getTypeCode()) {
                 try {
-                    ds.deleteObject(model.getCurrentAnalysis().getID());
+                    if (ds.getCurrentUser().canDelete(model.getCurrentAnalysis().getID())) {
+                        ds.deleteObject(model.getCurrentAnalysis().getID());
+                        model.updateListAnalyses();
+                        listAnalysesComboBox.getSelectionModel().selectFirst();
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.dialog.delete.error"), cancel);
+                        alert.showAndWait();
+                    }
                 } catch (JEVisException e) {
                     logger.error("Error: could not delete current analysis", e);
                 }
-
-                model.updateListAnalyses();
-                listAnalysesComboBox.getSelectionModel().selectFirst();
             }
         });
 

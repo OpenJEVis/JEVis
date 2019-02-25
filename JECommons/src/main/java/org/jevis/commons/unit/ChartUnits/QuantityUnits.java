@@ -50,6 +50,16 @@ public class QuantityUnits {
     private final Unit _kvarh = Unit.ONE.alternate("kvarh");
     private final JEVisUnit kvarh = new JEVisUnitImp(_kvarh);
 
+    private final Unit _va = Unit.ONE.alternate("va");
+    private final JEVisUnit va = new JEVisUnitImp(_va);
+    private final Unit _kva = Unit.ONE.alternate("kva");
+    private final JEVisUnit kva = new JEVisUnitImp(_kva);
+
+    private final Unit _var = Unit.ONE.alternate("var");
+    private final JEVisUnit var = new JEVisUnitImp(_var);
+    private final Unit _kvar = Unit.ONE.alternate("kvar");
+    private final JEVisUnit kvar = new JEVisUnitImp(_kvar);
+
     private final ArrayList<JEVisUnit> jeVisUnitArrayList;
 
     private final ArrayList<Unit> unitArrayList;
@@ -122,6 +132,14 @@ public class QuantityUnits {
             return MWh;
         } else if (unit.equals(GW)) {
             return GWh;
+        } else if (unit.equals(va)) {
+            return vah;
+        } else if (unit.equals(var)) {
+            return varh;
+        } else if (unit.equals(kva)) {
+            return kvah;
+        } else if (unit.equals(kvar)) {
+            return kvarh;
         } else return null;
     }
 }

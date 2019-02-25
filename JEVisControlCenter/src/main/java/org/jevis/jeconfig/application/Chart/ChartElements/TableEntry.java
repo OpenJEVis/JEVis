@@ -7,7 +7,6 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
 /**
@@ -23,7 +22,7 @@ public class TableEntry {
     private final SimpleStringProperty max;
     private final SimpleStringProperty avg;
     private final SimpleStringProperty sum;
-    private final SimpleObjectProperty<Node> note;
+    private final SimpleStringProperty note;
     private final SimpleStringProperty period;
 
     public TableEntry(String name) {
@@ -37,7 +36,7 @@ public class TableEntry {
         this.min = new SimpleStringProperty();
         this.max = new SimpleStringProperty();
         this.sum = new SimpleStringProperty();
-        this.note = new SimpleObjectProperty<Node>();
+        this.note = new SimpleStringProperty();
         this.period = new SimpleStringProperty();
     }
 
@@ -77,15 +76,15 @@ public class TableEntry {
         this.date.set(date);
     }
 
-    public Node getNote() {
+    public String getNote() {
         return note.get();
     }
 
-    public void setNote(Node note) {
+    public void setNote(String note) {
         this.note.set(note);
     }
 
-    public SimpleObjectProperty<Node> noteProperty() {
+    public SimpleStringProperty noteProperty() {
         return note;
     }
 

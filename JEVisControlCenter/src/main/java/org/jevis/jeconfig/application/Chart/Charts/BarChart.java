@@ -319,8 +319,8 @@ public class BarChart implements Chart {
                     nf.setMinimumFractionDigits(2);
                     nf.setMaximumFractionDigits(2);
                     Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
-                    String note = sampleTreeMap.get(nearest).getNote();
-                    Note formattedNote = new Note(note);
+                    JEVisSample sample = sampleTreeMap.get(nearest);
+                    Note formattedNote = new Note(sample);
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {
@@ -330,7 +330,7 @@ public class BarChart implements Chart {
                         tableEntry.setDate((new DateTime(Math.round(nearest)).getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
                     }
-                    tableEntry.setNote(formattedNote.getNote());
+                    tableEntry.setNote(formattedNote.getNoteAsString());
                     String unit = serie.getUnit();
                     tableEntry.setValue(formattedDouble + " " + unit);
                     tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));

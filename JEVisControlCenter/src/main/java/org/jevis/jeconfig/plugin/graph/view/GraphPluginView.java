@@ -37,6 +37,7 @@ import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -224,8 +225,36 @@ public class GraphPluginView implements Plugin {
 
     @Override
     public boolean supportsRequest(int cmdType) {
-        //TODO: implement
-        return false;
+        switch (cmdType) {
+            case Constants.Plugin.Command.SAVE:
+                return false;
+            case Constants.Plugin.Command.DELETE:
+                return false;
+            case Constants.Plugin.Command.EXPAND:
+                return false;
+            case Constants.Plugin.Command.NEW:
+                return false;
+            case Constants.Plugin.Command.RELOAD:
+                return true;
+            case Constants.Plugin.Command.ADD_TABLE:
+                return false;
+            case Constants.Plugin.Command.EDIT_TABLE:
+                return false;
+            case Constants.Plugin.Command.CREATE_WIZARD:
+                return false;
+            case Constants.Plugin.Command.FIND_OBJECT:
+                return false;
+            case Constants.Plugin.Command.PASTE:
+                return false;
+            case Constants.Plugin.Command.COPY:
+                return false;
+            case Constants.Plugin.Command.CUT:
+                return false;
+            case Constants.Plugin.Command.FIND_AGAIN:
+                return false;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -241,8 +270,35 @@ public class GraphPluginView implements Plugin {
                 case Constants.Plugin.Command.NEW:
                     break;
                 case Constants.Plugin.Command.RELOAD:
+                    try {
+                        ds.reloadAttributes();
+                    } catch (JEVisException e) {
+                        logger.error(e);
+                    }
+                    if (!dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
+                            && !dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
+                        AnalysisTimeFrame oldTimeframe = dataModel.getAnalysisTimeFrame();
+                        dataModel.setAnalysisTimeFrame(oldTimeframe);
+                    }
+                    dataModel.updateSamples();
+                    update();
                     break;
-                default:
+                case Constants.Plugin.Command.ADD_TABLE:
+                    break;
+                case Constants.Plugin.Command.EDIT_TABLE:
+                    break;
+                case Constants.Plugin.Command.CREATE_WIZARD:
+                    break;
+                case Constants.Plugin.Command.FIND_OBJECT:
+                    break;
+                case Constants.Plugin.Command.PASTE:
+                    break;
+                case Constants.Plugin.Command.COPY:
+                    break;
+                case Constants.Plugin.Command.CUT:
+                    break;
+                case Constants.Plugin.Command.FIND_AGAIN:
+                    break;
             }
         } catch (Exception ex) {
         }

@@ -49,9 +49,9 @@ public class LoadAnalysisDialog {
     private Response response = Response.CANCEL;
     private Stage stage;
     private GraphDataModel graphDataModel;
-    private JFXDatePicker pickerDateStart = new JFXDatePicker();
+    private JFXDatePicker pickerDateStart = new JFXDatePicker(LocalDate.now().minusDays(7));
     private JFXTimePicker pickerTimeStart = new JFXTimePicker();
-    private JFXDatePicker pickerDateEnd = new JFXDatePicker();
+    private JFXDatePicker pickerDateEnd = new JFXDatePicker(LocalDate.now());
     private JFXTimePicker pickerTimeEnd = new JFXTimePicker();
     private jfxtras.scene.control.ListView<JEVisObject> analysisListView = new ListView<>();
     private JEVisDataSource ds;
@@ -165,7 +165,7 @@ public class LoadAnalysisDialog {
         pickerTimeStart.setPrefWidth(100d);
         pickerTimeStart.setMaxWidth(100d);
         pickerTimeStart.setIs24HourView(true);
-        pickerTimeStart.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
+        pickerTimeStart.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         pickerDateEnd.setPrefWidth(120d);
@@ -173,7 +173,7 @@ public class LoadAnalysisDialog {
         pickerTimeEnd.setPrefWidth(100d);
         pickerTimeEnd.setMaxWidth(100d);
         pickerTimeEnd.setIs24HourView(true);
-        pickerTimeEnd.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
+        pickerTimeEnd.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         comboBoxPresetDates = getPresetDatesBox();
 
