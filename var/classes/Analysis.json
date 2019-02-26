@@ -27,6 +27,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Analysis"
+    },
+    {
+      "name": "Number of Charts per Screen",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Graph Plugin"
     }
   ]
 }

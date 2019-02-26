@@ -361,7 +361,8 @@ public class GraphPluginView implements Plugin {
         if (dataModel.getSelectedData() != null) {
 
             double maxHeight = border.getHeight();
-            double totalPrefHeight = 0;
+            double totalPrefHeight = 0d;
+            long chartsPerScreen = dataModel.getChartsPerScreen();
 
             List<ChartView> listChartViews = null;
             listChartViews = getChartViews();
@@ -496,20 +497,8 @@ public class GraphPluginView implements Plugin {
                             });
                             break;
                         case BAR:
-//                        cv.getBarChart().setOnMouseMoved(event -> {
-//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
-//                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
-//                            }
-//                        });
                             break;
                         case BUBBLE:
-//                        cv.getBubbleChart().setOnMouseMoved(event -> {
-//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
-//                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
-//                            }
-//                        });
                             break;
                         case SCATTER:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
@@ -524,15 +513,8 @@ public class GraphPluginView implements Plugin {
                             });
                             break;
                         case PIE:
-//                        cv.getPieChart().setOnMouseMoved(event -> {
-//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
-//                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
-//                            }
-//                        });
                             break;
                         default:
-
                             break;
                     }
                 }

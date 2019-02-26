@@ -32,10 +32,9 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
@@ -46,7 +45,9 @@ import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPlugin;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.NumberSpinner;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +56,7 @@ import java.util.List;
  */
 public class ChartSelectionDialog {
 
+    private static final Logger logger = LogManager.getLogger(ChartSelectionDialog.class);
     private final JEVisDataSource _ds;
     private Response _response = Response.CANCEL;
     private GraphDataModel data;
@@ -63,6 +65,7 @@ public class ChartSelectionDialog {
     private JEVisTree tree;
     //    private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private ChartPlugin chartPlugin = null;
+    private Long defaultChartsPerScreen;
 
     /**
      * @param ds
@@ -162,29 +165,18 @@ public class ChartSelectionDialog {
 
         Tab tabChartsSettings = new Tab(I18n.getInstance().getString("graph.tabs.charts"));
         tabChartsSettings.closableProperty().setValue(false);
-        tabChartsSettings.setDisable(true);
 
         VBox vboxCharts = new VBox();
 
         TabPane tabPaneCharts = new TabPane();
 
 //        chartsList = data.getChartsList();chartPlugin
-        for (ChartSettings cset : chartPlugin.getData().getCharts()) {
-            tabPaneCharts.getTabs().add(getChartTab(cset));
+
+        tabPaneCharts.getTabs().add(getCommonTab());
+
+        for (ChartSettings settings : data.getCharts()) {
+            tabPaneCharts.getTabs().add(createChartTab(settings));
         }
-
-
-        //Disabled, for finding bugs
-//        chartPlugin.getData().getChartsList().addListener((ListChangeListener<? super String>) c -> {
-//            while (c.next()) {
-//                if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
-//                    tabPaneCharts.getTabs().clear();
-//                    for (String s : chartPlugin.getData().getChartsList()) {
-//                        tabPaneCharts.getTabs().add(getChartTab(s));
-//                    }
-//                }
-//            }
-//        });
 
         vboxCharts.getChildren().add(tabPaneCharts);
         tabChartsSettings.setContent(vboxCharts);
@@ -228,6 +220,35 @@ public class ChartSelectionDialog {
         return _response;
     }
 
+    private Tab getCommonTab() {
+        Tab commonTab = new Tab(I18n.getInstance().getString("graph.tabs.tab.common"));
+        commonTab.setClosable(false);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(5);
+
+        Label labelChartsPerScreen = new Label(I18n.getInstance().getString("graph.tabs.tab.chartsperscreen"));
+
+        Long numberOfChartsPerScreen = data.getChartsPerScreen();
+        if (numberOfChartsPerScreen == null || numberOfChartsPerScreen.equals(0L)) {
+            numberOfChartsPerScreen = getDefaultChartsPerScreen();
+        }
+
+        NumberSpinner chartsPerScreen = new NumberSpinner(new BigDecimal(numberOfChartsPerScreen), new BigDecimal(1));
+
+        chartsPerScreen.numberProperty().addListener((observable, oldValue, newValue) -> data.setChartsPerScreen(newValue.longValue()));
+
+        int row = 0;
+        gridPane.add(labelChartsPerScreen, 0, row);
+        gridPane.add(chartsPerScreen, 1, row);
+        row++;
+
+        commonTab.setContent(gridPane);
+        return commonTab;
+    }
+
     private void openFirstDataDir() {
         List<UserSelection> listUS = new ArrayList<>();
         JEVisObject firstDataDir = null;
@@ -242,11 +263,14 @@ public class ChartSelectionDialog {
         if (!listUS.isEmpty()) tree.openUserSelection(listUS);
     }
 
-    private Tab getChartTab(ChartSettings cset) {
+    private Tab createChartTab(ChartSettings cset) {
         Tab newTab = new Tab(cset.getName());
         newTab.setClosable(false);
 
-        GridPane gp = new GridPane();
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(5);
 
         Label labelName = new Label(I18n.getInstance().getString("graph.tabs.tab.name"));
         TextField textFieldName = new TextField();
@@ -265,13 +289,16 @@ public class ChartSelectionDialog {
         ObservableList<String> listChartTypes = FXCollections.observableArrayList();
         ComboBox<String> boxChartType = new ComboBox<>(listChartTypes);
 
-        gp.add(labelName, 0, 1);
-        gp.add(textFieldName, 1, 1);
+        int row = 0;
+        gridPane.add(labelName, 0, row);
+        gridPane.add(textFieldName, 1, row);
+        row++;
 
-        gp.add(labelChartType, 0, 3);
-        gp.add(boxChartType, 1, 3);
+        gridPane.add(labelChartType, 0, row);
+        gridPane.add(boxChartType, 1, row);
+        row++;
 
-        newTab.setContent(gp);
+        newTab.setContent(gridPane);
 
         return newTab;
     }
@@ -289,4 +316,25 @@ public class ChartSelectionDialog {
         return chartPlugin;
     }
 
+    public Long getDefaultChartsPerScreen() {
+        if (defaultChartsPerScreen == null) {
+            try {
+                JEVisClass graphPluginClass = _ds.getJEVisClass("Graph Plugin");
+                List<JEVisObject> graphPlugins = _ds.getObjects(graphPluginClass, true);
+                if (!graphPlugins.isEmpty()) {
+                    JEVisAttribute chartsPerScreenAttribute = graphPlugins.get(0).getAttribute("Number of Charts per Screen");
+                    if (chartsPerScreenAttribute != null) {
+                        JEVisSample latestSample = chartsPerScreenAttribute.getLatestSample();
+                        if (latestSample != null) {
+                            defaultChartsPerScreen = Long.parseLong(latestSample.getValueAsString());
+                        }
+                    }
+                }
+            } catch (JEVisException e) {
+                logger.error("Could not get JEVisClass for Graph Plugin");
+            }
+        }
+        if (defaultChartsPerScreen == null || defaultChartsPerScreen.equals(0L)) defaultChartsPerScreen = 2L;
+        return defaultChartsPerScreen;
+    }
 }
