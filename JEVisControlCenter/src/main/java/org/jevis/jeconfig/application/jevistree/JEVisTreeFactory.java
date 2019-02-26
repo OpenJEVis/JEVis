@@ -148,13 +148,13 @@ public class JEVisTreeFactory {
         TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(250);
-        TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
-        TreeTableColumn<JEVisTreeRow, String> minTS = ColumnFactory.buildDataTS(false);
-        TreeTableColumn<JEVisTreeRow, String> maxTS = ColumnFactory.buildDataTS(true);
+//        TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
+//        TreeTableColumn<JEVisTreeRow, String> minTS = ColumnFactory.buildDataTS(false);
+//        TreeTableColumn<JEVisTreeRow, String> maxTS = ColumnFactory.buildDataTS(true);
 
-        idCol.setVisible(false);
-        minTS.setVisible(false);
-        maxTS.setVisible(false);
+//        idCol.setVisible(false);
+//        minTS.setVisible(false);
+//        maxTS.setVisible(false);
 
         BasicCellFilter cellFilter = new BasicCellFilter("Data");
         ObjectAttributeFilter dataFilter = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
@@ -181,10 +181,11 @@ public class JEVisTreeFactory {
 
         TreePlugin bp = new ChartPlugin(graphDataModel);
         //((ChartPlugin) bp).setData(graphDataModel);
-        tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
+        tree.getColumns().addAll(nameCol);
+//                , idCol, minTS, maxTS);
         tree.getPlugins().add(bp);
 //        addGraphKeys(tree);
-        addDefaultKeys(tree);
+//        addDefaultKeys(tree);
 
         return tree;
 

@@ -362,7 +362,7 @@ public class GraphPluginView implements Plugin {
 
             double maxHeight = border.getHeight();
             double totalPrefHeight = 0d;
-            long chartsPerScreen = dataModel.getChartsPerScreen();
+            Long chartsPerScreen = dataModel.getChartsPerScreen();
 
             List<ChartView> listChartViews = null;
             listChartViews = getChartViews();
@@ -415,13 +415,9 @@ public class GraphPluginView implements Plugin {
                                 }
 
                             }
-                            bp.setMinHeight(autoMinSize + (dataSize * dataSizeOffset));
 
-                            if (cset.getHeight() != null) {
-                                bp.setPrefHeight(cset.getHeight());
-                            } else {
-                                bp.setPrefHeight(autoMinSize + (dataSize * dataSizeOffset));
-                            }
+                            bp.setMinHeight(autoMinSize);
+                            bp.setPrefHeight(autoMinSize + (dataSize * dataSizeOffset));
                         }
                     }
                 } else {
@@ -539,31 +535,40 @@ public class GraphPluginView implements Plugin {
                      * set all on min size. after this the free space will be reallocate
                      */
                     totalPrefHeight = calculationTotalPrefSize(vBox);
-                    if (totalPrefHeight > maxHeight) {
-                        for (Node node : vBox.getChildren()) {
+
+                    if (chartsPerScreen != null) {
+                        ObservableList<Node> children = vBox.getChildren();
+                        for (Node node : children) {
                             if (node instanceof BorderPane) {
-                                ((BorderPane) node).setPrefHeight(autoMinSize);
+                                ((BorderPane) node).setPrefHeight((border.getHeight()) / chartsPerScreen);
                             }
                         }
-                    }
-
-                    /**
-                     * Recalculate total prefsize
-                     */
-                    totalPrefHeight = calculationTotalPrefSize(vBox);
-
-                    /**
-                     * Reallocate free space equal to all children
-                     */
-                    if (totalPrefHeight < maxHeight) {
-                        /** size/2 because there is an separator for every chart **/
-                        final double freeSpacePart = (maxHeight - totalPrefHeight) / (vBox.getChildren().size() / 2);
-                        vBox.getChildren().forEach(node -> {
-                            if (node instanceof Pane) {
-                                ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart);
+                    } else {
+                        if (totalPrefHeight > maxHeight) {
+                            for (Node node : vBox.getChildren()) {
+                                if (node instanceof BorderPane) {
+                                    ((BorderPane) node).setPrefHeight(autoMinSize);
+                                }
                             }
-                        });
+                        }
 
+                        /**
+                         * Recalculate total prefsize
+                         */
+                        totalPrefHeight = calculationTotalPrefSize(vBox);
+
+                        /**
+                         * Reallocate free space equal to all children
+                         */
+                        if (totalPrefHeight < maxHeight) {
+                            /** size/2 because there is an separator for every chart **/
+                            final double freeSpacePart = (maxHeight - totalPrefHeight) / (vBox.getChildren().size() / 2);
+                            vBox.getChildren().forEach(node -> {
+                                if (node instanceof Pane) {
+                                    ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart);
+                                }
+                            });
+                        }
                     }
                 }
             }

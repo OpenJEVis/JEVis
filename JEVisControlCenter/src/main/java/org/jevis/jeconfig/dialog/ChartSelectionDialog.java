@@ -20,8 +20,6 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -37,6 +35,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -103,72 +103,38 @@ public class ChartSelectionDialog {
         stage.setHeight(768);
         stage.setResizable(true);
 
-        TabPane tabpane = new TabPane();
+        TabPane mainTabPane = new TabPane();
+        VBox.setVgrow(mainTabPane, Priority.ALWAYS);
 
         Tab tabConfiguration = new Tab(I18n.getInstance().getString("graph.tabs.configuration"));
         tabConfiguration.closableProperty().setValue(false);
 
-        VBox root = new VBox();
+        VBox selectionBox = new VBox();
 
         String ICON = "1404313956_evolution-tasks.png";
         Node headerNode = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("graph.selection.header"));
 
-        Separator sep = new Separator(Orientation.HORIZONTAL);
-
-        AnchorPane treePane = new AnchorPane();
-
-
         for (TreePlugin plugin : tree.getPlugins()) {
             if (plugin instanceof ChartPlugin) {
                 chartPlugin = (ChartPlugin) plugin;
-                if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
-                    //chartPlugin.setData(data);
-                }
+//                if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
+                //chartPlugin.setData(data);
+//                }
             }
         }
 
+        selectionBox.getChildren().setAll(headerNode, tree);
+        VBox.setVgrow(tree, Priority.ALWAYS);
 
-        treePane.getChildren().setAll(tree);
-        AnchorPane.setTopAnchor(tree, 0d);
-        AnchorPane.setRightAnchor(tree, 0d);
-        AnchorPane.setBottomAnchor(tree, 0d);
-        AnchorPane.setLeftAnchor(tree, 0d);
-
-        HBox buttonBox = new HBox(10);
-        Region spacer = new Region();
-        Button ok = new Button(I18n.getInstance().getString("graph.selection.load"));
-        Button removeAllSelections = new Button(I18n.getInstance().getString("graph.selection.removeselections"));
-
-        ok.setDefaultButton(true);
-
-        HBox.setHgrow(removeAllSelections, Priority.NEVER);
-        HBox.setHgrow(ok, Priority.NEVER);
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox.setMargin(removeAllSelections, new Insets(10));
-        HBox.setMargin(ok, new Insets(10));
-        buttonBox.getChildren().setAll(tree.getSearchFilterBar(), spacer, removeAllSelections, ok);
-        root.getChildren().setAll(headerNode, treePane, sep, buttonBox);
-
-        VBox.setVgrow(treePane, Priority.ALWAYS);
-        VBox.setVgrow(sep, Priority.NEVER);
-        VBox.setVgrow(buttonBox, Priority.NEVER);
-
-
-        removeAllSelections.setOnAction(event -> {
-            try {
-                chartPlugin.selectNone();
-            } catch (Exception ex) {
-            }
-        });
-
-        tabConfiguration.setContent(root);
+        tabConfiguration.setContent(selectionBox);
 
         Tab tabChartsSettings = new Tab(I18n.getInstance().getString("graph.tabs.charts"));
         tabChartsSettings.closableProperty().setValue(false);
 
-        VBox vboxCharts = new VBox();
+        VBox vBoxAdvancedSettings = new VBox();
 
         TabPane tabPaneCharts = new TabPane();
+        VBox.setVgrow(tabPaneCharts, Priority.ALWAYS);
 
 //        chartsList = data.getChartsList();chartPlugin
 
@@ -178,12 +144,43 @@ public class ChartSelectionDialog {
             tabPaneCharts.getTabs().add(createChartTab(settings));
         }
 
-        vboxCharts.getChildren().add(tabPaneCharts);
-        tabChartsSettings.setContent(vboxCharts);
+        vBoxAdvancedSettings.getChildren().add(tabPaneCharts);
+        tabChartsSettings.setContent(vBoxAdvancedSettings);
 
-        tabpane.getTabs().addAll(tabConfiguration, tabChartsSettings);
+        mainTabPane.getTabs().addAll(tabConfiguration, tabChartsSettings);
 
-        Scene scene = new Scene(tabpane);
+        VBox root = new VBox();
+
+        Separator sep = new Separator(Orientation.HORIZONTAL);
+        VBox.setVgrow(sep, Priority.NEVER);
+
+        HBox buttonBox = new HBox(10);
+        VBox.setVgrow(buttonBox, Priority.NEVER);
+
+        Region spacer = new Region();
+        Button ok = new Button(I18n.getInstance().getString("graph.selection.load"));
+        Button removeAllSelections = new Button(I18n.getInstance().getString("graph.selection.removeselections"));
+
+        removeAllSelections.setOnAction(event -> {
+            try {
+                chartPlugin.selectNone();
+            } catch (Exception ignored) {
+            }
+        });
+
+        ok.setDefaultButton(true);
+
+        HBox.setHgrow(removeAllSelections, Priority.NEVER);
+        HBox.setHgrow(ok, Priority.NEVER);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setMargin(removeAllSelections, new Insets(10));
+        HBox.setMargin(ok, new Insets(10));
+
+        buttonBox.getChildren().setAll(tree.getSearchFilterBar(), spacer, removeAllSelections, ok);
+
+        root.getChildren().addAll(mainTabPane, sep, buttonBox);
+
+        Scene scene = new Scene(root);
         stage.setScene(scene);
 
         if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
@@ -207,6 +204,7 @@ public class ChartSelectionDialog {
 
         ok.setOnAction(event -> {
             tree.setUserSelectionEnded();
+            tree = null;
 
             _response = Response.OK;
 
@@ -234,6 +232,7 @@ public class ChartSelectionDialog {
         Long numberOfChartsPerScreen = data.getChartsPerScreen();
         if (numberOfChartsPerScreen == null || numberOfChartsPerScreen.equals(0L)) {
             numberOfChartsPerScreen = getDefaultChartsPerScreen();
+            data.setChartsPerScreen(numberOfChartsPerScreen);
         }
 
         NumberSpinner chartsPerScreen = new NumberSpinner(new BigDecimal(numberOfChartsPerScreen), new BigDecimal(1));
@@ -264,7 +263,7 @@ public class ChartSelectionDialog {
     }
 
     private Tab createChartTab(ChartSettings cset) {
-        Tab newTab = new Tab(cset.getName());
+        Tab newTab = new Tab(cset.getId().toString());
         newTab.setClosable(false);
 
         GridPane gridPane = new GridPane();
@@ -273,29 +272,19 @@ public class ChartSelectionDialog {
         gridPane.setVgap(5);
 
         Label labelName = new Label(I18n.getInstance().getString("graph.tabs.tab.name"));
-        TextField textFieldName = new TextField();
-        textFieldName.setText(cset.getName());
-
-        textFieldName.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue == null || newValue != oldValue) {
-                for (ChartSettings c : data.getCharts()) {
-                    if (c.getName().contains(cset.getName())) c.setName(newValue);
-                }
-            }
-        });
+        ChartNameTextField chartNameTextField = new ChartNameTextField(cset);
 
         Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
 
-        ObservableList<String> listChartTypes = FXCollections.observableArrayList();
-        ComboBox<String> boxChartType = new ComboBox<>(listChartTypes);
+        ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
 
         int row = 0;
         gridPane.add(labelName, 0, row);
-        gridPane.add(textFieldName, 1, row);
+        gridPane.add(chartNameTextField, 1, row);
         row++;
 
         gridPane.add(labelChartType, 0, row);
-        gridPane.add(boxChartType, 1, row);
+        gridPane.add(chartTypeComboBox, 1, row);
         row++;
 
         newTab.setContent(gridPane);
