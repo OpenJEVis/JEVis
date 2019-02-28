@@ -186,7 +186,7 @@ public class SelectTargetDialog {
         VBox content = new VBox();
 
 
-        tree = JEVisTreeFactory.buildBasicDefault(ds);
+        tree = JEVisTreeFactory.buildBasicDefault(ds, false);
         tree.getPlugins().add(simpleTargetPlugin);
 
         tree.getSelectionModel().setSelectionMode(selectionMode);

@@ -156,7 +156,7 @@ public class ObjectPlugin implements Plugin {
     public Node getContentNode() {
         if (viewPane == null) {
 
-            tree = JEVisTreeFactory.buildBasicDefault(ds);
+            tree = JEVisTreeFactory.buildBasicDefault(ds, true);
             tree.setId("objecttree");
 //            tree.getStylesheets().add("/styles/Styles.css");
             tree.setStyle("-fx-background-color: #E2E2E2;");

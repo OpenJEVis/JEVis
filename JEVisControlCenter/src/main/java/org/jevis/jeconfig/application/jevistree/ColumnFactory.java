@@ -86,7 +86,7 @@ public class ColumnFactory {
                 }
 
             } catch (Exception ex) {
-                logger.info("Error in Column Factory: " + ex);
+                logger.debug("Error in Column Factory: " + ex);
                 return new ReadOnlyObjectWrapper<String>("Error");
             }
 
@@ -264,6 +264,7 @@ public class ColumnFactory {
         TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn<>(coumnName);
         column.setId(coumnName);
         column.setPrefWidth(135);
+
         column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, String> p) -> {
             try {
                 if (p != null

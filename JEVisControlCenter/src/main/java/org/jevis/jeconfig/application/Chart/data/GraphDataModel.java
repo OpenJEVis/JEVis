@@ -70,7 +70,7 @@ public class GraphDataModel {
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis = null;
     private Boolean multipleDirectories = false;
-    private Long chartsPerScreen = 2L;
+    private Long chartsPerScreen = null;
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
@@ -232,7 +232,7 @@ public class GraphDataModel {
                         JEVisSample chartPerScreenSample = getCurrentAnalysis().getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME).getLatestSample();
                         if (chartPerScreenSample != null) {
                             setChartsPerScreen(chartPerScreenSample.getValueAsLong());
-                        }
+                        } else setChartsPerScreen(null);
                     }
 
                     WorkDays wd = new WorkDays(getCurrentAnalysis());

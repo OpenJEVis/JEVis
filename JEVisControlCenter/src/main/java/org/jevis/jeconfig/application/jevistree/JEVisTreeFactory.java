@@ -107,24 +107,32 @@ public class JEVisTreeFactory {
 
     }
 
-    public static JEVisTree buildBasicDefault(JEVisDataSource ds) {
+    public static JEVisTree buildBasicDefault(JEVisDataSource ds, boolean withMinMaxTSColumn) {
 
         BasicCellFilter cellFilter = new BasicCellFilter(I18n.getInstance().getString("tree.filter.nofilter"));
         cellFilter.addItemFilter(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
 
-        return buildBasicDefault(ds, cellFilter);
+        return buildBasicDefault(ds, cellFilter, withMinMaxTSColumn);
     }
 
-    public static JEVisTree buildBasicDefault(JEVisDataSource ds, JEVisTreeFilter filter) {
+    public static JEVisTree buildBasicDefault(JEVisDataSource ds, JEVisTreeFilter filter, boolean withMinMaxTSColumn) {
 
         TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
         TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
-        TreeTableColumn<JEVisTreeRow, String> minTS = ColumnFactory.buildDataTS(false);
-        TreeTableColumn<JEVisTreeRow, String> maxTS = ColumnFactory.buildDataTS(true);
+        TreeTableColumn<JEVisTreeRow, String> minTS = null;
+        TreeTableColumn<JEVisTreeRow, String> maxTS = null;
+
+        if (withMinMaxTSColumn) {
+            minTS = ColumnFactory.buildDataTS(false);
+            maxTS = ColumnFactory.buildDataTS(true);
+        }
 
         idCol.setVisible(false);
-        minTS.setVisible(false);
-        maxTS.setVisible(false);
+
+        if (withMinMaxTSColumn) {
+            minTS.setVisible(false);
+            maxTS.setVisible(false);
+        }
         nameCol.setPrefWidth(460);
 
 //        BasicCellFilter cellFilter = new BasicCellFilter("All");
@@ -134,8 +142,10 @@ public class JEVisTreeFactory {
 //        FilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
         JEVisTree tree = new JEVisTree(ds, filter);
 
-        tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
-
+        tree.getColumns().addAll(nameCol, idCol);
+        if (withMinMaxTSColumn) {
+            tree.getColumns().addAll(minTS, maxTS);
+        }
 
         addDefaultKeys(tree);
 
@@ -148,13 +158,13 @@ public class JEVisTreeFactory {
         TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(250);
-        TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
-        TreeTableColumn<JEVisTreeRow, String> minTS = ColumnFactory.buildDataTS(false);
-        TreeTableColumn<JEVisTreeRow, String> maxTS = ColumnFactory.buildDataTS(true);
+//        TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
+//        TreeTableColumn<JEVisTreeRow, String> minTS = ColumnFactory.buildDataTS(false);
+//        TreeTableColumn<JEVisTreeRow, String> maxTS = ColumnFactory.buildDataTS(true);
 
-        idCol.setVisible(false);
-        minTS.setVisible(false);
-        maxTS.setVisible(false);
+//        idCol.setVisible(false);
+//        minTS.setVisible(false);
+//        maxTS.setVisible(false);
 
         BasicCellFilter cellFilter = new BasicCellFilter("Data");
         ObjectAttributeFilter dataFilter = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
@@ -181,10 +191,11 @@ public class JEVisTreeFactory {
 
         TreePlugin bp = new ChartPlugin(graphDataModel);
         //((ChartPlugin) bp).setData(graphDataModel);
-        tree.getColumns().addAll(nameCol, idCol, minTS, maxTS);
+        tree.getColumns().addAll(nameCol);
+//                , idCol, minTS, maxTS);
         tree.getPlugins().add(bp);
 //        addGraphKeys(tree);
-        addDefaultKeys(tree);
+//        addDefaultKeys(tree);
 
         return tree;
 

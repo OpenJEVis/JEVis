@@ -86,6 +86,8 @@ public class ChartPlugin implements TreePlugin {
         ColorColumn colorColumn = new ColorColumn(jeVisTree, I18n.getInstance().getString("graph.table.color"));
         colorColumn.setGraphDataModel(data);
 
+        List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns = new ArrayList<TreeTableColumn<JEVisTreeRow, Boolean>>();
+
         addChart.setOnAction(event -> {
             if (data.getCharts().size() < getMaxChartsFromService()) {
                 List<String> oldNames = new ArrayList<>();
@@ -117,7 +119,7 @@ public class ChartPlugin implements TreePlugin {
 
                 data.getCharts().add(new ChartSettings(id, newName));
 
-                SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, id);
+                SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, id, selectionColumns, column);
                 selectColumn.setGraphDataModel(data);
                 column.getColumns().add(column.getColumns().size() - 7, selectColumn.getSelectionColumn());
             }
@@ -125,10 +127,8 @@ public class ChartPlugin implements TreePlugin {
 
         column.setGraphic(addChart);
 
-        List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns = new ArrayList<TreeTableColumn<JEVisTreeRow, Boolean>>();
-
         for (int i = 0; i < getData().getCharts().size(); i++) {
-            SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, getData().getCharts().get(i).getId());
+            SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, getData().getCharts().get(i).getId(), selectionColumns, column);
             selectColumn.setGraphDataModel(data);
             selectionColumns.add(selectColumn.getSelectionColumn());
         }

@@ -127,9 +127,11 @@ public class ReportExecutor {
                 try {
                     logger.info("Creating pdf file.");
                     File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
+                    wholePdfFile.deleteOnExit();
                     PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
                     pdfFileSplitter.splitPDF();
                     File outFile = pdfFileSplitter.getOutputFile();
+                    outFile.deleteOnExit();
                     fileForNotification = new JEVisFileImp(reportName + ".pdf", outFile);
                 } catch (Exception e) {
                     logger.error("Could not initialize pdf converter. " + e);

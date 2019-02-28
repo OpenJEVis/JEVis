@@ -374,7 +374,11 @@ public class ReportLinkProperty implements ReportData {
                 }
             }
         }
-        return new LinkStatus(false, "should not be reachable"); //should not be reachable
+        if (!defaultAttributeProperties.isEmpty()) {
+            return new LinkStatus(true, "No attributes, but there are default attributes, which are not checked for new data.");
+        } else {
+            return new LinkStatus(false, "should not be reachable"); //should not be reachable
+        }
     }
 
 }
