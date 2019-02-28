@@ -56,7 +56,7 @@ public class FillGapStep implements ProcessStep {
                     DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
                     DateTime lastDateForCache = calcAttribute.getFirstDate();
 
-                    sampleCache = calcAttribute.getCleanObject().getAttribute(CleanDataObject.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
+                    sampleCache = calcAttribute.getValueAttribute().getSamples(minDateForCache, lastDateForCache);
                 } catch (Exception e) {
                     logger.error("No caching possible: " + e);
                 }
