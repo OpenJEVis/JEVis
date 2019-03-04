@@ -9,6 +9,11 @@
       "type": 3
     },
     {
+      "start": "String Data",
+      "end": "Data Directory",
+      "type": 3
+    },
+    {
       "start": "Data Directory",
       "end": "Building",
       "type": 3
