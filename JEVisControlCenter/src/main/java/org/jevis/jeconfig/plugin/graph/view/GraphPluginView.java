@@ -536,7 +536,7 @@ public class GraphPluginView implements Plugin {
                      */
                     totalPrefHeight = calculationTotalPrefSize(vBox);
 
-                    if (chartsPerScreen != null) {
+                    if (chartsPerScreen != null && dataModel.getCharts().size() > 1) {
                         ObservableList<Node> children = vBox.getChildren();
                         for (Node node : children) {
                             if (node instanceof BorderPane) {

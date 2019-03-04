@@ -148,6 +148,8 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                     logger.error("Could not get current Value.");
                 }
                 if (currentSample != null) {
+                    sb.append(currentSample.getTimestamp().toString("YYYY-MM-DD HH:mm:ss"));
+                    sb.append("\n");
                     sb.append(currentSample.getValueAsDouble());
                     if (currentUnit != null) {
                         sb.append(" ").append(currentUnit);

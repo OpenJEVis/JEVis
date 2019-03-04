@@ -1,0 +1,28 @@
+{
+  "jevisclass": "String Data",
+  "names": {
+    "de": "Text Daten",
+    "ru": "Data",
+    "en": "Text Data"
+  },
+  "descriptions": {
+    "de": "In Text Daten werden Text-Datenreihen gespeichert.",
+    "ru": "Storage of numerical data.",
+    "en": "Storage of text data."
+  },
+  "types": [
+    {
+      "type": "Value",
+      "descriptions": {
+        "de": "Wert der Datenreihe",
+        "ru": "Value of the data series",
+        "en": "Value of the data series"
+      },
+      "names": {
+        "de": "Wert",
+        "ru": "Value",
+        "en": "Value"
+      }
+    }
+  ]
+}

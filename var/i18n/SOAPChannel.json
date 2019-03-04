@@ -10,9 +10,9 @@
     {
       "type": "Last Readout",
       "descriptions": {
-        "de": "Last Readout description",
+        "de": "Datum und Zeit der letzten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
         "ru": "Last Readout description",
-        "en": "Last Readout description"
+        "en": "Date and Time of last readout in time zone setup in the server object"
       },
       "names": {
         "de": "Letzte Auslesung",
