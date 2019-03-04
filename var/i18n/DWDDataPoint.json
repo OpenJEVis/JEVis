@@ -8,24 +8,11 @@
   "descriptions": {},
   "types": [
     {
-      "type": "Atmospheric Pressure Target",
-      "descriptions": {
-        "de": "Atmospheric Pressure Target description",
-        "ru": "Atmospheric Pressure Target description",
-        "en": "Atmospheric Pressure Target description"
-      },
-      "names": {
-        "de": "Atmosphärischer Druck Ziel",
-        "ru": "Atmospheric Pressure Target",
-        "en": "Atmospheric Pressure Target"
-      }
-    },
-    {
       "type": "City",
       "descriptions": {
-        "de": "City description",
+        "de": "Standort des Messpunktes",
         "ru": "City description",
-        "en": "City description"
+        "en": "Location of monitoring station"
       },
       "names": {
         "de": "Stadt",
@@ -34,55 +21,185 @@
       }
     },
     {
-      "type": "Humidity Target",
+      "type": "Height Target",
       "descriptions": {
-        "de": "Humidity Target description",
-        "ru": "Humidity Target description",
-        "en": "Humidity Target description"
+        "de": "Höhe in m über N.N.",
+        "ru": "Height",
+        "en": "Height"
       },
       "names": {
-        "de": "Luftfeuchte Ziel",
-        "ru": "Humidity Target",
-        "en": "Humidity Target"
+        "de": "Höhe",
+        "ru": "Height",
+        "en": "Height"
       }
     },
     {
-      "type": "Precipitation Target",
+      "type": "Atmospheric Pressure Target",
       "descriptions": {
-        "de": "Precipitation Target description",
-        "ru": "Precipitation Target description",
-        "en": "Precipitation Target description"
+        "de": "Auf Meereshöhe reduzierter Luftdruck in hPa/mBar",
+        "ru": "Atmospheric Pressure Target description",
+        "en": "Atmospheric Pressure Target description"
       },
       "names": {
-        "de": "Niederschlag Ziel",
-        "ru": "Precipitation Target",
-        "en": "Precipitation Target"
+        "de": "Luftdruckruck",
+        "ru": "Atmospheric Pressure",
+        "en": "Atmospheric Pressure"
       }
     },
     {
       "type": "Temperature Target",
       "descriptions": {
-        "de": "Temperature Target description",
+        "de": "Lufttemperatur in Grad Celsius",
         "ru": "Temperature Target description",
         "en": "Temperature Target description"
       },
       "names": {
-        "de": "Temperatur Ziel",
-        "ru": "Temperature Target",
-        "en": "Temperature Target"
+        "de": "Temperatur",
+        "ru": "Temperature",
+        "en": "Temperature"
+      }
+    },
+    {
+      "type": "Temperature Min Target",
+      "descriptions": {
+        "de": "Niedrigste Temperatur der halben Stunde",
+        "ru": "Lowest temperature of last half hour",
+        "en": "Lowest temperature of last half hour"
+      },
+      "names": {
+        "de": "Mindesttemperatur",
+        "ru": "Min temperature",
+        "en": "Min temperature"
+      }
+    },
+    {
+      "type": "Temperature Max Target",
+      "descriptions": {
+        "de": "Höchste Temperatur der halben Stunde",
+        "ru": "Highest temperature of last half hour",
+        "en": "Highest temperature of last half hour"
+      },
+      "names": {
+        "de": "Höchsttemperatur",
+        "ru": "Max temperature",
+        "en": "Max temperature"
+      }
+    },
+    {
+      "type": "Humidity Target",
+      "descriptions": {
+        "de": "Relative Luftfeuchte in %",
+        "ru": "Humidity Target description",
+        "en": "Humidity Target description"
+      },
+      "names": {
+        "de": "Rel. Luftfeuchte",
+        "ru": "Humidity",
+        "en": "Humidity"
+      }
+    },
+    {
+      "type": "Precipitation Target",
+      "descriptions": {
+        "de": "Niederschlagsmenge, halbstündig, mm ist gleich Liter pro m²",
+        "ru": "Precipitation of last half hour",
+        "en": "Precipitation of last half hour"
+      },
+      "names": {
+        "de": "Niederschlag",
+        "ru": "Precipitation",
+        "en": "Precipitation"
+      }
+    },
+    {
+      "type": "Precipitation12 Target",
+      "descriptions": {
+        "de": "Niederschlag der letzten 12 Stunden",
+        "ru": "Precipitation of last 12 hours",
+        "en": "Precipitation of last 12 hours"
+      },
+      "names": {
+        "de": "Niederschlag",
+        "ru": "Precipitation",
+        "en": "Precipitation"
+      }
+    },
+    {
+      "type": "Snow Height Target",
+      "descriptions": {
+        "de": "Schneehöhe",
+        "ru": "Snow height",
+        "en": "Snow height"
+      },
+      "names": {
+        "de": "Schneehöhe",
+        "ru": "Snow height",
+        "en": "Snow height"
       }
     },
     {
       "type": "Wind Speed Target",
       "descriptions": {
-        "de": "Wind Speed Target description",
+        "de": "Windgeschwindigkeit letztes 10-Minutenmittel in km/h",
         "ru": "Wind Speed Target description",
         "en": "Wind Speed Target description"
       },
       "names": {
-        "de": "Windgeschwindigkeit Ziel",
-        "ru": "Wind Speed Target",
-        "en": "Wind Speed Target"
+        "de": "Windgeschwindigkeit",
+        "ru": "Wind Speed",
+        "en": "Wind Speed"
+      }
+    },
+    {
+      "type": "Wind Peaks Target",
+      "descriptions": {
+        "de": "höchste Windspitze während der letzten halben Stunde in km/h",
+        "ru": "Wind Peaks Target description",
+        "en": "Wind Peaks Target description"
+      },
+      "names": {
+        "de": "Windspitzen",
+        "ru": "Wind Peaks",
+        "en": "Wind Peaks"
+      }
+    },
+    {
+      "type": "Wind Direction Target",
+      "descriptions": {
+        "de": "Wind Direction Target Description",
+        "ru": "Wind Direction Target Description",
+        "en": "Wind Direction Target Description"
+      },
+      "names": {
+        "de": "Windrichtung",
+        "ru": "Wind direction",
+        "en": "Wind direction"
+      }
+    },
+    {
+      "type": "Climate and Clouds Target",
+      "descriptions": {
+        "de": "Climate and Clouds Target Description",
+        "ru": "Climate and Clouds Target Description",
+        "en": "Climate and Clouds Target Description"
+      },
+      "names": {
+        "de": "Wetter + Wolken",
+        "ru": "Weather + Clouds",
+        "en": "Weather + Clouds"
+      }
+    },
+    {
+      "type": "Squall Target",
+      "descriptions": {
+        "de": "Squall Target Target Description",
+        "ru": "Squall Target Description",
+        "en": "Squall Target Description"
+      },
+      "names": {
+        "de": "Böen",
+        "ru": "Squall",
+        "en": "Squall"
       }
     }
   ]
