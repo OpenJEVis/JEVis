@@ -57,9 +57,9 @@ public class XMLParser {
                     transformer = tf.newTransformer();
                     transformer.transform(domSource, result);
                 } catch (TransformerConfigurationException ex) {
-                    logger.fatal(ex);
+                    logger.fatal("Error in transformer configuration: " + ex);
                 } catch (TransformerException ex) {
-                    logger.fatal(ex);
+                    logger.fatal("Error while transforming: " + ex);
                 }
 
                 //iterate over all nodes with the element name
@@ -73,18 +73,8 @@ public class XMLParser {
                             continue;
                         }
                     }
-//                    ic.setXMLInput(currentNode);
-
-                    //single parsing
-                    boolean isCorrectNode = true; //eigentl false
-                    DateTime dateTime = null;
-                    Double value = null;
-                    Long datapoint = null;
                     parseNode(currentNode, mainAttributeNode);
 
-                    //parse the correct node
-                    if (isCorrectNode) {
-                    }
                 }
             }
         }
@@ -120,12 +110,13 @@ public class XMLParser {
                     dateNode = currentNode.cloneNode(true);
                 }
                 String dateString = null;
-                if (_dateAttribute != null) {
+                if (_dateAttribute != null && dateNode != null) {
                     Node namedItem = dateNode.getAttributes().getNamedItem(_dateAttribute);
                     dateString = namedItem.getNodeValue();
-                } else {
+                } else if (dateNode != null) {
                     dateString = dateNode.getTextContent();
-                }
+                } else continue;
+
                 String pattern = _dateFormat;
 
 //                DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern);
@@ -148,25 +139,26 @@ public class XMLParser {
                     valueNode = currentNode.cloneNode(true);
                 }
                 String valueString = null;
-                if (_valueAtribute != null) {
+                if (_valueAtribute != null && valueNode != null) {
                     Node namedItem = valueNode.getAttributes().getNamedItem(_valueAtribute);
                     valueString = namedItem.getNodeValue();
-                } else {
+                } else if (valueNode != null) {
                     valueString = valueNode.getTextContent();
-                }
-                Double value = Double.parseDouble(valueString);
-                correct = true;
+                } else continue;
 
-//                    if (dpParser.outOfBounce()) {
-//                        logger.warn( "Date for value out of bounce: " + dateTime);
-//                        logger.warn( "Value out of bounce: " + value);
-//                    }
-                if (!correct) {
-                    continue;
+                Double doubleValue = null;
+                Object objectValue = null;
+                try {
+                    doubleValue = Double.parseDouble(valueString);
+                } catch (Exception e) {
+                    logger.warn("Could not get double value. continuing with object value");
+                    objectValue = valueString;
                 }
-                _results.add(new Result(target, value, dateTime));
+
+                if (doubleValue != null) _results.add(new Result(target, doubleValue, dateTime));
+                else _results.add(new Result(target, objectValue, dateTime));
             } catch (Exception ex) {
-                logger.fatal(ex);
+                logger.error("Could not parse Node: " + currentNode.toString() + " from main Attribute Node: " + mainAttributeNode);
             }
         }
     }
