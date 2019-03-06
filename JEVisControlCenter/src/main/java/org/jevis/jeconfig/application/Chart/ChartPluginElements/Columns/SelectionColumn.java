@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.ChartPluginElements;
+package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -12,7 +12,10 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -37,9 +40,11 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     private JEVisTree tree;
     private ColorColumn colorColumn;
     private Integer chartId;
+    private final JEVisDataSource dataSource;
 
-    public SelectionColumn(JEVisTree tree, ColorColumn colorColumn, Integer chartId, List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns, TreeTableColumn<JEVisTreeRow, Long> allColumns) {
+    public SelectionColumn(JEVisTree tree, JEVisDataSource dataSource, ColorColumn colorColumn, Integer chartId, List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns, TreeTableColumn<JEVisTreeRow, Long> allColumns) {
         this.tree = tree;
+        this.dataSource = dataSource;
         this.colorColumn = colorColumn;
         this.chartId = chartId;
         this.selectionColumns = selectionColumns;
@@ -266,7 +271,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                         allColumns.getColumns().removeAll(tobeRemovedColumn);
 
                                                         for (int i = removeId; i < getData().getCharts().size(); i++) {
-                                                            SelectionColumn selectColumn = new SelectionColumn(tree, colorColumn, i, selectionColumns, allColumns);
+                                                            SelectionColumn selectColumn = new SelectionColumn(tree, dataSource, colorColumn, i, selectionColumns, allColumns);
                                                             selectColumn.setGraphDataModel(getData());
                                                             selectionColumns.add(selectColumn.getSelectionColumn());
                                                             allColumns.getColumns().add(allColumns.getColumns().size() - 7, selectColumn.getSelectionColumn());
@@ -330,6 +335,11 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public JEVisDataSource getDataSource() {
+        return dataSource;
     }
 
 }

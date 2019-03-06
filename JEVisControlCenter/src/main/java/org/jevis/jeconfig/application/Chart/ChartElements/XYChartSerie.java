@@ -27,8 +27,8 @@ public class XYChartSerie {
     Integer yAxis;
     MultiAxisChart.Series<Number, Number> serie;
     TableEntry tableEntry;
-    private DateTime timeStampFromFirstSample = DateTime.now();
-    private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
+    DateTime timeStampFromFirstSample = DateTime.now();
+    DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     ChartDataModel singleRow;
     Boolean hideShowIcons;
     TreeMap<Double, JEVisSample> sampleMap;
@@ -43,6 +43,8 @@ public class XYChartSerie {
     }
 
     public void generateSeriesFromSamples() throws JEVisException {
+        timeStampFromFirstSample = DateTime.now();
+        timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
         tableEntry = new TableEntry(getTableEntryName());
         this.serie.setName(getTableEntryName());
 

@@ -27,6 +27,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.chart.Chart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -427,12 +428,29 @@ public class GraphPluginView implements Plugin {
                 cv.getLegend().maxWidthProperty().bind(bp.widthProperty());
 
                 if (cv.getShowTable()) {
-                    bp.setTop(cv.getLegend());
+                    if (!cv.getChartType().equals(ChartType.TABLE)) {
+                        bp.setTop(cv.getLegend());
+                    } else {
+                        Chart chart = cv.getChart().getChart();
+//                        chart.setMinHeight(0);
+                        chart.setMaxHeight(70);
+                        bp.setTop(chart);
+
+                    }
                 } else {
                     bp.setTop(null);
                 }
 
-                bp.setCenter(cv.getChartRegion());
+                if (!cv.getChartType().equals(ChartType.TABLE)) {
+                    bp.setCenter(cv.getChartRegion());
+                } else {
+                    ScrollPane scrollPane = new ScrollPane(cv.getLegend());
+                    scrollPane.setFitToHeight(true);
+                    scrollPane.setFitToWidth(true);
+                    scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+                    scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                    bp.setCenter(scrollPane);
+                }
                 bp.setBottom(null);
 
                 DragResizerXY.makeResizable(bp);
@@ -509,6 +527,18 @@ public class GraphPluginView implements Plugin {
                             });
                             break;
                         case PIE:
+                            break;
+                        case TABLE:
+                            cv.getChart().getChart().setOnMouseMoved(event -> {
+                                cv.updateTablesSimultaneously(event, null);
+                                notActive.forEach(na -> {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
+                                        na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                                    }
+                                });
+                            });
                             break;
                         default:
                             break;

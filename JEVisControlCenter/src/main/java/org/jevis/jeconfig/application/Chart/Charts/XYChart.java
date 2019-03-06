@@ -60,16 +60,16 @@ public class XYChart implements Chart {
     private List<String> unitY1 = new ArrayList<>();
     private List<String> unitY2 = new ArrayList<>();
     List<ChartDataModel> chartDataModels;
-    private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
+    List<XYChartSerie> xyChartSerieList = new ArrayList<>();
     MultiAxisChart chart;
     private Number valueForDisplay;
     private Region areaChartRegion;
     private Period period;
-    private boolean asDuration = false;
+    boolean asDuration = false;
     private ManipulationMode addSeriesOfType;
-    private AtomicBoolean addManipulationToTitle;
-    private AtomicReference<ManipulationMode> manipulationMode;
-    private Boolean[] changedBoth;
+    AtomicBoolean addManipulationToTitle;
+    AtomicReference<ManipulationMode> manipulationMode;
+    Boolean[] changedBoth;
 
     public XYChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -79,7 +79,7 @@ public class XYChart implements Chart {
         init();
     }
 
-    private void init() {
+    public void init() {
         initializeChart();
 
         changedBoth = new Boolean[]{false, false};
@@ -346,12 +346,16 @@ public class XYChart implements Chart {
 
                 }
 
+                timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+                timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
                 updateXYChartSeries();
 
             } else {
                 /**
                  * if there are more new data rows then old ones
                  */
+                timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+                timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
 
                 updateXYChartSeries();
 
@@ -414,7 +418,7 @@ public class XYChart implements Chart {
         }
     }
 
-    private String getUpdatedChartName() {
+    String getUpdatedChartName() {
         String newName = chartName;
         switch (manipulationMode.get()) {
             case CENTRIC_RUNNING_MEAN:

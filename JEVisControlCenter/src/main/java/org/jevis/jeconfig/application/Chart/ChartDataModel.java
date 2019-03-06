@@ -18,6 +18,7 @@ import java.util.List;
 
 public class ChartDataModel {
     private static final Logger logger = LogManager.getLogger(ChartDataModel.class);
+    private final JEVisDataSource dataSource;
 
     private String title;
     private DateTime selectedStart;
@@ -36,7 +37,8 @@ public class ChartDataModel {
     private Double minValue;
     private Double maxValue;
 
-    public ChartDataModel() {
+    public ChartDataModel(JEVisDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public JEVisUnit getUnit() {
@@ -59,14 +61,15 @@ public class ChartDataModel {
 
     public List<JEVisSample> getSamples() {
         if (somethingChanged) {
+            getAttribute();
+            dataSource.reloadAttribute(attribute);
+
             somethingChanged = false;
 
             setSamples(new ArrayList<>());
 
             if (getSelectedStart().isBefore(getSelectedEnd())) {
                 try {
-
-                    object.getDataSource().reloadAttribute(attribute);
 
                     SampleGenerator sg;
                     if (aggregationPeriod.equals(AggregationPeriod.NONE))

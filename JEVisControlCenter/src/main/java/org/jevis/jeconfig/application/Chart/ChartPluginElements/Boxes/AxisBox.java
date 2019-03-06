@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.ChartPluginElements;
+package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;

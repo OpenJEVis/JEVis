@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.ChartPluginElements;
+package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
@@ -9,26 +9,35 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
-public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implements ChartPluginColumn {
-    public static String COLUMN_ID = "AxisColumn";
-    private TreeTableColumn<JEVisTreeRow, Integer> axisColumn;
+/**
+ * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
+ */
+
+public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, AggregationPeriod> implements ChartPluginColumn {
+    public static String COLUMN_ID = "AggregationColumn";
+    private TreeTableColumn<JEVisTreeRow, AggregationPeriod> aggregationColumn;
     private GraphDataModel data;
     private JEVisTree tree;
     private String columnName;
+    private final JEVisDataSource dataSource;
 
-    public AxisColumn(JEVisTree tree, String columnName) {
+    public AggregationColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName) {
         this.tree = tree;
+        this.dataSource = dataSource;
         this.columnName = columnName;
     }
 
 
-    public TreeTableColumn<JEVisTreeRow, Integer> getAxisColumn() {
-        return axisColumn;
+    public TreeTableColumn<JEVisTreeRow, AggregationPeriod> getAggregationColumn() {
+        return aggregationColumn;
     }
 
     @Override
@@ -40,32 +49,36 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
 
     @Override
     public void buildColumn() {
-        TreeTableColumn<JEVisTreeRow, Integer> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(80);
-        column.setMinWidth(70);
+        TreeTableColumn<JEVisTreeRow, AggregationPeriod> column = new TreeTableColumn(columnName);
+        column.setPrefWidth(120);
+        column.setMinWidth(100);
         column.setId(COLUMN_ID);
 
         column.setCellValueFactory(param -> {
 
             ChartDataModel data = getData(param.getValue().getValue());
 
-            return new ReadOnlyObjectWrapper<>(data.getAxis());
+            return new ReadOnlyObjectWrapper<>(data.getAggregationPeriod());
         });
 
-        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Integer>, TreeTableCell<JEVisTreeRow, Integer>>() {
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, AggregationPeriod>, TreeTableCell<JEVisTreeRow, AggregationPeriod>>() {
 
             @Override
-            public TreeTableCell<JEVisTreeRow, Integer> call(TreeTableColumn<JEVisTreeRow, Integer> param) {
+            public TreeTableCell<JEVisTreeRow, AggregationPeriod> call(TreeTableColumn<JEVisTreeRow, AggregationPeriod> param) {
 
-                TreeTableCell<JEVisTreeRow, Integer> cell = new TreeTableCell<JEVisTreeRow, Integer>() {
+                TreeTableCell<JEVisTreeRow, AggregationPeriod> cell = new TreeTableCell<JEVisTreeRow, AggregationPeriod>() {
 
                     @Override
-                    public void commitEdit(Integer newValue) {
+                    public void commitEdit(AggregationPeriod newValue) {
                         super.commitEdit(newValue);
+
+                        ChartDataModel data = getData(getTreeTableRow().getItem());
+
+                        data.setAggregationPeriod(newValue);
                     }
 
                     @Override
-                    protected void updateItem(Integer item, boolean empty) {
+                    protected void updateItem(AggregationPeriod item, boolean empty) {
                         super.updateItem(item, empty);
 
                         setText(null);
@@ -79,7 +92,7 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
 
                                     ChartDataModel data = getData(getTreeTableRow().getItem());
 
-                                    AxisBox axisBox = new AxisBox(data);
+                                    AggregationBox aggBox = new AggregationBox(getData(), data);
 
                                     ImageView imageMarkAll = new ImageView(imgMarkAll);
                                     imageMarkAll.fitHeightProperty().set(13);
@@ -89,11 +102,13 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
 
                                     tb.setTooltip(tooltipMarkAll);
 
+                                    aggBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> commitEdit(newValue));
+
                                     tb.setOnAction(event -> {
-                                        Integer selection = axisBox.getChoiceBox().getSelectionModel().getSelectedIndex();
+                                        AggregationPeriod selection = AggregationPeriod.parseAggregation(aggBox.getSelectionModel().getSelectedItem().toString());
                                         getData().getSelectedData().forEach(mdl -> {
                                             if (!mdl.getSelectedcharts().isEmpty()) {
-                                                mdl.setAxis(selection);
+                                                mdl.setAggregationPeriod(selection);
                                             }
                                         });
 
@@ -101,11 +116,11 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
                                     });
 
                                     HBox hbox = new HBox();
-                                    hbox.getChildren().addAll(axisBox.getChoiceBox(), tb);
+                                    hbox.getChildren().addAll(aggBox, tb);
                                     stackPane.getChildren().add(hbox);
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
-                                    axisBox.getChoiceBox().setDisable(!data.isSelectable());
+                                    aggBox.setDisable(!data.isSelectable());
                                     tb.setDisable(!data.isSelectable());
                                     setGraphic(stackPane);
                                 }
@@ -122,7 +137,7 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
             }
         });
 
-        this.axisColumn = column;
+        this.aggregationColumn = column;
     }
 
     @Override
@@ -130,5 +145,9 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
         return this.data;
     }
 
-}
+    @Override
+    public JEVisDataSource getDataSource() {
+        return dataSource;
+    }
 
+}

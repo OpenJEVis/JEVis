@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.ChartPluginElements;
+package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
@@ -8,6 +8,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -51,9 +52,11 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     private JEVisTree tree;
     private String columnName;
     private Color standardColor = Color.LIGHTBLUE;
+    private final JEVisDataSource dataSource;
 
-    public ColorColumn(JEVisTree tree, String columnName) {
+    public ColorColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName) {
         this.tree = tree;
+        this.dataSource = dataSource;
         this.columnName = columnName;
     }
 
@@ -164,6 +167,11 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public JEVisDataSource getDataSource() {
+        return dataSource;
     }
 
     public Color getStandardColor() {

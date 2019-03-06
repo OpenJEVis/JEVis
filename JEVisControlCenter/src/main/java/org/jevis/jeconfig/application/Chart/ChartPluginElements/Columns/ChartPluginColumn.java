@@ -1,7 +1,8 @@
-package org.jevis.jeconfig.application.Chart.ChartPluginElements;
+package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
@@ -24,7 +25,7 @@ public interface ChartPluginColumn {
         if (getData() != null && getData().getSelectedData() != null && getData().containsId(id)) {
             return getData().get(id);
         } else {
-            ChartDataModel newData = new ChartDataModel();
+            ChartDataModel newData = new ChartDataModel(getDataSource());
             newData.setObject(row.getJEVisObject());
             try {
                 for (JEVisObject obj : row.getJEVisObject().getChildren()) {
@@ -52,5 +53,7 @@ public interface ChartPluginColumn {
     }
 
     GraphDataModel getData();
+
+    JEVisDataSource getDataSource();
 
 }

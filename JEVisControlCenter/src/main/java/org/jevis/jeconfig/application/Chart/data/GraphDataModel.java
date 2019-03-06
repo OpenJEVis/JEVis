@@ -145,7 +145,7 @@ public class GraphDataModel {
             Map<String, ChartDataModel> data = new HashMap<>();
 
             for (JsonAnalysisDataRow mdl : jsonChartDataModel.getListAnalyses()) {
-                ChartDataModel newData = new ChartDataModel();
+                ChartDataModel newData = new ChartDataModel(ds);
 
                 try {
                     Long id = Long.parseLong(mdl.getObject());

@@ -1,14 +1,18 @@
-package org.jevis.jeconfig.application.Chart.ChartPluginElements;
+package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
@@ -23,16 +27,19 @@ import java.util.List;
 public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> implements ChartPluginColumn {
     public static String COLUMN_ID = "DataProcessorColumn";
     private TreeTableColumn<JEVisTreeRow, JEVisObject> dataProcessorColumn;
+    private static final Logger logger = LogManager.getLogger(DataProcessorColumn.class);
     private GraphDataModel data;
     private JEVisTree tree;
     private String columnName;
+    private final JEVisDataSource dataSource;
 
     /**
      * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
      */
 
-    public DataProcessorColumn(JEVisTree tree, String columnName) {
+    public DataProcessorColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName) {
         this.tree = tree;
+        this.dataSource = dataSource;
         this.columnName = columnName;
     }
 
@@ -58,37 +65,47 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
         return list;
     }
 
-    private ChoiceBox buildProcessorBox(ChartDataModel data) throws JEVisException {
-        List<String> proNames = new ArrayList<>();
+    private ComboBox<JEVisObject> buildProcessorBox(ChartDataModel data) throws JEVisException {
+
         final List<JEVisObject> _dataProcessors = new ArrayList<JEVisObject>();
-        proNames.add(I18n.getInstance().getString("graph.processing.raw"));
+        String rawDataString = I18n.getInstance().getString("graph.processing.raw");
 
         if (data.getObject() != null)
             _dataProcessors.addAll(getAllChildrenOf(data.getObject()));
-        for (JEVisObject configObject : _dataProcessors) {
-            proNames.add(configObject.getName());
-        }
 
-        ChoiceBox processorBox = new ChoiceBox();
+        ComboBox<JEVisObject> processorBox = new ComboBox<>();
         processorBox.setPrefWidth(140);
         processorBox.setMinWidth(120);
-        processorBox.setItems(FXCollections.observableArrayList(proNames));
+        ObservableList<JEVisObject> processors = FXCollections.observableArrayList();
 
-        processorBox.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+        processors.add(data.getObject());
+        processors.addAll(_dataProcessors);
 
-            if (newValue.equals(I18n.getInstance().getString("graph.processing.raw"))) {
-                data.setDataProcessor(null);
-            } else {
-                for (JEVisObject configObject : _dataProcessors) {
-                    if (configObject.getName().equals(newValue)) {
-                        data.setDataProcessor(configObject);
+        processorBox.setItems(processors);
+
+        Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(javafx.scene.control.ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject jeVisObject, boolean empty) {
+                        super.updateItem(jeVisObject, empty);
+                        if (empty || jeVisObject == null) {
+                            setText("");
+                        } else {
+                            String text = "";
+                            if (jeVisObject.equals(data.getObject())) text = rawDataString;
+                            else text = jeVisObject.getName();
+                            setText(text);
+                        }
                     }
-
-                }
+                };
             }
-        });
+        };
+        processorBox.setCellFactory(cellFactory);
+        processorBox.setButtonCell(cellFactory.call(null));
 
-        if (data.getDataProcessor() != null) processorBox.getSelectionModel().select(1);
+        if (data.getDataProcessor() != null) processorBox.getSelectionModel().select(data.getDataProcessor());
         else processorBox.getSelectionModel().selectFirst();
 
         return processorBox;
@@ -126,6 +143,13 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
                     @Override
                     public void commitEdit(JEVisObject newValue) {
                         super.commitEdit(newValue);
+
+                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        if (newValue.equals(data.getObject())) {
+                            data.setDataProcessor(null);
+                        } else {
+                            data.setDataProcessor(newValue);
+                        }
                     }
 
                     @Override
@@ -142,11 +166,13 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
                                     StackPane stackPane = new StackPane();
 
                                     ChartDataModel data = getData(getTreeTableRow().getItem());
-                                    ChoiceBox box = null;
+                                    ComboBox<JEVisObject> box = null;
                                     try {
                                         box = buildProcessorBox(data);
+
+                                        box.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> commitEdit(newValue));
                                     } catch (JEVisException e) {
-                                        e.printStackTrace();
+                                        logger.error("Could not build processor box: " + e);
                                     }
 
                                     stackPane.getChildren().setAll(box);
@@ -157,7 +183,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
                                     setGraphic(stackPane);
                                 }
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                logger.error("could not build column item: " + e);
                             }
                         }
 
@@ -175,6 +201,11 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public JEVisDataSource getDataSource() {
+        return dataSource;
     }
 
 }
