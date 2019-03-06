@@ -30,7 +30,7 @@ import javafx.scene.input.KeyEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.*;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.filter.BasicCellFilter;
 import org.jevis.jeconfig.application.jevistree.filter.FilterFactory;

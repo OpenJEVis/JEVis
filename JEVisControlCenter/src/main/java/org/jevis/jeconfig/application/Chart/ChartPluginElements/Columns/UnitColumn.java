@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.ChartPluginElements;
+package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.ChartUnits.*;
 import org.jevis.commons.unit.UnitManager;
@@ -33,9 +34,11 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
     private GraphDataModel data;
     private JEVisTree tree;
     private String columnName;
+    private final JEVisDataSource dataSource;
 
-    public UnitColumn(JEVisTree tree, String columnName) {
+    public UnitColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName) {
         this.tree = tree;
+        this.dataSource = dataSource;
         this.columnName = columnName;
     }
 
@@ -238,6 +241,11 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public JEVisDataSource getDataSource() {
+        return dataSource;
     }
 
 }

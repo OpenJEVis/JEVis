@@ -1,19 +1,31 @@
-package org.jevis.jeconfig.application.Chart.ChartPluginElements;
+package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndTimePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartDatePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartTimePicker;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -27,9 +39,11 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
     private JEVisTree tree;
     private String columnName;
     private DATE_TYPE type;
+    private final JEVisDataSource dataSource;
 
-    public DateColumn(JEVisTree tree, String columnName, DATE_TYPE type) {
+    public DateColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName, DATE_TYPE type) {
         this.tree = tree;
+        this.dataSource = dataSource;
         this.columnName = columnName;
         this.type = type;
     }
@@ -54,42 +68,24 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
             }
         }
 
-        DatePicker dp = new DatePicker(ld);
+        JFXDatePicker datePicker;
+        JFXTimePicker timePicker;
 
-        final Callback<DatePicker, DateCell> dayCellFactory
-                = new Callback<DatePicker, DateCell>() {
-            @Override
-            public DateCell call(final DatePicker datePicker) {
-                return new DateCell() {
-                    @Override
-                    public void updateItem(LocalDate item, boolean empty) {
-                        super.updateItem(item, empty);
-                        LocalDate ldBeginn = LocalDate.of(
-                                data.getAttribute().getTimestampFromFirstSample().getYear(),
-                                data.getAttribute().getTimestampFromFirstSample().getMonthOfYear(),
-                                data.getAttribute().getTimestampFromFirstSample().getDayOfMonth());
-                        LocalDate ldEnd = LocalDate.of(
-                                data.getAttribute().getTimestampFromLastSample().getYear(),
-                                data.getAttribute().getTimestampFromLastSample().getMonthOfYear(),
-                                data.getAttribute().getTimestampFromLastSample().getDayOfMonth());
+        List<ChartDataModel> singletonList = Collections.singletonList(data);
 
-                        if (data.getAttribute().getTimestampFromFirstSample() != null && item.isBefore(ldBeginn)) {
-                            setDisable(true);
-                            setStyle("-fx-background-color: #ffc0cb;");
-                        }
+        if (type == DATE_TYPE.START) {
+            datePicker = new StartDatePicker(ld);
+            timePicker = new StartTimePicker();
+            ((StartDatePicker) datePicker).initialize(getData(), singletonList, (StartTimePicker) timePicker, null, null);
+            ((StartTimePicker) timePicker).initialize(getData(), singletonList, (StartDatePicker) datePicker, null, null);
+        } else {
+            datePicker = new EndDatePicker(ld);
+            timePicker = new EndTimePicker();
+            ((EndDatePicker) datePicker).initialize(getData(), singletonList, (EndTimePicker) timePicker, null, null);
+            ((EndTimePicker) timePicker).initialize(getData(), singletonList, (EndDatePicker) datePicker, null, null);
+        }
 
-                        if (data.getAttribute().getTimestampFromFirstSample() != null && item.isAfter(ldEnd)) {
-                            setDisable(true);
-                            setStyle("-fx-background-color: #ffc0cb;");
-                        }
-
-                    }
-                };
-            }
-        };
-        dp.setDayCellFactory(dayCellFactory);
-
-        return dp;
+        return datePicker;
     }
 
     public TreeTableColumn<JEVisTreeRow, DateTime> getDateColumn() {
@@ -225,6 +221,11 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
     @Override
     public GraphDataModel getData() {
         return this.data;
+    }
+
+    @Override
+    public JEVisDataSource getDataSource() {
+        return dataSource;
     }
 
     public enum DATE_TYPE {

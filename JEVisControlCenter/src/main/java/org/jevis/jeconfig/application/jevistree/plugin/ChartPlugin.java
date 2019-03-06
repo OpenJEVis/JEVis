@@ -13,7 +13,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.*;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -34,6 +34,7 @@ public class ChartPlugin implements TreePlugin {
     private final String chartTitle = I18n.getInstance().getString("graph.title");
     private GraphDataModel data;
     private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
+    private JEVisDataSource dataSource;
 
     public JEVisTree getTree() {
         return jeVisTree;
@@ -46,6 +47,7 @@ public class ChartPlugin implements TreePlugin {
     @Override
     public void setTree(JEVisTree tree) {
         jeVisTree = tree;
+        dataSource = tree.getJEVisDataSource();
 //        if (data == null)
 //            data = new GraphDataModel(jeVisTree.getJEVisDataSource());
     }
@@ -83,7 +85,7 @@ public class ChartPlugin implements TreePlugin {
             data.getCharts().add(new ChartSettings(0, chartTitle));
         }
 
-        ColorColumn colorColumn = new ColorColumn(jeVisTree, I18n.getInstance().getString("graph.table.color"));
+        ColorColumn colorColumn = new ColorColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.color"));
         colorColumn.setGraphDataModel(data);
 
         List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns = new ArrayList<TreeTableColumn<JEVisTreeRow, Boolean>>();
@@ -119,7 +121,7 @@ public class ChartPlugin implements TreePlugin {
 
                 data.getCharts().add(new ChartSettings(id, newName));
 
-                SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, id, selectionColumns, column);
+                SelectionColumn selectColumn = new SelectionColumn(jeVisTree, dataSource, colorColumn, id, selectionColumns, column);
                 selectColumn.setGraphDataModel(data);
                 column.getColumns().add(column.getColumns().size() - 7, selectColumn.getSelectionColumn());
             }
@@ -128,26 +130,26 @@ public class ChartPlugin implements TreePlugin {
         column.setGraphic(addChart);
 
         for (int i = 0; i < getData().getCharts().size(); i++) {
-            SelectionColumn selectColumn = new SelectionColumn(jeVisTree, colorColumn, getData().getCharts().get(i).getId(), selectionColumns, column);
+            SelectionColumn selectColumn = new SelectionColumn(jeVisTree, dataSource, colorColumn, getData().getCharts().get(i).getId(), selectionColumns, column);
             selectColumn.setGraphDataModel(data);
             selectionColumns.add(selectColumn.getSelectionColumn());
         }
 
-        AggregationColumn aggregationColumn = new AggregationColumn(jeVisTree, I18n.getInstance().getString("graph.table.interval"));
+        AggregationColumn aggregationColumn = new AggregationColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.interval"));
         aggregationColumn.setGraphDataModel(data);
 
-        DataProcessorColumn dataProcessorColumn = new DataProcessorColumn(jeVisTree, I18n.getInstance().getString("graph.table.cleaning"));
+        DataProcessorColumn dataProcessorColumn = new DataProcessorColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.cleaning"));
         dataProcessorColumn.setGraphDataModel(data);
 
-        DateColumn startDateColumn = new DateColumn(jeVisTree, I18n.getInstance().getString("graph.table.startdate"), DateColumn.DATE_TYPE.START);
+        DateColumn startDateColumn = new DateColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.startdate"), DateColumn.DATE_TYPE.START);
         startDateColumn.setGraphDataModel(data);
-        DateColumn endDateColumn = new DateColumn(jeVisTree, I18n.getInstance().getString("graph.table.enddate"), DateColumn.DATE_TYPE.END);
+        DateColumn endDateColumn = new DateColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.enddate"), DateColumn.DATE_TYPE.END);
         endDateColumn.setGraphDataModel(data);
 
-        UnitColumn unitColumn = new UnitColumn(jeVisTree, I18n.getInstance().getString("graph.table.unit"));
+        UnitColumn unitColumn = new UnitColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.unit"));
         unitColumn.setGraphDataModel(data);
 
-        AxisColumn axisColumn = new AxisColumn(jeVisTree, I18n.getInstance().getString("graph.table.axis"));
+        AxisColumn axisColumn = new AxisColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.axis"));
         axisColumn.setGraphDataModel(data);
 
         for (TreeTableColumn<JEVisTreeRow, Boolean> ttc : selectionColumns) column.getColumns().add(ttc);

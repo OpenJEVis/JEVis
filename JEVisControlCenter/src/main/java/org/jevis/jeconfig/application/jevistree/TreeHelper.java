@@ -84,7 +84,7 @@ public class TreeHelper {
             alert.setContentText(question);
 
             Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == ButtonType.OK) {
+            if (result.get().equals(ButtonType.OK)) {
                 try {
                     for (TreeItem<JEVisTreeRow> item : items) {
                         item.getValue().getJEVisObject().getDataSource().deleteObject(item.getValue().getJEVisObject().getID());
@@ -103,7 +103,6 @@ public class TreeHelper {
                 // ... user chose CANCEL or closed the dialog
             }
         }
-        System.out.println("Done delete");
     }
 
     public static void openPath(JEVisTree tree, List<JEVisObject> toOpen, TreeItem<JEVisTreeRow> root, JEVisObject target) {
