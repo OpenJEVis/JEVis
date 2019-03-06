@@ -13,8 +13,8 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SimpleDataHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,16 +24,16 @@ public class ChartWidget extends Widget {
     private final BorderPane rootNode = new BorderPane();
     ChartDataModel chartDataModel;
     LineChart lc;
-    private LastValueHandler lastValueHandler;
+    private SimpleDataHandler simpleDataHandler;
 
     public ChartWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
 
-        lastValueHandler = new LastValueHandler(getDataSource());
-        lastValueHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
+        simpleDataHandler = new SimpleDataHandler(getDataSource());
+        simpleDataHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
 
-            lastValueHandler.getAttributeMap().forEach((s, jeVisAttribute) -> {
-                List<JEVisSample> samplesList = lastValueHandler.getValuePropertyMap().get(s);
+            simpleDataHandler.getAttributeMap().forEach((s, jeVisAttribute) -> {
+                List<JEVisSample> samplesList = simpleDataHandler.getValuePropertyMap().get(s);
                 if (!samplesList.isEmpty() && samplesList.size() > 1) {
                     try {
                         System.out.println("New samples: " + samplesList);
@@ -80,7 +80,7 @@ public class ChartWidget extends Widget {
     @Override
     public SampleHandler getSampleHandler() {
         System.out.println("getSampleHandler");
-        return lastValueHandler;
+        return simpleDataHandler;
     }
 
     @Override
@@ -138,6 +138,7 @@ public class ChartWidget extends Widget {
             chart.setPrefSize(newValue.getWidth(), newValue.getHeight());
         });
 
+
         chart.setAnimated(true);
         chart.setLegendVisible(false);
 
@@ -151,6 +152,11 @@ public class ChartWidget extends Widget {
 
         rootNode.setCenter(lc.getChart());
         setGraphic(rootNode);
+    }
+
+    @Override
+    public void configChanged() {
+
     }
 
     private void setChartLabel(MultiAxisLineChart chart, Color newValue) {

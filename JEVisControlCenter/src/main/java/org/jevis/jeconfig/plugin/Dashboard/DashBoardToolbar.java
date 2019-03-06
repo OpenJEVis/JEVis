@@ -40,7 +40,6 @@ public class DashBoardToolbar extends ToolBar {
         try {
             JEVisClass sadaAnalyses = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
             List<JEVisObject> allAnalisis = dataSource.getObjects(sadaAnalyses, false);
-            System.out.println("Total analisis amount: " + allAnalisis.size());
             listAnalysesComboBox.getItems().addAll(allAnalisis);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -132,10 +131,8 @@ public class DashBoardToolbar extends ToolBar {
 //        unlockB.setSelected(analyses.editProperty.get());
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(unlockB);
         analyses.editProperty.addListener((observable, oldValue, newValue) -> {
-            System.out.println("editProperty: " + newValue);
             if (!oldValue.equals(newValue)) {
                 if (newValue) {
-                    System.out.println("Icon = unlockIcon");
                     unlockB.setGraphic(unlockIcon);
                 } else {
                     unlockB.setGraphic(lockIcon);
@@ -156,7 +153,6 @@ public class DashBoardToolbar extends ToolBar {
                         List<JEVisObject> analisisDir = dataSource.getObjects(analisisDirClass, true);
                         JEVisClass analisisClass = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
 
-                        System.out.println("Createw under: " + newAnalyseDialog.getParent());
 
                         JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
                         newObject.commit();
@@ -194,7 +190,6 @@ public class DashBoardToolbar extends ToolBar {
         });
 
         runUpdateButton.setOnAction(event -> {
-            System.out.println("Start button: " + (!analyses.updateIsRunningProperty.getValue()));
             analyses.updateIsRunningProperty.setValue(!analyses.updateIsRunningProperty.getValue());
         });
 
@@ -208,9 +203,7 @@ public class DashBoardToolbar extends ToolBar {
             Wizard wizzard = new Wizard(JEConfig.getDataSource());
             Optional<Widget> newWidget = wizzard.show(null);
 
-            System.out.println("----------------------------------------");
             if (newWidget.isPresent()) {
-                System.out.println("++++++++++++++++++++++++++++++++++++++");
                 dashBordPlugIn.addWidget(newWidget.get().getConfig());
             }
 
@@ -224,11 +217,8 @@ public class DashBoardToolbar extends ToolBar {
             File newBackground = fileChooser.showOpenDialog(JEConfig.getStage());
             if (newBackground != null) {
                 try {
-                    System.out.println("New image File: " + newBackground);
                     BufferedImage bufferedImage = ImageIO.read(newBackground);
-                    System.out.println("Image size: " + bufferedImage.getWidth());
                     javafx.scene.image.Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
-                    System.out.println("Fx-Image size: " + fxImage.getWidth());
                     analyses.imageBoardBackground.setValue(fxImage);
                 } catch (IOException e) {
                     e.printStackTrace();

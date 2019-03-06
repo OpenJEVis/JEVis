@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -12,24 +15,30 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import jfxtras.labs.util.event.MouseControlUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashBoardPane;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.NullSampleHandel;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SimpleDataHandler;
 
 import java.util.UUID;
 
-public abstract class Widget extends Group {
 
+public abstract class Widget extends Group {
+    private static final Logger logger = LogManager.getLogger(Widget.class);
+    private final String TYPE = "type";
     private final org.jevis.api.JEVisDataSource jeVisDataSource;
     public WidgetConfig config = new WidgetConfig("");
-    public CornerRadii cornerRadii = new CornerRadii(0);
     public Size previewSize = new Size(100, 150);
     public BooleanProperty noDataInPeriodProperty = new SimpleBooleanProperty(false);
     public BooleanProperty isInitialized = new SimpleBooleanProperty(false);
+    public SampleHandler dataHandler;
     private DashBoardPane dashBoard;
     private AnchorPane contentRoot = new AnchorPane();
     private AnchorPane editPane = new AnchorPane();
@@ -40,6 +49,7 @@ public abstract class Widget extends Group {
         this.jeVisDataSource = jeVisDataSource;
         config.setType(typeID());
         addCommonConfigListeners();
+
     }
 
     public BooleanProperty getNoDataInPeriodProperty() {
@@ -47,7 +57,6 @@ public abstract class Widget extends Group {
     }
 
     public abstract SampleHandler getSampleHandler();
-
 
     public abstract void setBackgroundColor(Color color);
 
@@ -57,15 +66,48 @@ public abstract class Widget extends Group {
 
     public abstract void setCustomFont(Font font);
 
+    public SampleHandler getDataHandler() {
+        return dataHandler;
+    }
+
     public WidgetConfig getConfig() {
         return config;
     }
 
-//    public abstract List<WidgetConfigProperty> getAdditionalSetting();
-
     public void setConfig(WidgetConfig config) {
+        logger.error("Widget.setConfig()");
+        ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            logger.info("Widget.SetConfig: {}", mapper.writeValueAsString(config));
+        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+        }
         this.config = config;
+
+        JsonNode dataHandlerNode = config.getDataHandlerNode();
+
+
+        String type = dataHandlerNode.get(TYPE).asText("none");
+        logger.info("DataHandler: {}", type);
+
+        switch (type) {
+            case SimpleDataHandler.TYPE:
+                dataHandler = new SimpleDataHandler(getDataSource(), dataHandlerNode);
+                break;
+
+            default:
+                logger.warn("No dataHandler Configured");
+                dataHandler = new NullSampleHandel(jeVisDataSource);
+
+                break;
+
+        }
+        configChanged();
+
+
     }
+
+    public abstract void configChanged();
 
     public JEVisDataSource getDataSource() {
         return jeVisDataSource;
@@ -97,27 +139,7 @@ public abstract class Widget extends Group {
         config.font.addListener((observable, oldValue, newValue) -> {
             setCustomFont(newValue);
         });
-//        this.layoutYProperty().addListener((observable, oldValue, newValue) -> {
-//            if (oldValue != newValue) {
-////                updateYXConfig();
-//                config.yPosition.setValue(newValue);
-//            }
-//
-//        });
-//        this.layoutXProperty().addListener((observable, oldValue, newValue) -> {
-//            if (oldValue != newValue) {
-////                updateYXConfig();
-//                config.xPosition.setValue(newValue);
-//            }
-//
-//        });
-
     }
-
-//    private void updateYXConfig() {
-//        System.out.println("Update XY Config: " + this.getLayoutX() + " " + this.getLayoutY());
-////        config.position.setValue(new Position(this.getLayoutX(), this.getLayoutY()));
-//    }
 
     private void makeDragDropOverlay() {
         System.out.println("makeDragDropOverlay()");
@@ -136,12 +158,6 @@ public abstract class Widget extends Group {
             dashBoard.removeNode(Widget.this);
             Widget.this.setVisible(false);
         });
-
-//        AnchorPane.setTopAnchor(configButton, 6.0);
-//        AnchorPane.setRightAnchor(configButton, 6.0);
-//
-//        AnchorPane.setTopAnchor(configButton, 6.0);
-//        AnchorPane.setLeftAnchor(configButton, 6.0);
 
         AnchorPane.setTopAnchor(windowHeader, 0.0);
         AnchorPane.setLeftAnchor(configButton, 0.0);
@@ -210,20 +226,8 @@ public abstract class Widget extends Group {
         System.out.println("setDashBoard()");
         this.dashBoard = parent;
 
-//        config.position.addListener((observable, oldValue, newValue) -> {
-//            setLayoutX(newValue.getxPos());
-//            setLayoutY(newValue.getyPos());
-//        });
-
-
         layoutXProperty().bindBidirectional(config.xPosition);
         layoutYProperty().bindBidirectional(config.yPosition);
-
-//        config.xPosition.bindBidirectional(layoutXProperty());
-//        config.yPosition.bindBidirectional(layoutYProperty());
-
-//        setLayoutX(config.xPosition.getValue());
-//        setLayoutY(config.yPosition.getValue());
 
         makeWindowForm();
         getChildren().add(contentRoot);

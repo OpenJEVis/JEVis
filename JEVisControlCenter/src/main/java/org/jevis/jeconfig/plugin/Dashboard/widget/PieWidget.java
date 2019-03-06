@@ -12,8 +12,8 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ColorColumn;
 import org.jevis.jeconfig.application.Chart.Charts.PieChart;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SimpleDataHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,19 +26,19 @@ public class PieWidget extends Widget {
     PieChart chart;
     List<ChartDataModel> chartDataModelList = new ArrayList<>();
 
-    private LastValueHandler lastValueHandler;
+    private SimpleDataHandler simpleDataHandler;
 
     public PieWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
 
-        lastValueHandler = new LastValueHandler(getDataSource());
-        lastValueHandler.setMultiSelect(true);
-        lastValueHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
+        simpleDataHandler = new SimpleDataHandler(getDataSource());
+        simpleDataHandler.setMultiSelect(true);
+        simpleDataHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
 
             chartDataModelList.clear();
             AtomicInteger i = new AtomicInteger(0);
-            lastValueHandler.getAttributeMap().forEach((s, jeVisAttribute) -> {
-                List<JEVisSample> samplesList = lastValueHandler.getValuePropertyMap().get(s);
+            simpleDataHandler.getAttributeMap().forEach((s, jeVisAttribute) -> {
+                List<JEVisSample> samplesList = simpleDataHandler.getValuePropertyMap().get(s);
                 if (!samplesList.isEmpty() && samplesList.size() > 1) {
                     try {
                         ChartDataModel chartDataModel = new ChartDataModel();
@@ -94,9 +94,14 @@ public class PieWidget extends Widget {
     }
 
     @Override
+    public void configChanged() {
+
+    }
+
+    @Override
     public SampleHandler getSampleHandler() {
         System.out.println("getSampleHandler");
-        return lastValueHandler;
+        return simpleDataHandler;
     }
 
     @Override

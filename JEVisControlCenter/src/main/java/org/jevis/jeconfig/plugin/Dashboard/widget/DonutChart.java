@@ -11,8 +11,8 @@ import javafx.scene.text.Font;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfigProperty;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SimpleDataHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,36 +25,18 @@ public class DonutChart extends Widget {
     ChartData chartData2 = new ChartData("Wasser", 10.0, Tile.BLUE);
     ChartData chartData3 = new ChartData("Gas", 12.0, Tile.RED);
     ChartData chartData4 = new ChartData("Lüftung", 13.0, Tile.YELLOW_ORANGE);
-    private LastValueHandler sampleHandler;
+
+
+    private SimpleDataHandler sampleHandler;
 
     public DonutChart(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
 
-        sampleHandler = new LastValueHandler(jeVisDataSource);
-        sampleHandler.setMultiSelect(true);
-        sampleHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
-            System.out.println("sample Handler indicates update");
-            sampleHandler.getValuePropertyMap().forEach((s, samplesList) -> {
-                try {
-                    System.out.println("Update with samples: " + samplesList.size());
-                    if (!samplesList.isEmpty()) {
-                        if (samplesList.size() > 1) {
-                            String name = sampleHandler.getAttributeMap().get(s).getObject().getName();
-                            ChartData chartData = new ChartData(name, samplesList.get(samplesList.size() - 1).getValueAsDouble(), Tile.GREEN);
-                            tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
-                            tile.setReferenceValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
-                            tile.getChartData().add(chartData);
-                        }
-                        tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
-                    } else {
-                        tile.setValue(0.0);
-                    }
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            });
-        });
+    }
+
+    @Override
+    public void configChanged() {
 
     }
 
@@ -105,6 +87,32 @@ public class DonutChart extends Widget {
 
         addCommonConfigListeners();
 
+        sampleHandler = new SimpleDataHandler(getDataSource());
+        sampleHandler.setMultiSelect(true);
+        sampleHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
+            System.out.println("sample Handler indicates update");
+            sampleHandler.getValuePropertyMap().forEach((s, samplesList) -> {
+                try {
+                    System.out.println("Update with samples: " + samplesList.size());
+                    if (!samplesList.isEmpty()) {
+                        if (samplesList.size() > 1) {
+                            String name = sampleHandler.getAttributeMap().get(s).getObject().getName();
+                            ChartData chartData = new ChartData(name, samplesList.get(samplesList.size() - 1).getValueAsDouble(), Tile.GREEN);
+                            tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
+                            tile.setReferenceValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
+                            tile.getChartData().add(chartData);
+                        }
+                        tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
+                    } else {
+                        tile.setValue(0.0);
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+        });
+
 
         StringProperty textProperty = new SimpleStringProperty("");
         StringProperty descriptionProperly = new SimpleStringProperty("");
@@ -128,9 +136,11 @@ public class DonutChart extends Widget {
 
         config.addAdditionalSetting(propertyList);
 
+
         tile.setAnimated(true);
         setGraphic(tile);
     }
+
 
     @Override
     public String typeID() {

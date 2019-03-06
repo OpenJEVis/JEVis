@@ -69,13 +69,13 @@ public class DashBoardPane extends Pane {
     }
 
     public Widget createWidget(WidgetConfig widget) {
-        System.out.println("createWidget for: " + widget.getType());
+        logger.info("createWidget for: {}", widget.getType());
         for (Widget availableWidget : Widgets.getAvabableWidgets(analysis.getDataSource())) {
-            System.out.println("lll: " + availableWidget.typeID());
             if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
-                System.out.println("true");
+                widget.setType(availableWidget.getId());
                 availableWidget.setConfig(widget);
                 availableWidget.init();
+
                 return availableWidget;
             }
         }
@@ -102,7 +102,6 @@ public class DashBoardPane extends Pane {
         analysis.addChangeListener(new javax.swing.event.ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                System.out.println("Config changed update ui");
                 updateChildren();
             }
         });
@@ -262,6 +261,7 @@ public class DashBoardPane extends Pane {
     }
 
     public void addNode(Widget widget) {
+        logger.debug("Add widget to pane: {}", widget);
         widgetList.add(widget);
         widget.init();
         widget.setDashBoard(this);
@@ -290,7 +290,7 @@ public class DashBoardPane extends Pane {
     }
 
     public void updateChildren() {
-        System.out.println("Update");
+        logger.debug("UpdateChildren");
         getChildren().clear();
         setGrid(analysis.xGridInterval.get(), analysis.yGridInterval.get());
 

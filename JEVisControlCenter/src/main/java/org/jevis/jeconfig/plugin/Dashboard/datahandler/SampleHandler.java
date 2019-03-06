@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.datahandler;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -18,13 +19,14 @@ public abstract class SampleHandler {
         this.jeVisDataSource = jeVisDataSource;
     }
 
+    public static String getTypeID() {
+        return "none";
+    }
+
+
     public JEVisDataSource getDataSource() {
         return jeVisDataSource;
     }
-
-//    public void setDataSource(JEVisDataSource dataSource) {
-//        this.jeVisDataSource = dataSource;
-//    }
 
     public void setPeriod(Interval period) {
         durationProperty.setValue(period);
@@ -35,5 +37,7 @@ public abstract class SampleHandler {
     public abstract Page getPage();
 
     public abstract void update();
+
+    public abstract JsonNode toJsonNode();
 
 }

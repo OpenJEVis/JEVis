@@ -7,46 +7,28 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfigProperty;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SimpleDataHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NumberWidget extends Widget {
 
+    private static final Logger logger = LogManager.getLogger(NumberWidget.class);
     Tile tile;
-    private LastValueHandler sampleHandler;
+//    private SimpleDataHandler sampleHandler;
 
 
     public NumberWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
 
-        sampleHandler = new LastValueHandler(jeVisDataSource);
-        sampleHandler.setMultiSelect(false);
-        sampleHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
-            System.out.println("sample Handler indicates update");
-            sampleHandler.getValuePropertyMap().forEach((s, samplesList) -> {
-                try {
-                    System.out.println("Update with samples: " + samplesList.size());
-                    if (!samplesList.isEmpty()) {
-                        if (samplesList.size() > 1) {
-                            tile.setValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
-                            tile.setReferenceValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
-                        }
-                        tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
-                    } else {
-                        tile.setValue(0.0);
-                    }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            });
-        });
+        config.setType(getId());
 
     }
 
@@ -57,14 +39,7 @@ public class NumberWidget extends Widget {
 
 
     public SampleHandler getSampleHandler() {
-//        sampleHandler.getUnitProperty().addListener((observable, oldValue, newValue) -> {
-//            try {
-//                tile.setUnit(newValue);
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        });
-        return sampleHandler;
+        return dataHandler;
 
     }
 
@@ -91,7 +66,34 @@ public class NumberWidget extends Widget {
     }
 
     @Override
+    public void configChanged() {
+//        if (sampleHandler != null && sampleHandler instanceof SimpleDataHandler) {
+//            ((SimpleDataHandler) getSampleHandler()).lastUpdate.addListener((observable, oldValue, newValue) -> {
+//                System.out.println("sample Handler indicates update");
+//                sampleHandler.getValuePropertyMap().forEach((s, samplesList) -> {
+//                    try {
+//                        System.out.println("Update with samples: " + samplesList.size());
+//                        if (!samplesList.isEmpty()) {
+//                            if (samplesList.size() > 1) {
+//                                tile.setValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
+//                                tile.setReferenceValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
+//                            }
+//                            tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
+//                        } else {
+//                            tile.setValue(0.0);
+//                        }
+//
+//                    } catch (Exception ex) {
+//                        ex.printStackTrace();
+//                    }
+//                });
+//            });
+//        }
+    }
+
+    @Override
     public void init() {
+        logger.error("Init()");
 
         tile = TileBuilder.create()
                 .skinType(Tile.SkinType.NUMBER)
@@ -127,6 +129,32 @@ public class NumberWidget extends Widget {
 
 
         config.addAdditionalSetting(propertyList);
+
+
+        if (dataHandler != null && dataHandler instanceof SimpleDataHandler) {
+            SimpleDataHandler simpleDataHandler = (SimpleDataHandler) dataHandler;
+            logger.error("Add listener to sampleHanlder: {}", simpleDataHandler.uuid.toString());
+            simpleDataHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
+                System.out.println("sample Handler indicates update");
+                simpleDataHandler.getValuePropertyMap().forEach((s, samplesList) -> {
+                    try {
+                        System.out.println("Update with samples: " + samplesList.size());
+                        if (!samplesList.isEmpty()) {
+                            if (samplesList.size() > 1) {
+                                tile.setValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
+                                tile.setReferenceValue(samplesList.get(samplesList.size() - 2).getValueAsDouble());
+                            }
+                            tile.setValue(samplesList.get(samplesList.size() - 1).getValueAsDouble());
+                        } else {
+                            tile.setValue(0.0);
+                        }
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                });
+            });
+        }
 
 
         tile.setAnimated(true);

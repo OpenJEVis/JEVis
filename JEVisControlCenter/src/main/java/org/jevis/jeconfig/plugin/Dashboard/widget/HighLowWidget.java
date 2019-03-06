@@ -10,8 +10,8 @@ import javafx.scene.text.Font;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfigProperty;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SimpleDataHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +19,13 @@ import java.util.List;
 public class HighLowWidget extends Widget {
 
     Tile tile;
-    private LastValueHandler sampleHandler;
+    private SimpleDataHandler sampleHandler;
 
 
     public HighLowWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
 
-        sampleHandler = new LastValueHandler(jeVisDataSource);
+        sampleHandler = new SimpleDataHandler(jeVisDataSource);
         sampleHandler.setMultiSelect(false);
         sampleHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
             System.out.println("sample Handler indicates update");
@@ -89,6 +89,11 @@ public class HighLowWidget extends Widget {
     public void setCustomFont(Font font) {
         tile.setCustomFont(font);
         tile.setCustomFontEnabled(true);
+    }
+
+    @Override
+    public void configChanged() {
+
     }
 
     @Override

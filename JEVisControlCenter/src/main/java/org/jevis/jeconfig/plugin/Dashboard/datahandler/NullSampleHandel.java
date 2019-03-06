@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.plugin.Dashboard.datahandler;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -19,6 +22,13 @@ public class NullSampleHandel extends SampleHandler {
     @Override
     public void setUserSelectionDone() {
 
+    }
+
+    @Override
+    public JsonNode toJsonNode() {
+        ArrayNode dataArrayNode = JsonNodeFactory.instance.arrayNode();
+
+        return dataArrayNode;
     }
 
     @Override

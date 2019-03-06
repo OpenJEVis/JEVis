@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,22 +24,29 @@ public class WidgetConfig {
 
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
     private static final Logger logger = LogManager.getLogger(WidgetConfig.class);
+    private static String WIDGET_SETTINGS_NODE = "extra";
+    private static String DATA_HANDLER_NODE = "dataHandler";
     public StringProperty uuid = new SimpleStringProperty(UUID.randomUUID().toString());
     public ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
     public ObjectProperty<Color> fontColorSecondary = new SimpleObjectProperty<>(Color.class, "Font Color Secondary", Color.DODGERBLUE);
     public ObjectProperty<Size> minumimSize = new SimpleObjectProperty<>(Size.class, "Min Size", new Size(20, 20));
-    public StringProperty title = new SimpleStringProperty("");
+    public StringProperty title = new SimpleStringProperty(String.class, "title", "Title");
     public StringProperty unit = new SimpleStringProperty("");
     public ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.class, "Background Color", Color.web("#126597"));
     //    public ObjectProperty<Position> position = new SimpleObjectProperty<>(new Position(100, 100));
     public DoubleProperty xPosition = new SimpleDoubleProperty(100d);
     public DoubleProperty yPosition = new SimpleDoubleProperty(100d);
-
     public ObjectProperty<Size> size = new SimpleObjectProperty<>(Size.DEFAULT);
     public ObjectProperty<Font> font = new SimpleObjectProperty<>(Font.getDefault());
     private String type = "";
     private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
     private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
+    private Map<String, JsonNode> additionalConfigNodes = new HashMap<>();
+
+    private ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
+    private JsonConfigFactory factory;
+    private JsonNode extraNode = mapper.createObjectNode();
+    private JsonNode dataHandlerNode = mapper.createObjectNode();
 
     public WidgetConfig(String type) {
         this.type = type;
@@ -46,6 +54,11 @@ public class WidgetConfig {
 
 
     public WidgetConfig(JsonNode jsonNode) {
+        try {
+            logger.info("WidgetConfig Parse json: {}", mapper.writeValueAsString(jsonNode));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         try {
             try {
                 title.setValue(jsonNode.get(title.getName()).asText(title.get()));
@@ -62,30 +75,34 @@ public class WidgetConfig {
             try {
                 backgroundColor.setValue(Color.valueOf(jsonNode.get(backgroundColor.getName()).asText(backgroundColor.get().toString())));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", title.getName(), ex);
+                logger.error("Could not parse {}: {}", backgroundColor.getName(), ex);
             }
 
             try {
                 fontColor.setValue(Color.valueOf(jsonNode.get(fontColor.getName()).asText(fontColor.get().toString())));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", title.getName(), ex);
+                logger.error("Could not parse {}: {}", fontColor.getName(), ex);
             }
             try {
                 Size newSize = new Size(jsonNode.get("height").asDouble(), jsonNode.get("width").asDouble());
                 size.setValue(newSize);
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", title.getName(), ex);
+                logger.error("Could not parse Size: {}", ex);
             }
             try {
-//                Position newPosition = new Position(jsonNode.get("xPos").asDouble(), jsonNode.get("yPos").asDouble());
-//                System.out.println("Load Postion :" + newPosition.toString());
-//                position.setValue(newPosition);
                 xPosition.setValue(jsonNode.get("xPos").asDouble());
                 yPosition.setValue(jsonNode.get("yPos").asDouble());
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", title.getName(), ex);
+                logger.error("Could not parse position: {}", title.getName(), ex);
             }
 
+            if (jsonNode.get(DATA_HANDLER_NODE) != null) {
+                dataHandlerNode = jsonNode.get(DATA_HANDLER_NODE);
+            }
+
+            if (jsonNode.get(WIDGET_SETTINGS_NODE) != null) {
+                extraNode = jsonNode.get(WIDGET_SETTINGS_NODE);
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -93,6 +110,13 @@ public class WidgetConfig {
 
     }
 
+    public JsonNode getDataHandlerNode() {
+        return dataHandlerNode;
+    }
+
+    public JsonNode getExtraSettingNode() {
+        return extraNode;
+    }
 
     public String getType() {
         return type;
@@ -121,6 +145,7 @@ public class WidgetConfig {
         additionalSetting.forEach(widgetConfigProperty -> {
             System.out.println("Add additional config: " + widgetConfigProperty.getId() + "  " + widgetConfigProperty.getName());
             userConfig.put(widgetConfigProperty.getId(), new ConfigSheet.Property(widgetConfigProperty.getName(), widgetConfigProperty.getCategory(), widgetConfigProperty.getWritableValue().getValue(), widgetConfigProperty.getDescription()));
+
         });
 
 
@@ -133,7 +158,6 @@ public class WidgetConfig {
     }
 
     public ObjectNode toJsonNode() {
-        ObjectMapper mapper = new ObjectMapper();
         ObjectNode jsonNode = mapper.createObjectNode();
         jsonNode.put(title.getName(), title.getValue());
         jsonNode.put("WidgetType", type);
@@ -145,11 +169,32 @@ public class WidgetConfig {
         jsonNode.put("xPos", xPosition.getValue());
         jsonNode.put("yPos", yPosition.getValue());
 
+        ObjectNode additionalNodes = mapper.createObjectNode();
+        additionalNodes.setAll(additionalConfigNodes);
+        jsonNode.setAll(additionalNodes);
+
+
         return jsonNode;
+    }
+
+    public void setJsonLoder(JsonConfigFactory factory) {
+        this.factory = factory;
+    }
+
+    public void setAdditionalSetting(String name, JsonNode widgetNode) {
+        additionalConfigNodes.put(name, widgetNode);
     }
 
     public void addAdditionalSetting(List<WidgetConfigProperty> list) {
         additionalSetting.addAll(list);
+
+//        ObjectMapper mapper = new ObjectMapper();
+//        ObjectNode jsonNode = mapper.createObjectNode();
+//        list.forEach(widgetConfigProperty -> {
+//            additionalConfigNodes.put(widgetConfigProperty.getId(), jsonNode);
+//        });
+
+
     }
 
 
@@ -208,5 +253,9 @@ public class WidgetConfig {
         return false;
     }
 
+
+    public interface JsonConfigFactory {
+        public WidgetConfigProperty loadJsonNode(JsonNode node);
+    }
 
 }

@@ -300,7 +300,6 @@ public class DashBordAnalysis {
 
             /** TODO: check if the image changed **/
             if (imageBoardBackground.getValue() != null) {
-                System.out.println("Save Image");
                 BufferedImage bImage = SwingFXUtils.fromFXImage(this.imageBoardBackground.getValue(), null);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 javax.imageio.ImageIO.write(bImage, "png", bos);

@@ -8,18 +8,18 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.LastValueHandler;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.SimpleDataHandler;
 
 public class StockWidget extends Widget {
 
     Tile tile = new Tile(Tile.SkinType.DONUT_CHART);
 
-    private LastValueHandler sampleHandler;
+    private SimpleDataHandler sampleHandler;
 
     public StockWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
-        sampleHandler = new LastValueHandler(jeVisDataSource);
+        sampleHandler = new SimpleDataHandler(jeVisDataSource);
         sampleHandler.setMultiSelect(true);
         sampleHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
             System.out.println("sample Handler indicates update");
@@ -79,6 +79,11 @@ public class StockWidget extends Widget {
                 }
             });
         });
+
+    }
+
+    @Override
+    public void configChanged() {
 
     }
 

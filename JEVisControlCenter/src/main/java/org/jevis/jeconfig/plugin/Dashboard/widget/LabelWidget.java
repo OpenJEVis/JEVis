@@ -50,6 +50,12 @@ public class LabelWidget extends Widget {
         textLabel.setBackground(colorBackground);
     }
 
+
+    @Override
+    public void configChanged() {
+
+    }
+    
     @Override
     public void setTitle(String text) {
 
