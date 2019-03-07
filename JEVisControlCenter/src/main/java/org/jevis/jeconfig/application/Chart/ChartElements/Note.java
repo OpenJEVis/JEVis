@@ -5,12 +5,15 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.tool.I18n;
+
+import java.util.List;
 
 import static org.jevis.commons.constants.NoteConstants.Calc.CALC_INFINITE;
 import static org.jevis.commons.constants.NoteConstants.Gap.GAP;
@@ -19,6 +22,7 @@ import static org.jevis.commons.constants.NoteConstants.User.USER_NOTES;
 
 public class Note {
 
+    private static final Logger logger = LogManager.getLogger(Note.class);
     private Node node = null;
     private String noteString = null;
 //    private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
@@ -29,6 +33,7 @@ public class Note {
     public Note(JEVisSample sample) throws JEVisException {
         String note = sample.getNote();
         ObjectHandler objectHandler = new ObjectHandler(sample.getDataSource());
+
         if (note != null) {
             HBox hbox = new HBox();
             boolean changed = false;
@@ -110,6 +115,23 @@ public class Note {
                 } catch (Exception e) {
                 }
             }
+
+            try {
+                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
+                JEVisObject object = sample.getAttribute().getObject();
+                if (object.getJEVisClass().equals(cleanDataClass)) {
+                    JEVisAttribute log = object.getAttribute("Alarm Log");
+                    if (log != null) {
+                        List<JEVisSample> logSamples = log.getSamples(sample.getTimestamp(), sample.getTimestamp());
+                        if (logSamples != null && !logSamples.isEmpty()) {
+                            toolTipString += "Alarm " + logSamples.get(0).getValueAsDouble();
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Error while getting alarm log" + e);
+            }
+
 
 //            if (hbox.getChildren().size() > ) {
 //                hbox.getChildren().clear();
