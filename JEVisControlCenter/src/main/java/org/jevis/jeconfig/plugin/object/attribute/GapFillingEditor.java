@@ -181,7 +181,7 @@ public class GapFillingEditor implements AttributeEditor {
      *
      * @return
      */
-    private List<JsonGapFillingConfig> createDefaultConfig() {
+    public static List<JsonGapFillingConfig> createDefaultConfig() {
         List<JsonGapFillingConfig> list = new ArrayList<>();
         JsonGapFillingConfig newConfig1 = new JsonGapFillingConfig();
         newConfig1.setType(GapFillingType.INTERPOLATION);
