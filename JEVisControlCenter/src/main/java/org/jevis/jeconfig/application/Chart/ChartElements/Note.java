@@ -34,7 +34,7 @@ public class Note {
             boolean changed = false;
             StringBuilder sb = new StringBuilder();
             int noOfNotes = 0;
-            String limitsForTooltip = "";
+            String toolTipString = "";
 
             if (note.contains(LIMIT_STEP1)) {
                 try {
@@ -45,7 +45,7 @@ public class Note {
                     try {
                         CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject(), objectHandler);
                         JsonLimitsConfig l1Config = cleanDataObject.getLimitsConfig().get(0);
-                        limitsForTooltip += "L1 Min: " + l1Config.getMin() + " L1 Max: " + l1Config.getMax();
+                        toolTipString += "L1 Min: " + l1Config.getMin() + " L1 Max: " + l1Config.getMax();
                     } catch (Exception e) {
 
                     }
@@ -58,7 +58,7 @@ public class Note {
                 try {
                     if (noOfNotes > 0) {
                         sb = new StringBuilder();
-                        limitsForTooltip += " ";
+                        toolTipString += " ";
                     }
                     sb.append(I18n.getInstance().getString("plugin.graph.chart.note.limit2"));
                     noOfNotes++;
@@ -67,7 +67,7 @@ public class Note {
                     try {
                         CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject(), objectHandler);
                         JsonLimitsConfig l2Config = cleanDataObject.getLimitsConfig().get(1);
-                        limitsForTooltip += "L2 Min: " + l2Config.getMin() + " L2 Max: " + l2Config.getMax();
+                        toolTipString += "L2 Min: " + l2Config.getMin() + " L2 Max: " + l2Config.getMax();
                     } catch (Exception e) {
 
                     }
@@ -82,7 +82,6 @@ public class Note {
                     noOfNotes++;
 
                     changed = true;
-
                 } catch (Exception e) {
                 }
             }
@@ -95,6 +94,8 @@ public class Note {
                     noOfNotes++;
 
                     changed = true;
+
+                    toolTipString += I18n.getInstance().getString("plugin.graph.chart.note.div0.long");
                 } catch (Exception e) {
                 }
             }
@@ -130,8 +131,10 @@ public class Note {
                 Label label = new Label(sb.toString());
                 label.setStyle("-fx-background-color: #ffffff;");
                 hbox.getChildren().add(label);
-                Tooltip tooltip = new Tooltip(limitsForTooltip);
-                label.setTooltip(tooltip);
+                Tooltip tooltip = new Tooltip(toolTipString);
+                if (!toolTipString.equals("")) {
+                    label.setTooltip(tooltip);
+                }
             }
         }
     }
