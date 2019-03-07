@@ -356,10 +356,14 @@ public class ReportLinkProperty implements ReportData {
                 try {
                     if (dataObject.getAttribute("Value") != null) {
                         JEVisAttribute att = dataObject.getAttribute("Value");
-                        if (att.getTimestampFromLastSample() != null) {
-                            DateTime timestampFromLastSample = att.getTimestampFromLastSample();
-                            if (timestampFromLastSample.isAfter(end)) {
-                                return new LinkStatus(true, "ok");
+                        if (att != null) {
+                            JEVisSample latestSample = att.getLatestSample();
+                            if (latestSample != null) {
+                                if (latestSample.getTimestamp().isAfter(end)) {
+                                    return new LinkStatus(true, "ok");
+                                } else {
+                                    return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+                                }
                             } else {
                                 return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
                             }

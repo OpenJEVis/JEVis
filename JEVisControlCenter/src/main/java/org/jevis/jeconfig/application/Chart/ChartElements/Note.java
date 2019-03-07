@@ -5,6 +5,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.ObjectHandler;
@@ -19,6 +21,7 @@ import static org.jevis.commons.constants.NoteConstants.User.USER_NOTES;
 
 public class Note {
 
+    private static final Logger logger = LogManager.getLogger(Note.class);
     private Node node = null;
     private String noteString = null;
 //    private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
@@ -27,14 +30,16 @@ public class Note {
 //    private static final Image infinity = ResourceLoader.getImage("32423523543543_error_div0.png");
 
     public Note(JEVisSample sample) throws JEVisException {
+//        DateTime timeStamp = sample.getTimestamp();
         String note = sample.getNote();
         ObjectHandler objectHandler = new ObjectHandler(sample.getDataSource());
+
         if (note != null) {
             HBox hbox = new HBox();
             boolean changed = false;
             StringBuilder sb = new StringBuilder();
             int noOfNotes = 0;
-            String limitsForTooltip = "";
+            String toolTipString = "";
 
             if (note.contains(LIMIT_STEP1)) {
                 try {
@@ -45,7 +50,7 @@ public class Note {
                     try {
                         CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject(), objectHandler);
                         JsonLimitsConfig l1Config = cleanDataObject.getLimitsConfig().get(0);
-                        limitsForTooltip += "L1 Min: " + l1Config.getMin() + " L1 Max: " + l1Config.getMax();
+                        toolTipString += "L1 Min: " + l1Config.getMin() + " L1 Max: " + l1Config.getMax();
                     } catch (Exception e) {
 
                     }
@@ -58,7 +63,7 @@ public class Note {
                 try {
                     if (noOfNotes > 0) {
                         sb = new StringBuilder();
-                        limitsForTooltip += " ";
+                        toolTipString += " ";
                     }
                     sb.append(I18n.getInstance().getString("plugin.graph.chart.note.limit2"));
                     noOfNotes++;
@@ -67,7 +72,7 @@ public class Note {
                     try {
                         CleanDataObject cleanDataObject = new CleanDataObject(sample.getAttribute().getObject(), objectHandler);
                         JsonLimitsConfig l2Config = cleanDataObject.getLimitsConfig().get(1);
-                        limitsForTooltip += "L2 Min: " + l2Config.getMin() + " L2 Max: " + l2Config.getMax();
+                        toolTipString += "L2 Min: " + l2Config.getMin() + " L2 Max: " + l2Config.getMax();
                     } catch (Exception e) {
 
                     }
@@ -82,7 +87,6 @@ public class Note {
                     noOfNotes++;
 
                     changed = true;
-
                 } catch (Exception e) {
                 }
             }
@@ -95,6 +99,8 @@ public class Note {
                     noOfNotes++;
 
                     changed = true;
+
+                    toolTipString += I18n.getInstance().getString("plugin.graph.chart.note.div0.long");
                 } catch (Exception e) {
                 }
             }
@@ -106,9 +112,64 @@ public class Note {
                     noOfNotes++;
 
                     changed = true;
+
+//                    try {
+//                        JEVisObject obj = sample.getAttribute().getObject();
+//                        JEVisObject correspondingNoteObject = null;
+//
+//                        final JEVisClass dataNoteClass = obj.getDataSource().getJEVisClass("Data Notes");
+//                        List<JEVisObject> listParents = obj.getParents();
+//                        for (JEVisObject parent : listParents) {
+//                            for (JEVisObject child : parent.getChildren()) {
+//                                if (child.getJEVisClass().equals(dataNoteClass) && child.getName().contains(obj.getName())) {
+//                                    correspondingNoteObject = child;
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                        if (correspondingNoteObject != null) {
+//                            try {
+//                                JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
+//                                List<JEVisSample> listSamples = userNoteAttribute.getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
+//                                if (listSamples.size() == 1) {
+//                                    for (JEVisSample smp : listSamples) {
+//                                        toolTipString += smp.getValueAsString();
+//                                    }
+//                                }
+//                            } catch (JEVisException e) {
+//
+//                            }
+//                        }
+//
+//                    } catch (Exception e) {
+//                        logger.error("Error while getting user notes" + e);
+//                    }
                 } catch (Exception e) {
                 }
             }
+
+//            try {
+//                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
+//                JEVisObject object = sample.getAttribute().getObject();
+//                if (object.getJEVisClass().equals(cleanDataClass)) {
+//                    JEVisAttribute log = object.getAttribute("Alarm Log");
+//                    if (log != null) {
+//                        List<JEVisSample> logSamples = log.getSamples(sample.getTimestamp(), sample.getTimestamp());
+//                        if (logSamples != null && !logSamples.isEmpty()) {
+//                            if (noOfNotes > 0) sb.append(", ");
+//                            sb.append(I18n.getInstance().getString("plugin.graph.chart.note.alarm"));
+//                            noOfNotes++;
+//
+//                            changed = true;
+//
+//                            toolTipString += "Alarm " + logSamples.get(0).getValueAsDouble();
+//                        }
+//                    }
+//                }
+//            } catch (Exception e) {
+//                logger.error("Error while getting alarm log" + e);
+//            }
+
 
 //            if (hbox.getChildren().size() > ) {
 //                hbox.getChildren().clear();
@@ -130,8 +191,10 @@ public class Note {
                 Label label = new Label(sb.toString());
                 label.setStyle("-fx-background-color: #ffffff;");
                 hbox.getChildren().add(label);
-                Tooltip tooltip = new Tooltip(limitsForTooltip);
-                label.setTooltip(tooltip);
+                Tooltip tooltip = new Tooltip(toolTipString);
+                if (!toolTipString.equals("")) {
+                    label.setTooltip(tooltip);
+                }
             }
         }
     }

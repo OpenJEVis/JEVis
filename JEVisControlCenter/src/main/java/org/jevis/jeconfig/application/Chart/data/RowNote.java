@@ -1,11 +1,11 @@
 package org.jevis.jeconfig.application.Chart.data;
 
 import javafx.beans.property.SimpleStringProperty;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.jeconfig.tool.I18n;
+
+import java.util.List;
 
 public class RowNote {
     private final JEVisObject dataObject;
@@ -31,22 +31,22 @@ public class RowNote {
 
         }
 
-        if (note.contains(NoteConstants.Alignment.ALIGNMENT_YES)) {
-            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.alignedtrue"));
-            formattedNote.append(System.getProperty("line.separator"));
-        } else if (note.contains(NoteConstants.Alignment.ALIGNMENT_NO)) {
-            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.alignedfalse"));
-            formattedNote.append(System.getProperty("line.separator"));
-        }
+//        if (note.contains(NoteConstants.Alignment.ALIGNMENT_YES)) {
+//            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.alignedtrue"));
+//            formattedNote.append(System.getProperty("line.separator"));
+//        } else if (note.contains(NoteConstants.Alignment.ALIGNMENT_NO)) {
+//            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.alignedfalse"));
+//            formattedNote.append(System.getProperty("line.separator"));
+//        }
 
-        if (note.contains(NoteConstants.Differential.DIFFERENTIAL_ON)) {
-            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.diff"));
-            formattedNote.append(System.getProperty("line.separator"));
-        }
-        if (note.contains(NoteConstants.Scaling.SCALING_ON)) {
-            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.scale"));
-            formattedNote.append(System.getProperty("line.separator"));
-        }
+//        if (note.contains(NoteConstants.Differential.DIFFERENTIAL_ON)) {
+//            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.diff"));
+//            formattedNote.append(System.getProperty("line.separator"));
+//        }
+//        if (note.contains(NoteConstants.Scaling.SCALING_ON)) {
+//            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.scale"));
+//            formattedNote.append(System.getProperty("line.separator"));
+//        }
 
         if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit1"));
@@ -119,6 +119,30 @@ public class RowNote {
         if (note.contains(NoteConstants.Calc.CALC_INFINITE)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.calc.infinity"));
             formattedNote.append(System.getProperty("line.separator"));
+        }
+
+        try {
+            JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
+            JEVisObject object = sample.getAttribute().getObject();
+            if (object.getJEVisClass().equals(cleanDataClass)) {
+                JEVisAttribute log = object.getAttribute("Alarm Log");
+                if (log != null) {
+                    List<JEVisSample> logSamples = log.getSamples(sample.getTimestamp(), sample.getTimestamp());
+                    if (logSamples != null && !logSamples.isEmpty()) {
+
+                        Double valueAsDouble = logSamples.get(0).getValueAsDouble();
+                        if (valueAsDouble.equals(1d)) {
+                            formattedNote.append("Alarm normal");
+                        } else if (valueAsDouble.equals(2d)) {
+                            formattedNote.append("Alarm silent");
+                        } else if (valueAsDouble.equals(4d)) {
+                            formattedNote.append("Alarm standby");
+                        }
+
+                    }
+                }
+            }
+        } catch (Exception e) {
         }
 
         this.note = new SimpleStringProperty(formattedNote.toString());

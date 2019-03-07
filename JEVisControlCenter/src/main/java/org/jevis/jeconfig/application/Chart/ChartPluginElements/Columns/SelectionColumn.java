@@ -14,8 +14,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -197,18 +197,17 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                     }
                                                 });
 
+                                                /**
+                                                 * if the box is unselected and no other selected, remove the color
+                                                 */
+                                                colorColumn.removeUsedColor(data.getColor());
+                                                data.setColor(colorColumn.getStandardColor());
+                                                Platform.runLater(() -> {
+                                                    JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                    getTreeTableRow().getTreeItem().setValue(sobj);
+                                                });
+
                                                 if (!foundOther.get()) {
-                                                    /**
-                                                     * if the box is unselected and no other selected, remove the color
-                                                     */
-                                                    if (data.getSelectedcharts().isEmpty()) {
-                                                        colorColumn.removeUsedColor(data.getColor());
-                                                        data.setColor(colorColumn.getStandardColor());
-                                                        Platform.runLater(() -> {
-                                                            JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
-                                                            getTreeTableRow().getTreeItem().setValue(sobj);
-                                                        });
-                                                    }
 
                                                     /**
                                                      * remove the chart column from the tree and data model

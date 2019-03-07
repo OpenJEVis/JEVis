@@ -66,27 +66,27 @@
     {
       "type": "GapFilling Enabled",
       "descriptions": {
-        "de": "Aktiviert/Deaktiviert die Lückenbefüllung der Datenreihe, definiert in der Konfiguration",
+        "de": "Aktiviert/Deaktiviert die Ersatzwertbildung bei Lücken der Datenreihe, definiert in der Konfiguration",
         "ru": "Enables/Disables the gap filling of the data series, defined in the configuration",
-        "en": "Enables/Disables the gap filling of the data series, defined in the configuration"
+        "en": "Enables/Disables the replacement value methods of the data series, defined in the configuration"
       },
       "names": {
-        "de": "Lückenbefüllung aktiv",
+        "de": "Ersatzwertbildung aktiv",
         "ru": "Gap Filling enabled",
-        "en": "Gap Filling enabled"
+        "en": "Replacement value method enabled"
       }
     },
     {
       "type": "Gap Filling Config",
       "descriptions": {
-        "de": "Definiert die Methode zur Befüllung von Datenlücken",
+        "de": "Definiert die Methode zur Ersatzwertbildung bei Datenlücken",
         "ru": "Define the method for the filling of data gaps",
-        "en": "Define the method for the filling of data gaps"
+        "en": "Define the method for replacement values for data gaps"
       },
       "names": {
-        "de": "Lückenbefüllungskonfiguration",
+        "de": "Ersatzwertbildungskonfiguration",
         "ru": "Gap filling configuration",
-        "en": "Gap filling configuration"
+        "en": "Replacement value configuration"
       }
     },
     {

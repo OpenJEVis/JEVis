@@ -14,6 +14,8 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
+import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -131,6 +133,16 @@ public class PieChart implements Chart {
     @Override
     public void setHideShowIcons(Boolean hideShowIcons) {
         this.hideShowIcons = hideShowIcons;
+    }
+
+    @Override
+    public ChartPanManager getPanner() {
+        return null;
+    }
+
+    @Override
+    public JFXChartUtil getJfxChartUtil() {
+        return null;
     }
 
     @Override

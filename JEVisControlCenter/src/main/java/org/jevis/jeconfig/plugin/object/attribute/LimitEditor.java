@@ -183,7 +183,7 @@ public class LimitEditor implements AttributeEditor {
      *
      * @return
      */
-    private List<JsonLimitsConfig> createDefaultConfig() {
+    public static List<JsonLimitsConfig> createDefaultConfig() {
         List<JsonLimitsConfig> list = new ArrayList<>();
 
         JsonLimitsConfig newConfig1 = new JsonLimitsConfig();
