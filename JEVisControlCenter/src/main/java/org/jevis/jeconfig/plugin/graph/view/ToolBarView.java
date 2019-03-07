@@ -25,6 +25,7 @@ import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.json.JsonChartTimeFrame;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
@@ -155,11 +156,11 @@ public class ToolBarView {
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
-        reload.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                setTimer();
-            }
-        });
+        reload.selectedProperty().addListener((observable, oldValue, newValue) -> graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD));
+
+        /**
+         * TODO timer button from dashboard
+         */
 
         exportCSV.setOnAction(action -> {
             GraphExportCSV ge = new GraphExportCSV(ds, model);
