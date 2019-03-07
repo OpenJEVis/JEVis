@@ -16,6 +16,7 @@
 
 package org.jevis.jeconfig.application.Chart.Zoom;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -37,11 +38,15 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
  * @author Jason Winnebeck
  */
 public class JFXChartUtil {
+
+    private ChartZoomManager zoomManager;
+    private SimpleBooleanProperty doubleClicked = new SimpleBooleanProperty(false);
+
     /**
      * Sets up zooming via the {@link #setupZooming(MultiAxisChart, EventHandler)} method by using the
      * {@link ChartZoomManager}'s {@link ChartZoomManager#DEFAULT_FILTER default filter}.
      */
-    public static Region setupZooming(MultiAxisChart<?, ?> chart) {
+    public Region setupZooming(MultiAxisChart<?, ?> chart) {
         return setupZooming(chart, ChartZoomManager.DEFAULT_FILTER);
     }
 
@@ -65,8 +70,8 @@ public class JFXChartUtil {
      * @param mouseFilter EventHandler that consumes events that should not trigger a zoom action
      * @return The top-level Region
      */
-    public static Region setupZooming(MultiAxisChart<?, ?> chart,
-                                      EventHandler<? super MouseEvent> mouseFilter) {
+    public Region setupZooming(MultiAxisChart<?, ?> chart,
+                               EventHandler<? super MouseEvent> mouseFilter) {
         StackPane chartPane = new StackPane();
 
         if (chart.getParent() != null)
@@ -83,17 +88,21 @@ public class JFXChartUtil {
 
         chartPane.getChildren().addAll(chart, selectRect);
 
-        ChartZoomManager zoomManager = new ChartZoomManager(chartPane, selectRect, chart);
+        zoomManager = new ChartZoomManager(chartPane, selectRect, chart);
         zoomManager.setMouseWheelZoomAllowed(false);
         zoomManager.setMouseFilter(mouseFilter);
         zoomManager.start();
         return chartPane;
     }
 
+    public ChartZoomManager getZoomManager() {
+        return zoomManager;
+    }
+
     /**
      * Calls {@link #addDoublePrimaryClickAutoRangeHandler(MultiAxisChart, Node)} with the chart as the target.
      */
-    public static EventHandler<MouseEvent> addDoublePrimaryClickAutoRangeHandler(final MultiAxisChart<?, ?> chart) {
+    public EventHandler<MouseEvent> addDoublePrimaryClickAutoRangeHandler(final MultiAxisChart<?, ?> chart) {
         return addDoublePrimaryClickAutoRangeHandler(chart, chart);
     }
 
@@ -106,7 +115,7 @@ public class JFXChartUtil {
      * @param target handler listens for {@link MouseEvent}s on this {@link Node}
      * @return the {@link EventHandler} added to 'target' for {@link MouseEvent}.
      */
-    public static EventHandler<MouseEvent> addDoublePrimaryClickAutoRangeHandler(MultiAxisChart<?, ?> chart, Node target) {
+    public EventHandler<MouseEvent> addDoublePrimaryClickAutoRangeHandler(MultiAxisChart<?, ?> chart, Node target) {
         XYChartInfo chartInfo = new XYChartInfo(chart, target);
         EventHandler<MouseEvent> handler = getDoublePrimaryClickAutoRangeHandler(chartInfo);
         target.addEventHandler(MouseEvent.MOUSE_CLICKED, handler);
@@ -118,7 +127,7 @@ public class JFXChartUtil {
      * double-clicked. If the click occurs inside the X axis area auto range only the X axis and similarly for Y axis. But
      * if the event is in the plot area or anywhere else, auto range both axes.
      */
-    public static EventHandler<MouseEvent> getDoublePrimaryClickAutoRangeHandler(final XYChartInfo chartInfo) {
+    public EventHandler<MouseEvent> getDoublePrimaryClickAutoRangeHandler(final XYChartInfo chartInfo) {
         return new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -131,8 +140,18 @@ public class JFXChartUtil {
                     }
                     if (!chartInfo.getY1AxisArea().contains(x, y) || !chartInfo.getY2AxisArea().contains(x, y))
                         chartInfo.getChart().getXAxis().setAutoRanging(true);
+
+                    doubleClicked.setValue(true);
                 }
             }
         };
+    }
+
+    public boolean isDoubleClicked() {
+        return doubleClicked.get();
+    }
+
+    public SimpleBooleanProperty doubleClickedProperty() {
+        return doubleClicked;
     }
 }

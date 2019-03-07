@@ -106,6 +106,7 @@ public class ChartZoomManager {
     private final SimpleDoubleProperty rectX = new SimpleDoubleProperty();
     private final SimpleDoubleProperty rectY = new SimpleDoubleProperty();
     private final SimpleBooleanProperty selecting = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty zoomFinished = new SimpleBooleanProperty(false);
 
     private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
     private final BooleanProperty zoomAnimated = new SimpleBooleanProperty(true);
@@ -121,6 +122,7 @@ public class ChartZoomManager {
     private AxisConstraintStrategy axisConstraintStrategy = AxisConstraintStrategies.getIgnoreOutsideChart();
     private AxisConstraintStrategy mouseWheelAxisConstraintStrategy = AxisConstraintStrategies.getDefault();
     private EventHandler<? super MouseEvent> mouseFilter = DEFAULT_FILTER;
+    private Rectangle2D zoomWindow1;
 
     /**
      * Construct a new ChartZoomManager. See {@link ChartZoomManager} documentation for normal usage.
@@ -178,6 +180,38 @@ public class ChartZoomManager {
         });
 
         handlerManager.addEventHandler(false, ScrollEvent.ANY, new MouseWheelZoomHandler());
+    }
+
+    public Double getXAxisLowerBound() {
+        return zoomWindow1.getMinX();
+    }
+
+    public Double getXAxisUpperBound() {
+        return zoomWindow1.getMaxX();
+    }
+
+    public Double getY1AxisLowerBound() {
+        return y1Axis.getLowerBound();
+    }
+
+    public Double getY1AxisUpperBound() {
+        return y1Axis.getUpperBound();
+    }
+
+    public Double getY2AxisLowerBound() {
+        return y2Axis.getLowerBound();
+    }
+
+    public Double getY2AxisUpperBound() {
+        return y2Axis.getUpperBound();
+    }
+
+    public boolean isZoomFinished() {
+        return zoomFinished.get();
+    }
+
+    public SimpleBooleanProperty zoomFinishedProperty() {
+        return zoomFinished;
     }
 
     private static double getBalance(double val, double min, double max) {
@@ -412,7 +446,7 @@ public class ChartZoomManager {
             return;
         }
 
-        Rectangle2D zoomWindow1 = chartInfo.getDataCoordinatesY1(
+        zoomWindow1 = chartInfo.getDataCoordinatesY1(
                 selectRect.getTranslateX(), selectRect.getTranslateY(),
                 rectX.get(), rectY.get()
         );
@@ -457,6 +491,7 @@ public class ChartZoomManager {
         }
 
         selecting.set(false);
+        zoomFinished.setValue(true);
     }
 
     private class MouseWheelZoomHandler implements EventHandler<ScrollEvent> {

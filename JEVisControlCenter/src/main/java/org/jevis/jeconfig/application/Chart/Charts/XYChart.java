@@ -70,6 +70,8 @@ public class XYChart implements Chart {
     AtomicBoolean addManipulationToTitle;
     AtomicReference<ManipulationMode> manipulationMode;
     Boolean[] changedBoth;
+    private ChartPanManager panner;
+    private JFXChartUtil jfxChartUtil;
 
     public XYChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -262,7 +264,7 @@ public class XYChart implements Chart {
 
     @Override
     public void initializeZoom() {
-        ChartPanManager panner = null;
+        panner = null;
 
         getChart().setOnMouseMoved(mouseEvent -> {
             updateTable(mouseEvent, null);
@@ -279,7 +281,8 @@ public class XYChart implements Chart {
         });
         panner.start();
 
-        areaChartRegion = JFXChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
+        jfxChartUtil = new JFXChartUtil();
+        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
 
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
@@ -290,8 +293,13 @@ public class XYChart implements Chart {
             }
         });
 
-        JFXChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
+        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
+    }
+
+    @Override
+    public JFXChartUtil getJfxChartUtil() {
+        return jfxChartUtil;
     }
 
     @Override
@@ -649,4 +657,8 @@ public class XYChart implements Chart {
         else y2Axis.setVisible(true);
     }
 
+    @Override
+    public ChartPanManager getPanner() {
+        return panner;
+    }
 }

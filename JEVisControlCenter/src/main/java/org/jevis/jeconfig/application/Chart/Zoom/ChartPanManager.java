@@ -16,6 +16,8 @@
 
 package org.jevis.jeconfig.application.Chart.Zoom;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.chart.Axis;
@@ -59,6 +61,7 @@ public class ChartPanManager {
     private double lastX;
     private double lastY1;
     private double lastY2;
+    private BooleanProperty zoomFinished = new SimpleBooleanProperty(false);
 
     public ChartPanManager(MultiAxisChart<?, ?> chart) {
         handlerManager = new EventHandlerManager(chart);
@@ -212,5 +215,39 @@ public class ChartPanManager {
         xAxis.setAnimated(wasXAnimated);
         y1Axis.setAnimated(wasY1Animated);
         y2Axis.setAnimated(wasY2Animated);
+
+        zoomFinished.setValue(true);
+    }
+
+    public Double getXAxisLowerBound() {
+        return xAxis.getLowerBound();
+    }
+
+    public Double getXAxisUpperBound() {
+        return xAxis.getUpperBound();
+    }
+
+    public Double getY1AxisLowerBound() {
+        return y1Axis.getLowerBound();
+    }
+
+    public Double getY1AxisUpperBound() {
+        return y1Axis.getUpperBound();
+    }
+
+    public Double getY2AxisLowerBound() {
+        return y2Axis.getLowerBound();
+    }
+
+    public Double getY2AxisUpperBound() {
+        return y2Axis.getUpperBound();
+    }
+
+    public boolean isZoomFinished() {
+        return zoomFinished.get();
+    }
+
+    public BooleanProperty zoomFinishedProperty() {
+        return zoomFinished;
     }
 }

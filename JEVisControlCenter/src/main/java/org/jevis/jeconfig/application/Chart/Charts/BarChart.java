@@ -67,6 +67,7 @@ public class BarChart implements Chart {
     private Region areaChartRegion;
     private boolean asDuration = false;
     private AtomicReference<ManipulationMode> manipulationMode;
+    private ChartPanManager panner;
 
     public BarChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -158,7 +159,7 @@ public class BarChart implements Chart {
 
     @Override
     public void initializeZoom() {
-        ChartPanManager panner = null;
+        panner = null;
 
         getChart().setOnMouseMoved(mouseEvent -> {
             updateTable(mouseEvent, null);
@@ -175,7 +176,8 @@ public class BarChart implements Chart {
         });
         panner.start();
 
-        areaChartRegion = JFXChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
+        JFXChartUtil jfxChartUtil = new JFXChartUtil();
+        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
 
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
@@ -186,7 +188,7 @@ public class BarChart implements Chart {
             }
         });
 
-        JFXChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
+        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
     }
 
@@ -258,6 +260,16 @@ public class BarChart implements Chart {
     @Override
     public void setHideShowIcons(Boolean hideShowIcons) {
         this.hideShowIcons = hideShowIcons;
+    }
+
+    @Override
+    public ChartPanManager getPanner() {
+        return panner;
+    }
+
+    @Override
+    public JFXChartUtil getJfxChartUtil() {
+        return null;
     }
 
     @Override
