@@ -7,13 +7,12 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.tool.I18n;
-
-import java.util.List;
 
 import static org.jevis.commons.constants.NoteConstants.Calc.CALC_INFINITE;
 import static org.jevis.commons.constants.NoteConstants.Gap.GAP;
@@ -31,6 +30,7 @@ public class Note {
 //    private static final Image infinity = ResourceLoader.getImage("32423523543543_error_div0.png");
 
     public Note(JEVisSample sample) throws JEVisException {
+//        DateTime timeStamp = sample.getTimestamp();
         String note = sample.getNote();
         ObjectHandler objectHandler = new ObjectHandler(sample.getDataSource());
 
@@ -112,25 +112,63 @@ public class Note {
                     noOfNotes++;
 
                     changed = true;
+
+//                    try {
+//                        JEVisObject obj = sample.getAttribute().getObject();
+//                        JEVisObject correspondingNoteObject = null;
+//
+//                        final JEVisClass dataNoteClass = obj.getDataSource().getJEVisClass("Data Notes");
+//                        List<JEVisObject> listParents = obj.getParents();
+//                        for (JEVisObject parent : listParents) {
+//                            for (JEVisObject child : parent.getChildren()) {
+//                                if (child.getJEVisClass().equals(dataNoteClass) && child.getName().contains(obj.getName())) {
+//                                    correspondingNoteObject = child;
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                        if (correspondingNoteObject != null) {
+//                            try {
+//                                JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
+//                                List<JEVisSample> listSamples = userNoteAttribute.getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
+//                                if (listSamples.size() == 1) {
+//                                    for (JEVisSample smp : listSamples) {
+//                                        toolTipString += smp.getValueAsString();
+//                                    }
+//                                }
+//                            } catch (JEVisException e) {
+//
+//                            }
+//                        }
+//
+//                    } catch (Exception e) {
+//                        logger.error("Error while getting user notes" + e);
+//                    }
                 } catch (Exception e) {
                 }
             }
 
-            try {
-                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
-                JEVisObject object = sample.getAttribute().getObject();
-                if (object.getJEVisClass().equals(cleanDataClass)) {
-                    JEVisAttribute log = object.getAttribute("Alarm Log");
-                    if (log != null) {
-                        List<JEVisSample> logSamples = log.getSamples(sample.getTimestamp(), sample.getTimestamp());
-                        if (logSamples != null && !logSamples.isEmpty()) {
-                            toolTipString += "Alarm " + logSamples.get(0).getValueAsDouble();
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Error while getting alarm log" + e);
-            }
+//            try {
+//                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
+//                JEVisObject object = sample.getAttribute().getObject();
+//                if (object.getJEVisClass().equals(cleanDataClass)) {
+//                    JEVisAttribute log = object.getAttribute("Alarm Log");
+//                    if (log != null) {
+//                        List<JEVisSample> logSamples = log.getSamples(sample.getTimestamp(), sample.getTimestamp());
+//                        if (logSamples != null && !logSamples.isEmpty()) {
+//                            if (noOfNotes > 0) sb.append(", ");
+//                            sb.append(I18n.getInstance().getString("plugin.graph.chart.note.alarm"));
+//                            noOfNotes++;
+//
+//                            changed = true;
+//
+//                            toolTipString += "Alarm " + logSamples.get(0).getValueAsDouble();
+//                        }
+//                    }
+//                }
+//            } catch (Exception e) {
+//                logger.error("Error while getting alarm log" + e);
+//            }
 
 
 //            if (hbox.getChildren().size() > ) {

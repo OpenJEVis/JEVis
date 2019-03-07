@@ -230,6 +230,7 @@ public class XYChart implements Chart {
     }
 
     public void generateXAxis(Boolean[] changedBoth) {
+        dateAxis.setAutoRanging(true);
         if (!asDuration) ((DateValueAxis) dateAxis).setAsDuration(false);
         else {
             ((DateValueAxis) dateAxis).setAsDuration(true);
