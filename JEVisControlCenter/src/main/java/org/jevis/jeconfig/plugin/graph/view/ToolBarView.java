@@ -30,7 +30,9 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
@@ -72,6 +74,7 @@ public class ToolBarView {
     private ToggleButton autoResize;
     private ToggleButton select;
     private ToggleButton disableIcons;
+    private ToggleButton zoomOut;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
@@ -211,6 +214,7 @@ public class ToolBarView {
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
         Separator sep3 = new Separator();
+        Separator sep4 = new Separator();
         save.setDisable(false);
         delete.setDisable(false);
 
@@ -248,6 +252,14 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
+
+        zoomOut = new ToggleButton("", JEConfig.getImage("zoom-out-thin-finger-thump-black.png", iconSize, iconSize));
+        Tooltip zoomOutTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
+        zoomOut.setTooltip(zoomOutTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
+
+        zoomOut.setOnAction(event -> resetZoom());
+
         select.setOnAction(event -> changeSettings());
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
@@ -261,11 +273,19 @@ public class ToolBarView {
         /**
          * addSeriesRunningMean disabled for now
          */
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, exportImage, sep3, disableIcons, autoResize, reload);
+        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, exportImage, sep3, disableIcons, autoResize, reload, sep4, zoomOut);
         setDisableToolBarIcons(true);
         _initialized = true;
 
         return toolBar;
+    }
+
+    private void resetZoom() {
+        graphPluginView.getCharts().forEach(chartView -> {
+            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+            DateValueAxis dateValueAxis = (DateValueAxis) chart.getXAxis();
+            dateValueAxis.setAutoRanging(true);
+        });
     }
 
     private void setTimer() {
@@ -751,6 +771,7 @@ public class ToolBarView {
         autoResize.setDisable(bool);
         select.setDisable(bool);
         disableIcons.setDisable(bool);
+        zoomOut.setDisable(bool);
     }
 
     public BorderPane getBorderPane() {

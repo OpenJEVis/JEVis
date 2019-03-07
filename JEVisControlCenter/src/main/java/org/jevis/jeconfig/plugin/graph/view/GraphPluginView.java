@@ -942,4 +942,8 @@ public class GraphPluginView implements Plugin {
 
         charts.addAll(subCharts);
     }
+
+    public List<ChartView> getCharts() {
+        return charts;
+    }
 }

@@ -260,6 +260,7 @@ public class ChartView implements Observer {
             if (!getChartType().equals(ChartType.LOGICAL)) {
 
                 HBox pickerBox = new HBox();
+                pickerBox.setPadding(new Insets(2, 2, 2, 2));
                 pickerBox.setPickOnBounds(false);
                 StartDatePicker startDatePicker = new StartDatePicker();
                 startDatePicker.setPickOnBounds(false);
@@ -281,7 +282,7 @@ public class ChartView implements Observer {
                 pickerBox.getChildren().addAll(startDatePicker, endDatePicker);
                 pickerBox.setAlignment(Pos.TOP_RIGHT);
 
-                stackPane.getChildren().add(pickerBox);
+                stackPane.getChildren().addAll(pickerBox);
             }
 
             return stackPane;
