@@ -4,7 +4,6 @@ import javafx.beans.property.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
@@ -16,9 +15,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.dialog.DialogHeader;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
-import org.jevis.jeconfig.tool.Layouts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,26 +122,25 @@ public class Wizard {
                 //Widget Selection, TODO for previous()
             }
 
-            if (newValue.intValue() == 1) {
-                System.out.println("SampleHandlerPage");
-                SampleHandler sampleHandler = selectedWidget.getValue().getSampleHandler();
 
-//                if (sampleHandler.getPage().isSkipable()) {
-//                    newValue = 2;//skip
-//                } else {
-                Node configNode = sampleHandler.getPage().getNode();
-                contentPane.getChildren().setAll(configNode);
-                Layouts.setAnchor(configNode, 5.0);
-//                }
-            }
-
-            if (newValue.intValue() == 2) {
-                selectedWidget.getValue().init();
-                selectedWidget.getValue().getSampleHandler().setUserSelectionDone();
-                Node configNode = selectedWidget.getValue().config.getConfigSheet();
-                contentPane.getChildren().setAll(configNode);
-                Layouts.setAnchor(configNode, 5.0);
-            }
+            //TODO revive
+//            if (newValue.intValue() == 1) {
+//                System.out.println("SampleHandlerPage");
+//                SampleHandler sampleHandler = selectedWidget.getValue().getSampleHandler();
+//
+//                Node configNode = sampleHandler.getPage().getNode();
+//                contentPane.getChildren().setAll(configNode);
+//                Layouts.setAnchor(configNode, 5.0);
+////                }
+//            }
+//
+//            if (newValue.intValue() == 2) {
+////                selectedWidget.getValue().init();
+//                selectedWidget.getValue().getSampleHandler().setUserSelectionDone();
+//                Node configNode = selectedWidget.getValue().config.getConfigSheet();
+//                contentPane.getChildren().setAll(configNode);
+//                Layouts.setAnchor(configNode, 5.0);
+//            }
 
         });
 

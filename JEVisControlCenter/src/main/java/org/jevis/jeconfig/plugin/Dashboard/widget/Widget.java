@@ -1,10 +1,5 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -13,7 +8,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import jfxtras.labs.util.event.MouseControlUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,11 +15,10 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashBoardPane;
-import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
+import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.NullSampleHandel;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.SimpleDataHandler;
+import org.joda.time.Interval;
 
 import java.util.UUID;
 
@@ -34,10 +27,8 @@ public abstract class Widget extends Group {
     private static final Logger logger = LogManager.getLogger(Widget.class);
     private final String TYPE = "type";
     private final org.jevis.api.JEVisDataSource jeVisDataSource;
-    public WidgetConfig config = new WidgetConfig("");
+    public WidgetConfig config = new WidgetConfig("Generic");
     public Size previewSize = new Size(100, 150);
-    public BooleanProperty noDataInPeriodProperty = new SimpleBooleanProperty(false);
-    public BooleanProperty isInitialized = new SimpleBooleanProperty(false);
     public SampleHandler dataHandler;
     private DashBoardPane dashBoard;
     private AnchorPane contentRoot = new AnchorPane();
@@ -47,67 +38,36 @@ public abstract class Widget extends Group {
     public Widget(JEVisDataSource jeVisDataSource) {
         super();
         this.jeVisDataSource = jeVisDataSource;
-        config.setType(typeID());
-        addCommonConfigListeners();
+    }
+
+    public Widget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
+        super();
+        this.jeVisDataSource = jeVisDataSource;
+        if (config != null) {
+            this.config = config;
+        } else {
+            this.config.setType(typeID());
+        }
 
     }
 
-    public BooleanProperty getNoDataInPeriodProperty() {
-        return noDataInPeriodProperty;
-    }
-
-    public abstract SampleHandler getSampleHandler();
-
-    public abstract void setBackgroundColor(Color color);
-
-    public abstract void setTitle(String text);
-
-    public abstract void setFontColor(Color color);
-
-    public abstract void setCustomFont(Font font);
-
-    public SampleHandler getDataHandler() {
-        return dataHandler;
-    }
 
     public WidgetConfig getConfig() {
         return config;
     }
 
-    public void setConfig(WidgetConfig config) {
-        logger.error("Widget.setConfig()");
-        ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
-        try {
-            logger.info("Widget.SetConfig: {}", mapper.writeValueAsString(config));
-        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-        }
-        this.config = config;
+//    public void setConfig(WidgetConfig config) {
+//        logger.error("Widget.setConfig()");
+//        ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
+//        try {
+//            logger.info("Widget.SetConfig: {}", mapper.writeValueAsString(config));
+//        } catch (JsonProcessingException e) {
+////            e.printStackTrace();
+//        }
+//        this.config = config;
+//
+//    }
 
-        JsonNode dataHandlerNode = config.getDataHandlerNode();
-
-
-        String type = dataHandlerNode.get(TYPE).asText("none");
-        logger.info("DataHandler: {}", type);
-
-        switch (type) {
-            case SimpleDataHandler.TYPE:
-                dataHandler = new SimpleDataHandler(getDataSource(), dataHandlerNode);
-                break;
-
-            default:
-                logger.warn("No dataHandler Configured");
-                dataHandler = new NullSampleHandel(jeVisDataSource);
-
-                break;
-
-        }
-        configChanged();
-
-
-    }
-
-    public abstract void configChanged();
 
     public JEVisDataSource getDataSource() {
         return jeVisDataSource;
@@ -117,32 +77,8 @@ public abstract class Widget extends Group {
         return uuid;
     }
 
-    public void applyCommonConfig() {
-        setBackgroundColor(config.backgroundColor.getValue());
-        setFontColor(config.fontColor.getValue());
-        setTitle(config.title.getValue());
-        setCustomFont(config.font.getValue());
-    }
-
-    public void addCommonConfigListeners() {
-        config.backgroundColor.addListener((observable, oldValue, newValue) -> {
-            setBackgroundColor(newValue);
-        });
-        config.fontColor.addListener((observable, oldValue, newValue) -> {
-            setFontColor(newValue);
-        });
-
-        config.title.addListener((observable, oldValue, newValue) -> {
-            setTitle(newValue);
-        });
-
-        config.font.addListener((observable, oldValue, newValue) -> {
-            setCustomFont(newValue);
-        });
-    }
 
     private void makeDragDropOverlay() {
-        System.out.println("makeDragDropOverlay()");
         HBox windowHeader = new HBox();
         Button configButton = new Button("", JEConfig.getImage("Service Manager.png", 18, 18));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(configButton);
@@ -170,7 +106,7 @@ public abstract class Widget extends Group {
         windowHeader.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
 //        windowHeader.setOpacity(0.5);
         editPane.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
-        editPane.setOpacity(0.8);
+        editPane.setOpacity(0.5);
         config.size.addListener((observable, oldValue, newValue) -> {
             setNodeSize(editPane, newValue.getWidth(), newValue.getHeight());
         });
@@ -200,7 +136,8 @@ public abstract class Widget extends Group {
         background.setArcWidth(0);
         background.setArcHeight(0);
 //        background.setStroke(Color.BLACK);
-        background.setFill(dashBoard.getDashBordAnalysis().colorWidgetPlugin.getValue());
+//        background.setFill(dashBoard.getDashBordAnalysis().colorWidgetPlugin.getValue());
+        background.setFill(config.backgroundColor.getValue());
 //        background.setOpacity(dashBoard.getDashBordAnalysis().opacityWidgetPlugin.getValue());
         config.size.addListener((observable, oldValue, newValue) -> {
             background.setWidth(newValue.getWidth());
@@ -208,17 +145,21 @@ public abstract class Widget extends Group {
         });
 
         config.backgroundColor.addListener((observable, oldValue, newValue) -> {
-//            tile.setBackgroundColor(newValue);
+//            donut.setBackgroundColor(newValue);
             background.setFill(newValue);
         });
 
+        Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
 
-        this.getChildren().add(background);
+
+        contentRoot.setBackground(bgColor);
+
+//        this.getChildren().add(background);
     }
 
     public abstract ImageView getImagePreview();
 
-    public DashBordAnalysis getAnalysis() {
+    public DashBordModel getAnalysis() {
         return dashBoard.getDashBordAnalysis();
     }
 
@@ -232,9 +173,19 @@ public abstract class Widget extends Group {
         makeWindowForm();
         getChildren().add(contentRoot);
         makeDragDropOverlay();
-        MouseControlUtil.makeDraggable(this);
 
 
+        getAnalysis().editProperty.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                MouseControlUtil.makeDraggable(this);
+            } else {
+                this.setOnMouseDragged(null);
+                this.setOnMousePressed(null);
+            }
+
+        });
+
+        setSize(config.size.get().getWidth(), config.size.get().getHeight());
         config.size.addListener((observable, oldValue, newValue) -> {
             setSize(newValue.getWidth(), newValue.getHeight());
         });
@@ -279,18 +230,9 @@ public abstract class Widget extends Group {
     }
 
     /**
-     *
-     *
-     * @param data
-     */
-
-    /**
      * This function will be called if a new Value arrives
-     *
-     * @param data       latest data, can be the same as the last update
-     * @param hasNewData is true if the data changed since the last update
      */
-    public abstract void update(WidgetData data, boolean hasNewData);
+    public abstract void update(Interval interval);
 
     /**
      * Init will be called ones if the the widget will be created

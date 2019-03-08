@@ -1,21 +1,21 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import org.jevis.api.JEVisDataSource;
+import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Widgets {
 
-    public static List<Widget> getAvabableWidgets(JEVisDataSource jeVisDataSource) {
+    public static List<Widget> getAvabableWidgets(JEVisDataSource jeVisDataSource, WidgetConfig config) {
         List<Widget> widgetList = new ArrayList<>();
-        widgetList.add(new DonutChart(jeVisDataSource));
-        widgetList.add(new HighLowWidget(jeVisDataSource));
-        widgetList.add(new NumberWidget(jeVisDataSource));
-        widgetList.add(new StockWidget(jeVisDataSource));
-        widgetList.add(new LabelWidget(jeVisDataSource));
-        widgetList.add(new ChartWidget(jeVisDataSource));
-        widgetList.add(new PieWidget(jeVisDataSource));
+
+        widgetList.add(new PieWidget(jeVisDataSource, config));
+        widgetList.add(new TitleWidget(jeVisDataSource, config));
+        widgetList.add(new ChartWidget(jeVisDataSource, config));
         return widgetList;
     }
+
+
 }

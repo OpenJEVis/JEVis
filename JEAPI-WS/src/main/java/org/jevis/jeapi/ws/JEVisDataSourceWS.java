@@ -1288,6 +1288,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void preload() {
         try {
+            logger.info("Start preload");
             Benchmark benchmark = new Benchmark();
             getJEVisClasses();
             benchmark.printBenchmarkDetail("Preload - Classes");

@@ -70,6 +70,12 @@ public class XYChart implements Chart {
     private AtomicBoolean addManipulationToTitle;
     private AtomicReference<ManipulationMode> manipulationMode;
     private Boolean[] changedBoth;
+    private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
+        @Override
+        public void applySetting(javafx.scene.chart.Chart chart) {
+
+        }
+    };
 
     public XYChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -117,7 +123,10 @@ public class XYChart implements Chart {
         getChart().setLegendVisible(false);
         //((javafx.scene.chart.XYChart)getChart()).setCreateSymbols(true);
 
+        chartSettingsFunction.applySetting(getChart());
+
         initializeZoom();
+
     }
 
     public void initializeChart() {
@@ -181,6 +190,12 @@ public class XYChart implements Chart {
     public void setTitle(String chartName) {
         this.chartName = chartName;
         getChart().setTitle(getUpdatedChartName());
+    }
+
+
+    @Override
+    public void setChartSettings(ChartSettingsFunction function) {
+        chartSettingsFunction = function;
     }
 
     public void generateYAxis() {

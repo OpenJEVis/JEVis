@@ -21,6 +21,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class PieChart implements Chart {
     private static final Logger logger = LogManager.getLogger(PieChart.class);
     private final Integer chartId;
@@ -36,6 +37,12 @@ public class PieChart implements Chart {
     private Region pieChartRegion;
     private Period period;
     private boolean legendMode = false;
+    private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
+        @Override
+        public void applySetting(javafx.scene.chart.Chart chart) {
+
+        }
+    };
 
     public PieChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -93,8 +100,10 @@ public class PieChart implements Chart {
         }
 
 
-        if (pieChart == null)
+        if (pieChart == null) {
             pieChart = new javafx.scene.chart.PieChart(series);
+            pieChart.setLabelsVisible(false);
+        }
 
         pieChart.applyCss();
 
@@ -102,12 +111,15 @@ public class PieChart implements Chart {
 
         pieChart.setTitle(chartName);
 
-        /**FS, workaround for the dashboard. if the legend mode is true nice the lables and show the legend. Graph is using it the other way around**/
-        pieChart.setLabelsVisible(!legendMode);
-        pieChart.setLegendVisible(legendMode);
-
+        chartSettingsFunction.applySetting(pieChart);
 
     }
+
+    @Override
+    public void setChartSettings(ChartSettingsFunction function) {
+        this.chartSettingsFunction = function;
+    }
+
 
     @Override
     public DateTime getStartDateTime() {

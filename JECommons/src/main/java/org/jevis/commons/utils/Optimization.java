@@ -1,5 +1,7 @@
 package org.jevis.commons.utils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -11,7 +13,7 @@ import java.util.Map;
  * Simple class to help find memory leaks by creating some statistics
  */
 public class Optimization {
-
+    private static final Logger logger = LogManager.getLogger(Optimization.class);
     private static Optimization instance;
     private long attributeAmount = 0;
     private long objectAmount = 0;
@@ -29,8 +31,8 @@ public class Optimization {
 
 
     public void printStatistics() {
-        System.out.println(String.format("Data Object/Attribute/Samples: %s/%s/%s", objectAmount, attributeAmount, sampleAmount));
-        System.out.println(String.format("Memory used %s mb / total reserved: %s mb",
+        logger.debug(String.format("Data Object/Attribute/Samples: %s/%s/%s", objectAmount, attributeAmount, sampleAmount));
+        logger.debug(String.format("Memory used %s mb / total reserved: %s mb",
                 ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / megabyte),
                 (Runtime.getRuntime().totalMemory() / megabyte)));
 

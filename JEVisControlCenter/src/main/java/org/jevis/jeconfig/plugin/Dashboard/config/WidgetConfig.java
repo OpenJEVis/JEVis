@@ -22,6 +22,7 @@ import java.util.*;
 
 public class WidgetConfig {
 
+
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
     private static final Logger logger = LogManager.getLogger(WidgetConfig.class);
     private static String WIDGET_SETTINGS_NODE = "extra";
@@ -44,14 +45,12 @@ public class WidgetConfig {
     private Map<String, JsonNode> additionalConfigNodes = new HashMap<>();
 
     private ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
-    private JsonConfigFactory factory;
     private JsonNode extraNode = mapper.createObjectNode();
     private JsonNode dataHandlerNode = mapper.createObjectNode();
 
     public WidgetConfig(String type) {
         this.type = type;
     }
-
 
     public WidgetConfig(JsonNode jsonNode) {
         try {
@@ -108,6 +107,11 @@ public class WidgetConfig {
             ex.printStackTrace();
         }
 
+    }
+
+    public boolean hasChanged(String configHash) {
+        //TODO create hash cron JSon.toString
+        return true;
     }
 
     public JsonNode getDataHandlerNode() {
@@ -177,26 +181,6 @@ public class WidgetConfig {
         return jsonNode;
     }
 
-    public void setJsonLoder(JsonConfigFactory factory) {
-        this.factory = factory;
-    }
-
-    public void setAdditionalSetting(String name, JsonNode widgetNode) {
-        additionalConfigNodes.put(name, widgetNode);
-    }
-
-    public void addAdditionalSetting(List<WidgetConfigProperty> list) {
-        additionalSetting.addAll(list);
-
-//        ObjectMapper mapper = new ObjectMapper();
-//        ObjectNode jsonNode = mapper.createObjectNode();
-//        list.forEach(widgetConfigProperty -> {
-//            additionalConfigNodes.put(widgetConfigProperty.getId(), jsonNode);
-//        });
-
-
-    }
-
 
     public void applyUserConfig() {
         applyUserConfig(userConfig);
@@ -253,9 +237,5 @@ public class WidgetConfig {
         return false;
     }
 
-
-    public interface JsonConfigFactory {
-        public WidgetConfigProperty loadJsonNode(JsonNode node);
-    }
 
 }

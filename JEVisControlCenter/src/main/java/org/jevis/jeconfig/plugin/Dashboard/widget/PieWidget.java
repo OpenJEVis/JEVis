@@ -1,191 +1,138 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import javafx.application.Platform;
+import javafx.geometry.Side;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.ColorColumn;
 import org.jevis.jeconfig.application.Chart.Charts.PieChart;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.SimpleDataHandler;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
+import org.joda.time.Interval;
 
 public class PieWidget extends Widget {
-
-    private final BorderPane rootNode = new BorderPane();
-
-    PieChart chart;
-    List<ChartDataModel> chartDataModelList = new ArrayList<>();
-
-    private SimpleDataHandler simpleDataHandler;
+    private static final Logger logger = LogManager.getLogger(PieChart.class);
+    public static String WIDGET_ID = "Pie";
+    //    private final PieChart chart = new PieChart();
+    private PieChart chart;
+    private DataModelDataHandler sampleHandler;
 
     public PieWidget(JEVisDataSource jeVisDataSource) {
-        super(jeVisDataSource);
+        super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
+    }
 
-        simpleDataHandler = new SimpleDataHandler(getDataSource());
-        simpleDataHandler.setMultiSelect(true);
-        simpleDataHandler.lastUpdate.addListener((observable, oldValue, newValue) -> {
-
-            chartDataModelList.clear();
-            AtomicInteger i = new AtomicInteger(0);
-            simpleDataHandler.getAttributeMap().forEach((s, jeVisAttribute) -> {
-                List<JEVisSample> samplesList = simpleDataHandler.getValuePropertyMap().get(s);
-                if (!samplesList.isEmpty() && samplesList.size() > 1) {
-                    try {
-                        ChartDataModel chartDataModel = new ChartDataModel();
-                        System.out.println("Attribute: " + jeVisAttribute);
-                        System.out.println("New samples: " + samplesList);
-                        JEVisObject object = jeVisAttribute.getObject();
-
-                        List<Integer> list = new ArrayList<>();
-                        list.add(0);
-                        chartDataModel.setSelectedCharts(list);
-
-                        if (object.getJEVisClassName().equals("Data"))
-                            chartDataModel.setObject(object);
-                        else if (jeVisAttribute.getObject().getJEVisClassName().equals("Clean Data")) {
-                            chartDataModel.setDataProcessor(object);
-                            chartDataModel.setObject(object.getParents().get(0));
-                        }
-
-//                        List<Integer> list = new ArrayList<>()s
-                        chartDataModel.setAttribute(jeVisAttribute);
-
-                        List<JEVisSample> samples = new ArrayList<>();
-                        samples.add(samplesList.get((samplesList.size() - 1)));
-                        System.out.println("Value: " + samples);
-                        chartDataModel.setSamples(samples);
-
-//                        chartDataModel.setSelectedStart(samplesList.get(samplesList.size() - 1).getTimestamp());
-//                        chartDataModel.setSelectedEnd(samplesList.get(samplesList.size() - 1).getTimestamp());
-                        chartDataModel.setColor(ColorColumn.color_list[i.get()]);
+    public PieWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
+        super(jeVisDataSource, config);
+    }
 
 
-                        i.set(i.get() + 1);
-                        chartDataModel.setSomethingChanged(true);
-                        chartDataModelList.add(chartDataModel);
+    @Override
+    public void update(Interval interval) {
+        logger.info("Update: {}", interval);
+        //if config changed
+        if (config.hasChanged("")) {
+            chart.setLegendMode(true);
 
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                } else {
-                    System.out.println("no data");
-                }
-                //
-                Platform.runLater(() -> {
-                    chart.updateChart();
-//                    setChartLabel((javafx.scene.chart.PieChart) chart.getChart(), config.fontColor.get());
-                });
-
+            chart.setChartSettings(chart1 -> {
+                javafx.scene.chart.PieChart pieChart = (javafx.scene.chart.PieChart) chart1;
+                pieChart.setLabelsVisible(false);
+                pieChart.setLabelLineLength(10);
+                pieChart.setLegendSide(Side.BOTTOM);
+                pieChart.setAnimated(true);
             });
+
+
+        }
+
+        sampleHandler.setInterval(interval);
+        sampleHandler.update();
+
+        Platform.runLater(() -> {
+            chart.updateChart();
+//            setChartLabel((MultiAxisLineChart) lineChart.getChart(), config.fontColor.get());
+
+
         });
 
 
-    }
+//        /**
+//         * Update the data
+//         */
+////        chart.getData().clear();
+//        ObservableList<PieChart.Data> datas = FXCollections.observableArrayList();
+//
+//        AtomicInteger index = new AtomicInteger(0);
+//        sampleHandler.setInterval(interval);
+//        sampleHandler.update();
+//        sampleHandler.getValuePropertyMap().forEach((s, samplesList) -> {
+//            try {
+//                logger.info("Data in new Interval: {}", samplesList);
+//                String name = sampleHandler.getAttributeMap().get(s).getObject().getName();
+//                if (!samplesList.isEmpty()) {
+//                    double value = samplesList.get(samplesList.size() - 1).getValueAsDouble();
+//                    PieChart.Data pieData = new PieChart.Data(name, value);
+////                    chart.getData().add(pieData);
+//                    datas.add(pieData);
+//                } else {
+//                    PieChart.Data pieData = new PieChart.Data(name, 0.0);
+////                    chart.getData().add(pieData);
+//                    datas.add(pieData);
+//                }
+//                index.set(index.get() + 1);
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        });
+//        chart.setData(datas);
 
-    @Override
-    public void configChanged() {
+//        applyColors(chart, Arrays.asList(ColorColumn.color_list));
 
-    }
-
-    @Override
-    public SampleHandler getSampleHandler() {
-        System.out.println("getSampleHandler");
-        return simpleDataHandler;
-    }
-
-    @Override
-    public void setBackgroundColor(Color color) {
-
-    }
-
-    @Override
-    public void setTitle(String text) {
-
-    }
-
-    @Override
-    public void setFontColor(Color color) {
-
-    }
-
-    @Override
-    public void setCustomFont(Font font) {
-
-    }
-
-    @Override
-    public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/DonutChart.png", previewSize.getHeight(), previewSize.getWidth());
-    }
-
-    @Override
-    public void update(WidgetData data, boolean hasNewData) {
 
     }
+
+//    public void applyColors(PieChart chart, List<Color> colors) {
+//        for (int i = 0; i < colors.size(); i++) {
+//            try {
+//                Color currentColor = colors.get(i);
+//                String hexColor = toRGBCode(currentColor);
+//                String preIdent = ".default-color" + i;
+//                Node node = chart.lookup(preIdent + ".chart-pie");
+//                node.setStyle("-fx-pie-color: " + hexColor + ";");
+//            } catch (Exception ex) {
+//            }
+//        }
+//    }
+//
+//    private String toRGBCode(Color color) {
+//        return String.format("#%02X%02X%02X",
+//                (int) (color.getRed() * 255),
+//                (int) (color.getGreen() * 255),
+//                (int) (color.getBlue() * 255));
+//    }
 
 
     @Override
     public void init() {
-        System.out.println("init");
-//        minSize = new Size(250, 250);
 
-        BorderPane bp = new BorderPane();
-        bp.setStyle("-fx-background-color: transparent");
+        sampleHandler = new DataModelDataHandler(getDataSource(), config.getDataHandlerNode());
+        sampleHandler.setMultiSelect(true);
 
-
-//        chart = new LineChart(chartDataModelList, false, ManipulationMode.NONE, 0, "");
-        chart = new PieChart(chartDataModelList, false, 0, "");
-
-        chart.setLegendMode(true);
-        javafx.scene.chart.PieChart fxPie = (javafx.scene.chart.PieChart) chart.getChart();
-
-//        chart.setMaxSize(100, 100);
-
-        fxPie.setMaxSize(config.size.get().getWidth(), config.size.get().getHeight());
-        fxPie.setPrefSize(config.size.get().getWidth(), config.size.get().getHeight());
-        config.size.addListener((observable, oldValue, newValue) -> {
-            fxPie.setMaxSize(newValue.getWidth(), newValue.getHeight());
-            fxPie.setPrefSize(newValue.getWidth(), newValue.getHeight());
-        });
-
-        fxPie.setAnimated(true);
-//        chart.setLegendVisible(false);
+        chart = new PieChart(sampleHandler.getDataModel(), false, 0, "");
 
 
-//        setChartLabel(fxPie, config.fontColor.get());
-//        config.fontColor.addListener((observable, oldValue, newValue) -> {
-//            setChartLabel(fxPie, newValue);
-//
-//        });
-
-
-        rootNode.setCenter(fxPie);
-        setGraphic(rootNode);
+        setGraphic(chart.getChart());
     }
 
-    private void setChartLabel(javafx.scene.chart.PieChart chart, Color newValue) {
-//        chart.getY1Axis().setTickLabelFill(newValue);
-//        chart.getXAxis().setTickLabelFill(newValue);
-//
-//        chart.getXAxis().setLabel("");
-//        chart.getY1Axis().setLabel("");
-
-
-    }
 
     @Override
     public String typeID() {
-        return "Pie";
+        return WIDGET_ID;
+    }
+
+    @Override
+    public ImageView getImagePreview() {
+        return JEConfig.getImage("widget/DonutWidget.png", previewSize.getHeight(), previewSize.getWidth());
     }
 }

@@ -35,8 +35,8 @@ import java.util.*;
 /**
  * Configuration for an BashBoard Analysis
  */
-public class DashBordAnalysis {
-    private static final Logger logger = LogManager.getLogger(DashBordAnalysis.class);
+public class DashBordModel {
+    private static final Logger logger = LogManager.getLogger(DashBordModel.class);
 
 
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
@@ -146,11 +146,11 @@ public class DashBordAnalysis {
     };
 
 
-    public DashBordAnalysis(JEVisDataSource jeVisDataSource) {
+    public DashBordModel(JEVisDataSource jeVisDataSource) {
         this.jeVisDataSource = jeVisDataSource;
     }
 
-    public DashBordAnalysis(JEVisObject analysisObject) throws JEVisException {
+    public DashBordModel(JEVisObject analysisObject) throws JEVisException {
         this.analysisObject = analysisObject;
         this.jeVisDataSource = analysisObject.getDataSource();
         load();

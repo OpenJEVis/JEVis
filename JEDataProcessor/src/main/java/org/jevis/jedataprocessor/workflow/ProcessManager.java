@@ -36,6 +36,7 @@ public class ProcessManager {
     private boolean rerun = false;
     private DateTime lastFirstDate;
     private boolean isWorking = true;
+
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler) {
         resourceManager = new ResourceManager();
         resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));

@@ -1,35 +1,38 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import javafx.application.Platform;
-import javafx.geometry.Side;
-import javafx.scene.chart.PieChart;
+import javafx.geometry.Insets;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
-public class ChartWidget extends Widget {
+import java.util.List;
 
-    private static final Logger logger = LogManager.getLogger(PieChart.class);
-    public static String WIDGET_ID = "Chart";
-    private LineChart lineChart;
+public class ValueWidget extends Widget {
+
+    private static final Logger logger = LogManager.getLogger(ValueWidget.class);
+    public static String WIDGET_ID = "Value";
+    private final Label label = new Label();
     private DataModelDataHandler sampleHandler;
-    private ChartDataModel chartDataModel;
 
-    public ChartWidget(JEVisDataSource jeVisDataSource) {
+    public ValueWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
     }
 
-    public ChartWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
+    public ValueWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
         super(jeVisDataSource, config);
     }
 
@@ -39,22 +42,26 @@ public class ChartWidget extends Widget {
         logger.info("Update: {}", interval);
         //if config changed
         if (config.hasChanged("")) {
-            lineChart.setChartSettings(chart1 -> {
-                MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
-                multiAxisLineChart.setAnimated(true);
-                multiAxisLineChart.setLegendSide(Side.BOTTOM);
-                multiAxisLineChart.setLegendVisible(true);
+            Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
+            label.setBackground(bgColor);
+            label.setTextFill(config.fontColor.getValue());
+            label.setText(config.title.getValue());
 
-            });
-
-            setChartLabel((MultiAxisLineChart) lineChart.getChart(), config.fontColor.get());
+            //need setting
+            label.setContentDisplay(ContentDisplay.CENTER);
         }
 
         sampleHandler.setInterval(interval);
         sampleHandler.update();
 
         Platform.runLater(() -> {
-            lineChart.updateChart();
+            try {
+                List<JEVisSample> sampleList = sampleHandler.getDataModel().get(0).getSamples();
+
+                label.setText(sampleList.get(sampleList.size() - 1).getValueAsString());
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
 
         });
 
@@ -73,15 +80,9 @@ public class ChartWidget extends Widget {
     public void init() {
 
         sampleHandler = new DataModelDataHandler(getDataSource(), config.getDataHandlerNode());
-        sampleHandler.setMultiSelect(true);
-//        chartDataModel = new ChartDataModel();
+        sampleHandler.setMultiSelect(false);
 
-
-//        List<ChartDataModel> chartDataModelList = new ArrayList<>();
-//        chartDataModelList.add(chartDataModel);
-        lineChart = new LineChart(sampleHandler.getDataModel(), false, ManipulationMode.NONE, 0, "");
-
-        setGraphic(lineChart.getChart());
+        setGraphic(label);
     }
 
 

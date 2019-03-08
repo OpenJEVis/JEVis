@@ -11,7 +11,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
+import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.Dashboard.wizzard.Wizard;
 import org.jevis.jeconfig.tool.I18n;
@@ -79,7 +79,7 @@ public class DashBoardToolbar extends ToolBar {
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 System.out.println("select Analysis: " + newValue);
-                DashBordAnalysis analysis = new DashBordAnalysis(newValue);
+                DashBordModel analysis = new DashBordModel(newValue);
 
                 dashBordPlugIn.loadAnalysis(analysis);
             } catch (Exception ex) {
@@ -89,7 +89,7 @@ public class DashBoardToolbar extends ToolBar {
     }
 
 
-    public void updateToolbar(final DashBordAnalysis analyses) {
+    public void updateToolbar(final DashBordModel analyses) {
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
 
         try {
@@ -196,10 +196,10 @@ public class DashBoardToolbar extends ToolBar {
         ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
 
-        ToggleButton newAnalyses = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newAnalyses);
+        ToggleButton newWidgetButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newWidgetButton);
 
-        newAnalyses.setOnAction(event -> {
+        newWidgetButton.setOnAction(event -> {
             Wizard wizzard = new Wizard(JEConfig.getDataSource());
             Optional<Widget> newWidget = wizzard.show(null);
 
@@ -249,7 +249,7 @@ public class DashBoardToolbar extends ToolBar {
 
         getItems().clear();
         getItems().addAll(
-                analysisLabel, listAnalysesComboBox, newAnalyses, save, settingsButton, unlockB, backgroundButton, sep1,
+                analysisLabel, listAnalysesComboBox, newWidgetButton, save, settingsButton, unlockB, backgroundButton, sep1,
                 zoomOut, zoomIn, sep2,
                 runUpdateButton);
 

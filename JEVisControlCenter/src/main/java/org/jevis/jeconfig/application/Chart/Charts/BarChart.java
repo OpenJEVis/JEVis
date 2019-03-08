@@ -48,16 +48,16 @@ import java.util.concurrent.atomic.AtomicReference;
 public class BarChart implements Chart {
     private static final Logger logger = LogManager.getLogger(BarChart.class);
     private final Integer chartId;
+    AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+    AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
+    NumberAxis y1Axis = new NumberAxis();
+    NumberAxis y2Axis = new NumberAxis();
     private String chartName;
     private String unit;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
-    AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
     private javafx.scene.chart.BarChart barChart;
-    AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
-    NumberAxis y1Axis = new NumberAxis();
-    NumberAxis y2Axis = new NumberAxis();
     private ObservableList<XYChart.Series<Number, String>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
     private Number valueForDisplay;
@@ -154,6 +154,11 @@ public class BarChart implements Chart {
     @Override
     public Period getPeriod() {
         return period;
+    }
+
+    @Override
+    public void setChartSettings(ChartSettingsFunction function) {
+        //TODO: implement me, see PieChart
     }
 
     @Override

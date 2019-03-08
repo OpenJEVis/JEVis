@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
+import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widgets;
@@ -26,20 +26,20 @@ public class DashBordPlugIn implements Plugin {
     private JEVisDataSource jeVisDataSource;
     private boolean isInitialized = false;
     private AnchorPane rootPane = new AnchorPane();
-    private DashBordAnalysis currentAnalysis;
+    private DashBordModel currentAnalysis;
     private DashBoardPane dashBoardPane;
 
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
         nameProperty.setValue(name);
         this.jeVisDataSource = ds;
-        this.currentAnalysis = new DashBordAnalysis(ds);
+        this.currentAnalysis = new DashBordModel(ds);
         this.dashBoardPane = new DashBoardPane(currentAnalysis);
         this.toolBar = new DashBoardToolbar(ds, this);
     }
 
 
-    public void loadAnalysis(DashBordAnalysis currentAnalysis) {
+    public void loadAnalysis(DashBordModel currentAnalysis) {
         this.currentAnalysis = currentAnalysis;
         this.dashBoardPane = new DashBoardPane(currentAnalysis);
         AnchorPane.setTopAnchor(dashBoardPane, 0d);
@@ -153,11 +153,8 @@ public class DashBordPlugIn implements Plugin {
 
     public Widget createWidget(WidgetConfig widget) {
         System.out.println("createWidget for: " + widget.getType());
-        for (Widget availableWidget : Widgets.getAvabableWidgets(getDataSource())) {
-            System.out.println("lll: " + availableWidget.typeID());
+        for (Widget availableWidget : Widgets.getAvabableWidgets(getDataSource(), widget)) {
             if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
-                System.out.println("ture");
-                availableWidget.setConfig(widget);
                 availableWidget.init();
                 return availableWidget;
             }

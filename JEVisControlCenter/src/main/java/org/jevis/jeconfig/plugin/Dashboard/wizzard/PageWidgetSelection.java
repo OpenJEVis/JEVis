@@ -43,7 +43,7 @@ public class PageWidgetSelection extends Page {
 
 //        widgetListPane.setStyle("-fx-background-color: blue;");
 //        widgetListPane.setPrefWrapLength(300);
-        Widgets.getAvabableWidgets(JEConfig.getDataSource()).forEach(widget -> {
+        Widgets.getAvabableWidgets(JEConfig.getDataSource(), null).forEach(widget -> {
 
             Button widgetButton = new Button(widget.typeID(), widget.getImagePreview());
             widgetButton.setContentDisplay(ContentDisplay.TOP);

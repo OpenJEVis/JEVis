@@ -17,10 +17,10 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.dataprocessing.SampleGenerator;
+import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.ColorColumn;
 import org.jevis.jeconfig.application.jevistree.Finder;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
@@ -34,32 +34,37 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class SimpleDataHandler extends SampleHandler {
+public class DataModelDataHandler extends SampleHandler {
     public final static String TYPE = "SimpleDataHandler";
-    private static final Logger logger = LogManager.getLogger(SimpleDataHandler.class);
+    private static final Logger logger = LogManager.getLogger(DataModelDataHandler.class);
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
     public UUID uuid = UUID.randomUUID();
-    Map<String, List<JEVisSample>> valueMap = new HashMap<>();
+
     Map<String, JEVisAttribute> attributeMap = new HashMap<>();
     private BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
     private StringProperty unitProperty = new SimpleStringProperty("");
     private SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
     private ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-    public SimpleDataHandler(JEVisDataSource jeVisDataSource) {
+    private List<ChartDataModel> chartDataModels = new ArrayList<>();
+
+    public DataModelDataHandler(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource);
     }
 
-    public SimpleDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
+    public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
         super(jeVisDataSource);
         logger.error("Has UUID: {}", uuid.toString());
 
 
         JsonNode attributeNodes = configNode.get("data");
         if (attributeNodes.isArray()) {
+            AtomicInteger index = new AtomicInteger(-1);
             for (final JsonNode userSelection : attributeNodes) {
                 try {
+                    index.set(index.get() + 1);
                     long objectID = userSelection.get("object").asLong();
                     String attribute = userSelection.get("attribute").asText("Value");
                     logger.error("Add attribute: {}:{}", objectID, attribute);
@@ -67,6 +72,19 @@ public class SimpleDataHandler extends SampleHandler {
                     if (jevisobject != null) {
                         JEVisAttribute jeVisAttribute = jevisobject.getAttribute(attribute);
                         if (jeVisAttribute != null) {
+                            ChartDataModel chartDataModel = new ChartDataModel();
+                            List<Integer> list = new ArrayList<>();
+                            list.add(0);
+
+                            chartDataModel.setSelectedCharts(list);
+                            chartDataModel.setObject(jeVisAttribute.getObject());
+                            chartDataModel.setAttribute(jeVisAttribute);
+                            chartDataModel.setManipulationMode(ManipulationMode.TOTAL);
+                            chartDataModel.setAggregationPeriod(AggregationPeriod.HOURLY);
+                            chartDataModel.setColor(ColorColumn.color_list[index.get()]);
+
+                            chartDataModels.add(chartDataModel);
+
                             attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
                         } else {
                             logger.error("Attribute does not exist: {}", attribute);
@@ -78,8 +96,6 @@ public class SimpleDataHandler extends SampleHandler {
                 } catch (Exception ex) {
                     logger.error("Error while loading data: {}", ex);
                 }
-
-
             }
         } else {
             logger.error("Error: user selection is not an array");
@@ -117,47 +133,27 @@ public class SimpleDataHandler extends SampleHandler {
         return attributeMap;
     }
 
+    public List<ChartDataModel> getDataModel() {
+        return chartDataModels;
+    }
+
     @Override
+
     public void update() {
         logger.error("Update Samples: {} -> {}", uuid.toString(), durationProperty.getValue());
         logger.error("AttributeMap: {}", attributeMap.size());
-        attributeMap.forEach((s, jeVisAttribute) -> {
-            try {
-                System.out.println("Update -> " + s);
-                getDataSource().reloadAttribute(jeVisAttribute);
-                ManipulationMode manMode = ManipulationMode.TOTAL;
-                AggregationPeriod aggregationPeriod = AggregationPeriod.DAILY;
 
-                SampleGenerator sg = new SampleGenerator(
-                        jeVisAttribute.getDataSource(), jeVisAttribute.getObject()
-                        , jeVisAttribute, durationProperty.getValue().getStart(), durationProperty.getValue().getEnd()
-                        , manMode, aggregationPeriod);
+        chartDataModels.forEach(chartDataModel -> {
 
-                List<JEVisSample> newSample = sg.getAggregatedSamples(sg.generateSamples());
-//                List<JEVisSample> newSample = jeVisAttribute.getSamples(durationProperty.getValue().getStart(), durationProperty.getValue().getEnd());
-                if (newSample != null && !newSample.isEmpty()) {
-                    try {
-                        System.out.println("newSamples:" + newSample);
-                        valueMap.put(s, newSample);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                } else {
-                    System.out.println("no new Samples");
-                }
-            } catch (Exception ex) {
-
-            }
+            chartDataModel.setSelectedStart(durationProperty.getValue().getStart());
+            chartDataModel.setSelectedEnd(durationProperty.getValue().getEnd());
         });
+
         lastUpdate.setValue(new DateTime());
     }
 
     public void setMultiSelect(boolean enable) {
         this.enableMultiSelect.set(enable);
-    }
-
-    public Map<String, List<JEVisSample>> getValuePropertyMap() {
-        return valueMap;
     }
 
 
@@ -168,12 +164,12 @@ public class SimpleDataHandler extends SampleHandler {
     @Override
     public void setUserSelectionDone() {
         System.out.println("Selection Done");
-        simpleTargetPlugin.getUserSelection().forEach(userSelection -> {
-            System.out.println("Userselect: " + userSelection.getSelectedObject() + "  att: " + userSelection.getSelectedAttribute());
-            String key = generateValueKey(userSelection.getSelectedAttribute());
-            valueMap.put(key, new ArrayList<>());
-            attributeMap.put(key, userSelection.getSelectedAttribute());
-        });
+//        simpleTargetPlugin.getUserSelection().forEach(userSelection -> {
+//            System.out.println("Userselect: " + userSelection.getSelectedObject() + "  att: " + userSelection.getSelectedAttribute());
+//            String key = generateValueKey(userSelection.getSelectedAttribute());
+//            valueMap.put(key, new ArrayList<>());
+//            attributeMap.put(key, userSelection.getSelectedAttribute());
+//        });
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -10,7 +11,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.transform.Scale;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.jeconfig.plugin.Dashboard.config.DashBordAnalysis;
+import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widgets;
@@ -20,22 +21,19 @@ import org.joda.time.Period;
 
 import javax.swing.event.ChangeEvent;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class DashBoardPane extends Pane {
 
     //    private GridLayer gridLayer = new GridLayer();
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final DashBordAnalysis analysis;
+    private final DashBordModel analysis;
     private ObservableList<Widget> widgetList = FXCollections.observableArrayList();
     private List<Double> xGrids = new ArrayList<>();
     private List<Double> yGrids = new ArrayList<>();
     private Scale scale = new Scale();
     private TimerTask updateTask;
 
-    public DashBoardPane(DashBordAnalysis analysis) {
+    public DashBoardPane(DashBordModel analysis) {
         super();
 
         this.analysis = analysis;
@@ -43,7 +41,7 @@ public class DashBoardPane extends Pane {
         this.analysis.getWidgets().forEach(widgetConfig -> {
             Widget widget = createWidget(widgetConfig);
             if (widget != null) {
-                logger.info("Add widget: " + widget);
+                logger.info("Add widget: [}", widget);
                 addNode(widget);
             } else {
                 logger.warn("Found no widget for config: {}", widgetConfig);
@@ -70,10 +68,9 @@ public class DashBoardPane extends Pane {
 
     public Widget createWidget(WidgetConfig widget) {
         logger.info("createWidget for: {}", widget.getType());
-        for (Widget availableWidget : Widgets.getAvabableWidgets(analysis.getDataSource())) {
+        for (Widget availableWidget : Widgets.getAvabableWidgets(analysis.getDataSource(), widget)) {
             if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
                 widget.setType(availableWidget.getId());
-                availableWidget.setConfig(widget);
                 availableWidget.init();
 
                 return availableWidget;
@@ -168,7 +165,7 @@ public class DashBoardPane extends Pane {
         //TODO: remove this dev test workaround
         DateTime fakeDate = new DateTime(2018, 02, 01, 0, 0).plusHours(now.getHourOfDay()).plusMinutes(now.getMinuteOfHour());
         interval = new Interval(
-                fakeDate.minusHours(2),
+                fakeDate.minusHours(6),
                 fakeDate);
 
         return interval;
@@ -182,23 +179,10 @@ public class DashBoardPane extends Pane {
                 Interval interval = buildInterval();
                 widgetList.forEach(widget -> {
                     logger.info("Update widget: {}", widget.getUUID());
-                    widget.getSampleHandler().durationProperty.setValue(interval);
-                    widget.getSampleHandler().update();
-                });
-            }
-        };
-    }
+                    Platform.runLater(() -> {
+                        widget.update(interval);
+                    });
 
-    public Runnable updateRunnable() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                logger.info("Starting Update");
-                Interval interval = buildInterval();
-                widgetList.forEach(widget -> {
-                    logger.info("Update widget: {}", widget.getUUID());
-                    widget.getSampleHandler().durationProperty.setValue(interval);
-                    widget.getSampleHandler().update();
                 });
             }
         };
@@ -263,7 +247,6 @@ public class DashBoardPane extends Pane {
     public void addNode(Widget widget) {
         logger.debug("Add widget to pane: {}", widget);
         widgetList.add(widget);
-        widget.init();
         widget.setDashBoard(this);
 //        getChildren().add(widget);
     }
@@ -285,7 +268,7 @@ public class DashBoardPane extends Pane {
         return c;
     }
 
-    public DashBordAnalysis getDashBordAnalysis() {
+    public DashBordModel getDashBordAnalysis() {
         return analysis;
     }
 
@@ -299,11 +282,6 @@ public class DashBoardPane extends Pane {
             getChildren().add(node);
         });
 
-//        getChildren().clear();s
-//        getChildren().add(gridLayer);
-//        widgetList.forEach(node -> {
-//            getChildren().add(node);
-//        });
     }
 
 }

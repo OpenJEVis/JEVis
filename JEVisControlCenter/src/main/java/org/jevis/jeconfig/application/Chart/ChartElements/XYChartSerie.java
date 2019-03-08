@@ -27,11 +27,11 @@ public class XYChartSerie {
     Integer yAxis;
     MultiAxisChart.Series<Number, Number> serie;
     TableEntry tableEntry;
-    private DateTime timeStampFromFirstSample = DateTime.now();
-    private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     ChartDataModel singleRow;
     Boolean hideShowIcons;
     TreeMap<Double, JEVisSample> sampleMap;
+    private DateTime timeStampFromFirstSample = DateTime.now();
+    private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
         this.singleRow = singleRow;
