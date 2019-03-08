@@ -78,7 +78,7 @@ public class ReportExecutor {
 
         AtomicBoolean isDataAvailable = new AtomicBoolean(true);
         logger.info("Creating report link stati.");
-        reportLinks.parallelStream().forEach(curData -> {
+        reportLinks.forEach(curData -> {
             ReportData.LinkStatus reportLinkStatus = curData.getReportLinkStatus(end);
             if (!reportLinkStatus.isSanityCheck()) {
                 logger.info(reportLinkStatus.getMessage());

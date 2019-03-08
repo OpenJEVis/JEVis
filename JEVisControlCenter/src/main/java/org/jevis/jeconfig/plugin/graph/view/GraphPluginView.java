@@ -435,6 +435,7 @@ public class GraphPluginView implements Plugin {
                         Chart chart = cv.getChart().getChart();
 //                        chart.setMinHeight(0);
                         chart.setMaxHeight(70);
+
                         bp.setTop(chart);
 
                     }

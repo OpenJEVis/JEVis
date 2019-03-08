@@ -13,7 +13,6 @@ import org.joda.time.DateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
  * @author broder
  */
 public interface ReportData {
@@ -21,9 +20,10 @@ public interface ReportData {
     ConcurrentHashMap<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc);
 
     JEVisObject getDataObject();
-//
+
+    //
 //    public JEVisObject getLinkObject();
-LinkStatus getReportLinkStatus(DateTime end);
+    LinkStatus getReportLinkStatus(DateTime end);
 
     class LinkStatus {
 
