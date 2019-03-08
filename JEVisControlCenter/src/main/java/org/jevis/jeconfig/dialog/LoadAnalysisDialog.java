@@ -26,7 +26,6 @@ import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
@@ -392,15 +391,7 @@ public class LoadAnalysisDialog {
         math.setCellFactory(cellFactory);
         math.setButtonCell(cellFactory.call(null));
 
-        if (!graphDataModel.getSelectedData().isEmpty()) {
-            for (ChartDataModel chartDataModel : graphDataModel.getSelectedData()) {
-                math.getSelectionModel().select(chartDataModel.getManipulationMode());
-                if (!chartDataModel.getManipulationMode().equals(ManipulationMode.NONE) ||
-                        !chartDataModel.getManipulationMode().equals(ManipulationMode.TOTAL))
-                    getAggregationBox().getSelectionModel().select(0);
-                break;
-            }
-        }
+        math.getSelectionModel().select(graphDataModel.getManipulationMode());
 
         return math;
     }

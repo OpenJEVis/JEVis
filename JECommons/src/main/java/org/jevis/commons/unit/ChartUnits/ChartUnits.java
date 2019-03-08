@@ -191,6 +191,13 @@ public class ChartUnits {
         return result;
     }
 
+    public Double timeFactor() {
+        Double factor = 1.0;
+
+
+        return factor;
+    }
+
     public Double scaleValue(String inputUnit, String outputUnit) {
         Double factor = 1.0;
         switch (outputUnit) {
