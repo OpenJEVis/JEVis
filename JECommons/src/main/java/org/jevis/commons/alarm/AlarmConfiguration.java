@@ -1,4 +1,4 @@
-package org.jevis.jealarm;
+package org.jevis.commons.alarm;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,7 +8,11 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -23,6 +27,7 @@ public class AlarmConfiguration {
     private final String ENABLED_NAME = "Enabled";
     private final String ALARM_SCOPE = "Alarm Scope";
     private final String ALARM_PERIOD = "Alarm Period";
+    private final String ALARM_OBJECTS = "Alarm Objects";
     private final JEVisObject object;
     private final JEVisDataSource ds;
     private Boolean enabled;
@@ -34,6 +39,7 @@ public class AlarmConfiguration {
     private Period alarmPeriod;
     private JEVisAttribute timeStampAttribute;
     private JEVisAttribute logAttribute;
+    private List<JEVisObject> alarmObjects;
 
     public AlarmConfiguration(JEVisDataSource ds, JEVisObject jeVisObject) {
         this.ds = ds;
@@ -109,10 +115,30 @@ public class AlarmConfiguration {
     }
 
     public JEVisAttribute getTimeStampAttribute() {
+        if (timeStampAttribute == null) {
+            try {
+                timeStampAttribute = getObject().getAttribute(TIME_STAMP);
+            } catch (JEVisException e) {
+                logger.error("Could not get time stamp attribute: " + e);
+            }
+        }
         return timeStampAttribute;
     }
 
     public JEVisAttribute getLogAttribute() {
         return logAttribute;
+    }
+
+    public List<JEVisObject> getAlarmObjects() {
+        if (alarmObjects == null) {
+            alarmObjects = new ArrayList<>();
+
+            String alarmObjectsString = sampleHandler.getLastSample(getObject(), ALARM_OBJECTS, "");
+            TargetHelper th = new TargetHelper(ds, alarmObjectsString);
+            if (th.getObject() != null && !th.getObject().isEmpty()) {
+                alarmObjects.addAll(th.getObject());
+            }
+        }
+        return alarmObjects;
     }
 }

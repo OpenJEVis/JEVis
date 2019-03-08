@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.alarm.AlarmConfiguration;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;

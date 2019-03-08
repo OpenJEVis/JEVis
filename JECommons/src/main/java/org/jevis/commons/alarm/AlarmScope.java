@@ -1,4 +1,4 @@
-package org.jevis.jealarm;
+package org.jevis.commons.alarm;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>

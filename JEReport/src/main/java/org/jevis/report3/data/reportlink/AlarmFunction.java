@@ -6,12 +6,8 @@
 package org.jevis.report3.data.reportlink;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.alarm.Alarm;
-import org.jevis.commons.alarm.AlarmType;
-import org.jevis.commons.alarm.CleanDataAlarm;
+import org.jevis.api.*;
+import org.jevis.commons.alarm.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
@@ -164,7 +160,60 @@ public class AlarmFunction implements ReportData {
 
     @Override
     public LinkStatus getReportLinkStatus(DateTime end) {
-        return new LinkStatus(true, "ok");
+        AlarmConfiguration alarmConfiguration = getCorrespondingAlarmConfiguration(alarmObj);
+        if (alarmConfiguration != null) {
+            JEVisAttribute timeStampAttribute = alarmConfiguration.getTimeStampAttribute();
+            if (timeStampAttribute != null) {
+                JEVisSample latestSample = timeStampAttribute.getLatestSample();
+                if (latestSample != null) {
+                    try {
+                        DateTime ts = new DateTime(latestSample.getValueAsString());
+                        if (ts.isAfter(end)) {
+                            return new LinkStatus(true, "ok");
+                        }
+                    } catch (JEVisException e) {
+                        logger.error("Could not parse time stamp: " + e);
+                    }
+                }
+            }
+        }
+        return new LinkStatus(false, "nok");
     }
+
+    private AlarmConfiguration getCorrespondingAlarmConfiguration(JEVisObject alarmObj) {
+        try {
+            final JEVisClass alarmDirectoryClass = alarmObj.getDataSource().getJEVisClass("Alarm Directory");
+            final JEVisDataSource ds = alarmObj.getDataSource();
+
+            return getAlarmConfiguration(ds, alarmObj, alarmDirectoryClass);
+        } catch (JEVisException e) {
+            logger.error("Could not get corresponding alarm configuration: " + e);
+        }
+        return null;
+    }
+
+    private AlarmConfiguration getAlarmConfiguration(JEVisDataSource ds, JEVisObject alarmObj, JEVisClass alarmDirectoryClass) throws JEVisException {
+        for (JEVisObject parent : alarmObj.getParents()) {
+            for (JEVisObject child : parent.getChildren(alarmDirectoryClass, true)) {
+                for (JEVisObject alarmDirectoryChild : child.getChildren()) {
+                    AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, alarmDirectoryChild);
+                    if (alarmConfiguration.getAlarmScope().equals(AlarmScope.COMPLETE)) {
+                        return alarmConfiguration;
+                    } else if (alarmConfiguration.getAlarmScope().equals(AlarmScope.SELECTED)) {
+                        if (alarmConfiguration.getAlarmObjects().contains(alarmDirectoryChild)) {
+                            return alarmConfiguration;
+                        }
+                    } else if (alarmConfiguration.getAlarmScope().equals(AlarmScope.WITHOUT_SELECTED)) {
+                        if (!alarmConfiguration.getAlarmObjects().contains(alarmDirectoryChild)) {
+                            return alarmConfiguration;
+                        }
+                    }
+                }
+            }
+            return getAlarmConfiguration(ds, parent, alarmDirectoryClass);
+        }
+        return null;
+    }
+
 
 }

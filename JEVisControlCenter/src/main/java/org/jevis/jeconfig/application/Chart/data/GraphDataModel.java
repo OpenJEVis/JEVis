@@ -55,6 +55,7 @@ public class GraphDataModel {
     public static final String ANALYSIS_CLASS_NAME = "Analysis";
     public static final String ORGANIZATION_CLASS_NAME = "Organization";
     public static final String DATA_MODEL_ATTRIBUTE_NAME = "Data Model";
+    public static final String GRAPH_PLUGIN_CLASS_NAME = "Graph Plugin";
     private final GraphPluginView graphPluginView;
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private List<ChartSettings> charts = new ArrayList<>();
@@ -70,7 +71,7 @@ public class GraphDataModel {
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis = null;
     private Boolean multipleDirectories = false;
-    private Long chartsPerScreen = null;
+    private Long chartsPerScreen = 2L;
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
@@ -232,7 +233,19 @@ public class GraphDataModel {
                         JEVisSample chartPerScreenSample = getCurrentAnalysis().getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME).getLatestSample();
                         if (chartPerScreenSample != null) {
                             setChartsPerScreen(chartPerScreenSample.getValueAsLong());
-                        } else setChartsPerScreen(null);
+                        } else {
+                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
+                            for (JEVisObject graphPlugin : graphServiceList) {
+                                JEVisAttribute chartsPerScreenAttribute = graphPlugin.getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME);
+                                if (chartsPerScreenAttribute != null) {
+                                    JEVisSample lastSample = chartsPerScreenAttribute.getLatestSample();
+                                    if (lastSample != null) {
+                                        setChartsPerScreen(lastSample.getValueAsLong());
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     WorkDays wd = new WorkDays(getCurrentAnalysis());
@@ -313,7 +326,9 @@ public class GraphDataModel {
     public void setAutoResize(Boolean resize) {
         this.autoResize = resize;
 
-        update();
+        if (autoResize.equals(Boolean.TRUE)) {
+            update();
+        }
     }
 
     public boolean containsId(Long id) {

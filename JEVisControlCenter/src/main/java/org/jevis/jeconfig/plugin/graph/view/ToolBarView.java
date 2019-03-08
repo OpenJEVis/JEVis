@@ -273,7 +273,7 @@ public class ToolBarView {
         /**
          * addSeriesRunningMean disabled for now
          */
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, exportImage, sep3, disableIcons, autoResize, reload, sep4, zoomOut);
+        toolBar.getItems().addAll(listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, exportImage, sep3, disableIcons, autoResize, reload, sep4, zoomOut);
         setDisableToolBarIcons(true);
         _initialized = true;
 
