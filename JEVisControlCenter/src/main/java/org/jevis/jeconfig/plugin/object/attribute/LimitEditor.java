@@ -139,12 +139,10 @@ public class LimitEditor implements AttributeEditor {
 
     @Override
     public void commit() throws JEVisException {
-        logger.debug("LimitEdior.commit(): '{}' {} {}", _attribute.getName(), hasChanged(), _newSample);
 
-        if (hasChanged() && delete) {
-            _attribute.deleteAllSample();
-        } else if (hasChanged() && _newSample != null) {
+        if (hasChanged() && _newSample != null) {
             //TODO: check if tpye is ok, maybe better at imput time
+            logger.debug("Commit: " + _newSample.getValueAsString());
             _newSample.commit();
             _lastSample = _newSample;
             _newSample = null;
@@ -254,21 +252,20 @@ public class LimitEditor implements AttributeEditor {
 
         dialog.getDialogPane().contentProperty().setValue(tabPane);
 
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.FINISH);
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
 
 
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                            commit();
-                            logger.info("Commit: " + _newSample.getValueAsString());
                             _changed.setValue(true);
+                            commit();
                         } catch (JEVisException e) {
-                            e.printStackTrace();
+                            logger.error("Could not write limit config to JEVis System: " + e);
                         }
                     }
                 });

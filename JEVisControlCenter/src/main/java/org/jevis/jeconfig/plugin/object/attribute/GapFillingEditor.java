@@ -138,11 +138,10 @@ public class GapFillingEditor implements AttributeEditor {
 
     @Override
     public void commit() throws JEVisException {
-        logger.debug("StringValueEditor.commit(): '{}' {} {}", _attribute.getName(), hasChanged(), _newSample);
 
-        hasChanged();
         if (hasChanged() && _newSample != null) {
             //TODO: check if type is ok, maybe better at input time
+            logger.debug("Commit: " + _newSample.getValueAsString());
             _newSample.commit();
             _lastSample = _newSample;
             _newSample = null;
@@ -257,20 +256,20 @@ public class GapFillingEditor implements AttributeEditor {
 
         dialog.getDialogPane().contentProperty().setValue(tabPane);
 
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.FINISH);
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
 
 
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-
+                            _changed.setValue(true);
                             commit();
                         } catch (JEVisException e) {
-                            e.printStackTrace();
+                            logger.error("Could not write gap config to JEVis System: " + e);
                         }
                     }
                 });
