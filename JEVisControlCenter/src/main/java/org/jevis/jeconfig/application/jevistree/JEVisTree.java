@@ -78,7 +78,7 @@ public class JEVisTree extends TreeTableView {
 
 
     /**
-     * Not working and in use. Will implement an drag&drop function
+     * Not working and in use. Will implement a drag&drop function
      */
     private void addCellFactory() {
 
@@ -92,12 +92,12 @@ public class JEVisTree extends TreeTableView {
 
                 row.setOnDragDetected(event -> {
                     try {
-                        System.out.println("1. Drag go");
+                        logger.debug("1. Drag go");
 //                        TreeItem selected = (TreeItem) getSelectionModel().getSelectedItem();
 //                        if (selected != null) {
 //                        JEVisTreeRow jevisRow = (JEVisTreeRow) row.getValue();
 
-//                        System.out.println("Drag Object: " + row.getValue().getClass());
+//                        logger.debug("Drag Object: " + row.getValue().getClass());
 
                         Dragboard db = row.startDragAndDrop(TransferMode.ANY);
 ////                        // create a miniature of the row you're dragging
@@ -107,7 +107,7 @@ public class JEVisTree extends TreeTableView {
                         db.setContent(content);
 //                        dragItem = jevisRow;
                         event.consume();
-                        System.out.println("done");
+                        logger.debug("done");
 //                        }
                     } catch (Exception ex) {
                         logger.error(ex);
@@ -115,7 +115,7 @@ public class JEVisTree extends TreeTableView {
                 });
 
                 row.setOnDragOver(event -> {
-                    System.out.println("2. Drag over");
+                    logger.debug("2. Drag over");
                     try {
                         if (event.getGestureSource() != row &&
                                 event.getDragboard().hasString()) {
@@ -135,16 +135,16 @@ public class JEVisTree extends TreeTableView {
                 });
 
                 row.setOnDragEntered(event -> {
-                    System.out.println("3. Drag entert");
+                    logger.debug("3. Drag entert");
                     event.consume();
                 });
 
                 row.setOnDragDropped(event -> {
-                    System.out.println("4. Drag droped");
+                    logger.debug("4. Drag droped");
                     try {
 //                        TreeItem selected = (TreeItem) getSelectionModel().getSelectedItem();
-//                        System.out.println("d-Target: " + row.getTreeItem());
-//                        System.out.println("d-select: " + selected);
+//                        logger.debug("d-Target: " + row.getTreeItem());
+//                        logger.debug("d-select: " + selected);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -153,7 +153,7 @@ public class JEVisTree extends TreeTableView {
                 });
 
                 row.setOnDragExited(value -> {
-                    System.out.println("5. Drag exit");
+                    logger.debug("5. Drag exit");
                     // Reset the original color here
                 });
 
@@ -215,7 +215,7 @@ public class JEVisTree extends TreeTableView {
     }
 
     public void toggleItemCollapse(TreeItem node) {
-        System.out.println("toggleItemCollapse: " + !node.isExpanded());
+        logger.debug("toggleItemCollapse: " + !node.isExpanded());
         collapseAll(node, !node.isExpanded());
 
     }
@@ -370,7 +370,7 @@ public class JEVisTree extends TreeTableView {
     }
 
     public TreeTableColumn getColumn(String columnName) {
-        System.out.println("getColumn: " + columnName + " liste: " + getColumns().size());
+        logger.debug("getColumn: " + columnName + " list size: " + getColumns().size());
         for (Object col : getColumns()) {
             TreeTableColumn column = (TreeTableColumn) col;
 
@@ -383,7 +383,7 @@ public class JEVisTree extends TreeTableView {
                 return childCol;
             }
         }
-        System.out.println("Did not found Column: " + columnName);
+        logger.debug("Did not find Column: " + columnName);
         return null;
 
     }
@@ -401,10 +401,7 @@ public class JEVisTree extends TreeTableView {
             if (c.wasAdded()) {
                 for (TreePlugin plugin : c.getAddedSubList()) {
                     plugin.setTree(this);
-                    for (TreeTableColumn<JEVisTreeRow, Long> column : plugin.getColumns()) {
-                        getColumns().add(column);
-                        System.out.println("Add plugin column to tree: " + column.getText());
-                    }
+                    getColumns().addAll(plugin.getColumns());
                 }
 
             }

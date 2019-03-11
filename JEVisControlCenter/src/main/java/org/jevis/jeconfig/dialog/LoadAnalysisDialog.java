@@ -65,19 +65,15 @@ public class LoadAnalysisDialog {
     private ComboBox<AggregationPeriod> aggregationBox;
     private ComboBox<ManipulationMode> mathBox;
     private CustomPeriodObject cpo;
-    private DateTime oldStart;
-    private DateTime oldSEnd;
-    private AnalysisTimeFrame oldTimeFrame;
-    private AggregationPeriod oldAggregation;
-    private ManipulationMode oldManipulation;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
         this.toolBarView = toolBarView;
         this.ds = ds;
-        for (int i = 0; i < 4; i++) {
-            programmaticallySetPresetDate[i] = false;
-        }
+        programmaticallySetPresetDate[0] = false;
+        programmaticallySetPresetDate[1] = false;
+        programmaticallySetPresetDate[2] = false;
+        programmaticallySetPresetDate[3] = false;
 
         comboBoxPresetDates = new PresetDateBox();
 
@@ -323,6 +319,10 @@ public class LoadAnalysisDialog {
             stage = null;
 
         });
+
+        comboBoxPresetDates.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> toolBarView.getPresetDateBox().getSelectionModel().select(newValue));
+        pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> toolBarView.getPickerDateStart().setValue(newValue));
+        pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> toolBarView.getPickerDateEnd().setValue(newValue));
 
         stage.showAndWait();
 

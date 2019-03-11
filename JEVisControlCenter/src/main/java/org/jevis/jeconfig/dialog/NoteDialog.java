@@ -15,7 +15,8 @@ import javafx.util.Callback;
 import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPlugin;
+import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
+import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -24,7 +25,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class NoteDialog extends Dialog<ButtonType> {
-    private final Image imgExpand = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "if_ExpandMore.png"));
+    private final Image imgExpand = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "if_ExpandMore.png"));
     private Map<String, RowNote> noteMap;
     private ObservableList<RowNote> observableList = FXCollections.observableArrayList();
 
@@ -44,6 +45,9 @@ public class NoteDialog extends Dialog<ButtonType> {
 
             observableList.add(entry.getValue());
         }
+
+        AlphanumComparator ac = new AlphanumComparator();
+        observableList.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
         TableColumn<RowNote, String> columnName = new TableColumn(I18n.getInstance().getString("graph.dialog.column.name"));
         columnName.setSortable(false);
