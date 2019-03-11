@@ -522,9 +522,8 @@ public class XYChart implements Chart {
                         }
                     }
 
-
-                    Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
                     JEVisSample sample = sampleTreeMap.get(nearest);
+                    Double valueAsDouble = sample.getValueAsDouble();
                     Note formattedNote = new Note(sample);
                     String formattedDouble = nf.format(valueAsDouble);
 
@@ -537,8 +536,13 @@ public class XYChart implements Chart {
                     }
                     tableEntry.setNote(formattedNote.getNoteAsString());
                     String unit = serie.getUnit();
-                    tableEntry.setValue(formattedDouble + " " + unit);
+
+                    if (!sample.getNote().contains("Empty")) {
+                        tableEntry.setValue(formattedDouble + " " + unit);
+                    } else tableEntry.setValue("- " + unit);
+
                     tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+
                 } catch (Exception ex) {
                 }
 

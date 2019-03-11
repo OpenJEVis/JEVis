@@ -41,40 +41,39 @@ public interface Chart {
         String userNote = "";
 
         try {
-            JEVisObject obj = nearestSample.getAttribute().getObject();
-            JEVisObject correspondingNoteObject = null;
+            if (nearestSample.getAttribute() != null) {
+                JEVisObject obj = nearestSample.getAttribute().getObject();
+                JEVisObject correspondingNoteObject = null;
 
-            final JEVisClass dataNoteClass = obj.getDataSource().getJEVisClass("Data Notes");
-            List<JEVisObject> listParents = obj.getParents();
-            for (JEVisObject parent : listParents) {
-                for (JEVisObject child : parent.getChildren()) {
-                    if (child.getJEVisClass().equals(dataNoteClass) && child.getName().contains(obj.getName())) {
-                        correspondingNoteObject = child;
-                        break;
-                    }
-                }
-            }
-            if (correspondingNoteObject != null) {
-                try {
-                    JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
-                    List<JEVisSample> listSamples = userNoteAttribute.getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
-                    if (listSamples.size() == 1) {
-                        for (JEVisSample smp : listSamples) {
-                            return smp.getValueAsString();
+                final JEVisClass dataNoteClass = obj.getDataSource().getJEVisClass("Data Notes");
+                List<JEVisObject> listParents = obj.getParents();
+                for (JEVisObject parent : listParents) {
+                    for (JEVisObject child : parent.getChildren()) {
+                        if (child.getJEVisClass().equals(dataNoteClass) && child.getName().contains(obj.getName())) {
+                            correspondingNoteObject = child;
+                            break;
                         }
                     }
-                } catch (JEVisException e) {
+                }
+                if (correspondingNoteObject != null) {
+                    try {
+                        JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
+                        List<JEVisSample> listSamples = userNoteAttribute.getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
+                        if (listSamples.size() == 1) {
+                            for (JEVisSample smp : listSamples) {
+                                return smp.getValueAsString();
+                            }
+                        }
+                    } catch (JEVisException e) {
 
+                    }
                 }
             }
-
         } catch (JEVisException e) {
 
         }
-
         return userNote;
     }
-
 
     default void saveUserNotes(Map<String, RowNote> noteMap) {
         for (Map.Entry<String, RowNote> entry : noteMap.entrySet()) {

@@ -110,7 +110,7 @@ public class ChartDataModel {
                         }
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error(ex);
                 }
             } else {
                 if (getDataProcessor() != null) {

@@ -107,7 +107,9 @@ public class XYChartSerie {
                 data.setExtraValue(yAxis);
 
                 data.setNode(null);
-                data.setNode(generateNode(sample));
+                if (!sample.getNote().contains("Empty")) {
+                    data.setNode(generateNode(sample));
+                }
 
                 setDataNodeColor(data);
 
@@ -167,9 +169,11 @@ public class XYChartSerie {
     }
 
     public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
-        Color currentColor = singleRow.getColor();
-        String hexColor = toRGBCode(currentColor);
-        data.getNode().setStyle("-fx-background-color: " + hexColor + ";");
+        if (data.getNode() != null) {
+            Color currentColor = singleRow.getColor();
+            String hexColor = toRGBCode(currentColor);
+            data.getNode().setStyle("-fx-background-color: " + hexColor + ";");
+        }
     }
 
     public Node generateNode(JEVisSample sample) throws JEVisException {
