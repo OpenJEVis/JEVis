@@ -20,6 +20,7 @@ import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
+import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 
 import java.util.ArrayList;
@@ -273,7 +274,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                             SelectionColumn selectColumn = new SelectionColumn(tree, dataSource, colorColumn, i, selectionColumns, allColumns);
                                                             selectColumn.setGraphDataModel(getData());
                                                             selectionColumns.add(selectColumn.getSelectionColumn());
-                                                            allColumns.getColumns().add(allColumns.getColumns().size() - 7, selectColumn.getSelectionColumn());
+                                                            allColumns.getColumns().add(allColumns.getColumns().size() - ChartPluginTree.NO_OF_COLUMNS, selectColumn.getSelectionColumn());
                                                         }
 
                                                         tree.refresh();

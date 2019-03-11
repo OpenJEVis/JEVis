@@ -57,11 +57,6 @@ public class SearchFilterBar extends HBox {
                 tree.setFilter(newValue);
             }
         });
-        filterBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (!oldValue.equals(newValue) && newValue != null) {
-                tree.setFilter(newValue);
-            }
-        });
 
 
         searchField.getStyleClass().add(Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
@@ -100,15 +95,15 @@ public class SearchFilterBar extends HBox {
         this.setAlignment(Pos.BASELINE_LEFT);
         this.getChildren().addAll(labelFilter, filterBox, labelSearch, searchField);
 
-        Platform.runLater(() -> {
+//        Platform.runLater(() -> {
 //            filterBox.getSelectionModel().selectLast();
 //            System.out.println("select Filter: " + filterBox.getSelectionModel().getSelectedItem().getName());
 //            filterBox.getSelectionModel().selectFirst();
-            if (!filter.isEmpty()) {
-                tree.setFilter(filter.get(0));
-            }
+//            if (!filter.isEmpty()) {
+//                tree.setFilter(filter.get(0));
+//            }
 
-        });
+//        });
 
     }
 

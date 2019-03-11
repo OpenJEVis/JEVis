@@ -67,11 +67,8 @@ public class AggregationBox extends ComboBox<AggregationPeriod> {
         setCellFactory(cellFactory);
         setButtonCell(cellFactory.call(null));
 
-        getSelectionModel().selectFirst();
+        getSelectionModel().select(graphDataModel.getAggregationPeriod());
 
-        if (!graphDataModel.getSelectedData().isEmpty()) {
-            graphDataModel.getSelectedData().stream().findFirst().ifPresent(chartDataModel -> getSelectionModel().select(chartDataModel.getAggregationPeriod()));
-        }
     }
 
 }

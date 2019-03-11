@@ -33,17 +33,23 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.datetime.DateHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndTimePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartDatePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartTimePicker;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPlugin;
+import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
@@ -64,8 +70,9 @@ public class ChartSelectionDialog {
     private boolean init = true;
     private JEVisTree tree;
     //    private ObservableList<String> chartsList = FXCollections.observableArrayList();
-    private ChartPlugin chartPlugin = null;
+    private ChartPluginTree chartPlugin = null;
     private Long defaultChartsPerScreen;
+    private TabPane tabPaneCharts;
 
     /**
      * @param ds
@@ -115,8 +122,8 @@ public class ChartSelectionDialog {
         Node headerNode = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("graph.selection.header"));
 
         for (TreePlugin plugin : tree.getPlugins()) {
-            if (plugin instanceof ChartPlugin) {
-                chartPlugin = (ChartPlugin) plugin;
+            if (plugin instanceof ChartPluginTree) {
+                chartPlugin = (ChartPluginTree) plugin;
 //                if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
                 //chartPlugin.setData(data);
 //                }
@@ -133,7 +140,7 @@ public class ChartSelectionDialog {
 
         VBox vBoxAdvancedSettings = new VBox();
 
-        TabPane tabPaneCharts = new TabPane();
+        tabPaneCharts = new TabPane();
         VBox.setVgrow(tabPaneCharts, Priority.ALWAYS);
 
 //        chartsList = data.getChartsList();chartPlugin
@@ -213,6 +220,16 @@ public class ChartSelectionDialog {
 
         });
 
+        chartPlugin.addedChartProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                tabPaneCharts.getTabs().clear();
+                tabPaneCharts.getTabs().add(getCommonTab());
+                for (ChartSettings settings : data.getCharts()) {
+                    tabPaneCharts.getTabs().add(createChartTab(settings));
+                }
+            }
+        });
+
         stage.showAndWait();
 
         return _response;
@@ -267,16 +284,45 @@ public class ChartSelectionDialog {
         newTab.setClosable(false);
 
         GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(10));
-        gridPane.setHgap(10);
-        gridPane.setVgap(5);
+        gridPane.setHgap(7);
+        gridPane.setVgap(7);
+        gridPane.setPadding(new Insets(4, 4, 4, 4));
 
-        Label labelName = new Label(I18n.getInstance().getString("graph.tabs.tab.name"));
-        ChartNameTextField chartNameTextField = new ChartNameTextField(cset);
+        final PresetDateBox presetDateBox = new PresetDateBox();
+        final StartDatePicker pickerDateStart = new StartDatePicker();
+        final StartTimePicker pickerTimeStart = new StartTimePicker();
+        final EndDatePicker pickerDateEnd = new EndDatePicker();
+        final EndTimePicker pickerTimeEnd = new EndTimePicker();
 
-        Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
+        final Label labelName = new Label(I18n.getInstance().getString("graph.tabs.tab.name"));
+        final ChartNameTextField chartNameTextField = new ChartNameTextField(cset);
 
-        ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
+        final Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
+
+        final ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
+
+        final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
+        final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
+
+        List<ChartDataModel> correspondingDataModels = new ArrayList<>();
+        data.getSelectedData().forEach(chartDataModel -> {
+            if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
+        });
+
+        final Boolean[] programmaticallySetPresetDate = new Boolean[4];
+        programmaticallySetPresetDate[0] = false;
+        programmaticallySetPresetDate[1] = false;
+        programmaticallySetPresetDate[2] = false;
+        programmaticallySetPresetDate[3] = false;
+
+        pickerDateStart.initialize(data, correspondingDataModels, pickerTimeStart, programmaticallySetPresetDate, presetDateBox);
+        pickerTimeStart.initialize(data, correspondingDataModels, pickerDateStart, programmaticallySetPresetDate, presetDateBox);
+
+        pickerDateEnd.initialize(data, correspondingDataModels, pickerTimeEnd, programmaticallySetPresetDate, presetDateBox);
+        pickerTimeEnd.initialize(data, correspondingDataModels, pickerDateEnd, programmaticallySetPresetDate, presetDateBox);
+
+        presetDateBox.initialize(data, correspondingDataModels, new DateHelper(), pickerDateStart, pickerTimeStart,
+                pickerDateEnd, pickerTimeEnd, programmaticallySetPresetDate);
 
         int row = 0;
         gridPane.add(labelName, 0, row);
@@ -286,6 +332,16 @@ public class ChartSelectionDialog {
         gridPane.add(labelChartType, 0, row);
         gridPane.add(chartTypeComboBox, 1, row);
         row++;
+
+        gridPane.add(startText, 0, row);
+        gridPane.add(pickerTimeStart, 1, row);
+        gridPane.add(pickerDateStart, 2, row);
+        row++;
+
+        gridPane.add(endText, 0, row);
+        gridPane.add(pickerTimeEnd, 1, row);
+        gridPane.add(pickerDateEnd, 2, row);
+
 
         newTab.setContent(gridPane);
 
@@ -301,7 +357,7 @@ public class ChartSelectionDialog {
         this.data = data;
     }
 
-    public ChartPlugin getChartPlugin() {
+    public ChartPluginTree getChartPlugin() {
         return chartPlugin;
     }
 

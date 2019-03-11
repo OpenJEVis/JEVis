@@ -226,7 +226,6 @@ public class JEVisItemLoader {
      * @return
      */
     public void filterTree(JEVisTreeFilter filter) {
-        JEVisTreeFilter activFilter = filter;
         cleanFilter();
 //        Benchmark benchmark = new Benchmark();
 
@@ -351,7 +350,6 @@ public class JEVisItemLoader {
 
         } catch (Exception ex) {
             logger.error(ex);
-            ex.printStackTrace();
         }
     }
 

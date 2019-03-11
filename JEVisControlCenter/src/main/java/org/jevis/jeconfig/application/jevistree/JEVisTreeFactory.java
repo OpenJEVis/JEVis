@@ -36,7 +36,7 @@ import org.jevis.jeconfig.application.jevistree.filter.BasicCellFilter;
 import org.jevis.jeconfig.application.jevistree.filter.FilterFactory;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.filter.ObjectAttributeFilter;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPlugin;
+import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
 import org.jevis.jeconfig.tool.I18n;
 
@@ -189,8 +189,8 @@ public class JEVisTreeFactory {
         SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
         tree.setSearchFilterBar(searchBar);
 
-        TreePlugin bp = new ChartPlugin(graphDataModel);
-        //((ChartPlugin) bp).setData(graphDataModel);
+        TreePlugin bp = new ChartPluginTree(graphDataModel);
+        //((ChartPluginTree) bp).setData(graphDataModel);
         tree.getColumns().addAll(nameCol);
 //                , idCol, minTS, maxTS);
         tree.getPlugins().add(bp);

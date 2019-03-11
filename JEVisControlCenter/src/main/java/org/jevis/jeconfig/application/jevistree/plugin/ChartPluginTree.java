@@ -5,6 +5,7 @@
  */
 package org.jevis.jeconfig.application.jevistree.plugin;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.Image;
@@ -27,20 +28,22 @@ import java.util.List;
 /**
  * @author
  */
-public class ChartPlugin implements TreePlugin {
-    private final Image img = new Image(ChartPlugin.class.getResourceAsStream("/icons/" + "list-add.png"));
+public class ChartPluginTree implements TreePlugin {
+    public static int NO_OF_COLUMNS = 5;
     private final ImageView image = new ImageView(img);
     private JEVisTree jeVisTree;
     private final String chartTitle = I18n.getInstance().getString("graph.title");
     private GraphDataModel data;
     private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
     private JEVisDataSource dataSource;
+    private final Image img = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "list-add.png"));
+    private SimpleBooleanProperty addedChart = new SimpleBooleanProperty(false);
 
     public JEVisTree getTree() {
         return jeVisTree;
     }
 
-    public ChartPlugin(GraphDataModel data) {
+    public ChartPluginTree(GraphDataModel data) {
         this.data = data;
     }
 
@@ -120,10 +123,11 @@ public class ChartPlugin implements TreePlugin {
                 }
 
                 data.getCharts().add(new ChartSettings(id, newName));
+                addedChartProperty().setValue(Boolean.TRUE);
 
                 SelectionColumn selectColumn = new SelectionColumn(jeVisTree, dataSource, colorColumn, id, selectionColumns, column);
                 selectColumn.setGraphDataModel(data);
-                column.getColumns().add(column.getColumns().size() - 7, selectColumn.getSelectionColumn());
+                column.getColumns().add(column.getColumns().size() - NO_OF_COLUMNS, selectColumn.getSelectionColumn());
             }
         });
 
@@ -141,10 +145,11 @@ public class ChartPlugin implements TreePlugin {
         DataProcessorColumn dataProcessorColumn = new DataProcessorColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.cleaning"));
         dataProcessorColumn.setGraphDataModel(data);
 
-        DateColumn startDateColumn = new DateColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.startdate"), DateColumn.DATE_TYPE.START);
-        startDateColumn.setGraphDataModel(data);
-        DateColumn endDateColumn = new DateColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.enddate"), DateColumn.DATE_TYPE.END);
-        endDateColumn.setGraphDataModel(data);
+//        DateColumn startDateColumn = new DateColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.startdate"), DateColumn.DATE_TYPE.START);
+//        startDateColumn.setGraphDataModel(data);
+//        DateColumn endDateColumn = new DateColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.enddate"), DateColumn.DATE_TYPE.END);
+//        endDateColumn.setGraphDataModel(data);
+//        startDateColumn.getDateColumn(), endDateColumn.getDateColumn(),
 
         UnitColumn unitColumn = new UnitColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.unit"));
         unitColumn.setGraphDataModel(data);
@@ -154,7 +159,7 @@ public class ChartPlugin implements TreePlugin {
 
         for (TreeTableColumn<JEVisTreeRow, Boolean> ttc : selectionColumns) column.getColumns().add(ttc);
         column.getColumns().addAll(colorColumn.getColorColumn(), aggregationColumn.getAggregationColumn(),
-                dataProcessorColumn.getDataProcessorColumn(), startDateColumn.getDateColumn(), endDateColumn.getDateColumn(),
+                dataProcessorColumn.getDataProcessorColumn(),
                 unitColumn.getUnitColumn(), axisColumn.getAxisColumn());
 
         allColumns.add(column);
@@ -189,4 +194,11 @@ public class ChartPlugin implements TreePlugin {
         jeVisTree.refresh();
     }
 
+    public boolean isAddedChart() {
+        return addedChart.get();
+    }
+
+    public SimpleBooleanProperty addedChartProperty() {
+        return addedChart;
+    }
 }

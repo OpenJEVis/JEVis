@@ -26,7 +26,6 @@ import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
@@ -66,19 +65,15 @@ public class LoadAnalysisDialog {
     private ComboBox<AggregationPeriod> aggregationBox;
     private ComboBox<ManipulationMode> mathBox;
     private CustomPeriodObject cpo;
-    private DateTime oldStart;
-    private DateTime oldSEnd;
-    private AnalysisTimeFrame oldTimeFrame;
-    private AggregationPeriod oldAggregation;
-    private ManipulationMode oldManipulation;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
         this.toolBarView = toolBarView;
         this.ds = ds;
-        for (int i = 0; i < 4; i++) {
-            programmaticallySetPresetDate[i] = false;
-        }
+        programmaticallySetPresetDate[0] = false;
+        programmaticallySetPresetDate[1] = false;
+        programmaticallySetPresetDate[2] = false;
+        programmaticallySetPresetDate[3] = false;
 
         comboBoxPresetDates = new PresetDateBox();
 
@@ -325,6 +320,10 @@ public class LoadAnalysisDialog {
 
         });
 
+        comboBoxPresetDates.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> toolBarView.getPresetDateBox().getSelectionModel().select(newValue));
+        pickerDateStart.valueProperty().addListener((observable, oldValue, newValue) -> toolBarView.getPickerDateStart().setValue(newValue));
+        pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> toolBarView.getPickerDateEnd().setValue(newValue));
+
         stage.showAndWait();
 
         return response;
@@ -392,15 +391,7 @@ public class LoadAnalysisDialog {
         math.setCellFactory(cellFactory);
         math.setButtonCell(cellFactory.call(null));
 
-        if (!graphDataModel.getSelectedData().isEmpty()) {
-            for (ChartDataModel chartDataModel : graphDataModel.getSelectedData()) {
-                math.getSelectionModel().select(chartDataModel.getManipulationMode());
-                if (!chartDataModel.getManipulationMode().equals(ManipulationMode.NONE) ||
-                        !chartDataModel.getManipulationMode().equals(ManipulationMode.TOTAL))
-                    getAggregationBox().getSelectionModel().select(0);
-                break;
-            }
-        }
+        math.getSelectionModel().select(graphDataModel.getManipulationMode());
 
         return math;
     }
