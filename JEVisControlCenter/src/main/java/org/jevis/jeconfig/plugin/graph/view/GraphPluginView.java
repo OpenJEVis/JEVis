@@ -76,12 +76,13 @@ public class GraphPluginView implements Plugin {
     private StringProperty name = new SimpleStringProperty("Graph");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
-    private BorderPane border;
+    private BorderPane border = new BorderPane();
     private StackPane stackPane = new StackPane();
     private ToolBar toolBar;
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
     private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
+    private List<ChartView> listChartViews;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new GraphDataModel(ds, this);
@@ -94,7 +95,24 @@ public class GraphPluginView implements Plugin {
         this.ds = ds;
         this.name.set(newname);
 
-        getContentNode();
+        /**
+         * If scene size changes and old value is not 0.0 (firsts draw) redraw
+         * TODO: resizing an window manually will cause a lot of resize changes and so redraws, solve this better
+         */
+        border.heightProperty().addListener((observable, oldValue, newValue) -> {
+            if (!oldValue.equals(0.0) && dataModel.getSelectedData() != null && !dataModel.getSelectedData().isEmpty()) {
+                Platform.runLater(() -> update(false));
+            }
+        });
+        border.heightProperty().addListener((observable, oldValue, newValue) -> {
+            if (!oldValue.equals(0.0) && dataModel.getSelectedData() != null && !dataModel.getSelectedData().isEmpty()) {
+                Platform.runLater(() -> update(false));
+            }
+        });
+
+        border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
+
+        if (!stackPane.getChildren().contains(border)) stackPane.getChildren().add(border);
     }
 
     @Override
@@ -294,7 +312,7 @@ public class GraphPluginView implements Plugin {
                         dataModel.setAnalysisTimeFrame(oldTimeframe);
                     }
                     dataModel.updateSamples();
-                    update();
+                    update(true);
                     break;
                 case Constants.Plugin.Command.ADD_TABLE:
                     break;
@@ -329,41 +347,10 @@ public class GraphPluginView implements Plugin {
 
     @Override
     public Node getContentNode() {
-
-        if (border == null) {
-            border = new BorderPane();
-
-            if (dataModel.getSelectedData() != null && !dataModel.getSelectedData().isEmpty()) {
-                /**
-                 * If scene size changes and old value is not 0.0 (firsts draw) redraw
-                 * TODO: resizing an window manually will cause a lot of resize changes and so redraws, solve this better
-                 */
-                border.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    if (!oldValue.equals(0.0)) {
-                        Platform.runLater(this::update);
-                    }
-                });
-                border.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    if (!oldValue.equals(0.0)) {
-                        Platform.runLater(this::update);
-                    }
-                });
-            }
-            //chartView.drawDefaultAreaChart();
-//            if (chartView != null)
-//                border.setCenter(chartView.getChartRegion());
-
-//            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
-        }
-
-        if (!stackPane.getChildren().contains(border)) stackPane.getChildren().add(border);
-
         return stackPane;
-
     }
 
-    public void update() {
+    public void update(Boolean getNewChartViews) {
 
         //border.setCenter(new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS));
 
@@ -377,8 +364,11 @@ public class GraphPluginView implements Plugin {
             double totalPrefHeight = 0d;
             Long chartsPerScreen = dataModel.getChartsPerScreen();
 
-            List<ChartView> listChartViews = null;
-            listChartViews = getChartViews();
+            if (getNewChartViews) {
+                listChartViews = null;
+                listChartViews = getChartViews();
+            }
+
             AlphanumComparator ac = new AlphanumComparator();
             try {
                 listChartViews.sort((s1, s2) -> ac.compare(s1.getChartName(), s2.getChartName()));
@@ -394,6 +384,7 @@ public class GraphPluginView implements Plugin {
             sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
             for (ChartView cv : listChartViews) {
+                final Integer index = listChartViews.indexOf(cv);
                 if (cv.getChartType().equals(ChartType.LOGICAL)) {
                     autoMinSize = autoMinSizeLogical;
                 } else {
@@ -495,8 +486,6 @@ public class GraphPluginView implements Plugin {
 
             }
 
-            autoSize(autoMinSize, maxHeight, chartsPerScreen, vBox);
-
             sp.setContent(vBox);
 
             border.setTop(null);
@@ -504,8 +493,10 @@ public class GraphPluginView implements Plugin {
             border.setBottom(null);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
             toolBarView.setBorderPane(border);
-        }
 
+
+            autoSize(autoMinSize, maxHeight, chartsPerScreen, vBox);
+        }
     }
 
     private void autoSize(Double autoMinSize, double maxHeight, Long chartsPerScreen, VBox vBox) {
@@ -523,9 +514,15 @@ public class GraphPluginView implements Plugin {
 
                 if (chartsPerScreen != null && dataModel.getCharts().size() > 1) {
                     ObservableList<Node> children = vBox.getChildren();
+                    int i = 0;
+                    for (Node node : children) {
+                        if (node instanceof Separator) i++;
+                    }
+                    double height = border.getHeight() - (4.5 * i);
+
                     for (Node node : children) {
                         if (node instanceof BorderPane) {
-                            ((BorderPane) node).setPrefHeight((border.getHeight()) / chartsPerScreen);
+                            ((BorderPane) node).setPrefHeight((height) / chartsPerScreen);
                         }
                     }
                 } else {
@@ -602,10 +599,7 @@ public class GraphPluginView implements Plugin {
 
                                     DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
                                     xAxis.setAutoRanging(false);
-//                                    xAxis.setLowerBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound());
-//                                    xAxis.setUpperBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound());
 
-//                                    if (xAxis.animatedProperty().get()) {
                                     Timeline zoomAnimation = new Timeline();
                                     zoomAnimation.stop();
                                     zoomAnimation.getKeyFrames().setAll(
@@ -617,7 +611,6 @@ public class GraphPluginView implements Plugin {
                                                     new KeyValue(xAxis.upperBoundProperty(), cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound()))
                                     );
                                     zoomAnimation.play();
-//                                    }
                                 }
                             });
                             cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().setValue(false);
@@ -693,8 +686,17 @@ public class GraphPluginView implements Plugin {
 
                                     DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
                                     xAxis.setAutoRanging(false);
-                                    xAxis.setLowerBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound());
-                                    xAxis.setUpperBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound());
+                                    Timeline zoomAnimation = new Timeline();
+                                    zoomAnimation.stop();
+                                    zoomAnimation.getKeyFrames().setAll(
+                                            new KeyFrame(Duration.ZERO,
+                                                    new KeyValue(xAxis.lowerBoundProperty(), xAxis.getLowerBound()),
+                                                    new KeyValue(xAxis.upperBoundProperty(), xAxis.getUpperBound())),
+                                            new KeyFrame(Duration.millis(zoomDurationMillis.get()),
+                                                    new KeyValue(xAxis.lowerBoundProperty(), cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound()),
+                                                    new KeyValue(xAxis.upperBoundProperty(), cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound()))
+                                    );
+                                    zoomAnimation.play();
                                 }
                             });
                             cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().setValue(false);
@@ -762,8 +764,18 @@ public class GraphPluginView implements Plugin {
 
                                     DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
                                     xAxis.setAutoRanging(false);
-                                    xAxis.setLowerBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound());
-                                    xAxis.setUpperBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound());
+
+                                    Timeline zoomAnimation = new Timeline();
+                                    zoomAnimation.stop();
+                                    zoomAnimation.getKeyFrames().setAll(
+                                            new KeyFrame(Duration.ZERO,
+                                                    new KeyValue(xAxis.lowerBoundProperty(), xAxis.getLowerBound()),
+                                                    new KeyValue(xAxis.upperBoundProperty(), xAxis.getUpperBound())),
+                                            new KeyFrame(Duration.millis(zoomDurationMillis.get()),
+                                                    new KeyValue(xAxis.lowerBoundProperty(), cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound()),
+                                                    new KeyValue(xAxis.upperBoundProperty(), cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound()))
+                                    );
+                                    zoomAnimation.play();
                                 }
                             });
                             cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().setValue(false);
