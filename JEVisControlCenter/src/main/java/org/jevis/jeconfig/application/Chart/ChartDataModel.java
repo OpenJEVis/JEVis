@@ -141,10 +141,24 @@ public class ChartDataModel {
             ChartUnits cu = new ChartUnits();
             Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
 
+            Double millisInput = null;
+            Double millisOutput = null;
+            try {
+                if (inputList.size() > 1) {
+                    millisInput = (double) attribute.getDisplaySampleRate().toStandardDuration().getMillis();
+                    millisOutput = (double) new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp()).toStandardDuration().getMillis();
+                }
+            } catch (Exception e) {
+                logger.error("Could not get millis for time factor: " + e);
+            }
 
+            double finalTimeFactor = 1.0;
+            if (millisOutput != null) finalTimeFactor = millisInput / millisOutput;
+
+            double finalTimeFactor1 = finalTimeFactor;
             inputList.forEach(sample -> {
                 try {
-                    sample.setValue(sample.getValueAsDouble() * finalFactor);
+                    sample.setValue(sample.getValueAsDouble() * finalFactor * finalTimeFactor1);
                 } catch (Exception e) {
                     try {
                         logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue()
