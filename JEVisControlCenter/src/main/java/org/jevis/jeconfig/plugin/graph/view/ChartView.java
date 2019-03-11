@@ -260,8 +260,14 @@ public class ChartView implements Observer {
             if (!getChartType().equals(ChartType.LOGICAL)) {
 
                 HBox pickerBox = new HBox();
+                CalendarIcon calendarIcon = new CalendarIcon();
+                HBox iconBox = new HBox();
+
                 pickerBox.setPadding(new Insets(2, 2, 2, 2));
                 pickerBox.setPickOnBounds(false);
+                calendarIcon.getIcon().setPickOnBounds(false);
+                iconBox.setPadding(new Insets(4, 4, 4, 4));
+                iconBox.setPickOnBounds(false);
                 StartDatePicker startDatePicker = new StartDatePicker();
                 startDatePicker.setPickOnBounds(false);
                 StartTimePicker startTimePicker = new StartTimePicker();
@@ -276,13 +282,29 @@ public class ChartView implements Observer {
                 endDatePicker.initialize(dataModel, currentSelectedChartDataModels, endTimePicker, null, null);
                 endTimePicker.initialize(dataModel, currentSelectedChartDataModels, endDatePicker, null, null);
 
-                startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateChart());
-                endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateChart());
+                startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    updateChart();
+                    pickerBox.setVisible(false);
+                    iconBox.setVisible(true);
+                });
+                endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    updateChart();
+                    pickerBox.setVisible(false);
+                    iconBox.setVisible(true);
+                });
+
+                iconBox.getChildren().addAll(calendarIcon.getIcon());
+                iconBox.setAlignment(Pos.TOP_RIGHT);
+                iconBox.setOnMouseClicked(event -> {
+                    pickerBox.setVisible(true);
+                    iconBox.setVisible(false);
+                });
 
                 pickerBox.getChildren().addAll(startDatePicker, endDatePicker);
                 pickerBox.setAlignment(Pos.TOP_RIGHT);
+                pickerBox.setVisible(false);
 
-                stackPane.getChildren().addAll(pickerBox);
+                stackPane.getChildren().addAll(pickerBox, iconBox);
             }
 
             return stackPane;

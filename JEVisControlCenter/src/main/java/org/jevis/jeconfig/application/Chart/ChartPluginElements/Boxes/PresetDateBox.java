@@ -18,9 +18,10 @@ import org.joda.time.DateTime;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public class PresetDateBox extends ComboBox<TimeFrame> {
-    private ChartDataModel chartDataModel;
+    private List<ChartDataModel> chartDataModel;
     private StartDatePicker pickerDateStart;
     private StartTimePicker pickerTimeStart;
     private EndDatePicker pickerDateEnd;
@@ -34,7 +35,7 @@ public class PresetDateBox extends ComboBox<TimeFrame> {
         super();
     }
 
-    public void initialize(GraphDataModel graphDataModel, ChartDataModel chartDataModel, DateHelper dateHelper, StartDatePicker pickerDateStart,
+    public void initialize(GraphDataModel graphDataModel, List<ChartDataModel> chartDataModel, DateHelper dateHelper, StartDatePicker pickerDateStart,
                            StartTimePicker pickerTimeStart, EndDatePicker pickerDateEnd, EndTimePicker pickerTimeEnd, Boolean[] programmaticallySetPresetDate) {
         this.chartDataModel = chartDataModel;
         this.pickerDateStart = pickerDateStart;

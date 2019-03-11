@@ -114,7 +114,7 @@ public class GraphDataModel {
         update();
     }
 
-    private void update() {
+    public void update() {
         final String loading = I18n.getInstance().getString("graph.progress.message");
         Service<Void> service = new Service<Void>() {
             @Override

@@ -398,7 +398,6 @@ public class CleanDataExtension implements ObjectEditorExtension {
         scrollPane.setMaxSize(10000, 10000);
 
         GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(5, 0, 20, 20));
         gridPane.setHgap(7);
         gridPane.setVgap(7);
         gridPane.setPadding(new Insets(4, 4, 4, 4));

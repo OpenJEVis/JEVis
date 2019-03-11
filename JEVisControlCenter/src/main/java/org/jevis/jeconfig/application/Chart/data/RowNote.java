@@ -3,6 +3,9 @@ package org.jevis.jeconfig.application.Chart.data;
 import javafx.beans.property.SimpleStringProperty;
 import org.jevis.api.*;
 import org.jevis.commons.constants.NoteConstants;
+import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.List;
@@ -51,6 +54,26 @@ public class RowNote {
         if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit1"));
             formattedNote.append(System.getProperty("line.separator"));
+
+            try {
+                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
+                JEVisObject object = sample.getAttribute().getObject();
+                if (object.getJEVisClass().equals(cleanDataClass)) {
+                    CleanDataObject cleanDataObject = new CleanDataObject(object, new ObjectHandler(object.getDataSource()));
+                    List<JsonLimitsConfig> limitsConfig = cleanDataObject.getLimitsConfig();
+                    for (JsonLimitsConfig limitsConfig1 : limitsConfig) {
+                        int index = limitsConfig.indexOf(limitsConfig1);
+                        if (index == 0) {
+                            formattedNote.append("L1 Min: ");
+                            formattedNote.append(limitsConfig1.getMin());
+                            formattedNote.append(" L1 Max: ");
+                            formattedNote.append(limitsConfig1.getMax());
+                            formattedNote.append(System.getProperty("line.separator"));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+            }
         }
 
         if (note.contains(NoteConstants.Gap.GAP_DEFAULT)) {
@@ -86,6 +109,34 @@ public class RowNote {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.gap.max"));
             formattedNote.append(System.getProperty("line.separator"));
         }
+
+        if (note.contains(NoteConstants.Limits.LIMIT_DEFAULT) || note.contains(NoteConstants.Limits.LIMIT_INTERPOLATION)
+                || note.contains(NoteConstants.Limits.LIMIT_MEDIAN) || note.contains(NoteConstants.Limits.LIMIT_AVERAGE)
+                || note.contains(NoteConstants.Limits.LIMIT_MAX) || note.contains(NoteConstants.Limits.LIMIT_MIN)
+                || note.contains(NoteConstants.Limits.LIMIT_STATIC)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.limit"));
+            formattedNote.append(System.getProperty("line.separator"));
+            try {
+                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
+                JEVisObject object = sample.getAttribute().getObject();
+                if (object.getJEVisClass().equals(cleanDataClass)) {
+                    CleanDataObject cleanDataObject = new CleanDataObject(object, new ObjectHandler(object.getDataSource()));
+                    List<JsonLimitsConfig> limitsConfig = cleanDataObject.getLimitsConfig();
+                    for (JsonLimitsConfig limitsConfig1 : limitsConfig) {
+                        int index = limitsConfig.indexOf(limitsConfig1);
+                        if (index == 1) {
+                            formattedNote.append("L2 Min: ");
+                            formattedNote.append(limitsConfig1.getMin());
+                            formattedNote.append(" L2 Max: ");
+                            formattedNote.append(limitsConfig1.getMax());
+                            formattedNote.append(System.getProperty("line.separator"));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+            }
+        }
+
 
         if (note.contains(NoteConstants.Limits.LIMIT_DEFAULT)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.default"));
@@ -133,10 +184,13 @@ public class RowNote {
                         Double valueAsDouble = logSamples.get(0).getValueAsDouble();
                         if (valueAsDouble.equals(1d)) {
                             formattedNote.append("Alarm normal");
+                            formattedNote.append(System.getProperty("line.separator"));
                         } else if (valueAsDouble.equals(2d)) {
                             formattedNote.append("Alarm silent");
+                            formattedNote.append(System.getProperty("line.separator"));
                         } else if (valueAsDouble.equals(4d)) {
                             formattedNote.append("Alarm standby");
+                            formattedNote.append(System.getProperty("line.separator"));
                         }
 
                     }
