@@ -49,6 +49,7 @@ public class ByteClassLoader extends URLClassLoader {
 
         // Write jar from JEVis to temporary file
         File tmpJar = File.createTempFile(parserFile.getFilename(), ".jar");
+        tmpJar.deleteOnExit();
         FileOutputStream fos = new FileOutputStream(tmpJar);
         fos.write(parserFile.getBytes());
 

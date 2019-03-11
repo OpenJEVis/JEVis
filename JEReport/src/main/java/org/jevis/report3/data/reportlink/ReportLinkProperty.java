@@ -160,8 +160,8 @@ public class ReportLinkProperty implements ReportData {
     private ConcurrentHashMap<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
         ConcurrentHashMap<String, Object> linkMap = new ConcurrentHashMap<>();
         List<ReportAttributeProperty> attributeProperties = linkProperty.getAttributeProperties();
-        //attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
-        attributeProperties.parallelStream().forEach(attributeProperty -> {
+        attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
+        for (ReportAttributeProperty attributeProperty : attributeProperties) {
             List<AttributeConfiguration> attributeConfigs = attributeProperty.getAttributeConfigurations();
 
             boolean validSampleGenerator = false;
@@ -324,7 +324,14 @@ public class ReportLinkProperty implements ReportData {
                     }
                 }
             }
-        });
+        }
+
+        String objectName = linkProperty.dataObject.getName();
+        if (objectName != null) {
+            ConcurrentHashMap<String, Object> objectname = new ConcurrentHashMap<>();
+            objectname.put("value", objectName);
+            linkMap.put("objectname", objectname);
+        }
 
         return linkMap;
     }
@@ -349,10 +356,14 @@ public class ReportLinkProperty implements ReportData {
                 try {
                     if (dataObject.getAttribute("Value") != null) {
                         JEVisAttribute att = dataObject.getAttribute("Value");
-                        if (att.getTimestampFromLastSample() != null) {
-                            DateTime timestampFromLastSample = att.getTimestampFromLastSample();
-                            if (timestampFromLastSample.isAfter(end)) {
-                                return new LinkStatus(true, "ok");
+                        if (att != null) {
+                            JEVisSample latestSample = att.getLatestSample();
+                            if (latestSample != null) {
+                                if (latestSample.getTimestamp().isAfter(end)) {
+                                    return new LinkStatus(true, "ok");
+                                } else {
+                                    return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
+                                }
                             } else {
                                 return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
                             }
@@ -367,7 +378,11 @@ public class ReportLinkProperty implements ReportData {
                 }
             }
         }
-        return new LinkStatus(false, "should not be reachable"); //should not be reachable
+        if (!defaultAttributeProperties.isEmpty()) {
+            return new LinkStatus(true, "No attributes, but there are default attributes, which are not checked for new data.");
+        } else {
+            return new LinkStatus(false, "should not be reachable"); //should not be reachable
+        }
     }
 
 }

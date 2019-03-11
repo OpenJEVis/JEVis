@@ -11,9 +11,8 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
-import org.jevis.jealarm.PeriodService;
-import org.jevis.jealarm.UsagePeriod;
-import org.jevis.jealarm.UsagePeriodType;
+import org.jevis.commons.alarm.UsageSchedule;
+import org.jevis.jealarm.ScheduleService;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
     JEVisAttribute _status;
     boolean _enabled = false;
     JEVisAttribute _log;
-    private List<UsagePeriod> up = new ArrayList<>();
+    private List<UsageSchedule> up = new ArrayList<>();
 
     @Override
     abstract public void checkAlarm() throws JEVisException;
@@ -81,7 +80,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
         for (AlarmData alarm : alarms) {
             Integer logVal = 0;
             if (alarm.isAlarm()) {
-                logVal = PeriodService.getValueForLog(alarm.getTime(), up);
+                logVal = ScheduleService.getValueForLog(alarm.getTime(), up);
             }
 
             try {
@@ -170,12 +169,12 @@ public abstract class LimitAlarm implements ILimitAlarm {
 
     private void initUsageTime() {
 
-        UsagePeriod silentTime = new UsagePeriod(UsagePeriodType.SILENT);
-        silentTime.setPeriod(alarmObj, SILENT_TIME);
-        up.add(silentTime);
-        UsagePeriod standbyTime = new UsagePeriod(UsagePeriodType.STANDBY);
-        standbyTime.setPeriod(alarmObj, STANDBY_TIME);
-        up.add(standbyTime);
+//        UsageSchedule silentTime = new UsageSchedule(UsageScheduleType.SILENT);
+//        silentTime.setPeriod(alarmObj, SILENT_TIME);
+//        up.add(silentTime);
+//        UsageSchedule standbyTime = new UsageSchedule(UsageScheduleType.STANDBY);
+//        standbyTime.setPeriod(alarmObj, STANDBY_TIME);
+//        up.add(standbyTime);
     }
 
 }

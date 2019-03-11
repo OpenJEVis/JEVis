@@ -18,6 +18,7 @@ import java.util.List;
 
 public class ChartDataModel {
     private static final Logger logger = LogManager.getLogger(ChartDataModel.class);
+    private final JEVisDataSource dataSource;
 
     private String title;
     private DateTime selectedStart;
@@ -36,7 +37,8 @@ public class ChartDataModel {
     private Double minValue;
     private Double maxValue;
 
-    public ChartDataModel() {
+    public ChartDataModel(JEVisDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public JEVisUnit getUnit() {
@@ -59,69 +61,66 @@ public class ChartDataModel {
 
     public List<JEVisSample> getSamples() {
         if (somethingChanged) {
+            getAttribute();
+            dataSource.reloadAttribute(attribute);
+
             somethingChanged = false;
 
             setSamples(new ArrayList<>());
 
-            if (getSelectedStart() != null && getSelectedEnd() != null) {
-                if (getSelectedStart().isBefore(getSelectedEnd())) {
-                    try {
+            if (getSelectedStart().isBefore(getSelectedEnd())) {
+                try {
 
-                        object.getDataSource().reloadAttribute(attribute);
+                    SampleGenerator sg;
+                    if (aggregationPeriod.equals(AggregationPeriod.NONE))
+                        sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
+                    else
+                        sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, ManipulationMode.TOTAL, aggregationPeriod);
 
-                        SampleGenerator sg;
-                        if (aggregationPeriod.equals(AggregationPeriod.NONE))
-                            sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
-                        else
-                            sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, ManipulationMode.TOTAL, aggregationPeriod);
+                    samples = sg.generateSamples();
+                    samples = sg.getAggregatedSamples(samples);
+                    samples = factorizeSamples(samples);
 
-                        samples = sg.generateSamples();
-                        samples = sg.getAggregatedSamples(samples);
-                        samples = factorizeSamples(samples);
+                    /**
+                     * Checking for data inconsistencies
+                     */
 
-                        /**
-                         * Checking for data inconsistencies
-                         */
-
-                        if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
-                            Period displaySampleRate = getAttribute().getDisplaySampleRate();
-                            if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
-                                DateTime startTS = samples.get(0).getTimestamp();
-                                while (startTS.isAfter(selectedStart)) {
-                                    startTS = startTS.minus(getAttribute().getDisplaySampleRate());
-                                    if (startTS.isAfter(selectedStart)) {
-                                        JEVisSample smp = new VirtualSample(startTS, 0.0);
-                                        smp.setNote("Empty");
-                                        samples.add(0, smp);
-                                    }
+                    if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
+                        Period displaySampleRate = getAttribute().getDisplaySampleRate();
+                        if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
+                            DateTime startTS = samples.get(0).getTimestamp();
+                            while (startTS.isAfter(selectedStart)) {
+                                startTS = startTS.minus(getAttribute().getDisplaySampleRate());
+                                if (startTS.isAfter(selectedStart)) {
+                                    JEVisSample smp = new VirtualSample(startTS, 0.0);
+                                    smp.setNote("Empty");
+                                    samples.add(0, smp);
                                 }
+                            }
 
-                                DateTime endTS = samples.get(samples.size() - 1).getTimestamp();
-                                while (endTS.isBefore(selectedEnd)) {
-                                    endTS = endTS.plus(getAttribute().getDisplaySampleRate());
-                                    if (endTS.isBefore(selectedEnd)) {
-                                        JEVisSample smp = new VirtualSample(endTS, 0.0);
-                                        smp.setNote("Empty");
-                                        samples.add(smp);
-                                    }
+                            DateTime endTS = samples.get(samples.size() - 1).getTimestamp();
+                            while (endTS.isBefore(selectedEnd)) {
+                                endTS = endTS.plus(getAttribute().getDisplaySampleRate());
+                                if (endTS.isBefore(selectedEnd)) {
+                                    JEVisSample smp = new VirtualSample(endTS, 0.0);
+                                    smp.setNote("Empty");
+                                    samples.add(smp);
                                 }
                             }
                         }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
                     }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                if (getDataProcessor() != null) {
+                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                            getDataProcessor().getName(), getDataProcessor().getID());
                 } else {
-                    if (getDataProcessor() != null) {
-                        logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                                getDataProcessor().getName(), getDataProcessor().getID());
-                    } else {
-                        logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                                getObject().getName(), getObject().getID());
-                    }
+                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                            getObject().getName(), getObject().getID());
                 }
             }
-
-
         }
 
         return samples;

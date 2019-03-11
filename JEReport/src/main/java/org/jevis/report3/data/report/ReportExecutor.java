@@ -63,19 +63,22 @@ public class ReportExecutor {
 
     public void executeReport() {
 
-        if (!precondition.isPreconditionReached(reportObject)) {
-            logger.info("Report date not reached");
-            return;
-        }
-
-        List<ReportData> reportLinks = reportLinkFactory.getReportLinks(reportObject);
         intervalCalculator.buildIntervals(reportObject);
 
         DateTime end = intervalCalculator.getInterval(IntervalCalculator.PeriodMode.CURRENT).getEnd();
 
+        if (!precondition.isPreconditionReached(reportObject)) {
+
+            logger.info("Precondition not reached");
+            finisher.continueWithNextReport(reportObject);
+            return;
+        }
+
+        List<ReportData> reportLinks = reportLinkFactory.getReportLinks(reportObject);
+
         AtomicBoolean isDataAvailable = new AtomicBoolean(true);
         logger.info("Creating report link stati.");
-        reportLinks.parallelStream().forEach(curData -> {
+        reportLinks.forEach(curData -> {
             ReportData.LinkStatus reportLinkStatus = curData.getReportLinkStatus(end);
             if (!reportLinkStatus.isSanityCheck()) {
                 logger.info(reportLinkStatus.getMessage());
@@ -124,9 +127,11 @@ public class ReportExecutor {
                 try {
                     logger.info("Creating pdf file.");
                     File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
+                    wholePdfFile.deleteOnExit();
                     PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
                     pdfFileSplitter.splitPDF();
                     File outFile = pdfFileSplitter.getOutputFile();
+                    outFile.deleteOnExit();
                     fileForNotification = new JEVisFileImp(reportName + ".pdf", outFile);
                 } catch (Exception e) {
                     logger.error("Could not initialize pdf converter. " + e);

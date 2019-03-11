@@ -80,6 +80,7 @@ public class CalcLauncher extends AbstractCliApp {
             forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(object.getID().toString())) {
 
+                    Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
                     runningJobs.put(object.getID().toString(), "true");
 
                     try {

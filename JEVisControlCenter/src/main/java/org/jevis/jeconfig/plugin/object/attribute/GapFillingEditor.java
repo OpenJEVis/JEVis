@@ -77,6 +77,33 @@ public class GapFillingEditor implements AttributeEditor {
     }
 
     /**
+     * Creates an default configuration with two gap filling configs
+     *
+     * @return
+     */
+    public static List<JsonGapFillingConfig> createDefaultConfig() {
+        List<JsonGapFillingConfig> list = new ArrayList<>();
+        JsonGapFillingConfig newConfig1 = new JsonGapFillingConfig();
+        newConfig1.setType(GapFillingType.INTERPOLATION);
+        newConfig1.setBoundary("3600000");
+
+
+        newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
+        list.add(newConfig1);
+
+        JsonGapFillingConfig newConfig2 = new JsonGapFillingConfig();
+        newConfig2.setType(GapFillingType.AVERAGE);
+        newConfig2.setBoundary("2592000000");
+        newConfig2.setBindtospecific(GapFillingBoundToSpecific.WEEKDAY);
+        newConfig2.setReferenceperiodcount("1");
+        newConfig2.setReferenceperiod(GapFillingReferencePeriod.MONTH);
+
+        newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
+        list.add(newConfig2);
+        return list;
+    }
+
+    /**
      * Build main UI
      */
     private void init() {
@@ -137,20 +164,6 @@ public class GapFillingEditor implements AttributeEditor {
     }
 
     @Override
-    public void commit() throws JEVisException {
-        logger.debug("StringValueEditor.commit(): '{}' {} {}", _attribute.getName(), hasChanged(), _newSample);
-
-        hasChanged();
-        if (hasChanged() && _newSample != null) {
-            //TODO: check if type is ok, maybe better at input time
-            _newSample.commit();
-            _lastSample = _newSample;
-            _newSample = null;
-            _changed.setValue(false);
-        }
-    }
-
-    @Override
     public Node getEditor() {
         try {
             init();
@@ -176,31 +189,17 @@ public class GapFillingEditor implements AttributeEditor {
         return _attribute;
     }
 
-    /**
-     * Creates an default configuration with two gap filling configs
-     *
-     * @return
-     */
-    private List<JsonGapFillingConfig> createDefaultConfig() {
-        List<JsonGapFillingConfig> list = new ArrayList<>();
-        JsonGapFillingConfig newConfig1 = new JsonGapFillingConfig();
-        newConfig1.setType(GapFillingType.INTERPOLATION);
-        newConfig1.setBoundary("3600000");
+    @Override
+    public void commit() throws JEVisException {
 
-
-        newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
-        list.add(newConfig1);
-
-        JsonGapFillingConfig newConfig2 = new JsonGapFillingConfig();
-        newConfig2.setType(GapFillingType.AVERAGE);
-        newConfig2.setBoundary("2592000000");
-        newConfig2.setBindtospecific(GapFillingBoundToSpecific.WEEKDAY);
-        newConfig2.setReferenceperiodcount("1");
-        newConfig2.setReferenceperiod(GapFillingReferencePeriod.MONTH);
-
-        newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
-        list.add(newConfig2);
-        return list;
+        if (hasChanged() && _newSample != null) {
+            //TODO: check if type is ok, maybe better at input time
+            logger.debug("Commit: " + _newSample.getValueAsString());
+            _newSample.commit();
+            _lastSample = _newSample;
+            _newSample = null;
+            _changed.setValue(false);
+        }
     }
 
     /**
@@ -257,20 +256,20 @@ public class GapFillingEditor implements AttributeEditor {
 
         dialog.getDialogPane().contentProperty().setValue(tabPane);
 
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.FINISH);
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
 
 
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-
+                            _changed.setValue(true);
                             commit();
                         } catch (JEVisException e) {
-                            e.printStackTrace();
+                            logger.error("Could not write gap config to JEVis System: " + e);
                         }
                     }
                 });

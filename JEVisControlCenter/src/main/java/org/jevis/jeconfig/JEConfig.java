@@ -82,7 +82,7 @@ public class JEConfig extends Application {
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
-    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.6.8");
+    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.6.10");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
@@ -351,10 +351,13 @@ public class JEConfig extends Application {
                 pMan.setMenuBar(menu);
 
                 final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+                final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
                 scene.setOnKeyPressed(ke -> {
                     if (saveCombo.match(ke)) {
                         pMan.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
                         pMan.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
+                    } else if (reloadF5.match(ke)) {
+                        pMan.getSelectedPlugin().handleRequest(Constants.Plugin.Command.RELOAD);
                     }
                 });
 

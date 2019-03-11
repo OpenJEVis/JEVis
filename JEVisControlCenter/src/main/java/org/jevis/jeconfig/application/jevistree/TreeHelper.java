@@ -21,6 +21,7 @@
 package org.jevis.jeconfig.application.jevistree;
 
 import com.sun.javafx.scene.control.skin.VirtualFlow;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -83,7 +84,7 @@ public class TreeHelper {
             alert.setContentText(question);
 
             Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == ButtonType.OK) {
+            if (result.get().equals(ButtonType.OK)) {
                 try {
                     for (TreeItem<JEVisTreeRow> item : items) {
                         item.getValue().getJEVisObject().getDataSource().deleteObject(item.getValue().getJEVisObject().getID());
@@ -102,7 +103,6 @@ public class TreeHelper {
                 // ... user chose CANCEL or closed the dialog
             }
         }
-        System.out.println("Done delete");
     }
 
     public static void openPath(JEVisTree tree, List<JEVisObject> toOpen, TreeItem<JEVisTreeRow> root, JEVisObject target) {
@@ -265,8 +265,20 @@ public class TreeHelper {
         }
     }
 
-    public static void EventReload(JEVisObject object) {
+    public static void EventReload(JEVisObject object, JEVisTreeItem jeVisTreeItem) {
+        /**
+         * TODO make reload function for object tree
+         */
 
+        try {
+            object.getDataSource().reloadObject(object);
+            Platform.runLater(() -> {
+                JEVisTreeRow sobj = new JEVisTreeRow(object);
+                jeVisTreeItem.setValue(sobj);
+            });
+        } catch (JEVisException e) {
+            logger.error("Could not reload object.");
+        }
     }
 
 

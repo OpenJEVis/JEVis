@@ -15,6 +15,23 @@
   ],
   "types": [
     {
+      "name": "City",
+      "primitiveType": 0,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Height Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
       "name": "Atmospheric Pressure Target",
       "primitiveType": 0,
       "guiType": "Object Target",
@@ -24,8 +41,27 @@
       "jevisClass": "DWD Data Point"
     },
     {
-      "name": "City",
+      "name": "Temperature Target",
       "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Temperature Min Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Temperature Max Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
@@ -50,7 +86,16 @@
       "jevisClass": "DWD Data Point"
     },
     {
-      "name": "Temperature Target",
+      "name": "Precipitation12 Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Snow Height Target",
       "primitiveType": 0,
       "guiType": "Object Target",
       "GUIPosition": 0,
@@ -60,6 +105,42 @@
     },
     {
       "name": "Wind Speed Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Wind Peaks Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Wind Direction Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Climate and Clouds Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Data Point"
+    },
+    {
+      "name": "Squall Target",
       "primitiveType": 0,
       "guiType": "Object Target",
       "GUIPosition": 0,

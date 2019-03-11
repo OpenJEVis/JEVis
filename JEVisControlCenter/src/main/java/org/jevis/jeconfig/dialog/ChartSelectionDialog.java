@@ -20,8 +20,6 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -32,12 +30,13 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -46,7 +45,9 @@ import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPlugin;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.NumberSpinner;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +56,7 @@ import java.util.List;
  */
 public class ChartSelectionDialog {
 
+    private static final Logger logger = LogManager.getLogger(ChartSelectionDialog.class);
     private final JEVisDataSource _ds;
     private Response _response = Response.CANCEL;
     private GraphDataModel data;
@@ -63,6 +65,7 @@ public class ChartSelectionDialog {
     private JEVisTree tree;
     //    private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private ChartPlugin chartPlugin = null;
+    private Long defaultChartsPerScreen;
 
     /**
      * @param ds
@@ -100,41 +103,70 @@ public class ChartSelectionDialog {
         stage.setHeight(768);
         stage.setResizable(true);
 
-        TabPane tabpane = new TabPane();
+        TabPane mainTabPane = new TabPane();
+        VBox.setVgrow(mainTabPane, Priority.ALWAYS);
 
         Tab tabConfiguration = new Tab(I18n.getInstance().getString("graph.tabs.configuration"));
         tabConfiguration.closableProperty().setValue(false);
 
-        VBox root = new VBox();
+        VBox selectionBox = new VBox();
 
         String ICON = "1404313956_evolution-tasks.png";
         Node headerNode = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("graph.selection.header"));
 
-        Separator sep = new Separator(Orientation.HORIZONTAL);
-
-        AnchorPane treePane = new AnchorPane();
-
-
         for (TreePlugin plugin : tree.getPlugins()) {
             if (plugin instanceof ChartPlugin) {
                 chartPlugin = (ChartPlugin) plugin;
-                if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
-                    //chartPlugin.setData(data);
-                }
+//                if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
+                //chartPlugin.setData(data);
+//                }
             }
         }
 
+        selectionBox.getChildren().setAll(headerNode, tree);
+        VBox.setVgrow(tree, Priority.ALWAYS);
 
-        treePane.getChildren().setAll(tree);
-        AnchorPane.setTopAnchor(tree, 0d);
-        AnchorPane.setRightAnchor(tree, 0d);
-        AnchorPane.setBottomAnchor(tree, 0d);
-        AnchorPane.setLeftAnchor(tree, 0d);
+        tabConfiguration.setContent(selectionBox);
+
+        Tab tabChartsSettings = new Tab(I18n.getInstance().getString("graph.tabs.charts"));
+        tabChartsSettings.closableProperty().setValue(false);
+
+        VBox vBoxAdvancedSettings = new VBox();
+
+        TabPane tabPaneCharts = new TabPane();
+        VBox.setVgrow(tabPaneCharts, Priority.ALWAYS);
+
+//        chartsList = data.getChartsList();chartPlugin
+
+        tabPaneCharts.getTabs().add(getCommonTab());
+
+        for (ChartSettings settings : data.getCharts()) {
+            tabPaneCharts.getTabs().add(createChartTab(settings));
+        }
+
+        vBoxAdvancedSettings.getChildren().add(tabPaneCharts);
+        tabChartsSettings.setContent(vBoxAdvancedSettings);
+
+        mainTabPane.getTabs().addAll(tabConfiguration, tabChartsSettings);
+
+        VBox root = new VBox();
+
+        Separator sep = new Separator(Orientation.HORIZONTAL);
+        VBox.setVgrow(sep, Priority.NEVER);
 
         HBox buttonBox = new HBox(10);
+        VBox.setVgrow(buttonBox, Priority.NEVER);
+
         Region spacer = new Region();
         Button ok = new Button(I18n.getInstance().getString("graph.selection.load"));
         Button removeAllSelections = new Button(I18n.getInstance().getString("graph.selection.removeselections"));
+
+        removeAllSelections.setOnAction(event -> {
+            try {
+                chartPlugin.selectNone();
+            } catch (Exception ignored) {
+            }
+        });
 
         ok.setDefaultButton(true);
 
@@ -143,55 +175,12 @@ public class ChartSelectionDialog {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setMargin(removeAllSelections, new Insets(10));
         HBox.setMargin(ok, new Insets(10));
+
         buttonBox.getChildren().setAll(tree.getSearchFilterBar(), spacer, removeAllSelections, ok);
-        root.getChildren().setAll(headerNode, treePane, sep, buttonBox);
 
-        VBox.setVgrow(treePane, Priority.ALWAYS);
-        VBox.setVgrow(sep, Priority.NEVER);
-        VBox.setVgrow(buttonBox, Priority.NEVER);
+        root.getChildren().addAll(mainTabPane, sep, buttonBox);
 
-
-        removeAllSelections.setOnAction(event -> {
-            try {
-                chartPlugin.selectNone();
-            } catch (Exception ex) {
-            }
-        });
-
-        tabConfiguration.setContent(root);
-
-        Tab tabChartsSettings = new Tab(I18n.getInstance().getString("graph.tabs.charts"));
-        tabChartsSettings.closableProperty().setValue(false);
-        tabChartsSettings.setDisable(true);
-
-        VBox vboxCharts = new VBox();
-
-        TabPane tabPaneCharts = new TabPane();
-
-//        chartsList = data.getChartsList();chartPlugin
-        for (ChartSettings cset : chartPlugin.getData().getCharts()) {
-            tabPaneCharts.getTabs().add(getChartTab(cset));
-        }
-
-
-        //Disabled, for finding bugs
-//        chartPlugin.getData().getChartsList().addListener((ListChangeListener<? super String>) c -> {
-//            while (c.next()) {
-//                if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
-//                    tabPaneCharts.getTabs().clear();
-//                    for (String s : chartPlugin.getData().getChartsList()) {
-//                        tabPaneCharts.getTabs().add(getChartTab(s));
-//                    }
-//                }
-//            }
-//        });
-
-        vboxCharts.getChildren().add(tabPaneCharts);
-        tabChartsSettings.setContent(vboxCharts);
-
-        tabpane.getTabs().addAll(tabConfiguration, tabChartsSettings);
-
-        Scene scene = new Scene(tabpane);
+        Scene scene = new Scene(root);
         stage.setScene(scene);
 
         if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
@@ -215,6 +204,7 @@ public class ChartSelectionDialog {
 
         ok.setOnAction(event -> {
             tree.setUserSelectionEnded();
+            tree = null;
 
             _response = Response.OK;
 
@@ -226,6 +216,36 @@ public class ChartSelectionDialog {
         stage.showAndWait();
 
         return _response;
+    }
+
+    private Tab getCommonTab() {
+        Tab commonTab = new Tab(I18n.getInstance().getString("graph.tabs.tab.common"));
+        commonTab.setClosable(false);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(5);
+
+        Label labelChartsPerScreen = new Label(I18n.getInstance().getString("graph.tabs.tab.chartsperscreen"));
+
+        Long numberOfChartsPerScreen = data.getChartsPerScreen();
+        if (numberOfChartsPerScreen == null || numberOfChartsPerScreen.equals(0L)) {
+            numberOfChartsPerScreen = getDefaultChartsPerScreen();
+            data.setChartsPerScreen(numberOfChartsPerScreen);
+        }
+
+        NumberSpinner chartsPerScreen = new NumberSpinner(new BigDecimal(numberOfChartsPerScreen), new BigDecimal(1));
+
+        chartsPerScreen.numberProperty().addListener((observable, oldValue, newValue) -> data.setChartsPerScreen(newValue.longValue()));
+
+        int row = 0;
+        gridPane.add(labelChartsPerScreen, 0, row);
+        gridPane.add(chartsPerScreen, 1, row);
+        row++;
+
+        commonTab.setContent(gridPane);
+        return commonTab;
     }
 
     private void openFirstDataDir() {
@@ -242,36 +262,32 @@ public class ChartSelectionDialog {
         if (!listUS.isEmpty()) tree.openUserSelection(listUS);
     }
 
-    private Tab getChartTab(ChartSettings cset) {
-        Tab newTab = new Tab(cset.getName());
+    private Tab createChartTab(ChartSettings cset) {
+        Tab newTab = new Tab(cset.getId().toString());
         newTab.setClosable(false);
 
-        GridPane gp = new GridPane();
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(5);
 
         Label labelName = new Label(I18n.getInstance().getString("graph.tabs.tab.name"));
-        TextField textFieldName = new TextField();
-        textFieldName.setText(cset.getName());
-
-        textFieldName.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue == null || newValue != oldValue) {
-                for (ChartSettings c : data.getCharts()) {
-                    if (c.getName().contains(cset.getName())) c.setName(newValue);
-                }
-            }
-        });
+        ChartNameTextField chartNameTextField = new ChartNameTextField(cset);
 
         Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
 
-        ObservableList<String> listChartTypes = FXCollections.observableArrayList();
-        ComboBox<String> boxChartType = new ComboBox<>(listChartTypes);
+        ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
 
-        gp.add(labelName, 0, 1);
-        gp.add(textFieldName, 1, 1);
+        int row = 0;
+        gridPane.add(labelName, 0, row);
+        gridPane.add(chartNameTextField, 1, row);
+        row++;
 
-        gp.add(labelChartType, 0, 3);
-        gp.add(boxChartType, 1, 3);
+        gridPane.add(labelChartType, 0, row);
+        gridPane.add(chartTypeComboBox, 1, row);
+        row++;
 
-        newTab.setContent(gp);
+        newTab.setContent(gridPane);
 
         return newTab;
     }
@@ -289,4 +305,25 @@ public class ChartSelectionDialog {
         return chartPlugin;
     }
 
+    public Long getDefaultChartsPerScreen() {
+        if (defaultChartsPerScreen == null) {
+            try {
+                JEVisClass graphPluginClass = _ds.getJEVisClass("Graph Plugin");
+                List<JEVisObject> graphPlugins = _ds.getObjects(graphPluginClass, true);
+                if (!graphPlugins.isEmpty()) {
+                    JEVisAttribute chartsPerScreenAttribute = graphPlugins.get(0).getAttribute("Number of Charts per Screen");
+                    if (chartsPerScreenAttribute != null) {
+                        JEVisSample latestSample = chartsPerScreenAttribute.getLatestSample();
+                        if (latestSample != null) {
+                            defaultChartsPerScreen = Long.parseLong(latestSample.getValueAsString());
+                        }
+                    }
+                }
+            } catch (JEVisException e) {
+                logger.error("Could not get JEVisClass for Graph Plugin");
+            }
+        }
+        if (defaultChartsPerScreen == null || defaultChartsPerScreen.equals(0L)) defaultChartsPerScreen = 2L;
+        return defaultChartsPerScreen;
+    }
 }

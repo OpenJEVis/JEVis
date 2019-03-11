@@ -102,7 +102,7 @@ public class NewObjectUnderDialog {
         HBox buttonPanel = new HBox(8);
         VBox content = new VBox();
 
-        tree = JEVisTreeFactory.buildBasicDefault(ds);
+        tree = JEVisTreeFactory.buildBasicDefault(ds, false);
         if (mode == MODE.ATTRIBUTE) {
 //            tree.getFilter().showAttributes(true);
         }

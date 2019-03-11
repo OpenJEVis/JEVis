@@ -5,6 +5,9 @@
  */
 package org.jevis.report3.data.report.periodic;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -18,6 +21,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,6 +31,7 @@ import java.util.Objects;
 public class PeriodPrecondition implements Precondition {
 
     private final SampleHandler samplesHandler;
+    private static final Logger logger = LogManager.getLogger(PeriodPrecondition.class);
 
     @Inject
     public PeriodPrecondition(SampleHandler samplesHandler) {
@@ -57,12 +62,15 @@ public class PeriodPrecondition implements Precondition {
 
             EventPrecondition.EventOperator eventOperator = EventPrecondition.EventOperator.getEventOperator(operator);
 
-            List<JEVisSample> samplesInPeriod = null;
+            List<JEVisSample> samplesInPeriod = new ArrayList<>();
             try {
-                samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, new DateTime());
+                JEVisDataSource ds = reportObject.getDataSource();
+                samplesInPeriod = samplesHandler.getSamplesInPeriod(ds.getObject(jevisId), attributeName, startRecord, endRecord);
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Could not get samples in interval");
             }
+
+            if (samplesInPeriod.isEmpty()) isFulfilled = true;
 
             for (JEVisSample sample : Objects.requireNonNull(samplesInPeriod)) {
 

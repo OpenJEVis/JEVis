@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.alarm.AlarmConfiguration;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
@@ -46,28 +47,32 @@ public class Launcher extends AbstractCliApp {
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
         processes.parallelStream().forEach(alarmConfiguration -> {
-            forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(alarmConfiguration.getId().toString())) {
+            forkJoinPool.submit(new Runnable() {
 
-                    runningJobs.put(alarmConfiguration.getId().toString(), "true");
+                @Override
+                public void run() {
+                    if (!runningJobs.containsKey(alarmConfiguration.getId().toString())) {
+                        Thread.currentThread().setName(alarmConfiguration.getName() + ":" + alarmConfiguration.getId().toString());
+                        runningJobs.put(alarmConfiguration.getId().toString(), "true");
 
-                    try {
-                        LogTaskManager.getInstance().buildNewTask(alarmConfiguration.getId(), alarmConfiguration.getName());
-                        LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).setStatus(Task.Status.STARTED);
+                        try {
+                            LogTaskManager.getInstance().buildNewTask(alarmConfiguration.getId(), alarmConfiguration.getName());
+                            LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).setStatus(Task.Status.STARTED);
 
-                        AlarmProcess currentProcess = new AlarmProcess(alarmConfiguration);
-                        currentProcess.start();
-                    } catch (Exception ex) {
-                        logger.debug(ex);
-                        logger.error(LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).getException());
-                        LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).setStatus(Task.Status.FAILED);
+                            AlarmProcess currentProcess = new AlarmProcess(alarmConfiguration);
+                            currentProcess.start();
+                        } catch (Exception ex) {
+                            logger.debug(ex);
+                            logger.error(LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).getException());
+                            LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).setStatus(Task.Status.FAILED);
+                        }
+
+                        LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).setStatus(Task.Status.FINISHED);
+                        runningJobs.remove(alarmConfiguration.getId().toString());
+
+                    } else {
+                        logger.error("Still processing Job " + alarmConfiguration.getName() + ":" + alarmConfiguration.getId());
                     }
-
-                    LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(alarmConfiguration.getId().toString());
-
-                } else {
-                    logger.error("Still processing Job " + alarmConfiguration.getName() + ":" + alarmConfiguration.getId());
                 }
             });
         });
@@ -90,8 +95,9 @@ public class Launcher extends AbstractCliApp {
     protected void runSingle(Long id) {
 
         try {
-            //ProcessManager currentProcess = new ProcessManager(ds.getObject(id), new ObjectHandler(ds));
-            //currentProcess.start();
+            AlarmConfiguration ac = new AlarmConfiguration(ds, ds.getObject(id));
+            AlarmProcess ap = new AlarmProcess(ac);
+            ap.start();
         } catch (Exception e) {
             e.printStackTrace();
         }

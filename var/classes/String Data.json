@@ -1,0 +1,23 @@
+{
+  "name": "String Data",
+  "description": "The class String Data represents a container for a series of string values.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "String Data",
+      "end": "Data Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Value",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data"
+    }
+  ]
+}

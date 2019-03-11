@@ -46,6 +46,16 @@ public class GraphDataModel {
     //public class GraphDataModel extends Observable {
 
     private static final Logger logger = LogManager.getLogger(GraphDataModel.class);
+    public static final String CHARTS_ATTRIBUTE_NAME = "Charts";
+    public static final String NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME = "Number of Charts per Screen";
+    public static final String WORKDAY_BEGINNING_ATTRIBUTE_NAME = "Workday Beginning";
+    public static final String WORKDAY_END_ATTRIBUTE_NAME = "Workday End";
+    public static final String ANALYSES_DIRECTORY_CLASS_NAME = "Analyses Directory";
+    public static final String BUILDING_CLASS_NAME = "Building";
+    public static final String ANALYSIS_CLASS_NAME = "Analysis";
+    public static final String ORGANIZATION_CLASS_NAME = "Organization";
+    public static final String DATA_MODEL_ATTRIBUTE_NAME = "Data Model";
+    public static final String GRAPH_PLUGIN_CLASS_NAME = "Graph Plugin";
     private final GraphPluginView graphPluginView;
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private List<ChartSettings> charts = new ArrayList<>();
@@ -61,6 +71,7 @@ public class GraphDataModel {
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis = null;
     private Boolean multipleDirectories = false;
+    private Long chartsPerScreen = 2L;
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
@@ -135,7 +146,7 @@ public class GraphDataModel {
             Map<String, ChartDataModel> data = new HashMap<>();
 
             for (JsonAnalysisDataRow mdl : jsonChartDataModel.getListAnalyses()) {
-                ChartDataModel newData = new ChartDataModel();
+                ChartDataModel newData = new ChartDataModel(ds);
 
                 try {
                     Long id = Long.parseLong(mdl.getObject());
@@ -200,10 +211,10 @@ public class GraphDataModel {
         if (charts == null || charts.isEmpty()) {
             try {
                 if (getCurrentAnalysis() != null) {
-                    if (Objects.nonNull(getCurrentAnalysis().getAttribute("Charts"))) {
+                    if (Objects.nonNull(getCurrentAnalysis().getAttribute(CHARTS_ATTRIBUTE_NAME))) {
 //                        ds.reloadAttribute(getCurrentAnalysis().getAttribute("Charts"));
-                        if (getCurrentAnalysis().getAttribute("Charts").hasSample()) {
-                            String str = getCurrentAnalysis().getAttribute("Charts").getLatestSample().getValueAsString();
+                        if (getCurrentAnalysis().getAttribute(CHARTS_ATTRIBUTE_NAME).hasSample()) {
+                            String str = getCurrentAnalysis().getAttribute(CHARTS_ATTRIBUTE_NAME).getLatestSample().getValueAsString();
                             try {
                                 if (str.startsWith("[")) {
                                     listChartsSettings = new Gson().fromJson(str, new TypeToken<List<JsonChartSettings>>() {
@@ -218,6 +229,25 @@ public class GraphDataModel {
                             }
                         }
                     }
+                    if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME))) {
+                        JEVisSample chartPerScreenSample = getCurrentAnalysis().getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME).getLatestSample();
+                        if (chartPerScreenSample != null) {
+                            setChartsPerScreen(chartPerScreenSample.getValueAsLong());
+                        } else {
+                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
+                            for (JEVisObject graphPlugin : graphServiceList) {
+                                JEVisAttribute chartsPerScreenAttribute = graphPlugin.getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME);
+                                if (chartsPerScreenAttribute != null) {
+                                    JEVisSample lastSample = chartsPerScreenAttribute.getLatestSample();
+                                    if (lastSample != null) {
+                                        setChartsPerScreen(lastSample.getValueAsLong());
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     WorkDays wd = new WorkDays(getCurrentAnalysis());
                     if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
                     if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
@@ -232,15 +262,19 @@ public class GraphDataModel {
                 boolean needsIds = false;
                 for (JsonChartSettings settings : listChartsSettings) {
                     ChartSettings newSettings = new ChartSettings("");
-                    if (settings.getId() != null)
+                    if (settings.getId() != null) {
                         newSettings.setId(Integer.parseInt(settings.getId()));
-                    else needsIds = true;
+                    } else {
+                        needsIds = true;
+                    }
 
                     newSettings.setName(settings.getName());
                     newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
 
-                    if (settings.getHeight() != null)
+                    if (settings.getHeight() != null) {
                         newSettings.setHeight(Double.parseDouble(settings.getHeight()));
+                    }
+
                     chartSettings.add(newSettings);
                 }
 
@@ -292,7 +326,9 @@ public class GraphDataModel {
     public void setAutoResize(Boolean resize) {
         this.autoResize = resize;
 
-        update();
+        if (autoResize.equals(Boolean.TRUE)) {
+            update();
+        }
     }
 
     public boolean containsId(Long id) {
@@ -541,8 +577,8 @@ public class GraphDataModel {
             LocalTime start = null;
             LocalTime end = null;
             try {
-                JEVisAttribute attStart = site.getAttribute("Workday Beginning");
-                JEVisAttribute attEnd = site.getAttribute("Workday End");
+                JEVisAttribute attStart = site.getAttribute(WORKDAY_BEGINNING_ATTRIBUTE_NAME);
+                JEVisAttribute attEnd = site.getAttribute(WORKDAY_END_ATTRIBUTE_NAME);
                 if (attStart.hasSample()) {
                     String startStr = attStart.getLatestSample().getValueAsString();
                     DateTime dtStart = DateTime.parse(startStr);
@@ -569,7 +605,7 @@ public class GraphDataModel {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
 
         try {
-            JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
+            JEVisClass analysesDirectory = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
             listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
 
             if (listAnalysesDirectories.size() > 1) {
@@ -581,11 +617,11 @@ public class GraphDataModel {
         if (listAnalysesDirectories.isEmpty()) {
             List<JEVisObject> listBuildings = new ArrayList<>();
             try {
-                JEVisClass building = ds.getJEVisClass("Building");
+                JEVisClass building = ds.getJEVisClass(BUILDING_CLASS_NAME);
                 listBuildings = ds.getObjects(building, false);
 
                 if (!listBuildings.isEmpty()) {
-                    JEVisClass analysesDirectory = ds.getJEVisClass("Analyses Directory");
+                    JEVisClass analysesDirectory = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
                     JEVisObject analysesDir = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.graph.analysesdir.defaultname"), analysesDirectory);
                     analysesDir.commit();
                 }
@@ -596,7 +632,7 @@ public class GraphDataModel {
         }
         try {
             observableListAnalyses.clear();
-            observableListAnalyses.addAll(ds.getObjects(ds.getJEVisClass("Analysis"), false));
+            observableListAnalyses.addAll(ds.getObjects(ds.getJEVisClass(ANALYSIS_CLASS_NAME), false));
 
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis", e);
@@ -612,8 +648,8 @@ public class GraphDataModel {
 
                 try {
                     JEVisObject secondParent1 = o1.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = ds.getJEVisClass("Building");
-                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                    JEVisClass buildingClass = ds.getJEVisClass(BUILDING_CLASS_NAME);
+                    JEVisClass organisationClass = ds.getJEVisClass(ORGANIZATION_CLASS_NAME);
 
                     if (secondParent1.getJEVisClass().equals(buildingClass)) {
                         try {
@@ -639,8 +675,8 @@ public class GraphDataModel {
 
                 try {
                     JEVisObject secondParent2 = o2.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = ds.getJEVisClass("Building");
-                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
+                    JEVisClass buildingClass = ds.getJEVisClass(BUILDING_CLASS_NAME);
+                    JEVisClass organisationClass = ds.getJEVisClass(ORGANIZATION_CLASS_NAME);
 
                     if (secondParent2.getJEVisClass().equals(buildingClass)) {
                         try {
@@ -679,10 +715,10 @@ public class GraphDataModel {
                 updateCharts();
             }
             if (getCurrentAnalysis() != null) {
-                if (Objects.nonNull(getCurrentAnalysis().getAttribute("Data Model"))) {
+                if (Objects.nonNull(getCurrentAnalysis().getAttribute(DATA_MODEL_ATTRIBUTE_NAME))) {
 //                    ds.reloadAttribute(getCurrentAnalysis().getAttribute("Data Model"));
-                    if (getCurrentAnalysis().getAttribute("Data Model").hasSample()) {
-                        String str = getCurrentAnalysis().getAttribute("Data Model").getLatestSample().getValueAsString();
+                    if (getCurrentAnalysis().getAttribute(DATA_MODEL_ATTRIBUTE_NAME).hasSample()) {
+                        String str = getCurrentAnalysis().getAttribute(DATA_MODEL_ATTRIBUTE_NAME).getLatestSample().getValueAsString();
                         try {
                             if (str.startsWith("[")) {
                                 tempModel = new JsonChartDataModel();
@@ -739,7 +775,7 @@ public class GraphDataModel {
         this.currentAnalysis = currentAnalysis;
 
         try {
-            ds.reloadAttribute(currentAnalysis.getAttribute("Data Model"));
+            ds.reloadAttribute(currentAnalysis.getAttribute(DATA_MODEL_ATTRIBUTE_NAME));
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -817,5 +853,13 @@ public class GraphDataModel {
 
     public Boolean getMultipleDirectories() {
         return multipleDirectories;
+    }
+
+    public Long getChartsPerScreen() {
+        return chartsPerScreen;
+    }
+
+    public void setChartsPerScreen(Long chartsPerScreen) {
+        this.chartsPerScreen = chartsPerScreen;
     }
 }

@@ -78,6 +78,26 @@ public class LimitEditor implements AttributeEditor {
     }
 
     /**
+     * Creates an default configuration with two gap filling configs
+     *
+     * @return
+     */
+    public static List<JsonLimitsConfig> createDefaultConfig() {
+        List<JsonLimitsConfig> list = new ArrayList<>();
+
+        JsonLimitsConfig newConfig1 = new JsonLimitsConfig();
+
+        newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
+        list.add(newConfig1);
+
+        JsonLimitsConfig newConfig2 = new JsonLimitsConfig();
+
+        newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
+        list.add(newConfig2);
+        return list;
+    }
+
+    /**
      * Build main UI
      */
     private void init() {
@@ -138,21 +158,6 @@ public class LimitEditor implements AttributeEditor {
     }
 
     @Override
-    public void commit() throws JEVisException {
-        logger.debug("LimitEdior.commit(): '{}' {} {}", _attribute.getName(), hasChanged(), _newSample);
-
-        if (hasChanged() && delete) {
-            _attribute.deleteAllSample();
-        } else if (hasChanged() && _newSample != null) {
-            //TODO: check if tpye is ok, maybe better at imput time
-            _newSample.commit();
-            _lastSample = _newSample;
-            _newSample = null;
-            _changed.setValue(false);
-        }
-    }
-
-    @Override
     public Node getEditor() {
         try {
             init();
@@ -178,24 +183,17 @@ public class LimitEditor implements AttributeEditor {
         return _attribute;
     }
 
-    /**
-     * Creates an default configuration with two gap filling configs
-     *
-     * @return
-     */
-    private List<JsonLimitsConfig> createDefaultConfig() {
-        List<JsonLimitsConfig> list = new ArrayList<>();
+    @Override
+    public void commit() throws JEVisException {
 
-        JsonLimitsConfig newConfig1 = new JsonLimitsConfig();
-
-        newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
-        list.add(newConfig1);
-
-        JsonLimitsConfig newConfig2 = new JsonLimitsConfig();
-
-        newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
-        list.add(newConfig2);
-        return list;
+        if (hasChanged() && _newSample != null) {
+            //TODO: check if tpye is ok, maybe better at imput time
+            logger.debug("Commit: " + _newSample.getValueAsString());
+            _newSample.commit();
+            _lastSample = _newSample;
+            _newSample = null;
+            _changed.setValue(false);
+        }
     }
 
     /**
@@ -254,21 +252,20 @@ public class LimitEditor implements AttributeEditor {
 
         dialog.getDialogPane().contentProperty().setValue(tabPane);
 
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.FINISH);
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
 
 
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                            commit();
-                            logger.info("Commit: " + _newSample.getValueAsString());
                             _changed.setValue(true);
+                            commit();
                         } catch (JEVisException e) {
-                            e.printStackTrace();
+                            logger.error("Could not write limit config to JEVis System: " + e);
                         }
                     }
                 });

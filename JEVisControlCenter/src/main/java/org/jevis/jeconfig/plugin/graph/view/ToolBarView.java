@@ -25,11 +25,14 @@ import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.json.JsonChartTimeFrame;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
@@ -71,6 +74,7 @@ public class ToolBarView {
     private ToggleButton autoResize;
     private ToggleButton select;
     private ToggleButton disableIcons;
+    private ToggleButton zoomOut;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
@@ -155,11 +159,11 @@ public class ToolBarView {
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
-        reload.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                setTimer();
-            }
-        });
+        reload.selectedProperty().addListener((observable, oldValue, newValue) -> graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD));
+
+        /**
+         * TODO timer button from dashboard
+         */
 
         exportCSV.setOnAction(action -> {
             GraphExportCSV ge = new GraphExportCSV(ds, model);
@@ -210,6 +214,7 @@ public class ToolBarView {
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
         Separator sep3 = new Separator();
+        Separator sep4 = new Separator();
         save.setDisable(false);
         delete.setDisable(false);
 
@@ -247,6 +252,14 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
+
+        zoomOut = new ToggleButton("", JEConfig.getImage("zoom-out-thin-finger-thump-black.png", iconSize, iconSize));
+        Tooltip zoomOutTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
+        zoomOut.setTooltip(zoomOutTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
+
+        zoomOut.setOnAction(event -> resetZoom());
+
         select.setOnAction(event -> changeSettings());
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
@@ -260,11 +273,19 @@ public class ToolBarView {
         /**
          * addSeriesRunningMean disabled for now
          */
-        toolBar.getItems().addAll(labelComboBox, listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, exportImage, sep3, disableIcons, autoResize, reload);
+        toolBar.getItems().addAll(listAnalysesComboBox, sep1, loadNew, save, delete, sep2, select, exportCSV, exportImage, sep3, disableIcons, autoResize, reload, sep4, zoomOut);
         setDisableToolBarIcons(true);
         _initialized = true;
 
         return toolBar;
+    }
+
+    private void resetZoom() {
+        graphPluginView.getCharts().forEach(chartView -> {
+            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+            DateValueAxis dateValueAxis = (DateValueAxis) chart.getXAxis();
+            dateValueAxis.setAutoRanging(true);
+        });
     }
 
     private void setTimer() {
@@ -309,6 +330,11 @@ public class ToolBarView {
                                         ds.reloadAttributes();
                                     } catch (JEVisException e) {
                                         logger.error(e);
+                                    }
+                                    if (!model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
+                                            || !model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
+                                        AnalysisTimeFrame oldTimeframe = model.getAnalysisTimeFrame();
+                                        model.setAnalysisTimeFrame(oldTimeframe);
                                     }
                                     select(currentAnalysis);
                                 });
@@ -633,13 +659,17 @@ public class ToolBarView {
         reallyDelete.showAndWait().ifPresent(response -> {
             if (response.getButtonData().getTypeCode() == ButtonType.YES.getButtonData().getTypeCode()) {
                 try {
-                    ds.deleteObject(model.getCurrentAnalysis().getID());
+                    if (ds.getCurrentUser().canDelete(model.getCurrentAnalysis().getID())) {
+                        ds.deleteObject(model.getCurrentAnalysis().getID());
+                        model.updateListAnalyses();
+                        listAnalysesComboBox.getSelectionModel().selectFirst();
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.dialog.delete.error"), cancel);
+                        alert.showAndWait();
+                    }
                 } catch (JEVisException e) {
                     logger.error("Error: could not delete current analysis", e);
                 }
-
-                model.updateListAnalyses();
-                listAnalysesComboBox.getSelectionModel().selectFirst();
             }
         });
 
@@ -710,8 +740,9 @@ public class ToolBarView {
             StringBuilder sb = new StringBuilder();
             if (listString.size() > 1) {
                 for (Integer i : listString) {
+                    int index = listString.indexOf(i);
                     sb.append(i.toString());
-                    sb.append(", ");
+                    if (index < listString.size() - 1) sb.append(", ");
                 }
             } else if (listString.size() == 1) sb.append(listString.get(0));
             return sb.toString();
@@ -740,6 +771,7 @@ public class ToolBarView {
         autoResize.setDisable(bool);
         select.setDisable(bool);
         disableIcons.setDisable(bool);
+        zoomOut.setDisable(bool);
     }
 
     public BorderPane getBorderPane() {

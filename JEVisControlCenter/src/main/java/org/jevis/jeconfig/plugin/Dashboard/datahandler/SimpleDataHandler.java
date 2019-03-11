@@ -181,7 +181,7 @@ public class SimpleDataHandler extends SampleHandler {
         AnchorPane anchorPane = new AnchorPane();
 
 
-        JEVisTree tree = JEVisTreeFactory.buildBasicDefault(getDataSource());
+        JEVisTree tree = JEVisTreeFactory.buildBasicDefault(getDataSource(), false);
         tree.getPlugins().add(simpleTargetPlugin);
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         simpleTargetPlugin.setAllowMultiSelection(enableMultiSelect.getValue());

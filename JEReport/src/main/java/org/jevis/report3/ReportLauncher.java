@@ -67,7 +67,7 @@ public class ReportLauncher extends AbstractCliApp {
         reportObjects.parallelStream().forEach(reportObject -> {
             forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(reportObject.getID().toString())) {
-
+                    Thread.currentThread().setName(reportObject.getName() + ":" + reportObject.getID().toString());
                     runningJobs.put(reportObject.getID().toString(), "true");
 
                     LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());
@@ -85,7 +85,9 @@ public class ReportLauncher extends AbstractCliApp {
                         ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
 
                         try {
-                            executor.executeReport();
+                            if (executor != null) {
+                                executor.executeReport();
+                            }
                         } catch (Exception e) {
                             logger.error(e);
                             LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
@@ -121,17 +123,20 @@ public class ReportLauncher extends AbstractCliApp {
     @Override
     protected void runSingle(Long id) {
         logger.info("Start Single Mode");
+        JEVisObject reportObject = null;
 
         try {
             logger.info("Try adding Single Mode for ID " + id);
-            JEVisObject reportObject = ds.getObject(id);
+            reportObject = ds.getObject(id);
+        } catch (Exception ex) {
+            logger.error("Could not find Object with id: " + id);
+        }
 
+        if (reportObject != null) {
             ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
             Objects.requireNonNull(executor).executeReport();
-
-        } catch (Exception ex) {
-            logger.error(ex);
         }
+
     }
 
     @Override

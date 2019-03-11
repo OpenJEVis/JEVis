@@ -7,6 +7,8 @@ import javafx.scene.paint.Color;
 import org.jevis.api.*;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
+import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -175,4 +177,8 @@ public interface Chart {
     void setHideShowIcons(Boolean hideShowIcons);
 
     void setChartSettings(ChartSettingsFunction function);
+
+    ChartPanManager getPanner();
+
+    JFXChartUtil getJfxChartUtil();
 }

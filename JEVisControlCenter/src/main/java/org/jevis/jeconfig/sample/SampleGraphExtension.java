@@ -23,6 +23,8 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -37,7 +39,7 @@ import java.util.List;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SampleGraphExtension implements SampleEditorExtension {
-
+    private static final Logger logger = LogManager.getLogger(SampleGraphExtension.class);
     private final static String TITLE = "Graph";
     private final BorderPane _view = new BorderPane();
     private JEVisAttribute _att;
@@ -53,33 +55,40 @@ public class SampleGraphExtension implements SampleEditorExtension {
         BorderPane bp = new BorderPane();
         bp.setStyle("-fx-background-color: transparent");
 
-        ChartDataModel chartDataModel = new ChartDataModel();
-
+        ChartDataModel chartDataModel = null;
         try {
-            if (obj.getObject().getJEVisClassName().equals("Data")) chartDataModel.setObject(obj.getObject());
-            else if (obj.getObject().getJEVisClassName().equals("Clean Data")) {
-                chartDataModel.setDataProcessor(obj.getObject());
-                chartDataModel.setObject(obj.getObject().getParents().get(0));
-            }
+            chartDataModel = new ChartDataModel(obj.getDataSource());
         } catch (JEVisException e) {
-
+            logger.error("Could not get data source from object: " + e);
         }
 
-        List<Integer> list = new ArrayList<>();
-        list.add(0);
-        chartDataModel.setSelectedCharts(list);
-        chartDataModel.setAttribute(obj);
-        chartDataModel.setSamples(samples);
-        chartDataModel.setColor(Color.BLUE);
-        chartDataModel.setSomethingChanged(false);
+        if (chartDataModel != null) {
+            try {
+                if (obj.getObject().getJEVisClassName().equals("Data")) chartDataModel.setObject(obj.getObject());
+                else if (obj.getObject().getJEVisClassName().equals("Clean Data")) {
+                    chartDataModel.setDataProcessor(obj.getObject());
+                    chartDataModel.setObject(obj.getObject().getParents().get(0));
+                }
+            } catch (JEVisException e) {
 
-        List<ChartDataModel> chartDataModelList = new ArrayList<>();
-        chartDataModelList.add(chartDataModel);
+            }
 
-        LineChart lc = new LineChart(chartDataModelList, false, ManipulationMode.NONE, 0, "");
+            List<Integer> list = new ArrayList<>();
+            list.add(0);
+            chartDataModel.setSelectedCharts(list);
+            chartDataModel.setAttribute(obj);
+            chartDataModel.setSamples(samples);
+            chartDataModel.setColor(Color.BLUE);
+            chartDataModel.setSomethingChanged(false);
 
-        bp.setCenter(lc.getRegion());
-        _view.setCenter(bp);
+            List<ChartDataModel> chartDataModelList = new ArrayList<>();
+            chartDataModelList.add(chartDataModel);
+
+            LineChart lc = new LineChart(chartDataModelList, false, ManipulationMode.NONE, 0, "");
+
+            bp.setCenter(lc.getRegion());
+            _view.setCenter(bp);
+        }
     }
 
     @Override

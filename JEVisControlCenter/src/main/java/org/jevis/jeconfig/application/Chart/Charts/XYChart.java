@@ -58,6 +58,7 @@ public class XYChart implements Chart {
     Axis dateAxis = new DateValueAxis();
     List<ChartDataModel> chartDataModels;
     MultiAxisChart chart;
+    boolean asDuration = false;
     private String chartName;
     private List<String> unitY1 = new ArrayList<>();
     private List<String> unitY2 = new ArrayList<>();
@@ -65,7 +66,6 @@ public class XYChart implements Chart {
     private Number valueForDisplay;
     private Region areaChartRegion;
     private Period period;
-    private boolean asDuration = false;
     private ManipulationMode addSeriesOfType;
     private AtomicBoolean addManipulationToTitle;
     private AtomicReference<ManipulationMode> manipulationMode;
@@ -76,6 +76,8 @@ public class XYChart implements Chart {
 
         }
     };
+    private ChartPanManager panner;
+    private JFXChartUtil jfxChartUtil;
 
     public XYChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -85,7 +87,7 @@ public class XYChart implements Chart {
         init();
     }
 
-    private void init() {
+    public void init() {
         initializeChart();
 
         changedBoth = new Boolean[]{false, false};
@@ -126,7 +128,6 @@ public class XYChart implements Chart {
         chartSettingsFunction.applySetting(getChart());
 
         initializeZoom();
-
     }
 
     public void initializeChart() {
@@ -247,6 +248,7 @@ public class XYChart implements Chart {
     }
 
     public void generateXAxis(Boolean[] changedBoth) {
+        dateAxis.setAutoRanging(true);
         if (!asDuration) ((DateValueAxis) dateAxis).setAsDuration(false);
         else {
             ((DateValueAxis) dateAxis).setAsDuration(true);
@@ -281,7 +283,7 @@ public class XYChart implements Chart {
 
     @Override
     public void initializeZoom() {
-        ChartPanManager panner = null;
+        panner = null;
 
         getChart().setOnMouseMoved(mouseEvent -> {
             updateTable(mouseEvent, null);
@@ -298,7 +300,8 @@ public class XYChart implements Chart {
         });
         panner.start();
 
-        areaChartRegion = JFXChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
+        jfxChartUtil = new JFXChartUtil();
+        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
 
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
@@ -309,8 +312,13 @@ public class XYChart implements Chart {
             }
         });
 
-        JFXChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
+        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
+    }
+
+    @Override
+    public JFXChartUtil getJfxChartUtil() {
+        return jfxChartUtil;
     }
 
     @Override
@@ -365,12 +373,16 @@ public class XYChart implements Chart {
 
                 }
 
+                timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+                timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
                 updateXYChartSeries();
 
             } else {
                 /**
                  * if there are more new data rows then old ones
                  */
+                timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+                timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
 
                 updateXYChartSeries();
 
@@ -433,7 +445,7 @@ public class XYChart implements Chart {
         }
     }
 
-    private String getUpdatedChartName() {
+    String getUpdatedChartName() {
         String newName = chartName;
         switch (manipulationMode.get()) {
             case CENTRIC_RUNNING_MEAN:
@@ -506,6 +518,10 @@ public class XYChart implements Chart {
         if (valueForDisplay != null) {
             setValueForDisplay(valueForDisplay);
             Number finalValueForDisplay = valueForDisplay;
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMinimumFractionDigits(2);
+            nf.setMaximumFractionDigits(2);
+
             xyChartSerieList.parallelStream().forEach(serie -> {
                 try {
                     TableEntry tableEntry = serie.getTableEntry();
@@ -524,12 +540,10 @@ public class XYChart implements Chart {
                         }
                     }
 
-                    NumberFormat nf = NumberFormat.getInstance();
-                    nf.setMinimumFractionDigits(2);
-                    nf.setMaximumFractionDigits(2);
+
                     Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
-                    String note = sampleTreeMap.get(nearest).getNote();
-                    Note formattedNote = new Note(note);
+                    JEVisSample sample = sampleTreeMap.get(nearest);
+                    Note formattedNote = new Note(sample);
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {
@@ -539,7 +553,7 @@ public class XYChart implements Chart {
                         tableEntry.setDate((new DateTime(Math.round(nearest)).getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
                     }
-                    tableEntry.setNote(formattedNote.getNote());
+                    tableEntry.setNote(formattedNote.getNoteAsString());
                     String unit = serie.getUnit();
                     tableEntry.setValue(formattedDouble + " " + unit);
                     tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
@@ -662,4 +676,8 @@ public class XYChart implements Chart {
         else y2Axis.setVisible(true);
     }
 
+    @Override
+    public ChartPanManager getPanner() {
+        return panner;
+    }
 }

@@ -25,6 +25,8 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
@@ -72,6 +74,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private CleanDataObject cleanDataObject;
     private boolean changedValueMultiplier = false;
     private boolean changedConversionToDifferential = false;
+    private JEVisAttribute gapFillingConfigAttribute;
+    private JEVisAttribute limitsConfigurationAttribute;
 
     public CleanDataExtension(JEVisObject _obj) {
         this._obj = _obj;
@@ -127,9 +131,9 @@ public class CleanDataExtension implements ObjectEditorExtension {
         conversionToDifferentialAttribute = cleanDataObject.getConversionToDifferentialAttribute();
         enabledAttribute = cleanDataObject.getEnabledAttribute();
         limitsEnabledAttribute = cleanDataObject.getLimitsEnabledAttribute();
-        JEVisAttribute limitsConfigurationAttribute = cleanDataObject.getLimitsConfigurationAttribute();
+        limitsConfigurationAttribute = cleanDataObject.getLimitsConfigurationAttribute();
         gapFillingEnabledAttribute = cleanDataObject.getGapFillingEnabledAttribute();
-        JEVisAttribute gapFillingConfigAttribute = cleanDataObject.getGapFillingConfigAttribute();
+        gapFillingConfigAttribute = cleanDataObject.getGapFillingConfigAttribute();
         alarmEnabledAttribute = cleanDataObject.getAlarmEnabledAttribute();
         JEVisAttribute alarmConfigAttribute = cleanDataObject.getAlarmConfigAttribute();
         JEVisAttribute alarmLogAttribute = cleanDataObject.getAlarmLogAttribute();
@@ -668,10 +672,20 @@ public class CleanDataExtension implements ObjectEditorExtension {
                         JEVisSample newSample = limitsEnabledAttribute.buildSample(DateTime.now(), limitsEnabled.isSelected());
                         newSample.commit();
                         savedAttributes.add(limitsEnabledAttribute);
+                        if (limitsEnabled.isSelected() && !limitsConfigurationAttribute.hasSample()) {
+                            List<JsonLimitsConfig> defaultConfig = LimitEditor.createDefaultConfig();
+                            JEVisSample newConfigSample = limitsConfigurationAttribute.buildSample(DateTime.now(), defaultConfig.toString());
+                            newConfigSample.commit();
+                        }
                     } else if (attribute.equals(gapFillingEnabledAttribute)) {
                         JEVisSample newSample = gapFillingEnabledAttribute.buildSample(DateTime.now(), gapsEnabled.isSelected());
                         newSample.commit();
                         savedAttributes.add(gapFillingEnabledAttribute);
+                        if (gapsEnabled.isSelected() && !gapFillingConfigAttribute.hasSample()) {
+                            List<JsonGapFillingConfig> defaultConfig = GapFillingEditor.createDefaultConfig();
+                            JEVisSample newConfigSample = gapFillingConfigAttribute.buildSample(DateTime.now(), defaultConfig.toString());
+                            newConfigSample.commit();
+                        }
                     } else if (attribute.equals(alarmEnabledAttribute)) {
                         JEVisSample newSample = alarmEnabledAttribute.buildSample(DateTime.now(), alarmEnabled.isSelected());
                         newSample.commit();

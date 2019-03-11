@@ -67,6 +67,7 @@ public class Launcher extends AbstractCliApp {
         dataSources.parallelStream().forEach(object -> {
             forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(object.getID().toString())) {
+                    Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
 
                     runningJobs.put(object.getID().toString(), "true");
                     LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());

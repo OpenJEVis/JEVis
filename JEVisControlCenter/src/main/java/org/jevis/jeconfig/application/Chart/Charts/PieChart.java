@@ -10,9 +10,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
+import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -66,7 +69,12 @@ public class PieChart implements Chart {
         chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 Double sumPiePiece = 0d;
-                for (JEVisSample sample : singleRow.getSamples()) {
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
+
+                List<JEVisSample> samples = singleRow.getSamples();
+                int samplecount = samples.size();
+                for (JEVisSample sample : samples) {
                     try {
                         sumPiePiece += sample.getValueAsDouble();
                     } catch (JEVisException e) {
@@ -74,6 +82,7 @@ public class PieChart implements Chart {
                     }
                 }
 
+                if (!isQuantity) sumPiePiece = sumPiePiece / samplecount;
 
                 listSumsPiePieces.add(sumPiePiece);
                 listTableEntryNames.add(singleRow.getObject().getName());
@@ -144,6 +153,16 @@ public class PieChart implements Chart {
     @Override
     public void setHideShowIcons(Boolean hideShowIcons) {
         this.hideShowIcons = hideShowIcons;
+    }
+
+    @Override
+    public ChartPanManager getPanner() {
+        return null;
+    }
+
+    @Override
+    public JFXChartUtil getJfxChartUtil() {
+        return null;
     }
 
     @Override

@@ -301,7 +301,8 @@ public class CleanDataObject {
             //first date is the lastdate of clean datarow + periodCleanData or the year of the first sample of the raw data
             DateTime timestampFromLastCleanSample = sampleHandler.getTimeStampFromLastSample(getCleanObject(), VALUE_ATTRIBUTE_NAME);
             if (timestampFromLastCleanSample != null) {
-                firstDate = timestampFromLastCleanSample.plus(getCleanDataPeriodAlignment());
+//                firstDate = timestampFromLastCleanSample.plus(getCleanDataPeriodAlignment());
+                firstDate = timestampFromLastCleanSample;
             } else {
                 DateTime firstTimestampRaw = sampleHandler.getTimestampFromFirstSample(rawDataObject, VALUE_ATTRIBUTE_NAME);
                 if (firstTimestampRaw != null) {

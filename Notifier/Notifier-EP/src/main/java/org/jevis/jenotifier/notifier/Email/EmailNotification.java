@@ -509,12 +509,14 @@ public class EmailNotification implements Notification {
     public boolean isEmailAddressesLegal(List<String> emailAddresses) {
         boolean isEmail = true;
         if (emailAddresses != null && !emailAddresses.isEmpty()) {
+            List<String> toBeRemoved = new ArrayList<>();
             for (String email : emailAddresses) {
                 if (!isEmailAddressLegal(email)) {
-                    emailAddresses.remove(email);//
+                    toBeRemoved.add(email);//
                     isEmail = false;
                 }
             }
+            emailAddresses.removeAll(toBeRemoved);
         } else {
             isEmail = false;
             logger.info(emailAddresses + " is illegal.");
@@ -654,31 +656,31 @@ public class EmailNotification implements Notification {
             _jenoti = notiObj;
             try {
                 setReceivers(String.valueOf(getAttribute(notiObj, RECIPIENTS)));//the second parameter should one to one correspondence with the name in JEConfig
-            } catch (IllegalArgumentException ex) {
+            } catch (Exception ex) {
                 setReceivers(null);
-                logger.fatal(ex);
+                logger.error(ex);
             }
             try {
                 setCarbonCopys(String.valueOf(getAttribute(notiObj, CARBON_COPYS)));
-            } catch (IllegalArgumentException ex) {
+            } catch (Exception ex) {
                 setCarbonCopys("");
-                logger.info(ex);
+                logger.error(ex);
             }
             try {
                 setBlindCarbonCopys(String.valueOf(getAttribute(notiObj, BLIND_CARBON_COPYS)));
-            } catch (IllegalArgumentException ex) {
+            } catch (Exception ex) {
                 setBlindCarbonCopys("");
-                logger.info(ex);
+                logger.error(ex);
             }
             try {
                 setSubject(String.valueOf(getAttribute(notiObj, SUBJECT)));
-            } catch (IllegalArgumentException ex) {
-                logger.info(ex);
+            } catch (Exception ex) {
+                logger.error(ex);
             }
             try {
                 setMessage(String.valueOf(getAttribute(notiObj, MESSAGE)));
-            } catch (IllegalArgumentException ex) {
-                logger.info(ex);
+            } catch (Exception ex) {
+                logger.error(ex);
             }
             JEVisFile file = null;
             try {
@@ -691,30 +693,30 @@ public class EmailNotification implements Notification {
                     } while (Objects.isNull(file.getBytes()));
                 }
 
-            } catch (IllegalArgumentException ex) {
-                logger.info(ex);
+            } catch (Exception ex) {
+                logger.error(ex);
             }
 
             try {
                 if (file != null) {
                     setAttachmentsAsFile(file);
                 }
-            } catch (IllegalArgumentException ex) {
+            } catch (Exception ex) {
                 setAttachments(null);
-                logger.info(ex);
+                logger.error(ex);
             }
 
             try {
                 setIsHTML(Boolean.valueOf(String.valueOf(getAttribute(notiObj, HTML_EMAIL))));
-            } catch (IllegalArgumentException ex) {
+            } catch (Exception ex) {
                 setIsHTML(false);
-                logger.info(ex);
+                logger.error(ex);
             }
             try {
                 _enabled = Boolean.valueOf(String.valueOf(getAttribute(notiObj, ENABLED)));
-            } catch (IllegalArgumentException ex) {
+            } catch (Exception ex) {
                 _enabled = false;
-                logger.info(ex);
+                logger.error(ex);
             }
         } else {
             logger.info(notiObj + " is not suitable for Email Notification");

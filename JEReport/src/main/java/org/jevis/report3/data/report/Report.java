@@ -33,15 +33,15 @@ public class Report {
     public byte[] getReportFile() {
         //get the template
         JEVisFile template = reportProperty.getTemplate();
-        TemplateTransformator transformator = new TemplateTransformator();
+        TemplateTransformator templateTransformator = new TemplateTransformator();
 
         Context context = new Context(contextMap);
 
         try {
-            transformator.transform(template.getBytes(), context);
+            templateTransformator.transform(template.getBytes(), context);
         } catch (IOException ex) {
             logger.fatal("error while transformation of the template", ex);
         }
-        return transformator.getOutputBytes();
+        return templateTransformator.getOutputBytes();
     }
 }

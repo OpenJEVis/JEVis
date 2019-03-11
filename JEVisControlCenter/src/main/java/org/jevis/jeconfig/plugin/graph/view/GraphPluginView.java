@@ -27,6 +27,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.chart.Chart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -37,10 +38,12 @@ import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.*;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
@@ -224,8 +227,36 @@ public class GraphPluginView implements Plugin {
 
     @Override
     public boolean supportsRequest(int cmdType) {
-        //TODO: implement
-        return false;
+        switch (cmdType) {
+            case Constants.Plugin.Command.SAVE:
+                return false;
+            case Constants.Plugin.Command.DELETE:
+                return false;
+            case Constants.Plugin.Command.EXPAND:
+                return false;
+            case Constants.Plugin.Command.NEW:
+                return false;
+            case Constants.Plugin.Command.RELOAD:
+                return true;
+            case Constants.Plugin.Command.ADD_TABLE:
+                return false;
+            case Constants.Plugin.Command.EDIT_TABLE:
+                return false;
+            case Constants.Plugin.Command.CREATE_WIZARD:
+                return false;
+            case Constants.Plugin.Command.FIND_OBJECT:
+                return false;
+            case Constants.Plugin.Command.PASTE:
+                return false;
+            case Constants.Plugin.Command.COPY:
+                return false;
+            case Constants.Plugin.Command.CUT:
+                return false;
+            case Constants.Plugin.Command.FIND_AGAIN:
+                return false;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -241,8 +272,35 @@ public class GraphPluginView implements Plugin {
                 case Constants.Plugin.Command.NEW:
                     break;
                 case Constants.Plugin.Command.RELOAD:
+                    try {
+                        ds.reloadAttributes();
+                    } catch (JEVisException e) {
+                        logger.error(e);
+                    }
+                    if (!dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
+                            && !dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
+                        AnalysisTimeFrame oldTimeframe = dataModel.getAnalysisTimeFrame();
+                        dataModel.setAnalysisTimeFrame(oldTimeframe);
+                    }
+                    dataModel.updateSamples();
+                    update();
                     break;
-                default:
+                case Constants.Plugin.Command.ADD_TABLE:
+                    break;
+                case Constants.Plugin.Command.EDIT_TABLE:
+                    break;
+                case Constants.Plugin.Command.CREATE_WIZARD:
+                    break;
+                case Constants.Plugin.Command.FIND_OBJECT:
+                    break;
+                case Constants.Plugin.Command.PASTE:
+                    break;
+                case Constants.Plugin.Command.COPY:
+                    break;
+                case Constants.Plugin.Command.CUT:
+                    break;
+                case Constants.Plugin.Command.FIND_AGAIN:
+                    break;
             }
         } catch (Exception ex) {
         }
@@ -305,7 +363,8 @@ public class GraphPluginView implements Plugin {
         if (dataModel.getSelectedData() != null) {
 
             double maxHeight = border.getHeight();
-            double totalPrefHeight = 0;
+            double totalPrefHeight = 0d;
+            Long chartsPerScreen = dataModel.getChartsPerScreen();
 
             List<ChartView> listChartViews = null;
             listChartViews = getChartViews();
@@ -358,13 +417,9 @@ public class GraphPluginView implements Plugin {
                                 }
 
                             }
-                            bp.setMinHeight(autoMinSize + (dataSize * dataSizeOffset));
 
-                            if (cset.getHeight() != null) {
-                                bp.setPrefHeight(cset.getHeight());
-                            } else {
-                                bp.setPrefHeight(autoMinSize + (dataSize * dataSizeOffset));
-                            }
+                            bp.setMinHeight(autoMinSize);
+                            bp.setPrefHeight(autoMinSize + (dataSize * dataSizeOffset));
                         }
                     }
                 } else {
@@ -374,12 +429,30 @@ public class GraphPluginView implements Plugin {
                 cv.getLegend().maxWidthProperty().bind(bp.widthProperty());
 
                 if (cv.getShowTable()) {
-                    bp.setTop(cv.getLegend());
+                    if (!cv.getChartType().equals(ChartType.TABLE)) {
+                        bp.setTop(cv.getLegend());
+                    } else {
+                        Chart chart = cv.getChart().getChart();
+//                        chart.setMinHeight(0);
+                        chart.setMaxHeight(70);
+
+                        bp.setTop(chart);
+
+                    }
                 } else {
                     bp.setTop(null);
                 }
 
-                bp.setCenter(cv.getChartRegion());
+                if (!cv.getChartType().equals(ChartType.TABLE)) {
+                    bp.setCenter(cv.getChartRegion());
+                } else {
+                    ScrollPane scrollPane = new ScrollPane(cv.getLegend());
+                    scrollPane.setFitToHeight(true);
+                    scrollPane.setFitToWidth(true);
+                    scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+                    scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                    bp.setCenter(scrollPane);
+                }
                 bp.setBottom(null);
 
                 DragResizerXY.makeResizable(bp);
@@ -414,6 +487,59 @@ public class GraphPluginView implements Plugin {
                                     }
                                 });
                             });
+
+                            cv.getChart().getPanner().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue) {
+                                    notActive.forEach(chartView -> {
+                                        if (!chartView.getChartType().equals(ChartType.PIE)
+                                                && !chartView.getChartType().equals(ChartType.BAR)
+                                                && !chartView.getChartType().equals(ChartType.BUBBLE)) {
+                                            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+
+                                            DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
+                                            xAxis.setAutoRanging(false);
+                                            xAxis.setLowerBound(cv.getChart().getPanner().getXAxisLowerBound());
+                                            xAxis.setUpperBound(cv.getChart().getPanner().getXAxisUpperBound());
+                                        }
+                                    });
+                                    cv.getChart().getPanner().zoomFinishedProperty().setValue(false);
+                                }
+                            });
+
+                            cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue) {
+                                    notActive.forEach(chartView -> {
+                                        if (!chartView.getChartType().equals(ChartType.PIE)
+                                                && !chartView.getChartType().equals(ChartType.BAR)
+                                                && !chartView.getChartType().equals(ChartType.BUBBLE)) {
+                                            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+
+                                            DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
+                                            xAxis.setAutoRanging(false);
+                                            xAxis.setLowerBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound());
+                                            xAxis.setUpperBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound());
+                                        }
+                                    });
+                                    cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().setValue(false);
+                                }
+                            });
+
+                            cv.getChart().getJfxChartUtil().doubleClickedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue) {
+                                    notActive.forEach(chartView -> {
+                                        if (!chartView.getChartType().equals(ChartType.PIE)
+                                                && !chartView.getChartType().equals(ChartType.BAR)
+                                                && !chartView.getChartType().equals(ChartType.BUBBLE)) {
+                                            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+
+                                            DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
+                                            xAxis.setAutoRanging(true);
+                                        }
+                                    });
+                                    cv.getChart().getJfxChartUtil().doubleClickedProperty().setValue(false);
+                                }
+                            });
+
                             break;
                         case LOGICAL:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
@@ -438,22 +564,63 @@ public class GraphPluginView implements Plugin {
                                     }
                                 });
                             });
+
+                            cv.getChart().getPanner().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue) {
+                                    notActive.forEach(chartView -> {
+                                        if (!chartView.getChartType().equals(ChartType.PIE)
+                                                && !chartView.getChartType().equals(ChartType.BAR)
+                                                && !chartView.getChartType().equals(ChartType.BUBBLE)) {
+                                            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+
+                                            DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
+                                            xAxis.setAutoRanging(false);
+                                            xAxis.setLowerBound(cv.getChart().getPanner().getXAxisLowerBound());
+                                            xAxis.setUpperBound(cv.getChart().getPanner().getXAxisUpperBound());
+                                        }
+                                    });
+                                    cv.getChart().getPanner().zoomFinishedProperty().setValue(false);
+                                }
+                            });
+
+                            cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue) {
+                                    notActive.forEach(chartView -> {
+                                        if (!chartView.getChartType().equals(ChartType.PIE)
+                                                && !chartView.getChartType().equals(ChartType.BAR)
+                                                && !chartView.getChartType().equals(ChartType.BUBBLE)) {
+                                            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+
+                                            DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
+                                            xAxis.setAutoRanging(false);
+                                            xAxis.setLowerBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound());
+                                            xAxis.setUpperBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound());
+                                        }
+                                    });
+                                    cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().setValue(false);
+                                }
+                            });
+
+                            cv.getChart().getJfxChartUtil().doubleClickedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue) {
+                                    notActive.forEach(chartView -> {
+                                        if (!chartView.getChartType().equals(ChartType.PIE)
+                                                && !chartView.getChartType().equals(ChartType.BAR)
+                                                && !chartView.getChartType().equals(ChartType.BUBBLE)) {
+                                            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+
+                                            DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
+                                            xAxis.setAutoRanging(true);
+                                        }
+                                    });
+                                    cv.getChart().getJfxChartUtil().doubleClickedProperty().setValue(false);
+                                }
+                            });
+
                             break;
                         case BAR:
-//                        cv.getBarChart().setOnMouseMoved(event -> {
-//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
-//                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
-//                            }
-//                        });
                             break;
                         case BUBBLE:
-//                        cv.getBubbleChart().setOnMouseMoved(event -> {
-//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
-//                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
-//                            }
-//                        });
                             break;
                         case SCATTER:
                             cv.getChart().getChart().setOnMouseMoved(event -> {
@@ -466,17 +633,75 @@ public class GraphPluginView implements Plugin {
                                     }
                                 });
                             });
+
+                            cv.getChart().getPanner().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue) {
+                                    notActive.forEach(chartView -> {
+                                        if (!chartView.getChartType().equals(ChartType.PIE)
+                                                && !chartView.getChartType().equals(ChartType.BAR)
+                                                && !chartView.getChartType().equals(ChartType.BUBBLE)) {
+                                            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+
+                                            DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
+                                            xAxis.setAutoRanging(false);
+                                            xAxis.setLowerBound(cv.getChart().getPanner().getXAxisLowerBound());
+                                            xAxis.setUpperBound(cv.getChart().getPanner().getXAxisUpperBound());
+                                        }
+                                    });
+                                    cv.getChart().getPanner().zoomFinishedProperty().setValue(false);
+                                }
+                            });
+
+                            cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue) {
+                                    notActive.forEach(chartView -> {
+                                        if (!chartView.getChartType().equals(ChartType.PIE)
+                                                && !chartView.getChartType().equals(ChartType.BAR)
+                                                && !chartView.getChartType().equals(ChartType.BUBBLE)) {
+                                            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+
+                                            DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
+                                            xAxis.setAutoRanging(false);
+                                            xAxis.setLowerBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound());
+                                            xAxis.setUpperBound(cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound());
+                                        }
+                                    });
+                                    cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().setValue(false);
+                                }
+                            });
+
+                            cv.getChart().getJfxChartUtil().doubleClickedProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue) {
+                                    notActive.forEach(chartView -> {
+                                        if (!chartView.getChartType().equals(ChartType.PIE)
+                                                && !chartView.getChartType().equals(ChartType.BAR)
+                                                && !chartView.getChartType().equals(ChartType.BUBBLE)) {
+                                            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+
+                                            DateValueAxis xAxis = (DateValueAxis) chart.getXAxis();
+                                            xAxis.setAutoRanging(true);
+                                        }
+                                    });
+                                    cv.getChart().getJfxChartUtil().doubleClickedProperty().setValue(false);
+                                }
+                            });
+
                             break;
                         case PIE:
-//                        cv.getPieChart().setOnMouseMoved(event -> {
-//                            cv.updateTablesSimultaneously(cv.getChartName(), cv.getChartType(), event, null);
-//                            for (ChartView na : notActive) {
-//                                na.updateTablesSimultaneously(na.getChartName(), na.getChartType(), null, cv.getValueForDisplay());
-//                            }
-//                        });
+                            break;
+                        case TABLE:
+                            cv.getChart().getChart().setOnMouseMoved(event -> {
+                                cv.updateTablesSimultaneously(event, null);
+                                notActive.forEach(na -> {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
+                                        na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                                    }
+                                });
+                            });
                             break;
                         default:
-
                             break;
                     }
                 }
@@ -501,31 +726,40 @@ public class GraphPluginView implements Plugin {
                      * set all on min size. after this the free space will be reallocate
                      */
                     totalPrefHeight = calculationTotalPrefSize(vBox);
-                    if (totalPrefHeight > maxHeight) {
-                        for (Node node : vBox.getChildren()) {
+
+                    if (chartsPerScreen != null && dataModel.getCharts().size() > 1) {
+                        ObservableList<Node> children = vBox.getChildren();
+                        for (Node node : children) {
                             if (node instanceof BorderPane) {
-                                ((BorderPane) node).setPrefHeight(autoMinSize);
+                                ((BorderPane) node).setPrefHeight((border.getHeight()) / chartsPerScreen);
                             }
                         }
-                    }
-
-                    /**
-                     * Recalculate total prefsize
-                     */
-                    totalPrefHeight = calculationTotalPrefSize(vBox);
-
-                    /**
-                     * Reallocate free space equal to all children
-                     */
-                    if (totalPrefHeight < maxHeight) {
-                        /** size/2 because there is an separator for every chart **/
-                        final double freeSpacePart = (maxHeight - totalPrefHeight) / (vBox.getChildren().size() / 2);
-                        vBox.getChildren().forEach(node -> {
-                            if (node instanceof Pane) {
-                                ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart);
+                    } else {
+                        if (totalPrefHeight > maxHeight) {
+                            for (Node node : vBox.getChildren()) {
+                                if (node instanceof BorderPane) {
+                                    ((BorderPane) node).setPrefHeight(autoMinSize);
+                                }
                             }
-                        });
+                        }
 
+                        /**
+                         * Recalculate total prefsize
+                         */
+                        totalPrefHeight = calculationTotalPrefSize(vBox);
+
+                        /**
+                         * Reallocate free space equal to all children
+                         */
+                        if (totalPrefHeight < maxHeight) {
+                            /** size/2 because there is an separator for every chart **/
+                            final double freeSpacePart = (maxHeight - totalPrefHeight) / (vBox.getChildren().size() / 2);
+                            vBox.getChildren().forEach(node -> {
+                                if (node instanceof Pane) {
+                                    ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart);
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -708,5 +942,9 @@ public class GraphPluginView implements Plugin {
         }
 
         charts.addAll(subCharts);
+    }
+
+    public List<ChartView> getCharts() {
+        return charts;
     }
 }

@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -23,6 +24,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndTimePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartDatePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartTimePicker;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.*;
@@ -52,6 +57,7 @@ public class ChartView implements Observer {
     private Integer chartId;
     private boolean firstLogical;
     private ChartDataModel singleRow;
+    private List<ChartDataModel> currentSelectedChartDataModels;
 
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
@@ -242,11 +248,45 @@ public class ChartView implements Observer {
     }
 
     public Region getChartRegion() {
-        if (chart != null)
-            if (chart.getRegion() != null)
-                return chart.getRegion();
-            else return chart.getChart();
-        else return null;
+        StackPane stackPane = new StackPane();
+
+        if (chart != null) {
+            if (chart.getRegion() != null) {
+                stackPane.getChildren().add(chart.getRegion());
+            } else {
+                stackPane.getChildren().add(chart.getChart());
+            }
+
+            if (!getChartType().equals(ChartType.LOGICAL)) {
+
+                HBox pickerBox = new HBox();
+                pickerBox.setPadding(new Insets(2, 2, 2, 2));
+                pickerBox.setPickOnBounds(false);
+                StartDatePicker startDatePicker = new StartDatePicker();
+                startDatePicker.setPickOnBounds(false);
+                StartTimePicker startTimePicker = new StartTimePicker();
+                startTimePicker.setPickOnBounds(false);
+                EndDatePicker endDatePicker = new EndDatePicker();
+                endDatePicker.setPickOnBounds(false);
+                EndTimePicker endTimePicker = new EndTimePicker();
+                endTimePicker.setPickOnBounds(false);
+
+                startDatePicker.initialize(dataModel, currentSelectedChartDataModels, startTimePicker, null, null);
+                startTimePicker.initialize(dataModel, currentSelectedChartDataModels, startDatePicker, null, null);
+                endDatePicker.initialize(dataModel, currentSelectedChartDataModels, endTimePicker, null, null);
+                endTimePicker.initialize(dataModel, currentSelectedChartDataModels, endDatePicker, null, null);
+
+                startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateChart());
+                endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> updateChart());
+
+                pickerBox.getChildren().addAll(startDatePicker, endDatePicker);
+                pickerBox.setAlignment(Pos.TOP_RIGHT);
+
+                stackPane.getChildren().addAll(pickerBox);
+            }
+
+            return stackPane;
+        } else return null;
     }
 
     public TableView<TableEntry> getLegend() {
@@ -258,17 +298,17 @@ public class ChartView implements Observer {
 
         chart = null;
 
-        List<ChartDataModel> chartDataModels = new ArrayList<>();
+        currentSelectedChartDataModels = new ArrayList<>();
 
         for (ChartDataModel singleRow : dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
                 if (i == chartId) {
-                    chartDataModels.add(singleRow);
+                    currentSelectedChartDataModels.add(singleRow);
                 }
             }
         }
 
-        generateChart(chartId, chartType, chartDataModels);
+        generateChart(chartId, chartType, currentSelectedChartDataModels);
 
         tableView.sort();
     }
@@ -278,10 +318,10 @@ public class ChartView implements Observer {
         this.chart = null;
         this.singleRow = model;
 
-        List<ChartDataModel> chartDataModels = new ArrayList<>();
-        chartDataModels.add(model);
+        currentSelectedChartDataModels = new ArrayList<>();
+        currentSelectedChartDataModels.add(model);
 
-        generateChart(chartId, chartType, chartDataModels);
+        generateChart(chartId, chartType, currentSelectedChartDataModels);
 
         tableView.sort();
     }
@@ -331,6 +371,17 @@ public class ChartView implements Observer {
                 chart = new PieChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
                 disableTable();
                 break;
+            case TABLE:
+                chart = new TableChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                setTableStandard();
+                tableView.getColumns().get(0).setVisible(false);
+                tableView.getColumns().get(2).setVisible(false);
+                tableView.getColumns().get(5).setVisible(false);
+                tableView.getColumns().get(6).setVisible(false);
+                tableView.getColumns().get(7).setVisible(false);
+                tableView.getColumns().get(8).setVisible(false);
+                tableView.getColumns().get(9).setVisible(false);
+                break;
             default:
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
@@ -374,24 +425,24 @@ public class ChartView implements Observer {
 
     public void updateChart() {
         if (chart != null) {
-            List<ChartDataModel> chartDataModels = new ArrayList<>();
+            currentSelectedChartDataModels = new ArrayList<>();
 
             for (ChartDataModel singleRow : dataModel.getSelectedData()) {
                 for (int i : singleRow.getSelectedcharts()) {
                     if (i == chartId) {
-                        chartDataModels.add(singleRow);
+                        currentSelectedChartDataModels.add(singleRow);
                     }
                 }
             }
             if (!getChanged()) {
                 chart.setTitle(getChartName());
                 chart.setHideShowIcons(dataModel.getHideShowIcons());
-                chart.setDataModels(chartDataModels);
+                chart.setDataModels(currentSelectedChartDataModels);
 
                 chart.updateChart();
             } else {
 
-                generateChart(getChartId(), getChartType(), chartDataModels);
+                generateChart(getChartId(), getChartType(), currentSelectedChartDataModels);
             }
 
             tableView.sort();

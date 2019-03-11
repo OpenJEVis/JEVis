@@ -7,6 +7,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
+import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -69,6 +71,16 @@ public class BubbleChart implements Chart {
     @Override
     public void setChartSettings(ChartSettingsFunction function) {
         //TODO: implement me, see PieChart
+    }
+
+    @Override
+    public ChartPanManager getPanner() {
+        return null;
+    }
+
+    @Override
+    public JFXChartUtil getJfxChartUtil() {
+        return null;
     }
 
     @Override

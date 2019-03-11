@@ -20,7 +20,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.ColorColumn;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.jevistree.Finder;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
@@ -72,7 +72,7 @@ public class DataModelDataHandler extends SampleHandler {
                     if (jevisobject != null) {
                         JEVisAttribute jeVisAttribute = jevisobject.getAttribute(attribute);
                         if (jeVisAttribute != null) {
-                            ChartDataModel chartDataModel = new ChartDataModel();
+                            ChartDataModel chartDataModel = new ChartDataModel(jevisobject.getDataSource());
                             List<Integer> list = new ArrayList<>();
                             list.add(0);
 
@@ -177,7 +177,7 @@ public class DataModelDataHandler extends SampleHandler {
         AnchorPane anchorPane = new AnchorPane();
 
 
-        JEVisTree tree = JEVisTreeFactory.buildBasicDefault(getDataSource());
+        JEVisTree tree = JEVisTreeFactory.buildBasicDefault(getDataSource(), false);
         tree.getPlugins().add(simpleTargetPlugin);
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         simpleTargetPlugin.setAllowMultiSelection(enableMultiSelect.getValue());

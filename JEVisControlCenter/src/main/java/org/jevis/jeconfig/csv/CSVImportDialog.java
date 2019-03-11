@@ -296,7 +296,6 @@ public class CSVImportDialog {
             @Override
             public void changed(ObservableValue<? extends Charset> observable, Charset oldValue, Charset newValue) {
                 charset = newValue;
-                table.getParser().setCharset(newValue);
                 updateTree();
             }
         });
@@ -381,7 +380,7 @@ public class CSVImportDialog {
                             setEncloser(analyse.getEnclosed());
                             setSeperator(analyse.getSeparator());
                             formats.getSelectionModel().select(Format.Custom.name());
-                            table.getParser().setFile(file);
+
                             updateTree();
                         } catch (Exception ex) {
                             logger.fatal(ex);

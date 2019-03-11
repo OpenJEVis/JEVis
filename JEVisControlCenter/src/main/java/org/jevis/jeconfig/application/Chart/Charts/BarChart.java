@@ -67,6 +67,7 @@ public class BarChart implements Chart {
     private Region areaChartRegion;
     private boolean asDuration = false;
     private AtomicReference<ManipulationMode> manipulationMode;
+    private ChartPanManager panner;
 
     public BarChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -163,7 +164,7 @@ public class BarChart implements Chart {
 
     @Override
     public void initializeZoom() {
-        ChartPanManager panner = null;
+        panner = null;
 
         getChart().setOnMouseMoved(mouseEvent -> {
             updateTable(mouseEvent, null);
@@ -180,7 +181,8 @@ public class BarChart implements Chart {
         });
         panner.start();
 
-        areaChartRegion = JFXChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
+        JFXChartUtil jfxChartUtil = new JFXChartUtil();
+        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
 
             if (mouseEvent.getButton() != MouseButton.PRIMARY
                     || mouseEvent.isShortcutDown()) {
@@ -191,7 +193,7 @@ public class BarChart implements Chart {
             }
         });
 
-        JFXChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
+        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
     }
 
@@ -266,6 +268,16 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public ChartPanManager getPanner() {
+        return panner;
+    }
+
+    @Override
+    public JFXChartUtil getJfxChartUtil() {
+        return null;
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
@@ -324,8 +336,8 @@ public class BarChart implements Chart {
                     nf.setMinimumFractionDigits(2);
                     nf.setMaximumFractionDigits(2);
                     Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
-                    String note = sampleTreeMap.get(nearest).getNote();
-                    Note formattedNote = new Note(note);
+                    JEVisSample sample = sampleTreeMap.get(nearest);
+                    Note formattedNote = new Note(sample);
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {
@@ -335,7 +347,7 @@ public class BarChart implements Chart {
                         tableEntry.setDate((new DateTime(Math.round(nearest)).getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
                     }
-                    tableEntry.setNote(formattedNote.getNote());
+                    tableEntry.setNote(formattedNote.getNoteAsString());
                     String unit = serie.getUnit();
                     tableEntry.setValue(formattedDouble + " " + unit);
                     tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));

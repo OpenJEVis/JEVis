@@ -24,25 +24,26 @@ public interface ReportExecutorFactory {
         //switch cases
         ReportType reportType = ReportType.getReportType(reportObject);
         Injector injector = null;
-        switch (reportType) {
-            case PERIODIC:
-                injector = Guice.createInjector(new ReportPeriodicInjector());
-                break;
-            case SCHEDULED:
-                injector = Guice.createInjector(new ReportScheduledInjector());
-                break;
-            case EVENT:
-                injector = Guice.createInjector(new ReportEventInjector());
-                break;
-            default:
-                logger.info("report object not supported");
+        if (reportType != null) {
+            switch (reportType) {
+                case PERIODIC:
+                    injector = Guice.createInjector(new ReportPeriodicInjector());
+                    break;
+                case SCHEDULED:
+                    injector = Guice.createInjector(new ReportScheduledInjector());
+                    break;
+                case EVENT:
+                    injector = Guice.createInjector(new ReportEventInjector());
+                    break;
+                default:
+                    logger.info("report object not supported");
+            }
         }
         if (injector == null) {
             return null;
         }
         ReportExecutorFactory fac = injector.getInstance(ReportExecutorFactory.class);
-        ReportExecutor exe = fac.create(reportObject);
-        return exe;
+        return fac.create(reportObject);
     }
 
     ReportExecutor create(JEVisObject obj);

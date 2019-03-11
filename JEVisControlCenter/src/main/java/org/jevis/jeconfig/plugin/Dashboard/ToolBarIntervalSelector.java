@@ -10,12 +10,16 @@ import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
 import org.joda.time.Interval;
 
 public class ToolBarIntervalSelector extends HBox {
 
 
     public ToolBarIntervalSelector(Double iconSize) {
+
+
+        PresetDateBox presetBox = new PresetDateBox();
 
         ComboBox<IntervalPreset> listAnalysesComboBox = new ComboBox();
         listAnalysesComboBox.setPrefWidth(200);

@@ -299,6 +299,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             JEVisObjectWS newOBject = new JEVisObjectWS(this, jsonObj);
             objectCache.put(newOBject.getID(), newOBject);
         }
+        //this.reloadAttribute(objectCache.get(id));
 
     }
 

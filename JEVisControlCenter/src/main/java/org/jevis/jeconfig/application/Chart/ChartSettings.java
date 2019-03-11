@@ -51,4 +51,5 @@ public class ChartSettings {
     public void setChartType(ChartType chartType) {
         this.chartType = chartType;
     }
+
 }

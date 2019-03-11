@@ -107,7 +107,6 @@ public class CSVTable extends TableView<CSVLine> {
                 return new Task<Void>() {
                     @Override
                     protected void succeeded() {
-                        super.succeeded();
                         Platform.runLater(() -> {
                             Alert alert = new Alert(Alert.AlertType.INFORMATION);
                             alert.setTitle(I18n.getInstance().getString("csv.import.dialog.success.header"));
@@ -119,7 +118,6 @@ public class CSVTable extends TableView<CSVLine> {
 
                     @Override
                     protected void failed() {
-                        super.failed();
                         Platform.runLater(() -> {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle(I18n.getInstance().getString("csv.import.dialog.failed.title"));
@@ -196,7 +194,7 @@ public class CSVTable extends TableView<CSVLine> {
                                         DateTime ts = null;
                                         int rowNumber = line.getRowNumber();
                                         if (tsColumn != null) {
-                                            tsColumn.getValueAsDate(line.getColumn(tsColumn.getColumn()));
+                                            ts = tsColumn.getValueAsDate(line.getColumn(tsColumn.getColumn()));
                                         } else if (combinedList != null) {
                                             ts = combinedList.get(rowNumber);
                                         } else {
@@ -219,6 +217,7 @@ public class CSVTable extends TableView<CSVLine> {
                                     logger.debug("Import " + _newSamples.size() + " sample into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
                                     header.getTarget().addSamples(_newSamples);
 
+                                    succeeded();
                                 } catch (JEVisException ex) {
                                     logger.error("error while import sample" + ex);
                                     failed();
@@ -226,7 +225,6 @@ public class CSVTable extends TableView<CSVLine> {
 
                             }
                         }
-                        succeeded();
                         return null;
                     }
                 };

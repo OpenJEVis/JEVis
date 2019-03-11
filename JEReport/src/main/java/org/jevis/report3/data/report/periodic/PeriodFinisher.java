@@ -61,4 +61,15 @@ public class PeriodFinisher implements Finisher {
         endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
     }
 
+    @Override
+    public void continueWithNextReport(JEVisObject reportObject) {
+        try {
+            parseDates(reportObject);
+            DateTime newStartRecordTime = PeriodHelper.getNextPeriod(startRecord, schedule, 1);
+            String newStartTimeString = newStartRecordTime.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
+            reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
+    }
 }
