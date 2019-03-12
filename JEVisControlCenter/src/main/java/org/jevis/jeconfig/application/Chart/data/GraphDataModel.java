@@ -123,7 +123,7 @@ public class GraphDataModel {
                     @Override
                     protected Void call() {
                         updateMessage(loading);
-                        Platform.runLater(graphPluginView::update);
+                        Platform.runLater(() -> graphPluginView.update(true));
                         return null;
                     }
                 };
