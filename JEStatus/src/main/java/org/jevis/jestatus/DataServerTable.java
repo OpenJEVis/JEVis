@@ -123,11 +123,19 @@ public class DataServerTable extends AlarmTable {
                     if (o1att != null) {
                         JEVisSample o1smp = o1att.getLatestSample();
                         if (o1smp != null) {
-                            o1ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o1smp.getValueAsString());
+                            try {
+                                o1ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o1smp.getValueAsString());
+                            } catch (IllegalArgumentException e) {
+                                logger.error("Could not parse, invalid datetime format: " + o1smp.getValueAsString()
+                                        + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o1att.getName());
+                            } catch (UnsupportedOperationException e) {
+                                logger.error("Could not parse, unsupported operation: " + o1smp.getValueAsString()
+                                        + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o1att.getName());
+                            }
                         }
                     }
-                } catch (JEVisException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    logger.error("Could not get datetime for sorting object: " + o1.getName() + ":" + o1.getID());
                 }
                 DateTime o2ts = null;
                 try {
@@ -135,11 +143,19 @@ public class DataServerTable extends AlarmTable {
                     if (o2att != null) {
                         JEVisSample o2smp = o2att.getLatestSample();
                         if (o2smp != null) {
-                            o2ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o2smp.getValueAsString());
+                            try {
+                                o2ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o2smp.getValueAsString());
+                            } catch (IllegalArgumentException e) {
+                                logger.error("Could not parse, invalid datetime format: " + o2smp.getValueAsString()
+                                        + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o2att.getName());
+                            } catch (UnsupportedOperationException e) {
+                                logger.error("Could not parse, unsupported operation: " + o2smp.getValueAsString()
+                                        + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o2att.getName());
+                            }
                         }
                     }
-                } catch (JEVisException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    logger.error("Could not get datetime for sorting object: " + o2.getName() + ":" + o2.getID());
                 }
 
                 if ((o1ts != null && o2ts != null && o1ts.isBefore(o2ts))) return -1;
