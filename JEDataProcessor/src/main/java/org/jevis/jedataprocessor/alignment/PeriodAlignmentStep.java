@@ -11,6 +11,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.workflow.ProcessStep;
@@ -46,25 +47,29 @@ public class PeriodAlignmentStep implements ProcessStep {
         Period periodRawData = cleanDataObject.getRawDataPeriodAlignment();
 
         boolean downSampling = true;
-        if (!periodCleanData.equals(periodRawData)) {
-            long cleanMillis = periodCleanData.toStandardDuration().getMillis();
-            long rawMillis = periodRawData.toStandardDuration().getMillis();
-            if (rawMillis >= cleanMillis) {
-                if (rawMillis > cleanMillis) downSampling = false;
-            }
+
+        PeriodComparator periodComparator = new PeriodComparator();
+        int compare = periodComparator.compare(periodCleanData, periodRawData);
+        // if clean data period is longer (e.g. 1 day) or equal than raw data period (e.g. 15 minutes)
+        // the down sampling method will be used, else the other
+
+        if (compare < 0) {
+            downSampling = false;
         }
 
         if (downSampling) {
             int currentSamplePointer = 0;
-            for (CleanInterval interval1 : intervals) {
+            for (CleanInterval cleanInterval : intervals) {
                 boolean samplesInInterval = true;
                 while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
                     JEVisSample rawSample = rawSamples.get(currentSamplePointer);
                     try {
                         DateTime timestamp = rawSample.getTimestamp().plusSeconds(periodOffset);
-                        Interval interval = interval1.getInterval();
-                        if (interval.contains(timestamp)) { //sample is in interval
-                            interval1.addRawSample(rawSample);
+                        Interval interval = cleanInterval.getInterval();
+                        if (timestamp.equals(interval.getStart())
+                                || (timestamp.isAfter(interval.getStart()) && timestamp.isBefore(interval.getEnd()))
+                                || timestamp.equals(interval.getEnd())) { //sample is in interval
+                            cleanInterval.addRawSample(rawSample);
                             currentSamplePointer++;
                         } else if (timestamp.isBefore(interval.getStart())) { //sample is before interval start --just find the start
                             currentSamplePointer++;
@@ -131,8 +136,7 @@ public class PeriodAlignmentStep implements ProcessStep {
         /**
          * calc the sample per interval if possible depending on alignment and aggregation mode (avg oder only first value)
          */
-        for (
-                CleanInterval currentInterval : intervals) {
+        for (CleanInterval currentInterval : intervals) {
 
             for (int i = 0; i < listConversionToDifferential.size(); i++) {
                 JEVisSample ctd = listConversionToDifferential.get(i);
@@ -149,8 +153,8 @@ public class PeriodAlignmentStep implements ProcessStep {
                 boolean sum = valueIsQuantity && !conversionDifferential;
                 boolean avg = !valueIsQuantity && !conversionDifferential;
 
-                if (currentInterval.getDate().isAfter(timeStampOfConversion) &&
-                        ((nextTimeStampOfConversion == null) || currentInterval.getDate().isBefore(nextTimeStampOfConversion))) {
+                if (currentInterval.getDate().equals(timeStampOfConversion) || (currentInterval.getDate().isAfter(timeStampOfConversion) &&
+                        ((nextTimeStampOfConversion == null) || currentInterval.getDate().isBefore(nextTimeStampOfConversion)))) {
 
                     //logger.info("align {},last {}, sum {}, avg {}", cleanDataObject.getIsPeriodAligned(), last, sum, avg);
                     List<JEVisSample> currentRawSamples = currentInterval.getRawSamples();
