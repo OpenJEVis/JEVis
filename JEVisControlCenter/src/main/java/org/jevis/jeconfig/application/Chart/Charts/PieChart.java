@@ -2,7 +2,9 @@ package org.jevis.jeconfig.application.Chart.Charts;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -111,16 +113,17 @@ public class PieChart implements Chart {
 
         if (pieChart == null) {
             pieChart = new javafx.scene.chart.PieChart(series);
-            pieChart.setLabelsVisible(false);
         }
 
+        pieChart.setTitle(chartName);
+        pieChart.setLegendVisible(false);
         pieChart.applyCss();
 
         applyColors();
 
-        pieChart.setTitle(chartName);
 
         chartSettingsFunction.applySetting(pieChart);
+
 
     }
 
@@ -129,6 +132,24 @@ public class PieChart implements Chart {
         this.chartSettingsFunction = function;
     }
 
+
+    public void addToolTipText() {
+        final Label caption = new Label("");
+        caption.setTextFill(Color.DARKORANGE);
+        caption.setStyle("-fx-font: 24 arial;");
+
+        for (final javafx.scene.chart.PieChart.Data data : series) {
+            data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED, //--> is null weil noch nicht da
+                    new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent e) {
+                            caption.setTranslateX(e.getSceneX());
+                            caption.setTranslateY(e.getSceneY());
+                            caption.setText(String.valueOf(data.getPieValue()) + "%");
+                        }
+                    });
+        }
+    }
 
     @Override
     public DateTime getStartDateTime() {
@@ -192,14 +213,19 @@ public class PieChart implements Chart {
 
     @Override
     public void applyColors() {
+
         for (int i = 0; i < hexColors.size(); i++) {
+
             Color currentColor = hexColors.get(i);
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = pieChart.lookup(preIdent + ".chart-pie");
             node.setStyle("-fx-pie-color: " + hexColor + ";");
+
+            System.out.println(preIdent + ".chart-pie " + "-fx-pie-color: " + hexColor + ";" + " color: " + currentColor.toString());
         }
     }
+
 
     @Override
     public ObservableList<TableEntry> getTableData() {

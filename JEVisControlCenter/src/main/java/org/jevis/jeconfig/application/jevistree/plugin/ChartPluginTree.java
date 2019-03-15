@@ -30,21 +30,22 @@ import java.util.List;
  */
 public class ChartPluginTree implements TreePlugin {
     public static int NO_OF_COLUMNS = 5;
+    private final Image img = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "list-add.png"));
     private final ImageView image = new ImageView(img);
-    private JEVisTree jeVisTree;
     private final String chartTitle = I18n.getInstance().getString("graph.title");
+    private JEVisTree jeVisTree;
     private GraphDataModel data;
     private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
     private JEVisDataSource dataSource;
-    private final Image img = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "list-add.png"));
-    private SimpleBooleanProperty addedChart = new SimpleBooleanProperty(false);
 
-    public JEVisTree getTree() {
-        return jeVisTree;
-    }
+    private SimpleBooleanProperty addedChart = new SimpleBooleanProperty(false);
 
     public ChartPluginTree(GraphDataModel data) {
         this.data = data;
+    }
+
+    public JEVisTree getTree() {
+        return jeVisTree;
     }
 
     @Override

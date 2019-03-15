@@ -197,7 +197,9 @@ public abstract class Widget extends Group {
 
         getAnalysis().editProperty.addListener((observable, oldValue, newValue) -> {
             System.out.println("Set Edit: " + newValue);
-            editPane.setVisible(newValue);
+            if (newValue != oldValue) {
+                editPane.setVisible(newValue);
+            }
         });
         editPane.setVisible(getAnalysis().editProperty.get());
 

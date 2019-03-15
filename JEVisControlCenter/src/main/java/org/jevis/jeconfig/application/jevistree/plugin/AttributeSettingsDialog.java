@@ -46,17 +46,22 @@ import org.jevis.jeconfig.application.unit.UnitPanel;
 import org.jevis.jeconfig.dialog.DialogHeader;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class AttributeSettingsDialog {
     private static final Logger logger = LogManager.getLogger(AttributeSettingsDialog.class);
+    private Response response = Response.CANCEL;
+    private JEVisAttribute _attribute;
+    private UnitPanel upDisplay;
+    private UnitPanel upInput;
+    private SampleRateNode _inputSampleRate;
+    private SampleRateNode _displaySampleRate;
 
     private void saveInDataSource() {
 //        logger.info("Save");
         try {
 //            logger.info("Display unit: " + UnitManager.getInstance().format(upDisplay.getSelectedUnit()));
-//            logger.info("Display sample rate: " + _displaySampleRate.getPeriod());
+//            logger.info("Display sample rate: " + _displaySampleRate.nextPeriod());
 
             _attribute.setDisplayUnit(upDisplay.getSelectedUnit());
             _attribute.setDisplaySampleRate(_displaySampleRate.getPeriod());
@@ -68,13 +73,6 @@ public class AttributeSettingsDialog {
             logger.fatal(ex);
         }
     }
-
-    private Response response = Response.CANCEL;
-    private JEVisAttribute _attribute;
-    private UnitPanel upDisplay;
-    private UnitPanel upInput;
-    private SampleRateNode _inputSampleRate;
-    private SampleRateNode _displaySampleRate;
 
     public Response show(Stage owner, final JEVisAttribute att) throws JEVisException {
         final Stage stage = new Stage();

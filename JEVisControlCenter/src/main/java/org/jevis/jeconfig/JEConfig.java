@@ -25,6 +25,7 @@ import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -269,7 +270,8 @@ public class JEConfig extends Application {
      * @param primaryStage
      */
     private void initGUI(Stage primaryStage) {
-
+        System.out.println("Color: " + javafx.scene.paint.Color.BLACK.toString());
+        System.out.println("Font Size: " + (new Label()).getFont().getSize());
         primaryStage.setOnCloseRequest(t -> {
             Platform.exit();
             System.exit(0);

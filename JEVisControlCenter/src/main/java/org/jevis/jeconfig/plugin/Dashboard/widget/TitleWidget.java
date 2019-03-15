@@ -10,6 +10,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
@@ -39,10 +40,14 @@ public class TitleWidget extends Widget {
             label.setBackground(bgColor);
             label.setTextFill(config.fontColor.getValue());
             label.setText(config.title.getValue());
+            label.setFont(new Font(config.fontSize.getValue()));
+
 
             //need setting
             label.setContentDisplay(ContentDisplay.CENTER);
+
         }
+
 
     }
 

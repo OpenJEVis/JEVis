@@ -41,6 +41,7 @@ public class WidgetConfig {
     public DoubleProperty yPosition = new SimpleDoubleProperty(100d);
     public ObjectProperty<Size> size = new SimpleObjectProperty<>(Size.DEFAULT);
     public ObjectProperty<Font> font = new SimpleObjectProperty<>(Font.getDefault());
+    public DoubleProperty fontSize = new SimpleDoubleProperty(13);
     private String type = "";
     private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
     private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
@@ -79,8 +80,7 @@ public class WidgetConfig {
             }
 
             try {
-                System.out.println("Parse '" + fontColor.getName() + "': " + jsonNode.get(fontColor.getName()).asText());
-                fontColor.setValue(Color.valueOf(jsonNode.get(fontColor.getName()).asText(Color.RED.toString())));
+                fontColor.setValue(Color.valueOf(jsonNode.get(fontColor.getName()).asText(Color.BLACK.toString())));
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", fontColor.getName(), ex);
             }
@@ -91,8 +91,14 @@ public class WidgetConfig {
                 logger.error("Could not parse Size: {}", ex);
             }
             try {
-                xPosition.setValue(jsonNode.get("xPos").asDouble());
-                yPosition.setValue(jsonNode.get("yPos").asDouble());
+                fontSize.setValue(jsonNode.get("fontSize").asDouble(13));
+            } catch (Exception ex) {
+                logger.error("Could not parse position: {}", title.getName(), ex);
+            }
+
+            try {
+                xPosition.setValue(jsonNode.get("xPos").asDouble(0));
+                yPosition.setValue(jsonNode.get("yPos").asDouble(0));
             } catch (Exception ex) {
                 logger.error("Could not parse position: {}", title.getName(), ex);
             }
@@ -145,8 +151,11 @@ public class WidgetConfig {
         userConfig.put(backgroundColor.getName(), new ConfigSheet.Property("Background Color", GENERAL_GROUP, backgroundColor.getValue(), "Help"));
         userConfig.put(fontColorSecondary.getName(), new ConfigSheet.Property(fontColorSecondary.getName(), GENERAL_GROUP, fontColorSecondary.getValue(), "Help"));
         userConfig.put(fontColor.getName(), new ConfigSheet.Property("Font Color", GENERAL_GROUP, fontColor.getValue(), "Help"));
+        userConfig.put("Font Size", new ConfigSheet.Property("fontSize", GENERAL_GROUP, fontSize.getValue(), "Help"));
+
         userConfig.put("Height", new ConfigSheet.Property("Height", GENERAL_GROUP, size.getValue().getHeight(), "Help"));
         userConfig.put("Width", new ConfigSheet.Property("Width", GENERAL_GROUP, size.getValue().getWidth(), "Help"));
+
 
         additionalSetting.forEach(widgetConfigProperty -> {
             System.out.println("Add additional config: " + widgetConfigProperty.getId() + "  " + widgetConfigProperty.getName());
@@ -174,6 +183,8 @@ public class WidgetConfig {
         jsonNode.put("width", size.getValue().getWidth());
         jsonNode.put("xPos", xPosition.getValue());
         jsonNode.put("yPos", yPosition.getValue());
+        jsonNode.put("fontSize", fontSize.getValue());
+
 
         ObjectNode additionalNodes = mapper.createObjectNode();
         additionalNodes.setAll(additionalConfigNodes);
@@ -197,6 +208,7 @@ public class WidgetConfig {
         Size newSize = new Size((double) userConfig.get("Height").getObject(), (double) userConfig.get("Width").getObject());
         size.setValue(newSize);
 
+        fontSize.setValue((double) userConfig.get("fontSize").getObject());
         title.setValue((String) userConfig.get(title.getName()).getObject());
 
         System.out.println("Widget.Settings: " + additionalSetting);

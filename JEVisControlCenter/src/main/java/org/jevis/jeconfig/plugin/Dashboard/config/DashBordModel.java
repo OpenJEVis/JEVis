@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -110,7 +112,7 @@ public class DashBordModel {
     public final ObjectProperty<Interval> displayedIntervalProperty = new SimpleObjectProperty(Interval.class, "Data Interval", new Interval(new DateTime(), new DateTime()));
 
 
-    public final ObjectProperty<Size> pageSize = new SimpleObjectProperty<>(new Size(500, 500));
+    public final ObjectProperty<Size> pageSize = new SimpleObjectProperty<>(new Size(1080, 1600));
 
 
     private final List<ChangeListener> changeListeners = new ArrayList<>();
@@ -182,6 +184,15 @@ public class DashBordModel {
             String json = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample().getValueAsString();
 
             JsonNode jsonNode = mapper.readTree(json);
+
+            try {
+                Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+                Size newSize = new Size(jsonNode.get("height").asDouble(primaryScreenBounds.getHeight() - 80)
+                        , jsonNode.get("width").asDouble(primaryScreenBounds.getWidth() - 35));
+                pageSize.setValue(newSize);
+            } catch (Exception ex) {
+                logger.error("Could not parse Size: {}", ex);
+            }
 
             try {
                 colorDashBoardBackground.setValue(Color.valueOf(jsonNode.get(colorDashBoardBackground.getName()).asText(colorDashBoardBackground.toString())));
@@ -292,7 +303,8 @@ public class DashBordModel {
         jsonNode.put(dataPeriodProperty.getName(), dataPeriodProperty.getValue().toString());
         jsonNode.put(zoomFactor.getName(), zoomFactor.getValue().toString());
         jsonNode.put(updateRate.getName(), updateRate.getValue().toString());
-
+        jsonNode.put("height", pageSize.getValue().getHeight());
+        jsonNode.put("width", pageSize.getValue().getWidth());
 
         ArrayNode widgetJson = jsonNode.putArray("Widget");
         widgetList.forEach(widgetConfig -> {
@@ -361,6 +373,8 @@ public class DashBordModel {
         userConfig.put(snapToGridProperty.getName(), new ConfigSheet.Property("Snap to Grid", GENERAL_GROUP, snapToGridProperty.getValue(), "Help"));
         userConfig.put(showGridProperty.getName(), new ConfigSheet.Property("Show Grid", GENERAL_GROUP, showGridProperty.getValue(), "Help"));
         userConfig.put(updateRate.getName(), new ConfigSheet.Property("Update Rate (sec)", GENERAL_GROUP, updateRate.getValue(), "Help"));
+        userConfig.put("Height", new ConfigSheet.Property("Height", GENERAL_GROUP, pageSize.getValue().getHeight(), "Help"));
+        userConfig.put("Width", new ConfigSheet.Property("Width", GENERAL_GROUP, pageSize.getValue().getWidth(), "Help"));
 
 
         Dialog configDia = new Dialog();

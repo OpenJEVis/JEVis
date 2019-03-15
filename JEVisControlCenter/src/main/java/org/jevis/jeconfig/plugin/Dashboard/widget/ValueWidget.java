@@ -65,8 +65,11 @@ public class ValueWidget extends Widget {
                 System.out.println("DataModels: " + sampleHandler.getDataModel().size());
                 ChartDataModel dataModel = sampleHandler.getDataModel().get(0);
                 List<JEVisSample> sampleList = dataModel.getSamples();
-                System.out.println("Samples: " + sampleList.size());
-                label.setText(nf.format(sampleList.get(sampleList.size() - 1).getValueAsDouble()) + " " + dataModel.getUnit());
+                if (!sampleList.isEmpty()) {
+                    System.out.println("Samples: " + sampleList.size());
+                    label.setText(nf.format(sampleList.get(sampleList.size() - 1).getValueAsDouble()) + " " + dataModel.getUnit());
+                }
+
             } catch (Exception ex) {
                 label.setText("-");
                 logger.error(ex);

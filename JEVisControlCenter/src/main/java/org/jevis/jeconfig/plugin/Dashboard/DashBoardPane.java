@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widgets;
 import org.joda.time.DateTime;
@@ -70,6 +71,22 @@ public class DashBoardPane extends Pane {
             }
         });
 
+        setSize(this.analysis.pageSize.get());
+        this.analysis.pageSize.addListener((observable, oldValue, newValue) -> {
+            setSize(newValue);
+        });
+
+
+    }
+
+    private void setSize(Size newValue) {
+        System.out.println("Set page size w/h: " + newValue.getWidth() + " " + newValue.getHeight());
+        this.setMaxWidth(newValue.getWidth());
+        this.setMinWidth(newValue.getWidth());
+        this.setPrefWidth(newValue.getWidth());
+        this.setMaxHeight(newValue.getHeight());
+        this.setMinHeight(newValue.getHeight());
+        this.setPrefHeight(newValue.getHeight());
     }
 
     public Widget createWidget(WidgetConfig widget) {
@@ -99,6 +116,7 @@ public class DashBoardPane extends Pane {
         analysis.pageSize.addListener((observable, oldValue, newValue) -> {
             setWidth(newValue.getWidth());
             setHeight(newValue.getHeight());
+            setBackground();
         });
 
         analysis.zoomFactor.addListener((observable, oldValue, newValue) -> {
@@ -152,21 +170,13 @@ public class DashBoardPane extends Pane {
     }
 
     private void setBackground() {
-//        Background colorBackground = new Background(new BackgroundFill(analysis.colorDashBoardBackground.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
-//        analysis.colorDashBoardBackground.addListener((observable, oldValue, newValue) -> {
-//            setBackground(new Background(new BackgroundFill(newValue, CornerRadii.EMPTY, Insets.EMPTY)));
-//        });
-//        final Image overlay = overlayImages.computeIfAbsent(
-//                imageName,
-//                image -> {
-//                    return this.load(OverlayLoader.class, image, width, height);
-//                });
-
-//        final Image image = JEConfig.getImage("Dashbord.jpg");
         try {
             final Image image = analysis.imageBoardBackground.getValue();
 
-            final BackgroundSize backgroundSize = new BackgroundSize(image.getWidth(), image.getHeight(), false, false, false, false);
+//            final BackgroundSize backgroundSize = new BackgroundSize(image.getWidth(), image.getHeight(), false, false, false, false);
+//            final BackgroundSize backgroundSize = new BackgroundSize(analysis.pageSize.get().getWidth(), analysis.pageSize.get().getHeight(), false, false, false, false);
+            final BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, true, false);
+
             final BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT,
                     BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, backgroundSize);
             final Background background = new Background(backgroundImage);

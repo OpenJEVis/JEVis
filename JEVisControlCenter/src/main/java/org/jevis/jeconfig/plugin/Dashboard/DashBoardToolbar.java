@@ -113,6 +113,12 @@ public class DashBoardToolbar extends ToolBar {
         ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
+        ToggleButton exportPDF = new ToggleButton("", JEConfig.getImage("pdf_32_32.png", iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPDF);
+
+
+        ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
@@ -142,6 +148,10 @@ public class DashBoardToolbar extends ToolBar {
                 }
             }
 
+        });
+
+        exportPDF.setOnAction(event -> {
+            dashBordPlugIn.toPDF();
         });
 
         save.setOnAction(event -> {
@@ -248,7 +258,7 @@ public class DashBoardToolbar extends ToolBar {
         });
 
         ToolBarIntervalSelector toolBarIntervalSelector = new ToolBarIntervalSelector(iconSize, new Interval(new DateTime(), new DateTime()));
-        
+
         toolBarIntervalSelector.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
 
             analyses.updateIsRunningProperty.setValue(false);
@@ -267,7 +277,7 @@ public class DashBoardToolbar extends ToolBar {
                 listAnalysesComboBox
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn
-                , sep4, newWidgetButton, save, settingsButton, backgroundButton
+                , sep4, newButton, save, delete, newWidgetButton, settingsButton, backgroundButton, exportPDF
                 , sep2, runUpdateButton, unlockB);
 
 

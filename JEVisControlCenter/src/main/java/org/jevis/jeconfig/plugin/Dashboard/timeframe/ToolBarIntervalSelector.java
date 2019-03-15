@@ -111,6 +111,7 @@ public class ToolBarIntervalSelector extends FlowPane {
 
         Region spacer = new Region();
         spacer.setMinWidth(10);
+        spacer.setMaxWidth(10);
 
         getChildren().addAll(timeFrameBox, spacer, prevButton, dateButton, nextButton);
 
