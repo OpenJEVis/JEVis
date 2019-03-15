@@ -7,7 +7,6 @@ import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import jfxtras.labs.util.event.MouseControlUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -128,33 +127,34 @@ public abstract class Widget extends Group {
     }
 
     private void makeWindowForm() {
-        Rectangle background = new Rectangle();
-        background.setX(0);
-        background.setY(0);
-        background.setWidth(config.size.getValue().getWidth());
-        background.setHeight(config.size.getValue().getHeight());
-        background.setArcWidth(0);
-        background.setArcHeight(0);
-//        background.setStroke(Color.BLACK);
-//        background.setFill(dashBoard.getDashBordAnalysis().colorWidgetPlugin.getValue());
-        background.setFill(config.backgroundColor.getValue());
-//        background.setOpacity(dashBoard.getDashBordAnalysis().opacityWidgetPlugin.getValue());
-        config.size.addListener((observable, oldValue, newValue) -> {
-            background.setWidth(newValue.getWidth());
-            background.setHeight(newValue.getHeight());
-        });
+//        Rectangle background = new Rectangle();
+//        background.setX(0);
+//        background.setY(0);
+//        background.setWidth(config.size.getValue().getWidth());
+//        background.setHeight(config.size.getValue().getHeight());
+//        background.setArcWidth(0);
+//        background.setArcHeight(0);
+////        background.setStroke(Color.BLACK);
+////        background.setFill(dashBoard.getDashBordAnalysis().colorWidgetPlugin.getValue());
+//        background.setFill(config.backgroundColor.getValue());
+////        background.setOpacity(dashBoard.getDashBordAnalysis().opacityWidgetPlugin.getValue());
+//        config.size.addListener((observable, oldValue, newValue) -> {
+//            background.setWidth(newValue.getWidth());
+//            background.setHeight(newValue.getHeight());
+//        });
 
+//        background.setFill(newValue);
+
+        setBackgroundColor(config.backgroundColor.getValue());
         config.backgroundColor.addListener((observable, oldValue, newValue) -> {
-//            donut.setBackgroundColor(newValue);
-            background.setFill(newValue);
+            setBackgroundColor(newValue);
         });
 
-        Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
+    }
 
-
+    private void setBackgroundColor(Color color) {
+        Background bgColor = new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
         contentRoot.setBackground(bgColor);
-
-//        this.getChildren().add(background);
     }
 
     public abstract ImageView getImagePreview();
@@ -190,6 +190,11 @@ public abstract class Widget extends Group {
             setSize(newValue.getWidth(), newValue.getHeight());
         });
 
+        setBorder(config.borderSize.get());
+        config.borderSize.addListener((observable, oldValue, newValue) -> {
+            setBorder(newValue);
+        });
+
         getAnalysis().editProperty.addListener((observable, oldValue, newValue) -> {
             System.out.println("Set Edit: " + newValue);
             editPane.setVisible(newValue);
@@ -204,6 +209,11 @@ public abstract class Widget extends Group {
         });
 
 
+    }
+
+    private void setBorder(BorderWidths newValue) {
+        this.contentRoot.setBorder(new Border(new BorderStroke(Color.BLACK,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, newValue)));
     }
 
     /**

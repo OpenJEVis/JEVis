@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2019 Envidatec GmbH <info@envidatec.com>
  * <p>
  * This file is part of JEApplication.
  * <p>

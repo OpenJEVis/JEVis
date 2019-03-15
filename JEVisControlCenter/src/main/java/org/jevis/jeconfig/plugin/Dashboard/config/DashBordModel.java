@@ -18,9 +18,11 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.plugin.Dashboard.DashBordPlugIn;
+import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.Period;
 import org.joda.time.format.ISOPeriodFormat;
 
@@ -102,6 +104,15 @@ public class DashBordModel {
      */
     public final BooleanProperty showGridProperty = new SimpleBooleanProperty(Boolean.class, "Show Grid", true);
     public final ObjectProperty<Period> dataPeriodProperty = new SimpleObjectProperty(Period.class, "Data Period", Period.days(2));
+    /**
+     * Current displayed interval
+     */
+    public final ObjectProperty<Interval> displayedIntervalProperty = new SimpleObjectProperty(Interval.class, "Data Interval", new Interval(new DateTime(), new DateTime()));
+
+
+    public final ObjectProperty<Size> pageSize = new SimpleObjectProperty<>(new Size(500, 500));
+
+
     private final List<ChangeListener> changeListeners = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
     private JEVisObject analysisObject;
@@ -109,7 +120,7 @@ public class DashBordModel {
     /**
      * Lower and upper Zoom limit
      */
-    private double[] zommLimit = new double[]{0.2, 3};
+    private double[] zoomLimit = new double[]{0.2, 3};
     /**
      * Zoom factor for the dashbord view.
      * 1 is no zoom
@@ -120,11 +131,11 @@ public class DashBordModel {
         @Override
         public void set(double value) {
 
-            if (value < zommLimit[0]) {
-                value = zommLimit[0];
+            if (value < zoomLimit[0]) {
+                value = zoomLimit[0];
             }
-            if (value > zommLimit[1]) {
-                value = zommLimit[1];
+            if (value > zoomLimit[1]) {
+                value = zoomLimit[1];
             }
             super.set(value);
         }
@@ -134,11 +145,11 @@ public class DashBordModel {
             if (value == null) {
                 // depending on requirements, throw exception, set to default value, etc.
             } else {
-                if (value.doubleValue() < zommLimit[0]) {
-                    value = new Double(zommLimit[0]);
+                if (value.doubleValue() < zoomLimit[0]) {
+                    value = new Double(zoomLimit[0]);
                 }
-                if (value.doubleValue() > zommLimit[1]) {
-                    value = new Double(zommLimit[1]);
+                if (value.doubleValue() > zoomLimit[1]) {
+                    value = new Double(zoomLimit[1]);
                 }
                 super.setValue(value);
             }

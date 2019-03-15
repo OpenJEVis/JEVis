@@ -12,9 +12,12 @@ import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
+import org.jevis.jeconfig.plugin.Dashboard.timeframe.ToolBarIntervalSelector;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.Dashboard.wizzard.Wizard;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -244,14 +247,28 @@ public class DashBoardToolbar extends ToolBar {
             analyses.zoomOut();
         });
 
+        ToolBarIntervalSelector toolBarIntervalSelector = new ToolBarIntervalSelector(iconSize, new Interval(new DateTime(), new DateTime()));
+        
+        toolBarIntervalSelector.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
+
+            analyses.updateIsRunningProperty.setValue(false);
+            analyses.dataPeriodProperty.setValue(newValue.toPeriod());
+            analyses.displayedIntervalProperty.setValue(newValue);
+
+        });
+
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
+        Separator sep3 = new Separator();
+        Separator sep4 = new Separator();
 
         getItems().clear();
         getItems().addAll(
-                analysisLabel, listAnalysesComboBox, newWidgetButton, save, settingsButton, unlockB, backgroundButton, sep1,
-                zoomOut, zoomIn, sep2,
-                runUpdateButton);
+                listAnalysesComboBox
+                , sep3, toolBarIntervalSelector
+                , sep1, zoomOut, zoomIn
+                , sep4, newWidgetButton, save, settingsButton, backgroundButton
+                , sep2, runUpdateButton, unlockB);
 
 
     }

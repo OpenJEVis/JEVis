@@ -8,6 +8,7 @@ import javafx.beans.property.*;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +28,7 @@ public class WidgetConfig {
     private static final Logger logger = LogManager.getLogger(WidgetConfig.class);
     private static String WIDGET_SETTINGS_NODE = "extra";
     private static String DATA_HANDLER_NODE = "dataHandler";
+    public final ObjectProperty<BorderWidths> borderSize = new SimpleObjectProperty(Double.class, "Border Size", new BorderWidths(0.2));
     public StringProperty uuid = new SimpleStringProperty(UUID.randomUUID().toString());
     public ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
     public ObjectProperty<Color> fontColorSecondary = new SimpleObjectProperty<>(Color.class, "Font Color Secondary", Color.DODGERBLUE);
@@ -43,7 +45,6 @@ public class WidgetConfig {
     private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
     private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
     private Map<String, JsonNode> additionalConfigNodes = new HashMap<>();
-
     private ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
     private JsonNode extraNode = mapper.createObjectNode();
     private JsonNode dataHandlerNode = mapper.createObjectNode();
@@ -78,7 +79,8 @@ public class WidgetConfig {
             }
 
             try {
-                fontColor.setValue(Color.valueOf(jsonNode.get(fontColor.getName()).asText(fontColor.get().toString())));
+                System.out.println("Parse '" + fontColor.getName() + "': " + jsonNode.get(fontColor.getName()).asText());
+                fontColor.setValue(Color.valueOf(jsonNode.get(fontColor.getName()).asText(Color.RED.toString())));
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", fontColor.getName(), ex);
             }
@@ -201,6 +203,11 @@ public class WidgetConfig {
         additionalSetting.forEach(widgetConfigProperty -> {
             widgetConfigProperty.getWritableValue().setValue(userConfig.get(widgetConfigProperty.getId()).getObject());
         });
+
+        System.out.println("Font Color: " + fontColor.getValue().toString());
+        System.out.println("Background color: " + backgroundColor.getValue().toString());
+
+
     }
 
     public boolean openConfig() {
@@ -230,7 +237,6 @@ public class WidgetConfig {
         if (opt.get().equals(buttonTypeOk)) {
             System.out.println("Done");
             applyUserConfig(userConfig);
-
             return true;
         }
 

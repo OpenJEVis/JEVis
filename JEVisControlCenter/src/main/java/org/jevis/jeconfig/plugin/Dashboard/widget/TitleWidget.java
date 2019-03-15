@@ -70,6 +70,7 @@ public class TitleWidget extends Widget {
     @Override
     public void init() {
         label.setText(config.title.getValue());
+        label.setPadding(new Insets(0, 8, 0, 8));
         setGraphic(label);
     }
 

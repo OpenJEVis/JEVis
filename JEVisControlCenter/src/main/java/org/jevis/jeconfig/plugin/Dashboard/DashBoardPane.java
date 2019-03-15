@@ -38,6 +38,12 @@ public class DashBoardPane extends Pane {
 
         this.analysis = analysis;
 
+        this.analysis.pageSize.addListener((observable, oldValue, newValue) -> {
+            setWidth(newValue.getWidth());
+            setHeight(newValue.getHeight());
+        });
+
+
         this.analysis.getWidgets().forEach(widgetConfig -> {
             Widget widget = createWidget(widgetConfig);
             if (widget != null) {
@@ -90,6 +96,11 @@ public class DashBoardPane extends Pane {
         this.heightProperty().addListener(sizeListener);
         this.widthProperty().addListener(sizeListener);
 
+        analysis.pageSize.addListener((observable, oldValue, newValue) -> {
+            setWidth(newValue.getWidth());
+            setHeight(newValue.getHeight());
+        });
+
         analysis.zoomFactor.addListener((observable, oldValue, newValue) -> {
             System.out.println("Change zoom to: " + newValue);
             scale.setX(newValue.doubleValue());
@@ -124,6 +135,17 @@ public class DashBoardPane extends Pane {
             if (newValue) {
                 timer.scheduleAtFixedRate(updateTask, 0, analysis.updateRate.getValue() * 1000);
             }
+        });
+
+        analysis.displayedIntervalProperty.addListener((observable, oldValue, newValue) -> {
+            logger.info("Intervall update: {}", newValue);
+            widgetList.forEach(widget -> {
+                logger.info("Update widget: {}", widget.getUUID());
+                Platform.runLater(() -> {
+                    widget.update(newValue);
+                });
+
+            });
         });
 
 

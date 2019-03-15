@@ -14,6 +14,7 @@ public class Widgets {
         widgetList.add(new PieWidget(jeVisDataSource, config));
         widgetList.add(new TitleWidget(jeVisDataSource, config));
         widgetList.add(new ChartWidget(jeVisDataSource, config));
+        widgetList.add(new ValueWidget(jeVisDataSource, config));
         return widgetList;
     }
 
