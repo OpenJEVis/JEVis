@@ -33,9 +33,9 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
@@ -303,6 +303,7 @@ public class ChartSelectionDialog {
 
         final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
         final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
+        final Label presetDateBoxLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
 
         List<ChartDataModel> correspondingDataModels = new ArrayList<>();
         data.getSelectedData().forEach(chartDataModel -> {
@@ -341,6 +342,10 @@ public class ChartSelectionDialog {
         gridPane.add(endText, 0, row);
         gridPane.add(pickerTimeEnd, 1, row);
         gridPane.add(pickerDateEnd, 2, row);
+        row++;
+
+        gridPane.add(presetDateBoxLabel, 0, row);
+        gridPane.add(presetDateBox, 1, row);
 
 
         newTab.setContent(gridPane);

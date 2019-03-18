@@ -9,10 +9,10 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -107,9 +107,7 @@ public class XYChartSerie {
                 data.setExtraValue(yAxis);
 
                 data.setNode(null);
-                if (!sample.getNote().contains("Empty")) {
-                    data.setNode(generateNode(sample));
-                }
+                data.setNode(generateNode(sample));
 
                 setDataNodeColor(data);
 
@@ -180,9 +178,15 @@ public class XYChartSerie {
         Note note = new Note(sample);
 
         if (note.getNote() != null && hideShowIcons) {
+            if (sample.getNote().contains("Empty")) {
+                return null;
+            }
             note.getNote().setVisible(true);
             return note.getNote();
         } else {
+            if (sample.getNote() != null && sample.getNote().contains("Empty")) {
+                return null;
+            }
             Rectangle rect = new Rectangle(0, 0);
             rect.setFill(singleRow.getColor());
             rect.setVisible(false);

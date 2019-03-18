@@ -4,7 +4,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import javafx.scene.control.DateCell;
 import javafx.util.Callback;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.joda.time.DateTime;
 
@@ -82,5 +82,21 @@ public class DatePicker extends JFXDatePicker {
                 };
             }
         });
+    }
+
+    public GraphDataModel getGraphDataModel() {
+        return graphDataModel;
+    }
+
+    public void setGraphDataModel(GraphDataModel graphDataModel) {
+        this.graphDataModel = graphDataModel;
+    }
+
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
+    }
+
+    public void setChartDataModels(List<ChartDataModel> chartDataModels) {
+        this.chartDataModels = chartDataModels;
     }
 }

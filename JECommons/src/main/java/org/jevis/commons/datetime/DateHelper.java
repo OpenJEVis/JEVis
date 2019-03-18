@@ -1,5 +1,7 @@
 package org.jevis.commons.datetime;
 
+import org.jevis.api.JEVisAttribute;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.ObjectHandler;
 import org.joda.time.DateTime;
 
@@ -603,5 +605,48 @@ public class DateHelper {
 
     public DateTime getMaxEndDateTime() {
         return maxEndDateTime;
+    }
+
+    public void setMinMaxForDateHelper(List<ChartDataModel> chartDataModels) {
+        DateTime min = null;
+        DateTime max = null;
+
+        for (ChartDataModel chartDataModel : chartDataModels) {
+            JEVisAttribute att = chartDataModel.getAttribute();
+            if (att != null) {
+                DateTime min_check = null;
+                DateTime timestampFromFirstSample = att.getTimestampFromFirstSample();
+                if (timestampFromFirstSample != null) {
+                    min_check = new DateTime(
+                            timestampFromFirstSample.getYear(),
+                            timestampFromFirstSample.getMonthOfYear(),
+                            timestampFromFirstSample.getDayOfMonth(),
+                            timestampFromFirstSample.getHourOfDay(),
+                            timestampFromFirstSample.getMinuteOfHour(),
+                            timestampFromFirstSample.getSecondOfMinute());
+                }
+
+                DateTime timestampFromLastSample = att.getTimestampFromLastSample();
+                DateTime max_check = null;
+                if (timestampFromLastSample != null) {
+                    max_check = new DateTime(
+                            timestampFromLastSample.getYear(),
+                            timestampFromLastSample.getMonthOfYear(),
+                            timestampFromLastSample.getDayOfMonth(),
+                            timestampFromLastSample.getHourOfDay(),
+                            timestampFromLastSample.getMinuteOfHour(),
+                            timestampFromLastSample.getSecondOfMinute());
+                }
+
+                if (min == null || (min_check != null && min_check.isBefore(min))) min = min_check;
+                if (max == null || (max_check != null && max_check.isAfter(max))) max = max_check;
+            }
+        }
+
+        if (min != null && max != null) {
+            setMinStartDateTime(min);
+            setMaxEndDateTime(max);
+        }
+
     }
 }

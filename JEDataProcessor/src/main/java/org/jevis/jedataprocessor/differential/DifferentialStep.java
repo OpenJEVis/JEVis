@@ -39,20 +39,45 @@ public class DifferentialStep implements ProcessStep {
 
             if (intervals.size() > 0) {
                 Double lastDiffVal = null;
-                List<JEVisSample> rawSamples = cleanDataObject.getRawSamples();
+                DateTime firstDate = cleanDataObject.getFirstDate()
+                        .minus(cleanDataObject.getCleanDataPeriodAlignment())
+                        .minus(cleanDataObject.getCleanDataPeriodAlignment());
+                List<JEVisSample> rawSamples = cleanDataObject.getRawAttribute().getSamples(firstDate, cleanDataObject.getLastRawDate());
+                DateTime firstTS = cleanDataObject.getFirstDate();
                 boolean found = false;
+
+                JEVisSample lastSample = null;
                 for (JEVisSample smp : rawSamples) {
-                    DateTime ts = smp.getTimestamp();
+                    DateTime timestamp = smp.getTimestamp();
+                    if (timestamp.equals(firstTS) && timeStampInIntervals(timestamp, ctdList)) {
+                        lastDiffVal = smp.getValueAsDouble();
+                        break;
+                    } else if (lastSample != null && timestamp.isAfter(firstTS) && timeStampInIntervals(timestamp, ctdList)) {
+//                        long diffToPrev = Math.abs(firstTS.getMillis() - lastSample.getTimestamp().getMillis());
+//                        long diffToNxt = Math.abs(firstTS.getMillis() - timestamp.getMillis());
+//
+//                        if (diffToPrev < diffToNxt) lastDiffVal = lastSample.getValueAsDouble();
+//                        else lastDiffVal = smp.getValueAsDouble();
+                        lastDiffVal = lastSample.getValueAsDouble();
+                        break;
 
-                    for (Interval interval : ctdList) {
-                        if (ts.equals(interval.getStart()) || (ts.isAfter(interval.getStart()) && ts.isBefore(interval.getEnd()))) {
-                            lastDiffVal = smp.getValueAsDouble();
-                            found = true;
-                            break;
+                    } else lastSample = smp;
+                }
+
+                if (lastDiffVal == null) {
+                    for (JEVisSample smp : rawSamples) {
+                        DateTime ts = smp.getTimestamp();
+
+                        for (Interval interval : ctdList) {
+                            if (ts.equals(interval.getStart()) || (ts.isAfter(interval.getStart()) && ts.isBefore(interval.getEnd()))) {
+                                lastDiffVal = smp.getValueAsDouble();
+                                found = true;
+                                break;
+                            }
                         }
-                    }
 
-                    if (found) break;
+                        if (found) break;
+                    }
                 }
 
                 if (lastDiffVal == null) {
@@ -135,6 +160,16 @@ public class DifferentialStep implements ProcessStep {
             }
         }
 
+    }
+
+    private boolean timeStampInIntervals(DateTime timestamp, List<Interval> ctdList) {
+        boolean contained = false;
+        for (Interval interval : ctdList) {
+            if (!contained) {
+                contained = timestamp.equals(interval.getStart()) || (timestamp.isAfter(interval.getStart()) && timestamp.isBefore(interval.getEnd()));
+            }
+        }
+        return contained;
     }
 
     private List<Interval> getIntervalsFromConversionToDifferentialList

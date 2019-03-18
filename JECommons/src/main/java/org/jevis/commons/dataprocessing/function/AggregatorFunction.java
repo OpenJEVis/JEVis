@@ -21,6 +21,7 @@ package org.jevis.commons.dataprocessing.function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
@@ -29,6 +30,7 @@ import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,18 @@ public class AggregatorFunction implements ProcessFunction {
             return result;
         }
         List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
+
+        JEVisAttribute attribute = null;
+        if (allSamples.size() > 0) {
+            List<JEVisSample> samples = allSamples.get(0);
+            if (samples.size() > 0) {
+                try {
+                    attribute = samples.get(0).getAttribute();
+                } catch (JEVisException e) {
+                    logger.error("Could not get Attribute: " + e);
+                }
+            }
+        }
 
         //logger.info("intervals: " + intervals.size());
 
@@ -96,6 +110,22 @@ public class AggregatorFunction implements ProcessFunction {
             //logger.info("interval: " + interval);
 
             for (List<JEVisSample> samples : allSamples) {
+                Period oldPeriod = null;
+                if (samples.size() > 1) {
+                    try {
+                        oldPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                    } catch (JEVisException e) {
+                        logger.error("Could not get old Period: " + e);
+                    }
+                }
+
+                Period newPeriod = null;
+                try {
+                    newPeriod = new Period(interval.getStart(), interval.getEnd());
+                } catch (Exception e) {
+                    logger.error("Could not get new Period: " + e);
+                }
+
                 for (int i = lastPos; i < samples.size(); i++) {
                     try {
                         if (interval.contains(samples.get(i).getTimestamp().minusMillis(1))) {
@@ -135,7 +165,14 @@ public class AggregatorFunction implements ProcessFunction {
                 }
 
                 if (hasSamples) {
-                    JEVisSample resultSum = new VirtualSample(interval.getStart(), sum, unit, mainTask.getJEVisDataSource(), new VirtualAttribute(null));
+                    JEVisSample resultSum = new VirtualSample(interval.getStart(), sum, unit, mainTask.getJEVisDataSource(), attribute);
+                    if (oldPeriod != null && newPeriod != null) {
+                        try {
+                            resultSum.setNote("Aggregation(" + oldPeriod.toString() + "/" + newPeriod.toString() + ")");
+                        } catch (JEVisException e) {
+                            logger.error("Could not set new Note to sample: " + e);
+                        }
+                    }
                     result.add(resultSum);
                 }
             }

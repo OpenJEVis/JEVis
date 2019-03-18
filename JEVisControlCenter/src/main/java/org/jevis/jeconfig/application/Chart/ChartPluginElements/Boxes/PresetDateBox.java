@@ -5,8 +5,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.datetime.DateHelper;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndTimePicker;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartDatePicker;
@@ -115,7 +116,25 @@ public class PresetDateBox extends ComboBox<TimeFrame> {
 
         getSelectionModel().selectFirst();
 
-        getSelectionModel().select(graphDataModel.getAnalysisTimeFrame().getTimeFrame());
+        if (chartDataModel != null) {
+            if (!graphDataModel.getCharts().isEmpty()) {
+                if (chartDataModel != null && !chartDataModel.isEmpty()) {
+                    graphDataModel.getCharts().forEach(chartSettings -> {
+                        if (chartDataModel.get(0).getSelectedcharts().contains(chartSettings.getId())) {
+
+                            getSelectionModel().select(chartSettings.getAnalysisTimeFrame().getTimeFrame());
+                        }
+                    });
+                } else {
+                    getSelectionModel().select(graphDataModel.getCharts().get(0).getAnalysisTimeFrame().getTimeFrame());
+                }
+
+            }
+        } else {
+            if (graphDataModel.isglobalAnalysisTimeFrame()) {
+                getSelectionModel().select(graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame());
+            }
+        }
         applySelectedDatePresetToDataModel(getSelectionModel().getSelectedItem());
 
         valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -124,6 +143,16 @@ public class PresetDateBox extends ComboBox<TimeFrame> {
     }
 
     private void applySelectedDatePresetToDataModel(TimeFrame newValue) {
+        if (newValue != TimeFrame.PREVIEW) {
+            if (chartDataModel == null) {
+                graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
+            } else {
+                DateHelper dateHelper = new DateHelper();
+                dateHelper.setMinMaxForDateHelper(chartDataModel);
+                graphDataModel.setAnalysisTimeFrameForModels(chartDataModel, dateHelper, new AnalysisTimeFrame(newValue));
+            }
+        }
+
         switch (newValue) {
             //Custom
             case CUSTOM:

@@ -32,7 +32,6 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.chart.Chart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -45,13 +44,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.application.Chart.*;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
@@ -172,7 +174,7 @@ public class GraphPluginView implements Plugin {
 
         } else if (dialog.getResponse() == Response.LOAD) {
 
-            dataModel.setAnalysisTimeFrame(dataModel.getAnalysisTimeFrame());
+            dataModel.setGlobalAnalysisTimeFrame(dataModel.getGlobalAnalysisTimeFrame());
             dataModel.updateSamples();
             dataModel.setCharts(dataModel.getCharts());
             dataModel.setSelectedData(dataModel.getSelectedData());
@@ -218,10 +220,10 @@ public class GraphPluginView implements Plugin {
 
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel);
 
-        AnalysisTimeFrame atf = new AnalysisTimeFrame();
-        atf.setTimeFrame(TimeFrame.CUSTOM);
-
-        dataModel.setAnalysisTimeFrame(atf);
+//        AnalysisTimeFrame atf = new AnalysisTimeFrame();
+//        atf.setTimeFrame(TimeFrame.CUSTOM);
+//
+//        dataModel.setAnalysisTimeFrame(atf);
 
         if (selectionDialog.show() == Response.OK) {
             toolBarView.setDisableToolBarIcons(false);
@@ -306,11 +308,11 @@ public class GraphPluginView implements Plugin {
                     } catch (JEVisException e) {
                         logger.error(e);
                     }
-                    if (!dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
-                            && !dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
-                        AnalysisTimeFrame oldTimeframe = dataModel.getAnalysisTimeFrame();
-                        dataModel.setAnalysisTimeFrame(oldTimeframe);
-                    }
+//                    if (!dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
+//                            && !dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
+//                        AnalysisTimeFrame oldTimeframe = dataModel.getAnalysisTimeFrame();
+//                        dataModel.setAnalysisTimeFrame(oldTimeframe);
+//                    }
                     dataModel.updateSamples();
                     update(true);
                     break;
@@ -434,12 +436,10 @@ public class GraphPluginView implements Plugin {
                     if (!cv.getChartType().equals(ChartType.TABLE)) {
                         bp.setTop(cv.getLegend());
                     } else {
-                        Chart chart = cv.getChart().getChart();
-//                        chart.setMinHeight(0);
-                        chart.setMaxHeight(70);
+                        TableChart chart = (TableChart) cv.getChart();
 
-                        bp.setTop(chart);
 
+                        bp.setTop(chart.getTopPicker());
                     }
                 } else {
                     bp.setTop(null);
