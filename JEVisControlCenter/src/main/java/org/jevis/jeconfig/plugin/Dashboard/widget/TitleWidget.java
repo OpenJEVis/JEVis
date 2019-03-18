@@ -3,9 +3,9 @@ package org.jevis.jeconfig.plugin.Dashboard.widget;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -14,6 +14,7 @@ import javafx.scene.text.Font;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.Interval;
 
 import java.util.List;
@@ -37,14 +38,20 @@ public class TitleWidget extends Widget {
         //if config changed
         if (config.hasChanged("")) {
             Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
+//            Background bgColor = new Background(new BackgroundFill(Paint.valueOf("#0066ff"), CornerRadii.EMPTY, Insets.EMPTY));
+//            System.out.println(Paint.valueOf("#005ce6").toString());
+
             label.setBackground(bgColor);
             label.setTextFill(config.fontColor.getValue());
             label.setText(config.title.getValue());
             label.setFont(new Font(config.fontSize.getValue()));
-
-
+            System.out.println("Text aligment: " + config.titlePosition.getValue());
+//            label.setTextAlignment(config.titlePosition.getValue());
+            label.setAlignment(config.titlePosition.getValue());
+//            label.setContentDisplay(ContentDisplay.CENTER);
+//            label.setTextAlignment(TextAlignment.CENTER);
             //need setting
-            label.setContentDisplay(ContentDisplay.CENTER);
+//            label.setContentDisplay(ContentDisplay.CENTER);
 
         }
 
@@ -76,7 +83,10 @@ public class TitleWidget extends Widget {
     public void init() {
         label.setText(config.title.getValue());
         label.setPadding(new Insets(0, 8, 0, 8));
-        setGraphic(label);
+        AnchorPane anchorPane = new AnchorPane();
+        anchorPane.getChildren().add(label);
+        Layouts.setAnchor(label, 0);
+        setGraphic(anchorPane);
     }
 
 

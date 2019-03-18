@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
+import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -42,6 +43,7 @@ public class WidgetConfig {
     public ObjectProperty<Size> size = new SimpleObjectProperty<>(Size.DEFAULT);
     public ObjectProperty<Font> font = new SimpleObjectProperty<>(Font.getDefault());
     public DoubleProperty fontSize = new SimpleDoubleProperty(13);
+    public ObjectProperty<Pos> titlePosition = new SimpleObjectProperty<>(Pos.class, "Title Position", Pos.CENTER);
     private String type = "";
     private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
     private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
@@ -66,6 +68,13 @@ public class WidgetConfig {
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", title.getName(), ex);
             }
+
+            try {
+                titlePosition.setValue(Pos.valueOf(jsonNode.get(titlePosition.getName()).asText(Pos.CENTER.toString())));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", titlePosition.getName(), ex);
+            }
+
 
             try {
                 type = jsonNode.get("WidgetType").asText("");

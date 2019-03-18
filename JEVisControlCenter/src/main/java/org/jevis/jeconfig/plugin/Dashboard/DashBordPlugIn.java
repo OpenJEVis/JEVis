@@ -193,6 +193,7 @@ public class DashBordPlugIn implements Plugin {
 
     public void toPDF() {
         try {
+            logger.info("start- converting to pdf");
 
             FileChooser fileChooser = new FileChooser();
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf");
@@ -205,19 +206,28 @@ public class DashBordPlugIn implements Plugin {
             File file = fileChooser.showSaveDialog(JEConfig.getStage());
 
             if (file != null) {
-
+                logger.info("target file: {}", file);
                 final SnapshotParameters spa = new SnapshotParameters();
-                final WritableImage image = new WritableImage((int) dashBoardPane.getWidth(), (int) dashBoardPane.getHeight());
-                WritableImage wImage = dashBoardPane.snapshot(spa, image);
+//                final WritableImage image = new WritableImage((int) dashBoardPane.getWidth(), (int) dashBoardPane.getHeight());
+
+                logger.info("Start writing screenshot");
+//                WritableImage wImage = dashBoardPane.snapshot(spa, image);
+                WritableImage wImage = dashBoardPane.snapshot(new SnapshotParameters(), null);
+                logger.info("Done screenshot");
                 ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
                 ImageIO.write(SwingFXUtils.fromFXImage(wImage, null), "png", byteOutput);
+                logger.info("Convert 1 Done");
                 com.itextpdf.text.Image graph = com.itextpdf.text.Image.getInstance(byteOutput.toByteArray());
-
+                logger.info("Convert 2 Done");
                 Document document = new Document();
+                logger.info("Document start");
                 PdfWriter.getInstance(document, new FileOutputStream(file));
                 document.open();
+                logger.info("doc open");
                 document.add(graph);
+                logger.info("doc screenshot add done");
                 document.close();
+                logger.info("doc done done");
             }
 
         } catch (Exception ex) {

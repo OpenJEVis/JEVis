@@ -51,7 +51,8 @@ public class ChartWidget extends Widget {
         if (config.hasChanged("")) {
             lineChart.setChartSettings(chart1 -> {
                 MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
-                multiAxisLineChart.setAnimated(true);
+//                multiAxisLineChart.setAnimated(true);
+                lineChart.getChart().setAnimated(false);
                 multiAxisLineChart.setLegendSide(Side.BOTTOM);
                 multiAxisLineChart.setLegendVisible(true);
 
