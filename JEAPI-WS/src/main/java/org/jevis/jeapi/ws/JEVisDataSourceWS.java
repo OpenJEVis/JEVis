@@ -41,6 +41,7 @@ import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author fs
@@ -357,11 +358,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     long endID = re.getEndID();
 
                     if (!objectRelMapCache.containsKey(startID)) {
-                        objectRelMapCache.put(startID, new ArrayList<>());
+                        objectRelMapCache.put(startID, new CopyOnWriteArrayList<>());
                     }
 
                     if (!objectRelMapCache.containsKey(endID)) {
-                        objectRelMapCache.put(endID, new ArrayList<>());
+                        objectRelMapCache.put(endID, new CopyOnWriteArrayList<>());
                     }
 
                     objectRelMapCache.get(startID).add(re);
@@ -370,6 +371,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     logger.error("incorrect relationship: {}", re);
                 }
             });
+
+
             logger.debug("Relationship amount: {}", objectRelMapCache.size());
 
             orLoaded = true;
@@ -933,13 +936,22 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisObject> getObjects(JEVisClass jevisClass, boolean addheirs) throws JEVisException {
+
+        if (jevisClass == null) {
+            logger.error("Class does not exist {}", jevisClass);
+            return new ArrayList<>();
+        }
+
         /**
          * We now load the list from the cache to improve performance
          */
         List<JEVisClass> filterClass = new ArrayList<>();
         filterClass.add(jevisClass);
         if (addheirs) {
-            filterClass.addAll(jevisClass.getHeirs());
+            if (jevisClass.getHeirs() != null) {
+                filterClass.addAll(jevisClass.getHeirs());
+            }
+
         }
 
         List<JEVisObject> objs = new ArrayList<>();
@@ -1277,6 +1289,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void preload() {
         try {
+            logger.info("Start preload");
             Benchmark benchmark = new Benchmark();
             getJEVisClasses();
             benchmark.printBenchmarkDetail("Preload - Classes");

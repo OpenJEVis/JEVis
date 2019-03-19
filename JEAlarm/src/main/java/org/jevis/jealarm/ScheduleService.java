@@ -12,7 +12,6 @@ import org.joda.time.DateTime;
 import java.util.List;
 
 /**
- *
  * @author Artur Iablokov
  */
 public class ScheduleService {

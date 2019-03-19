@@ -22,9 +22,11 @@ package org.jevis.jeconfig;
 import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -33,6 +35,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
@@ -46,6 +49,7 @@ import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
@@ -54,7 +58,6 @@ import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
-import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
@@ -87,6 +90,7 @@ public class JEConfig extends Application {
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
+    private static PluginManager pluginManager;
 
     /**
      * Returns the last path the local user selected
@@ -154,6 +158,20 @@ public class JEConfig extends Application {
      */
     public static Configuration getConfig() {
         return _config;
+    }
+
+    /**
+     * Open an object in an plugin of choice
+     * <p>
+     * TODO: replace this with an generic function and datatype
+     *
+     * @param pluginName
+     * @param object
+     */
+    public static void openObjectInPlugin(String pluginName, Object object) {
+        if (pluginManager != null) {
+            pluginManager.openInPlugin(pluginName, object);
+        }
     }
 
     /**
@@ -263,12 +281,21 @@ public class JEConfig extends Application {
 
     }
 
+
     /**
      * Build an new JEConfig Login and main frame/stage
      *
      * @param primaryStage
      */
     private void initGUI(Stage primaryStage) {
+        System.out.println("Color: " + javafx.scene.paint.Color.BLACK.toString());
+        System.out.println("Font Size: " + (new Label()).getFont().getSize());
+        System.out.println("Center center: " + Pos.CENTER);
+
+        for (Color color : ColorColumn.color_list) {
+            System.out.println("Color: " + color.toString());
+        }
+
 
         primaryStage.setOnCloseRequest(t -> {
             Platform.exit();
@@ -277,7 +304,7 @@ public class JEConfig extends Application {
 
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
             try {
-                Toolkit xToolkit = Toolkit.getDefaultToolkit();
+                java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
                 Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
                 awtAppClassNameField.setAccessible(true);
                 awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
@@ -346,24 +373,24 @@ public class JEConfig extends Application {
                     }
                 });
 
-                PluginManager pMan = new PluginManager(_mainDS);
+                pluginManager = new PluginManager(_mainDS);
                 TopMenu menu = new TopMenu();
-                pMan.setMenuBar(menu);
+                pluginManager.setMenuBar(menu);
 
                 final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
                 final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
                 scene.setOnKeyPressed(ke -> {
                     if (saveCombo.match(ke)) {
-                        pMan.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
-                        pMan.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
+                        pluginManager.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
+                        pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
                     } else if (reloadF5.match(ke)) {
-                        pMan.getSelectedPlugin().handleRequest(Constants.Plugin.Command.RELOAD);
+                        pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.RELOAD);
                     }
                 });
 
-                GlobalToolBar toolbar = new GlobalToolBar(pMan);
+                GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
                 try {
-                    pMan.addPluginsByUserSetting(_mainDS.getCurrentUser());
+                    pluginManager.addPluginsByUserSetting(_mainDS.getCurrentUser());
                 } catch (JEVisException jex) {
                     logger.error(jex);
                 }
@@ -371,9 +398,9 @@ public class JEConfig extends Application {
                 BorderPane border = new BorderPane();
                 VBox vbox = new VBox();
                 vbox.setStyle("-fx-background-color: black;");
-                vbox.getChildren().addAll(menu, pMan.getToolbar());
+                vbox.getChildren().addAll(menu, pluginManager.getToolbar());
                 border.setTop(vbox);
-                border.setCenter(pMan.getView());
+                border.setCenter(pluginManager.getView());
 
                 Statusbar statusBar = new Statusbar(_mainDS);
 

@@ -2,7 +2,9 @@ package org.jevis.jeconfig.application.Chart.Charts;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -25,6 +27,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class PieChart implements Chart {
     private static final Logger logger = LogManager.getLogger(PieChart.class);
     private final Integer chartId;
@@ -39,6 +42,13 @@ public class PieChart implements Chart {
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region pieChartRegion;
     private Period period;
+    private boolean legendMode = false;
+    private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
+        @Override
+        public void applySetting(javafx.scene.chart.Chart chart) {
+
+        }
+    };
 
     public PieChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -71,7 +81,7 @@ public class PieChart implements Chart {
                     try {
                         sumPiePiece += sample.getValueAsDouble();
                     } catch (JEVisException e) {
-
+                        logger.error(e);
                     }
                 }
 
@@ -113,14 +123,45 @@ public class PieChart implements Chart {
 
         }
 
-        if (pieChart == null)
+
+        if (pieChart == null) {
             pieChart = new javafx.scene.chart.PieChart(series);
+        }
+
+        pieChart.setTitle(chartName);
+        pieChart.setLegendVisible(false);
         pieChart.applyCss();
 
         applyColors();
 
-        pieChart.setTitle(chartName);
-        pieChart.setLegendVisible(false);
+
+        chartSettingsFunction.applySetting(pieChart);
+
+
+    }
+
+    @Override
+    public void setChartSettings(ChartSettingsFunction function) {
+        this.chartSettingsFunction = function;
+    }
+
+
+    public void addToolTipText() {
+        final Label caption = new Label("");
+        caption.setTextFill(Color.DARKORANGE);
+        caption.setStyle("-fx-font: 24 arial;");
+
+        for (final javafx.scene.chart.PieChart.Data data : series) {
+            data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED, //--> is null weil noch nicht da
+                    new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent e) {
+                            caption.setTranslateX(e.getSceneX());
+                            caption.setTranslateY(e.getSceneY());
+                            caption.setText(String.valueOf(data.getPieValue()) + "%");
+                        }
+                    });
+        }
     }
 
     @Override
@@ -165,7 +206,7 @@ public class PieChart implements Chart {
 
     @Override
     public void setTitle(String s) {
-
+        chartName = s;
     }
 
     @Override
@@ -185,14 +226,19 @@ public class PieChart implements Chart {
 
     @Override
     public void applyColors() {
+
         for (int i = 0; i < hexColors.size(); i++) {
+
             Color currentColor = hexColors.get(i);
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = pieChart.lookup(preIdent + ".chart-pie");
             node.setStyle("-fx-pie-color: " + hexColor + ";");
+
+            System.out.println(preIdent + ".chart-pie " + "-fx-pie-color: " + hexColor + ";" + " color: " + currentColor.toString());
         }
     }
+
 
     @Override
     public ObservableList<TableEntry> getTableData() {
@@ -227,6 +273,10 @@ public class PieChart implements Chart {
     @Override
     public void initializeZoom() {
 
+    }
+
+    public void setLegendMode(boolean enable) {
+        legendMode = enable;
     }
 
 }

@@ -25,11 +25,6 @@
     },
     {
       "start": "Data Directory",
-      "end": "Data Directory",
-      "type": 3
-    },
-    {
-      "start": "Data Directory",
       "end": "Directory",
       "type": 0
     },

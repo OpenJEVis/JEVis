@@ -32,6 +32,10 @@ public class ProcessManager {
     private List<ProcessStep> processSteps = new ArrayList<>();
     private String name;
     private Long id;
+    private boolean missingSamples = true;
+    private boolean rerun = false;
+    private DateTime lastFirstDate;
+    private boolean isWorking = true;
 
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler) {
         resourceManager = new ResourceManager();
@@ -70,18 +74,13 @@ public class ProcessManager {
         this.processSteps = processSteps;
     }
 
-    private boolean missingSamples = true;
-    private boolean rerun = false;
-    private DateTime lastFirstDate;
-    private boolean isWorking = true;
-
     public void start() throws Exception {
         logger.info("[{}] Starting Process", resourceManager.getID());
 
         resourceManager.getCleanDataObject().checkConfig();
 
 //        while (missingSamples) {
-            reRun();
+        reRun();
 //        }
 
         logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCleanDataObject().getCleanObject().getName());

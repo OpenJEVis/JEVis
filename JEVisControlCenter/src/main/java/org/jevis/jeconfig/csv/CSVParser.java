@@ -163,6 +163,10 @@ public class CSVParser {
         return file;
     }
 
+    public void setFile(File file) {
+        this.file = file;
+    }
+
     public Charset getCharset() {
         return charset;
     }
@@ -193,9 +197,5 @@ public class CSVParser {
 
     public void setHeader(int header) {
         this.header = header;
-    }
-
-    public void setFile(File file) {
-        this.file = file;
     }
 }

@@ -78,6 +78,26 @@ public class LimitEditor implements AttributeEditor {
     }
 
     /**
+     * Creates an default configuration with two gap filling configs
+     *
+     * @return
+     */
+    public static List<JsonLimitsConfig> createDefaultConfig() {
+        List<JsonLimitsConfig> list = new ArrayList<>();
+
+        JsonLimitsConfig newConfig1 = new JsonLimitsConfig();
+
+        newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
+        list.add(newConfig1);
+
+        JsonLimitsConfig newConfig2 = new JsonLimitsConfig();
+
+        newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
+        list.add(newConfig2);
+        return list;
+    }
+
+    /**
      * Build main UI
      */
     private void init() {
@@ -138,19 +158,6 @@ public class LimitEditor implements AttributeEditor {
     }
 
     @Override
-    public void commit() throws JEVisException {
-
-        if (hasChanged() && _newSample != null) {
-            //TODO: check if tpye is ok, maybe better at imput time
-            logger.debug("Commit: " + _newSample.getValueAsString());
-            _newSample.commit();
-            _lastSample = _newSample;
-            _newSample = null;
-            _changed.setValue(false);
-        }
-    }
-
-    @Override
     public Node getEditor() {
         try {
             init();
@@ -176,24 +183,17 @@ public class LimitEditor implements AttributeEditor {
         return _attribute;
     }
 
-    /**
-     * Creates an default configuration with two gap filling configs
-     *
-     * @return
-     */
-    public static List<JsonLimitsConfig> createDefaultConfig() {
-        List<JsonLimitsConfig> list = new ArrayList<>();
+    @Override
+    public void commit() throws JEVisException {
 
-        JsonLimitsConfig newConfig1 = new JsonLimitsConfig();
-
-        newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
-        list.add(newConfig1);
-
-        JsonLimitsConfig newConfig2 = new JsonLimitsConfig();
-
-        newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
-        list.add(newConfig2);
-        return list;
+        if (hasChanged() && _newSample != null) {
+            //TODO: check if tpye is ok, maybe better at imput time
+            logger.debug("Commit: " + _newSample.getValueAsString());
+            _newSample.commit();
+            _lastSample = _newSample;
+            _newSample = null;
+            _changed.setValue(false);
+        }
     }
 
     /**

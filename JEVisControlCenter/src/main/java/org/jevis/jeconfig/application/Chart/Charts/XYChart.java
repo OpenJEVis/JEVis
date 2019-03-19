@@ -56,20 +56,26 @@ public class XYChart implements Chart {
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
     Axis dateAxis = new DateValueAxis();
+    List<ChartDataModel> chartDataModels;
+    MultiAxisChart chart;
+    boolean asDuration = false;
     private String chartName;
     private List<String> unitY1 = new ArrayList<>();
     private List<String> unitY2 = new ArrayList<>();
-    List<ChartDataModel> chartDataModels;
-    List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    MultiAxisChart chart;
+    private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
     private Number valueForDisplay;
     private Region areaChartRegion;
     private Period period;
-    boolean asDuration = false;
     private ManipulationMode addSeriesOfType;
-    AtomicBoolean addManipulationToTitle;
-    AtomicReference<ManipulationMode> manipulationMode;
-    Boolean[] changedBoth;
+    private AtomicBoolean addManipulationToTitle;
+    private AtomicReference<ManipulationMode> manipulationMode;
+    private Boolean[] changedBoth;
+    private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
+        @Override
+        public void applySetting(javafx.scene.chart.Chart chart) {
+
+        }
+    };
     private ChartPanManager panner;
     private JFXChartUtil jfxChartUtil;
 
@@ -118,6 +124,8 @@ public class XYChart implements Chart {
 
         getChart().setLegendVisible(false);
         //((javafx.scene.chart.XYChart)getChart()).setCreateSymbols(true);
+
+        chartSettingsFunction.applySetting(getChart());
 
         initializeZoom();
     }
@@ -185,22 +193,32 @@ public class XYChart implements Chart {
         getChart().setTitle(getUpdatedChartName());
     }
 
+
+    @Override
+    public void setChartSettings(ChartSettingsFunction function) {
+        chartSettingsFunction = function;
+    }
+
     public void generateYAxis() {
         y1Axis.setAutoRanging(true);
         y2Axis.setAutoRanging(true);
 
         for (ChartDataModel singleRow : chartDataModels) {
-            String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
-            if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
-                currentUnit = singleRow.getUnit().getLabel();
-            if (singleRow.getAxis() == 0) {
-                if (!unitY1.contains(currentUnit)) {
-                    unitY1.add(currentUnit);
+            if (singleRow.getUnit() != null) {
+                String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
+                if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
+                    currentUnit = singleRow.getUnit().getLabel();
+                if (singleRow.getAxis() == 0) {
+                    if (!unitY1.contains(currentUnit)) {
+                        unitY1.add(currentUnit);
+                    }
+                } else if (singleRow.getAxis() == 1) {
+                    if (!unitY2.contains(currentUnit)) {
+                        unitY2.add(currentUnit);
+                    }
                 }
-            } else if (singleRow.getAxis() == 1) {
-                if (!unitY2.contains(currentUnit)) {
-                    unitY2.add(currentUnit);
-                }
+            } else {
+                logger.warn("Row has no unit");
             }
         }
 

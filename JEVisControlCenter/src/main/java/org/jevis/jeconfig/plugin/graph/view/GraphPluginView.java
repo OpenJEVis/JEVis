@@ -59,6 +59,7 @@ import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
+import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
@@ -71,7 +72,9 @@ import java.util.stream.Collectors;
 public class GraphPluginView implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(GraphPluginView.class);
+    public static String PLUGIN_NAME = "Graph Plugin";
     private final List<ChartView> charts = new ArrayList<>();
+    private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
     private ToolBarView toolBarView;
     private GraphDataModel dataModel;
     //private GraphController controller;
@@ -83,7 +86,6 @@ public class GraphPluginView implements Plugin {
     private ToolBar toolBar;
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
-    private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
     private List<ChartView> listChartViews;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
@@ -119,7 +121,7 @@ public class GraphPluginView implements Plugin {
 
     @Override
     public String getClassName() {
-        return "Graph Plugin";
+        return PLUGIN_NAME;
     }
 
     @Override
@@ -553,6 +555,34 @@ public class GraphPluginView implements Plugin {
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void openObject(Object object) {
+        try {
+            if (object instanceof AnalysisRequest) {
+                AnalysisRequest analysisRequest = (AnalysisRequest) object;
+                dataModel.setCurrentAnalysis(analysisRequest.getObject());
+                dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
+                dataModel.setManipulationMode(analysisRequest.getManipulationMode());
+                dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
+                dataModel.getSelectedData().forEach(chartDataModel -> {
+                    System.out.println("SetTime: " + analysisRequest.getStartDate() + " - " + analysisRequest.getEndTime());
+                    chartDataModel.setSelectedStart(analysisRequest.getStartDate());
+                    chartDataModel.setSelectedEnd(analysisRequest.getEndTime());
+                });
+
+                toolBarView.removeDateListener();
+                toolBarView.select(analysisRequest.getObject());
+                toolBarView.setupDateListener();
+                toolBarView.setDisableToolBarIcons(false);
+                //dataModel.update();
+            }
+
+
+        } catch (Exception ex) {
+            logger.error(ex);
         }
     }
 

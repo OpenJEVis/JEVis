@@ -41,7 +41,6 @@ import org.jevis.jeconfig.application.unit.UnitTree;
 import org.jevis.jeconfig.tool.I18n;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class UnitPlugin implements Plugin {
@@ -66,6 +65,11 @@ public class UnitPlugin implements Plugin {
         if (tree.getSelectionModel().getSelectedItem() == null) {
             tree.getSelectionModel().selectFirst();
         }
+    }
+
+    @Override
+    public void openObject(Object object) {
+
     }
 
     @Override
@@ -94,13 +98,13 @@ public class UnitPlugin implements Plugin {
     }
 
     @Override
-    public String getToolTip() {
-        return tooltip;
+    public void setUUID(String newid) {
+        id.set(newid);
     }
 
     @Override
-    public void setUUID(String newid) {
-        id.set(newid);
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

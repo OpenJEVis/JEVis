@@ -22,7 +22,6 @@ package org.jevis.sandbox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.cli.AbstractCliApp;
-import org.jevis.commons.utils.Optimization;
 
 /**
  * The Launcher is an minimalistic alarm notification tool for JEVis 3.0
@@ -64,20 +63,22 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void runService() {
         logger.error("RunService");
-        while (true) {
-            try {
-                logger.error("-- Round round goes the bird");
-                Optimization.getInstance().printStatistics();
 
-                Thread.sleep(10000);
-                logger.error("clear cache");
-                ds.clearCache();
-                System.gc();
-                Optimization.getInstance().printStatistics();
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        }
+
+//        while (true) {
+//            try {
+//                logger.error("-- Round round goes the bird");
+////                Optimization.getInstance().printStatistics();
+//
+//                Thread.sleep(10000);
+//                logger.error("clear cache");
+//                ds.clearCache();
+//                System.gc();
+////                Optimization.getInstance().printStatistics();
+//            } catch (Exception ex) {
+//                logger.error(ex);
+//            }
+//        }
 
     }
 

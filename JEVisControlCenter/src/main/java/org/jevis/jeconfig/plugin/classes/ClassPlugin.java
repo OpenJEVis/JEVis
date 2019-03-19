@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -53,7 +53,7 @@ public class ClassPlugin implements Plugin {
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane border;
-//    private ObjectTree tf;
+    //    private ObjectTree tf;
     private ClassTree tree;
     private ToolBar toolBar;
     private String tooltip = I18n.getInstance().getString("pluginmanager.classplugin.tooltip");
@@ -65,9 +65,14 @@ public class ClassPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-        if(tree.getSelectionModel().getSelectedItem()==null){
+        if (tree.getSelectionModel().getSelectedItem() == null) {
             tree.getSelectionModel().selectFirst();
         }
+    }
+
+    @Override
+    public void openObject(Object object) {
+
     }
 
     @Override
@@ -96,13 +101,13 @@ public class ClassPlugin implements Plugin {
     }
 
     @Override
-    public String getToolTip() {
-        return tooltip;
+    public void setUUID(String newid) {
+        id.set(newid);
     }
 
     @Override
-    public void setUUID(String newid) {
-        id.set(newid);
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

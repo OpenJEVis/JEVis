@@ -175,6 +175,8 @@ public interface Chart {
 
     void setHideShowIcons(Boolean hideShowIcons);
 
+    void setChartSettings(ChartSettingsFunction function);
+
     ChartPanManager getPanner();
 
     JFXChartUtil getJfxChartUtil();

@@ -69,6 +69,11 @@ public class BubbleChart implements Chart {
     }
 
     @Override
+    public void setChartSettings(ChartSettingsFunction function) {
+        //TODO: implement me, see PieChart
+    }
+
+    @Override
     public ChartPanManager getPanner() {
         return null;
     }

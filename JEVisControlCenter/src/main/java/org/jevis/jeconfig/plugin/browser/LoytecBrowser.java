@@ -152,6 +152,11 @@ public class LoytecBrowser implements Plugin {
     }
 
     @Override
+    public void openObject(Object object) {
+
+    }
+
+    @Override
     public String getName() {
         return nameProperty.getValue();
     }
@@ -172,13 +177,13 @@ public class LoytecBrowser implements Plugin {
     }
 
     @Override
-    public String getToolTip() {
-        return tooltip;
+    public void setUUID(String id) {
+        this.id.setValue(id);
     }
 
     @Override
-    public void setUUID(String id) {
-        this.id.setValue(id);
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override
