@@ -68,13 +68,13 @@ public class Launcher extends AbstractCliApp {
 //        while (true) {
 //            try {
 //                logger.error("-- Round round goes the bird");
-//                Optimization.getInstance().printStatistics();
+////                Optimization.getInstance().printStatistics();
 //
 //                Thread.sleep(10000);
 //                logger.error("clear cache");
 //                ds.clearCache();
 //                System.gc();
-//                Optimization.getInstance().printStatistics();
+////                Optimization.getInstance().printStatistics();
 //            } catch (Exception ex) {
 //                logger.error(ex);
 //            }

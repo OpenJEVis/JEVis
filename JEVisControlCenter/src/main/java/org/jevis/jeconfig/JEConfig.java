@@ -22,6 +22,7 @@ package org.jevis.jeconfig;
 import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -34,6 +35,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
@@ -47,6 +49,7 @@ import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
@@ -272,6 +275,33 @@ public class JEConfig extends Application {
     private void initGUI(Stage primaryStage) {
         System.out.println("Color: " + javafx.scene.paint.Color.BLACK.toString());
         System.out.println("Font Size: " + (new Label()).getFont().getSize());
+        System.out.println("Center center: " + Pos.CENTER);
+
+        for (Color color : ColorColumn.color_list) {
+            System.out.println("Color: " + color.toString());
+        }
+
+//        try {
+//            List<DataPointNode> dataModelConfigNodes = new ArrayList<>();
+//            DataPointNode node1 = new DataPointNode();
+//            node1.setAggregationPeriod(AggregationPeriod.HOURLY);
+//            node1.setManipulationMode(ManipulationMode.TOTAL);
+//            node1.setObjectID(2154l);
+//            node1.setAttribute("Value");
+//            dataModelConfigNodes.add(node1);
+//
+//            DataPointNode node2 = new DataPointNode();
+//            node2.setAggregationPeriod(AggregationPeriod.HOURLY);
+//            node2.setManipulationMode(ManipulationMode.TOTAL);
+//            node2.setObjectID(469l);
+//            node2.setAttribute("Value");
+//            dataModelConfigNodes.add(node2);
+//            ObjectMapper mapper = new ObjectMapper();
+//            mapper.writeValue(new File("/tmp/dataModel.json"), dataModelConfigNodes);
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+
         primaryStage.setOnCloseRequest(t -> {
             Platform.exit();
             System.exit(0);

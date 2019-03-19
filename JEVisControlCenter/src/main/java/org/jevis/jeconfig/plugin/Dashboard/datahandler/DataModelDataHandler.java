@@ -51,14 +51,8 @@ public class DataModelDataHandler {
     private ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
     private DataModelNode dataModelNode = new DataModelNode();
 
-    public DataModelDataHandler(JEVisDataSource jeVisDataSource) {
-        this.jeVisDataSource = jeVisDataSource;
-    }
-
-
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
         this.jeVisDataSource = jeVisDataSource;
-//        logger.error("Has UUID: {}", uuid.toString());
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -108,50 +102,6 @@ public class DataModelDataHandler {
             }
 
         });
-
-//        JsonNode attributeNodes = configNode.get("data");
-//        if (attributeNodes.isArray()) {
-//            AtomicInteger index = new AtomicInteger(-1);
-//            for (final JsonNode userSelection : attributeNodes) {
-//                try {
-//                    index.set(index.get() + 1);
-//                    long objectID = userSelection.get("object").asLong();
-//                    String attribute = userSelection.get("attribute").asText("Value");
-//                    logger.error("Add attribute: {}:{}", objectID, attribute);
-//                    JEVisObject jevisobject = jeVisDataSource.getObject(objectID);
-//                    if (jevisobject != null) {
-//                        JEVisAttribute jeVisAttribute = jevisobject.getAttribute(attribute);
-//                        if (jeVisAttribute != null) {
-//                            ChartDataModel chartDataModel = new ChartDataModel(jevisobject.getDataSource());
-//                            List<Integer> list = new ArrayList<>();
-//                            list.add(0);
-//
-//                            chartDataModel.setSelectedCharts(list);
-//                            chartDataModel.setObject(jeVisAttribute.getObject());
-//                            chartDataModel.setAttribute(jeVisAttribute);
-//                            chartDataModel.setManipulationMode(ManipulationMode.TOTAL);
-//                            chartDataModel.setAggregationPeriod(AggregationPeriod.HOURLY);
-//                            chartDataModel.setColor(ColorColumn.color_list[index.get()]);
-//
-//                            chartDataModels.add(chartDataModel);
-//
-//
-//                            attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
-//                        } else {
-//                            logger.error("Attribute does not exist: {}", attribute);
-//                        }
-//
-//                    } else {
-//                        logger.error("Object not found: {}", objectID);
-//                    }
-//                } catch (Exception ex) {
-//                    logger.error("Error while loading data: {}", ex);
-//                }
-//            }
-//        } else {
-//            logger.error("Error: user selection is not an array");
-//        }
-
     }
 
     public static String generateValueKey(JEVisAttribute attribute) {
@@ -188,8 +138,8 @@ public class DataModelDataHandler {
     }
 
     public void update() {
-        logger.error("Update Samples: {} -> {}", uuid.toString(), durationProperty.getValue());
-        logger.error("AttributeMap: {}", attributeMap.size());
+//        logger.error("Update Samples: {} -> {}", uuid.toString(), durationProperty.getValue());
+//        logger.error("AttributeMap: {}", attributeMap.size());
 
         chartDataModels.forEach(chartDataModel -> {
 

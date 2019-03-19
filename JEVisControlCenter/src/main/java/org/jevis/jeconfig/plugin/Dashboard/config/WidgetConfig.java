@@ -27,22 +27,22 @@ public class WidgetConfig {
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
     private static final Logger logger = LogManager.getLogger(WidgetConfig.class);
     public static String DATA_HANDLER_NODE = "dataHandler";
-    private static String WIDGET_SETTINGS_NODE = "extra";
+    public static String WIDGET_SETTINGS_NODE = "extra";
     public final ObjectProperty<BorderWidths> borderSize = new SimpleObjectProperty(Double.class, "Border Size", new BorderWidths(0.2));
-    public StringProperty uuid = new SimpleStringProperty(UUID.randomUUID().toString());
-    public ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
-    public ObjectProperty<Color> fontColorSecondary = new SimpleObjectProperty<>(Color.class, "Font Color Secondary", Color.DODGERBLUE);
-    public ObjectProperty<Size> minumimSize = new SimpleObjectProperty<>(Size.class, "Min Size", new Size(20, 20));
-    public StringProperty title = new SimpleStringProperty(String.class, "title", "Title");
-    public StringProperty unit = new SimpleStringProperty("");
-    public ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.class, "Background Color", Color.web("#126597"));
-    //    public ObjectProperty<Position> position = new SimpleObjectProperty<>(new Position(100, 100));
-    public DoubleProperty xPosition = new SimpleDoubleProperty(100d);
-    public DoubleProperty yPosition = new SimpleDoubleProperty(100d);
-    public ObjectProperty<Size> size = new SimpleObjectProperty<>(Size.DEFAULT);
-    public ObjectProperty<Font> font = new SimpleObjectProperty<>(Font.getDefault());
-    public DoubleProperty fontSize = new SimpleDoubleProperty(13);
-    public ObjectProperty<Pos> titlePosition = new SimpleObjectProperty<>(Pos.class, "Title Position", Pos.CENTER);
+    public final StringProperty uuid = new SimpleStringProperty(UUID.randomUUID().toString());
+    public final ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
+    public final ObjectProperty<Color> fontColorSecondary = new SimpleObjectProperty<>(Color.class, "Font Color Secondary", Color.DODGERBLUE);
+    public final ObjectProperty<Size> minumimSize = new SimpleObjectProperty<>(Size.class, "Min Size", new Size(20, 20));
+    public final StringProperty title = new SimpleStringProperty(String.class, "title", "Title");
+    public final StringProperty unit = new SimpleStringProperty("");
+    public final ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.class, "Background Color", Color.web("#126597"));
+    public final DoubleProperty xPosition = new SimpleDoubleProperty(100d);
+    public final DoubleProperty yPosition = new SimpleDoubleProperty(100d);
+    public final ObjectProperty<Size> size = new SimpleObjectProperty<>(Size.DEFAULT);
+    public final ObjectProperty<Font> font = new SimpleObjectProperty<>(Font.getDefault());
+    public final DoubleProperty fontSize = new SimpleDoubleProperty(13);
+    public final ObjectProperty<Pos> titlePosition = new SimpleObjectProperty<>(Pos.class, "Title Position", Pos.CENTER);
+    public final BooleanProperty showShadow = new SimpleBooleanProperty(Boolean.class, "Show Shadows", true);
     private String type = "";
     private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
     private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
@@ -59,11 +59,6 @@ public class WidgetConfig {
 
     public WidgetConfig(JsonNode jsonNode) {
         this.jsonNode = jsonNode;
-//        try {
-//            logger.info("WidgetConfig Parse json: {}", mapper.writeValueAsString(jsonNode));
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
         try {
             try {
                 title.setValue(jsonNode.get(title.getName()).asText(title.get()));
@@ -232,7 +227,6 @@ public class WidgetConfig {
         fontSize.setValue((double) userConfig.get("fontSize").getObject());
         title.setValue((String) userConfig.get(title.getName()).getObject());
 
-        System.out.println("Widget.Settings: " + additionalSetting);
         additionalSetting.forEach(widgetConfigProperty -> {
             widgetConfigProperty.getWritableValue().setValue(userConfig.get(widgetConfigProperty.getId()).getObject());
         });

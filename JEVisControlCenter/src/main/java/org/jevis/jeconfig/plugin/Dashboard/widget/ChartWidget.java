@@ -111,20 +111,6 @@ public class ChartWidget extends Widget {
         borderPane.setBottom(hBox);
         setGraphic(borderPane);
 
-//        VBox vBox = new VBox();
-//        HBox hBox = new HBox();
-//        Region left = new Region();
-//        Region right = new Region();
-//
-//        HBox.setHgrow(legend, Priority.SOMETIMES);
-//        HBox.setHgrow(left, Priority.ALWAYS);
-//        HBox.setHgrow(right, Priority.ALWAYS);
-//
-//        hBox.getChildren().addAll(left, legend, right);
-//
-//        vBox.getChildren().addAll(lineChart.getChart(), hBox);
-
-//        setGraphic(vBox);
     }
 
     @Override

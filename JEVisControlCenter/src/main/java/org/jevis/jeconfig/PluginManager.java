@@ -90,6 +90,7 @@ public class PluginManager {
         List<Plugin> plugins = new ArrayList<>();
 //        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
+
         plugins.add(new SCADAPlugin(_ds));
         plugins.add(new ISO50001Browser(_ds));
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));

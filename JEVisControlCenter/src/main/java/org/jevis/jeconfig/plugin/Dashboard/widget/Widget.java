@@ -4,6 +4,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -87,6 +88,8 @@ public abstract class Widget extends Group {
         configButton.setOnAction(event -> {
             config.openConfig();
         });
+        Tooltip tooltip = new Tooltip(config.title.getValue());
+        configButton.setTooltip(tooltip);
 
         deleteButton.setOnAction(event -> {
             dashBoard.removeNode(Widget.this);
@@ -126,24 +129,6 @@ public abstract class Widget extends Group {
     }
 
     private void makeWindowForm() {
-//        Rectangle background = new Rectangle();
-//        background.setX(0);
-//        background.setY(0);
-//        background.setWidth(config.size.getValue().getWidth());
-//        background.setHeight(config.size.getValue().getHeight());
-//        background.setArcWidth(0);
-//        background.setArcHeight(0);
-////        background.setStroke(Color.BLACK);
-////        background.setFill(dashBoard.getDashBordAnalysis().colorWidgetPlugin.getValue());
-//        background.setFill(config.backgroundColor.getValue());
-////        background.setOpacity(dashBoard.getDashBordAnalysis().opacityWidgetPlugin.getValue());
-//        config.size.addListener((observable, oldValue, newValue) -> {
-//            background.setWidth(newValue.getWidth());
-//            background.setHeight(newValue.getHeight());
-//        });
-
-//        background.setFill(newValue);
-
         setBackgroundColor(config.backgroundColor.getValue());
         config.backgroundColor.addListener((observable, oldValue, newValue) -> {
             setBackgroundColor(newValue);
@@ -174,13 +159,16 @@ public abstract class Widget extends Group {
         makeDragDropOverlay();
 
 
-        DropShadow dropShadow = new DropShadow();
-        dropShadow.setRadius(5.0);
-        dropShadow.setOffsetX(3.0);
-        dropShadow.setOffsetY(3.0);
-        dropShadow.setColor(Color.BLACK);
+        if (config.showShadow.getValue()) {
+            DropShadow dropShadow = new DropShadow();
+            dropShadow.setRadius(5.0);
+            dropShadow.setOffsetX(3.0);
+            dropShadow.setOffsetY(3.0);
+            dropShadow.setColor(Color.BLACK);
 //        dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
-        contentRoot.setEffect(dropShadow);
+            contentRoot.setEffect(dropShadow);
+        }
+
 
         getAnalysis().editProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue) {

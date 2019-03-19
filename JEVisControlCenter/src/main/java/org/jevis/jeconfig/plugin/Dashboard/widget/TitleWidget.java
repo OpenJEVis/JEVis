@@ -38,20 +38,11 @@ public class TitleWidget extends Widget {
         //if config changed
         if (config.hasChanged("")) {
             Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
-//            Background bgColor = new Background(new BackgroundFill(Paint.valueOf("#0066ff"), CornerRadii.EMPTY, Insets.EMPTY));
-//            System.out.println(Paint.valueOf("#005ce6").toString());
-
             label.setBackground(bgColor);
             label.setTextFill(config.fontColor.getValue());
             label.setText(config.title.getValue());
             label.setFont(new Font(config.fontSize.getValue()));
-            System.out.println("Text aligment: " + config.titlePosition.getValue());
-//            label.setTextAlignment(config.titlePosition.getValue());
             label.setAlignment(config.titlePosition.getValue());
-//            label.setContentDisplay(ContentDisplay.CENTER);
-//            label.setTextAlignment(TextAlignment.CENTER);
-            //need setting
-//            label.setContentDisplay(ContentDisplay.CENTER);
 
         }
 

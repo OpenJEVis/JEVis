@@ -80,7 +80,6 @@ public class DashBoardPane extends Pane {
     }
 
     private void setSize(Size newValue) {
-        System.out.println("Set page size w/h: " + newValue.getWidth() + " " + newValue.getHeight());
         this.setMaxWidth(newValue.getWidth());
         this.setMinWidth(newValue.getWidth());
         this.setPrefWidth(newValue.getWidth());
@@ -90,7 +89,6 @@ public class DashBoardPane extends Pane {
     }
 
     public Widget createWidget(WidgetConfig widget) {
-        logger.info("createWidget for: {}", widget.getType());
         for (Widget availableWidget : Widgets.getAvabableWidgets(analysis.getDataSource(), widget)) {
             if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
                 widget.setType(availableWidget.getId());
@@ -120,7 +118,7 @@ public class DashBoardPane extends Pane {
         });
 
         analysis.zoomFactor.addListener((observable, oldValue, newValue) -> {
-            System.out.println("Change zoom to: " + newValue);
+//            System.out.println("Change zoom to: " + newValue);
             scale.setX(newValue.doubleValue());
             scale.setY(newValue.doubleValue());
             requestLayout();
@@ -157,9 +155,7 @@ public class DashBoardPane extends Pane {
 
         analysis.displayedIntervalProperty.addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                logger.info("Intervall update: {}", newValue);
                 widgetList.forEach(widget -> {
-                    logger.info("Update widget: {}", widget.getUUID());
                     Platform.runLater(() -> {
                         widget.update(newValue);
                     });

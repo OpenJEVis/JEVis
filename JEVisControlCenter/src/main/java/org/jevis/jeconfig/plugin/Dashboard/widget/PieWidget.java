@@ -75,7 +75,9 @@ public class PieWidget extends Widget {
             AtomicDouble total = new AtomicDouble(0);
             sampleHandler.getDataModel().forEach(chartDataModel -> {
                 try {
-                    total.set(total.get() + chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble());
+                    if (!chartDataModel.getSamples().isEmpty()) {
+                        total.set(total.get() + chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble());
+                    }
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -107,11 +109,8 @@ public class PieWidget extends Widget {
                     double proC = (value / total.get()) * 100;
                     if (Double.isInfinite(proC)) proC = 100;
                     if (Double.isNaN(proC)) proC = 0;
-//
-//
-                    System.out.println("proC: " + proC + " " + Double.NaN + " " + (proC == Double.NaN));
-                    String textValue = nf.format(proC) + "%" + " ( " + nf.format(value) + " " + chartDataModel.getUnit() + ")";
 
+                    String textValue = nf.format(proC) + "%" + " ( " + nf.format(value) + " " + chartDataModel.getUnit() + ")";
 
                     legend.getItems().add(buildLegendItem(
                             dataName + " " + textValue
@@ -177,7 +176,6 @@ public class PieWidget extends Widget {
 
 
     private Legend.LegendItem buildLegendItem(String name, Color color, Color fontColor) {
-        System.out.println("Label font color: " + fontColor);
         Rectangle r = new Rectangle();
         r.setX(0);
         r.setY(0);
