@@ -21,10 +21,10 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.JEVisDates;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
@@ -130,7 +130,7 @@ public class BarChart implements Chart {
 
                         try {
                             TimeUnit.SECONDS.sleep(60);
-                            System.out.println("Reloading");
+                            //System.out.println("Reloading");
                             Platform.runLater(BarChart.this::updateChart);
                         } catch (InterruptedException e) {
                             logger.error("Sleep interrupted: " + e);

@@ -28,8 +28,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 
 import java.util.ArrayList;

@@ -14,6 +14,7 @@ import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.workflow.ProcessStep;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,27 +35,48 @@ public class DifferentialStep implements ProcessStep {
 
         if (listConversionToDifferential != null) {
 
-            //Double lastDiffVal = cleanDataObject.getLastCounterValue();
-            if (intervals.size() > 0) {
-                DateTime firstTS = intervals.get(0).getInterval().getStart().minus(cleanDataObject.getRawDataPeriodAlignment());
-                Double lastDiffVal = null;
-                List<JEVisSample> rawSamples = cleanDataObject.getRawSamples();
-                for (int i = 0; i < rawSamples.size(); i++) {
-                    JEVisSample prevSmp = null;
-                    if (i > 1) prevSmp = rawSamples.get(i - 1);
-                    JEVisSample smp = rawSamples.get(i);
+            List<Interval> ctdList = getIntervalsFromConversionToDifferentialList(listConversionToDifferential);
 
-                    if (smp.getTimestamp().equals(firstTS)) {
+            if (intervals.size() > 0) {
+                Double lastDiffVal = null;
+                DateTime firstDate = cleanDataObject.getFirstDate()
+                        .minus(cleanDataObject.getCleanDataPeriodAlignment())
+                        .minus(cleanDataObject.getCleanDataPeriodAlignment());
+                List<JEVisSample> rawSamples = cleanDataObject.getRawAttribute().getSamples(firstDate, cleanDataObject.getLastRawDate());
+                DateTime firstTS = cleanDataObject.getFirstDate();
+                boolean found = false;
+
+                JEVisSample lastSample = null;
+                for (JEVisSample smp : rawSamples) {
+                    DateTime timestamp = smp.getTimestamp();
+                    if (timestamp.equals(firstTS) && timeStampInIntervals(timestamp, ctdList)) {
                         lastDiffVal = smp.getValueAsDouble();
                         break;
-                    } else if (prevSmp != null) {
-                        if (prevSmp.getTimestamp().isBefore(firstTS) && smp.getTimestamp().isAfter(firstTS)) {
-                            long diffToPrev = Math.abs(firstTS.getMillis() - prevSmp.getTimestamp().getMillis());
-                            long diffToNxt = Math.abs(firstTS.getMillis() - smp.getTimestamp().getMillis());
+                    } else if (lastSample != null && timestamp.isAfter(firstTS) && timeStampInIntervals(timestamp, ctdList)) {
+//                        long diffToPrev = Math.abs(firstTS.getMillis() - lastSample.getTimestamp().getMillis());
+//                        long diffToNxt = Math.abs(firstTS.getMillis() - timestamp.getMillis());
+//
+//                        if (diffToPrev < diffToNxt) lastDiffVal = lastSample.getValueAsDouble();
+//                        else lastDiffVal = smp.getValueAsDouble();
+                        lastDiffVal = lastSample.getValueAsDouble();
+                        break;
 
-                            if (diffToPrev < diffToNxt) lastDiffVal = prevSmp.getValueAsDouble();
-                            else lastDiffVal = smp.getValueAsDouble();
+                    } else lastSample = smp;
+                }
+
+                if (lastDiffVal == null) {
+                    for (JEVisSample smp : rawSamples) {
+                        DateTime ts = smp.getTimestamp();
+
+                        for (Interval interval : ctdList) {
+                            if (ts.equals(interval.getStart()) || (ts.isAfter(interval.getStart()) && ts.isBefore(interval.getEnd()))) {
+                                lastDiffVal = smp.getValueAsDouble();
+                                found = true;
+                                break;
+                            }
                         }
+
+                        if (found) break;
                     }
                 }
 
@@ -86,7 +108,9 @@ public class DifferentialStep implements ProcessStep {
                         }
 
                         if (conversionToDifferential) {
-                            if (currentInt.getDate().isAfter(timeStampOfConversion) && ((nextTimeStampOfConversion == null) || currentInt.getDate().isBefore(nextTimeStampOfConversion))) {
+                            if (currentInt.getDate().equals(timeStampOfConversion)
+                                    || currentInt.getDate().isAfter(timeStampOfConversion)
+                                    && ((nextTimeStampOfConversion == null) || currentInt.getDate().isBefore(nextTimeStampOfConversion))) {
                                 if (!currentInt.getTmpSamples().isEmpty()) {
                                     for (JEVisSample curSample : currentInt.getTmpSamples()) {
 
@@ -135,5 +159,62 @@ public class DifferentialStep implements ProcessStep {
                 }
             }
         }
+
+    }
+
+    private boolean timeStampInIntervals(DateTime timestamp, List<Interval> ctdList) {
+        boolean contained = false;
+        for (Interval interval : ctdList) {
+            if (!contained) {
+                contained = timestamp.equals(interval.getStart()) || (timestamp.isAfter(interval.getStart()) && timestamp.isBefore(interval.getEnd()));
+            }
+        }
+        return contained;
+    }
+
+    private List<Interval> getIntervalsFromConversionToDifferentialList
+            (List<JEVisSample> listConversionToDifferential) {
+        List<Interval> tempList = new ArrayList<>();
+        try {
+            boolean starting = false;
+            DateTime lastTs = new DateTime(2001, 1, 1, 0, 0, 0);
+            int size = listConversionToDifferential.size();
+            for (int i = 0; i < size; i++) {
+                JEVisSample cd = listConversionToDifferential.get(i);
+
+                Boolean conversionToDifferential = cd.getValueAsBoolean();
+                DateTime timeStampOfConversion = cd.getTimestamp();
+
+                //first interval
+                if (i == 0 && !lastTs.equals(timeStampOfConversion)) {
+                    Interval interval = new Interval(lastTs, timeStampOfConversion);
+                    if (conversionToDifferential) tempList.add(interval);
+                    lastTs = timeStampOfConversion;
+                } else if (i == 0 && lastTs.equals(timeStampOfConversion)) {
+
+                } else if (i == size - 1 && !starting) {
+                    Interval interval = new Interval(timeStampOfConversion, new DateTime(2050, 1, 1, 0, 0, 0));
+                    if (conversionToDifferential) tempList.add(interval);
+                } else if (conversionToDifferential && !starting) {
+                    starting = true;
+                    lastTs = timeStampOfConversion;
+                } else if (!conversionToDifferential && starting) {
+                    starting = false;
+                    Interval interval = new Interval(lastTs, timeStampOfConversion);
+                    tempList.add(interval);
+                    lastTs = timeStampOfConversion;
+                }
+            }
+            Boolean lastConversionToDifferential = listConversionToDifferential.get(size - 1).getValueAsBoolean();
+            DateTime lastTimeStampOfConversion = listConversionToDifferential.get(size - 1).getTimestamp();
+            if (lastConversionToDifferential) {
+                Interval newInterval = new Interval(lastTimeStampOfConversion, new DateTime(2050, 1, 1, 0, 0, 0));
+                if (!tempList.contains(newInterval)) tempList.add(newInterval);
+            }
+        } catch (Exception e) {
+            logger.error("Could not create Interval list from conversion to differential configuration: " + e);
+        }
+
+        return tempList;
     }
 }

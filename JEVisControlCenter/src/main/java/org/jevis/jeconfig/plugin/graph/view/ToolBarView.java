@@ -22,6 +22,7 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
@@ -33,7 +34,6 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
@@ -150,17 +150,25 @@ public class ToolBarView {
 
                 AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
                 ManipulationMode oldManipulationMode = model.getManipulationMode();
-                AnalysisTimeFrame oldAnalysisTimeFrame = model.getAnalysisTimeFrame();
 
+                AnalysisTimeFrame oldAnalysisTimeFrame;
                 DateTime oldStart = null;
                 DateTime oldEnd = null;
-                boolean customTimeFrame = oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM);
-                if (customTimeFrame) {
-                    for (ChartDataModel chartDataModel : model.getSelectedData()) {
-                        oldStart = chartDataModel.getSelectedStart();
-                        oldEnd = chartDataModel.getSelectedEnd();
-                        break;
+                boolean customTimeFrame = false;
+
+                if (model.isglobalAnalysisTimeFrame()) {
+                    oldAnalysisTimeFrame = model.getGlobalAnalysisTimeFrame();
+
+                    customTimeFrame = oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM);
+                    if (customTimeFrame) {
+                        for (ChartDataModel chartDataModel : model.getSelectedData()) {
+                            oldStart = chartDataModel.getSelectedStart();
+                            oldEnd = chartDataModel.getSelectedEnd();
+                            break;
+                        }
                     }
+                } else {
+                    oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
                 }
 
                 model.setCurrentAnalysis(newValue);
@@ -169,7 +177,7 @@ public class ToolBarView {
 
                 model.setManipulationMode(oldManipulationMode);
                 model.setAggregationPeriod(oldAggregationPeriod);
-                model.setAnalysisTimeFrame(oldAnalysisTimeFrame);
+                model.setAnalysisTimeFrameForAllModels(oldAnalysisTimeFrame);
 
                 if (customTimeFrame) {
                     for (ChartDataModel chartDataModel : model.getSelectedData()) {
@@ -404,11 +412,11 @@ public class ToolBarView {
                                     } catch (JEVisException e) {
                                         logger.error(e);
                                     }
-                                    if (!model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
-                                            || !model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
-                                        AnalysisTimeFrame oldTimeframe = model.getAnalysisTimeFrame();
-                                        model.setAnalysisTimeFrame(oldTimeframe);
-                                    }
+//                                    if (!model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
+//                                            || !model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
+//                                        AnalysisTimeFrame oldTimeframe = model.getAnalysisTimeFrame();
+//                                        model.setAnalysisTimeFrame(oldTimeframe);
+//                                    }
                                     select(currentAnalysis);
                                 });
 
@@ -494,10 +502,10 @@ public class ToolBarView {
 
             GraphDataModel newModel = new GraphDataModel(ds, graphPluginView);
 
-            AnalysisTimeFrame atf = new AnalysisTimeFrame();
-            atf.setTimeFrame(TimeFrame.CUSTOM);
-
-            newModel.setAnalysisTimeFrame(atf);
+//            AnalysisTimeFrame atf = new AnalysisTimeFrame();
+//            atf.setTimeFrame(TimeFrame.CUSTOM);
+//
+//            newModel.setAnalysisTimeFrame(atf);
 
             ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel);
 
@@ -510,7 +518,7 @@ public class ToolBarView {
             }
         } else if (dialog.getResponse() == Response.LOAD) {
 
-            model.setAnalysisTimeFrame(model.getAnalysisTimeFrame());
+            model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
             model.updateSamples();
             model.setCharts(model.getCharts());
             model.setSelectedData(model.getSelectedData());
@@ -767,8 +775,6 @@ public class ToolBarView {
                     if (mdl.getDataProcessor() != null)
                         json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());
                     json.setAggregation(mdl.getAggregationPeriod().toString());
-                    json.setSelectedStart(mdl.getSelectedStart().toString());
-                    json.setSelectedEnd(mdl.getSelectedEnd().toString());
                     json.setUnit(mdl.getUnit().toJSON());
                     json.setSelectedCharts(listToString(mdl.getSelectedcharts()));
                     json.setAxis(mdl.getAxis().toString());
@@ -777,11 +783,6 @@ public class ToolBarView {
             }
             jsonChartDataModel.setListDataRows(jsonDataModels);
 
-            JsonChartTimeFrame jctf = new JsonChartTimeFrame();
-            jctf.setTimeframe(model.getAnalysisTimeFrame().getTimeFrame().toString());
-            jctf.setId(String.valueOf(model.getAnalysisTimeFrame().getId()));
-
-            jsonChartDataModel.setAnalysisTimeFrame(jctf);
 
             JEVisAttribute charts = analysis.getAttribute("Charts");
             List<JsonChartSettings> jsonChartSettings = new ArrayList<>();
@@ -791,6 +792,13 @@ public class ToolBarView {
                 set.setName(cset.getName());
                 set.setChartType(cset.getChartType().toString());
                 set.setHeight(cset.getHeight().toString());
+
+                JsonChartTimeFrame jctf = new JsonChartTimeFrame();
+                jctf.setTimeframe(cset.getAnalysisTimeFrame().getTimeFrame().toString());
+                jctf.setId(String.valueOf(cset.getAnalysisTimeFrame().getId()));
+
+                set.setAnalysisTimeFrame(jctf);
+
                 jsonChartSettings.add(set);
             }
 

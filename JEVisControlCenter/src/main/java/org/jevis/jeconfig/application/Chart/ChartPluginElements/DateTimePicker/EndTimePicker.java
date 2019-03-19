@@ -2,7 +2,7 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker;
 
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.util.converter.LocalTimeStringConverter;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.joda.time.DateTime;

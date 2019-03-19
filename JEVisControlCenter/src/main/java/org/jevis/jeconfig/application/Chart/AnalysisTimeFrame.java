@@ -62,5 +62,10 @@ public class AnalysisTimeFrame {
         return TimeFrame.TODAY;
     }
 
-
+    @Override
+    public boolean equals(Object analysisTimeFrame) {
+        if (analysisTimeFrame instanceof AnalysisTimeFrame) {
+            return this.getTimeFrame().equals(((AnalysisTimeFrame) analysisTimeFrame).getTimeFrame());
+        } else return false;
+    }
 }

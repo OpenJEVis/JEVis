@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jevis.commons</groupId>
     <artifactId>JECommons</artifactId>
-    <version>3.21</version>
+    <version>3.22</version>
     <packaging>jar</packaging>
 
     <build>

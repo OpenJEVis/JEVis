@@ -79,6 +79,7 @@ public class CleanDataObject {
     private JEVisAttribute valueMultiplierAttribute;
     private JEVisAttribute valueOffsetAttribute;
     private JEVisAttribute counterOverflowAttribute;
+    private DateTime lastRawDate;
 
     public CleanDataObject(JEVisObject calcObject, ObjectHandler objectHandler) {
         cleanObject = calcObject;
@@ -362,13 +363,12 @@ public class CleanDataObject {
 
     public List<JEVisSample> getRawSamples() {
         if (rawSamples == null) {
-            DateTime lastRawDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(getCleanDataPeriodAlignment());
             DateTime firstDate = getFirstDate().minus(getCleanDataPeriodAlignment());
             rawSamples = sampleHandler.getSamplesInPeriod(
                     rawDataObject,
                     VALUE_ATTRIBUTE_NAME,
                     firstDate,
-                    lastRawDate);
+                    getLastRawDate());
 
             if (rawSamples.size() > 100000) {
                 rawSamples.subList(0, 100000);
@@ -543,5 +543,13 @@ public class CleanDataObject {
         public String getAttributeName() {
             return attributeName;
         }
+    }
+
+    public DateTime getLastRawDate() {
+        if (lastRawDate == null) {
+            lastRawDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(getCleanDataPeriodAlignment());
+        }
+
+        return lastRawDate;
     }
 }

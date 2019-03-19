@@ -36,6 +36,7 @@ public class JsonChartSettings {
     private String name;
     private String chartType;
     private String height;
+    private JsonChartTimeFrame analysisTimeFrame;
 
     public JsonChartSettings() {
     }
@@ -74,6 +75,15 @@ public class JsonChartSettings {
 
     public void setHeight(String height) {
         this.height = height;
+    }
+
+    @XmlElement(name = "analysisTimeFrame")
+    public JsonChartTimeFrame getAnalysisTimeFrame() {
+        return analysisTimeFrame;
+    }
+
+    public void setAnalysisTimeFrame(JsonChartTimeFrame analysisTimeFrame) {
+        this.analysisTimeFrame = analysisTimeFrame;
     }
 
     @Override

@@ -34,8 +34,6 @@ public class JsonAnalysisDataRow {
 
     private String name;
     private String selected;
-    private String selectedStart;
-    private String selectedEnd;
     private String object;
     private String dataProcessorObject;
     private String aggregation;
@@ -54,24 +52,6 @@ public class JsonAnalysisDataRow {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @XmlElement(name = "selectedStart")
-    public String getSelectedStart() {
-        return selectedStart;
-    }
-
-    public void setSelectedStart(String selectedStart) {
-        this.selectedStart = selectedStart;
-    }
-
-    @XmlElement(name = "selectedEnd")
-    public String getSelectedEnd() {
-        return selectedEnd;
-    }
-
-    public void setSelectedEnd(String selectedEnd) {
-        this.selectedEnd = selectedEnd;
     }
 
     @XmlElement(name = "object")

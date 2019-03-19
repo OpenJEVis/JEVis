@@ -18,9 +18,9 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
@@ -540,9 +540,8 @@ public class XYChart implements Chart {
                         }
                     }
 
-
-                    Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
                     JEVisSample sample = sampleTreeMap.get(nearest);
+                    Double valueAsDouble = sample.getValueAsDouble();
                     Note formattedNote = new Note(sample);
                     String formattedDouble = nf.format(valueAsDouble);
 
@@ -555,8 +554,13 @@ public class XYChart implements Chart {
                     }
                     tableEntry.setNote(formattedNote.getNoteAsString());
                     String unit = serie.getUnit();
-                    tableEntry.setValue(formattedDouble + " " + unit);
+
+                    if (!sample.getNote().contains("Empty")) {
+                        tableEntry.setValue(formattedDouble + " " + unit);
+                    } else tableEntry.setValue("- " + unit);
+
                     tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+
                 } catch (Exception ex) {
                 }
 

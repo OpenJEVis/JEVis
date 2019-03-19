@@ -5,8 +5,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
 

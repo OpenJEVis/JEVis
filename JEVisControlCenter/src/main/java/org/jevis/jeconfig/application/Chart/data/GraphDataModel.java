@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -28,7 +29,10 @@ import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
-import org.jevis.jeconfig.application.Chart.*;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
@@ -62,7 +66,6 @@ public class GraphDataModel {
     private Boolean hideShowIcons = true;
     private ManipulationMode addSeries = ManipulationMode.NONE;
     private Boolean autoResize = true;
-    private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
     private JEVisDataSource ds;
     private ObservableList<JEVisObject> observableListAnalyses = FXCollections.observableArrayList();
     private JsonChartDataModel listAnalysisModel = new JsonChartDataModel();
@@ -72,6 +75,8 @@ public class GraphDataModel {
     private JEVisObject currentAnalysis = null;
     private Boolean multipleDirectories = false;
     private Long chartsPerScreen = 2L;
+    private Boolean isGlobalAnalysisTimeFrame = false;
+    private AnalysisTimeFrame globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
@@ -83,19 +88,6 @@ public class GraphDataModel {
 
             updateSelectedData();
 
-            //JsonChartDataModel jsonChartDataModel = getListAnalysisModel();
-
-            if (selectedData != null && !selectedData.isEmpty() && listAnalysisModel != null && listAnalysisModel.getAnalysisTimeFrame() != null
-                    && listAnalysisModel.getAnalysisTimeFrame().getTimeframe() != null) {
-                AnalysisTimeFrame newATF = new AnalysisTimeFrame();
-                try {
-                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(listAnalysisModel.getAnalysisTimeFrame().getTimeframe()));
-                    newATF.setId(Long.parseLong(listAnalysisModel.getAnalysisTimeFrame().getId()));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                setAnalysisTimeFrame(newATF);
-            }
         }
 
         return this.selectedData;
@@ -123,7 +115,7 @@ public class GraphDataModel {
                     @Override
                     protected Void call() {
                         updateMessage(loading);
-                        Platform.runLater(graphPluginView::update);
+                        Platform.runLater(() -> graphPluginView.update(true));
                         return null;
                     }
                 };
@@ -156,14 +148,7 @@ public class GraphDataModel {
                     JEVisObject obj_dp = null;
                     if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
                     JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
-                    DateTime start;
-                    start = DateTime.parse(mdl.getSelectedStart());
-                    DateTime end;
-                    end = DateTime.parse(mdl.getSelectedEnd());
                     newData.setObject(obj);
-
-                    newData.setSelectedStart(start);
-                    newData.setSelectedEnd(end);
 
                     newData.setColor(Color.valueOf(mdl.getColor()));
                     newData.setTitle(mdl.getName());
@@ -199,6 +184,19 @@ public class GraphDataModel {
 
     public List<ChartSettings> getCharts() {
         if (charts == null) updateCharts();
+
+//        if (selectedData != null && !selectedData.isEmpty() && listAnalysisModel != null) {
+//
+//            for (ChartSettings chartSettings : charts) {
+//                AnalysisTimeFrame newATF = new AnalysisTimeFrame();
+//                try {
+//                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(chartSettings.getAnalysisTimeFrame().getTimeframe()));
+//                    newATF.setId(Long.parseLong(chartSettings.getAnalysisTimeFrame().getId()));
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
 
         return charts;
     }
@@ -353,19 +351,32 @@ public class GraphDataModel {
         return out;
     }
 
-    public AnalysisTimeFrame getAnalysisTimeFrame() {
-        return analysisTimeFrame;
+
+    public void setAnalysisTimeFrameForAllModels(AnalysisTimeFrame analysisTimeFrame) {
+
+        for (ChartSettings chartSettings : charts) {
+            chartSettings.setAnalysisTimeFrame(analysisTimeFrame);
+
+            List<ChartDataModel> chartDataModels = new ArrayList<>();
+            getSelectedData().forEach(chartDataModel -> {
+                if (chartDataModel.getSelectedcharts().contains(chartSettings.getId()))
+                    chartDataModels.add(chartDataModel);
+            });
+            DateHelper dateHelper = new DateHelper();
+            dateHelper.setMinMaxForDateHelper(chartDataModels);
+
+            setAnalysisTimeFrameForModels(chartDataModels, dateHelper, analysisTimeFrame);
+
+        }
+
+        globalAnalysisTimeFrame = analysisTimeFrame;
+        isGlobalAnalysisTimeFrame(true);
     }
 
-    public void setAnalysisTimeFrame(AnalysisTimeFrame analysisTimeFrame) {
-        this.analysisTimeFrame = analysisTimeFrame;
-        /**
-         * analysisTimeFrame is used in the updateStartEndToDataModel function
-         */
-
+    public void setAnalysisTimeFrameForModels(List<ChartDataModel> chartDataModels, DateHelper dateHelper, AnalysisTimeFrame analysisTimeFrame) {
         if (selectedData != null && !selectedData.isEmpty()) {
-            DateHelper dateHelper = new DateHelper();
-            setMinMaxForDateHelper(dateHelper);
+            isGlobalAnalysisTimeFrame(false);
+
             if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
             if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
 
@@ -376,51 +387,51 @@ public class GraphDataModel {
                 //today
                 case TODAY:
                     dateHelper.setType(DateHelper.TransformType.TODAY);
-                    updateStartEndToDataModel(dateHelper);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
                     break;
                 //yesterday
                 case YESTERDAY:
                     dateHelper.setType(DateHelper.TransformType.YESTERDAY);
-                    updateStartEndToDataModel(dateHelper);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
                     break;
                 //last 7 days
                 case LAST_7_DAYS:
                     dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                    updateStartEndToDataModel(dateHelper);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
                     break;
                 //last Week days
                 case LAST_WEEK:
                     dateHelper.setType(DateHelper.TransformType.LASTWEEK);
-                    updateStartEndToDataModel(dateHelper);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
                     break;
                 //last 30 days
                 case LAST_30_DAYS:
                     dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                    updateStartEndToDataModel(dateHelper);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
                     break;
                 case LAST_MONTH:
                     //last Month
                     dateHelper.setType(DateHelper.TransformType.LASTMONTH);
-                    updateStartEndToDataModel(dateHelper);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
                     break;
                 case THIS_YEAR:
                     //last Month
                     dateHelper.setType(DateHelper.TransformType.THISYEAR);
-                    updateStartEndToDataModel(dateHelper);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
                     break;
                 case LAST_YEAR:
                     //last Month
                     dateHelper.setType(DateHelper.TransformType.LASTYEAR);
-                    updateStartEndToDataModel(dateHelper);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
                     break;
                 case CUSTOM_START_END:
-                    if (analysisTimeFrame.getId() != 0l) {
+                    if (analysisTimeFrame.getId() != 0L) {
                         try {
                             dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
                             CustomPeriodObject cpo = new CustomPeriodObject(ds.getObject(analysisTimeFrame.getId()), new ObjectHandler(ds));
                             dateHelper.setCustomPeriodObject(cpo);
 
-                            updateStartEndToDataModel(dateHelper);
+                            updateStartEndToDataModel(chartDataModels, dateHelper);
                         } catch (Exception e) {
                             logger.error("Error getting custom period object: " + e);
                         }
@@ -430,31 +441,30 @@ public class GraphDataModel {
                     try {
                         AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now().minusDays(1));
                         AtomicReference<DateTime> end = new AtomicReference<>(DateTime.now());
-                        getSelectedData().forEach(chartDataModel -> {
+
+                        for (ChartDataModel chartDataModel : chartDataModels) {
                             JEVisAttribute valueAtt = chartDataModel.getAttribute();
                             if (valueAtt != null) {
                                 if (valueAtt.getTimestampFromLastSample().isBefore(end.get()))
                                     end.set(valueAtt.getTimestampFromLastSample());
                             }
-                        });
 
-                        start.set(end.get().minusDays(1));
+                            start.set(end.get().minusDays(1));
 
-                        getSelectedData().forEach(chartDataModel -> {
-                            JEVisAttribute valueAtt = chartDataModel.getAttribute();
                             if (valueAtt != null) {
                                 if (valueAtt.getTimestampFromFirstSample().isAfter(start.get()))
                                     start.set(valueAtt.getTimestampFromFirstSample());
                             }
-                        });
+                        }
 
-                        getSelectedData().forEach(chartDataModel -> {
+                        for (ChartDataModel chartDataModel : chartDataModels) {
                             if (!chartDataModel.getSelectedcharts().isEmpty()) {
                                 chartDataModel.setSelectedStart(start.get());
                                 chartDataModel.setSelectedEnd(end.get());
                                 chartDataModel.setSomethingChanged(true);
                             }
-                        });
+                        }
+
                     } catch (Exception e) {
                         logger.error("Error: " + e);
                     }
@@ -463,111 +473,17 @@ public class GraphDataModel {
         }
     }
 
-    private void setMinMaxForDateHelper(DateHelper dateHelper) {
-        DateTime min = null;
-        DateTime max = null;
-        for (ChartDataModel mdl : selectedData) {
-            if (!mdl.getSelectedcharts().isEmpty()) {
-                JEVisAttribute att = mdl.getAttribute();
-
-                DateTime min_check = new DateTime(
-                        att.getTimestampFromFirstSample().getYear(),
-                        att.getTimestampFromFirstSample().getMonthOfYear(),
-                        att.getTimestampFromFirstSample().getDayOfMonth(),
-                        att.getTimestampFromFirstSample().getHourOfDay(),
-                        att.getTimestampFromFirstSample().getMinuteOfHour(),
-                        att.getTimestampFromFirstSample().getSecondOfMinute());
-
-                DateTime max_check = new DateTime(
-                        att.getTimestampFromLastSample().getYear(),
-                        att.getTimestampFromLastSample().getMonthOfYear(),
-                        att.getTimestampFromLastSample().getDayOfMonth(),
-                        att.getTimestampFromLastSample().getHourOfDay(),
-                        att.getTimestampFromLastSample().getMinuteOfHour(),
-                        att.getTimestampFromLastSample().getSecondOfMinute());
-
-                if (min == null || min_check.isBefore(min)) min = min_check;
-                if (max == null || max_check.isAfter(max)) max = max_check;
-            }
-        }
-
-        if (min != null && max != null) {
-            dateHelper.setMinStartDateTime(min);
-            dateHelper.setMaxEndDateTime(max);
-        }
-
-    }
-
-    private void updateStartEndToDataModel(DateHelper dh) {
+    private void updateStartEndToDataModel(List<ChartDataModel> chartDataModels, DateHelper dh) {
         DateTime start = dh.getStartDate();
         DateTime end = dh.getEndDate();
 
-//        Disabled for now....
-
-//        DateTime start;
-//        DateTime end;
-//        if (dh.getStartDate().isAfter(dh.getMinStartDateTime())) start = dh.getStartDate();
-//        else start = dh.getMinStartDateTime();
-//        if (dh.getEndDate().isBefore(dh.getMaxEndDateTime())) end = dh.getEndDate();
-//        else {
-//            end = dh.getMaxEndDateTime();
-//            if (end != null && getAnalysisTimeFrame() != null && getAnalysisTimeFrame().getTimeFrame() != null) {
-//                switch (getAnalysisTimeFrame().getTimeFrame()) {
-//                    case today:
-//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
-//                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond());
-//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-//                        break;
-//                    case last7Days:
-//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
-//                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-//                                .minusDays(6);
-//
-//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-//                        break;
-//                    case last30Days:
-//
-//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(),
-//                                getWorkdayStart().getHour(), getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-//                                .minusDays(29);
-//
-//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-//                        break;
-//                    case yesterday:
-//                        start = end;
-//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-//                        break;
-//                    case lastWeek:
-//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), getWorkdayStart().getHour(),
-//                                getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-//                                .minusDays(end.getDayOfWeek() - 1).minusWeeks(1);
-//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-//                        break;
-//                    case lastMonth:
-//                        start = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), getWorkdayStart().getHour(),
-//                                getWorkdayStart().getMinute(), getWorkdayStart().getSecond())
-//                                .minusMonths(1).minusDays(end.getDayOfMonth() - 1);
-//                        if (getWorkdayStart().isAfter(getWorkdayEnd())) start = start.minusDays(1);
-//                        break;
-//                }
-//            }
-//        }
-//        DateTime finalStart = start;
-//        getSelectedData().forEach(chartDataModel -> {
-//            if (chartDataModel.getSelected()) {
-//                chartDataModel.setSelectedStart(finalStart);
-//                chartDataModel.setSelectedEnd(end);
-//                chartDataModel.setSomethingChanged(true);
-//            }
-//        });
-
-        getSelectedData().forEach(chartDataModel -> {
+        for (ChartDataModel chartDataModel : chartDataModels) {
             if (!chartDataModel.getSelectedcharts().isEmpty()) {
                 chartDataModel.setSelectedStart(start);
                 chartDataModel.setSelectedEnd(end);
                 chartDataModel.setSomethingChanged(true);
             }
-        });
+        }
     }
 
 
@@ -856,10 +772,45 @@ public class GraphDataModel {
     }
 
     public Long getChartsPerScreen() {
+        if (chartsPerScreen == null) {
+            try {
+                JEVisClass graphPluginClass = ds.getJEVisClass("Graph Plugin");
+                List<JEVisObject> graphPlugins = ds.getObjects(graphPluginClass, true);
+                if (!graphPlugins.isEmpty()) {
+                    JEVisAttribute chartsPerScreenAttribute = graphPlugins.get(0).getAttribute("Number of Charts per Screen");
+                    if (chartsPerScreenAttribute != null) {
+                        JEVisSample latestSample = chartsPerScreenAttribute.getLatestSample();
+                        if (latestSample != null) {
+                            chartsPerScreen = Long.parseLong(latestSample.getValueAsString());
+                        }
+                    }
+                }
+            } catch (JEVisException e) {
+                logger.error("Could not get JEVisClass for Graph Plugin");
+            }
+        }
+        if (chartsPerScreen == null || chartsPerScreen.equals(0L)) chartsPerScreen = 2L;
         return chartsPerScreen;
     }
 
     public void setChartsPerScreen(Long chartsPerScreen) {
         this.chartsPerScreen = chartsPerScreen;
     }
+
+    public Boolean isglobalAnalysisTimeFrame() {
+        return isGlobalAnalysisTimeFrame;
+    }
+
+    public void isGlobalAnalysisTimeFrame(Boolean isglobalAnalysisTimeFrame) {
+        this.isGlobalAnalysisTimeFrame = isglobalAnalysisTimeFrame;
+    }
+
+    public AnalysisTimeFrame getGlobalAnalysisTimeFrame() {
+        return globalAnalysisTimeFrame;
+    }
+
+    public void setGlobalAnalysisTimeFrame(AnalysisTimeFrame globalAnalysisTimeFrame) {
+        this.globalAnalysisTimeFrame = globalAnalysisTimeFrame;
+    }
+
 }

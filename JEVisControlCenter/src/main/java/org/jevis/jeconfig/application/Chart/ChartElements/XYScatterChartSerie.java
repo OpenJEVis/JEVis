@@ -4,7 +4,7 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 import javafx.scene.Node;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 
 public class XYScatterChartSerie extends XYChartSerie {

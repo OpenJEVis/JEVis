@@ -49,6 +49,10 @@ class CalcJobFactory {
         DateTime startTime;
         if (lastEndTime == null) {
             startTime = getStartTimeFromOutputs(ds, outputAttributes, getCalcInputObjects(jevisObject));
+            if (outputAttributes.size() == 1) {
+                startTime = startTime.minus(outputAttributes.get(0).getInputSampleRate());
+            }
+
         } else startTime = lastEndTime;
         logger.debug("start time is: " + startTime);
 

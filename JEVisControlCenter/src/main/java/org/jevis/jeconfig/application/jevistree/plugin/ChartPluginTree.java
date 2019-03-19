@@ -37,7 +37,6 @@ public class ChartPluginTree implements TreePlugin {
     private GraphDataModel data;
     private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
     private JEVisDataSource dataSource;
-
     private SimpleBooleanProperty addedChart = new SimpleBooleanProperty(false);
 
     public ChartPluginTree(GraphDataModel data) {

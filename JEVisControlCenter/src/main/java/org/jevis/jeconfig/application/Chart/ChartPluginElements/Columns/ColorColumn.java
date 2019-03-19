@@ -9,7 +9,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;

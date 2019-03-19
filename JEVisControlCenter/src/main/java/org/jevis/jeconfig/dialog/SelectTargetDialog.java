@@ -57,6 +57,7 @@ import java.util.List;
 public class SelectTargetDialog {
 
     private final SelectionMode selectionMode;
+    private final JEVisTreeFilter basicFilter;
     private Button ok = new Button("OK");
     private String ICON = "1404313956_evolution-tasks.png";
     private JEVisDataSource _ds;
@@ -69,11 +70,12 @@ public class SelectTargetDialog {
 
 
     /**
-     * @param filter
+     * @param filters
      * @param selected Filter who should selected by default, if null the first will be taken.
      */
-    public SelectTargetDialog(List<JEVisTreeFilter> filter, JEVisTreeFilter selected, SelectionMode selectionMode) {
-        this.filterTypes.addAll(filter);
+    public SelectTargetDialog(List<JEVisTreeFilter> filters, JEVisTreeFilter basicFilter, JEVisTreeFilter selected, SelectionMode selectionMode) {
+        this.filterTypes.addAll(filters);
+        this.basicFilter = basicFilter;
         this.selectedFilter = selected;
         this.selectionMode = selectionMode;
     }
@@ -186,7 +188,8 @@ public class SelectTargetDialog {
         VBox content = new VBox();
 
 
-        tree = JEVisTreeFactory.buildBasicDefault(ds, false);
+        tree = JEVisTreeFactory.buildBasicDefault(ds, basicFilter, false);
+
         tree.getPlugins().add(simpleTargetPlugin);
 
         tree.getSelectionModel().setSelectionMode(selectionMode);
@@ -257,4 +260,7 @@ public class SelectTargetDialog {
         OBJECT, ATTRIBUTE, FILTER
     }
 
+    public void setFilter(JEVisTreeFilter filter) {
+        tree.setFilter(filter);
+    }
 }

@@ -347,7 +347,7 @@ public class AlarmEditor implements AttributeEditor {
             allFilter.add(allDataFilter);
             allFilter.add(allAttributesFilter);
 
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
 
             List<UserSelection> openList = new ArrayList<>();
             if (th != null && !th.getAttribute().isEmpty()) {
