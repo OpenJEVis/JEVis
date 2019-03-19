@@ -16,6 +16,7 @@ import org.jevis.jecalc.calculation.Sample;
 import org.jevis.jecalc.calculation.SampleMerger;
 import org.joda.time.DateTime;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +64,25 @@ class CalcJob {
         try {
             //generate output
             for (JEVisAttribute output : outputs) {
+                boolean hasSamples = output.hasSample();
+                Map<DateTime, JEVisSample> listOldSamples = new HashMap<>();
+                for (JEVisSample jeVisSample : output.getAllSamples()) {
+                    listOldSamples.put(jeVisSample.getTimestamp(), jeVisSample);
+                }
+
+                for (JEVisSample sample : calculateResult) {
+                    DateTime date = sample.getTimestamp();
+                    if (date != null) {
+
+                        if (hasSamples) {
+                            JEVisSample smp = listOldSamples.get(date);
+                            if (smp != null) {
+                                output.deleteSamplesBetween(date.minusMillis(1), date.plusMillis(1));
+                            }
+                        }
+                    }
+                }
+
                 output.addSamples(calculateResult);
             }
         } catch (JEVisException ex) {

@@ -485,8 +485,9 @@ public class TreeHelper {
 
     public static void EventExportTree(JEVisObject obj) throws JEVisException {
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        allFilter.add(SelectTargetDialog.buildAllDataFilter());
-        SelectTargetDialog dia = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
+        JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataFilter();
+        allFilter.add(basicFilter);
+        SelectTargetDialog dia = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
         List<UserSelection> userSelection = new ArrayList<>();
         userSelection.add(new UserSelection(UserSelection.SelectionType.Object, obj));
 
@@ -533,7 +534,7 @@ public class TreeHelper {
         allFilter.add(allDataFilter);
         allFilter.add(allAttributesFilter);
 
-        SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, null, SelectionMode.MULTIPLE);
+        SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.MULTIPLE);
         if (selectTargetDialog.show(
                 calcObject.getDataSource(),
                 I18n.getInstance().getString("dialog.target.data.title"),

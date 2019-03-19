@@ -3,7 +3,7 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ChoiceBox;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;

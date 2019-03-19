@@ -26,7 +26,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Creates empty interval classes from start date to end date
@@ -104,96 +103,58 @@ public class PrepareStep implements ProcessStep {
             LocalTime dtEnd = wd.getWorkdayEnd();
             DateTime lastDate = null;
 
-            while (currentDate.isBefore(maxEndDate) && periodCleanData.toStandardDuration().getMillis() > 0 && !currentDate.equals(lastDate)) {
+            while (currentDate.isBefore(maxEndDate) && !periodCleanData.equals(Period.ZERO) && !currentDate.equals(lastDate)) {
                 DateTime startInterval = null;
                 DateTime endInterval = null;
                 lastDate = currentDate;
 
-                if (periodCleanData.toStandardDuration().getMillis() > periodRawData.toStandardDuration().getMillis()) {
-                    /**
-                     * for aggregation purposes
-                     */
-                    if (periodCleanData.equals(Period.years(1))) {
-                        /**
-                         * smaller to Year
-                         */
-                        if (currentDate.getYear() == maxEndDate.getYear()) currentDate = currentDate.minusYears(1);
+                boolean periodRawHasMonths = periodRawData.getMonths() > 1;
+                boolean periodRawHasYear = periodRawData.getYears() > 1;
+                boolean periodRawHasDays = periodRawData.getDays() > 1;
+                boolean periodRawHasHours = periodRawData.getHours() > 1;
+                boolean periodRawHasMinutes = periodRawData.getMinutes() > 1;
+                boolean periodRawHasSeconds = periodRawData.getSeconds() > 1;
 
-                        startInterval = new DateTime(currentDate.getYear(), 1, 1,
-                                dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond());
-                        endInterval = new DateTime(currentDate.getYear(), 1, 1,
-                                dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond()).plusYears(1);
-                        if (dtEnd.isBefore(dtStart)) Objects.requireNonNull(startInterval).minusDays(1);
-                    } else if (periodCleanData.equals(Period.months(1))) {
-                        /**
-                         * smaller to Month
-                         */
-                        if (currentDate.getYear() == maxEndDate.getYear() &&
-                                currentDate.getMonthOfYear() == maxEndDate.getMonthOfYear())
-                            currentDate = currentDate.minusMonths(1);
+                boolean periodCleanHasMonths = periodCleanData.getMonths() > 1;
+                boolean periodCleanHasYear = periodCleanData.getYears() > 1;
+                boolean periodCleanHasDays = periodCleanData.getDays() > 1;
+                boolean periodCleanHasHours = periodCleanData.getHours() > 1;
+                boolean periodCleanHasMinutes = periodCleanData.getMinutes() > 1;
+                boolean periodCleanHasSeconds = periodCleanData.getSeconds() > 1;
 
-                        startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1,
-                                dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond());
-                        endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), 1,
-                                dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond()).plusMonths(1);
-                        if (dtEnd.isBefore(dtStart)) Objects.requireNonNull(startInterval).minusDays(1);
-                    } else if (periodCleanData.equals(Period.days(1))) {
-                        /**
-                         * smaller to Days
-                         */
-                        if (currentDate.getYear() == maxEndDate.getYear() &&
-                                currentDate.getMonthOfYear() == maxEndDate.getMonthOfYear() &&
-                                currentDate.getDayOfMonth() == maxEndDate.getDayOfMonth())
-                            currentDate = currentDate.minusDays(1);
 
-                        startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
-                                dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond());
-                        endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
-                                dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond());
-                    } else if (periodCleanData.equals(Period.hours(1))) {
-                        /**
-                         * smaller to Hour
-                         */
-                        if (currentDate.getYear() == maxEndDate.getYear() &&
-                                currentDate.getMonthOfYear() == maxEndDate.getMonthOfYear() &&
-                                currentDate.getDayOfMonth() == maxEndDate.getDayOfMonth() &&
-                                currentDate.getHourOfDay() == maxEndDate.getHourOfDay())
-                            currentDate = currentDate.minusHours(1);
+                startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
+                        currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute()).plusMillis(1);
+                endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
+                        currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());
 
-                        startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
-                                currentDate.getHourOfDay(), dtStart.getMinute(), 0);
-                        endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
-                                currentDate.getHourOfDay(), dtEnd.getMinute(), 59, 999);
-                    } else if (periodCleanData.equals(Period.minutes(1))) {
-                        /**
-                         * smaller to Minute
-                         */
-                        if (currentDate.getYear() == maxEndDate.getYear() &&
-                                currentDate.getMonthOfYear() == maxEndDate.getMonthOfYear() &&
-                                currentDate.getDayOfMonth() == maxEndDate.getDayOfMonth() &&
-                                currentDate.getHourOfDay() == maxEndDate.getHourOfDay() &&
-                                currentDate.getMinuteOfHour() == maxEndDate.getMinuteOfHour())
-                            currentDate = currentDate.minusMinutes(1);
+                if (periodCleanHasYear) {
+                    startInterval = startInterval.minusYears(periodCleanData.getYears());
+                }
+                if (periodCleanHasMonths) {
+                    startInterval = startInterval.minusMonths(periodCleanData.getMonths());
+                }
+                if (periodCleanHasDays) {
+                    startInterval = startInterval.minusDays(periodCleanData.getDays());
+                }
+                if (periodCleanHasHours) {
+                    startInterval = startInterval.minusHours(periodCleanData.getHours());
+                }
+                if (periodCleanHasMinutes) {
+                    startInterval = startInterval.minusMinutes(periodCleanData.getMinutes());
+                }
+                if (periodCleanHasSeconds) {
+                    startInterval = startInterval.minusSeconds(periodCleanData.getSeconds());
+                }
 
-                        startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
-                                currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), 0);
-                        endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
-                                currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), 59, 999).plusMinutes(1);
-                    } else {
-                        long duration = periodCleanData.toStandardDuration().getMillis();
-                        long halfDuration = duration / 2;
 
-                        startInterval = currentDate.minus(halfDuration);
-                        endInterval = currentDate.plus(halfDuration);
-                    }
+                if (periodCleanHasDays || periodCleanHasMonths || periodCleanHasYear) {
+                    startInterval = new DateTime(startInterval.getYear(), startInterval.getMonthOfYear(), startInterval.getDayOfMonth(),
+                            dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond());
+                    endInterval = new DateTime(endInterval.getYear(), endInterval.getMonthOfYear(), endInterval.getDayOfMonth(),
+                            dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond());
 
-                    if (dtEnd.isBefore(dtStart)) startInterval = Objects.requireNonNull(startInterval).minusDays(1);
-                } else {
-                    long duration = periodCleanData.toStandardDuration().getMillis();
-                    long halfDuration = duration / 2;
-
-                    startInterval = currentDate.minus(halfDuration);
-                    endInterval = currentDate.plus(halfDuration);
+                    if (dtEnd.isBefore(dtStart)) startInterval.minusDays(1);
                 }
 
                 if (startInterval != null && endInterval != null) {
@@ -215,7 +176,8 @@ public class PrepareStep implements ProcessStep {
         return cleanIntervals;
     }
 
-    private List<CleanInterval> getIntervalsFromRawSamples(CleanDataObject calcAttribute, List<JEVisSample> rawSamples) throws Exception {
+    private List<CleanInterval> getIntervalsFromRawSamples(CleanDataObject
+                                                                   calcAttribute, List<JEVisSample> rawSamples) throws Exception {
         List<CleanInterval> cleanIntervals = new ArrayList<>();
         for (JEVisSample curSample : rawSamples) {
             DateTime startInterval = curSample.getTimestamp().plusSeconds(calcAttribute.getPeriodOffset());

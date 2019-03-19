@@ -192,7 +192,7 @@ public class LoadAnalysisDialog {
                 graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 graphDataModel.setManipulationMode(ManipulationMode.NONE);
                 AnalysisTimeFrame preview = new AnalysisTimeFrame(TimeFrame.PREVIEW);
-                graphDataModel.setAnalysisTimeFrame(preview);
+                graphDataModel.setAnalysisTimeFrameForAllModels(preview);
 
                 toolBarView.select(newValue);
 
@@ -302,10 +302,10 @@ public class LoadAnalysisDialog {
                     pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond()));
 
 
-            if (cpo != null && comboBoxPresetDates.getSelectionModel().getSelectedItem().equals(TimeFrame.CUSTOM_START_END))
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(comboBoxPresetDates.getSelectionModel().getSelectedItem(), cpo.getObject().getID()));
-            else
-                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(comboBoxPresetDates.getSelectionModel().getSelectedItem()));
+//            if (cpo != null && comboBoxPresetDates.getSelectionModel().getSelectedItem().equals(TimeFrame.CUSTOM_START_END))
+//                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(comboBoxPresetDates.getSelectionModel().getSelectedItem(), cpo.getObject().getID()));
+//            else
+//                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(comboBoxPresetDates.getSelectionModel().getSelectedItem()));
 
             stage.close();
             stage = null;
@@ -457,7 +457,7 @@ public class LoadAnalysisDialog {
 
             List<CustomPeriodObject> finalListCustomPeriodObjects = listCustomPeriodObjects;
             tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-                if (oldValue == null || newValue != oldValue) {
+                if (!newValue.equals(oldValue)) {
                     if (newValue.intValue() > 0) {
                         for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
                             if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
@@ -470,7 +470,7 @@ public class LoadAnalysisDialog {
                                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
                                 newTimeFrame.setTimeFrame(TimeFrame.CUSTOM_START_END);
                                 newTimeFrame.setId(cpo.getObject().getID());
-                                graphDataModel.setAnalysisTimeFrame(newTimeFrame);
+                                graphDataModel.setAnalysisTimeFrameForAllModels(newTimeFrame);
 
                                 comboBoxPresetDates.getSelectionModel().select(TimeFrame.CUSTOM_START_END);
                                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());

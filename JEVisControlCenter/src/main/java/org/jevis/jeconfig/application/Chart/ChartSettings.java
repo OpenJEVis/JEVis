@@ -9,6 +9,8 @@ public class ChartSettings {
     private ChartType chartType;
     private Double height;
 
+    private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+
     public ChartSettings(String name) {
         this.name = name;
         this.chartType = AREA;
@@ -52,4 +54,11 @@ public class ChartSettings {
         this.chartType = chartType;
     }
 
+    public AnalysisTimeFrame getAnalysisTimeFrame() {
+        return analysisTimeFrame;
+    }
+
+    public void setAnalysisTimeFrame(AnalysisTimeFrame analysisTimeFrame) {
+        this.analysisTimeFrame = analysisTimeFrame;
+    }
 }

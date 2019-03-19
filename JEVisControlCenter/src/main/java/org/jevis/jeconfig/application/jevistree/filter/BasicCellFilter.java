@@ -91,7 +91,7 @@ public class BasicCellFilter implements JEVisTreeFilter {
     @Override
     public boolean showCell(TreeTableColumn column, JEVisTreeRow row) {
         try {
-//            System.out.println("showCell?: \n-- '" + column.getId() + "' " + column.getClass() + " --- " + row);
+            logger.trace("showCell?: \n-- '" + column.getId() + "' " + column.getClass() + " --- " + row);
             List<ObjectAttributeFilter> fLtst = filters.get(column.getId());
             if (fLtst != null) {
                 for (ObjectAttributeFilter objectAttributeFilter : fLtst) {

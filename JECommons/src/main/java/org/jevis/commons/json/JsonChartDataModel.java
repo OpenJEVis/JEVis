@@ -9,7 +9,6 @@ import java.util.List;
 public class JsonChartDataModel {
 
     private List<JsonAnalysisDataRow> listDataRows;
-    private JsonChartTimeFrame analysisTimeFrame;
 
     @XmlElement(name = "arrayAnalyses")
     public List<JsonAnalysisDataRow> getListAnalyses() {
@@ -20,14 +19,6 @@ public class JsonChartDataModel {
         this.listDataRows = listDataRows;
     }
 
-    @XmlElement(name = "analysisTimeFrame")
-    public JsonChartTimeFrame getAnalysisTimeFrame() {
-        return analysisTimeFrame;
-    }
-
-    public void setAnalysisTimeFrame(JsonChartTimeFrame analysisTimeFrame) {
-        this.analysisTimeFrame = analysisTimeFrame;
-    }
 
     @Override
     public String toString() {

@@ -178,11 +178,11 @@ public class TargetEditor implements AttributeEditor {
 
                 if (_attribute.getObject().getJEVisClassName().equals("Alarm Configuration")) {
 
-                    selectTargetDialog = new SelectTargetDialog(allFilter, null, SelectionMode.MULTIPLE);
+                    selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.MULTIPLE);
 
                 } else {
 
-                    selectTargetDialog = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
+                    selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
                 }
 
                 List<UserSelection> openList = new ArrayList<>();

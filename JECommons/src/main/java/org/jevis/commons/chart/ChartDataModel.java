@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart;
+package org.jevis.commons.chart;
 
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
@@ -145,11 +145,18 @@ public class ChartDataModel {
             Double millisOutput = null;
             try {
                 if (inputList.size() > 1) {
-                    millisInput = (double) attribute.getDisplaySampleRate().toStandardDuration().getMillis();
-                    millisOutput = (double) new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp()).toStandardDuration().getMillis();
+                    Period inputPeriod = attribute.getDisplaySampleRate();
+                    if (!inputPeriod.equals(Period.years(1)) || !inputPeriod.equals(Period.months(3)) || !inputPeriod.equals(Period.months(1))) {
+                        millisInput = (double) inputPeriod.toStandardDuration().getMillis();
+                    } else throw new Exception("Input Period is greater than days, could not calculate duration.");
+
+                    Period outputPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                    if (!outputPeriod.equals(Period.years(1)) || !outputPeriod.equals(Period.months(3)) || !outputPeriod.equals(Period.months(1))) {
+                        millisOutput = (double) outputPeriod.toStandardDuration().getMillis();
+                    } else throw new Exception("Output Period is greater than days, could not calculate duration.");
                 }
             } catch (Exception e) {
-                logger.error("Could not get millis for time factor: " + e);
+                logger.error("Could not get calculate time scaling factor: " + e);
             }
 
             double finalTimeFactor = 1.0;

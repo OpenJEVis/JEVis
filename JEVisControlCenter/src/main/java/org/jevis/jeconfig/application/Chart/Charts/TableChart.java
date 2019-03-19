@@ -1,12 +1,14 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 
 import java.util.List;
 
@@ -45,6 +47,13 @@ public class TableChart extends XYChart {
 
         checkManipulation(singleRow);
         return serie;
+    }
+
+    public HBox getTopPicker() {
+        TableTopDatePicker tableTopDatePicker = new TableTopDatePicker();
+        tableTopDatePicker.initialize(chartDataModels, timeStampOfFirstSample.get());
+
+        return tableTopDatePicker;
     }
 
     @Override

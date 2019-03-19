@@ -13,7 +13,7 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.jeconfig.application.Chart.ChartDataModel;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartSettings;

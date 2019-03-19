@@ -68,6 +68,7 @@ public class SimpleTargetPlugin implements TreePlugin {
         List<TreeTableColumn<JEVisTreeRow, Long>> list = new ArrayList<>();
 
         TreeTableColumn<JEVisTreeRow, Long> pluginHeader = new TreeTableColumn<>("Target");
+        pluginHeader.setId(TARGET_COLUMN_ID);
 
         TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree);
         selectColumn.setEditable(true);

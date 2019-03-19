@@ -726,10 +726,11 @@ public class CSVColumnHeader {
             public void handle(ActionEvent t) {
 
                 List<JEVisTreeFilter> allFilter = new ArrayList<>();
-                allFilter.add(SelectTargetDialog.buildAllAttributesFilter());
+                JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllAttributesFilter();
+                allFilter.add(basicFilter);
 
 
-                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
+                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
 
                 selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
                 if (selectionDialog.show(
