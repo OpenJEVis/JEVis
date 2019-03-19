@@ -130,7 +130,7 @@ public class BarChart implements Chart {
 
                         try {
                             TimeUnit.SECONDS.sleep(60);
-                            System.out.println("Reloading");
+                            //System.out.println("Reloading");
                             Platform.runLater(BarChart.this::updateChart);
                         } catch (InterruptedException e) {
                             logger.error("Sleep interrupted: " + e);

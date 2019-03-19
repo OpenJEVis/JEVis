@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
@@ -74,7 +75,18 @@ public class PieChart implements Chart {
                     }
                 }
 
-                if (!isQuantity) sumPiePiece = sumPiePiece / samplecount;
+                if (qu.isSumCalculable(singleRow.getUnit()) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
+                    try {
+                        Period p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                        double factor = Period.hours(1).toStandardDuration().getMillis() / p.toStandardDuration().getMillis();
+                        sumPiePiece = sumPiePiece / factor;
+                    } catch (Exception e) {
+                        logger.error("Couldn't calculate periods");
+                        sumPiePiece = 0d;
+                    }
+                } else {
+                    sumPiePiece = sumPiePiece / samplecount;
+                }
 
                 listSumsPiePieces.add(sumPiePiece);
                 listTableEntryNames.add(singleRow.getObject().getName());
@@ -92,8 +104,9 @@ public class PieChart implements Chart {
 
         series.clear();
         for (String name : listTableEntryNames) {
+            QuantityUnits qu = new QuantityUnits();
             String seriesName = name + " - " + nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
-                    + " " + unit + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
+                    + " " + qu.getSumUnit(chartDataModels.get(listTableEntryNames.indexOf(name)).getUnit()) + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
 
             javafx.scene.chart.PieChart.Data data = new javafx.scene.chart.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
             series.add(data);

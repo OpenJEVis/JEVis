@@ -238,9 +238,10 @@ public class RootExtension implements ObjectEditorExtension {
             try {
                 List<JEVisTreeFilter> allFilter = new ArrayList<>();
 
-                allFilter.add(SelectTargetDialog.buildAllObjects());
+                JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllObjects();
+                allFilter.add(basicFilter);
 
-                SelectTargetDialog dia = new SelectTargetDialog(allFilter, null, SelectionMode.SINGLE);
+                SelectTargetDialog dia = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
 
                 SelectTargetDialog.Response re = dia.show(
                         obj.getDataSource(),
