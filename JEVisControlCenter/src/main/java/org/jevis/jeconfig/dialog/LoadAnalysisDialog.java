@@ -65,6 +65,7 @@ public class LoadAnalysisDialog {
     private ComboBox<AggregationPeriod> aggregationBox;
     private ComboBox<ManipulationMode> mathBox;
     private CustomPeriodObject cpo;
+    private List<CustomPeriodObject> finalListCustomPeriodObjects;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data, ToolBarView toolBarView) {
         this.graphDataModel = data;
@@ -295,6 +296,16 @@ public class LoadAnalysisDialog {
 
             graphDataModel.setAggregationPeriod(aggregationBox.getSelectionModel().getSelectedItem());
             graphDataModel.setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
+            AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(comboBoxPresetDates.getSelectionModel().getSelectedItem());
+            if (comboBoxPresetDates.getSelectionModel().getSelectedItem().equals(TimeFrame.CUSTOM_START_END)) {
+                for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
+                    if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == comboBoxCustomPeriods.getSelectionModel().getSelectedIndex()) {
+                        analysisTimeFrame.setId(cpo.getObject().getID());
+                        graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
+                    }
+                }
+            }
+            graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
             setSelectedStart(new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
                     pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond()));
@@ -455,7 +466,7 @@ public class LoadAnalysisDialog {
 
         if (customPeriods.size() > 1) {
 
-            List<CustomPeriodObject> finalListCustomPeriodObjects = listCustomPeriodObjects;
+            finalListCustomPeriodObjects = listCustomPeriodObjects;
             tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue.equals(oldValue)) {
                     if (newValue.intValue() > 0) {
