@@ -1,29 +1,33 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
-import com.sun.javafx.charts.Legend;
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.joda.time.Interval;
-
-import java.lang.reflect.Field;
 
 public class ChartWidget extends Widget {
 
@@ -32,8 +36,9 @@ public class ChartWidget extends Widget {
 
     private LineChart lineChart;
     private DataModelDataHandler sampleHandler;
-    private ChartDataModel chartDataModel;
-    private Legend legend = new Legend();
+    private WidgetLegend legend = new WidgetLegend();
+    private JFXButton openAnalysisButton = new JFXButton();
+    private ConfigNode configNode = new ConfigNode();
 
     public ChartWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
@@ -61,6 +66,24 @@ public class ChartWidget extends Widget {
             setChartLabel((MultiAxisLineChart) lineChart.getChart(), config.fontColor.get());
 
             legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
+
+            openAnalysisButton.setOnAction(event -> {
+                try {
+                    AggregationPeriod aggregationPeriod = AggregationPeriod.HOURLY;
+                    ManipulationMode manipulationMode = ManipulationMode.TOTAL;
+                    for (ChartDataModel dataModel : sampleHandler.getDataModel()) {
+                        aggregationPeriod = dataModel.getAggregationPeriod();
+                        manipulationMode = dataModel.getManipulationMode();
+                        break;
+                    }
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                    AnalysisRequest analysisRequest = new AnalysisRequest(getDataSource().getObject(configNode.getGraphAnalysisObject()), aggregationPeriod, manipulationMode, analysisTimeFrame, interval.getStart(), interval.getEnd());
+                    JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest);
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            });
+
         }
 
 
@@ -71,7 +94,7 @@ public class ChartWidget extends Widget {
         sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
                 String dataName = chartDataModel.getObject().getName();
-                legend.getItems().add(buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(), config.fontColor.getValue()));
+                legend.getItems().add(legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(), config.fontColor.getValue()));
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -101,14 +124,20 @@ public class ChartWidget extends Widget {
         lineChart = new LineChart(sampleHandler.getDataModel(), false, ManipulationMode.NONE, 0, "");
         legend.setAlignment(Pos.CENTER);
 
+        openAnalysisButton.setGraphic(JEConfig.getImage("1415314386_Graph.png", 20, 20));
+
         BorderPane borderPane = new BorderPane();
 
-        HBox hBox = new HBox();
-        hBox.setPadding(new Insets(5, 8, 5, 8));
-        hBox.getChildren().add(legend);
+//        HBox hBox = new HBox();
+//        hBox.setPadding(new Insets(5, 8, 5, 8));
+//        hBox.getChildren().add(legend);
+
+        BorderPane bottomBorderPane = new BorderPane();
+        bottomBorderPane.setCenter(legend);
+        bottomBorderPane.setRight(openAnalysisButton);
 
         borderPane.setCenter(lineChart.getChart());
-        borderPane.setBottom(hBox);
+        borderPane.setBottom(bottomBorderPane);
         setGraphic(borderPane);
 
     }
@@ -123,34 +152,17 @@ public class ChartWidget extends Widget {
         return JEConfig.getImage("widget/DonutWidget.png", previewSize.getHeight(), previewSize.getWidth());
     }
 
-    private Legend.LegendItem buildLegendItem(String name, Color color, Color fontcolor) {
 
-        Rectangle r = new Rectangle();
-        r.setX(0);
-        r.setY(0);
-        r.setWidth(12);
-        r.setHeight(12);
-        r.setArcWidth(20);
-        r.setArcHeight(20);
-        r.setStroke(color);
-        r.setFill(color);
+    public class ConfigNode {
+        private Long graphAnalysisObject = 7904L;
 
-        /**
-         * TODO: replace this hack with an own implementation of an legend
-         */
-        Legend.LegendItem item = new Legend.LegendItem(name, r);
-        try {
-            Field privateStringField = Legend.LegendItem.class.
-                    getDeclaredField("label");
-            privateStringField.setAccessible(true);
-            Label label = (Label) privateStringField.get(item);
-            label.setTextFill(fontcolor);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        public Long getGraphAnalysisObject() {
+            return graphAnalysisObject;
         }
 
-        return item;
+        public void setGraphAnalysisObject(Long graphAnalysisObject) {
+            this.graphAnalysisObject = graphAnalysisObject;
+        }
     }
 
 }

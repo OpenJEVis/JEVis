@@ -118,6 +118,11 @@ public class ObjectPlugin implements Plugin {
     }
 
     @Override
+    public void openObject(Object object) {
+        
+    }
+
+    @Override
     public String getName() {
         return name.get();
     }

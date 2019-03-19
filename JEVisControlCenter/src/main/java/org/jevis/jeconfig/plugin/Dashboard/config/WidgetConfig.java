@@ -29,10 +29,8 @@ public class WidgetConfig {
     public static String DATA_HANDLER_NODE = "dataHandler";
     public static String WIDGET_SETTINGS_NODE = "extra";
     public final ObjectProperty<BorderWidths> borderSize = new SimpleObjectProperty(Double.class, "Border Size", new BorderWidths(0.2));
-    public final StringProperty uuid = new SimpleStringProperty(UUID.randomUUID().toString());
     public final ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
     public final ObjectProperty<Color> fontColorSecondary = new SimpleObjectProperty<>(Color.class, "Font Color Secondary", Color.DODGERBLUE);
-    public final ObjectProperty<Size> minumimSize = new SimpleObjectProperty<>(Size.class, "Min Size", new Size(20, 20));
     public final StringProperty title = new SimpleStringProperty(String.class, "title", "Title");
     public final StringProperty unit = new SimpleStringProperty("");
     public final ObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(Color.class, "Background Color", Color.web("#126597"));
@@ -49,7 +47,6 @@ public class WidgetConfig {
     private Map<String, JsonNode> additionalConfigNodes = new HashMap<>();
     private ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
     private JsonNode extraNode = mapper.createObjectNode();
-    private JsonNode dataHandlerNode = mapper.createObjectNode();
     private String dataHandlerJson;
     private JsonNode jsonNode;
 
@@ -112,7 +109,7 @@ public class WidgetConfig {
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
                 dataHandlerJson = jsonNode.asText(DATA_HANDLER_NODE);
                 System.out.println("DATA_HANDLER_NODE: " + dataHandlerJson);
-                dataHandlerNode = jsonNode.get(DATA_HANDLER_NODE);
+//                dataHandlerNode = jsonNode.get(DATA_HANDLER_NODE);
             } else {
                 logger.error("------ missing json node: {}", DATA_HANDLER_NODE);
             }
@@ -139,7 +136,6 @@ public class WidgetConfig {
 
     public JsonNode getConfigNode(String name) {
         return jsonNode.get(name);
-//        return dataHandlerNode;
     }
 
     public JsonNode getExtraSettingNode() {

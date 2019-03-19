@@ -90,6 +90,7 @@ public class JEConfig extends Application {
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
+    private static PluginManager pluginManager;
 
     /**
      * Returns the last path the local user selected
@@ -157,6 +158,20 @@ public class JEConfig extends Application {
      */
     public static Configuration getConfig() {
         return _config;
+    }
+
+    /**
+     * Open an object in an plugin of choice
+     * <p>
+     * TODO: replace this with an generic function and datatype
+     *
+     * @param pluginName
+     * @param object
+     */
+    public static void openObjectInPlugin(String pluginName, Object object) {
+        if (pluginManager != null) {
+            pluginManager.openInPlugin(pluginName, object);
+        }
     }
 
     /**
@@ -281,26 +296,6 @@ public class JEConfig extends Application {
             System.out.println("Color: " + color.toString());
         }
 
-//        try {
-//            List<DataPointNode> dataModelConfigNodes = new ArrayList<>();
-//            DataPointNode node1 = new DataPointNode();
-//            node1.setAggregationPeriod(AggregationPeriod.HOURLY);
-//            node1.setManipulationMode(ManipulationMode.TOTAL);
-//            node1.setObjectID(2154l);
-//            node1.setAttribute("Value");
-//            dataModelConfigNodes.add(node1);
-//
-//            DataPointNode node2 = new DataPointNode();
-//            node2.setAggregationPeriod(AggregationPeriod.HOURLY);
-//            node2.setManipulationMode(ManipulationMode.TOTAL);
-//            node2.setObjectID(469l);
-//            node2.setAttribute("Value");
-//            dataModelConfigNodes.add(node2);
-//            ObjectMapper mapper = new ObjectMapper();
-//            mapper.writeValue(new File("/tmp/dataModel.json"), dataModelConfigNodes);
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
 
         primaryStage.setOnCloseRequest(t -> {
             Platform.exit();
@@ -378,24 +373,24 @@ public class JEConfig extends Application {
                     }
                 });
 
-                PluginManager pMan = new PluginManager(_mainDS);
+                pluginManager = new PluginManager(_mainDS);
                 TopMenu menu = new TopMenu();
-                pMan.setMenuBar(menu);
+                pluginManager.setMenuBar(menu);
 
                 final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
                 final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
                 scene.setOnKeyPressed(ke -> {
                     if (saveCombo.match(ke)) {
-                        pMan.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
-                        pMan.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
+                        pluginManager.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
+                        pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
                     } else if (reloadF5.match(ke)) {
-                        pMan.getSelectedPlugin().handleRequest(Constants.Plugin.Command.RELOAD);
+                        pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.RELOAD);
                     }
                 });
 
-                GlobalToolBar toolbar = new GlobalToolBar(pMan);
+                GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
                 try {
-                    pMan.addPluginsByUserSetting(_mainDS.getCurrentUser());
+                    pluginManager.addPluginsByUserSetting(_mainDS.getCurrentUser());
                 } catch (JEVisException jex) {
                     logger.error(jex);
                 }
@@ -403,9 +398,9 @@ public class JEConfig extends Application {
                 BorderPane border = new BorderPane();
                 VBox vbox = new VBox();
                 vbox.setStyle("-fx-background-color: black;");
-                vbox.getChildren().addAll(menu, pMan.getToolbar());
+                vbox.getChildren().addAll(menu, pluginManager.getToolbar());
                 border.setTop(vbox);
-                border.setCenter(pMan.getView());
+                border.setCenter(pluginManager.getView());
 
                 Statusbar statusBar = new Statusbar(_mainDS);
 

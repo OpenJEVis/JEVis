@@ -75,6 +75,11 @@ public class MapViewPlugin implements Plugin {
     }
 
     @Override
+    public void openObject(Object object) {
+
+    }
+
+    @Override
     public String getClassName() {
         return "Map Plugin";
     }
@@ -100,13 +105,13 @@ public class MapViewPlugin implements Plugin {
     }
 
     @Override
-    public String getToolTip() {
-        return tooltip;
+    public void setUUID(String id) {
+        this.id.set(id);
     }
 
     @Override
-    public void setUUID(String id) {
-        this.id.set(id);
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

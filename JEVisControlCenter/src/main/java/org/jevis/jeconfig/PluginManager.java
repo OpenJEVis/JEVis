@@ -39,7 +39,6 @@ import org.jevis.jeconfig.plugin.Dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
-import org.jevis.jeconfig.plugin.scada.SCADAPlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
@@ -62,6 +61,7 @@ public class PluginManager {
     private AnchorPane toolbar = new AnchorPane();
     private ObjectProperty<Plugin> selectedPluginProperty = new SimpleObjectProperty();
     private TopMenu menu;
+    private TabPane tabPane = new TabPane();
 
     public PluginManager(JEVisDataSource _ds) {
         this._ds = _ds;
@@ -90,16 +90,31 @@ public class PluginManager {
         List<Plugin> plugins = new ArrayList<>();
 //        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
+        plugins.add(new DashBordPlugIn(_ds, I18n.getInstance().getString("plugin.dashboard.title")));
 
-        plugins.add(new SCADAPlugin(_ds));
+//        plugins.add(new SCADAPlugin(_ds));
         plugins.add(new ISO50001Browser(_ds));
         plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
         plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
         plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.map.title")));
-        plugins.add(new DashBordPlugIn(_ds, I18n.getInstance().getString("plugin.dashboard.title")));
+
 //        plugins.add(new LoytecBrowser(_ds));
 
         return plugins;
+    }
+
+
+    public void openInPlugin(String plugInName, Object object) {
+        _plugins.forEach(plugin -> {
+            if (plugin.getClassName().equals(plugInName)) {
+                plugin.openObject(object);
+                tabPane.getTabs().forEach(tab -> {
+                    if (tab.getText().equals(plugin.getName())) {
+                        tabPane.getSelectionModel().select(tab);
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -190,7 +205,7 @@ public class PluginManager {
     public Node getView() {
         StackPane box = new StackPane();
 
-        TabPane tabPane = new TabPane();
+
         tabPane.setSide(Side.LEFT);
 
         toolbar.setStyle("-fx-background-color: #CCFF99;");

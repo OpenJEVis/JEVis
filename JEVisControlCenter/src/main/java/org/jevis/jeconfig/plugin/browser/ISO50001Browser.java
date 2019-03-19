@@ -50,11 +50,6 @@ public class ISO50001Browser implements Plugin {
     private StringProperty urlProperty = new SimpleStringProperty();
     private String tooltip = I18n.getInstance().getString("pluginmanager.iso50001.tooltip");
 
-    @Override
-    public String getClassName() {
-        return "ISO5001 Browser Plugin";
-    }
-
     public ISO50001Browser(JEVisDataSource ds) {
         this.ds = ds;
         icon = JEConfig.getImage("if_50_2315874.png", 20, 20);
@@ -159,9 +154,19 @@ public class ISO50001Browser implements Plugin {
     }
 
     @Override
+    public String getClassName() {
+        return "ISO5001 Browser Plugin";
+    }
+
+    @Override
     public void setHasFocus() {
 //        webEngine.load("http://10.1.1.55:6735/JEWebService/v1/login");
         webEngine.load(urlProperty.getValue());
+    }
+
+    @Override
+    public void openObject(Object object) {
+
     }
 
     @Override
@@ -186,14 +191,14 @@ public class ISO50001Browser implements Plugin {
     }
 
     @Override
-    public String getToolTip() {
-        return tooltip;
-    }
-
-    @Override
     public void setUUID(String id
     ) {
         this.id.setValue(id);
+    }
+
+    @Override
+    public String getToolTip() {
+        return tooltip;
     }
 
     @Override

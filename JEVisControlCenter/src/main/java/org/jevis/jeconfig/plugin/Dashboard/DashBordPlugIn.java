@@ -168,6 +168,11 @@ public class DashBordPlugIn implements Plugin {
         }
     }
 
+    @Override
+    public void openObject(Object object) {
+
+    }
+
     public Widget createWidget(WidgetConfig widget) {
         System.out.println("createWidget for: " + widget.getType());
         for (Widget availableWidget : Widgets.getAvabableWidgets(getDataSource(), widget)) {

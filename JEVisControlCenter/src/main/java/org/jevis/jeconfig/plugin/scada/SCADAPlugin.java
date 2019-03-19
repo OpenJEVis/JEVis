@@ -605,6 +605,11 @@ public class SCADAPlugin implements Plugin {
     }
 
     @Override
+    public void openObject(Object object) {
+
+    }
+
+    @Override
     public String getName() {
         return I18n.getInstance().getString("plugin.scada.title");
     }
