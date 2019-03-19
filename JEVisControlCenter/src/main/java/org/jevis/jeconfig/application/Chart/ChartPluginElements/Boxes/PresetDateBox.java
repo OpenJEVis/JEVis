@@ -114,7 +114,7 @@ public class PresetDateBox extends ComboBox<TimeFrame> {
         setCellFactory(cellFactory);
         setButtonCell(cellFactory.call(null));
 
-        getSelectionModel().selectFirst();
+        getSelectionModel().select(1);
 
         if (chartDataModel != null) {
             if (!graphDataModel.getCharts().isEmpty()) {

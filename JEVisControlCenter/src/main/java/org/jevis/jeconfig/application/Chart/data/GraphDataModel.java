@@ -772,6 +772,24 @@ public class GraphDataModel {
     }
 
     public Long getChartsPerScreen() {
+        if (chartsPerScreen == null) {
+            try {
+                JEVisClass graphPluginClass = ds.getJEVisClass("Graph Plugin");
+                List<JEVisObject> graphPlugins = ds.getObjects(graphPluginClass, true);
+                if (!graphPlugins.isEmpty()) {
+                    JEVisAttribute chartsPerScreenAttribute = graphPlugins.get(0).getAttribute("Number of Charts per Screen");
+                    if (chartsPerScreenAttribute != null) {
+                        JEVisSample latestSample = chartsPerScreenAttribute.getLatestSample();
+                        if (latestSample != null) {
+                            chartsPerScreen = Long.parseLong(latestSample.getValueAsString());
+                        }
+                    }
+                }
+            } catch (JEVisException e) {
+                logger.error("Could not get JEVisClass for Graph Plugin");
+            }
+        }
+        if (chartsPerScreen == null || chartsPerScreen.equals(0L)) chartsPerScreen = 2L;
         return chartsPerScreen;
     }
 
@@ -794,4 +812,5 @@ public class GraphDataModel {
     public void setGlobalAnalysisTimeFrame(AnalysisTimeFrame globalAnalysisTimeFrame) {
         this.globalAnalysisTimeFrame = globalAnalysisTimeFrame;
     }
+
 }
