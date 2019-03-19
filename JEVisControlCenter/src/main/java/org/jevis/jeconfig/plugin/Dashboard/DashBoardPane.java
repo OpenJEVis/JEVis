@@ -156,14 +156,17 @@ public class DashBoardPane extends Pane {
         });
 
         analysis.displayedIntervalProperty.addListener((observable, oldValue, newValue) -> {
-            logger.info("Intervall update: {}", newValue);
-            widgetList.forEach(widget -> {
-                logger.info("Update widget: {}", widget.getUUID());
-                Platform.runLater(() -> {
-                    widget.update(newValue);
-                });
+            if (!newValue.equals(oldValue)) {
+                logger.info("Intervall update: {}", newValue);
+                widgetList.forEach(widget -> {
+                    logger.info("Update widget: {}", widget.getUUID());
+                    Platform.runLater(() -> {
+                        widget.update(newValue);
+                    });
 
-            });
+                });
+            }
+
         });
 
 

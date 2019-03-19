@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.sun.javafx.charts.Legend;
 import javafx.application.Platform;
@@ -121,6 +122,8 @@ public class PieWidget extends Widget {
 
                     series.add(pieData);
                     colors.add(chartDataModel.getColor());
+
+
                 } catch (Exception ex) {
 
                 }
@@ -142,9 +145,16 @@ public class PieWidget extends Widget {
     @Override
     public void init() {
 
-        sampleHandler = new DataModelDataHandler(getDataSource(), config.getDataHandlerNode());
-        sampleHandler.setMultiSelect(true);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonInString = mapper.writeValueAsString(config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+            System.out.println("DMH.json1: " + jsonInString);
 
+            sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+            sampleHandler.setMultiSelect(true);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         chart = new PieChart();
         /** Dummy data to render pie**/
         ObservableList<PieChart.Data> series = FXCollections.observableArrayList();
@@ -152,27 +162,16 @@ public class PieWidget extends Widget {
         series.add(new javafx.scene.chart.PieChart.Data("B", 1));
         series.add(new javafx.scene.chart.PieChart.Data("C", 1));
         series.add(new javafx.scene.chart.PieChart.Data("D", 1));
-//        javafx.scene.chart.PieChart pieChart = (javafx.scene.chart.PieChart) chart.getChart();
-//
+
+        HBox hBox = new HBox();
+        hBox.setPadding(new Insets(5, 8, 5, 8));
+        hBox.getChildren().add(legend);
         chart.setData(series);
         rootPane.setCenter(chart);
-        rootPane.setBottom(legend);
+        rootPane.setBottom(hBox);
 
-//        VBox hBox = new VBox();
-//        HBox hBox1 = new HBox();
-//        Region left = new Region();
-//        Region right = new Region();
-////        chartPane.getChildren().add(chart);
-//
-//
+
         legend.setAlignment(Pos.CENTER);
-//        GridPane gridPane = new GridPane();
-//        gridPane.add(left, 0, 0);
-//        gridPane.add(legend, 1, 0);
-//        gridPane.add(right, 2, 0);
-//
-//
-//        hBox.getChildren().addAll(chart, gridPane);
         setGraphic(rootPane);
     }
 

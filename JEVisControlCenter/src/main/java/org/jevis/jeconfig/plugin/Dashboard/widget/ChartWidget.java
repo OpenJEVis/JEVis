@@ -95,31 +95,36 @@ public class ChartWidget extends Widget {
 
     @Override
     public void init() {
-
-        sampleHandler = new DataModelDataHandler(getDataSource(), config.getDataHandlerNode());
+        sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         sampleHandler.setMultiSelect(true);
-//        chartDataModel = new ChartDataModel();
 
-
-//        List<ChartDataModel> chartDataModelList = new ArrayList<>();
-//        chartDataModelList.add(chartDataModel);
         lineChart = new LineChart(sampleHandler.getDataModel(), false, ManipulationMode.NONE, 0, "");
         legend.setAlignment(Pos.CENTER);
 
-        VBox vBox = new VBox();
+        BorderPane borderPane = new BorderPane();
+
         HBox hBox = new HBox();
-        Region left = new Region();
-        Region right = new Region();
+        hBox.setPadding(new Insets(5, 8, 5, 8));
+        hBox.getChildren().add(legend);
 
-        HBox.setHgrow(legend, Priority.SOMETIMES);
-        HBox.setHgrow(left, Priority.ALWAYS);
-        HBox.setHgrow(right, Priority.ALWAYS);
+        borderPane.setCenter(lineChart.getChart());
+        borderPane.setBottom(hBox);
+        setGraphic(borderPane);
 
-        hBox.getChildren().addAll(left, legend, right);
+//        VBox vBox = new VBox();
+//        HBox hBox = new HBox();
+//        Region left = new Region();
+//        Region right = new Region();
+//
+//        HBox.setHgrow(legend, Priority.SOMETIMES);
+//        HBox.setHgrow(left, Priority.ALWAYS);
+//        HBox.setHgrow(right, Priority.ALWAYS);
+//
+//        hBox.getChildren().addAll(left, legend, right);
+//
+//        vBox.getChildren().addAll(lineChart.getChart(), hBox);
 
-        vBox.getChildren().addAll(lineChart.getChart(), hBox);
-
-        setGraphic(vBox);
+//        setGraphic(vBox);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.Dashboard.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,8 +26,8 @@ public class WidgetConfig {
 
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
     private static final Logger logger = LogManager.getLogger(WidgetConfig.class);
+    public static String DATA_HANDLER_NODE = "dataHandler";
     private static String WIDGET_SETTINGS_NODE = "extra";
-    private static String DATA_HANDLER_NODE = "dataHandler";
     public final ObjectProperty<BorderWidths> borderSize = new SimpleObjectProperty(Double.class, "Border Size", new BorderWidths(0.2));
     public StringProperty uuid = new SimpleStringProperty(UUID.randomUUID().toString());
     public ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
@@ -51,17 +50,20 @@ public class WidgetConfig {
     private ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
     private JsonNode extraNode = mapper.createObjectNode();
     private JsonNode dataHandlerNode = mapper.createObjectNode();
+    private String dataHandlerJson;
+    private JsonNode jsonNode;
 
     public WidgetConfig(String type) {
         this.type = type;
     }
 
     public WidgetConfig(JsonNode jsonNode) {
-        try {
-            logger.info("WidgetConfig Parse json: {}", mapper.writeValueAsString(jsonNode));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        this.jsonNode = jsonNode;
+//        try {
+//            logger.info("WidgetConfig Parse json: {}", mapper.writeValueAsString(jsonNode));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
         try {
             try {
                 title.setValue(jsonNode.get(title.getName()).asText(title.get()));
@@ -102,7 +104,7 @@ public class WidgetConfig {
             try {
                 fontSize.setValue(jsonNode.get("fontSize").asDouble(13));
             } catch (Exception ex) {
-                logger.error("Could not parse position: {}", title.getName(), ex);
+//                logger.error("Could not parse position: {}", fontSize.getName(), ex);
             }
 
             try {
@@ -113,7 +115,11 @@ public class WidgetConfig {
             }
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
+                dataHandlerJson = jsonNode.asText(DATA_HANDLER_NODE);
+                System.out.println("DATA_HANDLER_NODE: " + dataHandlerJson);
                 dataHandlerNode = jsonNode.get(DATA_HANDLER_NODE);
+            } else {
+                logger.error("------ missing json node: {}", DATA_HANDLER_NODE);
             }
 
             if (jsonNode.get(WIDGET_SETTINGS_NODE) != null) {
@@ -131,8 +137,14 @@ public class WidgetConfig {
         return true;
     }
 
-    public JsonNode getDataHandlerNode() {
-        return dataHandlerNode;
+    public String getDataHandlerJson() {
+
+        return dataHandlerJson;
+    }
+
+    public JsonNode getConfigNode(String name) {
+        return jsonNode.get(name);
+//        return dataHandlerNode;
     }
 
     public JsonNode getExtraSettingNode() {

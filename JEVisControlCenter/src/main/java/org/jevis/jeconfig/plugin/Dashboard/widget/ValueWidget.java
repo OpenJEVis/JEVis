@@ -73,7 +73,7 @@ public class ValueWidget extends Widget {
             } catch (Exception ex) {
                 label.setText("-");
                 logger.error(ex);
-                ex.printStackTrace();
+//                ex.printStackTrace();
             }
 
         });
@@ -92,7 +92,7 @@ public class ValueWidget extends Widget {
     @Override
     public void init() {
 
-        sampleHandler = new DataModelDataHandler(getDataSource(), config.getDataHandlerNode());
+        sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         sampleHandler.setMultiSelect(false);
         label.setPadding(new Insets(0, 8, 0, 8));
         setGraphic(label);

@@ -4,6 +4,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -16,7 +17,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashBoardPane;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.SampleHandler;
 import org.joda.time.Interval;
 
 import java.util.UUID;
@@ -28,7 +28,6 @@ public abstract class Widget extends Group {
     private final org.jevis.api.JEVisDataSource jeVisDataSource;
     public WidgetConfig config = new WidgetConfig("Generic");
     public Size previewSize = new Size(100, 150);
-    public SampleHandler dataHandler;
     private DashBoardPane dashBoard;
     private AnchorPane contentRoot = new AnchorPane();
     private AnchorPane editPane = new AnchorPane();
@@ -175,6 +174,14 @@ public abstract class Widget extends Group {
         makeDragDropOverlay();
 
 
+        DropShadow dropShadow = new DropShadow();
+        dropShadow.setRadius(5.0);
+        dropShadow.setOffsetX(3.0);
+        dropShadow.setOffsetY(3.0);
+        dropShadow.setColor(Color.BLACK);
+//        dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+        contentRoot.setEffect(dropShadow);
+
         getAnalysis().editProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 MouseControlUtil.makeDraggable(this);
@@ -237,6 +244,8 @@ public abstract class Widget extends Group {
         AnchorPane.setTopAnchor(node, 0.0);
         AnchorPane.setLeftAnchor(node, 0.0);
         AnchorPane.setRightAnchor(node, 0.0);
+
+
 //        contentRoot.setCenter(node);
     }
 
