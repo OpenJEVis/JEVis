@@ -108,7 +108,7 @@ public class WidgetConfig {
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
                 dataHandlerJson = jsonNode.asText(DATA_HANDLER_NODE);
-                System.out.println("DATA_HANDLER_NODE: " + dataHandlerJson);
+//                System.out.println("DATA_HANDLER_NODE: " + dataHandlerJson);
 //                dataHandlerNode = jsonNode.get(DATA_HANDLER_NODE);
             } else {
                 logger.error("------ missing json node: {}", DATA_HANDLER_NODE);

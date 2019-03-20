@@ -184,7 +184,6 @@ public class Wizard {
 
     public void nextPage() {
         pageIndex.setValue(pageIndex.getValue() + 1);
-        System.out.println("Next Page: " + currentPage);
     }
 
 //    public void setWidgetSelected(Widget widget) {

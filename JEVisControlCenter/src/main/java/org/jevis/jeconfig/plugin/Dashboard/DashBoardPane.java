@@ -18,7 +18,6 @@ import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widgets;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.joda.time.Period;
 
 import javax.swing.event.ChangeEvent;
 import java.util.*;
@@ -48,10 +47,10 @@ public class DashBoardPane extends Pane {
         this.analysis.getWidgets().forEach(widgetConfig -> {
             Widget widget = createWidget(widgetConfig);
             if (widget != null) {
-                logger.info("Add widget: [}", widget);
+                logger.info("Add widget: {}-{}", widget.typeID(), widget.getConfig().title);
                 addNode(widget);
             } else {
-                logger.warn("Found no widget for config: {}", widgetConfig);
+                logger.error("Found no widget for config: {}", widgetConfig);
             }
         });
 
@@ -188,18 +187,19 @@ public class DashBoardPane extends Pane {
 
 
     public Interval buildInterval() {
-        Period period = analysis.dataPeriodProperty.getValue();
-        DateTime now = new DateTime();
-
-        Interval interval = new Interval(now.minus(period), now);
-
-        //TODO: remove this dev test workaround
-        DateTime fakeDate = new DateTime(2018, 02, 01, 0, 0).plusHours(now.getHourOfDay()).plusMinutes(now.getMinuteOfHour());
-        interval = new Interval(
-                fakeDate.minusHours(6),
-                fakeDate);
-
-        return interval;
+//        Period period = analysis.dataPeriodProperty.getValue();
+//        DateTime now = new DateTime();
+//
+//        Interval interval = new Interval(now.minus(period), now);
+//
+//        //TODO: remove this dev test workaround
+//        DateTime fakeDate = new DateTime(2018, 02, 01, 0, 0).plusHours(now.getHourOfDay()).plusMinutes(now.getMinuteOfHour());
+//        interval = new Interval(
+//                fakeDate.minusHours(6),
+//                fakeDate);
+        analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().getInterval(DateTime.now()));
+        return analysis.intervalProperty.getValue();
+//        return interval;
     }
 
     public TimerTask updateTask() {

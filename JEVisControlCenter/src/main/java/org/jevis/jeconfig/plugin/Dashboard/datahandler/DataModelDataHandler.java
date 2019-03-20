@@ -19,8 +19,6 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.jevistree.Finder;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
@@ -64,8 +62,9 @@ public class DataModelDataHandler {
 
         dataModelNode.getData().forEach(dataPointNode -> {
             try {
-                logger.error("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
+                logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
                 JEVisObject jevisobject = jeVisDataSource.getObject(dataPointNode.getObjectID());
+                JEVisObject cleanObject = jeVisDataSource.getObject(dataPointNode.getObjectID());
                 if (jevisobject != null) {
                     JEVisAttribute jeVisAttribute = jevisobject.getAttribute(dataPointNode.getAttribute());
                     if (jeVisAttribute != null) {
@@ -73,11 +72,23 @@ public class DataModelDataHandler {
                         List<Integer> list = new ArrayList<>();
                         list.add(0);
 
+                        /** add fake start date so the model does not ty to load the last 7 days **/
+                        chartDataModel.setSelectedStart(new DateTime(1000, 1, 1, 1, 1, 1));
+                        chartDataModel.setSelectedEnd(new DateTime(1000, 1, 1, 1, 1, 2));
+
                         chartDataModel.setSelectedCharts(list);
                         chartDataModel.setObject(jeVisAttribute.getObject());
                         chartDataModel.setAttribute(jeVisAttribute);
-                        chartDataModel.setManipulationMode(ManipulationMode.TOTAL);
-                        chartDataModel.setAggregationPeriod(AggregationPeriod.HOURLY);
+                        if (cleanObject != null) {
+                            chartDataModel.setDataProcessor(cleanObject);
+                            chartDataModel.setAttribute(cleanObject.getAttribute(dataPointNode.getAttribute()));
+                        }
+
+                        chartDataModel.setManipulationMode(dataPointNode.getManipulationMode());
+                        chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
+
+//                        chartDataModel.setManipulationMode(ManipulationMode.TOTAL);
+//                        chartDataModel.setAggregationPeriod(AggregationPeriod.HOURLY);
 
                         if (dataPointNode.getColor() != null) {
                             chartDataModel.setColor(dataPointNode.getColor());
@@ -160,8 +171,8 @@ public class DataModelDataHandler {
     }
 
     public void setUserSelectionDone() {
-        System.out.println("Selection Done");
-//        simpleTargetPlugin.getUserSelection().forEach(userSelection -> {
+//        System.out.println("Selection Done");
+//        simpleTargetPlugin.getUserSelection()s.forEach(userSelection -> {
 //            System.out.println("Userselect: " + userSelection.getSelectedObject() + "  att: " + userSelection.getSelectedAttribute());
 //            String key = generateValueKey(userSelection.getSelectedAttribute());
 //            valueMap.put(key, new ArrayList<>());

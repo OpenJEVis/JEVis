@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.Dashboard.timeframe;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
@@ -10,24 +9,26 @@ import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 public class ToolBarIntervalSelector extends FlowPane {
 
 
-    public ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
-    public ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>();
-    public ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
+//    public ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
+//    public ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>();
+//    public ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
 
+    private final DashBordModel analysis;
 
-    public ToolBarIntervalSelector(Double iconSize, final Interval interval) {
+    public ToolBarIntervalSelector(DashBordModel analysis, Double iconSize, final Interval interval) {
         super();
-        intervalProperty.addListener((observable, oldValue, newValue) -> {
-            System.out.println("New Interval selected: " + newValue);
-        });
+        this.analysis = analysis;
 
-        intervalProperty.setValue(interval);
+
+//        analysis.intervalProperty.setValue(interval);
+
         Button dateButton = new Button("");
         dateButton.setMinWidth(100);
 
@@ -69,44 +70,41 @@ public class ToolBarIntervalSelector extends FlowPane {
         TimeFrames timeFrames = new TimeFrames();
         timeFrameBox.setItems(timeFrames.getAll());
 
-        intervalProperty.addListener((observable, oldValue, newValue) -> {
+        analysis.intervalProperty.addListener((observable, oldValue, newValue) -> {
             try {
-                dateButton.setText(timeFrameBox.valueProperty().getValue().format(intervalProperty.getValue()));
+                dateButton.setText(timeFrameBox.valueProperty().getValue().format(analysis.intervalProperty.getValue()));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
 
         dateButton.setOnAction(event -> {
-            System.out.println("Show edior");
             Point2D point = dateButton.localToScreen(0.0, 0.0);
-            System.out.println("Button Location: " + point);
 
-            TimeFrameEdior popup = new TimeFrameEdior(TimeFrames.TimeFrameType.valueOf(timeFrameProperty.getValue().getID()), intervalProperty.getValue());
+            TimeFrameEdior popup = new TimeFrameEdior(TimeFrames.TimeFrameType.valueOf(analysis.timeFrameProperty.getValue().getID()), analysis.intervalProperty.getValue());
             popup.showingProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue) {
-                    intervalProperty.setValue(timeFrameProperty.getValue().getInterval(popup.getIntervalProperty().getValue().getStart()));
+                    analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().getInterval(popup.getIntervalProperty().getValue().getStart()));
                 }
 
             });
             popup.show(dateButton, point.getX() - 40, point.getY() + 40);
-            System.out.println("...");
         });
 
         timeFrameBox.setCellFactory(cellFactory);
         timeFrameBox.setButtonCell(cellFactory.call(null));
         timeFrameBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            intervalProperty.setValue(newValue.getInterval(new DateTime()));
-            timeFrameProperty.setValue(newValue);
+            analysis.intervalProperty.setValue(newValue.getInterval(new DateTime()));
+            analysis.timeFrameProperty.setValue(newValue);
         });
 
 
         prevButton.setOnAction(event -> {
-            intervalProperty.setValue(timeFrameProperty.getValue().previousPeriod(intervalProperty.get(), 1));
+            analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().previousPeriod(analysis.intervalProperty.get(), 1));
         });
 
         nextButton.setOnAction(event -> {
-            intervalProperty.setValue(timeFrameProperty.getValue().nextPeriod(intervalProperty.get(), 1));
+            analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().nextPeriod(analysis.intervalProperty.get(), 1));
         });
 
         Region spacer = new Region();
@@ -123,11 +121,11 @@ public class ToolBarIntervalSelector extends FlowPane {
     }
 
     public ObjectProperty<TimeFrameFactory> getTimeFrameProperty() {
-        return timeFrameProperty;
+        return analysis.timeFrameProperty;
     }
 
     public ObjectProperty<Interval> getIntervalProperty() {
-        return intervalProperty;
+        return analysis.intervalProperty;
     }
 
 

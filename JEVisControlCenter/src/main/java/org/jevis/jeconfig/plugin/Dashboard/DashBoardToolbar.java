@@ -81,7 +81,6 @@ public class DashBoardToolbar extends ToolBar {
         listAnalysesComboBox.setButtonCell(cellFactory.call(null));
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                System.out.println("select Analysis: " + newValue);
                 DashBordModel analysis = new DashBordModel(newValue);
 
                 dashBordPlugIn.loadAnalysis(analysis);
@@ -257,7 +256,7 @@ public class DashBoardToolbar extends ToolBar {
             analyses.zoomOut();
         });
 
-        ToolBarIntervalSelector toolBarIntervalSelector = new ToolBarIntervalSelector(iconSize, new Interval(new DateTime(), new DateTime()));
+        ToolBarIntervalSelector toolBarIntervalSelector = new ToolBarIntervalSelector(analyses, iconSize, new Interval(new DateTime(), new DateTime()));
 
         toolBarIntervalSelector.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
 

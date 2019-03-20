@@ -7,6 +7,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 public class DataPointNode {
 
     private Long objectID;
+    private Long cleanObjectID;
     private String attribute;
     private ManipulationMode manipulationMode;
     private AggregationPeriod aggregationPeriod;
@@ -43,6 +44,14 @@ public class DataPointNode {
 
     public void setAggregationPeriod(AggregationPeriod aggregationPeriod) {
         this.aggregationPeriod = aggregationPeriod;
+    }
+
+    public Long getCleanObjectID() {
+        return cleanObjectID;
+    }
+
+    public void setCleanObjectID(Long cleanObjectID) {
+        this.cleanObjectID = cleanObjectID;
     }
 
     public Color getColor() {

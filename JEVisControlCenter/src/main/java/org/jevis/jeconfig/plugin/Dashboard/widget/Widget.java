@@ -148,7 +148,6 @@ public abstract class Widget extends Group {
     }
 
     public void setDashBoard(DashBoardPane parent) {
-        System.out.println("setDashBoard()");
         this.dashBoard = parent;
 
         layoutXProperty().bindBidirectional(config.xPosition);

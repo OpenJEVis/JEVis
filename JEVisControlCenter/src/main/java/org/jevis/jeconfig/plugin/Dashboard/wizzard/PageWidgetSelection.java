@@ -51,8 +51,6 @@ public class PageWidgetSelection extends Page {
             widgetListPane.getChildren().add(widgetButton);
 
             widgetButton.setOnAction(event -> {
-                System.out.println("Widget event: " + widget + " setVar: ");
-//                wizard.selectedWidget.setValue(widget);
                 selectedWidgetProperty.setValue(widget);
             });
 

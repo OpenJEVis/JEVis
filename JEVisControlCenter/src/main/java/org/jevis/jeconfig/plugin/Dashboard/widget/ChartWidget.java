@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -15,18 +16,13 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
-import org.jevis.jeconfig.plugin.AnalysisRequest;
+import org.jevis.jeconfig.plugin.Dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
-import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.joda.time.Interval;
 
 public class ChartWidget extends Widget {
@@ -39,6 +35,8 @@ public class ChartWidget extends Widget {
     private WidgetLegend legend = new WidgetLegend();
     private JFXButton openAnalysisButton = new JFXButton();
     private ConfigNode configNode = new ConfigNode();
+    private ObjectMapper mapper = new ObjectMapper();
+    private GraphAnalysisLinker graphAnalysisLinker;
 
     public ChartWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
@@ -67,22 +65,13 @@ public class ChartWidget extends Widget {
 
             legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
 
-            openAnalysisButton.setOnAction(event -> {
-                try {
-                    AggregationPeriod aggregationPeriod = AggregationPeriod.HOURLY;
-                    ManipulationMode manipulationMode = ManipulationMode.TOTAL;
-                    for (ChartDataModel dataModel : sampleHandler.getDataModel()) {
-                        aggregationPeriod = dataModel.getAggregationPeriod();
-                        manipulationMode = dataModel.getManipulationMode();
-                        break;
-                    }
-                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
-                    AnalysisRequest analysisRequest = new AnalysisRequest(getDataSource().getObject(configNode.getGraphAnalysisObject()), aggregationPeriod, manipulationMode, analysisTimeFrame, interval.getStart(), interval.getEnd());
-                    JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest);
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-            });
+            try {
+                GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
+                graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
+                graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
 
         }
 
@@ -103,7 +92,6 @@ public class ChartWidget extends Widget {
 
         Platform.runLater(() -> {
             lineChart.updateChart();
-
         });
 
     }
@@ -124,13 +112,10 @@ public class ChartWidget extends Widget {
         lineChart = new LineChart(sampleHandler.getDataModel(), false, ManipulationMode.NONE, 0, "");
         legend.setAlignment(Pos.CENTER);
 
-        openAnalysisButton.setGraphic(JEConfig.getImage("1415314386_Graph.png", 20, 20));
+        graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
+        openAnalysisButton = graphAnalysisLinker.buildLinkerButton();
 
         BorderPane borderPane = new BorderPane();
-
-//        HBox hBox = new HBox();
-//        hBox.setPadding(new Insets(5, 8, 5, 8));
-//        hBox.getChildren().add(legend);
 
         BorderPane bottomBorderPane = new BorderPane();
         bottomBorderPane.setCenter(legend);

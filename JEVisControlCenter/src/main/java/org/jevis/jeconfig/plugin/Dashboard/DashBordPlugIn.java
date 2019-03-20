@@ -174,7 +174,6 @@ public class DashBordPlugIn implements Plugin {
     }
 
     public Widget createWidget(WidgetConfig widget) {
-        System.out.println("createWidget for: " + widget.getType());
         for (Widget availableWidget : Widgets.getAvabableWidgets(getDataSource(), widget)) {
             if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
                 availableWidget.init();
@@ -186,9 +185,7 @@ public class DashBordPlugIn implements Plugin {
     }
 
     public void addWidget(WidgetConfig widget) {
-        logger.info("addWidget: " + widget);
         Widget newWidget = createWidget(widget);
-        System.out.println("new widget##: " + newWidget);
         if (newWidget != null) {
             dashBoardPane.addNode(newWidget);
             currentAnalysis.addWidget(widget);
