@@ -269,7 +269,11 @@
             <groupId>org.jfxtras</groupId>
             <artifactId>jfxtras-controls</artifactId>
             <version>8.0-r6</version>
-            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jfxtras</groupId>
+            <artifactId>jfxtras-labs</artifactId>
+            <version>8.0-r5</version>
         </dependency>
         <dependency>
             <groupId>com.jfoenix</groupId>
@@ -293,11 +297,6 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfxtras</groupId>
-            <artifactId>jfxtras-labs</artifactId>
-            <version>8.0-r6-SNAPSHOT</version>
         </dependency>
         <!-- nice javafx stuff
         <dependency>
