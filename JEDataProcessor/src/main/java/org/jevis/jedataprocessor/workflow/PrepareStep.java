@@ -43,16 +43,18 @@ public class PrepareStep implements ProcessStep {
 
         //get the raw samples for the cleaning
         logger.info("[{}] Request raw samples", resourceManager.getID());
-        List<JEVisSample> rawSamples = cleanDataObject.getRawSamples();
-        logger.info("[{}] raw samples found for cleaning: {}", resourceManager.getID(), rawSamples.size());
-        LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("Raw S.", rawSamples.size() + "");
+        List<JEVisSample> rawSamplesDown = cleanDataObject.getRawSamplesDown();
+        List<JEVisSample> rawSamplesUp = cleanDataObject.getRawSamplesUp();
+        logger.info("[{}] raw samples found for cleaning: {}", resourceManager.getID(), rawSamplesDown.size());
+        LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("Raw S.", rawSamplesDown.size() + "");
 
-        if (rawSamples.isEmpty()) {
+        if (rawSamplesDown.isEmpty() || rawSamplesUp.isEmpty()) {
             logger.info("[{}] No new raw date stopping this job", resourceManager.getID());
             return;
         }
 
-        resourceManager.setRawSamples(rawSamples);
+        resourceManager.setRawSamplesDown(rawSamplesDown);
+        resourceManager.setRawSamplesUp(rawSamplesUp);
 
         Map<DateTime, JEVisSample> notesMap = cleanDataObject.getNotesMap();
         resourceManager.setNotesMap(notesMap);
@@ -60,8 +62,8 @@ public class PrepareStep implements ProcessStep {
 
         Period periodCleanData = cleanDataObject.getCleanDataPeriodAlignment();
         Period periodRawData = cleanDataObject.getRawDataPeriodAlignment();
-        if (rawSamples.size() > 1)
-            logger.info("[{}] Input Period is {}", resourceManager.getID(), PeriodFormat.getDefault().print(new Period(rawSamples.get(0).getTimestamp(), rawSamples.get(1).getTimestamp())));
+        if (rawSamplesDown.size() > 1)
+            logger.info("[{}] Input Period is {}", resourceManager.getID(), PeriodFormat.getDefault().print(new Period(rawSamplesDown.get(0).getTimestamp(), rawSamplesDown.get(1).getTimestamp())));
         logger.info("[{}] Period is {}", resourceManager.getID(), PeriodFormat.getDefault().print(periodCleanData));
         logger.info("[{}] Samples should be aligned {}", resourceManager.getID(), cleanDataObject.getIsPeriodAligned());
         if (periodCleanData.equals(Period.ZERO) && cleanDataObject.getIsPeriodAligned()) {
@@ -70,7 +72,7 @@ public class PrepareStep implements ProcessStep {
             List<CleanInterval> cleanIntervals = getIntervals(cleanDataObject, periodCleanData, periodRawData);
             resourceManager.setIntervals(cleanIntervals);
         } else {
-            List<CleanInterval> cleanIntervals = getIntervalsFromRawSamples(cleanDataObject, rawSamples);
+            List<CleanInterval> cleanIntervals = getIntervalsFromRawSamples(cleanDataObject, rawSamplesDown);
             resourceManager.setIntervals(cleanIntervals);
         }
 
@@ -115,12 +117,12 @@ public class PrepareStep implements ProcessStep {
                 boolean periodRawHasMinutes = periodRawData.getMinutes() > 1;
                 boolean periodRawHasSeconds = periodRawData.getSeconds() > 1;
 
-                boolean periodCleanHasMonths = periodCleanData.getMonths() > 1;
-                boolean periodCleanHasYear = periodCleanData.getYears() > 1;
-                boolean periodCleanHasDays = periodCleanData.getDays() > 1;
-                boolean periodCleanHasHours = periodCleanData.getHours() > 1;
-                boolean periodCleanHasMinutes = periodCleanData.getMinutes() > 1;
-                boolean periodCleanHasSeconds = periodCleanData.getSeconds() > 1;
+                boolean periodCleanHasMonths = periodCleanData.getMonths() > 0;
+                boolean periodCleanHasYear = periodCleanData.getYears() > 0;
+                boolean periodCleanHasDays = periodCleanData.getDays() > 0;
+                boolean periodCleanHasHours = periodCleanData.getHours() > 0;
+                boolean periodCleanHasMinutes = periodCleanData.getMinutes() > 0;
+                boolean periodCleanHasSeconds = periodCleanData.getSeconds() > 0;
 
 
                 startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),

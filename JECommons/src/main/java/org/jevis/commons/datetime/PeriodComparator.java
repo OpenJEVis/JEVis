@@ -12,19 +12,19 @@ public class PeriodComparator implements Comparator<Period> {
 
     @Override
     public int compare(Period p1, Period p2) {
-        boolean p1HasMonths = p1.getMonths() > 1;
-        boolean p1HasYear = p1.getYears() > 1;
-        boolean p1HasDays = p1.getDays() > 1;
-        boolean p1HasHours = p1.getHours() > 1;
-        boolean p1HasMinutes = p1.getMinutes() > 1;
-        boolean p1HasSeconds = p1.getSeconds() > 1;
+        boolean p1HasMonths = p1.getMonths() > 0;
+        boolean p1HasYear = p1.getYears() > 0;
+        boolean p1HasDays = p1.getDays() > 0;
+        boolean p1HasHours = p1.getHours() > 0;
+        boolean p1HasMinutes = p1.getMinutes() > 0;
+        boolean p1HasSeconds = p1.getSeconds() > 0;
 
-        boolean p2HasMonths = p2.getMonths() > 1;
-        boolean p2HasYear = p2.getYears() > 1;
-        boolean p2HasDays = p2.getDays() > 1;
-        boolean p2HasHours = p2.getHours() > 1;
-        boolean p2HasMinutes = p2.getMinutes() > 1;
-        boolean p2HasSeconds = p2.getSeconds() > 1;
+        boolean p2HasMonths = p2.getMonths() > 0;
+        boolean p2HasYear = p2.getYears() > 0;
+        boolean p2HasDays = p2.getDays() > 0;
+        boolean p2HasHours = p2.getHours() > 0;
+        boolean p2HasMinutes = p2.getMinutes() > 0;
+        boolean p2HasSeconds = p2.getSeconds() > 0;
 
         if (p1HasYear && !p2HasYear) {
             return 1;

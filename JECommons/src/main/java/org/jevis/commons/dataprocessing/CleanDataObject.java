@@ -49,7 +49,8 @@ public class CleanDataObject {
     //additional attributes
     private DateTime firstDate;
     private DateTime lastDate;
-    private List<JEVisSample> rawSamples;
+    private List<JEVisSample> rawSamplesDown;
+    private List<JEVisSample> rawSamplesUp;
     private SampleHandler sampleHandler;
 
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
@@ -300,7 +301,25 @@ public class CleanDataObject {
     public DateTime getFirstDate() {
         if (firstDate == null) {
             //first date is the lastdate of clean datarow + periodCleanData or the year of the first sample of the raw data
-            DateTime timestampFromLastCleanSample = sampleHandler.getTimeStampFromLastSample(getCleanObject(), VALUE_ATTRIBUTE_NAME);
+            DateTime timestampFromLastCleanSample = null;
+            JEVisAttribute attribute = null;
+            try {
+                attribute = getCleanObject().getAttribute(VALUE_ATTRIBUTE_NAME);
+            } catch (JEVisException e) {
+                logger.error("Could not get attribute " + VALUE_ATTRIBUTE_NAME +
+                        " of object " + getCleanObject().getName() + ":" + getCleanObject().getID());
+            }
+            if (attribute != null) {
+                JEVisSample lastSample = attribute.getLatestSample();
+                if (lastSample != null) {
+                    try {
+                        timestampFromLastCleanSample = lastSample.getTimestamp();
+                    } catch (JEVisException e) {
+                        logger.error("Could not get last sample of attribute " + attribute.getName() +
+                                " of object " + getCleanObject().getName() + ":" + getCleanObject().getID());
+                    }
+                }
+            }
             if (timestampFromLastCleanSample != null) {
 //                firstDate = timestampFromLastCleanSample.plus(getCleanDataPeriodAlignment());
                 firstDate = timestampFromLastCleanSample;
@@ -324,8 +343,8 @@ public class CleanDataObject {
     public DateTime getMaxEndDate() {
         if (lastDate == null) {
             try {
-                int indexLastRawSample = getRawSamples().size() - 1;
-                lastDate = rawSamples.get(indexLastRawSample).getTimestamp().plus(getCleanDataPeriodAlignment());
+                int indexLastRawSample = getRawSamplesDown().size() - 1;
+                lastDate = rawSamplesDown.get(indexLastRawSample).getTimestamp().plus(getCleanDataPeriodAlignment());
                 //lastDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(getCleanDataPeriodAlignment());
             } catch (JEVisException e) {
                 logger.error("Could not get timestamp of last Raw sample.");
@@ -361,20 +380,36 @@ public class CleanDataObject {
         return jsonLimitsConfig;
     }
 
-    public List<JEVisSample> getRawSamples() {
-        if (rawSamples == null) {
-            DateTime firstDate = getFirstDate().minus(getCleanDataPeriodAlignment());
-            rawSamples = sampleHandler.getSamplesInPeriod(
+    public List<JEVisSample> getRawSamplesDown() {
+        if (rawSamplesDown == null) {
+            DateTime firstDate = getFirstDate().minus(getCleanDataPeriodAlignment()).minus(getCleanDataPeriodAlignment());
+            rawSamplesDown = sampleHandler.getSamplesInPeriod(
                     rawDataObject,
                     VALUE_ATTRIBUTE_NAME,
                     firstDate,
                     getLastRawDate());
 
-            if (rawSamples.size() > 100000) {
-                rawSamples.subList(0, 100000);
+            if (rawSamplesDown.size() > 100000) {
+                rawSamplesDown.subList(0, 100000);
             }
         }
-        return rawSamples;
+        return rawSamplesDown;
+    }
+
+    public List<JEVisSample> getRawSamplesUp() {
+        if (rawSamplesUp == null) {
+            DateTime firstDate = getFirstDate().minus(getRawDataPeriodAlignment());
+            rawSamplesUp = sampleHandler.getSamplesInPeriod(
+                    rawDataObject,
+                    VALUE_ATTRIBUTE_NAME,
+                    firstDate,
+                    getLastRawDate());
+
+            if (rawSamplesUp.size() > 100000) {
+                rawSamplesUp.subList(0, 100000);
+            }
+        }
+        return rawSamplesUp;
     }
 
     public Map<DateTime, JEVisSample> getNotesMap() {

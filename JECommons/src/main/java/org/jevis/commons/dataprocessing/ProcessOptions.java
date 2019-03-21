@@ -43,16 +43,14 @@ import java.util.*;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class ProcessOptions {
-    private static final Logger logger = LogManager.getLogger(ProcessOptions.class);
-
-    public static String ROOT_OPTION_NAME = "Data Processing";
-    public static String DEFAULT_OPTION_NAME = "Default";
-    public static String PROSESS_CHAIN_OPTION_NAME = "Process Chains";//Rename into ProcessChain
-
     public static final String PERIOD = "period";
     public static final String OFFSET = "offset";
     public static final String TS_START = "date-start";
     public static final String TS_END = "date-end";
+    private static final Logger logger = LogManager.getLogger(ProcessOptions.class);
+    public static String ROOT_OPTION_NAME = "Data Processing";
+    public static String DEFAULT_OPTION_NAME = "Default";
+    public static String PROSESS_CHAIN_OPTION_NAME = "Process Chains";//Rename into ProcessChain
 
     public static List<ProcessOption> ToProcessOption(Process process, JEVisOption option) {
         List<ProcessOption> pOptions = new ArrayList<>();
@@ -274,10 +272,10 @@ public class ProcessOptions {
         DateTime offset = new DateTime(2001, 01, 01, 00, 00, 00);
 
         if (!ContainsOption(task, PERIOD)) {
-            logger.error("Error missing period option");
+            logger.warn("Error missing period option");
         }
         if (!ContainsOption(task, OFFSET)) {
-            logger.error("Error missing offset option");
+            logger.warn("Error missing offset option");
             task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 00:00:00"));
         }
 
