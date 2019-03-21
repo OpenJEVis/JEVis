@@ -4,12 +4,13 @@ import com.sun.javafx.charts.Legend;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 
 import java.lang.reflect.Field;
 
 public class WidgetLegend extends Legend {
 
-    public Legend.LegendItem buildLegendItem(String name, Color color, Color fontcolor) {
+    public Legend.LegendItem buildLegendItem(String name, Color color, Color fontcolor, double fontSize) {
 
         Rectangle r = new Rectangle();
         r.setX(0);
@@ -30,7 +31,12 @@ public class WidgetLegend extends Legend {
                     getDeclaredField("label");
             privateStringField.setAccessible(true);
             Label label = (Label) privateStringField.get(item);
+//            label.setWrapText(true);
+//            label.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
             label.setTextFill(fontcolor);
+            label.setFont(new Font(fontSize));
+            label.setWrapText(true);
+            label.setMaxWidth(180);
 
         } catch (Exception ex) {
             ex.printStackTrace();

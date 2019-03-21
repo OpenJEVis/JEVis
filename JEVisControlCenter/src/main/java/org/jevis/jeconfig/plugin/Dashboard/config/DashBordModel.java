@@ -20,6 +20,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.plugin.Dashboard.DashBordPlugIn;
+import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
 import org.jevis.jeconfig.tool.I18n;
@@ -113,10 +114,13 @@ public class DashBordModel {
 
 
     public final ObjectProperty<Size> pageSize = new SimpleObjectProperty<>(new Size(1080, 1600));
-
-
+    public final ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
+    public final ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>();
+    public final ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
     private final List<ChangeListener> changeListeners = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
+
+
     private JEVisObject analysisObject;
     private List<WidgetConfig> widgetList = new ArrayList<>();
     /**
@@ -180,8 +184,12 @@ public class DashBordModel {
     private void load() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-
-            String json = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample().getValueAsString();
+            JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample();
+            if (lastConfigSample == null) {
+                logger.error("Missing Json configuration");
+                return;
+            }
+            String json = lastConfigSample.getValueAsString();
 
             JsonNode jsonNode = mapper.readTree(json);
 
@@ -236,13 +244,11 @@ public class DashBordModel {
             }
 
             JsonNode widgets = jsonNode.get("Widget");
-            System.out.println("widgetList is array: " + widgets.isArray());
 
             if (widgets.isArray()) {
                 for (final JsonNode objNode : widgets) {
                     System.out.println(objNode);
                     WidgetConfig newConfig = new WidgetConfig(objNode);
-                    System.out.println("init widget: " + newConfig.toString());
                     widgetList.add(newConfig);
                 }
             }
@@ -270,7 +276,7 @@ public class DashBordModel {
 
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error(ex);
         }
     }
 
@@ -313,7 +319,6 @@ public class DashBordModel {
 
 
         try {
-            System.out.println("Save data Model: " + jsonNode.toString());
             DateTime now = new DateTime().withMillis(0).withSecondOfMinute(0);
             String userName = analysisObject.getDataSource().getCurrentUser().getAccountName();
             JEVisSample dataModelSample = analysisObject.getAttribute("Data Model")
@@ -402,9 +407,7 @@ public class DashBordModel {
         configDia.getDialogPane().getButtonTypes().addAll(buttonTypeCancel, buttonTypeOk);
 
         Optional<ButtonType> opt = configDia.showAndWait();
-        System.out.println("Config result: " + opt);
         if (opt.get().equals(buttonTypeOk)) {
-            System.out.println("Done");
 
             showGridProperty.setValue((boolean) userConfig.get(showGridProperty.getName()).getObject());
             snapToGridProperty.setValue((boolean) userConfig.get(snapToGridProperty.getName()).getObject());

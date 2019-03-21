@@ -54,6 +54,7 @@ import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
@@ -61,7 +62,9 @@ import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -569,15 +572,20 @@ public class GraphPluginView implements Plugin {
                 dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                 dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
                 dataModel.getSelectedData().forEach(chartDataModel -> {
-                    System.out.println("SetTime: " + analysisRequest.getStartDate() + " - " + analysisRequest.getEndTime());
+                    System.out.println("SetTime: " + analysisRequest.getStartDate() + " - " + analysisRequest.getEndDate());
                     chartDataModel.setSelectedStart(analysisRequest.getStartDate());
-                    chartDataModel.setSelectedEnd(analysisRequest.getEndTime());
+                    chartDataModel.setSelectedEnd(analysisRequest.getEndDate());
                 });
                 dataModel.isGlobalAnalysisTimeFrame(true);
 
                 toolBarView.removeDateListener();
                 toolBarView.removeAnalysisComboBox();
                 toolBarView.select(analysisRequest.getObject());
+                toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
+                DateTime startDate = analysisRequest.getStartDate();
+                DateTime endDate = analysisRequest.getEndDate();
+                toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth()));
+                toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth()));
                 toolBarView.setupDateListener();
                 toolBarView.setupAnalysisComboBoxListener();
                 toolBarView.setDisableToolBarIcons(false);
