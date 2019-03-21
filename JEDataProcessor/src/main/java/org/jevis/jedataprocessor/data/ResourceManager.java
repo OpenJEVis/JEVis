@@ -20,7 +20,8 @@ public class ResourceManager {
 
     public List<CleanInterval> intervals = new ArrayList<>();
     private CleanDataObject cleanDataObject;
-    private List<JEVisSample> rawSamples;
+    private List<JEVisSample> rawSamplesDown;
+    private List<JEVisSample> rawSamplesUp;
     private Map<DateTime, JEVisSample> notesMap;
 
     public List<CleanInterval> getIntervals() {
@@ -39,8 +40,12 @@ public class ResourceManager {
         this.cleanDataObject = cleanDataObject;
     }
 
-    public List<JEVisSample> getRawSamples() {
-        return rawSamples;
+    public List<JEVisSample> getRawSamplesDown() {
+        return rawSamplesDown;
+    }
+
+    public void setRawSamplesDown(List<JEVisSample> rawSamplesDown) {
+        this.rawSamplesDown = rawSamplesDown;
     }
 
     public Map<DateTime, JEVisSample> getNotesMap() {
@@ -51,8 +56,12 @@ public class ResourceManager {
         this.notesMap = notesMap;
     }
 
-    public void setRawSamples(List<JEVisSample> rawSamples) {
-        this.rawSamples = rawSamples;
+    public List<JEVisSample> getRawSamplesUp() {
+        return rawSamplesUp;
+    }
+
+    public void setRawSamplesUp(List<JEVisSample> rawSamplesUp) {
+        this.rawSamplesUp = rawSamplesUp;
     }
 
     public Long getID() {
