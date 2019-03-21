@@ -34,6 +34,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -222,9 +223,9 @@ public class CopyObjectDialog {
                         count.setDisable(true);
 
                         includeSamples.setDisable(true);
-                        includeSamples.setSelected(false);
+                        includeSamples.setSelected(true);
                         recursion.setDisable(true);
-                        recursion.setSelected(false);
+                        recursion.setSelected(true);
 
                     } else if (t1.equals(link)) {
 //                        infoText = String.format("Create an new link of '%s' into '%s'", object.getName(), newParent.getName());
@@ -250,9 +251,9 @@ public class CopyObjectDialog {
                         nameField.setText(object.getName());
 
                         includeSamples.setDisable(!includeDataAllowed);
-                        includeSamples.setSelected(false);
+                        includeSamples.setSelected(true);
                         recursion.setDisable(!recursionAllowed);
-                        recursion.setSelected(false);
+                        recursion.setSelected(true);
 
                         checkName();
                     }
@@ -410,8 +411,19 @@ public class CopyObjectDialog {
 
         }
 
-        stage.requestFocus();
+        stage.addEventHandler(KeyEvent.KEY_PRESSED, ev -> {
+            if (ev.getCode() == KeyCode.ENTER) {
+                if (move.isSelected()) {
+                    ok.fire();
+                    ev.consume();
+                }
+            }
+        });
+
         stage.sizeToScene();
+        stage.setAlwaysOnTop(true);
+        Platform.runLater(stage::requestFocus);
+        Platform.runLater(stage::toFront);
         stage.showAndWait();
 
         return response;

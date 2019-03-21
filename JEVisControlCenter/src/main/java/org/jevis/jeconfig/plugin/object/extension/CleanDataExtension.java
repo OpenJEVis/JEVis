@@ -319,6 +319,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         AttributeAdvSettingDialogButton advSettingDialogButtonValueMultiplier = new AttributeAdvSettingDialogButton(valueMultiplierAttribute);
         valueMultiplierTimeStampEditor = new TimeStampEditor(valueMultiplierAttribute);
         valueMultiplier = new JFXTextField();
+
         if (valueMultiplierLastSample != null) {
             valueMultiplier.setText(valueMultiplierLastSample.getValueAsDouble().toString());
         }
