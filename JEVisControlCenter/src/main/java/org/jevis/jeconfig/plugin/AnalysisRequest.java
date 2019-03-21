@@ -13,7 +13,7 @@ public class AnalysisRequest {
     private AnalysisTimeFrame analysisTimeFrame;
     private JEVisObject object;
     private DateTime startDate;
-    private DateTime endTime;
+    private DateTime endDate;
 
     public AnalysisRequest(JEVisObject object, AggregationPeriod aggregationPeriod, ManipulationMode manipulationMode, AnalysisTimeFrame analysisTimeFrame, DateTime startDate, DateTime endDate) {
         this.manipulationMode = manipulationMode;
@@ -21,15 +21,15 @@ public class AnalysisRequest {
         this.aggregationPeriod = aggregationPeriod;
         this.object = object;
         this.startDate = startDate;
-        this.endTime = endDate;
+        this.endDate = endDate;
     }
 
     public DateTime getStartDate() {
         return startDate;
     }
 
-    public DateTime getEndTime() {
-        return endTime;
+    public DateTime getEndDate() {
+        return endDate;
     }
 
     public AggregationPeriod getAggregationPeriod() {

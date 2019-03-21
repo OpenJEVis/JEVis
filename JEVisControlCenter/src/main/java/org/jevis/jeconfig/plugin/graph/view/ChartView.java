@@ -381,6 +381,10 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(8).setVisible(false);
                 tableView.getColumns().get(9).setVisible(false);
                 break;
+            case COLUMN:
+                chart = new ColumnChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
+                setTableStandard();
+                break;
             case BUBBLE:
                 chart = new BubbleChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
                 setTableStandard();

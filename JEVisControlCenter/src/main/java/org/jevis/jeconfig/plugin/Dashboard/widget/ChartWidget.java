@@ -111,21 +111,31 @@ public class ChartWidget extends Widget {
         sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         sampleHandler.setMultiSelect(true);
 
-        lineChart = new LineChart(sampleHandler.getDataModel(), false, ManipulationMode.NONE, 0, "");
-        legend.setAlignment(Pos.CENTER);
+        if (lineChart == null) {
+            lineChart = new LineChart(sampleHandler.getDataModel(), false, ManipulationMode.NONE, 0, "");
 
-        graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
-        openAnalysisButton = graphAnalysisLinker.buildLinkerButton();
+            legend.setAlignment(Pos.CENTER);
 
-        BorderPane borderPane = new BorderPane();
+            graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
+            openAnalysisButton = graphAnalysisLinker.buildLinkerButton();
 
-        BorderPane bottomBorderPane = new BorderPane();
-        bottomBorderPane.setCenter(legend);
-        bottomBorderPane.setRight(openAnalysisButton);
+            BorderPane borderPane = new BorderPane();
 
-        borderPane.setCenter(lineChart.getChart());
-        borderPane.setBottom(bottomBorderPane);
-        setGraphic(borderPane);
+//        HBox hBox = new HBox();
+//        hBox.setPadding(new Insets(5, 8, 5, 8));
+//        hBox.getChildren().add(legend);
+
+            BorderPane bottomBorderPane = new BorderPane();
+            bottomBorderPane.setCenter(legend);
+            bottomBorderPane.setRight(openAnalysisButton);
+
+            borderPane.setCenter(lineChart.getRegion());
+            borderPane.setBottom(bottomBorderPane);
+            setGraphic(borderPane);
+        } else {
+            lineChart.setDataModels(sampleHandler.getDataModel());
+        }
+
 
     }
 

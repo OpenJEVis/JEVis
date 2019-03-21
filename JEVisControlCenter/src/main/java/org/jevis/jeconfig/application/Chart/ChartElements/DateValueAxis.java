@@ -40,6 +40,7 @@ public class DateValueAxis extends ValueAxis<Long> {
      * We use these for auto ranging to pick a user friendly tick unit. (must be increasingly bigger)
      */
     private static final double[] TICK_UNIT_DEFAULTS = {
+            60000,
             900000,         //
             3600000,       // 1 day
             7200000,      // 2 das
@@ -73,7 +74,8 @@ public class DateValueAxis extends ValueAxis<Long> {
      * These are matching date formatter strings
      */
     private static final String[] TICK_UNIT_FORMATTER_DEFAULTS = {
-            "yyyy-MM-dd HH:mm:ss",
+            "HH:mm",
+            "yyyy-MM-dd HH:mm",
             "yyyy-MM-dd HH:mm",     // 1 day
             "yyyy-MM-dd HH:mm",     // 2 days
             "yyyy-MM-dd HH:mm",     // 3 days

@@ -61,17 +61,25 @@ public class PeriodAlignmentStep implements ProcessStep {
             int currentSamplePointer = 0;
             for (CleanInterval cleanInterval : intervals) {
                 boolean samplesInInterval = true;
+                DateTime snapToGridStart = null;
+                DateTime snapToGridEnd = null;
+                DateTime date = cleanInterval.getDate();
+                long start = cleanInterval.getInterval().getStartMillis();
+                long end = cleanInterval.getInterval().getEndMillis();
+                long halfDiff = (end - start) / 2;
+                snapToGridStart = date.minus(halfDiff);
+                snapToGridEnd = date.plus(halfDiff);
+
                 while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
                     JEVisSample rawSample = rawSamples.get(currentSamplePointer);
                     try {
                         DateTime timestamp = rawSample.getTimestamp().plusSeconds(periodOffset);
-                        Interval interval = cleanInterval.getInterval();
-                        if (timestamp.equals(interval.getStart())
-                                || (timestamp.isAfter(interval.getStart()) && timestamp.isBefore(interval.getEnd()))
-                                || timestamp.equals(interval.getEnd())) { //sample is in interval
+                        if (timestamp.equals(snapToGridStart)
+                                || (timestamp.isAfter(snapToGridStart) && timestamp.isBefore(snapToGridEnd))
+                                || timestamp.equals(snapToGridEnd)) { //sample is in interval
                             cleanInterval.addRawSample(rawSample);
                             currentSamplePointer++;
-                        } else if (timestamp.isBefore(interval.getStart())) { //sample is before interval start --just find the start
+                        } else if (timestamp.isBefore(snapToGridStart)) { //sample is before interval start --just find the start
                             currentSamplePointer++;
                         } else {
                             samplesInInterval = false;
