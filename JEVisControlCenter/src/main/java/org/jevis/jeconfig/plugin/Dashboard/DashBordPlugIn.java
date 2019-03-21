@@ -44,6 +44,7 @@ public class DashBordPlugIn implements Plugin {
     private AnchorPane rootPane = new AnchorPane();
     private DashBordModel currentAnalysis;
     private DashBoardPane dashBoardPane;
+    public static String PLUGIN_NAME = "Dashboard Plugin";
 
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
@@ -73,7 +74,7 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public String getClassName() {
-        return this.getClass().getName();
+        return PLUGIN_NAME;
     }
 
     @Override

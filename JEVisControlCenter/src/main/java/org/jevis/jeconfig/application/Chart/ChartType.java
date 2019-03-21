@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum ChartType {
-    AREA, LOGICAL, LINE, BAR, BUBBLE, SCATTER, PIE, TABLE;
+    AREA, LOGICAL, LINE, BAR, COLUMN, BUBBLE, SCATTER, PIE, TABLE;
 
     public static ChartType parseChartType(Integer chartTypeIndex) {
         switch (chartTypeIndex) {
@@ -21,12 +21,14 @@ public enum ChartType {
             case (3):
                 return BAR;
             case (4):
-                return BUBBLE;
+                return COLUMN;
             case (5):
-                return SCATTER;
+                return BUBBLE;
             case (6):
-                return PIE;
+                return SCATTER;
             case (7):
+                return PIE;
+            case (8):
                 return TABLE;
             default:
                 return AREA;
@@ -43,6 +45,8 @@ public enum ChartType {
                 return LINE;
             case ("BAR"):
                 return BAR;
+            case ("COLUMN"):
+                return COLUMN;
             case ("BUBBLE"):
                 return BUBBLE;
             case ("SCATTER"):
@@ -67,14 +71,16 @@ public enum ChartType {
                 return 2;
             case ("BAR"):
                 return 3;
-            case ("BUBBLE"):
+            case ("COLUMN"):
                 return 4;
-            case ("SCATTER"):
+            case ("BUBBLE"):
                 return 5;
-            case ("PIE"):
+            case ("SCATTER"):
                 return 6;
-            case ("TABLE"):
+            case ("PIE"):
                 return 7;
+            case ("TABLE"):
+                return 8;
             default:
                 return 0;
         }
@@ -95,6 +101,9 @@ public enum ChartType {
                     break;
                 case ("BAR"):
                     tempList.add(I18n.getInstance().getString("plugin.graph.charttype.bar.name"));
+                    break;
+                case ("COLUMN"):
+                    tempList.add(I18n.getInstance().getString("plugin.graph.charttype.column.name"));
                     break;
                 case ("BUBBLE"):
                     tempList.add(I18n.getInstance().getString("plugin.graph.charttype.bubble.name"));

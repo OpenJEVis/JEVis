@@ -94,6 +94,7 @@ public class GraphPluginView implements Plugin {
 
         //this.controller = new GraphController(this, dataModel);
         this.toolBarView = new ToolBarView(dataModel, ds, this);
+        getToolbar();
         //this.chartView = new ChartView(dataModel);
 
         this.ds = ds;
@@ -572,11 +573,18 @@ public class GraphPluginView implements Plugin {
                     chartDataModel.setSelectedStart(analysisRequest.getStartDate());
                     chartDataModel.setSelectedEnd(analysisRequest.getEndTime());
                 });
+                dataModel.isGlobalAnalysisTimeFrame(true);
 
                 toolBarView.removeDateListener();
+                toolBarView.removeAnalysisComboBox();
                 toolBarView.select(analysisRequest.getObject());
                 toolBarView.setupDateListener();
+                toolBarView.setupAnalysisComboBoxListener();
                 toolBarView.setDisableToolBarIcons(false);
+
+                dataModel.updateSamples();
+                dataModel.setCharts(dataModel.getCharts());
+                dataModel.setSelectedData(dataModel.getSelectedData());
                 //dataModel.update();
             }
 
