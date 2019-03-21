@@ -3,10 +3,11 @@ package org.jevis.jeconfig.plugin.Dashboard.timeframe;
 import com.sun.javafx.scene.control.skin.DatePickerSkin;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Popup;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -31,20 +32,40 @@ public class TimeFrameEdior extends Popup {
         Node popupContent = datePickerSkin.getPopupContent();
 
         Button ok = new Button("OK");
+        ok.setDefaultButton(true);
+        ok.setAlignment(Pos.CENTER);
 
         ok.setOnAction(event -> {
             setIntervalresult();
             this.hide();
         });
-        VBox vBox = new VBox(20);
-        vBox.setStyle("-fx-background-color:#f5f5f5; -fx-opacity:1;");
-        vBox.getChildren().addAll(popupContent, ok);
-        getContent().add(vBox);
+
+        BorderPane borderPane = new BorderPane();
+//        borderPane.setPadding(new Insets(20));
+        borderPane.setCenter(popupContent);
+//        BorderPane buttonPane = new BorderPane();
+//        buttonPane.setCenter(ok);
+//        borderPane.setBottom(buttonPane);
+
+//        borderPane.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+//
+
+//        VBox vBox = new VBox(20);
+//        vBox.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+//
+//        vBox.setStyle("-fx-background-color:#f5f5f5; -fx-opacity:1;");
+//        vBox.getChildren().addAll(popupContent, ok);
+        getContent().add(borderPane);
         focusedProperty().addListener((observable, oldValue, newValue) -> {
-            setIntervalresult();
+            if (!newValue) {
+                setIntervalresult();
+                this.hide();
+            }
+
         });
         datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("----newDate: " + newValue);
+            setIntervalresult();
+            this.hide();
         });
 
     }
@@ -57,9 +78,7 @@ public class TimeFrameEdior extends Popup {
 
     private void setIntervalresult() {
         DateTime newDateTime = new DateTime(datePicker.valueProperty().getValue().getYear(), datePicker.valueProperty().getValue().getMonthValue(), datePicker.valueProperty().getValue().getDayOfMonth(), 0, 0);
-        System.out.println("### newDateTime:" + newDateTime);
         Interval newInterval = new Interval(newDateTime, newDateTime);
-        System.out.println("### newInterval:" + newInterval);
         intervalProperty.setValue(newInterval);
     }
 
