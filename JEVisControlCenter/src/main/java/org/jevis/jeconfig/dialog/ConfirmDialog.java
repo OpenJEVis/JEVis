@@ -44,7 +44,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 /**
@@ -70,7 +69,6 @@ public class ConfirmDialog {
 
         stage.setTitle(title);
         stage.initModality(Modality.WINDOW_MODAL);
-        stage.initOwner(JEConfig.getStage());
 
 //        BorderPane root = new BorderPane();
         VBox root = new VBox();
@@ -165,9 +163,10 @@ public class ConfirmDialog {
             }
         });
 
+        stage.setAlwaysOnTop(true);
+        Platform.runLater(stage::toFront);
+        Platform.runLater(ok::requestFocus);
         stage.showAndWait();
-        stage.toFront();
-        Platform.runLater(() -> ok.requestFocus());
 
         return response;
     }
