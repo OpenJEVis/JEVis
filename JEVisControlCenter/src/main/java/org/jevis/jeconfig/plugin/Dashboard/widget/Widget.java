@@ -79,10 +79,10 @@ public abstract class Widget extends Group {
 
     private void makeDragDropOverlay() {
         HBox windowHeader = new HBox();
-        Button configButton = new Button("", JEConfig.getImage("Service Manager.png", 18, 18));
+        Button configButton = new Button("", JEConfig.getImage("Service Manager.png", 16, 16));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(configButton);
 
-        Button deleteButton = new Button("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", 18, 18));
+        Button deleteButton = new Button("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", 16, 16));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(deleteButton);
 
         configButton.setOnAction(event -> {

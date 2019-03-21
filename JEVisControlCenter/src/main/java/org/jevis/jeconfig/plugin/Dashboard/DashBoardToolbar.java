@@ -271,6 +271,12 @@ public class DashBoardToolbar extends ToolBar {
         Separator sep3 = new Separator();
         Separator sep4 = new Separator();
 
+
+        newButton.setDisable(true);
+        delete.setDisable(true);
+        save.setDisable(true);
+        exportPDF.setVisible(false);
+
         getItems().clear();
         getItems().addAll(
                 listAnalysesComboBox

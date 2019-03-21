@@ -284,6 +284,9 @@ public class DashBoardPane extends Pane {
 
 
     public double getNextGridX(double xPos) {
+        if (!analysis.snapToGridProperty.getValue()) {
+            return xPos;
+        }
         double c = xGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - xPos)))
                 .orElseThrow(() -> new NoSuchElementException("No value present"));
@@ -292,6 +295,9 @@ public class DashBoardPane extends Pane {
     }
 
     public double getNextGridY(double yPos) {
+        if (!analysis.snapToGridProperty.getValue()) {
+            return yPos;
+        }
         double c = yGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - yPos)))
                 .orElseThrow(() -> new NoSuchElementException("No value present"));
