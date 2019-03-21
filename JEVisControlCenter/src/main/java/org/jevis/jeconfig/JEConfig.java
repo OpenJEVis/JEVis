@@ -22,11 +22,9 @@ package org.jevis.jeconfig;
 import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -35,7 +33,6 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
@@ -49,7 +46,6 @@ import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
@@ -288,15 +284,6 @@ public class JEConfig extends Application {
      * @param primaryStage
      */
     private void initGUI(Stage primaryStage) {
-        System.out.println("Color: " + javafx.scene.paint.Color.BLACK.toString());
-        System.out.println("Font Size: " + (new Label()).getFont().getSize());
-        System.out.println("Center center: " + Pos.CENTER);
-
-        for (Color color : ColorColumn.color_list) {
-            System.out.println("Color: " + color.toString());
-        }
-
-
         primaryStage.setOnCloseRequest(t -> {
             Platform.exit();
             System.exit(0);
