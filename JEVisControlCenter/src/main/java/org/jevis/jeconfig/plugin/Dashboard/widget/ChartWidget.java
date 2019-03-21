@@ -114,12 +114,16 @@ public class ChartWidget extends Widget {
         if (lineChart == null) {
             lineChart = new LineChart(sampleHandler.getDataModel(), false, ManipulationMode.NONE, 0, "");
 
+
             legend.setAlignment(Pos.CENTER);
 
             graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
             openAnalysisButton = graphAnalysisLinker.buildLinkerButton();
 
             BorderPane borderPane = new BorderPane();
+
+//            borderPane.setCache(true);
+//            borderPane.setCacheHint(CalinescheHint.SPEED);
 
 //        HBox hBox = new HBox();
 //        hBox.setPadding(new Insets(5, 8, 5, 8));
@@ -129,7 +133,7 @@ public class ChartWidget extends Widget {
             bottomBorderPane.setCenter(legend);
             bottomBorderPane.setRight(openAnalysisButton);
 
-            borderPane.setCenter(lineChart.getRegion());
+            borderPane.setCenter(lineChart.getChart());
             borderPane.setBottom(bottomBorderPane);
             setGraphic(borderPane);
         } else {
@@ -146,7 +150,7 @@ public class ChartWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/DonutWidget.png", previewSize.getHeight(), previewSize.getWidth());
+        return JEConfig.getImage("widget/ChartWidget.png", previewSize.getHeight(), previewSize.getWidth());
     }
 
 

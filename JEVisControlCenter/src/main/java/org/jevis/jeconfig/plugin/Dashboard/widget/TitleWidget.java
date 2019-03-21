@@ -88,6 +88,6 @@ public class TitleWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/DonutWidget.png", previewSize.getHeight(), previewSize.getWidth());
+        return JEConfig.getImage("widget/TitleWidget.png", previewSize.getHeight(), previewSize.getWidth());
     }
 }

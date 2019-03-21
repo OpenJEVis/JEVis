@@ -220,7 +220,7 @@ public class JEConfig extends Application {
      */
     public static Image getImage(String icon) {
         try {
-//            logger.info("getIcon: " + icon);
+            logger.debug("getIcon: " + "/icons/" + icon);
             return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
 //            return new Image(JEConfig.class.getResourceAsStream("/org/jevis/jeconfig/image/" + icon));
         } catch (Exception ex) {

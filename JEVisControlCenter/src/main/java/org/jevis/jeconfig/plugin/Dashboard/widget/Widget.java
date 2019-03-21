@@ -55,18 +55,6 @@ public abstract class Widget extends Group {
         return config;
     }
 
-//    public void setConfig(WidgetConfig config) {
-//        logger.error("Widget.setConfig()");
-//        ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
-//        try {
-//            logger.info("Widget.SetConfig: {}", mapper.writeValueAsString(config));
-//        } catch (JsonProcessingException e) {
-////            e.printStackTrace();
-//        }
-//        this.config = config;
-//
-//    }
-
 
     public JEVisDataSource getDataSource() {
         return jeVisDataSource;
