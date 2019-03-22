@@ -771,7 +771,6 @@ public class FXLogin extends AnchorPane {
     /**
      * Build an remote link for the userregistration
      *
-     * @param url remote linkt to open in default brwoser
      * @return
      */
     private Node buildLink() {
@@ -823,11 +822,13 @@ public class FXLogin extends AnchorPane {
         logger.info(app.toString());
         Label coypLeft = new Label(app.getName() + " " + app.getVersion());//©Envidatec GmbH 2014-2016");
         Label java = new Label("Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
+        Label javafxlabel = new Label("JavaFX: " + com.sun.javafx.runtime.VersionInfo.getRuntimeVersion());
 
         coypLeft.setTextFill(javafx.scene.paint.Color.WHITE);
         java.setTextFill(javafx.scene.paint.Color.WHITE);
+        javafxlabel.setTextFill(javafx.scene.paint.Color.WHITE);
 
-        vbox.getChildren().setAll(coypLeft, java);
+        vbox.getChildren().setAll(coypLeft, java, javafxlabel);
         return vbox;
     }
 

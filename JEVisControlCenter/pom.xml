@@ -38,9 +38,11 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <!--
                     <compilerArguments>
                         <bootclasspath>${sun.boot.class.path}${path.separator}${java.home}/lib/jfxrt.jar</bootclasspath>
                     </compilerArguments>
+                    -->
                 </configuration>
             </plugin>
 
@@ -128,6 +130,7 @@
                 </executions>
             </plugin>
 
+
             <!--
             <plugin>
                 <groupId>com.zenjava</groupId>
@@ -147,7 +150,7 @@
                     </execution>
                 </executions>
             </plugin>
--->
+            -->
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
