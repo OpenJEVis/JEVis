@@ -275,7 +275,7 @@ public class DashBoardToolbar extends ToolBar {
         newButton.setDisable(true);
         delete.setDisable(true);
         save.setDisable(true);
-//        exportPDF.setVisible(false);
+        exportPDF.setVisible(false);
 
         getItems().clear();
         getItems().addAll(
