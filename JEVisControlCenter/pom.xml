@@ -128,6 +128,7 @@
                 </executions>
             </plugin>
 
+            <!--
             <plugin>
                 <groupId>com.zenjava</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -146,7 +147,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+-->
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -229,6 +230,12 @@
     </repositories>
     -->
     <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx</artifactId>
+            <version>11.0.1</version>
+            <type>pom</type>
+        </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
