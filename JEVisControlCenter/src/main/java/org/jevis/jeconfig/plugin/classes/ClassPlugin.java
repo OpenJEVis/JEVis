@@ -76,6 +76,11 @@ public class ClassPlugin implements Plugin {
     }
 
     @Override
+    public int getPrefTapPos() {
+        return 10;
+    }
+
+    @Override
     public String getClassName() {
         return "Class Plugin";
     }

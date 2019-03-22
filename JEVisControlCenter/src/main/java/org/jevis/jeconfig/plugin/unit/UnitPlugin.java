@@ -61,6 +61,11 @@ public class UnitPlugin implements Plugin {
     }
 
     @Override
+    public int getPrefTapPos() {
+        return 100;
+    }
+
+    @Override
     public void setHasFocus() {
         if (tree.getSelectionModel().getSelectedItem() == null) {
             tree.getSelectionModel().selectFirst();

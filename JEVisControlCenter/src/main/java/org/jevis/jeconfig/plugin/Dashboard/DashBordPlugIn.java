@@ -174,6 +174,11 @@ public class DashBordPlugIn implements Plugin {
 
     }
 
+    @Override
+    public int getPrefTapPos() {
+        return 1;
+    }
+
     public Widget createWidget(WidgetConfig widget) {
         for (Widget availableWidget : Widgets.getAvabableWidgets(getDataSource(), widget)) {
             if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {

@@ -80,6 +80,11 @@ public class MapViewPlugin implements Plugin {
     }
 
     @Override
+    public int getPrefTapPos() {
+        return 90;
+    }
+
+    @Override
     public String getClassName() {
         return "Map Plugin";
     }

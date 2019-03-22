@@ -67,4 +67,5 @@ public interface Plugin {
 
     void openObject(Object object);
 
+    int getPrefTapPos();
 }

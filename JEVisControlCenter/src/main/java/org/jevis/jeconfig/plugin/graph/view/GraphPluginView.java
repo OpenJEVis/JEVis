@@ -602,6 +602,11 @@ public class GraphPluginView implements Plugin {
         }
     }
 
+    @Override
+    public int getPrefTapPos() {
+        return 2;
+    }
+
     private void setupListener(ChartView cv, List<ChartView> notActive, ChartType chartType) {
         if (cv.getChart() != null) {
             switch (chartType) {
