@@ -7,6 +7,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
@@ -15,7 +17,7 @@ import org.joda.time.Interval;
 
 public class ToolBarIntervalSelector extends FlowPane {
 
-
+    private static final Logger logger = LogManager.getLogger(ToolBarIntervalSelector.class);
 //    public ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
 //    public ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>();
 //    public ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
@@ -72,9 +74,13 @@ public class ToolBarIntervalSelector extends FlowPane {
 
         analysis.intervalProperty.addListener((observable, oldValue, newValue) -> {
             try {
-                dateButton.setText(timeFrameBox.valueProperty().getValue().format(analysis.intervalProperty.getValue()));
+                if (analysis.timeFrameProperty.getValue() != null) {
+                    dateButton.setText(analysis.timeFrameProperty.getValue().format(analysis.intervalProperty.getValue()));
+                }
+
+//                dateButton.setText(timeFrameBox.valueProperty().getValue().format(analysis.intervalProperty.getValue()));
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error(ex);
             }
         });
 
@@ -91,6 +97,7 @@ public class ToolBarIntervalSelector extends FlowPane {
             popup.show(dateButton, point.getX() - 40, point.getY() + 40);
         });
 
+        timeFrameBox.getSelectionModel().select(analysis.timeFrameProperty.getValue());
         timeFrameBox.setCellFactory(cellFactory);
         timeFrameBox.setButtonCell(cellFactory.call(null));
         timeFrameBox.valueProperty().addListener((observable, oldValue, newValue) -> {

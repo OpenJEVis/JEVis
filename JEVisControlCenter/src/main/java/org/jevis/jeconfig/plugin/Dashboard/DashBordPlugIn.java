@@ -36,6 +36,7 @@ public class DashBordPlugIn implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(DashBordPlugIn.class);
     public static String CLASS_ANALYSIS = "Dashboard Analysis", CLASS_ANALYSIS_DIR = "Analyses Directory", ATTRIBUTE_DATA_MODEL = "Data Model", ATTRIBUTE_BACKGROUND = "Background";
+    public static String PLUGIN_NAME = "Dashboard Plugin";
     private final DashBoardToolbar toolBar;
     private StringProperty nameProperty = new SimpleStringProperty("Dashboard");
     private StringProperty uuidProperty = new SimpleStringProperty("Dashboard");
@@ -44,7 +45,6 @@ public class DashBordPlugIn implements Plugin {
     private AnchorPane rootPane = new AnchorPane();
     private DashBordModel currentAnalysis;
     private DashBoardPane dashBoardPane;
-    public static String PLUGIN_NAME = "Dashboard Plugin";
 
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
@@ -194,6 +194,10 @@ public class DashBordPlugIn implements Plugin {
 
     }
 
+    private Node getView() {
+        return dashBoardPane;
+    }
+
     public void toPDF() {
         try {
             logger.info("start- converting to pdf");
@@ -215,7 +219,7 @@ public class DashBordPlugIn implements Plugin {
 
                 logger.info("Start writing screenshot");
 //                WritableImage wImage = dashBoardPane.snapshot(spa, image);
-                WritableImage wImage = dashBoardPane.snapshot(new SnapshotParameters(), null);
+                WritableImage wImage = getView().snapshot(new SnapshotParameters(), null);
                 logger.info("Done screenshot");
                 ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
                 ImageIO.write(SwingFXUtils.fromFXImage(wImage, null), "png", byteOutput);

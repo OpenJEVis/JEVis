@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
@@ -62,12 +63,10 @@ public class ValueWidget extends Widget {
 
         Platform.runLater(() -> {
             try {
-                System.out.println("DataModels: " + sampleHandler.getDataModel().size());
                 ChartDataModel dataModel = sampleHandler.getDataModel().get(0);
                 List<JEVisSample> sampleList = dataModel.getSamples();
                 if (!sampleList.isEmpty()) {
-                    System.out.println("Samples: " + sampleList.size());
-                    label.setText(nf.format(sampleList.get(sampleList.size() - 1).getValueAsDouble()) + " " + dataModel.getUnit());
+                    label.setText(nf.format(sampleList.get(sampleList.size() - 1).getValueAsDouble()) + " " + UnitManager.getInstance().format(dataModel.getUnit()));
                 }
 
             } catch (Exception ex) {
@@ -106,6 +105,6 @@ public class ValueWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/DonutWidget.png", previewSize.getHeight(), previewSize.getWidth());
+        return JEConfig.getImage("widget/ValueWidget.png", previewSize.getHeight(), previewSize.getWidth());
     }
 }

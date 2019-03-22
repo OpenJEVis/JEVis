@@ -170,7 +170,7 @@ public class WidgetConfig {
 
 
         additionalSetting.forEach(widgetConfigProperty -> {
-            System.out.println("Add additional config: " + widgetConfigProperty.getId() + "  " + widgetConfigProperty.getName());
+//            System.out.println("Add additional config: " + widgetConfigProperty.getId() + "  " + widgetConfigProperty.getName());
             userConfig.put(widgetConfigProperty.getId(), new ConfigSheet.Property(widgetConfigProperty.getName(), widgetConfigProperty.getCategory(), widgetConfigProperty.getWritableValue().getValue(), widgetConfigProperty.getDescription()));
 
         });
@@ -256,9 +256,7 @@ public class WidgetConfig {
         configDia.getDialogPane().getButtonTypes().addAll(buttonTypeCancel, buttonTypeOk);
 
         Optional<ButtonType> opt = configDia.showAndWait();
-        System.out.println("Config result: " + opt);
         if (opt.get().equals(buttonTypeOk)) {
-            System.out.println("Done");
             applyUserConfig(userConfig);
             return true;
         }

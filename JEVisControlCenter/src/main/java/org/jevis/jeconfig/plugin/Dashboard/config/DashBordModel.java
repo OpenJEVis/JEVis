@@ -21,6 +21,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.plugin.Dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
 import org.jevis.jeconfig.tool.I18n;
@@ -115,12 +116,11 @@ public class DashBordModel {
 
     public final ObjectProperty<Size> pageSize = new SimpleObjectProperty<>(new Size(1080, 1600));
     public final ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
-    public final ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>();
     public final ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
     private final List<ChangeListener> changeListeners = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
-
-
+    private TimeFrames timeFrames = new TimeFrames();
+    public final ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>(timeFrames.day());
     private JEVisObject analysisObject;
     private List<WidgetConfig> widgetList = new ArrayList<>();
     /**
@@ -247,7 +247,6 @@ public class DashBordModel {
 
             if (widgets.isArray()) {
                 for (final JsonNode objNode : widgets) {
-                    System.out.println(objNode);
                     WidgetConfig newConfig = new WidgetConfig(objNode);
                     widgetList.add(newConfig);
                 }
