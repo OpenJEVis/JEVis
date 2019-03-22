@@ -211,7 +211,11 @@ public class DashBoardPane extends Pane {
                 widgetList.forEach(widget -> {
                     logger.info("Update widget: {}", widget.getUUID());
                     Platform.runLater(() -> {
-                        widget.update(interval);
+                        try {
+                            widget.update(interval);
+                        } catch (Exception ex) {
+                            logger.error(ex);
+                        }
                     });
 
                 });

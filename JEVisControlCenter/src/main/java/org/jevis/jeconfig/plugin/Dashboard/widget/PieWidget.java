@@ -143,13 +143,15 @@ public class PieWidget extends Widget {
                 logger.error(ex);
             }
 
-            chart.setData(series);
-            applyColors(colors);
+
 //            chart.layout();
         }
 
 
         Platform.runLater(() -> {
+            chart.setData(series);
+            applyColors(colors);
+
             legendPane.getChildren().setAll(legend);
             borderPane.setCenter(chart);
             borderPane.setRight(legendPane);
