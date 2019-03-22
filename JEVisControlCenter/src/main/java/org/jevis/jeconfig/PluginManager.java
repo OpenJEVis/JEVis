@@ -43,6 +43,7 @@ import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -186,12 +187,29 @@ public class PluginManager {
 
             }
 
+
             try {
-                Collections.swap(_plugins, 0, 1);
+                System.out.println("Order: " + _plugins);
+                Comparator<Plugin> pluginComparator = new Comparator<Plugin>() {
+                    @Override
+                    public int compare(Plugin o1, Plugin o2) {
+
+                        if (o1.getPrefTapPos() < o2.getPrefTapPos()) {
+                            return -1;
+                        } else if (o1.getPrefTapPos() > o2.getPrefTapPos()) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                };
+                Collections.sort(_plugins, pluginComparator);
+                System.out.println("Order: " + _plugins);
+
+//                        Collections.swap(_plugins, 0, 1);
             } catch (Exception e) {
                 //workaround to get graph plugin to first position
             }
-
 
         } catch (Exception ex) {
             ex.printStackTrace();

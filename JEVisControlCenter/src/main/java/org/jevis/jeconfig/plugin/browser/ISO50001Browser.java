@@ -170,6 +170,11 @@ public class ISO50001Browser implements Plugin {
     }
 
     @Override
+    public int getPrefTapPos() {
+        return 8;
+    }
+
+    @Override
     public String getName() {
         return nameProperty.getValue();
     }

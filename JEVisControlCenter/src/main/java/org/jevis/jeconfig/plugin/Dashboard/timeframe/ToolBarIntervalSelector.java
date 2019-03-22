@@ -18,11 +18,11 @@ import org.joda.time.Interval;
 public class ToolBarIntervalSelector extends FlowPane {
 
     private static final Logger logger = LogManager.getLogger(ToolBarIntervalSelector.class);
-//    public ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
+    private final DashBordModel analysis;
+    //    public ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
 //    public ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>();
 //    public ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
-
-    private final DashBordModel analysis;
+    private TimeFrameEdior popup;
 
     public ToolBarIntervalSelector(DashBordModel analysis, Double iconSize, final Interval interval) {
         super();
@@ -84,17 +84,16 @@ public class ToolBarIntervalSelector extends FlowPane {
             }
         });
 
+        popup = new TimeFrameEdior(analysis.timeFrameProperty, analysis.intervalProperty);
+
         dateButton.setOnAction(event -> {
-            Point2D point = dateButton.localToScreen(0.0, 0.0);
-
-            TimeFrameEdior popup = new TimeFrameEdior(TimeFrames.TimeFrameType.valueOf(analysis.timeFrameProperty.getValue().getID()), analysis.intervalProperty.getValue());
-            popup.showingProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue) {
-                    analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().getInterval(popup.getIntervalProperty().getValue().getStart()));
-                }
-
-            });
-            popup.show(dateButton, point.getX() - 40, point.getY() + 40);
+            if (popup.isShowing()) {
+                popup.hide();
+            } else {
+                popup.setDate(analysis.intervalProperty.getValue().getEnd());
+                Point2D point = dateButton.localToScreen(0.0, 0.0);
+                popup.show(dateButton, point.getX() - 40, point.getY() + 40);
+            }
         });
 
         timeFrameBox.getSelectionModel().select(analysis.timeFrameProperty.getValue());

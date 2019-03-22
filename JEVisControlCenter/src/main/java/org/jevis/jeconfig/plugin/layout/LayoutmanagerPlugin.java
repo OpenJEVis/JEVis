@@ -62,6 +62,11 @@ public class LayoutmanagerPlugin implements Plugin {
     }
 
     @Override
+    public int getPrefTapPos() {
+        return 90;
+    }
+
+    @Override
     public String getName() {
         return name.get();
     }
