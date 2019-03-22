@@ -220,7 +220,11 @@ public class WidgetConfig {
         Size newSize = new Size((double) userConfig.get("Height").getObject(), (double) userConfig.get("Width").getObject());
         size.setValue(newSize);
 
-        fontSize.setValue((double) userConfig.get("fontSize").getObject());
+        try {
+            fontSize.setValue((double) userConfig.get("fontSize").getObject());
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
         title.setValue((String) userConfig.get(title.getName()).getObject());
 
         additionalSetting.forEach(widgetConfigProperty -> {
