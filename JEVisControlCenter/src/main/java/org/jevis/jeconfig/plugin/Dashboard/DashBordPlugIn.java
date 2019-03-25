@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.Dashboard;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfWriter;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingFXUtils;
@@ -15,7 +16,11 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
@@ -158,13 +163,41 @@ public class DashBordPlugIn implements Plugin {
 
     }
 
+
+    private JEVisObject getUserSelectedDashboard() {
+        JEVisObject currentUserObject = null;
+        try {
+            currentUserObject = jeVisDataSource.getCurrentUser().getUserObject();
+            JEVisAttribute userSelectedDashboard = currentUserObject.getAttribute("Start Dashboard");
+            if (userSelectedDashboard != null) {
+                TargetHelper th = new TargetHelper(jeVisDataSource, userSelectedDashboard);
+                if (th.getObject() != null && !th.getObject().isEmpty()) {
+                    return th.getObject().get(0);
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get Start Dashboard from user.");
+        }
+
+        return null;
+    }
+
     @Override
     public void setHasFocus() {
         if (!isInitialized) {
             isInitialized = true;
 
             toolBar.updateToolbar(dashBoardPane.getDashBordAnalysis());
-            loadAnalysis(currentAnalysis);
+
+            Platform.runLater(() -> {
+
+                JEVisObject userSelectedDashboard = getUserSelectedDashboard();
+                if (userSelectedDashboard != null) {
+                    toolBar.getListAnalysesComboBox().getSelectionModel().select(userSelectedDashboard);
+                } else {
+                    toolBar.getListAnalysesComboBox().getSelectionModel().selectFirst();
+                }
+            });
 
         }
     }
@@ -247,5 +280,4 @@ public class DashBordPlugIn implements Plugin {
         }
 
     }
-
 }
