@@ -64,7 +64,7 @@ public class DataModelDataHandler {
             try {
                 logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
                 JEVisObject jevisobject = jeVisDataSource.getObject(dataPointNode.getObjectID());
-                JEVisObject cleanObject = jeVisDataSource.getObject(dataPointNode.getObjectID());
+                JEVisObject cleanObject = jeVisDataSource.getObject(dataPointNode.getCleanObjectID());
                 if (jevisobject != null) {
                     JEVisAttribute jeVisAttribute = jevisobject.getAttribute(dataPointNode.getAttribute());
                     if (jeVisAttribute != null) {

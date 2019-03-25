@@ -78,6 +78,7 @@ public class PieWidget extends Widget {
             sampleHandler.getDataModel().forEach(chartDataModel -> {
                 try {
                     if (!chartDataModel.getSamples().isEmpty()) {
+                        System.out.println("Pie Sample: " + chartDataModel.getSamples());
                         total.set(total.get() + chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble());
                     }
                 } catch (Exception ex) {
@@ -143,13 +144,15 @@ public class PieWidget extends Widget {
                 logger.error(ex);
             }
 
-            chart.setData(series);
-            applyColors(colors);
+
 //            chart.layout();
         }
 
 
         Platform.runLater(() -> {
+            chart.setData(series);
+            applyColors(colors);
+
             legendPane.getChildren().setAll(legend);
             borderPane.setCenter(chart);
             borderPane.setRight(legendPane);

@@ -119,7 +119,12 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public void openObject(Object object) {
-        
+
+    }
+
+    @Override
+    public int getPrefTapPos() {
+        return 5;
     }
 
     @Override

@@ -137,6 +137,11 @@ public class LoytecBrowser implements Plugin {
         return "Loytec Browser";
     }
 
+    @Override
+    public int getPrefTapPos() {
+        return 90;
+    }
+
     private void showAlert(String message) {
         logger.info("http error: " + message);
     }

@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard;
 
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -36,10 +37,12 @@ public class DashBoardToolbar extends ToolBar {
     private final JEVisDataSource dataSource;
     private final DashBordPlugIn dashBordPlugIn;
     private double iconSize = 20;
+    ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", iconSize, iconSize));
 
     public DashBoardToolbar(JEVisDataSource dataSource, DashBordPlugIn dashBordPlugIn) {
         this.dataSource = dataSource;
         this.dashBordPlugIn = dashBordPlugIn;
+
 
         listAnalysesComboBox.setPrefWidth(300);
         listAnalysesComboBox.setMinWidth(300);
@@ -82,6 +85,9 @@ public class DashBoardToolbar extends ToolBar {
             }
         };
 
+        ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(treeButton);
+
         listAnalysesComboBox.setCellFactory(cellFactory);
         listAnalysesComboBox.setButtonCell(cellFactory.call(null));
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -89,6 +95,10 @@ public class DashBoardToolbar extends ToolBar {
                 DashBordModel analysis = new DashBordModel(newValue);
 
                 dashBordPlugIn.loadAnalysis(analysis);
+                Platform.runLater(() -> {
+                    backgroundButton.requestFocus();
+                });
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -107,9 +117,6 @@ public class DashBoardToolbar extends ToolBar {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
-        ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(treeButton);
 
         ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(settingsButton);
@@ -135,6 +142,12 @@ public class DashBoardToolbar extends ToolBar {
 
         ToggleButton enlarge = new ToggleButton("", JEConfig.getImage("enlarge_32.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(enlarge);
+
+
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
+
+        ToggleButton newWidgetButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newWidgetButton);
 
 
         final ImageView lockIcon = JEConfig.getImage("if_lock_blue_68757.png", iconSize, iconSize);
@@ -210,11 +223,6 @@ public class DashBoardToolbar extends ToolBar {
             analyses.updateIsRunningProperty.setValue(!analyses.updateIsRunningProperty.getValue());
         });
 
-        ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", iconSize, iconSize));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
-
-        ToggleButton newWidgetButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newWidgetButton);
 
         newWidgetButton.setOnAction(event -> {
             Wizard wizzard = new Wizard(JEConfig.getDataSource());

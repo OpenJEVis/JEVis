@@ -610,6 +610,11 @@ public class SCADAPlugin implements Plugin {
     }
 
     @Override
+    public int getPrefTapPos() {
+        return 1000;
+    }
+
+    @Override
     public String getName() {
         return I18n.getInstance().getString("plugin.scada.title");
     }
