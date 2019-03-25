@@ -63,6 +63,7 @@ public class ColumnChart implements Chart {
     private boolean asDuration = false;
     private AtomicReference<ManipulationMode> manipulationMode;
     private ChartPanManager panner;
+    private CategoryAxis catAxis = new CategoryAxis();
 
     public ColumnChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -98,7 +99,6 @@ public class ColumnChart implements Chart {
 
         NumberAxis numberAxis1 = new NumberAxis();
         NumberAxis numberAxis2 = new NumberAxis();
-        CategoryAxis catAxis = new CategoryAxis();
 
         columnChart = new MultiAxisBarChart(catAxis, numberAxis1, numberAxis2, series);
         columnChart.applyCss();
@@ -108,6 +108,7 @@ public class ColumnChart implements Chart {
         columnChart.setTitle(chartName);
         columnChart.setLegendVisible(false);
         columnChart.getXAxis().setAutoRanging(true);
+//        columnChart.getXAxis().setTickLabelRotation(-90);
         //columnChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
         columnChart.getXAxis().setLabel(unit);
 
@@ -219,7 +220,7 @@ public class ColumnChart implements Chart {
         applyColors();
 
         columnChart.setTitle(chartName);
-        columnChart.getXAxis().setTickLabelRotation(-180);
+//        columnChart.getXAxis().setTickLabelRotation(-90d);
         columnChart.getXAxis().setLabel(unit);
     }
 
@@ -379,9 +380,9 @@ public class ColumnChart implements Chart {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
             String hexColor = toRGBCode(currentColor);
-            String preIdent = ".default-color" + i;
-            Node node = columnChart.lookup(preIdent + ".chart-bar");
-            node.setStyle("-fx-bar-fill: " + hexColor + ";");
+            for (Node n : columnChart.lookupAll(".default-color" + i + ".chart-bar")) {
+                n.setStyle("-fx-bar-fill: " + hexColor + ";");
+            }
         }
     }
 
