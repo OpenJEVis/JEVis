@@ -105,6 +105,9 @@ public class DashBoardToolbar extends ToolBar {
         });
     }
 
+    public ComboBox<JEVisObject> getListAnalysesComboBox() {
+        return listAnalysesComboBox;
+    }
 
     public void updateToolbar(final DashBordModel analyses) {
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
@@ -297,8 +300,6 @@ public class DashBoardToolbar extends ToolBar {
                 , sep1, zoomOut, zoomIn
                 , sep4, newButton, save, delete, newWidgetButton, settingsButton, backgroundButton, exportPDF
                 , sep2, runUpdateButton, unlockB);
-
-        listAnalysesComboBox.getSelectionModel().selectFirst();
     }
 
     private void setCellFactoryForComboBox() {
@@ -351,5 +352,9 @@ public class DashBoardToolbar extends ToolBar {
 
         listAnalysesComboBox.setCellFactory(cellFactory);
         listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+    }
+
+    public ToggleButton getBackgroundButton() {
+        return backgroundButton;
     }
 }
